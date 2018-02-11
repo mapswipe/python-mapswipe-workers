@@ -1,0 +1,9 @@
+{
+  "name": "loop_transfer_results_module",
+  "script": "transfer_results.py",
+  "cwd": "/data/python-mapswipe-workers/transfer_results_module",
+  "exec_interpreter": "/data/environments/mapswipe_workers/bin/python3",
+  "log_date_format": "YYYY-MM-DD HH:mm Z",
+  "autorestart": true,
+  "args": ["-l", "-m=1", "-s=60"]
+}
