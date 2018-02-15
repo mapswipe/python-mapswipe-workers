@@ -239,9 +239,6 @@ def get_vertical_slice(geomcol, zoom):
     raw_groups = {}
     group_id = 100
 
-
-    slice_collection = ogr.Geometry(ogr.wkbGeometryCollection)
-
     # add these variables to test, if groups are created correctly
     TileY_top = -1
 
@@ -269,6 +266,7 @@ def get_vertical_slice(geomcol, zoom):
         # this is a fix for incorrect groups height
         # this is caused by a wrong calculation of the tile coordinates, probably because of float precision
         # we don't calculate tile.y coordinates from lat, lon but use the coordinates of the upper group
+        # this assumes that horizontal slices are ordered north to south
         if TileY_top < 0:
             TileY_top = tile.y
             TileY_bottom = TileY_top + 3
@@ -320,8 +318,6 @@ def get_vertical_slice(geomcol, zoom):
             group_poly = ogr.Geometry(ogr.wkbPolygon)
             group_poly.AddGeometry(ring)
 
-            slice_collection.AddGeometry(group_poly)
-
             # add info to groups_dict
             group_id += 1
             raw_groups[group_id] = {
@@ -336,7 +332,7 @@ def get_vertical_slice(geomcol, zoom):
             TileX = TileX + step_size
 
     logging.warning('created vertical_slice')
-    return raw_groups, slice_collection,
+    return raw_groups
 
 
 def save_geom_as_geojson(geomcol, outfile):
@@ -537,9 +533,7 @@ def run_create_groups(input_file, project_id, tileserver, custom_tileserver_url,
     #outfile = 'data/horizontally_sliced_groups_{}.geojson'.format(config["project_id"])
     #save_geom_as_geojson(horizontal_slice, outfile)
 
-    raw_groups, vertical_slice = get_vertical_slice(horizontal_slice, config['zoom'])
-    #outfile = 'data/vertically_sliced_groups_{}.geojson'.format(config["project_id"])
-    #save_geom_as_geojson(vertical_slice, outfile)
+    raw_groups = get_vertical_slice(horizontal_slice, config['zoom'])
 
     groups = create_groups(raw_groups, config)
     outfile = 'data/groups_{}.json'.format(config["project_id"])
