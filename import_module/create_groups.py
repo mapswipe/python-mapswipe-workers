@@ -265,7 +265,11 @@ def get_vertical_slice(geomcol, zoom):
 
         # this is a fix for incorrect groups height
         # this is caused by a wrong calculation of the tile coordinates, probably because of float precision
-        # we don't calculate tile.y coordinates from lat, lon but use the coordinates of the upper group
+        # previously we started with tile x and tiley -->
+        # then calculated correspondinglat, lon -->
+        # finally we calculated corresponding tilex and tile y again,
+        # however in some rare occassion the tileY from the beginning and from the end were different
+        # thats why we now don't calculate tile.y coordinates from lat, lon but use the coordinates of the upper group
         # this assumes that horizontal slices are ordered north to south
         if TileY_top < 0:
             TileY_top = tile.y
