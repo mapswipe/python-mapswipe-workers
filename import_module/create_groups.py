@@ -27,7 +27,7 @@ parser.add_argument('-i', '--input_file', required=False, default=None, type=str
                     help='the input file containning the geometry as kml, shp or geojson')
 parser.add_argument('-t', '--tileserver', nargs='?', default='bing',
                     choices=['bing', 'digital_globe', 'google', 'custom'])
-parser.add_argument('-z', '--zoomlevel', required=False, default=None, type=int,
+parser.add_argument('-z', '--zoomlevel', required=False, default=18, type=int,
                     help='the zoom level.')
 parser.add_argument('-p', '--project_id', required=False, default=None, type=int,
                     help='the project id.')
@@ -228,23 +228,34 @@ def get_horizontal_slice(extent, geomcol, zoom):
 
 
 def get_vertical_slice(geomcol, zoom):
-    # the width threshold defines how "long" the grous are
+    # this functions slices the horizontal stripes vertically
+    # each stripe has a height of three tiles
+    # the width depends on the width threshold set below
+    # the final group polygon is calculated from TileX_min, TileX_max, TileY_min, TileY_max
+
+    # the width threshold defines how "long" the groups are
     width_threshold = 70
+    # create an empty dict for the group ids and TileY_min, TileY_may, TileX_min, TileX_max
+    raw_groups = {}
+    group_id = 100
+
 
     slice_collection = ogr.Geometry(ogr.wkbGeometryCollection)
 
+    # add these variables to test, if groups are created correctly
+    TileY_top = -1
+
     # process each polygon individually
     for p in range(0, geomcol.GetGeometryCount()):
-        polygon_to_slice = geomcol.GetGeometryRef(p)
+        horizontal_slice = geomcol.GetGeometryRef(p)
 
         # sometimes we get really really small polygones, skip these
-        if polygon_to_slice.GetArea() < 0.0000001:
+        if horizontal_slice.GetArea() < 0.0000001:
             continue
-            logging.info('polygon area: %s' % polygon_to_slice.GetArea())
+            logging.info('polygon area: %s' % horizontal_slice.GetArea())
             logging.info('skipped this polygon')
 
-        #print(polygon_to_slice)
-        extent = polygon_to_slice.GetEnvelope()
+        extent = horizontal_slice.GetEnvelope()
         xmin = extent[0]
         xmax = extent[1]
         ymin = extent[2]
@@ -254,24 +265,29 @@ def get_vertical_slice(geomcol, zoom):
         pixel = lat_long_zoom_to_pixel_coords(ymax, xmin, zoom)
         tile = pixel_coords_to_tile_address(pixel.x, pixel.y)
         TileX_left = tile.x
-        TileY_top = tile.y
+
+        # this is a fix for incorrect groups height
+        # this is caused by a wrong calculation of the tile coordinates, probably because of float precision
+        # we don't calculate tile.y coordinates from lat, lon but use the coordinates of the upper group
+        if TileY_top < 0:
+            TileY_top = tile.y
+            TileY_bottom = TileY_top + 3
+        else:
+            TileY_top += 3
+            TileY_bottom += 3
 
         # get lower right tile coordinates
         pixel = lat_long_zoom_to_pixel_coords(ymin, xmax, zoom)
         tile = pixel_coords_to_tile_address(pixel.x, pixel.y)
         TileX_right = tile.x
-        TileY_bottom = tile.y
-
 
         TileWidth = abs(TileX_right - TileX_left)
         TileHeight = abs(TileY_top - TileY_bottom)
 
-        TileY = TileY_top
         TileX = TileX_left
 
         # get rows
         rows = int(ceil(TileHeight / 3))
-
 
         # get columns
         cols = int(ceil(TileWidth / width_threshold))
@@ -301,20 +317,26 @@ def get_vertical_slice(geomcol, zoom):
             ring.AddPoint(lon_right, lat_bottom)
             ring.AddPoint(lon_left, lat_bottom)
             ring.AddPoint(lon_left, lat_top)
-            poly = ogr.Geometry(ogr.wkbPolygon)
-            poly.AddGeometry(ring)
+            group_poly = ogr.Geometry(ogr.wkbPolygon)
+            group_poly.AddGeometry(ring)
 
-            # sliced_poly = poly.Intersection(polygon_to_slice)
-            if poly.GetGeometryName() == 'POLYGON':
-                slice_collection.AddGeometry(poly)
-            else:
-                pass
+            slice_collection.AddGeometry(group_poly)
+
+            # add info to groups_dict
+            group_id += 1
+            raw_groups[group_id] = {
+                "xMin": str(TileX),
+                "xMax": str(TileX + step_size - 1),
+                "yMin": str(TileY_top),
+                "yMax": str(TileY_bottom - 1),
+                "group_polygon": group_poly
+            }
 
             #####################
             TileX = TileX + step_size
 
     logging.warning('created vertical_slice')
-    return slice_collection
+    return raw_groups, slice_collection,
 
 
 def save_geom_as_geojson(geomcol, outfile):
@@ -430,10 +452,8 @@ def create_tasks(xmin, xmax, ymin, ymax, config):
     return tasks
 
 
-def create_groups(geomcol, config):
+def create_groups(groups, config):
     # this function will create a json file to upload in firebase groups table
-
-    groups = {}
 
     # Create the output Driver
     outDriver = ogr.GetDriverByName('GeoJSON')
@@ -449,41 +469,23 @@ def create_groups(geomcol, config):
     outLayer.CreateField(ogr.FieldDefn('ymin', ogr.OFTInteger))
     outLayer.CreateField(ogr.FieldDefn('ymax', ogr.OFTInteger))
 
-    for p in range(0, geomcol.GetGeometryCount()):
+    for group_id, group in groups.items():
 
-        group_geometry = geomcol.GetGeometryRef(p)
+        group_geometry = group['group_polygon']
+        del group['group_polygon']
 
-        group = {}
         group['zoomLevel'] = config['zoom']
         group['projectId'] = str(config['project_id'])
         group['distributedCount'] = 0
         group['completedCount'] = 0
         group['reportCount'] = 0
-        group['id'] = 100 + p
-
-        extent = group_geometry.GetEnvelope()
-        xmin, xmax, ymin, ymax = extent
-
-        # get upper left left tile coordinates
-        pixel = lat_long_zoom_to_pixel_coords(ymax, xmin, config['zoom'])
-        tile = pixel_coords_to_tile_address(pixel.x, pixel.y)
-        group['xMin'] = str(tile.x)
-        group['yMin'] = str(tile.y)
-
-        # get lower right tile coordinates
-        pixel = lat_long_zoom_to_pixel_coords(ymin, xmax, config['zoom'])
-        tile = pixel_coords_to_tile_address(pixel.x, pixel.y)
-        # we have to reduce this by 1
-        group['xMax'] = str(tile.x -1)
-        group['yMax'] = str(tile.y -1)
+        group['id'] = group_id
 
         # get tasks for this group
         group['tasks'] = create_tasks(
             group['xMin'], group['xMax'], group['yMin'], group['yMax'], config)
 
         group['count'] = len(group['tasks'])
-        # add information to groups dict
-        groups[group['id']] = group
 
         # write to geojson file
         featureDefn = outLayer.GetLayerDefn()
@@ -532,14 +534,14 @@ def run_create_groups(input_file, project_id, tileserver, custom_tileserver_url,
     extent, geomcol = get_geometry_from_file(input_file)
 
     horizontal_slice = get_horizontal_slice(extent, geomcol, config['zoom'])
-    # outfile = 'horizontally_sliced_groups_{}.geojson'.format(config["project_id"])
-    # save_geom_as_geojson(horizontal_slice, outfile)
+    #outfile = 'data/horizontally_sliced_groups_{}.geojson'.format(config["project_id"])
+    #save_geom_as_geojson(horizontal_slice, outfile)
 
-    vertical_slice = get_vertical_slice(horizontal_slice, config['zoom'])
-    # outfile = 'vertically_sliced_groups_{}.geojson'.format(config["project_id"])
-    # save_geom_as_geojson(vertical_slice, outfile)
+    raw_groups, vertical_slice = get_vertical_slice(horizontal_slice, config['zoom'])
+    #outfile = 'data/vertically_sliced_groups_{}.geojson'.format(config["project_id"])
+    #save_geom_as_geojson(vertical_slice, outfile)
 
-    groups = create_groups(vertical_slice, config)
+    groups = create_groups(raw_groups, config)
     outfile = 'data/groups_{}.json'.format(config["project_id"])
     # save groups as json file
     with open(outfile, 'w') as fp:
