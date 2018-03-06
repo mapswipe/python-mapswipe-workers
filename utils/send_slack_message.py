@@ -13,8 +13,9 @@ def get_slack_client():
             data = json.load(json_data_file)
             slack_token = data['slack']['token']
             channel = data['slack']['channel']
+            username = data['slack']['username']
             sc = SlackClient(slack_token)
-            return sc, channel
+            return sc, channel, username
     except:
         print('no slack token provided')
         return None
@@ -25,12 +26,13 @@ def send_slack_message(msg):
     if not get_slack_client():
         return False
     else:
-        sc, channel = get_slack_client()
+        sc, channel, username = get_slack_client()
 
         sc.api_call(
             "chat.postMessage",
             channel=channel,
-            text=msg
+            text=msg,
+            username=username
             )
         print('sent slack message.')
         return True

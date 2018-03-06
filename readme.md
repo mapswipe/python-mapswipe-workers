@@ -23,7 +23,7 @@ Please provide a file named `config.cfg` with the follwing information. You can 
 	* To connect to firebase as an admin you need a `serviceAccountKey`. You can get it from your firebase instance [Admin SDK](https://console.firebase.google.com/project/_/settings/serviceaccounts/adminsdk). 
 * **imagery**: *bing, digital_globe* (api keys)
 	* MapSwipe uses imagery provided by Bing, Digital Globe or other providers. Make sure to get an API key for [Bing](https://www.microsoft.com/en-us/maps/create-a-bing-maps-key) or [Digital Globe Imagery](https://mapsapidocs.digitalglobe.com/docs/access-tokens).
-* **slack**: *token, channel*
+* **slack**: *token, channel, username*
 	* If you want the workers to send slack notifications you can create a slack token for your app on this [page](https://api.slack.com/custom-integrations/legacy-tokens).
 * **import**: *submission_key*
     * projects imported to firebase will only be processed if the correct submission key is provided
