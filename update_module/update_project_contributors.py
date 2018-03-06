@@ -28,6 +28,8 @@ import argparse
 parser = argparse.ArgumentParser(description='Process some integers.')
 parser.add_argument('-p', '--projects', nargs='+', required=True, default=None, type=int,
                     help='project id of the project to process. You can add multiple project ids.')
+parser.add_argument('-o', '--output_path', required=None, default='/var/www/html', type=str,
+                    help='output path. please provide a location where the exported files should be stored.')
 
 
 def project_exists(project_id):
@@ -51,6 +53,7 @@ def project_exists(project_id):
         print('project is in firebase projects table and has all attributes: %s' % project_id)
         logging.warning('project is in firebase projects table and has all attributes: %s' % project_id)
         return True
+
 
 def get_project_contributors(project_id):
     # establish mysql connection
@@ -99,9 +102,25 @@ def set_project_contributors_firebase(project_id, contributors):
         return False
 
 
-########################################################################################################################
+def log_project_contributors(project_id, project_contributors, output_path):
 
-def update_project_contributors(projects):
+    # check if output path for projects is correct and existing
+    if not os.path.exists(output_path + '/contributors'):
+        os.makedirs(output_path + '/contributors')
+
+    filename = "{}/contributors/contributors_{}.csv".format(output_path, project_id)
+
+    with open(filename, 'a') as output_file:
+        timestamp = int(time.time())
+        outline = "{},{}\n".format(timestamp, project_contributors)
+        output_file.write(outline)
+
+    print('log contributors to file for project %s successful' % project_id)
+    logging.warning('log contributors to file for project %s successful' % project_id)
+
+
+########################################################################################################################
+def update_project_contributors(projects, output_path):
 
     logging.basicConfig(filename='run_update.log',
                         level=logging.WARNING,
@@ -138,11 +157,15 @@ def update_project_contributors(projects):
             # save project progress in firebase
             set_project_contributors_firebase(project_id, project_contributors)
 
+            # log project contributors to stats file
+            log_project_contributors(project_id, project_contributors, output_path)
+
     # calc process time
     endtime = time.time() - starttime
     print('finished project contributors update for projects: %s, %f sec.' % (projects, endtime))
     logging.warning('finished project contributors update for projects: %s, %f sec.' % (projects, endtime))
     return
+
 
 ########################################################################################################################
 if __name__ == '__main__':
@@ -151,4 +174,4 @@ if __name__ == '__main__':
     except:
         print('have a look at the input arguments, something went wrong there.')
 
-    update_project_contributors(args.projects)
+    update_project_contributors(args.projects, args.output_path)

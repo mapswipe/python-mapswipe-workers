@@ -33,6 +33,8 @@ parser.add_argument('-mo', '--modus', nargs='?', default='active',
 
 parser.add_argument('-p', '--user_project_list', nargs='+', required=None, default=None, type=int,
                     help='project id of the project to process. You can add multiple project ids.')
+parser.add_argument('-o', '--output_path', required=None, default='/var/www/html', type=str,
+                    help='output path. please provide a location where the exported files should be stored.')
 
 ########################################################################################################################
 
@@ -68,7 +70,8 @@ def get_projects():
 
     return project_dict
 
-def run_update(project_selection, user_project_list):
+
+def run_update(project_selection, user_project_list, output_path):
 
     logging.basicConfig(filename='run_update.log',
                         level=logging.WARNING,
@@ -88,8 +91,8 @@ def run_update(project_selection, user_project_list):
         print('use project ids provided by user for %s projects: %s' % (project_selection, projects))
         logging.warning('use project ids provided by user for %s projects: %s' % (project_selection, projects))
 
-    update_project_contributors(projects)
-    update_project_progress(projects)
+    update_project_contributors(projects, output_path)
+    update_project_progress(projects, output_path)
 
 
 ########################################################################################################################
@@ -129,7 +132,7 @@ if __name__ == '__main__':
 
         # this runs the script and sends an email if an error happens within the execution
         try:
-            run_update(args.modus, args.user_project_list)
+            run_update(args.modus, args.user_project_list, args.output_path)
         except:
             tb = sys.exc_info()
             # log error
