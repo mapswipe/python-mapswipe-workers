@@ -15,18 +15,17 @@ import os
 import threading
 import time
 from queue import Queue
-
 import requests
-
 from auth import firebase_admin_auth
-
-
-
 import argparse
+
+
 # define arguments that can be passed by the user
 parser = argparse.ArgumentParser(description='Process some integers.')
 parser.add_argument('-p', '--projects', nargs='+', required=True, default=None, type=int,
                     help='project id of the project to process. You can add multiple project ids.')
+parser.add_argument('-o', '--output_path', required=None, default='/var/www/html', type=str,
+                    help='output path. please provide a location where the exported files should be stored.')
 
 
 def project_exists(project_id):
@@ -51,6 +50,7 @@ def project_exists(project_id):
         logging.warning('project is in firebase projects table and has all attributes: %s' % project_id)
         return True
 
+
 def get_verification_count(project_id):
     firebase = firebase_admin_auth()
     fb_db = firebase.database()
@@ -59,6 +59,7 @@ def get_verification_count(project_id):
     verification_count = float(fb_db.child("projects").child(project_id).child("verificationCount").shallow().get().val())
 
     return verification_count
+
 
 def get_group_progress(q):
 
@@ -106,9 +107,6 @@ def get_group_progress(q):
 def download_group_progress(project_id, verification_count):
     # this functions uses threading to get the completed counts of all groups per project
 
-
-
-
     # create a list where we store the progress and other information for each group
     group_progress_list = []
 
@@ -149,6 +147,7 @@ def download_group_progress(project_id, verification_count):
 
     return group_progress_list
 
+
 def calculate_project_progress(project_id, group_progress_list):
 
     data = np.array(group_progress_list)
@@ -156,6 +155,7 @@ def calculate_project_progress(project_id, group_progress_list):
     print('calculated progress for project %s. progress = %s' % (project_id, project_progress))
     logging.warning('calculated progress for project %s. progress = %s' % (project_id, project_progress))
     return project_progress
+
 
 def set_project_progress_firebase(project_id, progress):
     # connect to firebase
@@ -180,9 +180,29 @@ def set_project_progress_firebase(project_id, progress):
         return False
 
 
+def log_project_progress(project_id, project_progress, output_path):
+
+    # check if output path for projects is correct and existing
+    if not os.path.exists(output_path + '/progress'):
+        os.makedirs(output_path + '/progress')
+
+    filename = "{}/progress/progress_{}.csv".format(output_path, project_id)
+
+    with open(filename, 'a') as output_file:
+
+        timestamp = int(time.time())
+        outline = "{},{}\n".format(timestamp, project_progress)
+        output_file.write(outline)
+
+    print('log progress to file for project %s successful' % project_id)
+    logging.warning('log progress to file for project %s successful' % project_id)
+
+
+
+
 ########################################################################################################################
 
-def update_project_progress(projects):
+def update_project_progress(projects, output_path):
 
     logging.basicConfig(filename='run_update.log',
                         level=logging.WARNING,
@@ -233,6 +253,11 @@ def update_project_progress(projects):
             # save project progress in firebase
             set_project_progress_firebase(project_id, project_progress)
 
+            # log project progress to stats file
+            # file will be stored under {output_path}/progress/progress_{project_id}.json
+            log_project_progress(project_id, project_progress, output_path)
+
+
     # calc process time
     endtime = time.time() - starttime
     print('finished project progress update for projects: %s, %f sec.' % (projects, endtime))
@@ -246,4 +271,4 @@ if __name__ == '__main__':
     except:
         print('have a look at the input arguments, something went wrong there.')
 
-    update_project_progress(args.projects)
+    update_project_progress(args.projects, args.output_path)
