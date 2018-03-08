@@ -108,7 +108,9 @@ def log_project_contributors(project_id, project_contributors, output_path):
     if not os.path.exists(output_path + '/contributors'):
         os.makedirs(output_path + '/contributors')
 
-    filename = "{}/contributors/contributors_{}.csv".format(output_path, project_id)
+    filename = "{}/contributors/contributors_{}.txt".format(output_path, project_id)
+
+    print(project_contributors)
 
     with open(filename, 'a') as output_file:
         timestamp = int(time.time())
