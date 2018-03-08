@@ -186,7 +186,7 @@ def log_project_progress(project_id, project_progress, output_path):
     if not os.path.exists(output_path + '/progress'):
         os.makedirs(output_path + '/progress')
 
-    filename = "{}/progress/progress_{}.csv".format(output_path, project_id)
+    filename = "{}/progress/progress_{}.txt".format(output_path, project_id)
 
     with open(filename, 'a') as output_file:
 
