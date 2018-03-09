@@ -1,0 +1,1 @@
+# MapSwipe API documentation
