@@ -4,13 +4,15 @@
 ########################################################################################################################
 
 import sys
-import traceback
 # add some files in different folders to sys.
 # these files can than be loaded directly
 sys.path.insert(0, '../cfg/')
 sys.path.insert(0, '../utils/')
 
 import logging
+
+import error_handling
+
 from export_project_results import export_project_results
 from export_projects import export_projects
 from export_users_and_stats import export_users_and_stats
@@ -20,6 +22,7 @@ from send_slack_message import send_slack_message
 
 import time
 import argparse
+
 
 # define arguments that can be passed by the user
 parser = argparse.ArgumentParser(description='Process some integers.')
@@ -40,11 +43,11 @@ parser.add_argument('-o', '--output_path', required=None, default='/var/www/html
 
 ########################################################################################################################
 
+
 def get_projects():
     # connect to firebase
     firebase = firebase_admin_auth()
     fb_db = firebase.database()
-
 
     project_dict = {}
     project_dict['all'] = []
@@ -72,6 +75,7 @@ def get_projects():
 
     return project_dict
 
+
 def run_export(project_selection, user_project_list, output_path):
 
     logging.basicConfig(filename='run_export.log',
@@ -93,20 +97,6 @@ def run_export(project_selection, user_project_list, output_path):
     export_projects(output_path)
     export_users_and_stats(output_path)
 
-
-def _get_error_message_details(error):
-        error_traceback = sys.exc_info()[-1]
-        stk = traceback.extract_tb(error_traceback, 1)
-
-        return (
-            '{error_class} processing TIN / NPI message! '
-            'In {function}, the following error happened - {detail} at line {line}. '
-        ).format(
-            error_class=error.__class__.__name__,
-            function=stk[0][2],
-            detail=error.args[0],
-            line=stk[-1][1]
-        )
 
 ########################################################################################################################
 
@@ -137,14 +127,7 @@ if __name__ == '__main__':
         try:
             run_export(args.modus, args.user_project_list, args.output_path)
         except BaseException as error:
-            tb = sys.exc_info()
-            # log error
-            logging.error(str(tb))
-            # send mail to mapswipe google group with
-            print(tb)
-            error_msg = _get_error_message_details(error)
-            head = 'google-mapswipe-workers: run_export.py: error occured'
-            send_slack_message(head + '\n' + error_msg)
+            error_handling.send_error(error, 'run_export.py')
 
         # check if the script should be looped
         if args.loop:
