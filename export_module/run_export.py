@@ -4,7 +4,7 @@
 ########################################################################################################################
 
 import sys
-import json
+import traceback
 # add some files in different folders to sys.
 # these files can than be loaded directly
 sys.path.insert(0, '../cfg/')
@@ -94,6 +94,20 @@ def run_export(project_selection, user_project_list, output_path):
     export_users_and_stats(output_path)
 
 
+def _get_error_message_details(error):
+        error_traceback = sys.exc_info()[-1]
+        stk = traceback.extract_tb(error_traceback, 1)
+
+        return (
+            '{error_class} processing TIN / NPI message! '
+            'In {function}, the following error happened - {detail} at line {line}. '
+        ).format(
+            error_class=error.__class__.__name__,
+            function=stk[0][2],
+            detail=error.args[0],
+            line=stk[-1][1]
+        )
+
 ########################################################################################################################
 
 if __name__ == '__main__':
@@ -122,15 +136,15 @@ if __name__ == '__main__':
         # this runs the script and sends an email if an error happens within the execution
         try:
             run_export(args.modus, args.user_project_list, args.output_path)
-        except BaseException:
+        except BaseException as error:
             tb = sys.exc_info()
             # log error
             logging.error(str(tb))
             # send mail to mapswipe google group with
             print(tb)
-            msg = str(tb)
+            error_msg = _get_error_message_details(error)
             head = 'google-mapswipe-workers: run_export.py: error occured'
-            send_slack_message(head + '\n' + msg)
+            send_slack_message(head + '\n' + error_msg)
 
         # check if the script should be looped
         if args.loop:
