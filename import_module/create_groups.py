@@ -2,26 +2,24 @@
 # -*- coding: UTF-8 -*-
 # Author: M. Reinmuth, B. Herfort
 ########################################################################################################################
-
 import sys
 # add some files in different folders to sys.
 # these files can than be loaded directly
 sys.path.insert(0, '../cfg/')
 sys.path.insert(0, '../utils/')
 
-from math import ceil
+import json
 import logging
 import math
-import json
-import numpy as np
+import ogr
 import os
-import time
-import ogr, osr
+import osr
 import gdal
 
 from auth import get_api_key
 
 import argparse
+
 parser = argparse.ArgumentParser(description='Process some integers.')
 parser.add_argument('-i', '--input_file', required=False, default=None, type=str,
                     help='the input file containning the geometry as kml, shp or geojson')
@@ -176,9 +174,9 @@ def get_horizontal_slice(extent, geomcol, zoom):
     TileX = TileX_left
 
     # get rows
-    rows = int(ceil(TileHeight / 3))
+    rows = int(math.ceil(TileHeight / 3))
     # get columns
-    cols = int(ceil(TileWidth / 3))
+    cols = int(math.ceil(TileWidth / 3))
 
     ############################################################
 

@@ -22,6 +22,9 @@ import requests
 import pymysql
 from auth import firebase_admin_auth
 from auth import mysqlDB
+
+import error_handling
+
 from send_slack_message import send_slack_message
 
 import argparse
@@ -213,15 +216,8 @@ if __name__ == '__main__':
         # this runs the script and sends an email if an error happens within the execution
         try:
             run_transfer_results()
-        except:
-            tb = sys.exc_info()
-            # log error
-            logging.error(str(tb))
-            # send mail to mapswipe google group with
-            print(tb)
-            msg = str(tb)
-            head = 'google-mapswipe-workers: transfer_results.py: error occured'
-            send_slack_message(head + '\n' + msg)
+        except Exception as error:
+            error_handling.send_error(error, 'transfer_results.py')
 
         # check if the script should be looped
         if args.loop:

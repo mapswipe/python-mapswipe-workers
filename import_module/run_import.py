@@ -4,7 +4,6 @@
 ########################################################################################################################
 
 import sys
-import traceback
 # add some files in different folders to sys.
 # these files can than be loaded directly
 sys.path.insert(0, '../cfg/')
@@ -17,6 +16,9 @@ import ogr
 
 from auth import get_submission_key
 from create_groups import run_create_groups
+
+import error_handling
+
 from send_slack_message import send_slack_message
 
 import argparse
@@ -420,7 +422,6 @@ def run_import():
                 head = 'google-mapswipe-workers: run_import.py: PROJECT IMPORTED'
                 send_slack_message(head + '\n' + msg)
 
-
         else:
             print("There are no projects to import.")
             logging.warning("There are no projects to import.")
@@ -429,20 +430,6 @@ def run_import():
         print("There are no projects to import.")
         logging.warning("There are no projects to import.")
 
-
-def _get_error_message_details(error):
-        error_traceback = sys.exc_info()[-1]
-        stk = traceback.extract_tb(error_traceback, 1)
-
-        return (
-            '{error_class} processing TIN / NPI message! '
-            'In {function}, the following error happened - {detail} at line {line}. '
-        ).format(
-            error_class=error.__class__.__name__,
-            function=stk[0][2],
-            detail=error.args[0],
-            line=stk[-1][1]
-        )
 
 ########################################################################################################################
 if __name__ == '__main__':
@@ -484,14 +471,7 @@ if __name__ == '__main__':
         try:
             run_import()
         except Exception as error:
-            tb = sys.exc_info()
-            # log error
-            logging.error(str(tb))
-            # send mail to mapswipe google group with
-            print(tb)
-            error_msg = _get_error_message_details(error)
-            head = 'google-mapswipe-workers: run_import.py: error occured'
-            send_slack_message(head + '\n' + error_msg)
+            error_handling.send_error(error, 'run_import.py')
 
         # check if the script should be looped
         if args.loop:
