@@ -4,6 +4,7 @@
 ########################################################################################################################
 
 import sys
+import traceback
 # add some files in different folders to sys.
 # these files can than be loaded directly
 sys.path.insert(0, '../cfg/')
@@ -365,7 +366,7 @@ def run_import():
                                            project["zoom"])
 
                 # upload groups in firebase
-                
+
                 if not upload_groups_firebase(project['id'], groups):
                     err = 'something went wrong during group upload for project %s (%s)' % (project['id'], project['name'])
                     logging.warning(err)
@@ -373,7 +374,7 @@ def run_import():
                     head = 'google-mapswipe-workers: run_import.py: error occured during group upload'
                     send_slack_message(head + '\n' + msg)
                     continue
-                
+
 
                 # upload project info in firebase projects table
                 if not upload_project_firebase(project):
@@ -428,6 +429,21 @@ def run_import():
         print("There are no projects to import.")
         logging.warning("There are no projects to import.")
 
+
+def _get_error_message_details(error):
+        error_traceback = sys.exc_info()[-1]
+        stk = traceback.extract_tb(error_traceback, 1)
+
+        return (
+            '{error_class} processing TIN / NPI message! '
+            'In {function}, the following error happened - {detail} at line {line}. '
+        ).format(
+            error_class=error.__class__.__name__,
+            function=stk[0][2],
+            detail=error.args[0],
+            line=stk[-1][1]
+        )
+
 ########################################################################################################################
 if __name__ == '__main__':
 
@@ -467,15 +483,15 @@ if __name__ == '__main__':
         # this runs the script and sends an email if an error happens within the execution
         try:
             run_import()
-        except:
+        except Exception as error:
             tb = sys.exc_info()
             # log error
             logging.error(str(tb))
             # send mail to mapswipe google group with
             print(tb)
-            msg = str(tb)
+            error_msg = _get_error_message_details(error)
             head = 'google-mapswipe-workers: run_import.py: error occured'
-            send_slack_message(head + '\n' + msg)
+            send_slack_message(head + '\n' + error_msg)
 
         # check if the script should be looped
         if args.loop:
