@@ -1,10 +1,10 @@
 #!/bin/python3
 # -*- coding: UTF-8 -*-
 # Author: M. Reinmuth, B. Herfort
-########################################################################################################################
+####################################################################################################
+import json
 
 from slackclient import SlackClient
-import json
 
 
 def get_slack_client():
@@ -22,7 +22,6 @@ def get_slack_client():
 
 
 def send_slack_message(msg):
-
     if not get_slack_client():
         return False
     else:
@@ -33,12 +32,12 @@ def send_slack_message(msg):
             channel=channel,
             text=msg,
             username=username
-            )
+        )
         print('sent slack message.')
         return True
 
 
-########################################################################################################################
+####################################################################################################
 if __name__ == '__main__':
 
     head = 'Test slack api python integration:'

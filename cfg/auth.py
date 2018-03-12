@@ -4,7 +4,7 @@
 ############################################
 
 import pyrebase
-import pymysql #handle mysql
+import pymysql  # handle mysql
 import json
 import sys
 
@@ -36,6 +36,7 @@ def firebase_admin_auth():
     }
     firebase = pyrebase.initialize_app(config)
     return firebase
+
 
 def dev_firebase_admin_auth():
     try:
@@ -105,7 +106,7 @@ class mysqlDB(object):
                 user = data['mysql']['username']
                 password = data['mysql']['password']
                 host = data['mysql']['host']
-                #print('use configuration for mysql as provided by config.json')
+                # print('use configuration for mysql as provided by config.json')
         except:
             print('we could not load mysql info the config file')
             sys.exit()
@@ -134,7 +135,7 @@ class mysqlDB(object):
         return content
 
     def __del__(self):
-        #self._db_cur.close()
+        # self._db_cur.close()
         self._db_connection.close()
 
 
@@ -151,12 +152,11 @@ class dev_mysqlDB(object):
                 user = data['dev_mysql']['username']
                 password = data['dev_mysql']['password']
                 host = data['dev_mysql']['host']
-                #print('use configuration for mysql as provided by config.json')
+                # print('use configuration for mysql as provided by config.json')
         except:
             # Default configuration
             print('we could not load mysql dev info from the config file')
             sys.exit()
-
 
         self._db_connection = pymysql.connect(
             database=dbname,
@@ -182,5 +182,5 @@ class dev_mysqlDB(object):
         return content
 
     def __del__(self):
-        #self._db_cur.close()
+        # self._db_cur.close()
         self._db_connection.close()

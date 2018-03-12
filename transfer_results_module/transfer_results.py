@@ -1,13 +1,7 @@
 #!/bin/python3
 # -*- coding: UTF-8 -*-
 # Author: M. Reinmuth, B. Herfort
-########################################################################################################################
-
-import sys
-# add some files in different folders to sys.
-# these files can than be loaded directly
-sys.path.insert(0, '../cfg/')
-sys.path.insert(0, '../utils/')
+####################################################################################################
 
 import error_handling
 import logging
@@ -16,8 +10,9 @@ import os
 import time
 import csv
 import requests
-from auth import firebase_admin_auth
-from auth import mysqlDB
+
+from cfg.auth import firebase_admin_auth
+from cfg.auth import mysqlDB
 
 import argparse
 
@@ -29,7 +24,7 @@ parser.add_argument('-s', '--sleep_time', required=False, default=None, type=int
 parser.add_argument('-m', '--max_iterations', required=False, default=None, type=int,
                     help='the maximum number of imports that should be performed')
 
-########################################################################################################################
+####################################################################################################
 
 
 def get_results_from_firebase():
@@ -106,15 +101,15 @@ def save_results_mysql(results_filename):
     # first import to a table where we store the geom as text
     sql_insert = '''
         CREATE TABLE raw_results (
-            task_id varchar(45) 
-            ,user_id varchar(45) 
-            ,project_id int(5) 
-            ,timestamp bigint(32) 
-            ,result int(1) 
-            ,wkt varchar(256) 
-            ,task_x varchar(45) 
-            ,task_y varchar(45) 
-            ,task_z varchar(45) 
+            task_id varchar(45)
+            ,user_id varchar(45)
+            ,project_id int(5)
+            ,timestamp bigint(32)
+            ,result int(1)
+            ,wkt varchar(256)
+            ,task_x varchar(45)
+            ,task_y varchar(45)
+            ,task_z varchar(45)
             ,duplicates int(5)
         );
         '''
@@ -148,7 +143,6 @@ def save_results_mysql(results_filename):
 
     del m_con
     return
-
 
 def run_transfer_results():
 

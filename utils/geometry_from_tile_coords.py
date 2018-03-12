@@ -1,10 +1,10 @@
 #!/usr/bin/python
-########################################################################################################################
-
-import math
-import ogr
-
+####################################################################################################
 import argparse
+import ogr
+import math
+
+
 parser = argparse.ArgumentParser(description="Let's get some inputs.")
 parser.add_argument('-x', '--tile_x', required=True, default=0, type=int,
                     help='The x coordinate of the tile in a TMS.')
@@ -13,7 +13,8 @@ parser.add_argument('-y', '--tile_y', required=True, default=0, type=int,
 parser.add_argument('-z', '--tile_z', required=True, default=0, type=int,
                     help='The z coordinate of the tile in a TMS.')
 
-########################################################################################################################
+####################################################################################################
+
 
 def geometry_from_tile_coords(TileX, TileY, TileZ):
 
@@ -48,7 +49,8 @@ def geometry_from_tile_coords(TileX, TileY, TileZ):
     wkt_geom = poly.ExportToWkt()
     return wkt_geom
 
-########################################################################################################################
+####################################################################################################
+
 
 if __name__ == '__main__':
 

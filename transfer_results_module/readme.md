@@ -29,3 +29,10 @@ pm2 list
 tail -100 /data/python-mapswipe-workers/transfer_results_module/transfer_results.log
 ```
 
+
+## Tests using docker
+To run tests using docker, simply run the following commnands:
+```
+cd docker
+docker-compose run mapswipe-workers bash -c "make tests"
+```
