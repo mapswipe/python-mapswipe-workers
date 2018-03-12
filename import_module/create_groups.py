@@ -141,7 +141,12 @@ def get_geometry_from_file(infile):
 
 def get_horizontal_slice(extent, geomcol, zoom):
     logging.info('geomcol: %s' % geomcol)
-    slice_collection = ogr.Geometry(ogr.wkbGeometryCollection)
+
+    slice_infos = {
+        'tile_y_top': [],
+        'tile_y_bottom': [],
+        'slice_collection': ogr.Geometry(ogr.wkbGeometryCollection)
+    }
 
     xmin = extent[0]
     xmax = extent[1]
@@ -155,7 +160,6 @@ def get_horizontal_slice(extent, geomcol, zoom):
     # get upper left left tile coordinates
     pixel = lat_long_zoom_to_pixel_coords(ymax, xmin, zoom)
     tile = pixel_coords_to_tile_address(pixel.x, pixel.y)
-
     TileX_left = tile.x
     TileY_top = tile.y
 
@@ -205,11 +209,15 @@ def get_horizontal_slice(extent, geomcol, zoom):
 
         if sliced_poly:
             if sliced_poly.GetGeometryName() == 'POLYGON':
-                slice_collection.AddGeometry(sliced_poly)
+                slice_infos['tile_y_top'].append(TileY)
+                slice_infos['tile_y_bottom'].append(TileY+3)
+                slice_infos['slice_collection'].AddGeometry(sliced_poly)
                 #logging.info('sliced poly: %s' % sliced_poly)
             elif sliced_poly.GetGeometryName() == 'MULTIPOLYGON':
                 for geom_part in sliced_poly:
-                    slice_collection.AddGeometry(geom_part)
+                    slice_infos['tile_y_top'].append(TileY)
+                    slice_infos['tile_y_bottom'].append(TileY + 3)
+                    slice_infos['slice_collection'].AddGeometry(geom_part)
                     #logging.info('sliced poly: %s' % sliced_poly)
             else:
                 #logging.info('sliced poly: %s' % sliced_poly)
@@ -222,10 +230,10 @@ def get_horizontal_slice(extent, geomcol, zoom):
         #####################
         TileY = TileY + 3
 
-    return slice_collection
+    return slice_infos
 
 
-def get_vertical_slice(geomcol, zoom):
+def get_vertical_slice(slice_infos, zoom):
     # this functions slices the horizontal stripes vertically
     # each stripe has a height of three tiles
     # the width depends on the width threshold set below
@@ -239,6 +247,8 @@ def get_vertical_slice(geomcol, zoom):
 
     # add these variables to test, if groups are created correctly
     TileY_top = -1
+
+    geomcol = slice_infos['slice_collection']
 
     # process each polygon individually
     for p in range(0, geomcol.GetGeometryCount()):
@@ -261,41 +271,20 @@ def get_vertical_slice(geomcol, zoom):
         tile = pixel_coords_to_tile_address(pixel.x, pixel.y)
         TileX_left = tile.x
 
-        # this is a fix for incorrect groups height
-        # this is caused by a wrong calculation of the tile coordinates, probably because of float precision
-        # previously we started with tile x and tiley -->
-        # then calculated correspondinglat, lon -->
-        # finally we calculated corresponding tilex and tile y again,
-        # however in some rare occassion the tileY from the beginning and from the end were different
-        # thats why we now don't calculate tile.y coordinates from lat, lon but use the coordinates of the upper group
-        # this assumes that horizontal slices are ordered north to south
-        if TileY_top < 0:
-            TileY_top = tile.y
-            TileY_bottom = TileY_top + 3
-        # tile coordinates of y top may be the same, don't increse this by 3 all the time
-        # think about a polygon with a 'U' form, if we slice this polygon horizontally, we get many geometries with the same ytop tile coordinates
-        elif TileY_top == tile.y:
-            TileY_top = tile.y
-            TileY_bottom = TileY_top + 3
-        # if TileY_top and tile y are different by 1, than this is due to a rounding error
-        elif TileY_top == (tile.y -1):
-            # don't change TileY_top and TileY_bottom
-            pass
-        elif TileY_top == (tile.y + 1):
-            # don't change TileY_top and TileY_bottom
-            pass
-        else:
-            TileY_top += 3
-            TileY_bottom += 3
-
         # get lower right tile coordinates
         pixel = lat_long_zoom_to_pixel_coords(ymin, xmax, zoom)
         tile = pixel_coords_to_tile_address(pixel.x, pixel.y)
         TileX_right = tile.x
 
+
+        # we don't compute tile y top and tile y botton coordinates again, but get the ones from the list
+        # doing so we can avoid problems due to rounding errors and resulting wrong tile coordinates
+        TileY_top = slice_infos['tile_y_top'][p]
+        TileY_bottom = slice_infos['tile_y_bottom'][p]
+
+
         TileWidth = abs(TileX_right - TileX_left)
         TileHeight = abs(TileY_top - TileY_bottom)
-
         TileX = TileX_left
 
         # get rows
@@ -546,11 +535,11 @@ def run_create_groups(input_file, project_id, tileserver, custom_tileserver_url,
 
     extent, geomcol = get_geometry_from_file(input_file)
 
-    horizontal_slice = get_horizontal_slice(extent, geomcol, config['zoom'])
-    #outfile = 'data/horizontally_sliced_groups_{}.geojson'.format(config["project_id"])
-    #save_geom_as_geojson(horizontal_slice, outfile)
+    horizontal_slice_infos = get_horizontal_slice(extent, geomcol, config['zoom'])
+    outfile = 'data/horizontally_sliced_groups_{}.geojson'.format(config["project_id"])
+    save_geom_as_geojson(horizontal_slice_infos['slice_collection'], outfile)
 
-    raw_groups = get_vertical_slice(horizontal_slice, config['zoom'])
+    raw_groups = get_vertical_slice(horizontal_slice_infos, config['zoom'])
 
     groups = create_groups(raw_groups, config)
     outfile = 'data/groups_{}.json'.format(config["project_id"])
