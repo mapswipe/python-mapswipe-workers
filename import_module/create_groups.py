@@ -277,6 +277,13 @@ def get_vertical_slice(geomcol, zoom):
         elif TileY_top == tile.y:
             TileY_top = tile.y
             TileY_bottom = TileY_top + 3
+        # if TileY_top and tile y are different by 1, than this is due to a rounding error
+        elif TileY_top == (tile.y -1):
+            # don't change TileY_top and TileY_bottom
+            pass
+        elif TileY_top == (tile.y + 1):
+            # don't change TileY_top and TileY_bottom
+            pass
         else:
             TileY_top += 3
             TileY_bottom += 3
