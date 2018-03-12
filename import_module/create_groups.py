@@ -212,18 +212,14 @@ def get_horizontal_slice(extent, geomcol, zoom):
                 slice_infos['tile_y_top'].append(TileY)
                 slice_infos['tile_y_bottom'].append(TileY+3)
                 slice_infos['slice_collection'].AddGeometry(sliced_poly)
-                #logging.info('sliced poly: %s' % sliced_poly)
             elif sliced_poly.GetGeometryName() == 'MULTIPOLYGON':
                 for geom_part in sliced_poly:
                     slice_infos['tile_y_top'].append(TileY)
                     slice_infos['tile_y_bottom'].append(TileY + 3)
                     slice_infos['slice_collection'].AddGeometry(geom_part)
-                    #logging.info('sliced poly: %s' % sliced_poly)
             else:
-                #logging.info('sliced poly: %s' % sliced_poly)
                 pass
         else:
-            #logging.info('sliced poly: %s' % sliced_poly)
             pass
 
 
@@ -278,7 +274,7 @@ def get_vertical_slice(slice_infos, zoom):
 
 
         # we don't compute tile y top and tile y botton coordinates again, but get the ones from the list
-        # doing so we can avoid problems due to rounding errors and resulting wrong tile coordinates
+        # doing so we can avoid problems due to rounding errors and resulting in wrong tile coordinates
         TileY_top = slice_infos['tile_y_top'][p]
         TileY_bottom = slice_infos['tile_y_bottom'][p]
 
