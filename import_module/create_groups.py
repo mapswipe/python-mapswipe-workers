@@ -536,8 +536,8 @@ def run_create_groups(input_file, project_id, tileserver, custom_tileserver_url,
     extent, geomcol = get_geometry_from_file(input_file)
 
     horizontal_slice_infos = get_horizontal_slice(extent, geomcol, config['zoom'])
-    outfile = 'data/horizontally_sliced_groups_{}.geojson'.format(config["project_id"])
-    save_geom_as_geojson(horizontal_slice_infos['slice_collection'], outfile)
+    #outfile = 'data/horizontally_sliced_groups_{}.geojson'.format(config["project_id"])
+    #save_geom_as_geojson(horizontal_slice_infos['slice_collection'], outfile)
 
     raw_groups = get_vertical_slice(horizontal_slice_infos, config['zoom'])
 
