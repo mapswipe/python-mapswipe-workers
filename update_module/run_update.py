@@ -1,20 +1,15 @@
 #!/bin/python3
 # -*- coding: UTF-8 -*-
 # Author: M. Reinmuth, B. Herfort
-########################################################################################################################
-
-import sys
-import json
-# add some files in different folders to sys.
-# these files can than be loaded directly
-sys.path.insert(0, '../cfg/')
-sys.path.insert(0, '../utils/')
+####################################################################################################
 
 import logging
-from update_project_contributors import update_project_contributors
-from update_project_progress import update_project_progress
-from auth import firebase_admin_auth
-from send_slack_message import send_slack_message
+import sys
+
+from update_modue.update_project_contributors import update_project_contributors
+from update_modue.update_project_progress import update_project_progress
+from cfg.auth import firebase_admin_auth
+from utils.send_slack_message import send_slack_message
 
 import time
 import argparse
@@ -36,13 +31,13 @@ parser.add_argument('-p', '--user_project_list', nargs='+', required=None, defau
 parser.add_argument('-o', '--output_path', required=None, default='/var/www/html', type=str,
                     help='output path. please provide a location where the exported files should be stored.')
 
-########################################################################################################################
+####################################################################################################
+
 
 def get_projects():
     # connect to firebase
     firebase = firebase_admin_auth()
     fb_db = firebase.database()
-
 
     project_dict = {}
     project_dict['all'] = []
@@ -95,7 +90,7 @@ def run_update(project_selection, user_project_list, output_path):
     update_project_progress(projects, output_path)
 
 
-########################################################################################################################
+####################################################################################################
 
 if __name__ == '__main__':
     try:

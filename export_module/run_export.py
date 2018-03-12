@@ -1,24 +1,17 @@
 #!/bin/python3
 # -*- coding: UTF-8 -*-
 # Author: M. Reinmuth, B. Herfort
-########################################################################################################################
+####################################################################################################
 
 import sys
-# add some files in different folders to sys.
-# these files can than be loaded directly
-sys.path.insert(0, '../cfg/')
-sys.path.insert(0, '../utils/')
 
 import logging
 
-import error_handling
-
-from export_project_results import export_project_results
-from export_projects import export_projects
-from export_users_and_stats import export_users_and_stats
-
-from auth import firebase_admin_auth
-from send_slack_message import send_slack_message
+from export_module.export_project_results import export_project_results
+from export_module.export_projects import export_projects
+from export_module.export_users_and_stats import export_users_and_stats
+from cfg.auth import firebase_admin_auth
+from utils.send_slack_message import send_slack_message
 
 import time
 import argparse
@@ -27,9 +20,10 @@ import argparse
 # define arguments that can be passed by the user
 parser = argparse.ArgumentParser(description='Process some integers.')
 parser.add_argument('-l', '--loop', dest='loop', action='store_true',
-                    help='if loop is set, the import will be repeated several times. You can specify the behaviour using --sleep_time and/or --max_iterations.')
+                    help='if loop is set, the import will be repeated several times.'
+                         'You can specify the behaviour using --sleep_time / --max_iterations.')
 parser.add_argument('-s', '--sleep_time', required=False, default=None, type=int,
-                    help='the time in seconds for which the script will pause in beetween two imports')
+                    help='time in seconds for which the script will pause in beetween two imports.')
 parser.add_argument('-m', '--max_iterations', required=False, default=None, type=int,
                     help='the maximum number of imports that should be performed')
 
@@ -39,9 +33,10 @@ parser.add_argument('-mo', '--modus', nargs='?', default='active',
 parser.add_argument('-p', '--user_project_list', nargs='+', required=None, default=None, type=int,
                     help='project id of the project to process. You can add multiple project ids.')
 parser.add_argument('-o', '--output_path', required=None, default='/var/www/html', type=str,
-                    help='output path. please provide a location where the exported files should be stored.')
+                    help='output path. Provide a location for storing export files.')
 
-########################################################################################################################
+####################################################################################################
+
 
 
 def get_projects():

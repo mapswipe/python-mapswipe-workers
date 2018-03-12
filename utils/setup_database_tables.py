@@ -1,14 +1,9 @@
 #!/bin/python3
 # -*- coding: UTF-8 -*-
 # Author: M. Reinmuth, B. Herfort
-########################################################################################################################
+####################################################################################################
+from cfg.auth import mysqlDB as mysqlDB
 
-import sys
-# add some files in different folders to sys.
-# these files can than be loaded directly
-sys.path.insert(0, '../cfg/')
-
-from auth import mysqlDB as mysqlDB
 
 def create_projects_table():
     m_con = mysqlDB()
@@ -16,7 +11,7 @@ def create_projects_table():
     sql_string = """
     CREATE TABLE IF NOT EXISTS projects (
     project_id int(11)
-    ,objective varchar(20) 
+    ,objective varchar(20)
     ,name varchar(45)
     );
     ALTER TABLE projects ADD PRIMARY KEY (project_id)
@@ -28,6 +23,7 @@ def create_projects_table():
 
     print('created projects table')
 
+
 def create_results_table():
     m_con = mysqlDB()
 
@@ -36,12 +32,12 @@ def create_results_table():
     task_id varchar(45)
     ,user_id varchar(45)
     ,project_id int(5)
-    ,timestamp bigint(32) 
-    ,result int(1) 
-    ,wkt varchar(256) 
-    ,task_x varchar(45) 
-    ,task_y varchar(45) 
-    ,task_z varchar(45) 
+    ,timestamp bigint(32)
+    ,result int(1)
+    ,wkt varchar(256)
+    ,task_x varchar(45)
+    ,task_y varchar(45)
+    ,task_z varchar(45)
     ,duplicates int(5)
     );
     ALTER TABLE results ADD PRIMARY KEY (task_id, user_id, project_id)
@@ -62,9 +58,7 @@ def setup_database_tables():
     create_results_table()
 
 
-
-########################################################################################################################
+####################################################################################################
 
 if __name__ == '__main__':
-
     setup_database_tables()

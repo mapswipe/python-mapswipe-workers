@@ -1,18 +1,15 @@
 #!/bin/python3
 # -*- coding: UTF-8 -*-
 # Author: M. Reinmuth, B. Herfort
-########################################################################################################################
+####################################################################################################
+
 import sys
-# add some files in different folders to sys.
-# these files can than be loaded directly
-sys.path.insert(0, '../cfg/')
-sys.path.insert(0, '../utils/')
 
 import json
 import logging
 import math
-import ogr
 import os
+import ogr
 import osr
 import gdal
 
@@ -32,7 +29,8 @@ parser.add_argument('-p', '--project_id', required=False, default=None, type=int
 parser.add_argument('-c', '--custom_tileserver_url', required=False, default=None, type=str,
                     help='the custom url with {z}, {x}, {y} placeholders')
 
-########################################################################################################################
+####################################################################################################
+
 
 class Point:
     def __init__(self, x=0.0, y=0.0):

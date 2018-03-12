@@ -5,6 +5,9 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# Test files
+.pytest_cache/*
+
 # C extensions
 *.so
 
@@ -115,3 +118,4 @@ cfg/dev-mapswipe_serviceAccountKey.json
 
 
 
+.DS_Store
