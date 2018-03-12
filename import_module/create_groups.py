@@ -272,6 +272,11 @@ def get_vertical_slice(geomcol, zoom):
         if TileY_top < 0:
             TileY_top = tile.y
             TileY_bottom = TileY_top + 3
+        # tile coordinates of y top may be the same, don't increse this by 3 all the time
+        # think about a polygon with a 'U' form, if we slice this polygon horizontally, we get many geometries with the same ytop tile coordinates
+        elif TileY_top == tile.y:
+            TileY_top = tile.y
+            TileY_bottom = TileY_top + 3
         else:
             TileY_top += 3
             TileY_bottom += 3
@@ -287,12 +292,15 @@ def get_vertical_slice(geomcol, zoom):
         TileX = TileX_left
 
         # get rows
-        rows = int(ceil(TileHeight / 3))
+        rows = int(math.ceil(TileHeight / 3))
 
         # get columns
-        cols = int(ceil(TileWidth / width_threshold))
+        cols = int(math.ceil(TileWidth / width_threshold))
+        # avoid zero division error and check if cols is smaller than zero
+        if cols < 1:
+            continue
         # how wide should the group be, calculate from total width and do equally for all slices
-        step_size = ceil(TileWidth/cols)
+        step_size = math.ceil(TileWidth/cols)
 
         for i in range(0, cols):
             # we need to make sure that geometries are not clipped at the edge
