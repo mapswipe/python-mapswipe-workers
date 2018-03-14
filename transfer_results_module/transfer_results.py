@@ -43,13 +43,15 @@ def delete_firebase_results(all_results):
 
     # we will use multilocation update to delete the entries, therefore we crate an dict with the items we want to delete
     data = {
-        'results': {}
     }
 
     for task_id, results in all_results.items():
-        data['results'][task_id] = {}
         for child_id, result in results.items():
-            data['results'][task_id][child_id] = None
+            key = 'results/{task_id}/{child_id}'.format(
+                task_id=task_id,
+                child_id=child_id)
+
+            data[key] = None
             #q.put([fb_db, task_id, child_id])
 
 
