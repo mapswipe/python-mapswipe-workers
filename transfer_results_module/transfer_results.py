@@ -54,10 +54,6 @@ def delete_firebase_results(all_results):
             data[key] = None
             #q.put([fb_db, task_id, child_id])
 
-
-    print('start deleting/ update with None')
-    print(data)
-    fb_db.child('results').child('test').set('this is a test')
     fb_db.update(data)
     print('finished deleting results')
     logging.warning('deleted results in firebase')
