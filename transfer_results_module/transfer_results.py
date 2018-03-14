@@ -73,6 +73,8 @@ def delete_firebase_results(all_results):
             data[task_id][child_id] = None
             q.put([fb_db, task_id, child_id])
 
+        print(data[task_id])
+
     for i in range(num_threads):
         worker = threading.Thread(
             target=delete_result_in_firebase,
