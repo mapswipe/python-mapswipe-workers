@@ -16,6 +16,9 @@ import ogr
 
 from auth import get_submission_key
 from create_groups import run_create_groups
+
+import error_handling
+
 from send_slack_message import send_slack_message
 
 import argparse
@@ -365,7 +368,7 @@ def run_import():
                                            project["zoom"])
 
                 # upload groups in firebase
-                
+
                 if not upload_groups_firebase(project['id'], groups):
                     err = 'something went wrong during group upload for project %s (%s)' % (project['id'], project['name'])
                     logging.warning(err)
@@ -373,7 +376,7 @@ def run_import():
                     head = 'google-mapswipe-workers: run_import.py: error occured during group upload'
                     send_slack_message(head + '\n' + msg)
                     continue
-                
+
 
                 # upload project info in firebase projects table
                 if not upload_project_firebase(project):
@@ -419,7 +422,6 @@ def run_import():
                 head = 'google-mapswipe-workers: run_import.py: PROJECT IMPORTED'
                 send_slack_message(head + '\n' + msg)
 
-
         else:
             print("There are no projects to import.")
             logging.warning("There are no projects to import.")
@@ -427,6 +429,7 @@ def run_import():
     else:
         print("There are no projects to import.")
         logging.warning("There are no projects to import.")
+
 
 ########################################################################################################################
 if __name__ == '__main__':
@@ -467,15 +470,8 @@ if __name__ == '__main__':
         # this runs the script and sends an email if an error happens within the execution
         try:
             run_import()
-        except:
-            tb = sys.exc_info()
-            # log error
-            logging.error(str(tb))
-            # send mail to mapswipe google group with
-            print(tb)
-            msg = str(tb)
-            head = 'google-mapswipe-workers: run_import.py: error occured'
-            send_slack_message(head + '\n' + msg)
+        except Exception as error:
+            error_handling.send_error(error, 'run_import.py')
 
         # check if the script should be looped
         if args.loop:

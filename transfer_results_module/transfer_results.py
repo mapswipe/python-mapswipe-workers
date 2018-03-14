@@ -17,6 +17,8 @@ import time
 import requests
 from auth import firebase_admin_auth
 from auth import mysqlDB
+from send_slack_message import send_slack_message
+
 import argparse
 
 parser = argparse.ArgumentParser(description='Process some integers.')

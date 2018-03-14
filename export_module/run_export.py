@@ -4,13 +4,15 @@
 ########################################################################################################################
 
 import sys
-import json
 # add some files in different folders to sys.
 # these files can than be loaded directly
 sys.path.insert(0, '../cfg/')
 sys.path.insert(0, '../utils/')
 
 import logging
+
+import error_handling
+
 from export_project_results import export_project_results
 from export_projects import export_projects
 from export_users_and_stats import export_users_and_stats
@@ -20,6 +22,7 @@ from send_slack_message import send_slack_message
 
 import time
 import argparse
+
 
 # define arguments that can be passed by the user
 parser = argparse.ArgumentParser(description='Process some integers.')
@@ -40,11 +43,11 @@ parser.add_argument('-o', '--output_path', required=None, default='/var/www/html
 
 ########################################################################################################################
 
+
 def get_projects():
     # connect to firebase
     firebase = firebase_admin_auth()
     fb_db = firebase.database()
-
 
     project_dict = {}
     project_dict['all'] = []
@@ -71,6 +74,7 @@ def get_projects():
             project_dict['not_finished'].append(project_id)
 
     return project_dict
+
 
 def run_export(project_selection, user_project_list, output_path):
 
@@ -122,15 +126,8 @@ if __name__ == '__main__':
         # this runs the script and sends an email if an error happens within the execution
         try:
             run_export(args.modus, args.user_project_list, args.output_path)
-        except BaseException:
-            tb = sys.exc_info()
-            # log error
-            logging.error(str(tb))
-            # send mail to mapswipe google group with
-            print(tb)
-            msg = str(tb)
-            head = 'google-mapswipe-workers: run_export.py: error occured'
-            send_slack_message(head + '\n' + msg)
+        except BaseException as error:
+            error_handling.send_error(error, 'run_export.py')
 
         # check if the script should be looped
         if args.loop:
