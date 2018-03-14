@@ -47,6 +47,104 @@ def delete_results_in_firebase(task_id, child_id):
     fb_db = firebase.database()
     fb_db.child("results").child(task_id).child(child_id).remove()
 
+
+def results_to_txt(all_results):
+    results_txt_filename = 'raw_results.txt'
+    results_txt_file = open(results_txt_filename, 'r')
+    
+    for task_id, results in all_results.items():
+        for child_id, result in results.items():
+            outline = '{task_id}\t{user_id}\t{project_id}\t{timestamp}\t{result}\t{wkt}\t{task_x}\t{task_y}\t{task_z}\t{duplicates}\n'.format(
+                task_id = task_id,
+                user_id = result['data']['user'],
+                project_id = result['data']['projectId'],
+                result = result['data']['result'],
+                timestamp = result['data']['timestamp'],
+                wkt = result['data']['wkt'],
+                task_x = task_id.split('-')[1],
+                task_y = task_id.split('-')[2],
+                task_z = task_id.split('-')[0],
+                duplicates = 0
+            )
+
+            results_txt_file.write(outline)
+
+    results_txt_file.close()
+
+    return results_txt_filename
+
+
+def save_results_mysql(results_filename):
+    ### this function saves the results from firebase to the mysql database
+
+    # Open CSV file
+    results_file = open(results_filename, 'r')
+    columns = ('task_id', 'user_id', 'project_id', 'timestamp', 'result', 'wkt', 'task_x', 'task_y', 'task_z', 'duplicates')
+    raw_results_table_name = 'raw_results'
+    results_table_name = 'results'
+
+    # first import to a table where we store the geom as text
+    m_con = mysqlDB()
+    sql_insert = '''
+        DROP TABLE IF EXISTS raw_results CASCADE;
+        CREATE TABLE raw_results (
+            task_id varchar(45) PK 
+            user_id varchar(45) PK 
+            project_id int(5) PK 
+            timestamp bigint(32) 
+            result int(1) 
+            wkt varchar(256) 
+            task_x varchar(45) 
+            task_y varchar(45) 
+            task_z varchar(45) 
+            duplicates int(5)
+        );
+        '''
+
+    m_con.query(sql_insert, None)
+
+    # copy data to the new table
+    # we should use LOAD DATA INFILE Syntax
+    sql_insert = '''
+            LOAD DATA INFILE 'raw_results.txt' INTO TABLE raw_results
+            '''
+    m_con.query(sql_insert, None)
+    os.remove(results_filename)
+    print('copied results information to mysql')
+
+    # second import all entries into the task table and convert into psql geometry
+    sql_insert = '''
+        INSERT INTO
+          results
+        SELECT
+          *
+        FROM
+          raw_results
+        ON DUPLICATE KEY
+        ;
+        DROP TABLE IF EXISTS raw_results CASCADE;
+    '''
+    sql_insert = sql.SQL(sql_insert).format(sql.Identifier(task_table_name),
+                                            sql.Identifier(raw_task_table_name),
+                                            sql.Identifier(raw_task_table_name) )
+    try:
+        p_con.query(sql_insert, None)
+        print('inserted task information in tasks table')
+    except BaseException:
+        # we catch duplicates that are already in the pgsql database
+        tb = sys.exc_info()
+        error_class = tb[0]
+        error_detail = str(tb[1]).split('\n')[0]
+        if str(error_class) == "<class 'psycopg2.IntegrityError'>" and error_detail == 'duplicate key value violates unique constraint "pk_task_id"':
+            print('tasks already imported')
+        else:
+            print(error_class, error_detail)
+
+    p_con.close()
+    return
+
+
+
 def save_to_database(data):
     m_con = mysqlDB()
 
