@@ -106,7 +106,7 @@ def save_results_mysql(results_filename):
     # copy data to the new table
     # we should use LOAD DATA INFILE Syntax
     sql_insert = '''
-            LOAD DATA INFILE 'raw_results.txt' INTO TABLE raw_results
+            LOAD DATA LOCAL INFILE 'raw_results.txt' INTO TABLE raw_results
             '''
     m_con.query(sql_insert, None)
     os.remove(results_filename)
@@ -121,26 +121,15 @@ def save_results_mysql(results_filename):
         FROM
           raw_results
         ON DUPLICATE KEY
+          UPDATE duplicates = duplicates + 1
         ;
         DROP TABLE IF EXISTS raw_results CASCADE;
     '''
-    sql_insert = sql.SQL(sql_insert).format(sql.Identifier(task_table_name),
-                                            sql.Identifier(raw_task_table_name),
-                                            sql.Identifier(raw_task_table_name) )
-    try:
-        p_con.query(sql_insert, None)
-        print('inserted task information in tasks table')
-    except BaseException:
-        # we catch duplicates that are already in the pgsql database
-        tb = sys.exc_info()
-        error_class = tb[0]
-        error_detail = str(tb[1]).split('\n')[0]
-        if str(error_class) == "<class 'psycopg2.IntegrityError'>" and error_detail == 'duplicate key value violates unique constraint "pk_task_id"':
-            print('tasks already imported')
-        else:
-            print(error_class, error_detail)
 
-    p_con.close()
+    m_con.query(sql_insert, None)
+    print('inserted task information in tasks table')
+
+    m_con.close()
     return
 
 
@@ -274,7 +263,11 @@ def run_transfer_results():
             logging.warning('wrote results data to %s' % results_filename)
             print('wrote results data to %s' % results_filename)
 
-        transfer_results(results_filename, all_results)
+        results_txt_filename = results_to_txt(all_results)
+
+        save_results_mysql(results_txt_filename)
+
+        #transfer_results(results_filename, all_results)
         os.remove(results_filename)
         print('removed "results.json" file')
         logging.warning('removed "results.json" file')
