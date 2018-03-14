@@ -44,8 +44,7 @@ def delete_firebase_results(all_results):
     fb_db = firebase.database()
 
     # we will use multilocation update to delete the entries, therefore we crate an dict with the items we want to delete
-    data = {
-    }
+    data = {}
 
     for task_id, results in all_results.items():
         for child_id, result in results.items():
@@ -96,10 +95,14 @@ def results_to_txt(all_results):
 def save_results_mysql(results_filename):
     ### this function saves the results from firebase to the mysql database
 
-    # first import to a table where we store the geom as text
+    # pre step delete table if exist
     m_con = mysqlDB()
+    sql_insert = 'DROP TABLE IF EXISTS raw_results CASCADE;'
+    m_con.query(sql_insert, None)
+    print('dropped raw results table')
+
+    # first import to a table where we store the geom as text
     sql_insert = '''
-        DROP TABLE IF EXISTS raw_results CASCADE;
         CREATE TABLE raw_results (
             task_id varchar(45) 
             ,user_id varchar(45) 
@@ -136,8 +139,6 @@ def save_results_mysql(results_filename):
           raw_results
         ON DUPLICATE KEY
           UPDATE results.duplicates = results.duplicates + 1
-        ;
-        DROP TABLE IF EXISTS raw_results CASCADE;
     '''
 
     m_con.query(sql_insert, None)
