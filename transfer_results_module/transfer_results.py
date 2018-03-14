@@ -48,6 +48,7 @@ def delete_result_in_firebase(q):
         fb_db, task_id, child_id = q.get()
         try:
             fb_db.child("results").child(task_id).child(child_id).remove()
+            print('deleted entry: %s, %s' % (task_id, child_id))
         except:
             # add a catch, if something with the connection to firebase goes wrong and log potential errors
             tb = sys.exc_info()
@@ -64,8 +65,12 @@ def delete_firebase_results(all_results):
     q = Queue(maxsize=0)
     num_threads = 24
 
+    data = {}
+
     for task_id, results in all_results.items():
+        data[task_id] = {}
         for child_id, result in results.items():
+            data[task_id][child_id] = None
             q.put([fb_db, task_id, child_id])
 
     for i in range(num_threads):
