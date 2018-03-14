@@ -65,16 +65,23 @@ def delete_firebase_results(all_results):
     q = Queue(maxsize=0)
     num_threads = 24
 
-    data = {}
+    data = {
+        'results': {}
+    }
 
     for task_id, results in all_results.items():
-        data[task_id] = {}
+        data['results'][task_id] = {}
         for child_id, result in results.items():
-            data[task_id][child_id] = None
-            q.put([fb_db, task_id, child_id])
+            data['results'][task_id][child_id] = None
+            #q.put([fb_db, task_id, child_id])
 
         print(data[task_id])
 
+    print('start deleting/ update with None')
+    fb_db.update(data)
+    print('finished deleting results')
+
+    '''
     for i in range(num_threads):
         worker = threading.Thread(
             target=delete_result_in_firebase,
@@ -82,6 +89,7 @@ def delete_firebase_results(all_results):
         worker.start()
 
     q.join()
+    '''
 
     del fb_db
 
@@ -89,9 +97,11 @@ def delete_firebase_results(all_results):
 def results_to_txt(all_results):
     results_txt_filename = 'raw_results.txt'
     results_txt_file = open(results_txt_filename, 'w')
-    
+
+    number_of_results = 0
     for task_id, results in all_results.items():
         for child_id, result in results.items():
+            number_of_results += 1
             outline = '{task_id}\t{user_id}\t{project_id}\t{timestamp}\t{result}\t{wkt}\t{task_x}\t{task_y}\t{task_z}\t{duplicates}\n'.format(
                 task_id = task_id,
                 user_id = result['data']['user'],
@@ -108,7 +118,8 @@ def results_to_txt(all_results):
             results_txt_file.write(outline)
 
     results_txt_file.close()
-    print('saves results as raw_results.txt')
+    logging.warning('there are %s results to import' % number_of_results)
+    print('there are %s results to import' % number_of_results)
 
     return results_txt_filename
 
@@ -179,13 +190,11 @@ def run_transfer_results():
     # first check if we have results stored locally, that have not been inserted in MySQL
     results_filename = 'results.json'
     if os.path.isfile(results_filename):
-        logging.warning("there are results in %s that we didnt't insert. do it now!" % results_filename)
-        print("there are results in %s, that we didnt't insert. do it now!" % results_filename)
         # start to import the old results first
         with open(results_filename) as results_file:
             results = json.load(results_file)
-            results_txt_filename = results_to_txt(results)
-
+            results_txt_filename, number_of_results = results_to_txt(results)
+            logging.warning("there are results in %s that we didnt't insert. do it now!" % results_filename)
             save_results_mysql(results_txt_filename)
 
             delete_firebase_results(results)
