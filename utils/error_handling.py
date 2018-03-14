@@ -32,4 +32,3 @@ def send_error(error, code_file):
     error_msg = _get_error_message_details(error)
     head = 'google-mapswipe-workers: {}: error occured'.format(code_file)
     send_slack_message(head + '\n' + error_msg)
-
