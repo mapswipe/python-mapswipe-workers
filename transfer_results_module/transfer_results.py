@@ -9,22 +9,16 @@ import sys
 sys.path.insert(0, '../cfg/')
 sys.path.insert(0, '../utils/')
 
+import error_handling
 import logging
 import json
-import numpy as np
 import os
-import threading
 import time
-from queue import Queue
-
 import requests
-
-import pymysql
 from auth import firebase_admin_auth
 from auth import mysqlDB
-from send_slack_message import send_slack_message
-
 import argparse
+
 parser = argparse.ArgumentParser(description='Process some integers.')
 parser.add_argument('-l', '--loop', dest='loop', action='store_true',
                     help='if loop is set, the import will be repeated several times. You can specify the behaviour using --sleep_time and/or --max_iterations.')
@@ -42,29 +36,12 @@ def get_results_from_firebase():
     results = fb_db.child("results").get().val()
     return results
 
-def delete_result_in_firebase(q):
-
-    while not q.empty():
-        fb_db, task_id, child_id = q.get()
-        try:
-            fb_db.child("results").child(task_id).child(child_id).remove()
-            print('deleted entry: %s, %s' % (task_id, child_id))
-        except:
-            # add a catch, if something with the connection to firebase goes wrong and log potential errors
-            tb = sys.exc_info()
-            logging.warning(str(tb))
-
-        q.task_done()
-
 
 def delete_firebase_results(all_results):
     firebase = firebase_admin_auth()
     fb_db = firebase.database()
 
-    # we will use a queue to limit the number of threads running in parallel
-    q = Queue(maxsize=0)
-    num_threads = 24
-
+    # we will use multilocation update to delete the entries, therefore we crate an dict with the items we want to delete
     data = {
         'results': {}
     }
@@ -75,19 +52,11 @@ def delete_firebase_results(all_results):
             data['results'][task_id][child_id] = None
             #q.put([fb_db, task_id, child_id])
 
+
     print('start deleting/ update with None')
     fb_db.update(data)
     print('finished deleting results')
-
-    '''
-    for i in range(num_threads):
-        worker = threading.Thread(
-            target=delete_result_in_firebase,
-            args=(q,))
-        worker.start()
-
-    q.join()
-    '''
+    logging.warning('deleted results in firebase')
 
     del fb_db
 
@@ -194,7 +163,6 @@ def run_transfer_results():
             results_txt_filename = results_to_txt(results)
             logging.warning("there are results in %s that we didnt't insert. do it now!" % results_filename)
             save_results_mysql(results_txt_filename)
-
             delete_firebase_results(results)
 
         os.remove(results_filename)
@@ -264,17 +232,10 @@ if __name__ == '__main__':
         print('###### ###### ###### ######')
 
         # this runs the script and sends an email if an error happens within the execution
-        #try:
-        run_transfer_results()
-        #except:
-        #    tb = sys.exc_info()
-        #    # log error
-        #    logging.error(str(tb))
-        #    # send mail to mapswipe google group with
-        #    print(tb)
-        #    msg = str(tb)
-        #    head = 'google-mapswipe-workers: transfer_results.py: error occured'
-        #    send_slack_message(head + '\n' + msg)
+        try:
+            run_transfer_results()
+        except Exception as error:
+            error_handling.send_error(error, 'transfer_results.py')
 
         # check if the script should be looped
         if args.loop:
