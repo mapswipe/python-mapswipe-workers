@@ -42,15 +42,46 @@ def get_results_from_firebase():
     results = fb_db.child("results").get().val()
     return results
 
-def delete_results_in_firebase(task_id, child_id):
+def delete_result_in_firebase(q):
+
+    while not q.empty():
+        fb_db, task_id, child_id = q.get()
+        try:
+            fb_db.child("results").child(task_id).child(child_id).remove()
+        except:
+            # add a catch, if something with the connection to firebase goes wrong and log potential errors
+            tb = sys.exc_info()
+            logging.warning(str(tb))
+
+        q.task_done()
+
+
+def delete_firebase_results(all_results):
     firebase = firebase_admin_auth()
     fb_db = firebase.database()
-    fb_db.child("results").child(task_id).child(child_id).remove()
+
+    # we will use a queue to limit the number of threads running in parallel
+    q = Queue(maxsize=0)
+    num_threads = 24
+
+    for task_id, results in all_results.items():
+        for child_id, result in results.items():
+            q.put([fb_db, task_id, child_id])
+
+    for i in range(num_threads):
+        worker = threading.Thread(
+            target=delete_result_in_firebase,
+            args=(q,))
+        worker.start()
+
+    q.join()
+
+    del fb_db
 
 
 def results_to_txt(all_results):
     results_txt_filename = 'raw_results.txt'
-    results_txt_file = open(results_txt_filename, 'r')
+    results_txt_file = open(results_txt_filename, 'w')
     
     for task_id, results in all_results.items():
         for child_id, result in results.items():
@@ -70,6 +101,7 @@ def results_to_txt(all_results):
             results_txt_file.write(outline)
 
     results_txt_file.close()
+    print('saves results as raw_results.txt')
 
     return results_txt_filename
 
@@ -77,34 +109,29 @@ def results_to_txt(all_results):
 def save_results_mysql(results_filename):
     ### this function saves the results from firebase to the mysql database
 
-    # Open CSV file
-    results_file = open(results_filename, 'r')
-    columns = ('task_id', 'user_id', 'project_id', 'timestamp', 'result', 'wkt', 'task_x', 'task_y', 'task_z', 'duplicates')
-    raw_results_table_name = 'raw_results'
-    results_table_name = 'results'
-
     # first import to a table where we store the geom as text
     m_con = mysqlDB()
     sql_insert = '''
         DROP TABLE IF EXISTS raw_results CASCADE;
         CREATE TABLE raw_results (
-            task_id varchar(45) PK 
-            user_id varchar(45) PK 
-            project_id int(5) PK 
-            timestamp bigint(32) 
-            result int(1) 
-            wkt varchar(256) 
-            task_x varchar(45) 
-            task_y varchar(45) 
-            task_z varchar(45) 
-            duplicates int(5)
+            task_id varchar(45) 
+            ,user_id varchar(45) 
+            ,project_id int(5) 
+            ,timestamp bigint(32) 
+            ,result int(1) 
+            ,wkt varchar(256) 
+            ,task_x varchar(45) 
+            ,task_y varchar(45) 
+            ,task_z varchar(45) 
+            ,duplicates int(5)
         );
         '''
 
     m_con.query(sql_insert, None)
+    print('Created new table for raw results')
 
     # copy data to the new table
-    # we should use LOAD DATA INFILE Syntax
+    # we should use LOAD DATA LOCAL INFILE Syntax
     sql_insert = '''
             LOAD DATA LOCAL INFILE 'raw_results.txt' INTO TABLE raw_results
             '''
@@ -121,101 +148,16 @@ def save_results_mysql(results_filename):
         FROM
           raw_results
         ON DUPLICATE KEY
-          UPDATE duplicates = duplicates + 1
+          UPDATE results.duplicates = results.duplicates + 1
         ;
         DROP TABLE IF EXISTS raw_results CASCADE;
     '''
 
     m_con.query(sql_insert, None)
-    print('inserted task information in tasks table')
+    print('inserted raw results into results table and updated duplicates count')
 
-    m_con.close()
-    return
-
-
-
-def save_to_database(data):
-    m_con = mysqlDB()
-
-    task_id = data["id"]
-    user_id = data["user"]
-    project_id = int(data["projectId"])
-    timestamp = int(data["timestamp"])
-    result = int(data["result"])
-    wkt = data["wkt"]
-    task_x = data["id"].split('-')[1]
-    task_y = data["id"].split('-')[2]
-    task_z = data["id"].split('-')[0]
-    duplicates = 0
-
-    sql_insert = "INSERT INTO results Values(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
-
-    data = [str(task_id), str(user_id), int(project_id), int(timestamp), int(result), str(wkt), str(task_x),
-            str(task_y), str(task_z), int(duplicates)]
-    # insert in table
-    m_con.query(sql_insert, data)
     del m_con
-
-def data_transfer(q):
-
-    while not q.empty():
-        task_id, child_id, data = q.get()
-
-        try:
-            save_to_database(data)
-            delete_results_in_firebase(task_id, child_id)
-            #print('entry in mysql imported and deleted the following entry already.')
-            #print(task_id, child_id, data)
-            logging.info('entry in mysql imported and deleted the following entry already.')
-            logging.info('task_id: %s, child_id: %s' % (task_id, child_id))
-            q.task_done()
-
-        except pymysql.err.IntegrityError as e:
-            # we need to catch duplicate entries, 1062 --> "duplicate entry"
-            if e.args[0] == 1062:
-                print('Duplicate entry in mysql not imported. Will delete the following entry now.')
-                print(task_id, child_id, data)
-                logging.warning('Duplicate entry in mysql not imported. Will delete the following entry now.')
-                logging.warning('task_id: %s, child_id: %s' % (task_id, child_id))
-                delete_results_in_firebase(task_id, child_id)
-                q.task_done()
-        except:
-            print('error during data transfer. Do nothing.')
-            print(sys.exc_info())
-            logging.warning('error during data transfer. Do nothing.')
-            logging.warning(sys.exc_info())
-            q.task_done()
-
-def transfer_results(results_filename, all_results):
-    print('there are %s results to transfer.' % len(all_results))
-    logging.warning('there are %s results to transfer.' % len(all_results))
-
-
-    # we will use a queue to limit the number of threads running in parallel
-    q = Queue(maxsize=0)
-    num_threads = 8
-
-    for task_id, results in all_results.items():
-        # there might be several results for a task_id
-        for child_id, result in results.items():
-            # each result has a user_id and data
-            data = result['data']
-            q.put([task_id, child_id, data])
-
-    print('added all results to queue')
-    logging.warning('added all results to queue')
-
-    for i in range(num_threads):
-        worker = threading.Thread(
-            target=data_transfer,
-            args=(q,))
-        worker.start()
-
-    q.join()
-
-    print('transfered all results from firebase to mysql')
-    logging.warning('transfered all results from firebase to mysql')
-
+    return
 
 
 def run_transfer_results():
@@ -235,7 +177,11 @@ def run_transfer_results():
         # start to import the old results first
         with open(results_filename) as results_file:
             results = json.load(results_file)
-            transfer_results(results_filename, results)
+            results_txt_filename = results_to_txt(results)
+
+            save_results_mysql(results_txt_filename)
+
+            delete_firebase_results(results)
 
         os.remove(results_filename)
         print('removed "results.json" file')
@@ -243,6 +189,7 @@ def run_transfer_results():
 
     firebase = firebase_admin_auth()
     fb_db = firebase.database()
+    print('opened connection to firebase')
 
     # this tries to set the max pool connections to 100
     adapter = requests.adapters.HTTPAdapter(max_retries=5, pool_connections=100, pool_maxsize=100)
@@ -267,7 +214,8 @@ def run_transfer_results():
 
         save_results_mysql(results_txt_filename)
 
-        #transfer_results(results_filename, all_results)
+        delete_firebase_results(all_results)
+
         os.remove(results_filename)
         print('removed "results.json" file')
         logging.warning('removed "results.json" file')
@@ -302,17 +250,17 @@ if __name__ == '__main__':
         print('###### ###### ###### ######')
 
         # this runs the script and sends an email if an error happens within the execution
-        try:
-            run_transfer_results()
-        except:
-            tb = sys.exc_info()
-            # log error
-            logging.error(str(tb))
-            # send mail to mapswipe google group with
-            print(tb)
-            msg = str(tb)
-            head = 'google-mapswipe-workers: transfer_results.py: error occured'
-            send_slack_message(head + '\n' + msg)
+        #try:
+        run_transfer_results()
+        #except:
+        #    tb = sys.exc_info()
+        #    # log error
+        #    logging.error(str(tb))
+        #    # send mail to mapswipe google group with
+        #    print(tb)
+        #    msg = str(tb)
+        #    head = 'google-mapswipe-workers: transfer_results.py: error occured'
+        #    send_slack_message(head + '\n' + msg)
 
         # check if the script should be looped
         if args.loop:
