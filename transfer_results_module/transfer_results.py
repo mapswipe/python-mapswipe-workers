@@ -191,7 +191,7 @@ def run_transfer_results():
         # start to import the old results first
         with open(results_filename) as results_file:
             results = json.load(results_file)
-            results_txt_filename, number_of_results = results_to_txt(results)
+            results_txt_filename = results_to_txt(results)
             logging.warning("there are results in %s that we didnt't insert. do it now!" % results_filename)
             save_results_mysql(results_txt_filename)
 
