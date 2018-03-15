@@ -1,4 +1,5 @@
 # Python MapSwipe Workers Documentation
+[![Waffle.io - Columns and their card count](https://badge.waffle.io/mapswipe/python-mapswipe-workers.svg?columns=all)](http://waffle.io/mapswipe/python-mapswipe-workers)
 If you are new to MapSwipe it might be good to have a look at the [MapSwipe Data Model](mapswipe_data_model.md) first.
 
 The python-mapswipe-workers consist of several python scripts. They do the follwing things:
