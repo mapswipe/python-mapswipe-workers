@@ -14,10 +14,10 @@ import logging
 import json
 import os
 import time
+import csv
 import requests
 from auth import firebase_admin_auth
 from auth import mysqlDB
-from send_slack_message import send_slack_message
 
 import argparse
 
@@ -64,26 +64,28 @@ def delete_firebase_results(all_results):
 
 def results_to_txt(all_results):
     results_txt_filename = 'raw_results.txt'
-    results_txt_file = open(results_txt_filename, 'w')
+    # If csvfile is a file object, it should be opened with newline=''
+    results_txt_file = open(results_txt_filename, 'w', newline='')
+    csvwriter = csv.writer(results_txt_file, delimiter='\t')
 
     number_of_results = 0
     for task_id, results in all_results.items():
         for child_id, result in results.items():
             number_of_results += 1
-            outline = '{task_id}\t{user_id}\t{project_id}\t{timestamp}\t{result}\t{wkt}\t{task_x}\t{task_y}\t{task_z}\t{duplicates}\n'.format(
-                task_id = task_id,
-                user_id = result['data']['user'],
-                project_id = result['data']['projectId'],
-                result = result['data']['result'],
-                timestamp = result['data']['timestamp'],
-                wkt = result['data']['wkt'],
-                task_x = task_id.split('-')[1],
-                task_y = task_id.split('-')[2],
-                task_z = task_id.split('-')[0],
-                duplicates = 0
-            )
 
-            results_txt_file.write(outline)
+            output_list = [
+                task_id,
+                result['data']['user'],
+                int(result['data']['projectId']),
+                int(result['data']['timestamp']),
+                int(result['data']['result']),
+                result['data']['wkt'],
+                task_id.split('-')[1],
+                task_id.split('-')[2],
+                task_id.split('-')[0],
+                0
+            ]
+            csvwriter.writerow(output_list)
 
     results_txt_file.close()
     logging.warning('there are %s results to import' % number_of_results)
