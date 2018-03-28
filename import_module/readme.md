@@ -40,7 +40,7 @@ tail -100 /data/python-mapswipe-workers/export_module/export_data.log
 ## About the Grouping Algorithm
 If the terms *group*, *task* and *project* sound not familiar to you in the context of MapSwipe have a look at the [MapSwipe data model](../mapswipe_data_model.md) first.
 
-The grouping algorithm creates a `.json` file that can be uploaded into firebase groups table. This file containers also the task information for all tasks within each group. There is no separate file for tasks. All information is stored in the `group_{project_id}.json` file. Basically the grouping workflow contains of these steps:
+The grouping algorithm creates a `.json` file that can be uploaded into firebase groups table. This file contains also the task information for all tasks within each group. There is no separate file for tasks. All information is stored in the `group_{project_id}.json` file. Basically the grouping workflow contains of these steps:
 * load geometry from `.kml`, `.geojson` or `.shp` file (`get_geometry_from_file(input_file)`)
 * slice input polygon horizontally (`get_horizontal_slice(extent, geomcol, config['zoom'])`)
     * All created slices will have a height of three tiles
