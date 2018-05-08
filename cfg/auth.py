@@ -114,7 +114,9 @@ class mysqlDB(object):
             database=dbname,
             user=user,
             password=password,
-            host=host)
+            host=host,
+            # we need to enable this to upload files to mysql
+            local_infile=True)
 
     def query(self, query, data):
         self._db_cur = self._db_connection.cursor()
@@ -160,7 +162,9 @@ class dev_mysqlDB(object):
             database=dbname,
             user=user,
             password=password,
-            host=host)
+            host=host,
+            # we need to enable this to upload files to mysql
+            local_infile=True)
 
     def query(self, query, data):
         self._db_cur = self._db_connection.cursor()
