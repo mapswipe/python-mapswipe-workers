@@ -8,11 +8,12 @@ import pymysql  # handle mysql
 import json
 import sys
 
+CONFIG_PATH = '../cfg/config.cfg'
 
 # Configuration of the firebase database
 def firebase_admin_auth():
     try:
-        with open('../cfg/config.cfg') as json_data_file:
+        with open(CONFIG_PATH) as json_data_file:
             data = json.load(json_data_file)
             api_key = data['firebase']['api_key']
             auth_domain = data['firebase']['auth_domain']
@@ -40,7 +41,7 @@ def firebase_admin_auth():
 
 def dev_firebase_admin_auth():
     try:
-        with open('../cfg/config.cfg') as json_data_file:
+        with open(CONFIG_PATH) as json_data_file:
             data = json.load(json_data_file)
             api_key = data['dev_firebase']['api_key']
             auth_domain = data['dev_firebase']['auth_domain']
@@ -71,7 +72,7 @@ def dev_firebase_admin_auth():
 # get the api_key
 def get_api_key(tileserver):
     try:
-        with open('../cfg/config.cfg') as json_data_file:
+        with open(CONFIG_PATH) as json_data_file:
             data = json.load(json_data_file)
             api_key = data['imagery'][tileserver]
             return api_key
@@ -84,7 +85,7 @@ def get_api_key(tileserver):
 # get the import submission_key
 def get_submission_key():
     try:
-        with open('../cfg/config.cfg') as json_data_file:
+        with open(CONFIG_PATH) as json_data_file:
             data = json.load(json_data_file)
             submission_key = data['import']['submission_key']
             return submission_key
@@ -100,7 +101,7 @@ class mysqlDB(object):
     def __init__(self):
         # try to load configuration from config file
         try:
-            with open('../cfg/config.cfg') as json_data_file:
+            with open(CONFIG_PATH) as json_data_file:
                 data = json.load(json_data_file)
                 dbname = data['mysql']['database']
                 user = data['mysql']['username']
@@ -146,7 +147,7 @@ class dev_mysqlDB(object):
     def __init__(self):
         # try to load configuration from config file
         try:
-            with open('../cfg/config.cfg') as json_data_file:
+            with open(CONFIG_PATH) as json_data_file:
                 data = json.load(json_data_file)
                 dbname = data['dev_mysql']['database']
                 user = data['dev_mysql']['username']
