@@ -76,10 +76,9 @@ def get_api_key(tileserver):
             data = json.load(json_data_file)
             api_key = data['imagery'][tileserver]
             return api_key
-    except:
-        print("Something is wrong with your API key."
-              "Do you even have an API key?")
-        sys.exit()
+    except Exception:
+        print("Couldn't parse %s as JSON" % CONFIG_PATH)
+        raise
 
 
 # get the import submission_key
