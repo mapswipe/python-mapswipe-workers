@@ -13,8 +13,7 @@ def _get_error_message_details(error):
     stk = traceback.extract_tb(error_traceback, 1)
 
     return (
-        '{error_class} processing TIN / NPI message! '
-        'In {function}, the following error happened - {detail} at line {line}. '
+        '{error_class}. In {function}, the following error happened - {detail} at line {line}. '
     ).format(
         error_class=error.__class__.__name__,
         function=stk[0][2],
