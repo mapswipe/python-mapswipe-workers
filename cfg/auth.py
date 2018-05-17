@@ -10,17 +10,28 @@ import sys
 
 CONFIG_PATH = '../cfg/config.cfg'
 
+try:
+    with open(CONFIG_PATH) as f:
+        config_data = f.read()
+except IOError:
+    print('Unable to load configuration file at {}. Exiting.'.format(CONFIG_PATH))
+    raise
+
+try:
+    CONFIG = json.loads(config_data)
+except ValueError:
+    print("Unable to parse configuration file at {}, likely because of malformed JSON. Exiting.".format(CONFIG_PATH))
+    raise
+
 # Configuration of the firebase database
 def firebase_admin_auth():
     try:
-        with open(CONFIG_PATH) as json_data_file:
-            data = json.load(json_data_file)
-            api_key = data['firebase']['api_key']
-            auth_domain = data['firebase']['auth_domain']
-            database_url = data['firebase']['database_url']
-            storage_bucket = data['firebase']['storage_bucket']
-            service_account = data['firebase']['service_account']
-            # print('use configuration for psql as provided by config.json')
+        api_key = CONFIG['firebase']['api_key']
+        auth_domain = CONFIG['firebase']['auth_domain']
+        database_url = CONFIG['firebase']['database_url']
+        storage_bucket = CONFIG['firebase']['storage_bucket']
+        service_account = CONFIG['firebase']['service_account']
+        # print('use configuration for psql as provided by config.json')
     except:
         # Default Configuration
         print('could not get firebase informtaion from config file')
@@ -41,13 +52,11 @@ def firebase_admin_auth():
 
 def dev_firebase_admin_auth():
     try:
-        with open(CONFIG_PATH) as json_data_file:
-            data = json.load(json_data_file)
-            api_key = data['dev_firebase']['api_key']
-            auth_domain = data['dev_firebase']['auth_domain']
-            database_url = data['dev_firebase']['database_url']
-            storage_bucket = data['dev_firebase']['storage_bucket']
-            service_account = data['dev_firebase']['service_account']
+        api_key = CONFIG['dev_firebase']['api_key']
+        auth_domain = CONFIG['dev_firebase']['auth_domain']
+        database_url = CONFIG['dev_firebase']['database_url']
+        storage_bucket = CONFIG['dev_firebase']['storage_bucket']
+        service_account = CONFIG['dev_firebase']['service_account']
     except:
         # Default Configuration
         print('could not get firebase dev information from config file')
@@ -72,25 +81,19 @@ def dev_firebase_admin_auth():
 # get the api_key
 def get_api_key(tileserver):
     try:
-        with open(CONFIG_PATH) as json_data_file:
-            data = json.load(json_data_file)
-            api_key = data['imagery'][tileserver]
-            return api_key
-    except Exception:
-        print("Couldn't parse %s as JSON" % CONFIG_PATH)
+        return CONFIG['imagery'][tileserver]
+    except KeyError:
+        print("Couldn't find the API key for imagery tileserver {} in {}".format(tileserver, CONFIG_PATH))
         raise
 
 
 # get the import submission_key
 def get_submission_key():
     try:
-        with open(CONFIG_PATH) as json_data_file:
-            data = json.load(json_data_file)
-            submission_key = data['import']['submission_key']
-            return submission_key
-    except:
-        print('we could not load submission key info the config file')
-        sys.exit()
+        return CONFIG['import']['submission_key']
+    except KeyError:
+        print("Couldn't find the submission key in {}".format(CONFIG_PATH))
+        raise
 
 
 class mysqlDB(object):
@@ -100,13 +103,11 @@ class mysqlDB(object):
     def __init__(self):
         # try to load configuration from config file
         try:
-            with open(CONFIG_PATH) as json_data_file:
-                data = json.load(json_data_file)
-                dbname = data['mysql']['database']
-                user = data['mysql']['username']
-                password = data['mysql']['password']
-                host = data['mysql']['host']
-                # print('use configuration for mysql as provided by config.json')
+            dbname = CONFIG['mysql']['database']
+            user = CONFIG['mysql']['username']
+            password = CONFIG['mysql']['password']
+            host = CONFIG['mysql']['host']
+            # print('use configuration for mysql as provided by config.json')
         except:
             print('we could not load mysql info the config file')
             sys.exit()
@@ -146,13 +147,11 @@ class dev_mysqlDB(object):
     def __init__(self):
         # try to load configuration from config file
         try:
-            with open(CONFIG_PATH) as json_data_file:
-                data = json.load(json_data_file)
-                dbname = data['dev_mysql']['database']
-                user = data['dev_mysql']['username']
-                password = data['dev_mysql']['password']
-                host = data['dev_mysql']['host']
-                # print('use configuration for mysql as provided by config.json')
+            dbname = CONFIG['dev_mysql']['database']
+            user = CONFIG['dev_mysql']['username']
+            password = CONFIG['dev_mysql']['password']
+            host = CONFIG['dev_mysql']['host']
+            # print('use configuration for mysql as provided by config.json')
         except:
             # Default configuration
             print('we could not load mysql dev info from the config file')
