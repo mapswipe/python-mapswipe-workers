@@ -11,15 +11,15 @@ sys.path.insert(0, '../utils/')
 
 import logging
 import os
-import time
-import ogr
 
-from auth import get_submission_key
-from create_groups import run_create_groups
+from osgeo import ogr
 
-import error_handling
+from cfg.auth import get_submission_key
+from import_module.create_groups import run_create_groups
 
-from send_slack_message import send_slack_message
+from utils import error_handling
+
+from utils.send_slack_message import send_slack_message
 
 import argparse
 parser = argparse.ArgumentParser(description='Process some integers.')

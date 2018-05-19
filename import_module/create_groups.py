@@ -3,17 +3,16 @@
 # Author: M. Reinmuth, B. Herfort
 ####################################################################################################
 
+import os
 import sys
 
 import json
 import logging
 import math
-import os
-import ogr
-import osr
-import gdal
 
-from auth import get_api_key
+from osgeo import osr, ogr, gdal
+
+from cfg.auth import get_api_key
 
 import argparse
 
