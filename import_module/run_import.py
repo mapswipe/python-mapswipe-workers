@@ -441,13 +441,13 @@ if __name__ == '__main__':
 
     if args.modus == 'development':
         # we use the dev instance for testing
-        from auth import dev_firebase_admin_auth as firebase_admin_auth
-        from auth import dev_mysqlDB as mysqlDB
+        from cfg.auth import dev_firebase_admin_auth as firebase_admin_auth
+        from cfg.auth import dev_mysqlDB as mysqlDB
         print('We are using the development instance')
     elif args.modus == 'production':
         # we use the dev instance for testing
-        from auth import firebase_admin_auth as firebase_admin_auth
-        from auth import mysqlDB as mysqlDB
+        from cfg.auth import firebase_admin_auth as firebase_admin_auth
+        from cfg.auth import mysqlDB as mysqlDB
         print('We are using the production instance')
 
     # check whether arguments are correct
