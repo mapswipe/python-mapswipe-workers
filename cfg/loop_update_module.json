@@ -1,7 +1,7 @@
 {
   "name": "loop_update_module",
-  "script": "run_update.py",
-  "cwd": "/data/python-mapswipe-workers/update_module",
+  "script": "./update_module/run_update.py",
+  "cwd": "/data/python-mapswipe-workers",
   "exec_interpreter": "/data/environments/mapswipe_workers/bin/python3",
   "log_date_format": "YYYY-MM-DD HH:mm Z",
   "autorestart": true,
