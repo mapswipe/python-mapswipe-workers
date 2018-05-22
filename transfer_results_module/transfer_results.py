@@ -2,8 +2,6 @@
 # -*- coding: UTF-8 -*-
 # Author: M. Reinmuth, B. Herfort
 ####################################################################################################
-
-import error_handling
 import logging
 import json
 import os
@@ -13,6 +11,8 @@ import requests
 
 from cfg.auth import firebase_admin_auth
 from cfg.auth import mysqlDB
+
+from utils import error_handling
 
 import argparse
 
