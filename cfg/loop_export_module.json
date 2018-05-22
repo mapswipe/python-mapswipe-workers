@@ -1,7 +1,7 @@
 {
   "name": "loop_export_module",
-  "script": "run_export.py",
-  "cwd": "/data/python-mapswipe-workers/export_module",
+  "script": "./export_module/run_export.py",
+  "cwd": "/data/python-mapswipe-workers/",
   "exec_interpreter": "/data/environments/mapswipe_workers/bin/python3",
   "log_date_format": "YYYY-MM-DD HH:mm Z",
   "autorestart": true,
