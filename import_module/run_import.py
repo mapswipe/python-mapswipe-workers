@@ -4,6 +4,7 @@
 ########################################################################################################################
 
 import sys
+import time
 # add some files in different folders to sys.
 # these files can than be loaded directly
 sys.path.insert(0, '../cfg/')
