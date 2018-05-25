@@ -30,7 +30,7 @@ tail -100 /data/python-mapswipe-workers/transfer_results_module/transfer_results
 ```
 
 ## Test manually
-After starting the transfer results script using pm2 process manager you can type `pm2 logs {id}` to get the logs of your specific task. The ouput in pm2 should look like this:
+After starting the transfer results script using pm2 process manager you can type `pm2 logs {id}` to get the logs of your specific task. The output in pm2 should look like this:
 ```
 0|loop_tra | 2018-05-25 12:13 +00:00:  
 0|loop_tra | ###### ###### ###### ######
