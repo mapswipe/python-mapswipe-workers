@@ -29,6 +29,25 @@ pm2 list
 tail -100 /data/python-mapswipe-workers/transfer_results_module/transfer_results.log
 ```
 
+## Test manually
+After starting the transfer results script using pm2 process manager you can type `pm2 logs {id}` to get the logs of your specific task. The ouput in pm2 should look like this:
+```
+0|loop_tra | 2018-05-25 12:13 +00:00:  
+0|loop_tra | ###### ###### ###### ######
+0|loop_tra | ###### iteration: 1 ######
+0|loop_tra | ###### ###### ###### ######
+0|loop_tra | opened connection to firebase
+0|loop_tra | downloaded all results from firebase
+0|loop_tra | wrote results data to results.json
+0|loop_tra | there are 23 results to import
+0|loop_tra | dropped raw results table
+0|loop_tra | Created new table for raw results
+0|loop_tra | copied results information to mysql
+0|loop_tra | inserted raw results into results table and updated duplicates count
+0|loop_tra | finished deleting results
+0|loop_tra | removed "results.json" file
+0|loop_tra | import finished and max iterations reached. sleeping now.
+```
 
 ## Tests using docker
 To run tests using docker, simply run the following commnands:
