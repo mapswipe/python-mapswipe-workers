@@ -38,6 +38,22 @@ pm2 list
 tail -100 /data/python-mapswipe-workers/export_module/export_data.log
 ```
 
+The logs of the script in pm2 should look like this:
+```
+05-25 12:12:39 WARNING  start project results export for project: 13517
+05-25 12:12:39 WARNING  project is in firebase projects table and has all attributes: 13517
+05-25 12:12:39 WARNING  project exists in firebase: 13517
+05-25 12:12:40 WARNING  got results information from mysql for project: 13517. rows = 15727
+05-25 12:12:40 WARNING  wrote results to json file for project: 13517. outfile = /var/www/html/projects/13517.json
+05-25 12:12:40 WARNING  start project results export for project: 13509
+...
+05-25 12:12:45 WARNING  got user information from firebase.
+05-25 12:12:45 WARNING  exported users.json file: /var/www/html/users.json
+05-25 12:12:45 WARNING  computed stats based on user information from firebase.
+05-25 12:12:45 WARNING  exported stats.json file: /var/www/html/stats.json
+05-25 12:12:45 WARNING  finished users and stats export, 1.052970 sec.
+```
+
 
 ## Submodules
 ### Export Project Results
