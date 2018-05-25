@@ -37,6 +37,11 @@ pm2 list
 tail -100 /data/python-mapswipe-workers/export_module/export_data.log
 ```
 
+The logs should look like this:
+```
+05-25 12:11:29 WARNING There are no projects to import.
+```
+
 ## About the Grouping Algorithm
 If the terms *group*, *task* and *project* sound not familiar to you in the context of MapSwipe have a look at the [MapSwipe data model](../mapswipe_data_model.md) first.
 

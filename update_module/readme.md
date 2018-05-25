@@ -33,6 +33,15 @@ pm2 list
 tail -100 /data/python-mapswipe-workers/update_module/project_update.log
 ```
 
+The logs should look like this:
+```
+...
+05-25 12:15:11 DEBUG    "GET /projects/13513/progress.json?shallow=true HTTP/1.1" 200 2
+05-25 12:15:11 WARNING  update progress in firebase for project 13513 successful
+05-25 12:15:11 WARNING  log progress to file for project 13513 successful
+05-25 12:15:11 WARNING  finished project progress update for projects: ['13516', '13517', '13518', '13509', '13513'], 43.408776 sec.
+05-25 12:15:11 WARNING  update finished and max iterations reached. sleeping now for 900 sec.
+```
 
 ## Submodules
 ### Update Project Contributors
