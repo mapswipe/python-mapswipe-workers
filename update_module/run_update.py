@@ -10,7 +10,7 @@ from update_module.update_project_contributors import update_project_contributor
 from update_module.update_project_progress import update_project_progress
 
 from cfg.auth import firebase_admin_auth
-from utils.send_slack_message import send_slack_message
+from utils import error_handling
 
 import time
 import argparse
@@ -129,15 +129,8 @@ if __name__ == '__main__':
         # this runs the script and sends an email if an error happens within the execution
         try:
             run_update(args.modus, args.user_project_list, args.output_path)
-        except:
-            tb = sys.exc_info()
-            # log error
-            logging.warning(str(tb))
-            # send mail to mapswipe google group with
-            print(tb)
-            msg = str(tb)
-            head = 'google-mapswipe-workers: run_update.py: error occured'
-            send_slack_message(head + '\n' + msg)
+        except BaseException as error:
+            error_handling.send_error(error, 'run_update.py')
 
         # check if the script should be looped
         if args.loop:
