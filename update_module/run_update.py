@@ -6,8 +6,9 @@
 import logging
 import sys
 
-from update_modue.update_project_contributors import update_project_contributors
-from update_modue.update_project_progress import update_project_progress
+from update_module.update_project_contributors import update_project_contributors
+from update_module.update_project_progress import update_project_progress
+
 from cfg.auth import firebase_admin_auth
 from utils.send_slack_message import send_slack_message
 

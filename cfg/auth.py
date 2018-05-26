@@ -8,7 +8,7 @@ import pymysql  # handle mysql
 import json
 import sys
 
-CONFIG_PATH = '../cfg/config.cfg'
+CONFIG_PATH = './cfg/config.cfg'
 
 try:
     with open(CONFIG_PATH) as f:
@@ -35,7 +35,7 @@ def firebase_admin_auth():
     except:
         # Default Configuration
         print('could not get firebase informtaion from config file')
-        sys.exit()
+        sys.exit(1)
 
     # adapt this to your firebase setting
     config = {
@@ -59,8 +59,8 @@ def dev_firebase_admin_auth():
         service_account = CONFIG['dev_firebase']['service_account']
     except:
         # Default Configuration
-        print('could not get firebase dev information from config file')
-        sys.exit()
+        print('Could not get firebase dev information from config file.')
+        sys.exit(1)
 
     # adapt this to your firebase setting
     config = {
@@ -83,7 +83,7 @@ def get_api_key(tileserver):
     try:
         return CONFIG['imagery'][tileserver]
     except KeyError:
-        print("Couldn't find the API key for imagery tileserver {} in {}".format(tileserver, CONFIG_PATH))
+        print('Could not find the API key for imagery tileserver {} in {}.'.format(tileserver, CONFIG_PATH))
         raise
 
 
@@ -109,8 +109,8 @@ class mysqlDB(object):
             host = CONFIG['mysql']['host']
             # print('use configuration for mysql as provided by config.json')
         except:
-            print('we could not load mysql info the config file')
-            sys.exit()
+            print('Could not load mysql info from config file.')
+            sys.exit(1)
 
         self._db_connection = pymysql.connect(
             database=dbname,
@@ -155,7 +155,7 @@ class dev_mysqlDB(object):
         except:
             # Default configuration
             print('we could not load mysql dev info from the config file')
-            sys.exit()
+            sys.exit(1)
 
         self._db_connection = pymysql.connect(
             database=dbname,

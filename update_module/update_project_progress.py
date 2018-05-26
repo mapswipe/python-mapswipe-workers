@@ -16,7 +16,7 @@ import threading
 import time
 from queue import Queue
 import requests
-from auth import firebase_admin_auth
+from cfg.auth import firebase_admin_auth
 import argparse
 
 

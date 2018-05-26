@@ -1,7 +1,7 @@
 {
   "name": "loop_import_module",
-  "script": "run_import.py",
-  "cwd": "/data/python-mapswipe-workers/import_module",
+  "script": "./import_module/run_import.py",
+  "cwd": "/data/python-mapswipe-workers/",
   "exec_interpreter": "/data/environments/mapswipe_workers/bin/python3",
   "log_date_format": "YYYY-MM-DD HH:mm Z",
   "autorestart": true,

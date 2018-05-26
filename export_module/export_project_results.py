@@ -13,8 +13,8 @@ sys.path.insert(0, '../utils/')
 
 import logging
 import time
-from auth import firebase_admin_auth
-from auth import mysqlDB
+from cfg.auth import firebase_admin_auth
+from cfg.auth import mysqlDB
 
 import argparse
 # define arguments that can be passed by the user
@@ -62,15 +62,15 @@ def get_project_results(project_id):
           ,task_y
           ,task_z
           ,avg(result) as decision
-          ,SUM(CASE 
+          ,SUM(CASE
             WHEN result = 1 THEN 1
             ELSE 0
            END) AS yes_count
-           ,SUM(CASE 
+           ,SUM(CASE
             WHEN result = 2 THEN 1
             ELSE 0
            END) AS maybe_count
-           ,SUM(CASE 
+           ,SUM(CASE
             WHEN result = 3 THEN 1
             ELSE 0
            END) AS bad_imagery_count
@@ -78,7 +78,7 @@ def get_project_results(project_id):
         from
           results
         where
-          project_id = %s and result > 0 
+          project_id = %s and result > 0
         group by
           task_id, wkt'''
 

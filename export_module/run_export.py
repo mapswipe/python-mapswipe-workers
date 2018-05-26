@@ -11,7 +11,8 @@ from export_module.export_project_results import export_project_results
 from export_module.export_projects import export_projects
 from export_module.export_users_and_stats import export_users_and_stats
 from cfg.auth import firebase_admin_auth
-from utils.send_slack_message import send_slack_message
+
+from utils import error_handling
 
 import time
 import argparse

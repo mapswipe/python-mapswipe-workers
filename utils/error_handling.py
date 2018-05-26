@@ -4,7 +4,7 @@ import traceback
 
 import logging
 
-from send_slack_message import send_slack_message
+from utils.send_slack_message import send_slack_message
 
 
 def _get_error_message_details(error):
