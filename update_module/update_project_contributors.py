@@ -10,17 +10,11 @@ sys.path.insert(0, '../cfg/')
 sys.path.insert(0, '../utils/')
 
 import logging
-import numpy as np
 import os
-import threading
 import time
-from queue import Queue
 
-import requests
-
-from auth import firebase_admin_auth
-from auth import mysqlDB
-
+from cfg.auth import firebase_admin_auth
+from cfg.auth import mysqlDB
 
 
 import argparse

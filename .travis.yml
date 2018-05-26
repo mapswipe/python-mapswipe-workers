@@ -6,6 +6,7 @@ python:
 before_install:
   # install gdal
   - sudo bash install_gdal.sh
+  - cp ./cfg/your_config_file.cfg ./cfg/config.cfg
 install:
   - export CPLUS_INCLUDE_PATH=/usr/include/gdal
   - export C_INCLUDE_PATH=/usr/include/gdal

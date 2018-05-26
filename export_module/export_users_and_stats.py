@@ -13,7 +13,7 @@ sys.path.insert(0, '../utils/')
 
 import logging
 import time
-from auth import firebase_admin_auth
+from cfg.auth import firebase_admin_auth
 
 import argparse
 # define arguments that can be passed by the user
