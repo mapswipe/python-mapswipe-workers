@@ -11,7 +11,7 @@ In firebase we need to set the [database rules](https://console.firebase.google.
 {
   "rules": {
     ".read": false,
-    ".write": "auth != null",
+    ".write": false,
       "groups" : {
         ".write": false,
         ".read" : true,
