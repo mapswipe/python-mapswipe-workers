@@ -370,7 +370,7 @@ def save_geom_as_geojson(geomcol, outfile):
 
 
 def tile_coords_zoom_and_tileserver_to_URL(TileX, TileY, zoomlevel, tileserver,
-                                           api_key, custom_tileserver_url):
+                                           api_key, layer, custom_tileserver_url):
     """Create a URL for a tile based on tile coordinates and zoom"""
     URL = ''
     if tileserver == 'bing':
@@ -384,6 +384,8 @@ def tile_coords_zoom_and_tileserver_to_URL(TileX, TileY, zoomlevel, tileserver,
     elif tileserver == 'google':
         URL = ("https://mt0.google.com/vt/lyrs=s&hl=en&x={}&y={}&z={}"
                .format(TileX, TileY, zoomlevel))
+    elif tileserver == 'sinergise':
+        URL = ("https://services.sentinel-hub.com/ogc/wmts/{}?request=getTile&tilematrixset=PopularWebMercator256&tilematrix={}&tilecol={}&tilerow={}&layer={}".format(api_key, zoomlevel, TileX, TileY, layer))
     elif tileserver == 'custom':
         # don't forget the linebreak!
         URL = custom_tileserver_url.format(z=zoomlevel, x=TileX, y=TileY)
@@ -435,6 +437,7 @@ def create_tasks(xmin, xmax, ymin, ymax, config):
                     TileX, TileY, config['zoom'],
                     config['tileserver'],
                     config['api_key'],
+                    config['layer_name'],
                     config['custom_tileserver_url'])
             # we no longer provide wkt geometry, you can calc using some python scripts
             #task['wkt'] = geometry_from_tile_coords(TileX, TileY, zoom)
