@@ -19,13 +19,15 @@ parser = argparse.ArgumentParser(description='Process some integers.')
 parser.add_argument('-i', '--input_file', required=False, default=None, type=str,
                     help='the input file containning the geometry as kml, shp or geojson')
 parser.add_argument('-t', '--tileserver', nargs='?', default='bing',
-                    choices=['bing', 'digital_globe', 'google', 'custom'])
+                    choices=['bing', 'digital_globe', 'google', 'custom', 'sinergise'])
 parser.add_argument('-z', '--zoomlevel', required=False, default=18, type=int,
                     help='the zoom level.')
 parser.add_argument('-p', '--project_id', required=False, default=None, type=int,
                     help='the project id.')
 parser.add_argument('-c', '--custom_tileserver_url', required=False, default=None, type=str,
                     help='the custom url with {z}, {x}, {y} placeholders')
+parser.add_argument('-l', '--wmts_layer_name', required=False, default=None, type=str,
+                    help='the name of the wmts layer.')
 
 ####################################################################################################
 
@@ -370,7 +372,7 @@ def save_geom_as_geojson(geomcol, outfile):
 
 
 def tile_coords_zoom_and_tileserver_to_URL(TileX, TileY, zoomlevel, tileserver,
-                                           api_key, layer, custom_tileserver_url):
+                                           api_key, wmts_layer_name, custom_tileserver_url):
     """Create a URL for a tile based on tile coordinates and zoom"""
     URL = ''
     if tileserver == 'bing':
@@ -385,7 +387,7 @@ def tile_coords_zoom_and_tileserver_to_URL(TileX, TileY, zoomlevel, tileserver,
         URL = ("https://mt0.google.com/vt/lyrs=s&hl=en&x={}&y={}&z={}"
                .format(TileX, TileY, zoomlevel))
     elif tileserver == 'sinergise':
-        URL = ("https://services.sentinel-hub.com/ogc/wmts/{}?request=getTile&tilematrixset=PopularWebMercator256&tilematrix={}&tilecol={}&tilerow={}&layer={}".format(api_key, zoomlevel, TileX, TileY, layer))
+        URL = ("https://services.sentinel-hub.com/ogc/wmts/{}?request=getTile&tilematrixset=PopularWebMercator256&tilematrix={}&tilecol={}&tilerow={}&layer={}".format(api_key, zoomlevel, TileX, TileY, wmts_layer_name))
     elif tileserver == 'custom':
         # don't forget the linebreak!
         URL = custom_tileserver_url.format(z=zoomlevel, x=TileX, y=TileY)
@@ -437,7 +439,7 @@ def create_tasks(xmin, xmax, ymin, ymax, config):
                     TileX, TileY, config['zoom'],
                     config['tileserver'],
                     config['api_key'],
-                    config['layer_name'],
+                    config['wmts_layer_name'],
                     config['custom_tileserver_url'])
             # we no longer provide wkt geometry, you can calc using some python scripts
             #task['wkt'] = geometry_from_tile_coords(TileX, TileY, zoom)
@@ -502,7 +504,7 @@ def create_groups(groups, config):
     return groups
 
 
-def run_create_groups(input_file, project_id, tileserver, custom_tileserver_url, zoom):
+def run_create_groups(input_file, project_id, tileserver, wmts_layer_name, custom_tileserver_url, zoom):
     logging.basicConfig(filename='run_import.log',
                         level=logging.WARNING,
                         format='%(asctime)s %(levelname)-8s %(message)s',
@@ -524,6 +526,7 @@ def run_create_groups(input_file, project_id, tileserver, custom_tileserver_url,
         "tileserver": tileserver,
         "custom_tileserver_url": custom_tileserver_url,
         "api_key": api_key,
+        "wmts_layer_name": wmts_layer_name,
         "zoom": zoom
     }
     logging.warning('will use the following config: %s' % config)
@@ -556,5 +559,5 @@ if __name__ == '__main__':
     except:
         print('have a look at the input arguments, something went wrong there.')
 
-    run_create_groups(args.input_file, args.project_id, args.tileserver, args.custom_tileserver_url, args.zoomlevel)
+    run_create_groups(args.input_file, args.project_id, args.tileserver, args.wmts_layer_name, args.custom_tileserver_url, args.zoomlevel)
 
