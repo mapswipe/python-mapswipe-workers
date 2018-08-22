@@ -122,3 +122,6 @@ The MySQL database consists of two tables:
 
 You can create these tables using `utils/setup_database_tables.py`.
 
+In order for module imports to work, might need to set the project root directory as the PYTHONPATH environment variable: 
+
+    export PYTHONPATH=/data/python-mapswipe-workers
