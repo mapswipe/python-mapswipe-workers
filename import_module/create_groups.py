@@ -129,8 +129,12 @@ def get_geometry_from_file(infile):
 
     # get feature geometry of all features of the input file
     geomcol = ogr.Geometry(ogr.wkbGeometryCollection)
-    for feature in layer:
+    feature = layer.GetNextFeature()
+    while feature is not None:
         geomcol.AddGeometry(feature.GetGeometryRef())
+        feature = layer.GetNextFeature()
+    #for feature in layer:
+    #    geomcol.AddGeometry(feature.GetGeometryRef())
 
     extent = layer.GetExtent()
     logging.info('got geometry and extent from file')
