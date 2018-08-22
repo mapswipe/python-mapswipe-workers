@@ -8,17 +8,21 @@ from cfg.auth import mysqlDB as mysqlDB
 def create_projects_table():
     m_con = mysqlDB()
 
-    sql_string = """
+    sql_string_create_table = """
     CREATE TABLE IF NOT EXISTS projects (
     project_id int(11)
     ,objective varchar(20)
     ,name varchar(45)
     );
-    ALTER TABLE projects ADD PRIMARY KEY (project_id)
     """
 
+    sql_string_alter_table = 'ALTER TABLE projects ADD PRIMARY KEY (project_id);'
+
+
     # create table
-    m_con.query(sql_string, None)
+    m_con.query(sql_string_create_table, None)
+    m_con.query(sql_string_alter_table, None)
+
     del m_con
 
     print('created projects table')
@@ -27,7 +31,7 @@ def create_projects_table():
 def create_results_table():
     m_con = mysqlDB()
 
-    sql_string = """
+    sql_string_create_table = """
     CREATE TABLE IF NOT EXISTS results (
     task_id varchar(45)
     ,user_id varchar(45)
@@ -40,11 +44,14 @@ def create_results_table():
     ,task_z varchar(45)
     ,duplicates int(5)
     );
-    ALTER TABLE results ADD PRIMARY KEY (task_id, user_id, project_id)
     """
 
+    sql_string_alter_table = 'ALTER TABLE results ADD PRIMARY KEY (task_id, user_id, project_id)'
+
     # create table
-    m_con.query(sql_string, None)
+    m_con.query(sql_string_create_table, None)
+    m_con.query(sql_string_alter_table, None)
+
     del m_con
 
     print('created results table')
