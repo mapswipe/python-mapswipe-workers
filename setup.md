@@ -103,6 +103,12 @@ Install `GDAL` at the system level:
 
      pip3 install GDAL==$(gdal-config --version | awk -F'[.]' '{print $1"."$2}')
 
+
+ alternatively, you can skip the environment variable exports with the following one-liner that specifies where the gdal headers are included:
+
+     pip3 install GDAL==$(gdal-config --version | awk -F'[.]' '{print $1"."$2}') --global-option=build_ext --global-option="-I/usr/include/gdal"
+
+
 ### Install the required python packages
 ```
 source /data/environments/mapswipe_workers/bin/activate
