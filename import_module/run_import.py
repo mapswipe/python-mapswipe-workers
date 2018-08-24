@@ -43,7 +43,6 @@ def get_projects_to_import():
 
     firebase = firebase_admin_auth()
     fb_db = firebase.database()
-
     # iterate over all the keys in the importer, add the ones to the import cache that are not yet complete
     all_imports = fb_db.child("imports").get().val()
 
@@ -134,7 +133,9 @@ def check_project_geometry(project):
         return err
 
     # check if the input geometry is a valid polygon
-    for feature in layer:
+    #for feature in layer:
+    feature = layer.GetNextFeature()
+    while feature is not None:
         feat_geom = feature.GetGeometryRef()
         geom_name = feat_geom.GetGeometryName()
 
@@ -147,6 +148,8 @@ def check_project_geometry(project):
             err = 'invalid geometry type: %s. please provide "POLYGON" or "MULTIPOLYGON"' % geom_name
             print(err)
             return err
+
+        feature = layer.GetNextFeature()
 
     del datasource
     del layer
@@ -290,11 +293,15 @@ def set_project_info(new_imports, import_key, project_id):
     except:
         project["tileserver"] = 'bing'
     try:
-        project["custom_tileserver_url"] = new_imports[import_key]["CustomTileServerUrl"]
+        project["wmtslayer"] = new_imports[import_key]["wmtsLayer"]
+    except:
+        project["wmtslayer"] = None
+    try:
+        project["custom_tileserver_url"] = new_imports[import_key]["customTileServerUrl"]
     except:
         project["custom_tileserver_url"] = None
     try:
-        project["zoom"] = new_imports[import_key]["ZoomLevel"]
+        project["zoom"] = new_imports[import_key]["zoomLevel"]
     except:
         project["zoom"] = 18
 
@@ -365,7 +372,7 @@ def run_import():
                 # create tiles from geometry
                 # create groups from tiles
                 groups = run_create_groups(filename, project["id"],
-                                           project["tileserver"], project["custom_tileserver_url"],
+                                           project["tileserver"], project["wmtslayer"],  project["custom_tileserver_url"],
                                            project["zoom"])
 
                 # upload groups in firebase
