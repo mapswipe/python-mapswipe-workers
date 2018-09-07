@@ -110,6 +110,7 @@ ENV/
 
 .idea
 import_module/data
+data/*
 
 # don't upload config files and api keys etc.
 cfg/config.cfg
