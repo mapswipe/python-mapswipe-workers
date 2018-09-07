@@ -53,6 +53,9 @@ In firebase we need to set the [database rules](https://console.firebase.google.
 }
 ```
 
+You can also already upload a sample import using this [json file](import_module/sample_import.json). Just upload the file to the import section of your firebase database using the web importer ("import from json").
+
+
 ## Compute Engine
 On the compute engine we use PM2 to monitor the python scripts, python3 in a virtual environment to run the scripts and we need GDAL for geometry processing.
 
