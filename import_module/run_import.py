@@ -166,6 +166,7 @@ def check_imports(new_imports):
     for import_key, project in new_imports.items():
         check_result = check_project_geometry(project)
         if check_result != 'correct':
+            print(project)
             corrupt_imports.append([import_key, project['project']['name'], check_result])
             print('some error in geometry')
         elif project['key'] != submission_key:
@@ -320,6 +321,8 @@ def get_highest_project_id():
     highest_project_id = project_ids[-1]
 
     logging.warning('returned highest project id: %s' % highest_project_id)
+    if highest_project_id == 0:
+        highest_project_id = 1
     return highest_project_id
 
 
@@ -476,10 +479,10 @@ if __name__ == '__main__':
         print('###### ###### ###### ######')
 
         # this runs the script and sends an email if an error happens within the execution
-        try:
-            run_import()
-        except Exception as error:
-            error_handling.send_error(error, 'run_import.py')
+        #try:
+        run_import()
+        #except Exception as error:
+        #    error_handling.send_error(error, 'run_import.py')
 
         # check if the script should be looped
         if args.loop:
