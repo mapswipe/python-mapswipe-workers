@@ -115,6 +115,11 @@ source /data/environments/mapswipe_workers/bin/activate
 pip3 install -r /data/python-mapswipe-workers/requirements.txt
 ```
 
+### install mapswipe workers package
+```
+python setup.py install
+```
+
 ## Cloud SQL
 The MySQL database consists of two tables:
 * `projects`

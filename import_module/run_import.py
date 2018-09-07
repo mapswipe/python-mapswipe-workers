@@ -179,7 +179,7 @@ def check_imports(new_imports):
         # send slack message that project was corrupt, maybe project manager could try to reimport
         msg = '%s \n %s \n %s \n %s' % (import_key, project_name, check_result, str(new_imports[import_key]))
         head = 'google-mapswipe-workers: run_import.py: project %s (%s) not imported' % (import_key, project_name)
-        send_slack_message(head + '\n' + msg)
+        # send_slack_message(head + '\n' + msg)
 
         # delete project from dict
         del new_imports[import_key]
@@ -330,7 +330,7 @@ def get_highest_project_id():
 ########################################################################################################################
 def run_import():
 
-    logging.basicConfig(filename='run_import.log',
+    logging.basicConfig(filename='import_module/run_import.log',
                         level=logging.WARNING,
                         format='%(asctime)s %(levelname)-8s %(message)s',
                         datefmt='%m-%d %H:%M:%S',
@@ -385,7 +385,7 @@ def run_import():
                     logging.warning(err)
                     msg = err
                     head = 'google-mapswipe-workers: run_import.py: error occured during group upload'
-                    send_slack_message(head + '\n' + msg)
+                    # send_slack_message(head + '\n' + msg)
                     continue
 
 
@@ -395,7 +395,7 @@ def run_import():
                     logging.warning(err)
                     msg = err
                     head = 'google-mapswipe-workers: run_import.py: error occured during project upload'
-                    send_slack_message(head + '\n' + msg)
+                    # send_slack_message(head + '\n' + msg)
 
                     # delete groups that have already been imported
                     delete_groups_firebase(project['id'])
@@ -407,7 +407,7 @@ def run_import():
                     logging.warning(err)
                     msg = err
                     head = 'google-mapswipe-workers: run_import.py: error occured during project insert in mysql'
-                    send_slack_message(head + '\n' + msg)
+                    # send_slack_message(head + '\n' + msg)
 
                     # delete groups and project that have already been imported in firebase
                     delete_groups_firebase(project['id'])
@@ -420,7 +420,7 @@ def run_import():
                     logging.warning(err)
                     msg = err
                     head = 'google-mapswipe-workers: run_import.py: error occured during project set complete'
-                    send_slack_message(head + '\n' + msg)
+                    # send_slack_message(head + '\n' + msg)
 
                     # delete groups and project that have already been imported in firebase
                     delete_groups_firebase(project['id'])
@@ -431,7 +431,7 @@ def run_import():
                 # send email that project was successfully imported
                 msg = 'successfully imported project %s (%s). Currently set to "inactive"' % (project['id'], project['name'])
                 head = 'google-mapswipe-workers: run_import.py: PROJECT IMPORTED'
-                send_slack_message(head + '\n' + msg)
+                # send_slack_message(head + '\n' + msg)
 
         else:
             print("There are no projects to import.")

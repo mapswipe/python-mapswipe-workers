@@ -509,7 +509,7 @@ def create_groups(groups, config):
 
 
 def run_create_groups(input_file, project_id, tileserver, wmts_layer_name, custom_tileserver_url, zoom):
-    logging.basicConfig(filename='run_import.log',
+    logging.basicConfig(filename='import_module/run_import.log',
                         level=logging.WARNING,
                         format='%(asctime)s %(levelname)-8s %(message)s',
                         datefmt='%m-%d %H:%M:%S',
