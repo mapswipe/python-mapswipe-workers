@@ -1,5 +1,5 @@
 # Import Module Documentation
-The import module uses data uploaded to the firebase imports table and creates the respective project information and information regarding groups and tasks.
+The import module uses data uploaded to the firebase imports table and creates the respective project information and information regarding groups and tasks. When importing projects we set the project ids as non sequential. We do this to avoid that the data is rendered as an array. More on this issuegot can be found [here](https://www.firebase.com/docs/ios/guide/understanding-data.html#section-arrays-in-firebase).
 
 The import module gets data from firebase and creates the following tables/files:
 * `data/project_{id}.kml`: the geometry of the project as provided in the import
