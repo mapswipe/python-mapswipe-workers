@@ -337,6 +337,16 @@ def run_import():
                         filemode='a'
                         )
 
+    # add logging to stdout
+    root = logging.getLogger()
+    root.setLevel(logging.DEBUG)
+    ch = logging.StreamHandler(sys.stdout)
+    ch.setLevel(logging.DEBUG)
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    ch.setFormatter(formatter)
+    root.addHandler(ch)
+
+
     # get new projects in the import table, that have not been imported
     new_imports = get_projects_to_import()
     if new_imports:
@@ -361,7 +371,7 @@ def run_import():
                 logging.warning('start processing for import key: %s' % import_key)
 
                 # set project id based on highest existing id and counter
-                project_id = highest_project_id + counter
+                project_id = highest_project_id +  (2 *counter)
 
                 logging.warning('created project id for import key %s: %s' % (import_key, project_id))
 
