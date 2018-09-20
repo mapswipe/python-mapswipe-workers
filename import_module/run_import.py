@@ -43,7 +43,6 @@ def get_projects_to_import():
 
     firebase = firebase_admin_auth()
     fb_db = firebase.database()
-
     # iterate over all the keys in the importer, add the ones to the import cache that are not yet complete
     all_imports = fb_db.child("imports").get().val()
 
@@ -134,7 +133,9 @@ def check_project_geometry(project):
         return err
 
     # check if the input geometry is a valid polygon
-    for feature in layer:
+    #for feature in layer:
+    feature = layer.GetNextFeature()
+    while feature is not None:
         feat_geom = feature.GetGeometryRef()
         geom_name = feat_geom.GetGeometryName()
 
@@ -147,6 +148,8 @@ def check_project_geometry(project):
             err = 'invalid geometry type: %s. please provide "POLYGON" or "MULTIPOLYGON"' % geom_name
             print(err)
             return err
+
+        feature = layer.GetNextFeature()
 
     del datasource
     del layer
@@ -163,6 +166,7 @@ def check_imports(new_imports):
     for import_key, project in new_imports.items():
         check_result = check_project_geometry(project)
         if check_result != 'correct':
+            print(project)
             corrupt_imports.append([import_key, project['project']['name'], check_result])
             print('some error in geometry')
         elif project['key'] != submission_key:
@@ -175,7 +179,7 @@ def check_imports(new_imports):
         # send slack message that project was corrupt, maybe project manager could try to reimport
         msg = '%s \n %s \n %s \n %s' % (import_key, project_name, check_result, str(new_imports[import_key]))
         head = 'google-mapswipe-workers: run_import.py: project %s (%s) not imported' % (import_key, project_name)
-        send_slack_message(head + '\n' + msg)
+        # send_slack_message(head + '\n' + msg)
 
         # delete project from dict
         del new_imports[import_key]
@@ -290,11 +294,15 @@ def set_project_info(new_imports, import_key, project_id):
     except:
         project["tileserver"] = 'bing'
     try:
-        project["custom_tileserver_url"] = new_imports[import_key]["CustomTileServerUrl"]
+        project["wmtslayer"] = new_imports[import_key]["wmtsLayer"]
+    except:
+        project["wmtslayer"] = None
+    try:
+        project["custom_tileserver_url"] = new_imports[import_key]["customTileServerUrl"]
     except:
         project["custom_tileserver_url"] = None
     try:
-        project["zoom"] = new_imports[import_key]["ZoomLevel"]
+        project["zoom"] = new_imports[import_key]["zoomLevel"]
     except:
         project["zoom"] = 18
 
@@ -313,6 +321,8 @@ def get_highest_project_id():
     highest_project_id = project_ids[-1]
 
     logging.warning('returned highest project id: %s' % highest_project_id)
+    if highest_project_id == 0:
+        highest_project_id = 1
     return highest_project_id
 
 
@@ -320,12 +330,22 @@ def get_highest_project_id():
 ########################################################################################################################
 def run_import():
 
-    logging.basicConfig(filename='run_import.log',
+    logging.basicConfig(filename='import_module/run_import.log',
                         level=logging.WARNING,
                         format='%(asctime)s %(levelname)-8s %(message)s',
                         datefmt='%m-%d %H:%M:%S',
                         filemode='a'
                         )
+
+    # add logging to stdout
+    root = logging.getLogger()
+    root.setLevel(logging.DEBUG)
+    ch = logging.StreamHandler(sys.stdout)
+    ch.setLevel(logging.DEBUG)
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    ch.setFormatter(formatter)
+    root.addHandler(ch)
+
 
     # get new projects in the import table, that have not been imported
     new_imports = get_projects_to_import()
@@ -351,7 +371,9 @@ def run_import():
                 logging.warning('start processing for import key: %s' % import_key)
 
                 # set project id based on highest existing id and counter
-                project_id = highest_project_id + counter
+                # we need to make sure that project ids are not sequential
+                # sequential project ids can cause that the data is rendered as an array rather than as json
+                project_id = highest_project_id +  (2 *counter)
 
                 logging.warning('created project id for import key %s: %s' % (import_key, project_id))
 
@@ -365,7 +387,7 @@ def run_import():
                 # create tiles from geometry
                 # create groups from tiles
                 groups = run_create_groups(filename, project["id"],
-                                           project["tileserver"], project["custom_tileserver_url"],
+                                           project["tileserver"], project["wmtslayer"],  project["custom_tileserver_url"],
                                            project["zoom"])
 
                 # upload groups in firebase
@@ -375,7 +397,7 @@ def run_import():
                     logging.warning(err)
                     msg = err
                     head = 'google-mapswipe-workers: run_import.py: error occured during group upload'
-                    send_slack_message(head + '\n' + msg)
+                    # send_slack_message(head + '\n' + msg)
                     continue
 
 
@@ -385,7 +407,7 @@ def run_import():
                     logging.warning(err)
                     msg = err
                     head = 'google-mapswipe-workers: run_import.py: error occured during project upload'
-                    send_slack_message(head + '\n' + msg)
+                    # send_slack_message(head + '\n' + msg)
 
                     # delete groups that have already been imported
                     delete_groups_firebase(project['id'])
@@ -397,7 +419,7 @@ def run_import():
                     logging.warning(err)
                     msg = err
                     head = 'google-mapswipe-workers: run_import.py: error occured during project insert in mysql'
-                    send_slack_message(head + '\n' + msg)
+                    # send_slack_message(head + '\n' + msg)
 
                     # delete groups and project that have already been imported in firebase
                     delete_groups_firebase(project['id'])
@@ -410,7 +432,7 @@ def run_import():
                     logging.warning(err)
                     msg = err
                     head = 'google-mapswipe-workers: run_import.py: error occured during project set complete'
-                    send_slack_message(head + '\n' + msg)
+                    # send_slack_message(head + '\n' + msg)
 
                     # delete groups and project that have already been imported in firebase
                     delete_groups_firebase(project['id'])
@@ -421,7 +443,7 @@ def run_import():
                 # send email that project was successfully imported
                 msg = 'successfully imported project %s (%s). Currently set to "inactive"' % (project['id'], project['name'])
                 head = 'google-mapswipe-workers: run_import.py: PROJECT IMPORTED'
-                send_slack_message(head + '\n' + msg)
+                # send_slack_message(head + '\n' + msg)
 
         else:
             print("There are no projects to import.")
@@ -469,10 +491,10 @@ if __name__ == '__main__':
         print('###### ###### ###### ######')
 
         # this runs the script and sends an email if an error happens within the execution
-        try:
-            run_import()
-        except Exception as error:
-            error_handling.send_error(error, 'run_import.py')
+        #try:
+        run_import()
+        #except Exception as error:
+        #    error_handling.send_error(error, 'run_import.py')
 
         # check if the script should be looped
         if args.loop:

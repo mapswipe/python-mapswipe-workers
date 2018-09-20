@@ -1,5 +1,5 @@
 # Import Module Documentation
-The import module uses data uploaded to the firebase imports table and creates the respective project information and information regarding groups and tasks.
+The import module uses data uploaded to the firebase imports table and creates the respective project information and information regarding groups and tasks. When importing projects we set the project ids as non sequential. We do this to avoid that the data is rendered as an array. More on this issuegot can be found [here](https://www.firebase.com/docs/ios/guide/understanding-data.html#section-arrays-in-firebase).
 
 The import module gets data from firebase and creates the following tables/files:
 * `data/project_{id}.kml`: the geometry of the project as provided in the import
@@ -61,9 +61,10 @@ You can run the `create_groups` script like this:
 
 Parameters:
 * `-i` or `--input_file`: the input file containning the geometry as kml, shp or geojson
-* `-t` or `--tileserver`: choose ['bing' (default), 'digital_globe', 'google', 'custom']
+* `-t` or `--tileserver`: choose ['bing' (default), 'digital_globe', 'google', 'sinergise', 'custom']
 * `-z` or `--zoomlevel`: defines the resolution and number of tasks, default(18)
 * `-p` or `--project_id`: the id of the respective project
 * `-c` or `--custom_tileserver_url`: provide a custom url, if you defined `custom` as tilevserver. Make sure that this url containers `{z}`, `{x}`, `{y}` placeholders.
+* `-l` or `--wmts_layer_name`: the name of the wmts layer.
 
 

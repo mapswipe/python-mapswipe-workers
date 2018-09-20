@@ -53,6 +53,9 @@ In firebase we need to set the [database rules](https://console.firebase.google.
 }
 ```
 
+You can also already upload a sample import using this [json file](import_module/sample_import.json). Just upload the file to the import section of your firebase database using the web importer ("import from json").
+
+
 ## Compute Engine
 On the compute engine we use PM2 to monitor the python scripts, python3 in a virtual environment to run the scripts and we need GDAL for geometry processing.
 
@@ -103,10 +106,21 @@ Install `GDAL` at the system level:
 
      pip3 install GDAL==$(gdal-config --version | awk -F'[.]' '{print $1"."$2}')
 
+
+ alternatively, you can skip the environment variable exports with the following one-liner that specifies where the gdal headers are included:
+
+     pip3 install GDAL==$(gdal-config --version | awk -F'[.]' '{print $1"."$2}') --global-option=build_ext --global-option="-I/usr/include/gdal"
+
+
 ### Install the required python packages
 ```
 source /data/environments/mapswipe_workers/bin/activate
 pip3 install -r /data/python-mapswipe-workers/requirements.txt
+```
+
+### install mapswipe workers package
+```
+python setup.py install
 ```
 
 ## Cloud SQL
@@ -116,3 +130,6 @@ The MySQL database consists of two tables:
 
 You can create these tables using `utils/setup_database_tables.py`.
 
+In order for module imports to work, might need to set the project root directory as the PYTHONPATH environment variable: 
+
+    export PYTHONPATH=/data/python-mapswipe-workers
