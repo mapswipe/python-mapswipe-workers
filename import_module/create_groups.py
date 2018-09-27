@@ -232,7 +232,7 @@ def get_vertical_slice(slice_infos, zoom):
     # the final group polygon is calculated from TileX_min, TileX_max, TileY_min, TileY_max
 
     # the width threshold defines how "long" the groups are
-    width_threshold = 70
+    width_threshold = 40
     # create an empty dict for the group ids and TileY_min, TileY_may, TileX_min, TileX_max
     raw_groups = {}
     group_id = 100
