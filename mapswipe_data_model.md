@@ -31,7 +31,7 @@ To create a new mapping task, the overall project extent is split up into many s
 | **Tile URL** | The tile URL points to the specific tile image described by the x, y, and z coordinates. Usually, the image has a resolution of 256 x 256 pixels. However, some providers also generate image tiles with higher resolution (e.g. 512 x 512 pixels). |
 
 ## Groups
-Single MapSwipe projects can contain up to several hundred thousand tasks. This can pose a challenge to fast and performant communication between clients and server if many volunteers contribute data at the same time. Therefore, groups have been introduced to reduce the amount of client requests on the backend server. Groups consists of several tasks, that will be shown to the user in one mapping session. The grouping algorithm uses the extent of a project as an input and generates chunks of tasks lying next to each other. Each group has a height of three tasks and a width of approximately 70 tasks.
+Single MapSwipe projects can contain up to several hundred thousand tasks. This can pose a challenge to fast and performant communication between clients and server if many volunteers contribute data at the same time. Therefore, groups have been introduced to reduce the amount of client requests on the backend server. Groups consists of several tasks, that will be shown to the user in one mapping session. The grouping algorithm uses the extent of a project as an input and generates chunks of tasks lying next to each other. Each group has a height of three tasks and a width of approximately 40 tasks.
 
 | Parameter | Description |
 | --- | --- |

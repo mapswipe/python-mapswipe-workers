@@ -50,7 +50,7 @@ The grouping algorithm creates a `.json` file that can be uploaded into firebase
 * slice input polygon horizontally (`get_horizontal_slice(extent, geomcol, config['zoom'])`)
     * All created slices will have a height of three tiles
 * slice horizontal slices again, but now vertically (`get_vertical_slice(horizontal_slice, config['zoom'])`)
-    * The `width_threshold` parameter specified in the script defines how *long* the groups will be. Currently we use a width of 70 tiles.
+    * The `width_threshold` parameter specified in the script defines how *long* the groups will be. Currently we use a width of 40 tiles.
 * create tasks for each group polygon and add to the group dictionary (`create_tasks(xmin, xmax, ymin, ymax, config)`)
 
 <img src="../img/project.png" width="250px"> <img src="../img/horizontally_sliced_groups.png" width="250px"> <img src="../img/vertically_sliced_groups.png" width="250px">
