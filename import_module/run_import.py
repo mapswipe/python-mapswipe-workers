@@ -7,8 +7,8 @@ import sys
 import time
 # add some files in different folders to sys.
 # these files can than be loaded directly
-sys.path.insert(0, '../cfg/')
-sys.path.insert(0, '../utils/')
+sys.path.insert(0, './cfg/')
+sys.path.insert(0, './utils/')
 
 import logging
 import os
