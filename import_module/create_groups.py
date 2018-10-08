@@ -449,11 +449,15 @@ def create_tasks(xmin, xmax, ymin, ymax, config):
 def create_groups(groups, config):
     # this function will create a json file to upload in firebase groups table
 
+    print(config)
     # Create the output Driver
     outDriver = ogr.GetDriverByName('GeoJSON')
+    print(outDriver)
     # Create the output GeoJSON
-    outfile = 'data/groups_{}.geojson'.format(config["project_id"])
+    outfile = '/data/groups_{}.geojson'.format(config["project_id"])
+    print(outfile)
     outDataSource = outDriver.CreateDataSource(outfile)
+    print(outDataSource)
     outLayer = outDataSource.CreateLayer(outfile, geom_type=ogr.wkbPolygon)
 
     outLayer.CreateField(ogr.FieldDefn('project_id', ogr.OFTInteger))
@@ -532,8 +536,10 @@ def run_create_groups(input_file, project_id, tileserver, custom_tileserver_url,
     #save_geom_as_geojson(horizontal_slice_infos['slice_collection'], outfile)
 
     raw_groups = get_vertical_slice(horizontal_slice_infos, config['zoom'])
-
+    print(raw_groups)
+    print('running create groups')
     groups = create_groups(raw_groups, config)
+    print('ran create_groups')
     outfile = 'data/groups_{}.json'.format(config["project_id"])
     # save groups as json file
     with open(outfile, 'w') as fp:
