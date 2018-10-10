@@ -23,6 +23,7 @@ except ValueError:
     print("Unable to parse configuration file at {}, likely because of malformed JSON. Exiting.".format(CONFIG_PATH))
     raise
 
+
 # Configuration of the firebase database
 def firebase_admin_auth():
     try:
@@ -87,10 +88,10 @@ def get_api_key(tileserver):
         raise
 
 
-# get the import submission_key
+# get the importer submission_key
 def get_submission_key():
     try:
-        return CONFIG['import']['submission_key']
+        return CONFIG['importer']['submission_key']
     except KeyError:
         print("Couldn't find the submission key in {}".format(CONFIG_PATH))
         raise
