@@ -18,7 +18,7 @@ import argparse
 
 parser = argparse.ArgumentParser(description='Process some integers.')
 parser.add_argument('-l', '--loop', dest='loop', action='store_true',
-                    help='if loop is set, the import will be repeated several times. You can specify the behaviour using --sleep_time and/or --max_iterations.')
+                    help='if loop is set, the importer will be repeated several times. You can specify the behaviour using --sleep_time and/or --max_iterations.')
 parser.add_argument('-s', '--sleep_time', required=False, default=None, type=int,
                     help='the time in seconds for which the script will pause in beetween two imports')
 parser.add_argument('-m', '--max_iterations', required=False, default=None, type=int,
@@ -83,8 +83,8 @@ def results_to_txt(all_results):
             csvwriter.writerow(output_list)
 
     results_txt_file.close()
-    logging.warning('there are %s results to import' % number_of_results)
-    print('there are %s results to import' % number_of_results)
+    logging.warning('there are %s results to importer' % number_of_results)
+    print('there are %s results to importer' % number_of_results)
 
     return results_txt_filename
 
@@ -98,7 +98,7 @@ def save_results_mysql(results_filename):
     m_con.query(sql_insert, None)
     print('dropped raw results table')
 
-    # first import to a table where we store the geom as text
+    # first importer to a table where we store the geom as text
     sql_insert = '''
         CREATE TABLE raw_results (
             task_id varchar(45)
@@ -126,7 +126,7 @@ def save_results_mysql(results_filename):
     os.remove(results_filename)
     print('copied results information to mysql')
 
-    # second import all entries into the task table and convert into psql geometry
+    # second importer all entries into the task table and convert into psql geometry
     sql_insert = '''
         INSERT INTO
           results
@@ -156,7 +156,7 @@ def run_transfer_results():
     # first check if we have results stored locally, that have not been inserted in MySQL
     results_filename = 'results.json'
     if os.path.isfile(results_filename):
-        # start to import the old results first
+        # start to importer the old results first
         with open(results_filename) as results_file:
             results = json.load(results_file)
             results_txt_filename = results_to_txt(results)
@@ -240,13 +240,13 @@ if __name__ == '__main__':
         if args.loop:
             if args.max_iterations > counter:
                 counter = counter + 1
-                print('import finished. will pause for %s seconds' % args.sleep_time)
+                print('importer finished. will pause for %s seconds' % args.sleep_time)
                 x = 1
                 time.sleep(args.sleep_time)
             else:
                 x = 0
-                # print('import finished and max iterations reached. stop here.')
-                print('import finished and max iterations reached. sleeping now.')
+                # print('importer finished and max iterations reached. stop here.')
+                print('importer finished and max iterations reached. sleeping now.')
                 time.sleep(args.sleep_time)
         # the script should run only once
         else:

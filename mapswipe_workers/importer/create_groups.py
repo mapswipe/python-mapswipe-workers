@@ -4,17 +4,15 @@
 ####################################################################################################
 import os
 import sys
-
 import json
 import logging
 import math
-
 from osgeo import osr, ogr, gdal
-
-from cfg.auth import get_api_key
-
 import argparse
 
+from mapswipe_workers.cfg import auth
+
+####################################################################################################
 parser = argparse.ArgumentParser(description='Process some integers.')
 parser.add_argument('-i', '--input_file', required=False, default=None, type=str,
                     help='the input file containning the geometry as kml, shp or geojson')
@@ -26,7 +24,6 @@ parser.add_argument('-p', '--project_id', required=False, default=None, type=int
                     help='the project id.')
 parser.add_argument('-c', '--custom_tileserver_url', required=False, default=None, type=str,
                     help='the custom url with {z}, {x}, {y} placeholders')
-
 ####################################################################################################
 
 
@@ -513,7 +510,7 @@ def run_create_groups(input_file, project_id, tileserver, custom_tileserver_url,
 
     # get api key for tileserver
     if tileserver != 'custom':
-        api_key = get_api_key(tileserver)
+        api_key = auth.get_api_key(tileserver)
     else:
         api_key = ''
 

@@ -4,7 +4,7 @@ import traceback
 
 import logging
 
-from utils.send_slack_message import send_slack_message
+from mapswipe_workers.utils import slack
 
 
 def _get_error_message_details(error):
@@ -30,4 +30,4 @@ def send_error(error, code_file):
     print(error_msg)
     error_msg = _get_error_message_details(error)
     head = 'google-mapswipe-workers: {}: error occured'.format(code_file)
-    send_slack_message(head + '\n' + error_msg)
+    slack.send_slack_message(head + '\n' + error_msg)

@@ -40,7 +40,7 @@ def project_exists(project_id):
         print('project is not in firebase projects table: %s' % project_id)
         logging.warning('project is not in firebase projects table: %s' % project_id)
         return False
-    # projects neeed to have at least 12 attributes in firebase, otherwise something went wrong during the import
+    # projects neeed to have at least 12 attributes in firebase, otherwise something went wrong during the importer
     elif len(project_data) < 12:
         print('project missed critical information: %s' % project_id)
         logging.warning('project missed critical information in firebase: %s' % project_id)

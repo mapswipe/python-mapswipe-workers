@@ -3,29 +3,22 @@
 # Author: M. Reinmuth, B. Herfort
 ########################################################################################################################
 
-import sys
-import time
-# add some files in different folders to sys.
-# these files can than be loaded directly
-sys.path.insert(0, './cfg/')
-sys.path.insert(0, './utils/')
-
-import logging
 import os
-
-from osgeo import ogr
-
-from cfg.auth import get_submission_key
-from import_module.create_groups import run_create_groups
-
-from utils import error_handling
-
-from utils.send_slack_message import send_slack_message
-
+import time
+import logging
+import ogr
 import argparse
+
+from mapswipe_workers.cfg import auth
+from mapswipe_workers.importer import create_groups
+from mapswipe_workers.utils import error_handling
+from mapswipe_workers.utils import slack
+
+
+########################################################################################################################
 parser = argparse.ArgumentParser(description='Process some integers.')
 parser.add_argument('-l', '--loop', dest='loop', action='store_true',
-                    help='if loop is set, the import will be repeated several times. You can specify the behaviour using --sleep_time and/or --max_iterations.')
+                    help='if loop is set, the importer will be repeated several times. You can specify the behaviour using --sleep_time and/or --max_iterations.')
 parser.add_argument('-s', '--sleep_time', required=False, default=None, type=int,
                     help='the time in seconds for which the script will pause in beetween two imports')
 parser.add_argument('-m', '--max_iterations', required=False, default=None, type=int,
@@ -35,8 +28,9 @@ parser.add_argument('-mo', '--modus', nargs='?', default='development',
 
 ########################################################################################################################
 
+
 def get_projects_to_import():
-    # this functions looks for new entries in the firebase import table
+    # this functions looks for new entries in the firebase importer table
     # the output is a dictionary with all information for newly imported projects
 
     new_imports = {}
@@ -44,7 +38,7 @@ def get_projects_to_import():
     firebase = firebase_admin_auth()
     fb_db = firebase.database()
 
-    # iterate over all the keys in the importer, add the ones to the import cache that are not yet complete
+    # iterate over all the keys in the importer, add the ones to the importer cache that are not yet complete
     all_imports = fb_db.child("imports").get().val()
 
     if all_imports:
@@ -78,7 +72,7 @@ def save_project_geom_to_file(new_import, project_id):
         geometry_type = 'GeoJSON'
         filename = 'data/project_{}.geojson'.format(project_id)
         '''
-    # if geometry is not kml nor geojson we can't import the project
+    # if geometry is not kml nor geojson we can't importer the project
     else:
         print('no kml or geojson geometry provided in imported project')
         return False
@@ -102,7 +96,7 @@ def check_project_geometry(project):
         geometry_type = 'GeoJSON'
         filename = 'input.geojson'
         '''
-    # if geometry is not kml nor geojson we can't import the project
+    # if geometry is not kml nor geojson we can't importer the project
     else:
         print('no kml or geojson geometry provided in imported project')
         return False
@@ -158,7 +152,7 @@ def check_imports(new_imports):
 
     corrupt_imports = []
 
-    submission_key = get_submission_key()
+    submission_key = auth.get_submission_key()
 
     for import_key, project in new_imports.items():
         check_result = check_project_geometry(project)
@@ -175,14 +169,14 @@ def check_imports(new_imports):
         # send slack message that project was corrupt, maybe project manager could try to reimport
         msg = '%s \n %s \n %s \n %s' % (import_key, project_name, check_result, str(new_imports[import_key]))
         head = 'google-mapswipe-workers: run_import.py: project %s (%s) not imported' % (import_key, project_name)
-        send_slack_message(head + '\n' + msg)
+        slack.send_slack_message(head + '\n' + msg)
 
         # delete project from dict
         del new_imports[import_key]
-        print('removed corrupt import %s from new imports' % import_key)
+        print('removed corrupt importer %s from new imports' % import_key)
         print('check result: %s' % check_result)
 
-        # delete corrupt import in firebase
+        # delete corrupt importer in firebase
         firebase = firebase_admin_auth()
         fb_db = firebase.database()
         fb_db.child("imports").child(import_key).remove()
@@ -266,7 +260,7 @@ def set_import_complete(project):
         firebase = firebase_admin_auth()
         fb_db = firebase.database()
         fb_db.child("imports").child(project['importKey']).child('complete').set(True)
-        logging.warning('set import complete for import %s and project %s' % (project['importKey'], project['id']))
+        logging.warning('set importer complete for importer %s and project %s' % (project['importKey'], project['id']))
         return True
     except:
         return False
@@ -276,7 +270,7 @@ def set_project_info(new_imports, import_key, project_id):
 
     project = new_imports[import_key]['project']
     project["id"] = str(project_id)
-    logging.warning('start import for project %s' % project['id'])
+    logging.warning('start importer for project %s' % project['id'])
 
     project["contributors"] = 0
     project["progress"] = 0
@@ -327,7 +321,7 @@ def run_import():
                         filemode='a'
                         )
 
-    # get new projects in the import table, that have not been imported
+    # get new projects in the importer table, that have not been imported
     new_imports = get_projects_to_import()
     if new_imports:
         print('there are %s new imports.' % len(new_imports))
@@ -336,24 +330,24 @@ def run_import():
         new_imports = check_imports(new_imports)
 
         if new_imports:
-            print('there are %s valid projects to import' % len(new_imports))
-            logging.warning('there are %s valid projects to import' % len(new_imports))
+            print('there are %s valid projects to importer' % len(new_imports))
+            logging.warning('there are %s valid projects to importer' % len(new_imports))
 
             # get highest project id
             highest_project_id = get_highest_project_id()
 
-            # now loop through all valid projects and import them step by step
+            # now loop through all valid projects and importer them step by step
             counter = 0
 
             for import_key in new_imports:
                 counter += 1
 
-                logging.warning('start processing for import key: %s' % import_key)
+                logging.warning('start processing for importer key: %s' % import_key)
 
                 # set project id based on highest existing id and counter
                 project_id = highest_project_id + counter
 
-                logging.warning('created project id for import key %s: %s' % (import_key, project_id))
+                logging.warning('created project id for importer key %s: %s' % (import_key, project_id))
 
 
                 # set project id, contributors, progress, state
@@ -364,7 +358,7 @@ def run_import():
 
                 # create tiles from geometry
                 # create groups from tiles
-                groups = run_create_groups(filename, project["id"],
+                groups = create_groups.run_create_groups(filename, project["id"],
                                            project["tileserver"], project["custom_tileserver_url"],
                                            project["zoom"])
 
@@ -375,7 +369,7 @@ def run_import():
                     logging.warning(err)
                     msg = err
                     head = 'google-mapswipe-workers: run_import.py: error occured during group upload'
-                    send_slack_message(head + '\n' + msg)
+                    slack.send_slack_message(head + '\n' + msg)
                     continue
 
 
@@ -385,7 +379,7 @@ def run_import():
                     logging.warning(err)
                     msg = err
                     head = 'google-mapswipe-workers: run_import.py: error occured during project upload'
-                    send_slack_message(head + '\n' + msg)
+                    slack.send_slack_message(head + '\n' + msg)
 
                     # delete groups that have already been imported
                     delete_groups_firebase(project['id'])
@@ -397,7 +391,7 @@ def run_import():
                     logging.warning(err)
                     msg = err
                     head = 'google-mapswipe-workers: run_import.py: error occured during project insert in mysql'
-                    send_slack_message(head + '\n' + msg)
+                    slack.send_slack_message(head + '\n' + msg)
 
                     # delete groups and project that have already been imported in firebase
                     delete_groups_firebase(project['id'])
@@ -410,7 +404,7 @@ def run_import():
                     logging.warning(err)
                     msg = err
                     head = 'google-mapswipe-workers: run_import.py: error occured during project set complete'
-                    send_slack_message(head + '\n' + msg)
+                    slack.send_slack_message(head + '\n' + msg)
 
                     # delete groups and project that have already been imported in firebase
                     delete_groups_firebase(project['id'])
@@ -421,15 +415,15 @@ def run_import():
                 # send email that project was successfully imported
                 msg = 'successfully imported project %s (%s). Currently set to "inactive"' % (project['id'], project['name'])
                 head = 'google-mapswipe-workers: run_import.py: PROJECT IMPORTED'
-                send_slack_message(head + '\n' + msg)
+                slack.send_slack_message(head + '\n' + msg)
 
         else:
-            print("There are no projects to import.")
-            logging.warning("There are no projects to import.")
+            print("There are no projects to importer.")
+            logging.warning("There are no projects to importer.")
 
     else:
-        print("There are no projects to import.")
-        logging.warning("There are no projects to import.")
+        print("There are no projects to importer.")
+        logging.warning("There are no projects to importer.")
 
 
 ########################################################################################################################
@@ -442,13 +436,13 @@ if __name__ == '__main__':
 
     if args.modus == 'development':
         # we use the dev instance for testing
-        from cfg.auth import dev_firebase_admin_auth as firebase_admin_auth
-        from cfg.auth import dev_mysqlDB as mysqlDB
+        from mapswipe_workers.cfg.auth import dev_firebase_admin_auth as firebase_admin_auth
+        from mapswipe_workers.cfg.auth import dev_mysqlDB as mysqlDB
         print('We are using the development instance')
     elif args.modus == 'production':
         # we use the dev instance for testing
-        from cfg.auth import firebase_admin_auth as firebase_admin_auth
-        from cfg.auth import mysqlDB as mysqlDB
+        from mapswipe_workers.cfg.auth import firebase_admin_auth as firebase_admin_auth
+        from mapswipe_workers.cfg.auth import mysqlDB as mysqlDB
         print('We are using the production instance')
 
     # check whether arguments are correct
@@ -478,13 +472,13 @@ if __name__ == '__main__':
         if args.loop:
             if args.max_iterations > counter:
                 counter = counter + 1
-                print('import finished. will pause for %s seconds' % args.sleep_time)
+                print('importer finished. will pause for %s seconds' % args.sleep_time)
                 x = 1
                 time.sleep(args.sleep_time)
             else:
                 x = 0
-                # print('import finished and max iterations reached. stop here.')
-                print('import finished and max iterations reached. sleeping now.')
+                # print('importer finished and max iterations reached. stop here.')
+                print('importer finished and max iterations reached. sleeping now.')
                 time.sleep(args.sleep_time)
         # the script should run only once
         else:

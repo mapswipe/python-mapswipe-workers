@@ -3,24 +3,28 @@
 # Author: M. Reinmuth, B. Herfort
 ####################################################################################################
 
-import logging
 import sys
 
-from update_module.update_project_contributors import update_project_contributors
-from update_module.update_project_progress import update_project_progress
+import logging
 
+from export_module.export_project_results import export_project_results
+from export_module.export_projects import export_projects
+from export_module.export_users_and_stats import export_users_and_stats
 from cfg.auth import firebase_admin_auth
-from utils.send_slack_message import send_slack_message
+
+from utils import error_handling
 
 import time
 import argparse
 
+
 # define arguments that can be passed by the user
 parser = argparse.ArgumentParser(description='Process some integers.')
 parser.add_argument('-l', '--loop', dest='loop', action='store_true',
-                    help='if loop is set, the import will be repeated several times. You can specify the behaviour using --sleep_time and/or --max_iterations.')
+                    help='if loop is set, the importer will be repeated several times.'
+                         'You can specify the behaviour using --sleep_time / --max_iterations.')
 parser.add_argument('-s', '--sleep_time', required=False, default=None, type=int,
-                    help='the time in seconds for which the script will pause in beetween two imports')
+                    help='time in seconds for which the script will pause in beetween two imports.')
 parser.add_argument('-m', '--max_iterations', required=False, default=None, type=int,
                     help='the maximum number of imports that should be performed')
 
@@ -30,9 +34,10 @@ parser.add_argument('-mo', '--modus', nargs='?', default='active',
 parser.add_argument('-p', '--user_project_list', nargs='+', required=None, default=None, type=int,
                     help='project id of the project to process. You can add multiple project ids.')
 parser.add_argument('-o', '--output_path', required=None, default='/var/www/html', type=str,
-                    help='output path. please provide a location where the exported files should be stored.')
+                    help='output path. Provide a location for storing export files.')
 
 ####################################################################################################
+
 
 
 def get_projects():
@@ -67,9 +72,9 @@ def get_projects():
     return project_dict
 
 
-def run_update(project_selection, user_project_list, output_path):
+def run_export(project_selection, user_project_list, output_path):
 
-    logging.basicConfig(filename='run_update.log',
+    logging.basicConfig(filename='run_export.log',
                         level=logging.WARNING,
                         format='%(asctime)s %(levelname)-8s %(message)s',
                         datefmt='%m-%d %H:%M:%S',
@@ -77,35 +82,25 @@ def run_update(project_selection, user_project_list, output_path):
                         )
 
     # get projects based on type, e.g. "all", "active", "not_finished"
-    project_groups = get_projects()
+    projects = get_projects()
     if project_selection == 'user_list':
         projects = user_project_list
-        print('use project ids provided by user: %s' % user_project_list)
-        logging.warning('use project ids provided by user: %s' % user_project_list)
+
     else:
-        projects = project_groups[project_selection]
-        print('use project ids provided by user for %s projects: %s' % (project_selection, projects))
-        logging.warning('use project ids provided by user for %s projects: %s' % (project_selection, projects))
+        projects = projects[project_selection]
 
-    update_project_contributors(projects, output_path)
-    update_project_progress(projects, output_path)
+    export_project_results(projects, output_path)
+    export_projects(output_path)
+    export_users_and_stats(output_path)
 
 
-####################################################################################################
+########################################################################################################################
 
 if __name__ == '__main__':
     try:
         args = parser.parse_args()
     except:
         print('have a look at the input arguments, something went wrong there.')
-
-
-    logging.basicConfig(filename='run_update.log',
-                        level=logging.DEBUG,
-                        format='%(asctime)s %(levelname)-8s %(message)s',
-                        datefmt='%m-%d %H:%M:%S',
-                        filemode='a'
-                        )
 
     # check whether arguments are correct
     if args.loop and (args.max_iterations is None):
@@ -124,37 +119,25 @@ if __name__ == '__main__':
         print('###### iteration: %s ######' % counter)
         print('###### ###### ###### ######')
 
-        logging.warning('### START run_update.py workflow ###')
-
         # this runs the script and sends an email if an error happens within the execution
         try:
-            run_update(args.modus, args.user_project_list, args.output_path)
-        except:
-            tb = sys.exc_info()
-            # log error
-            logging.warning(str(tb))
-            # send mail to mapswipe google group with
-            print(tb)
-            msg = str(tb)
-            head = 'google-mapswipe-workers: run_update.py: error occured'
-            send_slack_message(head + '\n' + msg)
+            run_export(args.modus, args.user_project_list, args.output_path)
+        except BaseException as error:
+            error_handling.send_error(error, 'run_export.py')
 
         # check if the script should be looped
         if args.loop:
             if args.max_iterations > counter:
                 counter = counter + 1
-                print('update finished. will pause for %s seconds' % args.sleep_time)
-                logging.warning('update finished. will pause for %s seconds' % args.sleep_time)
+                print('importer finished. will pause for %s seconds' % args.sleep_time)
                 x = 1
                 time.sleep(args.sleep_time)
             else:
                 x = 0
-                # print('import finished and max iterations reached. stop here.')
-                print('update finished and max iterations reached. sleeping now for %s sec.' % args.sleep_time)
-                logging.warning('update finished and max iterations reached. sleeping now for %s sec.' % args.sleep_time)
+                # print('importer finished and max iterations reached. stop here.')
+                print('importer finished and max iterations reached. sleeping now.')
                 time.sleep(args.sleep_time)
         # the script should run only once
         else:
             print("Don't loop. Stop after the first run.")
-            logging.warning("<<< Don't loop. Stop after the first run. >>>")
             x = 0
