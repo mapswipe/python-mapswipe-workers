@@ -533,7 +533,6 @@ def run_create_groups(input_file, project_id, tileserver, custom_tileserver_url,
     #save_geom_as_geojson(horizontal_slice_infos['slice_collection'], outfile)
 
     raw_groups = get_vertical_slice(horizontal_slice_infos, config['zoom'])
-    print(raw_groups)
     print('running create groups')
     groups = create_groups(raw_groups, config)
     print('ran create_groups')
