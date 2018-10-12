@@ -113,6 +113,8 @@ def get_geometry_from_file(infile):
         print('Supported formats .shp .geojson .kml')
         sys.exit()
 
+
+
     datasource = driver.Open(infile, 0)
     try:
         # Get the data layer
@@ -450,7 +452,7 @@ def create_groups(groups, config):
     # Create the output Driver
     outDriver = ogr.GetDriverByName('GeoJSON')
     # Create the output GeoJSON
-    outfile = '/data/groups_{}.geojson'.format(config["project_id"])
+    outfile = './data/groups_{}.geojson'.format(config["project_id"])
     outDataSource = outDriver.CreateDataSource(outfile)
     outLayer = outDataSource.CreateLayer(outfile, geom_type=ogr.wkbPolygon)
 

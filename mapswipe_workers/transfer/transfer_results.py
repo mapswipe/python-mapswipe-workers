@@ -5,42 +5,23 @@
 import logging
 import json
 import os
-import time
 import csv
 import requests
 
-from cfg.auth import firebase_admin_auth
-from cfg.auth import mysqlDB
-
-from utils import error_handling
-
-import argparse
-
-parser = argparse.ArgumentParser(description='Process some integers.')
-parser.add_argument('-l', '--loop', dest='loop', action='store_true',
-                    help='if loop is set, the importer will be repeated several times. You can specify the behaviour using --sleep_time and/or --max_iterations.')
-parser.add_argument('-s', '--sleep_time', required=False, default=None, type=int,
-                    help='the time in seconds for which the script will pause in beetween two imports')
-parser.add_argument('-m', '--max_iterations', required=False, default=None, type=int,
-                    help='the maximum number of imports that should be performed')
-
+from mapswipe_workers.cfg import auth
 ####################################################################################################
 
 
-def get_results_from_firebase():
-    firebase = firebase_admin_auth()
+def get_results_from_firebase(firebase):
     fb_db = firebase.database()
     results = fb_db.child("results").get().val()
     return results
 
 
-def delete_firebase_results(all_results):
-    firebase = firebase_admin_auth()
+def delete_firebase_results(firebase, all_results):
     fb_db = firebase.database()
-
     # we will use multilocation update to delete the entries, therefore we crate an dict with the items we want to delete
     data = {}
-
     for task_id, results in all_results.items():
         for child_id, result in results.items():
             key = 'results/{task_id}/{child_id}'.format(
@@ -48,7 +29,6 @@ def delete_firebase_results(all_results):
                 child_id=child_id)
 
             data[key] = None
-            #q.put([fb_db, task_id, child_id])
 
     fb_db.update(data)
     print('finished deleting results')
@@ -83,13 +63,11 @@ def results_to_txt(all_results):
             csvwriter.writerow(output_list)
 
     results_txt_file.close()
-    logging.warning('there are %s results to importer' % number_of_results)
-    print('there are %s results to importer' % number_of_results)
-
+    logging.warning('there are %s results to import' % number_of_results)
     return results_txt_filename
 
 
-def save_results_mysql(results_filename):
+def save_results_mysql(mysqlDB, results_filename):
     ### this function saves the results from firebase to the mysql database
 
     # pre step delete table if exist
@@ -144,31 +122,35 @@ def save_results_mysql(results_filename):
     del m_con
     return
 
-def run_transfer_results():
 
-    logging.basicConfig(filename='transfer_results.log',
-                        level=logging.WARNING,
-                        format='%(asctime)s %(levelname)-8s %(message)s',
-                        datefmt='%m-%d %H:%M:%S',
-                        filemode='a'
-                        )
+def run_transfer_results(modus):
+
+    if modus == 'development':
+        # we use the dev instance for testing
+        firebase = auth.dev_firebase_admin_auth()
+        mysqlDB = auth.dev_mysqlDB
+        print('We are using the development instance')
+    elif modus == 'production':
+        # we use the dev instance for testing
+        firebase = auth.firebase_admin_auth()
+        mysqlDB = auth.mysqlDB
+        print('We are using the production instance')
 
     # first check if we have results stored locally, that have not been inserted in MySQL
     results_filename = 'results.json'
     if os.path.isfile(results_filename):
-        # start to importer the old results first
+        # start to import the old results first
         with open(results_filename) as results_file:
             results = json.load(results_file)
             results_txt_filename = results_to_txt(results)
             logging.warning("there are results in %s that we didnt't insert. do it now!" % results_filename)
-            save_results_mysql(results_txt_filename)
-            delete_firebase_results(results)
+            save_results_mysql(mysqlDB, results_txt_filename)
+            delete_firebase_results(firebase, results)
 
         os.remove(results_filename)
         print('removed "results.json" file')
         logging.warning('removed "results.json" file')
 
-    firebase = firebase_admin_auth()
     fb_db = firebase.database()
     print('opened connection to firebase')
 
@@ -192,11 +174,8 @@ def run_transfer_results():
             print('wrote results data to %s' % results_filename)
 
         results_txt_filename = results_to_txt(all_results)
-
-        save_results_mysql(results_txt_filename)
-
-        delete_firebase_results(all_results)
-
+        save_results_mysql(mysqlDB, results_txt_filename)
+        delete_firebase_results(firebase, all_results)
         os.remove(results_filename)
         print('removed "results.json" file')
         logging.warning('removed "results.json" file')
@@ -205,50 +184,3 @@ def run_transfer_results():
         print('there are no results to transfer in firebase')
 
 
-########################################################################################################################
-if __name__ == '__main__':
-
-    try:
-        args = parser.parse_args()
-    except:
-        print('have a look at the input arguments, something went wrong there.')
-
-    # check whether arguments are correct
-    if args.loop and (args.max_iterations is None):
-        parser.error('if you want to loop the script please provide number of maximum iterations.')
-    elif args.loop and (args.sleep_time is None):
-        parser.error('if you want to loop the script please provide a sleep interval.')
-
-    # create a variable that counts the number of imports
-    counter = 1
-    x = 1
-
-    while x > 0:
-
-        print(' ')
-        print('###### ###### ###### ######')
-        print('###### iteration: %s ######' % counter)
-        print('###### ###### ###### ######')
-
-        # this runs the script and sends an email if an error happens within the execution
-        try:
-            run_transfer_results()
-        except Exception as error:
-            error_handling.send_error(error, 'transfer_results.py')
-
-        # check if the script should be looped
-        if args.loop:
-            if args.max_iterations > counter:
-                counter = counter + 1
-                print('importer finished. will pause for %s seconds' % args.sleep_time)
-                x = 1
-                time.sleep(args.sleep_time)
-            else:
-                x = 0
-                # print('importer finished and max iterations reached. stop here.')
-                print('importer finished and max iterations reached. sleeping now.')
-                time.sleep(args.sleep_time)
-        # the script should run only once
-        else:
-            print("Don't loop. Stop after the first run.")
-            x = 0

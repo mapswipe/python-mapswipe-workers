@@ -88,10 +88,10 @@ def get_api_key(tileserver):
         raise
 
 
-# get the importer submission_key
+# get the import submission_key
 def get_submission_key():
     try:
-        return CONFIG['importer']['submission_key']
+        return CONFIG['import']['submission_key']
     except KeyError:
         print("Couldn't find the submission key in {}".format(CONFIG_PATH))
         raise
