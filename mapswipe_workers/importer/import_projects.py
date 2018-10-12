@@ -221,7 +221,8 @@ def get_highest_project_id(firebase):
 
     project_keys = fb_db.child('projects').shallow().get().val()
     if not project_keys:
-        project_keys = [0]
+        # set mininum project id to 1000, if no project has been imported yet
+        project_keys = [1000]
 
     project_ids = list(map(int, list(project_keys)))
     project_ids.sort()
