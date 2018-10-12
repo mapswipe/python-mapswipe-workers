@@ -2,29 +2,16 @@
 # -*- coding: UTF-8 -*-
 # Author: M. Reinmuth, B. Herfort
 ########################################################################################################################
-
-import sys
 import json
 import os
-# add some files in different folders to sys.
-# these files can than be loaded directly
-sys.path.insert(0, '../cfg/')
-sys.path.insert(0, '../utils/')
-
 import logging
 import time
-from cfg.auth import firebase_admin_auth
 
-import argparse
-# define arguments that can be passed by the user
-parser = argparse.ArgumentParser(description='Process some integers.')
-parser.add_argument('-o', '--output_path', required=None, default='/var/www/html', type=str,
-                    help='output path. please provide a location where the exported files should be stored.')
+from mapswipe_workers.cfg import auth
 
 
-def get_all_users():
+def get_all_users(firebase):
     # connect to firebase
-    firebase = firebase_admin_auth()
     fb_db = firebase.database()
 
     # get all projects
@@ -52,14 +39,16 @@ def get_stats(all_users):
 
 ########################################################################################################################
 
-def export_users_and_stats(output_path):
+def export_users_and_stats(modus, output_path):
 
-    logging.basicConfig(filename='run_export.log',
-                        level=logging.WARNING,
-                        format='%(asctime)s %(levelname)-8s %(message)s',
-                        datefmt='%m-%d %H:%M:%S',
-                        filemode='a'
-                        )
+    if modus == 'development':
+        # we use the dev instance for testing
+        firebase = auth.dev_firebase_admin_auth()
+        print('We are using the development instance')
+    elif modus == 'production':
+        # we use the dev instance for testing
+        firebase = auth.firebase_admin_auth()
+        print('We are using the production instance')
 
     # record time
     starttime = time.time()
@@ -72,7 +61,7 @@ def export_users_and_stats(output_path):
         os.mkdir(output_path)
 
     # get users from firebase
-    all_users = get_all_users()
+    all_users = get_all_users(firebase)
 
     # save users as json
     # we need to adjust to the nginx output path on the server
@@ -99,13 +88,3 @@ def export_users_and_stats(output_path):
     print('finished users and stats export, %f sec.' % endtime)
     logging.warning('finished users and stats export, %f sec.' % endtime)
     return
-
-########################################################################################################################
-if __name__ == '__main__':
-    try:
-        args = parser.parse_args()
-    except:
-        print('have a look at the input arguments, something went wrong there.')
-
-
-    export_users_and_stats(args.output_path)

@@ -2,32 +2,16 @@
 # -*- coding: UTF-8 -*-
 # Author: M. Reinmuth, B. Herfort
 ########################################################################################################################
-
-import sys
 import json
 import os
-# add some files in different folders to sys.
-# these files can than be loaded directly
-sys.path.insert(0, '../cfg/')
-sys.path.insert(0, '../utils/')
-
 import logging
 import time
-from cfg.auth import firebase_admin_auth
-from cfg.auth import mysqlDB
 
-import argparse
-# define arguments that can be passed by the user
-parser = argparse.ArgumentParser(description='Process some integers.')
-parser.add_argument('-p', '--projects', nargs='+', required=True, default=None, type=int,
-                    help='project id of the project to process. You can add multiple project ids.')
-parser.add_argument('-o', '--output_path', required=None, default='/var/www/html', type=str,
-                    help='output path. please provide a location where the exported files should be stored.')
+from mapswipe_workers.cfg import auth
 
 
-def project_exists(project_id):
+def project_exists(firebase, project_id):
     # check if a project corresponding to the provided id exists in firebase and has all information required
-    firebase = firebase_admin_auth()
     fb_db = firebase.database()
 
     # get the headers from firebase
@@ -48,7 +32,7 @@ def project_exists(project_id):
         return True
 
 
-def get_project_results(project_id):
+def get_project_results(mysqlDB, project_id):
     # establish mysql connection
     m_con = mysqlDB()
     # sql command
@@ -121,19 +105,18 @@ def rows_to_json(project_id, project_results, output_json_file):
     return output_json_file
 
 
+def export_project_results(modus, projects, output_path):
 
-
-
-########################################################################################################################
-
-def export_project_results(projects, output_path):
-
-    logging.basicConfig(filename='run_export.log',
-                        level=logging.WARNING,
-                        format='%(asctime)s %(levelname)-8s %(message)s',
-                        datefmt='%m-%d %H:%M:%S',
-                        filemode='a'
-                        )
+    if modus == 'development':
+        # we use the dev instance for testing
+        firebase = auth.dev_firebase_admin_auth()
+        mysqlDB = auth.dev_mysqlDB
+        print('We are using the development instance')
+    elif modus == 'production':
+        # we use the dev instance for testing
+        firebase = auth.firebase_admin_auth()
+        mysqlDB = auth.mysqlDB
+        print('We are using the production instance')
 
     # record time
     starttime = time.time()
@@ -152,7 +135,7 @@ def export_project_results(projects, output_path):
             logging.warning('start project results export for project: %s' % project_id)
 
             # check if project exists in firebase
-            if project_exists(project_id):
+            if project_exists(firebase, project_id):
                 print('project exists in firebase: %s' % project_id)
                 logging.warning('project exists in firebase: %s' % project_id)
                 pass
@@ -162,7 +145,7 @@ def export_project_results(projects, output_path):
                 continue
 
             # get contributors data from mysql
-            project_results = get_project_results(project_id)
+            project_results = get_project_results(mysqlDB, project_id)
 
             # save project progress in firebase
             # we need to adjust to the nginx output path on the server
@@ -174,12 +157,3 @@ def export_project_results(projects, output_path):
     print('finished project results export for projects: %s, %f sec.' % (projects, endtime))
     logging.warning('finished project results export for projects: %s, %f sec.' % (projects, endtime))
     return
-
-########################################################################################################################
-if __name__ == '__main__':
-    try:
-        args = parser.parse_args()
-    except:
-        print('have a look at the input arguments, something went wrong there.')
-
-    export_project_results(args.projects, args.output_path)
