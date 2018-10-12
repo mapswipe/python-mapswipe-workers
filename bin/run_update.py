@@ -1,19 +1,19 @@
-#!/bin/python3
-# -*- coding: UTF-8 -*-
-# Author: M. Reinmuth, B. Herfort
-####################################################################################################
-
-import logging
-import sys
-
-from update_module.update_project_contributors import update_project_contributors
-from update_module.update_project_progress import update_project_progress
-
-from cfg.auth import firebase_admin_auth
-from utils.send_slack_message import send_slack_message
+#!/usr/bin/env python
 
 import time
 import argparse
+import logging
+
+from mapswipe_workers.update import update_projects
+from mapswipe_workers.utils import error_handling
+
+########################################################################################################################
+logging.basicConfig(filename='./logs/run_update.log',
+                    level=logging.WARNING,
+                    format='%(asctime)s %(levelname)-8s %(message)s',
+                    datefmt='%m-%d %H:%M:%S',
+                    filemode='a'
+                    )
 
 # define arguments that can be passed by the user
 parser = argparse.ArgumentParser(description='Process some integers.')
@@ -24,7 +24,7 @@ parser.add_argument('-s', '--sleep_time', required=False, default=None, type=int
 parser.add_argument('-m', '--max_iterations', required=False, default=None, type=int,
                     help='the maximum number of imports that should be performed')
 
-parser.add_argument('-mo', '--modus', nargs='?', default='active',
+parser.add_argument('-pf', '--project_filter', nargs='?', default='active',
                     choices=['all', 'not_finished', 'active', 'user_list'])
 
 parser.add_argument('-p', '--user_project_list', nargs='+', required=None, default=None, type=int,
@@ -32,65 +32,8 @@ parser.add_argument('-p', '--user_project_list', nargs='+', required=None, defau
 parser.add_argument('-o', '--output_path', required=None, default='/var/www/html', type=str,
                     help='output path. please provide a location where the exported files should be stored.')
 
-####################################################################################################
-
-
-def get_projects():
-    # connect to firebase
-    firebase = firebase_admin_auth()
-    fb_db = firebase.database()
-
-    project_dict = {}
-    project_dict['all'] = []
-    project_dict['active'] = []
-    project_dict['not_finished'] = []
-
-    # get the projects from firebase
-    all_projects = fb_db.child("projects").get().val()
-
-    for project in all_projects:
-        try:
-            # some project miss critical information, they will be skipped
-            project_id = all_projects[project]['id']
-            project_active = all_projects[project]['state']
-            project_progress = all_projects[project]['progress']
-        except:
-            continue
-
-        project_dict['all'].append(int(project_id))
-        # projects with state=0 are active, state=3 means inactive
-        if project_active == 0:
-            project_dict['active'].append(project_id)
-        if project_progress < 100:
-            project_dict['not_finished'].append(project_id)
-
-    return project_dict
-
-
-def run_update(project_selection, user_project_list, output_path):
-
-    logging.basicConfig(filename='run_update.log',
-                        level=logging.WARNING,
-                        format='%(asctime)s %(levelname)-8s %(message)s',
-                        datefmt='%m-%d %H:%M:%S',
-                        filemode='a'
-                        )
-
-    # get projects based on type, e.g. "all", "active", "not_finished"
-    project_groups = get_projects()
-    if project_selection == 'user_list':
-        projects = user_project_list
-        print('use project ids provided by user: %s' % user_project_list)
-        logging.warning('use project ids provided by user: %s' % user_project_list)
-    else:
-        projects = project_groups[project_selection]
-        print('use project ids provided by user for %s projects: %s' % (project_selection, projects))
-        logging.warning('use project ids provided by user for %s projects: %s' % (project_selection, projects))
-
-    update_project_contributors(projects, output_path)
-    update_project_progress(projects, output_path)
-
-
+parser.add_argument('-mo', '--modus', nargs='?', default='development',
+                    choices=['development', 'production'])
 ####################################################################################################
 
 if __name__ == '__main__':
@@ -98,14 +41,6 @@ if __name__ == '__main__':
         args = parser.parse_args()
     except:
         print('have a look at the input arguments, something went wrong there.')
-
-
-    logging.basicConfig(filename='run_update.log',
-                        level=logging.DEBUG,
-                        format='%(asctime)s %(levelname)-8s %(message)s',
-                        datefmt='%m-%d %H:%M:%S',
-                        filemode='a'
-                        )
 
     # check whether arguments are correct
     if args.loop and (args.max_iterations is None):
@@ -124,11 +59,11 @@ if __name__ == '__main__':
         print('###### iteration: %s ######' % counter)
         print('###### ###### ###### ######')
 
-        logging.warning('### START run_update.py workflow ###')
+        logging.warning('### START update_projects.py workflow ###')
 
         # this runs the script and sends an email if an error happens within the execution
         try:
-            run_update(args.modus, args.user_project_list, args.output_path)
+            update_projects.run_update(args.modus, args.project_filter, args.user_project_list, args.output_path)
         except:
             tb = sys.exc_info()
             # log error
@@ -136,7 +71,7 @@ if __name__ == '__main__':
             # send mail to mapswipe google group with
             print(tb)
             msg = str(tb)
-            head = 'google-mapswipe-workers: run_update.py: error occured'
+            head = 'google-mapswipe-workers: update_projects.py: error occured'
             send_slack_message(head + '\n' + msg)
 
         # check if the script should be looped

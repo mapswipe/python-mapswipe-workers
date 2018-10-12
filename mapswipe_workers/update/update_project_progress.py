@@ -4,11 +4,6 @@
 ########################################################################################################################
 
 import sys
-# add some files in different folders to sys.
-# these files can than be loaded directly
-sys.path.insert(0, '../cfg/')
-sys.path.insert(0, '../utils/')
-
 import logging
 import numpy as np
 import os
@@ -16,21 +11,13 @@ import threading
 import time
 from queue import Queue
 import requests
-from cfg.auth import firebase_admin_auth
-import argparse
+
+from mapswipe_workers.cfg import auth
+########################################################################################################################
 
 
-# define arguments that can be passed by the user
-parser = argparse.ArgumentParser(description='Process some integers.')
-parser.add_argument('-p', '--projects', nargs='+', required=True, default=None, type=int,
-                    help='project id of the project to process. You can add multiple project ids.')
-parser.add_argument('-o', '--output_path', required=None, default='/var/www/html', type=str,
-                    help='output path. please provide a location where the exported files should be stored.')
-
-
-def project_exists(project_id):
+def project_exists(firebase, project_id):
     # check if a project corresponding to the provided id exists in firebase and has all information required
-    firebase = firebase_admin_auth()
     fb_db = firebase.database()
 
     # get the headers from firebase
@@ -51,8 +38,7 @@ def project_exists(project_id):
         return True
 
 
-def get_verification_count(project_id):
-    firebase = firebase_admin_auth()
+def get_verification_count(firebase, project_id):
     fb_db = firebase.database()
 
     # get the verification count for this project from firebase
@@ -104,9 +90,9 @@ def get_group_progress(q):
 
         q.task_done()
 
-def download_group_progress(project_id, verification_count):
-    # this functions uses threading to get the completed counts of all groups per project
 
+def download_group_progress(firebase, project_id, verification_count):
+    # this functions uses threading to get the completed counts of all groups per project
     # create a list where we store the progress and other information for each group
     group_progress_list = []
 
@@ -115,7 +101,6 @@ def download_group_progress(project_id, verification_count):
     num_threads = 24
 
     # it is important to use the shallow option, only keys will be loaded and not the complete json
-    firebase = firebase_admin_auth()
     fb_db = firebase.database()
     # this tries to set the max pool connections to 100
     adapter = requests.adapters.HTTPAdapter(max_retries=5, pool_connections=100, pool_maxsize=100)
@@ -157,9 +142,8 @@ def calculate_project_progress(project_id, group_progress_list):
     return project_progress
 
 
-def set_project_progress_firebase(project_id, progress):
+def set_project_progress_firebase(firebase, project_id, progress):
     # connect to firebase
-    firebase = firebase_admin_auth()
     fb_db = firebase.database()
 
     # update progress value for firebase project
@@ -198,18 +182,18 @@ def log_project_progress(project_id, project_progress, output_path):
     logging.warning('log progress to file for project %s successful' % project_id)
 
 
+def update_project_progress(modus, projects, output_path):
 
-
-########################################################################################################################
-
-def update_project_progress(projects, output_path):
-
-    logging.basicConfig(filename='run_update.log',
-                        level=logging.WARNING,
-                        format='%(asctime)s %(levelname)-8s %(message)s',
-                        datefmt='%m-%d %H:%M:%S',
-                        filemode='a'
-                        )
+    if modus == 'development':
+        # we use the dev instance for testing
+        firebase = auth.dev_firebase_admin_auth()
+        mysqlDB = auth.dev_mysqlDB
+        print('We are using the development instance')
+    elif modus == 'production':
+        # we use the dev instance for testing
+        firebase = auth.firebase_admin_auth()
+        mysqlDB = auth.mysqlDB
+        print('We are using the production instance')
 
     # record time
     starttime = time.time()
@@ -224,7 +208,7 @@ def update_project_progress(projects, output_path):
             logging.warning('start project progress update for project: %s' % project_id)
 
             # check if project exists in firebase
-            if project_exists(project_id):
+            if project_exists(firebase, project_id):
                 print('project exists in firebase: %s' % project_id)
                 logging.warning('project exists in firebase: %s' % project_id)
                 pass
@@ -234,7 +218,7 @@ def update_project_progress(projects, output_path):
                 continue
 
             # get verification count and check if it is valid
-            verification_count = get_verification_count(project_id)
+            verification_count = get_verification_count(firebase, project_id)
             if verification_count is None:
                 print('verification count is not defined. Skip the project: %s' % project_id)
                 logging.warning('verification count is not defined. Skip the project: %s' % project_id)
@@ -245,13 +229,13 @@ def update_project_progress(projects, output_path):
                 continue
 
             # download group completed count data from firebase
-            group_progress_list = download_group_progress(project_id, verification_count)
+            group_progress_list = download_group_progress(firebase, project_id, verification_count)
 
             # calculate project progress
             project_progress = calculate_project_progress(project_id, group_progress_list)
 
             # save project progress in firebase
-            set_project_progress_firebase(project_id, project_progress)
+            set_project_progress_firebase(firebase, project_id, project_progress)
 
             # log project progress to stats file
             # file will be stored under {output_path}/progress/progress_{project_id}.json
@@ -263,12 +247,3 @@ def update_project_progress(projects, output_path):
     print('finished project progress update for projects: %s, %f sec.' % (projects, endtime))
     logging.warning('finished project progress update for projects: %s, %f sec.' % (projects, endtime))
     return
-
-########################################################################################################################
-if __name__ == '__main__':
-    try:
-        args = parser.parse_args()
-    except:
-        print('have a look at the input arguments, something went wrong there.')
-
-    update_project_progress(args.projects, args.output_path)
