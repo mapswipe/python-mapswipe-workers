@@ -2,33 +2,15 @@
 # -*- coding: UTF-8 -*-
 # Author: M. Reinmuth, B. Herfort
 ########################################################################################################################
-
-import sys
-# add some files in different folders to sys.
-# these files can than be loaded directly
-sys.path.insert(0, '../cfg/')
-sys.path.insert(0, '../utils/')
-
 import logging
 import os
 import time
 
-from cfg.auth import firebase_admin_auth
-from cfg.auth import mysqlDB
+from mapswipe_workers.cfg import auth
 
 
-import argparse
-# define arguments that can be passed by the user
-parser = argparse.ArgumentParser(description='Process some integers.')
-parser.add_argument('-p', '--projects', nargs='+', required=True, default=None, type=int,
-                    help='project id of the project to process. You can add multiple project ids.')
-parser.add_argument('-o', '--output_path', required=None, default='/var/www/html', type=str,
-                    help='output path. please provide a location where the exported files should be stored.')
-
-
-def project_exists(project_id):
+def project_exists(firebase, project_id):
     # check if a project corresponding to the provided id exists in firebase and has all information required
-    firebase = firebase_admin_auth()
     fb_db = firebase.database()
 
     # get the headers from firebase
@@ -49,7 +31,7 @@ def project_exists(project_id):
         return True
 
 
-def get_project_contributors(project_id):
+def get_project_contributors(mysqlDB, project_id):
     # establish mysql connection
     m_con = mysqlDB()
     # sql command
@@ -73,9 +55,8 @@ def get_project_contributors(project_id):
     return contributors
 
 
-def set_project_contributors_firebase(project_id, contributors):
+def set_project_contributors_firebase(firebase, project_id, contributors):
     # connect to firebase
-    firebase = firebase_admin_auth()
     fb_db = firebase.database()
 
     # update contributors value for firebase project
@@ -116,14 +97,18 @@ def log_project_contributors(project_id, project_contributors, output_path):
 
 
 ########################################################################################################################
-def update_project_contributors(projects, output_path):
+def update_project_contributors(modus, projects, output_path):
 
-    logging.basicConfig(filename='run_update.log',
-                        level=logging.WARNING,
-                        format='%(asctime)s %(levelname)-8s %(message)s',
-                        datefmt='%m-%d %H:%M:%S',
-                        filemode='a'
-                        )
+    if modus == 'development':
+        # we use the dev instance for testing
+        firebase = auth.dev_firebase_admin_auth()
+        mysqlDB = auth.dev_mysqlDB
+        print('We are using the development instance')
+    elif modus == 'production':
+        # we use the dev instance for testing
+        firebase = auth.firebase_admin_auth()
+        mysqlDB = auth.mysqlDB
+        print('We are using the production instance')
 
     # record time
     starttime = time.time()
@@ -138,7 +123,7 @@ def update_project_contributors(projects, output_path):
             logging.warning('start project contributors update for project: %s' % project_id)
 
             # check if project exists in firebase
-            if project_exists(project_id):
+            if project_exists(firebase, project_id):
                 print('project exists in firebase: %s' % project_id)
                 logging.warning('project exists in firebase: %s' % project_id)
                 pass
@@ -148,10 +133,10 @@ def update_project_contributors(projects, output_path):
                 continue
 
             # get contributors data from mysql
-            project_contributors = get_project_contributors(project_id)
+            project_contributors = get_project_contributors(mysqlDB, project_id)
 
             # save project progress in firebase
-            set_project_contributors_firebase(project_id, project_contributors)
+            set_project_contributors_firebase(firebase, project_id, project_contributors)
 
             # log project contributors to stats file
             log_project_contributors(project_id, project_contributors, output_path)
@@ -161,13 +146,3 @@ def update_project_contributors(projects, output_path):
     print('finished project contributors update for projects: %s, %f sec.' % (projects, endtime))
     logging.warning('finished project contributors update for projects: %s, %f sec.' % (projects, endtime))
     return
-
-
-########################################################################################################################
-if __name__ == '__main__':
-    try:
-        args = parser.parse_args()
-    except:
-        print('have a look at the input arguments, something went wrong there.')
-
-    update_project_contributors(args.projects, args.output_path)
