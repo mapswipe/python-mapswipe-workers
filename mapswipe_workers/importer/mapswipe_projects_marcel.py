@@ -28,7 +28,7 @@ def get_new_imports():
 
 
 class BaseProject(object):
-    # add other methods that are common to all project types
+    # info is a dictionary with information about the project
     def __init__(self, info):
         # set basic project information
         self.name = info['name']
@@ -37,31 +37,77 @@ class BaseProject(object):
         self.verification_count = info['verificationCount']
 
 
+    ## We define a bunch of functions related to importing new projects
     def import_project(self):
-
-        print(vars(self))
-        groups = self.create_groups()
-        print('craeted %s groups' % len(groups))
-        self.upload_groups_firebase(firebase, groups)
-        self.upload_project_mysql(mysqlDB)
-        self.upload_project_firebase(firebase)
+        print("start importing project: %s" % vars(self))
+        self.create_groups()
+        self.set_groups_firebase(firebase)
+        self.set_project_mysql(mysqlDB)
+        self.set_project_firebase(firebase)
         self.set_import_complete(firebase)
+        print("finished importing project")
 
+    def set_groups_firebase(self, firebase):
+        print("set %s groups in firebase." % len(self.groups))
 
-    def upload_groups_firebase(self, firebase, groups):
-        print("uploaded %s groups to firebase." % len(groups))
+    def set_project_firebase(self, firebase):
+        print("set project in firebase.")
 
-
-    def upload_project_firebase(self, firebase):
-        print("uploaded projet to firebase.")
-
-
-    def upload_project_mysql(self, mysqlDB):
-        print("uploaded projet to firebase.")
-
+    def set_project_mysql(self, mysqlDB):
+        print("set project in mysql.")
 
     def set_import_complete(self, firebase):
         print("set import complete in firebase")
+
+
+    # We define a bunch of functions related to deleting projects
+    def delete_project(self, firebase, mysqlDB):
+        self.delete_groups_firebase(firebase)
+        self.delete_project_firebase(firebase)
+        self.delete_project_mysql(mysqlDB)
+        self.delete_import_firebase(firebase)
+        print("deleted project")
+
+    def delete_groups_firebase(self, firebase):
+        print("deleted groups in firebase")
+
+    def delete_project_firebase(self, firebase):
+        print("deleted project in firebase")
+
+    def delete_project_mysql(self, mysqlDB):
+        print("deleted project in mysqlDB")
+
+    def delete_import_firebase(self, firebase):
+        print("deleted import in firebase")
+
+
+    ## We define a bunch of functions related to updating existing projects
+    def update_project(self, firebase, mysqlDB):
+        self.get_progress(firebase)
+        self.get_contributors(mysqlDB)
+        self.set_progress(firebase)
+        self.set_contributors(firebase)
+
+    def get_progress(self, firebase):
+        self.progress = 100
+        print("got project progress from firebase")
+
+    def get_contributors(self, mysqlDB):
+        self.contributors = 55
+        print("got project contributors from mysql")
+
+    def set_progress(self, firebase):
+        print("set project progress in firebase")
+
+    def set_contributors(self, firebase):
+        print("set project conributors in firebase")
+
+
+    # We define a bunch of functions related to exporting exiting projects
+    def export_to_json(self):
+        project_json = 'some json'
+        print("exported project as json")
+        return project_json
 
 
 class BaseGroup(object):
@@ -118,8 +164,7 @@ class BuildAreaProject(BaseProject):
         groups = {}
         for i in range(0,3):
             groups[i] = vars(BuildAreaGroup(self, i))
-
-        return groups
+        self.groups = groups
 
 
 class BuildAreaGroup(BaseGroup):
@@ -163,8 +208,7 @@ class FootprintProject(BaseProject):
         # here we create the groups according to the workflow of the project type
         for i in range(0,3):
             groups[i] = vars(FootprintGroup(self, i))
-
-        return groups
+        self.groups = groups
 
 
 class FootprintGroup(BaseGroup):
@@ -212,3 +256,22 @@ if __name__ == '__main__':
 
         proj.import_project()
 
+
+    for new_import in imports:
+
+        # this will be the place, where we distinguish different project types
+        if new_import['type'] == 1:
+            proj = BuildAreaProject(new_import)
+            print('there is an import of type 1')
+        elif new_import['type'] == 2:
+            proj = FootprintProject(new_import)
+            print('there is an import of type 2')
+        else:
+            # if there is a project with unknown type, we will skip it
+            continue
+
+
+        proj.update_project(firebase, mysqlDB)
+
+
+        proj.delete_project(firebase, mysqlDB)
