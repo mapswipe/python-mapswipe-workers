@@ -36,6 +36,9 @@ class BaseProject(object):
         self.id = info['id']
         self.verification_count = info['verificationCount']
 
+        # this will be the place for project type specific settings
+        self.info = {}
+
 
     ## We define a bunch of functions related to importing new projects
     def import_project(self):
@@ -118,6 +121,7 @@ class BaseGroup(object):
         self.neededCount = project.verification_count
         self.completedCount = 0
         self.users = []
+        self.tasks = {}
 
 
     def print_group_info(self):
@@ -128,10 +132,14 @@ class BaseGroup(object):
 class BaseTask(object):
     def __init__(self, group, task_id):
         # set basic group information
+        # most of this information is redundant. what to do about it?
         self.project_id = group.project_id
         self.group_id = group.id
         self.type = group.type
         self.id = task_id
+
+        # this will be the place for project type specific settings
+        self.info = {}
 
 
     def print_task_info(self):
@@ -186,7 +194,9 @@ class BuildAreaTask(BaseTask):
         # super() executes fine now
         super(BuildAreaTask, self).__init__(group, task_id)
         self.type = 1
-        self.url = "123.png"
+        self.info = {
+            "url": "123.png"
+        }
 
 
 ########################################################################################################################
@@ -230,7 +240,9 @@ class FootprintTask(BaseTask):
         # super() executes fine now
         super(FootprintTask, self).__init__(group, task_id)
         self.type = 2
-        self.geometry = "some polygon"
+        self.info = {
+            "geometry": "some polygon"
+        }
 ########################################################################################################################
 # Main
 
@@ -256,22 +268,8 @@ if __name__ == '__main__':
 
         proj.import_project()
 
-
-    for new_import in imports:
-
-        # this will be the place, where we distinguish different project types
-        if new_import['type'] == 1:
-            proj = BuildAreaProject(new_import)
-            print('there is an import of type 1')
-        elif new_import['type'] == 2:
-            proj = FootprintProject(new_import)
-            print('there is an import of type 2')
-        else:
-            # if there is a project with unknown type, we will skip it
-            continue
-
+        print(vars(proj)['groups'])
 
         proj.update_project(firebase, mysqlDB)
-
 
         proj.delete_project(firebase, mysqlDB)
