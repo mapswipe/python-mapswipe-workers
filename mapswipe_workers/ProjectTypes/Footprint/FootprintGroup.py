@@ -1,5 +1,5 @@
-from mapswipe_workers.groups.BaseGroup import *
-from mapswipe_workers.tasks.FootprintTask import *
+from mapswipe_workers.ProjectTypes.Footprint.FootprintTask import *
+from mapswipe_workers.basic.BaseGroup import *
 
 
 class FootprintGroup(BaseGroup):
