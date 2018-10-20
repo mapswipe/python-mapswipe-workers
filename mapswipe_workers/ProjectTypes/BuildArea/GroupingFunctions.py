@@ -1,95 +1,23 @@
-#!/bin/python3
-# -*- coding: UTF-8 -*-
-# Author: M. Reinmuth, B. Herfort
-####################################################################################################
-import os
 import sys
-import json
-import logging
+import os
 import math
-from osgeo import osr, ogr, gdal
+import ogr
+import osr
 import argparse
+import logging
 
-from mapswipe_workers.cfg import auth
+from mapswipe_workers.ProjectTypes.BuildArea import TileFunctions as t
 
-####################################################################################################
+
+########################################################################################################################
 parser = argparse.ArgumentParser(description='Process some integers.')
 parser.add_argument('-i', '--input_file', required=False, default=None, type=str,
                     help='the input file containning the geometry as kml, shp or geojson')
-parser.add_argument('-t', '--tileserver', nargs='?', default='bing',
-                    choices=['bing', 'digital_globe', 'google', 'custom'])
+parser.add_argument('-o', '--output_file', required=False, default=None, type=str,
+                    help='the output file containning the processed groups geometries as kml, shp or geojson')
 parser.add_argument('-z', '--zoomlevel', required=False, default=18, type=int,
                     help='the zoom level.')
-parser.add_argument('-p', '--project_id', required=False, default=None, type=int,
-                    help='the project id.')
-parser.add_argument('-c', '--custom_tileserver_url', required=False, default=None, type=str,
-                    help='the custom url with {z}, {x}, {y} placeholders')
-####################################################################################################
-
-
-class Point:
-    def __init__(self, x=0.0, y=0.0):
-        self.x = x
-        self.y = y
-
-
-class Tile:
-    def __init__(self, x=0, y=0):
-        self.x = x
-        self.y = y
-
-def lat_long_zoom_to_pixel_coords(lat, lon, zoom):
-    """Create pixel coordinates from lat-long point at a given zoom level"""
-    p = Point()
-    sinLat = math.sin(lat * math.pi / 180.0)
-    x = ((lon + 180) / 360) * 256 * math.pow(2, zoom)
-    y = (0.5 - math.log((1 + sinLat) / (1 - sinLat)) /
-         (4 * math.pi)) * 256 * math.pow(2, zoom)
-    p.x = int(math.floor(x))
-    p.y = int(math.floor(y))
-    return p
-
-def pixel_coords_zoom_to_lat_lon(PixelX, PixelY, zoom):
-    MapSize = 256 * math.pow(2, zoom)
-    x = (PixelX / MapSize) - 0.5
-    y = 0.5 - (PixelY / MapSize)
-    lon = 360 * x
-    lat = 90 - 360 * math.atan(math.exp(-y * 2 * math.pi)) / math.pi
-
-    return lon, lat
-
-
-def pixel_coords_to_tile_address(x, y):
-    """Create a tile address from pixel coordinates of point within tile."""
-    t = Tile()
-    t.x = int(math.floor(x / 256))
-    t.y = int(math.floor(y / 256))
-    return t
-
-def geometry_from_tile_coords(TileX, TileY, zoom):
-
-    # Calculate lat, lon of upper left corner of tile
-    PixelX = TileX * 256
-    PixelY = TileY * 256
-    lon_left, lat_top = pixel_coords_zoom_to_lat_lon(PixelX, PixelY, zoom)
-
-    # Calculate lat, lon of lower right corner of tile
-    PixelX = (TileX + 1) * 256
-    PixelY = (TileY + 1) * 256
-    lon_right, lat_bottom = pixel_coords_zoom_to_lat_lon(PixelX, PixelY, zoom)
-
-    # Create Geometry
-    ring = ogr.Geometry(ogr.wkbLinearRing)
-    ring.AddPoint(lon_left, lat_top)
-    ring.AddPoint(lon_right, lat_top)
-    ring.AddPoint(lon_right, lat_bottom)
-    ring.AddPoint(lon_left, lat_bottom)
-    ring.AddPoint(lon_left, lat_top)
-    poly = ogr.Geometry(ogr.wkbPolygon)
-    poly.AddGeometry(ring)
-
-    wkt_geom = poly.ExportToWkt()
-    return wkt_geom
+########################################################################################################################
 
 
 def get_geometry_from_file(infile):
@@ -112,8 +40,6 @@ def get_geometry_from_file(infile):
         print('Check input file format for ' + infile)
         print('Supported formats .shp .geojson .kml')
         sys.exit()
-
-
 
     datasource = driver.Open(infile, 0)
     try:
@@ -153,14 +79,14 @@ def get_horizontal_slice(extent, geomcol, zoom):
     #logging.info('polygon to slice: %s' % polygon_to_slice)
 
     # get upper left left tile coordinates
-    pixel = lat_long_zoom_to_pixel_coords(ymax, xmin, zoom)
-    tile = pixel_coords_to_tile_address(pixel.x, pixel.y)
+    pixel = t.lat_long_zoom_to_pixel_coords(ymax, xmin, zoom)
+    tile = t.pixel_coords_to_tile_address(pixel.x, pixel.y)
     TileX_left = tile.x
     TileY_top = tile.y
 
     # get lower right tile coordinates
-    pixel = lat_long_zoom_to_pixel_coords(ymin, xmax, zoom)
-    tile = pixel_coords_to_tile_address(pixel.x, pixel.y)
+    pixel = t.lat_long_zoom_to_pixel_coords(ymin, xmax, zoom)
+    tile = t.pixel_coords_to_tile_address(pixel.x, pixel.y)
 
     TileX_right = tile.x
     TileY_bottom = tile.y
@@ -183,12 +109,12 @@ def get_horizontal_slice(extent, geomcol, zoom):
         # Calculate lat, lon of upper left corner of tile
         PixelX = TileX_left * 256
         PixelY = TileY * 256
-        lon_left, lat_top = pixel_coords_zoom_to_lat_lon(PixelX, PixelY, zoom)
+        lon_left, lat_top = t.pixel_coords_zoom_to_lat_lon(PixelX, PixelY, zoom)
 
 
         PixelX = (TileX_right) * 256
         PixelY = (TileY+3) * 256
-        lon_right, lat_bottom = pixel_coords_zoom_to_lat_lon(PixelX, PixelY, zoom)
+        lon_right, lat_bottom = t.pixel_coords_zoom_to_lat_lon(PixelX, PixelY, zoom)
 
         # Create Geometry
         ring = ogr.Geometry(ogr.wkbLinearRing)
@@ -258,13 +184,13 @@ def get_vertical_slice(slice_infos, zoom):
         ymax = extent[3]
 
         # get upper left left tile coordinates
-        pixel = lat_long_zoom_to_pixel_coords(ymax, xmin, zoom)
-        tile = pixel_coords_to_tile_address(pixel.x, pixel.y)
+        pixel = t.lat_long_zoom_to_pixel_coords(ymax, xmin, zoom)
+        tile = t.pixel_coords_to_tile_address(pixel.x, pixel.y)
         TileX_left = tile.x
 
         # get lower right tile coordinates
-        pixel = lat_long_zoom_to_pixel_coords(ymin, xmax, zoom)
-        tile = pixel_coords_to_tile_address(pixel.x, pixel.y)
+        pixel = t.lat_long_zoom_to_pixel_coords(ymin, xmax, zoom)
+        tile = t.pixel_coords_to_tile_address(pixel.x, pixel.y)
         TileX_right = tile.x
 
 
@@ -297,12 +223,12 @@ def get_vertical_slice(slice_infos, zoom):
             # Calculate lat, lon of upper left corner of tile
             PixelX = TileX * 256
             PixelY = TileY_top * 256
-            lon_left, lat_top = pixel_coords_zoom_to_lat_lon(PixelX, PixelY, zoom)
+            lon_left, lat_top = t.pixel_coords_zoom_to_lat_lon(PixelX, PixelY, zoom)
             #logging.info('lon_left: %s, lat_top: %s' % (lon_left, lat_top))
 
             PixelX = (TileX + step_size) * 256
             PixelY = TileY_bottom * 256
-            lon_right, lat_bottom = pixel_coords_zoom_to_lat_lon(PixelX, PixelY, zoom)
+            lon_right, lat_bottom = t.pixel_coords_zoom_to_lat_lon(PixelX, PixelY, zoom)
             #logging.info('lon_right: %s, lat_bottom: %s' % (lon_right, lat_bottom))
 
             # Create Geometry
@@ -330,6 +256,21 @@ def get_vertical_slice(slice_infos, zoom):
 
     logging.warning('created vertical_slice')
     return raw_groups
+
+
+def extent_to_slices(input_file, zoomlevel):
+
+    extent, geomcol = get_geometry_from_file(input_file)
+
+    # get horizontal slices --> rows
+    horizontal_slice_infos = get_horizontal_slice(extent, geomcol, zoomlevel)
+    # outfile = 'data/horizontally_sliced_groups_{}.geojson'.format(config["project_id"])
+    # save_geom_as_geojson(horizontal_slice_infos['slice_collection'], outfile)
+
+    # then get vertical slices --> columns
+    vertical_slice_infos = get_vertical_slice(horizontal_slice_infos, zoomlevel)
+
+    return vertical_slice_infos
 
 
 def save_geom_as_geojson(geomcol, outfile):
@@ -368,125 +309,25 @@ def save_geom_as_geojson(geomcol, outfile):
     data_final.Destroy()
 
 
-def tile_coords_zoom_and_tileserver_to_URL(TileX, TileY, zoomlevel, tileserver,
-                                           api_key, custom_tileserver_url):
-    """Create a URL for a tile based on tile coordinates and zoom"""
-    URL = ''
-    if tileserver == 'bing':
-        quadKey = tile_coords_and_zoom_to_quadKey(
-            int(TileX), int(TileY), int(zoomlevel))
-        URL = quadKey_to_Bing_URL(quadKey, api_key)
-    elif tileserver == 'digital_globe':
-        URL = ("https://api.mapbox.com/v4/digitalglobe.nal0g75k/"
-               "{}/{}/{}.png?access_token={}"
-               .format(zoomlevel, TileX, TileY, api_key))
-    elif tileserver == 'google':
-        URL = ("https://mt0.google.com/vt/lyrs=s&hl=en&x={}&y={}&z={}"
-               .format(TileX, TileY, zoomlevel))
-    elif tileserver == 'custom':
-        # don't forget the linebreak!
-        URL = custom_tileserver_url.format(z=zoomlevel, x=TileX, y=TileY)
-    return URL
-
-
-def tile_coords_and_zoom_to_quadKey(x, y, zoom):
-    """Create a quadkey for use with certain tileservers that use them."""
-    quadKey = ''
-    for i in range(zoom, 0, -1):
-        digit = 0
-        mask = 1 << (i - 1)
-        if (x & mask) != 0:
-            digit += 1
-        if (y & mask) != 0:
-            digit += 2
-        quadKey += str(digit)
-    return quadKey
-
-
-def quadKey_to_Bing_URL(quadKey, api_key):
-    """Create a URL linking to a Bing tile server"""
-    tile_url = ("http://t0.tiles.virtualearth.net/tiles/a{}.jpeg?"
-                "g=854&mkt=en-US&token={}".format(quadKey, api_key))
-    #print "\nThe tile URL is: {}".format(tile_url)
-
-    return tile_url
-
-
-def create_tasks(xmin, xmax, ymin, ymax, config):
-    # be aware that input is tile coordinates not lat, lon
-    # create dict for tasks
-    tasks = {}
-
-    for TileX in range(int(xmin), int(xmax)+1):
-        for TileY in range(int(ymin), int(ymax)+1):
-            task = {}
-            task['id'] = '{zoom}-{taskx}-{tasky}'.format(
-                zoom = config['zoom'],
-                taskx = TileX,
-                tasky = TileY
-            )
-            task['projectId'] = str(config['project_id'])
-            task['taskX'] = str(TileX)
-            task['taskY'] = str(TileY)
-            task['taskZ'] = str(config['zoom'])
-
-            task['url'] = tile_coords_zoom_and_tileserver_to_URL(
-                    TileX, TileY, config['zoom'],
-                    config['tileserver'],
-                    config['api_key'],
-                    config['custom_tileserver_url'])
-            # we no longer provide wkt geometry, you can calc using some python scripts
-            #task['wkt'] = geometry_from_tile_coords(TileX, TileY, zoom)
-            task['wkt'] = ''
-
-            tasks[task['id']] = task
-
-    logging.info('created tasks for a group for project %s' % config['project_id'])
-    return tasks
-
-
-def create_groups(groups, config):
-    # this function will create a json file to upload in firebase groups table
-
-
+def save_slices_as_geojson(vertical_slice_infos, outfile):
     # Create the output Driver
     outDriver = ogr.GetDriverByName('GeoJSON')
     # Create the output GeoJSON
-    outfile = './data/groups_{}.geojson'.format(config["project_id"])
     outDataSource = outDriver.CreateDataSource(outfile)
     outLayer = outDataSource.CreateLayer(outfile, geom_type=ogr.wkbPolygon)
 
-    outLayer.CreateField(ogr.FieldDefn('project_id', ogr.OFTInteger))
     outLayer.CreateField(ogr.FieldDefn('group_id', ogr.OFTInteger))
     outLayer.CreateField(ogr.FieldDefn('xmin', ogr.OFTInteger))
     outLayer.CreateField(ogr.FieldDefn('xmax', ogr.OFTInteger))
     outLayer.CreateField(ogr.FieldDefn('ymin', ogr.OFTInteger))
     outLayer.CreateField(ogr.FieldDefn('ymax', ogr.OFTInteger))
 
-    for group_id, group in groups.items():
-
-        group_geometry = group['group_polygon']
-        del group['group_polygon']
-
-        group['zoomLevel'] = config['zoom']
-        group['projectId'] = str(config['project_id'])
-        group['distributedCount'] = 0
-        group['completedCount'] = 0
-        group['reportCount'] = 0
-        group['id'] = group_id
-
-        # get tasks for this group
-        group['tasks'] = create_tasks(
-            group['xMin'], group['xMax'], group['yMin'], group['yMax'], config)
-
-        group['count'] = len(group['tasks'])
-
+    for group_id, group in vertical_slice_infos.items():
         # write to geojson file
         featureDefn = outLayer.GetLayerDefn()
         outFeature = ogr.Feature(featureDefn)
-        outFeature.SetGeometry(group_geometry)
-        outFeature.SetField('project_id', group['projectId'])
-        outFeature.SetField('group_id', group['id'])
+        outFeature.SetGeometry(group['group_polygon'])
+        outFeature.SetField('group_id', group_id)
         outFeature.SetField('xmin', group['xMin'])
         outFeature.SetField('xmax', group['xMax'])
         outFeature.SetField('ymin', group['yMin'])
@@ -495,59 +336,10 @@ def create_groups(groups, config):
         outFeature = None
 
     outDataSource = None
-    logging.warning('created all groups for project %s' % config['project_id'])
-    return groups
-
-
-def run_create_groups(input_file, project_id, tileserver, custom_tileserver_url, zoom):
-    logging.basicConfig(filename='run_import.log',
-                        level=logging.WARNING,
-                        format='%(asctime)s %(levelname)-8s %(message)s',
-                        datefmt='%m-%d %H:%M:%S',
-                        filemode='a'
-                        )
-
-    # Enable GDAL/OGR exceptions
-    gdal.UseExceptions()
-
-    # get api key for tileserver
-    if tileserver != 'custom':
-        api_key = auth.get_api_key(tileserver)
-    else:
-        api_key = ''
-
-
-    config = {
-        "project_id": project_id,
-        "tileserver": tileserver,
-        "custom_tileserver_url": custom_tileserver_url,
-        "api_key": api_key,
-        "zoom": zoom
-    }
-    logging.warning('will use the following config: %s' % config)
-
-    extent, geomcol = get_geometry_from_file(input_file)
-
-    horizontal_slice_infos = get_horizontal_slice(extent, geomcol, config['zoom'])
-    #outfile = 'data/horizontally_sliced_groups_{}.geojson'.format(config["project_id"])
-    #save_geom_as_geojson(horizontal_slice_infos['slice_collection'], outfile)
-
-    raw_groups = get_vertical_slice(horizontal_slice_infos, config['zoom'])
-    print('running create groups')
-    groups = create_groups(raw_groups, config)
-    print('ran create_groups')
-    outfile = 'data/groups_{}.json'.format(config["project_id"])
-    # save groups as json file
-    with open(outfile, 'w') as fp:
-        json.dump(groups, fp)
-        logging.warning('saved groups as json file for project %s' % config["project_id"])
-
-    logging.warning('returned groups for project %s' % config["project_id"])
-    return groups
+    logging.warning('created all %s.' % outfile)
 
 
 ########################################################################################################################
-
 if __name__ == '__main__':
 
     try:
@@ -555,5 +347,5 @@ if __name__ == '__main__':
     except:
         print('have a look at the input arguments, something went wrong there.')
 
-    run_create_groups(args.input_file, args.project_id, args.tileserver, args.custom_tileserver_url, args.zoomlevel)
-
+    slices = extent_to_slices(args.input_file, args.zoomlevel)
+    save_slices_as_geojson(slices, args.output_file)

@@ -1,0 +1,15 @@
+class BaseGroup(object):
+    def __init__(self, project, group_id):
+        # set basic group information
+        self.project_id = project.id
+        self.id = group_id
+        self.completed_count = 0
+        self.needed_count = 0
+        self.count = 0
+        self.users = []
+
+    def to_dict(self):
+        group = vars(self)
+        for task_id, task in group['tasks'].items():
+            group['tasks'][task_id] = vars(task)
+        return group

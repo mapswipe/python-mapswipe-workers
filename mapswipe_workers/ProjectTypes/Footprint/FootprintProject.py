@@ -1,20 +1,21 @@
-from mapswipe_workers.projects.BaseProject import *
+from mapswipe_workers.basic.BaseProject import BaseProject
+from mapswipe_workers.ProjectTypes.Footprint.FootprintGroup import FootprintGroup
 
 
 ########################################################################################################################
 # A Footprint Project
 class FootprintProject(BaseProject):
-    type = 2
+    project_type = 2
 
     def __init__(self, project_id):
         # super() executes fine now
-        super(FootprintProject, self).__init__(project_id)
+        super().__init__(project_id)
 
-    def set_project_info(self, info):
-        super(FootprintProject, self).set_project_info(info)
+    def set_project_info(self, import_key, import_dict):
+        super().set_project_info(import_key, import_dict)
         self.info = {
-            "tileserver_url": info['tileserver_url'],
-            "input_geometries": info['input_geometries']
+            "tileserver_url": import_dict['tileserver_url'],
+            "input_geometries": import_dict['input_geometries']
         }
 
     def create_groups(self):
