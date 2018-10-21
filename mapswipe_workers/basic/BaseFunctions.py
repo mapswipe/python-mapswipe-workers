@@ -1,6 +1,5 @@
 import logging
 
-
 from mapswipe_workers.cfg import auth
 # Make sure to import all project types here
 from mapswipe_workers.ProjectTypes.BuildArea.BuildAreaProject import BuildAreaProject
@@ -8,6 +7,21 @@ from mapswipe_workers.ProjectTypes.Footprint.FootprintProject import FootprintPr
 
 
 def init_project(project_type, project_id):
+    """
+    The function to init a project in regard to its type
+
+    Parameters
+    ----------
+    project_type : int
+        the type of the project
+    project_id: int
+        the id of the project
+
+    Returns
+    -------
+    proj :
+        the project instance
+    """
 
     class_to_type = {
         # Make sure to import all project types here
@@ -20,6 +34,24 @@ def init_project(project_type, project_id):
 
 
 def get_highest_project_id(firebase):
+    """
+    The function to get the highest project id from firebase
+
+    Parameters
+    ----------
+    firebase : pyrebase firebase object
+        initialized firebase app with admin authentication
+
+    Returns
+    -------
+    highest_project_id : int
+        highest id of a project in firebase
+
+    Notes
+    -----
+    If not project id is found in firebase (no project imported yes) the project id is set to 1000
+    """
+
     fb_db = firebase.database()
 
     project_keys = fb_db.child('projects').shallow().get().val()
@@ -36,17 +68,44 @@ def get_highest_project_id(firebase):
 
 
 def get_new_project_id(firebase):
+    """
+    The function to get a project id which is not used in firebase
+
+    Parameters
+    ----------
+    firebase : pyrebase firebase object
+        initialized firebase app with admin authentication
+
+    Returns
+    -------
+    new_project_id : int
+        a new project id which has not been used in firebase
+
+    Notes
+    -----
+        the new project id needs to be increased by more than 1 to avoid firebase json parsed as an array
+        more information here: https://firebase.googleblog.com/2014/04/best-practices-arrays-in-firebase.html
+    """
 
     highest_project_id = get_highest_project_id(firebase)
-    # we add 2 to avoid firebase result being parsed as a list instead of json
     new_project_id = highest_project_id + 2
     return new_project_id
 
 
 def get_new_imports(firebase):
-    # this functions looks for new entries in the firebase importer table
-    # the output is a dictionary with all information for newly imported projects
+    """
+    The function to get new project imports from firebase which have not been imported
 
+    Parameters
+    ----------
+    firebase : pyrebase firebase object
+        initialized firebase app with admin authentication
+
+    Returns
+    -------
+    new_imports : dict
+        a dictionary of imports which have not been imported already
+    """
 
     fb_db = firebase.database()
     all_imports = fb_db.child("imports").get().val()
@@ -66,6 +125,19 @@ def get_new_imports(firebase):
 
 
 def run_import(modus):
+    """
+    A function to create all newly imported projects in firebase
+
+    Parameters
+    ----------
+    modus : str
+        either `development` or `production to decide which firebase configuration to use
+
+    Returns
+    -------
+    imported_projects : list
+        list of project ids of imported projects
+    """
 
     if modus == 'development':
         # we use the dev instance for testing
@@ -78,9 +150,10 @@ def run_import(modus):
         mysqlDB = auth.mysqlDB
         print('We are using the production instance')
 
+    # this will return a list of imports
+    imported_projects = []
 
     # check for new imports in firebase
-    # this will return a list of imports
     imports = get_new_imports(firebase)
     for import_key, new_import in imports.items():
 
@@ -88,9 +161,11 @@ def run_import(modus):
         project_id = get_new_project_id(firebase)
 
         # this will be the place, where we distinguish different project types
-
         proj = init_project(new_import['projectType'], project_id)
         if not proj:
             continue
 
         proj.import_project(import_key, new_import, firebase, mysqlDB)
+        imported_projects.append(project_id)
+
+    return imported_projects
