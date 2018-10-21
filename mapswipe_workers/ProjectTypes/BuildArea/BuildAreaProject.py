@@ -9,6 +9,25 @@ from mapswipe_workers.ProjectTypes.BuildArea import GroupingFunctions as g
 ########################################################################################################################
 # A Build Area Project
 class BuildAreaProject(BaseProject):
+    """
+    The subclass for a project of the type BuildArea
+
+    Attributes
+    ----------
+    project_type : int
+        The type of the project
+    extent : str
+        The path to the file with the polygon extent geometry of the project
+    tileserver : str
+        The tileserver to be used for the background satellite imagery
+    custom_tileserver_url : str
+        The URL of a tileserver with {x}, {y}, {z} place holders
+    api_key : str
+        The api key to access tiles from a tileserver
+    zoomlevel : int
+        The zoomlevel to be used to create mapping tasks
+    """
+
     project_type = 1
 
     def __init__(self, project_id):

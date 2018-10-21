@@ -1,6 +1,40 @@
 import logging
 
 class BaseProject(object):
+    """
+    The basic class for a project
+
+    Attributes
+    ----------
+    id : int
+        The id of a project
+    name : str
+        The name of a project
+    project_details : str
+        The detailed description of the project
+    look_for : str
+        The objects of interest / objects to look for in this project
+    image: str
+        The URL of the header image of the project
+    verification_count : int
+        The number of users required for each task to be finished
+    is_featured : bool
+        Whether a project is displayed as a featured project in the app
+    state : int
+        Whether a project is displayed in the app
+        0 = displayed
+        1 = ???
+        2 = ???
+        3 = not displayed
+    group_average : float
+        The average number of tasks per group
+    progress : int
+        The number of finished tasks in percent
+    contributors : int
+        The number of users contributing to this project
+    """
+
+
     # info is a dictionary with information about the project
     def __init__(self, project_id):
         # set basic project information
@@ -43,6 +77,20 @@ class BaseProject(object):
 
 
     def set_groups_firebase(self, firebase):
+        """
+        The function to upload groups to firebase
+
+        Parameters
+        ----------
+        firebase : pyrebase firebase object
+            initialized firebase app with admin authentication
+
+        Returns
+        -------
+        bool
+            True if groups have been uploaded to firebase, False otherwise
+        """
+
         # create a dictionary for uploading in firebase
         groups = {}
         for group_id, group in self.groups.items():
