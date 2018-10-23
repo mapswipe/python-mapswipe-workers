@@ -14,7 +14,7 @@ class BuildAreaTask(BaseTask):
 
         self.taskX = str(TileX)
         self.taskY = str(TileY)
-        self.taskZ = str(group.zoomlevel)
+        self.taskZ = str(project.info['zoomlevel'])
         self.url = t.tile_coords_zoom_and_tileserver_to_URL(
             TileX,
             TileY,
