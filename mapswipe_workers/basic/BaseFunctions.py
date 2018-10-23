@@ -160,12 +160,21 @@ def run_import(modus):
         # let's create a project now
         project_id = get_new_project_id(firebase)
 
+        project_id = 1032
+
+        try:
+            project_type = new_import['projectType']
+        except:
+            project_type = 1
+
         # this will be the place, where we distinguish different project types
-        proj = init_project(new_import['projectType'], project_id)
+        proj = init_project(project_type, project_id)
         if not proj:
             continue
 
-        proj.import_project(import_key, new_import, firebase, mysqlDB)
-        imported_projects.append(project_id)
+        if not proj.import_project(import_key, new_import, firebase, mysqlDB):
+            print('something went wrong with project %s' % proj.id)
+        else:
+            imported_projects.append(project_id)
 
     return imported_projects
