@@ -159,9 +159,6 @@ def run_import(modus):
 
         # let's create a project now
         project_id = get_new_project_id(firebase)
-
-        project_id = 1032
-
         try:
             project_type = new_import['projectType']
         except:

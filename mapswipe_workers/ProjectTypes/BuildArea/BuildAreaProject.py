@@ -133,13 +133,18 @@ class BuildAreaProject(BaseProject):
         self.info['extent'] = filename
         return filename
 
-    def check_import(self, firebase, mysqlDB):
+    def valid_import(self, firebase, mysqlDB):
         """
         The function to validate the import information
         """
 
-        super().check_import(firebase, mysqlDB)
-        self.check_input_geometry()
+        if not super().valid_import(firebase, mysqlDB):
+            return False
+        elif not self.check_input_geometry():
+            return False
+        else:
+            logging.warning('import is valid, %s' % self.import_key)
+            return True
 
     def check_input_geometry(self):
         """
@@ -164,12 +169,12 @@ class BuildAreaProject(BaseProject):
         if layer.GetFeatureCount() < 1:
             err = 'empty file. No geometries provided'
             logging.warning(err)
-            return err
+            return False
             # check if more than 1 geometry is provided
         elif layer.GetFeatureCount() > 1:
             err = 'Input file contains more than one geometry. Make sure to provide exact one input geometry.'
             logging.warning(err)
-            return err
+            return False
 
         # check if the input geometry is a valid polygon
         for feature in layer:
@@ -177,12 +182,12 @@ class BuildAreaProject(BaseProject):
             geom_name = feat_geom.GetGeometryName()
             if not feat_geom.IsValid():
                 err = 'geometry is not valid: %s. Tested with IsValid() ogr method. probably self-intersections.' % geom_name
-                return err
+                return False
             # we accept only POLYGON or MULTIPOLYGON geometries
             if geom_name != 'POLYGON' and geom_name != 'MULTIPOLYGON':
                 err = 'invalid geometry type: %s. please provide "POLYGON" or "MULTIPOLYGON"' % geom_name
                 print(err)
-                return err
+                return False
 
         del datasource
         del layer
