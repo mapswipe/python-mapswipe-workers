@@ -6,7 +6,7 @@ from mapswipe_workers.ProjectTypes.BuildArea.BuildAreaProject import BuildAreaPr
 from mapswipe_workers.ProjectTypes.Footprint.FootprintProject import FootprintProject
 
 
-def init_project(project_type, project_id):
+def init_project(project_type, project_id, firebase, mysqlDB, import_key=None, import_dict=None):
     """
     The function to init a project in regard to its type
 
@@ -25,8 +25,8 @@ def init_project(project_type, project_id):
 
     class_to_type = {
         # Make sure to import all project types here
-        1: BuildAreaProject(project_id),
-        2: FootprintProject(project_id)
+        1: BuildAreaProject(project_id, firebase, mysqlDB, import_key, import_dict),
+        # 2: FootprintProject(project_id, firebase, import_key, import_dict)
     }
 
     proj = class_to_type[project_type]
@@ -150,6 +150,7 @@ def run_import(modus):
         mysqlDB = auth.mysqlDB
         print('We are using the production instance')
 
+
     # this will return a list of imports
     imported_projects = []
 
@@ -165,13 +166,8 @@ def run_import(modus):
             project_type = 1
 
         # this will be the place, where we distinguish different project types
-        proj = init_project(project_type, project_id)
-        if not proj:
-            continue
-
-        if not proj.import_project(import_key, new_import, firebase, mysqlDB):
-            print('something went wrong with project %s' % proj.id)
-        else:
-            imported_projects.append(project_id)
+        proj = init_project(project_type, project_id, firebase, mysqlDB, import_key, new_import)
+        proj.import_project(firebase, mysqlDB)
+        imported_projects.append(proj.id)
 
     return imported_projects

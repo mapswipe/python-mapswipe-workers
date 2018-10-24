@@ -34,88 +34,67 @@ class BaseProject(object):
         The number of users contributing to this project
     """
 
+    ####################################################################################################################
+    # INIT - Existing projects from id, new projects from import_key and import_dict                                   #
+    ####################################################################################################################
+    def __init__(self, project_id: int, firebase: object, mysqlDB: object, import_key: str = None, import_dict: dict = None) -> object:
 
-    # info is a dictionary with information about the project
-    def __init__(self, project_id):
         # set basic project information
         self.id = project_id
 
+        # check if project exists in firebase and get attributes
+        project_data = self.project_exists_firebase(firebase)
 
-    def set_project_info(self, import_key, import_dict):
-        # set basic information based on import_dict
-        self.import_key = import_key
-        self.name = import_dict['project']['name']
-        self.image = import_dict['project']['image']
-        self.look_for = import_dict['project']['lookFor']
-        self.project_details = import_dict['project']['projectDetails']
-        self.verification_count = import_dict['project']['verificationCount']
+        # if a project exists in firebase we get the values from there to init the project
+        if project_data:
+            # we set attributes based on the data from firebase
+            self.import_key = project_data['importKey']
+            self.name = project_data['name']
+            self.image = project_data['image']
+            self.look_for = project_data['lookFor']
+            self.project_details = project_data['projectDetails']
+            self.verification_count = project_data['verificationCount']
 
-        # the following attributes are set regardless the imported information
-        self.is_featured = False
-        self.state = 3
-        self.group_average = 0
-        self.progress = 0
-        self.contributors = 0
+            # the following attributes are set regardless the imported information
+            self.is_featured = project_data['isFeature']
+            self.state = project_data['state']
+            self.group_average = project_data['groupAverage']
+            self.progress = project_data['progress']
+            self.contributors = project_data['contributors']
+            self.info = project_data['info']
 
-
-    ## We define a bunch of functions related to importing new projects
-    def import_project(self, import_key, import_dict, firebase, mysqlDB):
-        # set all attributes
-        self.set_project_info(import_key, import_dict)
-
-        # check import before starting the import
-        if not self.valid_import(firebase, mysqlDB):
-
-            print(self.valid_import(firebase, mysqlDB))
-            logging.warning('import is invalid')
-            return False
-
-        try:
-            logging.warning('start importing project %s' % self.id)
-            self.create_groups()
-            #self.set_groups_firebase(firebase)
-            self.set_project_mysql(mysqlDB)
-            self.set_project_firebase(firebase)
-            self.set_import_complete(firebase)
-            logging.warning('imported project %s' % self.id)
-            return True
-        except Exception as e:
-            logging.warning('could not import project %s' % self.id)
-            logging.warning(e)
-            self.delete_project(firebase, mysqlDB)
-
-    def valid_import(self, firebase, mysqlDB):
-        """
-        The function to check whether a project has already been imported or import information is not valid
-
-        Parameters
-        ----------
-        firebase : pyrebase firebase object
-            initialized firebase app with admin authentication
-        mysqlDB : database connection class
-            The database connection to mysql database
-
-        Returns
-        -------
-        bool
-            True if successful. False otherwise.
-
-        """
-
-        logging.warning('starting to check if import is valid for %s' % self.import_key)
-
-        # check if project already exists in firebase
-        if self.project_exists_firebase(firebase):
-            print(self.project_exists_firebase(firebase))
-            print('firebase')
-            return False
-        elif self.project_exists_mysql(mysqlDB):
-            print('mysql')
-            return False
-        # check if project already exists in mysql
         else:
-            return True
+            # this is a new project, which has not been imported
+            # first let's check if the import_key and import_dict are valid
+            if not import_key:
+                logging.warning('no import_key has been provided to create a new project.')
+                return None
+            elif not import_dict:
+                logging.warning('no import_dict information has been provided to create a new project.')
+                return None
+            elif self.project_exists_mysql(mysqlDB):
+                print('mysql')
+                logging.warning('project is new, but has been imported to mysql already.')
+                return None
+            else:
+                # let's set the attributes from the parameters provided in the import_dict
+                self.import_key = import_key
+                self.name = import_dict['project']['name']
+                self.image = import_dict['project']['image']
+                self.look_for = import_dict['project']['lookFor']
+                self.project_details = import_dict['project']['projectDetails']
+                self.verification_count = import_dict['project']['verificationCount']
 
+                # the following attributes are set regardless the imported information
+                self.is_featured = False
+                self.state = 3
+                self.group_average = 0
+                self.progress = 0
+                self.contributors = 0
+
+    ####################################################################################################################
+    # EXISTS - Check if a project exists                                                                               #
+    ####################################################################################################################
     def project_exists_firebase(self, firebase):
         """
         The function to check whether a project exists in firebase.
@@ -132,14 +111,14 @@ class BaseProject(object):
         """
 
         fb_db = firebase.database()
-        project_data = fb_db.child("projects").child(self.id).shallow().get().val()
+        project_data = fb_db.child("projects").child(self.id).get().val()
 
         if not project_data:
             logging.warning('not in firebase. project: %s' % self.id)
             return False
         else:
             logging.warning('exists in firebase. project: %s' % self.id)
-            return True
+            return project_data
 
     def project_exists_mysql(self, mysqlDB):
         """
@@ -177,9 +156,25 @@ class BaseProject(object):
             logging.warning('exists in mysql database. project: %s' % self.id)
             return True
 
+    ####################################################################################################################
+    # IMPORT - We define a bunch of functions related to importing new projects                                        #
+    ####################################################################################################################
+    def import_project(self, firebase, mysqlDB):
+        try:
+            logging.warning('start importing project %s' % self.id)
+            groups = self.create_groups()
+            self.set_groups_firebase(firebase, groups)
+            self.set_project_mysql(mysqlDB)
+            self.set_project_firebase(firebase)
+            self.set_import_complete(firebase)
+            logging.warning('imported project %s' % self.id)
+            return True
+        except Exception as e:
+            logging.warning('could not import project %s' % self.id)
+            logging.warning(e)
+            self.delete_project(firebase, mysqlDB)
 
-
-    def set_groups_firebase(self, firebase):
+    def set_groups_firebase(self, firebase, groups):
         """
         The function to upload groups to firebase
 
@@ -195,13 +190,13 @@ class BaseProject(object):
         """
 
         # create a dictionary for uploading in firebase
-        groups = {}
-        for group_id, group in self.groups.items():
-            groups[group_id] = group.to_dict()
+        final_groups = {}
+        for group_id, group in groups.items():
+            final_groups[group_id] = group.to_dict()
 
         # upload groups in firebase
         fb_db = firebase.database()
-        fb_db.child("groups").child(self.id).set(groups)
+        fb_db.child("groups").child(self.id).set(final_groups)
         logging.warning('uploaded groups in firebase for project %s' % self.id)
 
     def set_project_firebase(self, firebase):
@@ -234,7 +229,7 @@ class BaseProject(object):
             "projectDetails": self.project_details,
             "verificationCount": self.verification_count,
             "importKey": self.import_key,
-            "isFeature": self.is_featured,
+            "isFeatured": self.is_featured,
             "state":  self.state,
             "groupAverage": self.group_average,
             "progress": self.progress,
@@ -296,7 +291,9 @@ class BaseProject(object):
         logging.warning('set import complete for import %s and project %s' % (self.import_key, self.id))
         return True
 
-    # We define a bunch of functions related to deleting projects
+    ####################################################################################################################
+    # DELETE - We define a bunch of functions related to delete project information                                    #
+    ####################################################################################################################
     def delete_project(self, firebase, mysqlDB):
         """
         The function to delete all project related information in firebase and mysql
@@ -412,7 +409,9 @@ class BaseProject(object):
         logging.warning('deleted project info in mysql for project %s' % self.id)
         return True
 
-    ## We define a bunch of functions related to updating existing projects
+    ####################################################################################################################
+    # UPDATE - We define a bunch of functions related to updating existing projects                                    #
+    ####################################################################################################################
     def update_project(self, firebase, mysqlDB):
         self.get_progress(firebase)
         self.get_contributors(mysqlDB)
@@ -500,10 +499,10 @@ class BaseProject(object):
         logging.warning('set contributors in firebase for project: %s' % self.id)
         return True
 
-    # We define a bunch of functions related to exporting exiting projects
+    ####################################################################################################################
+    # EXPORT - We define a bunch of functions related to exporting exiting projects                                    #
+    ####################################################################################################################
     def export_groups_as_json(self):
-
-
         project_json = 'some json'
         print("exported project as json")
         return project_json
