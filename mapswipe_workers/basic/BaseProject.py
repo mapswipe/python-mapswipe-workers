@@ -58,29 +58,33 @@ class BaseProject(object):
         self.contributors = 0
 
 
-
     ## We define a bunch of functions related to importing new projects
     def import_project(self, import_key, import_dict, firebase, mysqlDB):
+        # set all attributes
+        self.set_project_info(import_key, import_dict)
+
         # check import before starting the import
-        if not self.check_import(firebase, mysqlDB):
+        if not self.valid_import(firebase, mysqlDB):
+
+            print(self.valid_import(firebase, mysqlDB))
             logging.warning('import is invalid')
             return False
 
         try:
             logging.warning('start importing project %s' % self.id)
-            self.set_project_info(import_key, import_dict)
             self.create_groups()
             #self.set_groups_firebase(firebase)
             self.set_project_mysql(mysqlDB)
             self.set_project_firebase(firebase)
             self.set_import_complete(firebase)
             logging.warning('imported project %s' % self.id)
+            return True
         except Exception as e:
             logging.warning('could not import project %s' % self.id)
             logging.warning(e)
             self.delete_project(firebase, mysqlDB)
 
-    def check_import(self, firebase, mysqlDB):
+    def valid_import(self, firebase, mysqlDB):
         """
         The function to check whether a project has already been imported or import information is not valid
 
@@ -98,10 +102,15 @@ class BaseProject(object):
 
         """
 
+        logging.warning('starting to check if import is valid for %s' % self.import_key)
+
         # check if project already exists in firebase
         if self.project_exists_firebase(firebase):
+            print(self.project_exists_firebase(firebase))
+            print('firebase')
             return False
         elif self.project_exists_mysql(mysqlDB):
+            print('mysql')
             return False
         # check if project already exists in mysql
         else:
