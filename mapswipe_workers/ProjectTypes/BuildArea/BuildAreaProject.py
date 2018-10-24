@@ -36,7 +36,10 @@ class BuildAreaProject(BaseProject):
 
     project_type = 1
 
-    def __init__(self, project_id):
+    ####################################################################################################################
+    # INIT - Existing projects from id, new projects from import_key and import_dict                                   #
+    ####################################################################################################################
+    def __init__(self, project_id, firebase, mysqlDB, import_key=None, import_dict=None):
         """
         The function to init a project
 
@@ -44,65 +47,79 @@ class BuildAreaProject(BaseProject):
         ----------
         project_id : int
             The id of the project
+        firebase : pyrebase firebase object
+            initialized firebase app with admin authentication
+        mysqlDB : database connection class
+            The database connection to mysql database
+        import_key : str, optional
+            The key of this import from firebase imports tabel
+        import_dict : dict, optional
+            The project information to be imported as a dictionary
         """
 
-        # super() executes fine now
-        super().__init__(project_id)
-
-    def set_project_info(self, import_key, import_dict):
-        """
-        The function to add specific attributes for BuildArea projects
-
-        Parameters
-        ----------
-        import_key : str
-            The key of the import in the firebase imports table
-        import_dict : dict
-            The dictionary containing all project information including Build Area project specific information
-            For Build Area projects the following information is needed:
-
-            kml : str
-                The path to the file with the polygon extent geometry of the project
-            tileserver : str
-                The tileserver to be used for the background satellite imagery
-            custom_tileserver_url : str
-                The URL of a tileserver with {x}, {y}, {z} place holders
-            zoomlevel : int
-                The zoomlevel to be used to create mapping tasks
-
-        Returns
-        -------
-        bool
-            True if successful. False otherwise
-        """
-
-        super().set_project_info(import_key, import_dict)
-        self.info = {}
-
-        try:
-            self.info['tileserver'] = import_dict['tileServer']
-        except:
-            self.info['tileserver'] = 'Bing'
-
-        try:
-            self.info['zoomlevel'] = import_dict['zoomLevel']
-        except:
-            self.info['zoomlevel'] = 18
-
-        # get api key for tileserver
-        if self.info['tileserver'] != 'custom':
-            self.info['api_key'] = auth.get_api_key(self.info['tileserver'])
+        if super().__init__(project_id, firebase, mysqlDB, import_key, import_dict):
+            return None
         else:
-            self.info['api_key'] = None
+            # check if project exists in firebase and get attributes
+            project_data = self.project_exists_firebase(firebase)
 
-        try:
-            self.info['custom_tileserver_url'] = import_dict['custom_tileserver_url']
-        except:
-            self.info['custom_tileserver_url'] = None
+            if project_data:
+                # the project has already been imported and exists in firebase
+                self.info = {}
+                # if not tileserver is specified we will default to Bing
+                try:
+                    self.info['tileserver'] = project_data['info']['tileServer']
+                except:
+                    self.info['tileserver'] = 'Bing'
 
-        self.kml_to_file(import_dict['kml'])
+                # if no zoomlevel is specified we will default to 18
+                try:
+                    self.info['zoomlevel'] = project_data['info']['zoomLevel']
+                except:
+                    self.info['zoomlevel'] = 18
 
-        return True
+                # get api key for tileserver, this is only needed for non custom tileservers, e.g. Bing
+                if self.info['tileserver'] != 'custom':
+                    self.info['api_key'] = project_data['info']['api_key']
+                else:
+                    self.info['api_key'] = None
+
+                # this is an optional parameter not used by all projects
+                try:
+                    self.info['custom_tileserver_url'] = project_data['info']['custom_tileserver_url']
+                except:
+                    self.info['custom_tileserver_url'] = None
+
+                self.info['extent'] = project_data['info']['extent']
+
+            else:
+                self.info = {}
+                try:
+                    self.info['tileserver'] = import_dict['tileServer']
+                except:
+                    self.info['tileserver'] = 'Bing'
+
+                try:
+                    self.info['zoomlevel'] = import_dict['zoomLevel']
+                except:
+                    self.info['zoomlevel'] = 18
+
+                # get api key for tileserver
+                if self.info['tileserver'] != 'custom':
+                    self.info['api_key'] = auth.get_api_key(self.info['tileserver'])
+                else:
+                    self.info['api_key'] = None
+
+                try:
+                    self.info['custom_tileserver_url'] = import_dict['custom_tileserver_url']
+                except:
+                    self.info['custom_tileserver_url'] = None
+
+                self.kml_to_file(import_dict['kml'])
+                if not self.check_input_geometry():
+                    logging.warning("project geometry is invalid. can't init project")
+                    return None
+
 
     def kml_to_file(self, kml, outpath='data'):
         """
@@ -133,18 +150,6 @@ class BuildAreaProject(BaseProject):
         self.info['extent'] = filename
         return filename
 
-    def valid_import(self, firebase, mysqlDB):
-        """
-        The function to validate the import information
-        """
-
-        if not super().valid_import(firebase, mysqlDB):
-            return False
-        elif not self.check_input_geometry():
-            return False
-        else:
-            logging.warning('import is valid, %s' % self.import_key)
-            return True
 
     def check_input_geometry(self):
         """
@@ -195,7 +200,9 @@ class BuildAreaProject(BaseProject):
         logging.warning('input geometry is correct.')
         return True
 
-
+    ####################################################################################################################
+    # IMPORT - We define a bunch of functions related to importing new projects                                        #
+    ####################################################################################################################
     def create_groups(self):
         """
         The function to create groups from the project extent
@@ -214,7 +221,6 @@ class BuildAreaProject(BaseProject):
             group = BuildAreaGroup(self, slice_id, slice)
             groups[group.id] = group
 
-        self.groups = groups
         return groups
 
 
