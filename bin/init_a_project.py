@@ -13,20 +13,24 @@ formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(messag
 ch.setFormatter(formatter)
 root.addHandler(ch)
 
-firebase = auth.dev_firebase_admin_auth()
-mysqlDB = auth.dev_mysqlDB
+modus = 'development'
+#-firebase, mysqlDB = b.get_environment(modus)
 
+
+b.run_transfer_results(modus)
+
+
+'''
 filter = 'active'
+#filter = [13523, 13531]
 output_path = 'data'
 project_list = b.get_projects(firebase, mysqlDB, filter)
 print(len(project_list))
 
-#
 #for proj in project_list:
 #    proj.update_project(firebase, mysqlDB, output_path)
 
 
-'''
 project_type = 1
 project_id = 1056
 

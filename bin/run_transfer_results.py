@@ -1,11 +1,10 @@
 #!/usr/bin/env python
-
 import time
 import argparse
 import logging
 
-from mapswipe_workers.transfer import transfer_results
-from mapswipe_workers.utils import error_handling
+from mapswipe_workers.basic import BaseFunctions as b
+
 
 ########################################################################################################################
 logging.basicConfig(filename='./logs/run_transfer_results.log',
@@ -46,16 +45,12 @@ if __name__ == '__main__':
 
     while x > 0:
 
-        print(' ')
-        print('###### ###### ###### ######')
-        print('###### iteration: %s ######' % counter)
-        print('###### ###### ###### ######')
+        print('###### ###### ###### ###### ###### ###### ###### ###### ###### ###### ###### ######')
 
-        # this runs the script and sends an email if an error happens within the execution
         try:
-            transfer_results.run_transfer_results(args.modus)
+            b.run_transfer_results(args.modus)
         except Exception as error:
-            error_handling.send_error(error, 'transfer_results.py')
+            pass
 
         # check if the script should be looped
         if args.loop:
