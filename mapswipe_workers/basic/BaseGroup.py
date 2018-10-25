@@ -3,8 +3,8 @@ class BaseGroup(object):
         # set basic group information
         self.project_id = project.id
         self.id = group_id
-        self.completed_count = 0
-        self.needed_count = 0
+        self.completedCount = 0
+        self.neededCount = 0
         self.count = 0
         self.users = []
 
