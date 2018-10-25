@@ -45,10 +45,12 @@ class BaseProject(object):
     ####################################################################################################################
     def __init__(self, project_id: int, firebase: object, mysqlDB: object, import_key: str = None, import_dict: dict = None) -> object:
 
+        logging.warning('start init for project %s' % project_id)
+
         # set basic project information
         self.id = project_id
 
-        # check if project exists in firebase and get attributes
+        # check if project and groups exist in firebase and get attributes
         project_data = self.project_exists_firebase(firebase)
 
         # if a project exists in firebase we get the values from there to init the project
@@ -67,36 +69,49 @@ class BaseProject(object):
             self.group_average = project_data['groupAverage']
             self.progress = project_data['progress']
             self.contributors = project_data['contributors']
-            self.info = {}
+
+            # old projects might not have an info field in firebase
+            try:
+                self.info = project_data['info']
+            except:
+                self.info = {}
 
         else:
-            # this is a new project, which has not been imported
-            # first let's check if the import_key and import_dict are valid
-            if not import_key:
-                logging.warning('no import_key has been provided to create a new project.')
+            # this is a new project, which has not been imported, we indicate this by setting a temporary attribute
+            self.is_new = True
+
+            # first we check, whether there is no project with the same id in the mysql database
+            if self.project_exists_mysql(mysqlDB):
+                logging.warning("project is new, but has been imported to mysql already. Can't init project.")
+                return None
+            # then let's check if the import_key and import_dict are provided
+            elif not import_key:
+                logging.warning("no import_key has been provided to create a new project. Can't init project.")
                 return None
             elif not import_dict:
-                logging.warning('no import_dict information has been provided to create a new project.')
-                return None
-            elif self.project_exists_mysql(mysqlDB):
-                print('mysql')
-                logging.warning('project is new, but has been imported to mysql already.')
+                logging.warning("no import_dict information has been provided to create a new project. Cant't init project.")
                 return None
             else:
-                # let's set the attributes from the parameters provided in the import_dict
-                self.import_key = import_key
-                self.name = import_dict['project']['name']
-                self.image = import_dict['project']['image']
-                self.look_for = import_dict['project']['lookFor']
-                self.project_details = import_dict['project']['projectDetails']
-                self.verification_count = import_dict['project']['verificationCount']
+                try:
+                    # let's set the attributes from the parameters provided in the import_dict
+                    self.import_key = import_key
+                    self.name = import_dict['project']['name']
+                    self.image = import_dict['project']['image']
+                    self.look_for = import_dict['project']['lookFor']
+                    self.project_details = import_dict['project']['projectDetails']
+                    self.verification_count = import_dict['project']['verificationCount']
 
-                # the following attributes are set regardless the imported information
-                self.is_featured = False
-                self.state = 3
-                self.group_average = 0
-                self.progress = 0
-                self.contributors = 0
+                    # the following attributes are set regardless the imported information
+                    self.is_featured = False
+                    self.state = 3
+                    self.group_average = 0
+                    self.progress = 0
+                    self.contributors = 0
+                except Exception as e:
+                    logging.warning("could not get all project info from dict. Cant't init project.")
+                    logging.warning(e)
+                    return None
+
 
     ####################################################################################################################
     # EXISTS - Check if a project exists                                                                               #
@@ -112,23 +127,27 @@ class BaseProject(object):
 
         Returns
         -------
-        bool
-            True if project exists in firebase projects table. False otherwise
-
-        TODO
-        ----
-        We should also check if a project has groups in firebase.
+        bool or dict
+            False if project doesn't exist in firebase projects table, project data dict otherwise.
         """
 
         fb_db = firebase.database()
         project_data = fb_db.child("projects").child(self.id).get().val()
 
         if not project_data:
-            logging.warning('not in firebase. project: %s' % self.id)
+            logging.warning('project not in firebase. project: %s' % self.id)
             return False
         else:
-            logging.warning('exists in firebase. project: %s' % self.id)
-            return project_data
+            # we will also check if at least one group exists for this project
+            fb_db = firebase.database()
+            groups_data = fb_db.child("groups").child(self.id).shallow().get().val()
+
+            if not groups_data:
+                logging.warning('groups not in firebase. project: %s' % self.id)
+                return False
+            else:
+                logging.warning('project and groups exist in firebase. project: %s' % self.id)
+                return project_data
 
     def project_exists_mysql(self, mysqlDB):
         """

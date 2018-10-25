@@ -57,75 +57,76 @@ class BuildAreaProject(BaseProject):
             The project information to be imported as a dictionary
         """
 
-        if super().__init__(project_id, firebase, mysqlDB, import_key, import_dict):
+        super().__init__(project_id, firebase, mysqlDB, import_key, import_dict)
+
+        # we check if the super().__init__ was able to set the contributors attribute (was successful)
+        if not hasattr(self, 'contributors'):
             return None
-        else:
-            # check if project exists in firebase and get attributes
-            project_data = self.project_exists_firebase(firebase)
+        elif not hasattr(self, 'is_new'):
+            # this is a project which has already been imported
+            # if no tileserver is specified we will default to Bing
+            try:
+                self.info['tileserver']
+            except:
+                self.info['tileserver'] = 'bing'
 
-            if project_data:
-                # the project has already been imported and exists in firebase
-                self.info = {}
-                # if not tileserver is specified we will default to Bing
+            # if no zoomlevel is specified we will default to 18
+            try:
+                self.info['zoomlevel']
+            except:
+                self.info['zoomlevel'] = 18
+
+            if self.info['tileserver'] != 'custom':
                 try:
-                    self.info['tileserver'] = project_data['info']['tileServer']
+                    self.info['api_key']
                 except:
-                    self.info['tileserver'] = 'Bing'
-
-                # if no zoomlevel is specified we will default to 18
-                try:
-                    self.info['zoomlevel'] = project_data['info']['zoomLevel']
-                except:
-                    self.info['zoomlevel'] = 18
-
-                # get api key for tileserver, this is only needed for non custom tileservers, e.g. Bing
-
-                if self.info['tileserver'] != 'custom':
-                    try:
-                        self.info['api_key'] = project_data['info']['api_key']
-                    except:
-                        self.info['api_key'] = None
-                else:
-                    self.info['api_key'] = None
-
-                # this is an optional parameter not used by all projects
-                try:
-                    self.info['custom_tileserver_url'] = project_data['info']['custom_tileserver_url']
-                except:
-                    self.info['custom_tileserver_url'] = None
-
-                try:
-                    self.info['extent'] = project_data['info']['extent']
-                except:
-                    self.info['extent'] = None
-
-            else:
-                self.info = {}
-                try:
-                    self.info['tileserver'] = import_dict['tileServer']
-                except:
-                    self.info['tileserver'] = 'Bing'
-
-                try:
-                    self.info['zoomlevel'] = import_dict['zoomLevel']
-                except:
-                    self.info['zoomlevel'] = 18
-
-                # get api key for tileserver
-                if self.info['tileserver'] != 'custom':
                     self.info['api_key'] = auth.get_api_key(self.info['tileserver'])
-                else:
-                    self.info['api_key'] = None
+            else:
+                self.info['api_key'] = None
 
-                try:
-                    self.info['custom_tileserver_url'] = import_dict['custom_tileserver_url']
-                except:
-                    self.info['custom_tileserver_url'] = None
+            # this is an optional parameter not used by all projects
+            try:
+                self.info['custom_tileserver_url']
+            except:
+                self.info['custom_tileserver_url'] = None
 
-                self.kml_to_file(import_dict['kml'])
-                if not self.check_input_geometry():
-                    logging.warning("project geometry is invalid. can't init project")
-                    return None
+            try:
+                self.info['extent']
+            except:
+                self.info['extent'] = None
+
+            logging.warning('init complete for project %s' % self.id)
+        elif hasattr(self, 'is_new'):
+            # this is a new project, which have not been imported
+            self.info = {}
+            try:
+                self.info['tileserver'] = import_dict['tileServer']
+            except:
+                self.info['tileserver'] = 'bing'
+
+            try:
+                self.info['zoomlevel'] = import_dict['zoomLevel']
+            except:
+                self.info['zoomlevel'] = 18
+
+            # get api key for tileserver
+            if self.info['tileserver'] != 'custom':
+                self.info['api_key'] = auth.get_api_key(self.info['tileserver'])
+            else:
+                self.info['api_key'] = None
+
+            try:
+                self.info['custom_tileserver_url'] = import_dict['custom_tileserver_url']
+            except:
+                self.info['custom_tileserver_url'] = None
+
+            self.kml_to_file(import_dict['kml'])
+            if not self.check_input_geometry():
+                logging.warning("project geometry is invalid. can't init project")
+                return None
+
+            del self.is_new
+            logging.warning('init complete for project %s' % self.id)
 
 
     def kml_to_file(self, kml, outpath='data'):
