@@ -1,4 +1,9 @@
 import logging
+import json
+import os
+import csv
+import requests
+
 
 from mapswipe_workers.cfg import auth
 # Make sure to import all project types here
@@ -26,6 +31,7 @@ def get_environment(modus):
         mysqlDB = None
 
     return firebase, mysqlDB
+
 
 def init_project(project_type, project_id, firebase, mysqlDB, import_key=None, import_dict=None):
     """
@@ -70,6 +76,12 @@ def get_projects(firebase, mysqlDB, filter='all'):
         project_ids = []
 
     for project_id in all_projects:
+
+        # a valid project in firebase has at least 12 attributes
+        if len(all_projects[project_id]) < 12:
+            logging.warning('project is in firebase, but misses critical information. project: %s' % project_id)
+            continue
+
         # we check all conditions for each group of projects
         conditions = {
             'all': True,
@@ -241,8 +253,170 @@ def run_update(modus, filter, output_path):
 ########################################################################################################################
 # TRANSFER RESULTS                                                                                                     #
 ########################################################################################################################
-def run_transfer_results():
-    pass
+def get_results_from_firebase(firebase):
+    fb_db = firebase.database()
+    results = fb_db.child("results").get().val()
+    return results
+
+
+def delete_firebase_results(firebase, all_results):
+    fb_db = firebase.database()
+    # we will use multilocation update to delete the entries
+    # therefore we crate an dict with the items we want to delete
+    data = {}
+    for task_id, results in all_results.items():
+        for child_id, result in results.items():
+            key = 'results/{task_id}/{child_id}'.format(
+                task_id=task_id,
+                child_id=child_id)
+
+            data[key] = None
+
+    fb_db.update(data)
+    del fb_db
+
+    logging.warning('deleted results in firebase')
+    return True
+
+
+def results_to_txt(all_results):
+    results_txt_filename = 'raw_results.txt'
+
+    # If csv file is a file object, it should be opened with newline=''
+    results_txt_file = open(results_txt_filename, 'w', newline='')
+    csvwriter = csv.writer(results_txt_file, delimiter='\t')
+
+    number_of_results = 0
+    for task_id, results in all_results.items():
+        for child_id, result in results.items():
+            number_of_results += 1
+
+            output_list = [
+                task_id,
+                result['data']['user'],
+                int(result['data']['projectId']),
+                int(result['data']['timestamp']),
+                int(result['data']['result']),
+                result['data']['wkt'],
+                task_id.split('-')[1],
+                task_id.split('-')[2],
+                task_id.split('-')[0],
+                0
+            ]
+            csvwriter.writerow(output_list)
+
+    results_txt_file.close()
+    logging.warning('there are %s results to import' % number_of_results)
+    return results_txt_filename
+
+
+def save_results_mysql(mysqlDB, results_filename):
+    ### this function saves the results from firebase to the mysql database
+
+    # pre step delete table if exist
+    m_con = mysqlDB()
+    sql_insert = 'DROP TABLE IF EXISTS raw_results CASCADE;'
+    m_con.query(sql_insert, None)
+    print('dropped raw results table')
+
+    # first importer to a table where we store the geom as text
+    sql_insert = '''
+        CREATE TABLE raw_results (
+            task_id varchar(45)
+            ,user_id varchar(45)
+            ,project_id int(5)
+            ,timestamp bigint(32)
+            ,result int(1)
+            ,wkt varchar(256)
+            ,task_x varchar(45)
+            ,task_y varchar(45)
+            ,task_z varchar(45)
+            ,duplicates int(5)
+        );
+        '''
+
+    m_con.query(sql_insert, None)
+    print('Created new table for raw results')
+
+    # copy data to the new table
+    # we should use LOAD DATA LOCAL INFILE Syntax
+    sql_insert = '''
+            LOAD DATA LOCAL INFILE 'raw_results.txt' INTO TABLE raw_results
+            '''
+    m_con.query(sql_insert, None)
+    os.remove(results_filename)
+    print('copied results information to mysql')
+
+    # second importer all entries into the task table and convert into psql geometry
+    sql_insert = '''
+        INSERT INTO
+          results
+        SELECT
+          *
+        FROM
+          raw_results
+        ON DUPLICATE KEY
+          UPDATE results.duplicates = results.duplicates + 1
+    '''
+
+    m_con.query(sql_insert, None)
+    print('inserted raw results into results table and updated duplicates count')
+
+    del m_con
+    return
+
+
+def run_transfer_results(modus, results_filename='data/results.json'):
+
+    # get dev or production environment for firebase and mysql
+    firebase, mysqlDB = get_environment(modus)
+
+
+    # first check if we have results stored locally, that have not been inserted in MySQL
+    if os.path.isfile(results_filename):
+        # start to import the old results first
+        with open(results_filename) as results_file:
+            results = json.load(results_file)
+            results_txt_filename = results_to_txt(results)
+            logging.warning("there are results in %s that we didnt't insert. do it now!" % results_filename)
+            save_results_mysql(mysqlDB, results_txt_filename)
+            delete_firebase_results(firebase, results)
+
+        os.remove(results_filename)
+        print('removed "results.json" file')
+        logging.warning('removed "results.json" file')
+
+    fb_db = firebase.database()
+    print('opened connection to firebase')
+
+    # this tries to set the max pool connections to 100
+    adapter = requests.adapters.HTTPAdapter(max_retries=5, pool_connections=100, pool_maxsize=100)
+    for scheme in ('http://', 'https://'):
+        fb_db.requests.mount(scheme, adapter)
+
+
+    # download all results and save as in json file to avoid data loss when script fails
+    all_results = fb_db.child("results").get().val()
+    del fb_db
+
+    print('downloaded all results from firebase')
+    logging.warning('downloaded all results from firebase')
+    # test if there are any results to transfer
+    if all_results:
+        with open(results_filename, 'w') as fp:
+            json.dump(all_results, fp)
+            logging.warning('wrote results data to %s' % results_filename)
+            print('wrote results data to %s' % results_filename)
+
+        results_txt_filename = results_to_txt(all_results)
+        save_results_mysql(mysqlDB, results_txt_filename)
+        delete_firebase_results(firebase, all_results)
+        os.remove(results_filename)
+        print('removed "results.json" file')
+        logging.warning('removed "results.json" file')
+    else:
+        logging.warning('there are no results to transfer in firebase')
+        print('there are no results to transfer in firebase')
 
 ########################################################################################################################
 # EXPORT                                                                                                               #
