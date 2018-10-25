@@ -6,6 +6,27 @@ from mapswipe_workers.ProjectTypes.BuildArea.BuildAreaProject import BuildAreaPr
 from mapswipe_workers.ProjectTypes.Footprint.FootprintProject import FootprintProject
 
 
+########################################################################################################################
+# INIT                                                                                                                 #
+########################################################################################################################
+def get_environment(modus):
+
+    if modus == 'development':
+        # we use the dev instance for testing
+        firebase = auth.dev_firebase_admin_auth()
+        mysqlDB = auth.dev_mysqlDB
+        print('We are using the development instance')
+    elif modus == 'production':
+        # we use the dev instance for testing
+        firebase = auth.firebase_admin_auth()
+        mysqlDB = auth.mysqlDB
+        print('We are using the production instance')
+    else:
+        firebase = None
+        mysqlDB = None
+
+    return firebase, mysqlDB
+
 def init_project(project_type, project_id, firebase, mysqlDB, import_key=None, import_dict=None):
     """
     The function to init a project in regard to its type
@@ -33,40 +54,44 @@ def init_project(project_type, project_id, firebase, mysqlDB, import_key=None, i
     return proj
 
 
-def get_highest_project_id(firebase):
-    """
-    The function to get the highest project id from firebase
+def get_projects(firebase, mysqlDB, filter='all'):
 
-    Parameters
-    ----------
-    firebase : pyrebase firebase object
-        initialized firebase app with admin authentication
-
-    Returns
-    -------
-    highest_project_id : int
-        highest id of a project in firebase
-
-    Notes
-    -----
-    If not project id is found in firebase (no project imported yes) the project id is set to 1000
-    """
+    # create a list for projects according to filter
+    projects_list = []
 
     fb_db = firebase.database()
+    all_projects = fb_db.child("projects").get().val()
 
-    project_keys = fb_db.child('projects').shallow().get().val()
-    if not project_keys:
-        # set mininum project id to 1000, if no project has been imported yet
-        project_keys = [1000]
+    # we need to check if the user provided a list of project ids to filter
+    if type(filter) is list:
+        project_ids = filter.copy()
+        filter = 'user'
+    else:
+        project_ids = []
 
-    project_ids = list(map(int, list(project_keys)))
-    project_ids.sort()
-    highest_project_id = project_ids[-1]
+    for project_id in all_projects:
+        # we check all conditions for each group of projects
+        conditions = {
+            'all': True,
+            'active': all_projects[project_id]['state'] == 0,
+            'not_finished': all_projects[project_id]['progress'] < 100,
+            'user': int(project_id) in project_ids
+        }
 
-    logging.warning('returned highest project id: %s' % highest_project_id)
-    return highest_project_id
+        if conditions[filter]:
+            try:
+                project_type = all_projects[project_id]['projectType']
+            except:
+                project_type = 1
+            proj = init_project(project_type, project_id, firebase, mysqlDB)
+            projects_list.append(proj)
+
+    return projects_list
 
 
+########################################################################################################################
+# IMPORT                                                                                                               #
+########################################################################################################################
 def get_new_project_id(firebase):
     """
     The function to get a project id which is not used in firebase
@@ -87,8 +112,21 @@ def get_new_project_id(firebase):
         more information here: https://firebase.googleblog.com/2014/04/best-practices-arrays-in-firebase.html
     """
 
-    highest_project_id = get_highest_project_id(firebase)
+    fb_db = firebase.database()
+
+    project_keys = fb_db.child('projects').shallow().get().val()
+    if not project_keys:
+        # set mininum project id to 1000, if no project has been imported yet
+        project_keys = [1000]
+
+    project_ids = list(map(int, list(project_keys)))
+    project_ids.sort()
+    highest_project_id = project_ids[-1]
+
+    logging.warning('highest existing project id: %s' % highest_project_id)
     new_project_id = highest_project_id + 2
+
+    logging.warning('returned new project id: %s' % highest_project_id)
     return new_project_id
 
 
@@ -139,17 +177,8 @@ def run_import(modus):
         list of project ids of imported projects
     """
 
-    if modus == 'development':
-        # we use the dev instance for testing
-        firebase = auth.dev_firebase_admin_auth()
-        mysqlDB = auth.dev_mysqlDB
-        print('We are using the development instance')
-    elif modus == 'production':
-        # we use the dev instance for testing
-        firebase = auth.firebase_admin_auth()
-        mysqlDB = auth.mysqlDB
-        print('We are using the production instance')
-
+    # get dev or production environment for firebase and mysql
+    firebase, mysqlDB = get_environment(modus)
 
     # this will return a list of imports
     imported_projects = []
@@ -171,3 +200,52 @@ def run_import(modus):
         imported_projects.append(proj.id)
 
     return imported_projects
+
+
+########################################################################################################################
+# UPDATE                                                                                                               #
+########################################################################################################################
+def run_update(modus, filter, output_path):
+    """
+    The function to update project progress and contributors in firebase
+
+    Parameters
+    ----------
+    modus : str
+        The environment to use for firebase and mysql
+        Can be either 'development' or 'production'
+    filter : str or list
+        The filter for the projects.
+        Can be either 'all', 'active', 'not_finished' or a list of project ids as integer
+    output_path: str
+        The output path of the logs for progress and contributors
+
+    Returns
+    -------
+    updated_projects : list
+        The list of all projects ids for projects which have been updated
+    """
+
+    # get dev or production environment for firebase and mysql
+    firebase, mysqlDB = get_environment(modus)
+
+    project_list = get_projects(firebase, filter)
+    updated_projects = []
+    for proj in project_list:
+        proj.update_project(firebase, mysqlDB, output_path)
+        updated_projects.append(proj.id)
+
+    return updated_projects
+
+
+########################################################################################################################
+# TRANSFER RESULTS                                                                                                     #
+########################################################################################################################
+def run_transfer_results():
+    pass
+
+########################################################################################################################
+# EXPORT                                                                                                               #
+########################################################################################################################
+def run_export():
+    pass

@@ -1,11 +1,10 @@
 #!/usr/bin/env python
-
 import time
 import argparse
 import logging
 
-from mapswipe_workers.importer import import_projects
-from mapswipe_workers.utils import error_handling
+from mapswipe_workers.basic import BaseFunctions as b
+
 
 ########################################################################################################################
 logging.basicConfig(filename='./logs/run_import.log',
@@ -27,13 +26,11 @@ parser.add_argument('-mo', '--modus', nargs='?', default='development',
                     choices=['development', 'production'])
 
 ########################################################################################################################
+
+
 if __name__ == '__main__':
 
-    try:
-        args = parser.parse_args()
-    except:
-        print('have a look at the input arguments, something went wrong there.')
-
+    args = parser.parse_args()
     # check whether arguments are correct
     if args.loop and (args.max_iterations is None):
         parser.error('if you want to loop the script please provide number of maximum iterations.')
@@ -46,14 +43,10 @@ if __name__ == '__main__':
 
     while x > 0:
 
-        print(' ')
-        print('###### ###### ###### ######')
-        print('###### iteration: %s ######' % counter)
-        print('###### ###### ###### ######')
+        print('###### ###### ###### ###### ###### ###### ###### ###### ###### ###### ###### ######')
 
-        # this runs the script and sends an email if an error happens within the execution
         try:
-            import_projects.run_import(args.modus)
+            b.run_import(args.modus)
         except Exception as error:
             error_handling.send_error(error, 'run_import.py')
 
@@ -73,3 +66,10 @@ if __name__ == '__main__':
         else:
             print("Don't loop. Stop after the first run.")
             x = 0
+
+
+
+
+
+
+

@@ -1,9 +1,10 @@
-import sys
+import os
 import logging
 import threading
 import numpy as np
 from queue import Queue
 import requests
+import time
 
 class BaseProject(object):
     """
@@ -66,7 +67,7 @@ class BaseProject(object):
             self.group_average = project_data['groupAverage']
             self.progress = project_data['progress']
             self.contributors = project_data['contributors']
-            self.info = project_data['info']
+            self.info = {}
 
         else:
             # this is a new project, which has not been imported
@@ -113,6 +114,10 @@ class BaseProject(object):
         -------
         bool
             True if project exists in firebase projects table. False otherwise
+
+        TODO
+        ----
+        We should also check if a project has groups in firebase.
         """
 
         fb_db = firebase.database()
@@ -434,12 +439,13 @@ class BaseProject(object):
     ####################################################################################################################
     # UPDATE - We define a bunch of functions related to updating existing projects                                    #
     ####################################################################################################################
-    def update_project(self, firebase, mysqlDB):
-        self.get_progress(firebase)
+    def update_project(self, firebase, mysqlDB, output_path='data'):
         self.get_contributors(mysqlDB)
-        self.set_progress(firebase)
         self.set_contributors(firebase)
-
+        self.log_project_contributors(output_path)
+        self.get_progress(firebase)
+        self.set_progress(firebase)
+        self.log_project_progress(output_path)
 
     def get_group_progress(self, q):
         """
@@ -609,7 +615,7 @@ class BaseProject(object):
         """
 
         fb_db = firebase.database()
-        fb_db.child("projects").child(self.project_id).update({"contributors": self.contributors})
+        fb_db.child("projects").child(self.id).update({"contributors": self.contributors})
 
         logging.warning('set contributors in firebase for project: %s' % self.id)
         return True
@@ -617,6 +623,65 @@ class BaseProject(object):
     ####################################################################################################################
     # EXPORT - We define a bunch of functions related to exporting exiting projects                                    #
     ####################################################################################################################
+    def log_project_progress(self, output_path='data'):
+        """
+        The function to log the progress to a txt file in the format 'progress_{ID}.txt'
+
+        Parameters
+        ----------
+        output_path : str, optional
+            The path where the txt file will be stored. Default='data'
+
+        Notes
+        -----
+        The generated txt file will consist of a single line per log.
+        We log a unix timestamp and the progress separated by comma
+        """
+
+        # check if output path for projects is correct and existing
+        if not os.path.exists(output_path + '/progress'):
+            os.makedirs(output_path + '/progress')
+
+        filename = "{}/progress/progress_{}.txt".format(output_path, self.id)
+
+        with open(filename, 'a') as output_file:
+            timestamp = int(time.time())
+            outline = "{},{}\n".format(timestamp, self.progress)
+            output_file.write(outline)
+
+        logging.warning('log progress to file for project %s successful' % self.id)
+        return True
+
+    def log_project_contributors(self, output_path='data'):
+        """
+        The function to log the contributors to a txt file in the format 'contributors_{ID}.txt'
+
+        Parameters
+        ----------
+        output_path : str, optional
+            The path where the txt file will be stored. Default='data'
+
+        Notes
+        -----
+        The generated txt file will consist of a single line per log.
+        We log a unix timestamp and the contributors separated by comma
+        """
+
+        # check if output path for projects is correct and existing
+        if not os.path.exists(output_path + '/contributors'):
+            os.makedirs(output_path + '/contributors')
+
+        filename = "{}/contributors/contributors_{}.txt".format(output_path, self.id)
+
+        with open(filename, 'a') as output_file:
+            timestamp = int(time.time())
+            outline = "{},{}\n".format(timestamp, self.contributors)
+            output_file.write(outline)
+
+        logging.warning('log contributors to file for project %s successful' % self.id)
+        return True
+
+
     def export_groups_as_json(self):
         project_json = 'some json'
         print("exported project as json")
