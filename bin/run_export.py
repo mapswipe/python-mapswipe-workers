@@ -32,7 +32,6 @@ parser.add_argument('-p', '--user_project_list', nargs='+', required=None, defau
 parser.add_argument('-o', '--output_path', required=None, default='/var/www/html', type=str,
                     help='output path. Provide a location for storing export files.')
 
-
 parser.add_argument('-mo', '--modus', nargs='?', default='development',
                     choices=['development', 'production'])
 ########################################################################################################################

@@ -1,4 +1,9 @@
+import sys
 import logging
+import threading
+import numpy as np
+from queue import Queue
+import requests
 
 class BaseProject(object):
     """
@@ -56,7 +61,7 @@ class BaseProject(object):
             self.verification_count = project_data['verificationCount']
 
             # the following attributes are set regardless the imported information
-            self.is_featured = project_data['isFeature']
+            self.is_featured = project_data['isFeatured']
             self.state = project_data['state']
             self.group_average = project_data['groupAverage']
             self.progress = project_data['progress']
@@ -160,6 +165,22 @@ class BaseProject(object):
     # IMPORT - We define a bunch of functions related to importing new projects                                        #
     ####################################################################################################################
     def import_project(self, firebase, mysqlDB):
+        """
+        The function to import a new project
+
+        Parameters
+        ----------
+        firebase : pyrebase firebase object
+            initialized firebase app with admin authentication
+        mysqlDB : database connection class
+            The database connection to mysql database
+
+        Returns
+        -------
+        bool
+            True if successful. False otherwise.
+        """
+
         try:
             logging.warning('start importing project %s' % self.id)
             groups = self.create_groups()
@@ -173,6 +194,7 @@ class BaseProject(object):
             logging.warning('could not import project %s' % self.id)
             logging.warning(e)
             self.delete_project(firebase, mysqlDB)
+            return False
 
     def set_groups_firebase(self, firebase, groups):
         """
@@ -418,9 +440,103 @@ class BaseProject(object):
         self.set_progress(firebase)
         self.set_contributors(firebase)
 
-    def get_progress(self, firebase):
-        self.progress = 100
-        print("got project progress from firebase")
+
+    def get_group_progress(self, q):
+        """
+        The function to get the progress for groups in queue
+
+        Parameters
+        ----------
+        q : queue
+            A queue object containing a list with the following items:
+            fb_db : firebase connection
+            group_progress_list : list
+            group_id : int
+
+        Returns
+        -------
+
+        """
+        while not q.empty():
+            # get the values from the q object
+            fb_db, group_progress_list, group_id = q.get()
+
+            # this functions downloads only the completed count per group from firebase
+            try:
+                # establish a new connection to firebase
+                completed_count = fb_db.child("groups").child(self.id).child(group_id).child("completedCount").get().val()
+
+                # progress in percent, progress can't be bigger than 100
+                progress = 100.0 * float(completed_count) / float(self.verification_count)
+                if progress > 100:
+                    progress = 100.0
+                # all variables are converted to float to avoid errors when computing the mean later
+                group_progress_list.append(
+                    [float(self.id), float(group_id), float(completed_count), float(self.verification_count),
+                     float(progress)])
+                q.task_done()
+
+            except Exception as e:
+                # add a catch, if something with the connection to firebase goes wrong and log potential errors
+                logging.warning(e)
+                # if we can't get the completed count for a group, we will set it to 0.0
+                completed_count = 0.0
+                progress = 0.0
+                # all variables are converted to float to avoid errors when computing the mean later
+                group_progress_list.append(
+                    [float(self.id), float(group_id), float(completed_count), float(self.verification_count),
+                     float(progress)])
+                q.task_done()
+
+    def get_progress(self, firebase, num_threads=24):
+        """
+        The function to compute the progress of the project
+
+        Parameters
+        ----------
+         firebase : pyrebase firebase object
+            initialized firebase app with admin authentication
+        num_threads : int, optional
+            The number of threads to use, default: 24
+
+        Notes
+        -----
+        We use threading in this function.
+        There is no easy way to compute the sum of the completed count for all groups.
+        """
+
+        fb_db = firebase.database()
+        # this tries to set the max pool connections to 100
+        adapter = requests.adapters.HTTPAdapter(max_retries=5, pool_connections=100, pool_maxsize=100)
+        for scheme in ('http://', 'https://'):
+            fb_db.requests.mount(scheme, adapter)
+
+        # it is important to use the shallow option, only keys will be loaded and not the complete json
+        all_groups = fb_db.child("groups").child(self.id).shallow().get().val()
+        logging.warning('downloaded all groups of project %s from firebase' % self.id)
+
+        # we will use a queue to limit the number of threads running in parallel
+        q = Queue(maxsize=0)
+        group_progress_list = []
+
+        for group_id in all_groups:
+            q.put([fb_db, group_progress_list, group_id])
+        logging.warning('added all groups of project %s to queue' % self.id)
+
+        logging.warning('setup threading with %s workers' % num_threads)
+        for i in range(num_threads):
+            worker = threading.Thread(
+                target=self.get_group_progress,
+                args=(q,))
+            worker.start()
+
+        q.join()
+        del fb_db
+        logging.warning('downloaded progress for all groups of project %s from firebase' % self.id)
+
+        # calculate project progress
+        self.progress = np.average(group_progress_list, axis=0)[-1]
+        logging.warning('calculated progress for project %s. progress = %s' % (self.id, self.progress))
 
     def get_contributors(self, mysqlDB):
         """
@@ -455,7 +571,6 @@ class BaseProject(object):
         del m_con
 
         logging.warning("got project contributors from mysql for project: %s" % self.id)
-        return self.contributors
 
     def set_progress(self, firebase):
         """
