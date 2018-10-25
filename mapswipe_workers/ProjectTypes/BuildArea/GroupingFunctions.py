@@ -254,7 +254,7 @@ def get_vertical_slice(slice_infos, zoom):
             #####################
             TileX = TileX + step_size
 
-    logging.warning('created vertical_slice')
+    logging.info('created vertical_slice')
     return raw_groups
 
 
@@ -336,7 +336,7 @@ def save_slices_as_geojson(vertical_slice_infos, outfile):
         outFeature = None
 
     outDataSource = None
-    logging.warning('created all %s.' % outfile)
+    logging.info('created all %s.' % outfile)
 
 
 ########################################################################################################################
