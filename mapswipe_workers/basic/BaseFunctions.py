@@ -14,8 +14,22 @@ from mapswipe_workers.ProjectTypes.Footprint.FootprintProject import FootprintPr
 ########################################################################################################################
 # INIT                                                                                                                 #
 ########################################################################################################################
-def get_environment(modus):
+def get_environment(modus='development'):
+    """
+    The function to get the firebase and mysql configuration
 
+    Parameters
+    ----------
+    modus : str
+        either `development` or `production to decide which firebase configuration to use
+
+    Returns
+    -------
+    firebase : pyrebase firebase object
+            initialized firebase app with admin authentication
+    mysqlDB : database connection class
+        The database connection to mysql database
+    """
     if modus == 'development':
         # we use the dev instance for testing
         firebase = auth.dev_firebase_admin_auth()
@@ -61,7 +75,23 @@ def init_project(project_type, project_id, firebase, mysqlDB, import_key=None, i
 
 
 def get_projects(firebase, mysqlDB, filter='all'):
+    """
+    The function to download project information from firebase and init the projects
+    Parameters
+    ----------
+    firebase : pyrebase firebase object
+            initialized firebase app with admin authentication
+    mysqlDB : database connection class
+        The database connection to mysql database
+    filter : str or list
+        The filter for the projects.
+        Can be either 'all', 'active', 'not_finished' or a list of project ids as integer
 
+    Returns
+    -------
+    projects_list : list
+        The list containing the projects
+    """
     # create a list for projects according to filter
     projects_list = []
 
@@ -254,14 +284,65 @@ def run_update(modus, filter, output_path):
 # TRANSFER RESULTS                                                                                                     #
 ########################################################################################################################
 def get_results_from_firebase(firebase):
+    """
+    The function to download all results from firebase
+
+    Parameters
+    ----------
+    firebase : pyrebase firebase object
+        initialized firebase app with admin authentication
+
+    Returns
+    -------
+    results : dict
+        The results in a dictionary with the following format:
+        {
+        "task_id" {
+            "user1_id": {
+                "data": {...}
+                },
+            "user2_id": {
+                "data": {...}
+                },
+            }
+        }
+    """
+
     fb_db = firebase.database()
     results = fb_db.child("results").get().val()
     return results
 
 
 def delete_firebase_results(firebase, all_results):
+    """
+    The function to delete all results in firebase
+
+    Parameters
+    ----------
+    firebase : pyrebase firebase object
+        initialized firebase app with admin authentication
+    results : dict
+        The results in a dictionary with the following format:
+        {
+        "task_id": {
+            "user1_id": {},
+            "user2_id": {},
+            }
+        }
+
+    Returns
+    -------
+    bool
+        True if successful, False otherwise
+
+    Notes
+    -----
+    We use the update method of firebase instead of delete.
+    Update allows to delete items at multiple locations at the same time.
+    """
+
     fb_db = firebase.database()
-    # we will use multilocation update to delete the entries
+    # we will use multilocation update to deete the entries
     # therefore we crate an dict with the items we want to delete
     data = {}
     for task_id, results in all_results.items():
@@ -280,6 +361,30 @@ def delete_firebase_results(firebase, all_results):
 
 
 def results_to_txt(all_results):
+    """
+    The function to save results from firebase in csv format
+
+    Parameters
+    ----------
+    all_results : dict
+        The results in a dictionary with the following format:
+        {
+        "task_id" {
+            "user1_id": {
+                "data": {...}
+                },
+            "user2_id": {
+                "data": {...}
+                },
+            }
+        }
+
+    Returns
+    -------
+    results_txt_filename : str
+        The name of the file with the results
+
+    """
     results_txt_filename = 'raw_results.txt'
 
     # If csv file is a file object, it should be opened with newline=''
@@ -316,6 +421,23 @@ def results_to_txt(all_results):
 
 
 def save_results_mysql(mysqlDB, results_filename):
+    """
+    The function to save results in the mysql database
+
+    Parameters
+    ----------
+    mysqlDB : database connection class
+            The database connection to mysql database
+    results_filename : str
+        The name of the file with the results
+
+    Returns
+    -------
+    bool
+        True if successful, False otherwise
+    """
+
+
     ### this function saves the results from firebase to the mysql database
 
     # pre step delete table if exist
@@ -365,10 +487,26 @@ def save_results_mysql(mysqlDB, results_filename):
     logging.warning('ALL - save_results_mysql - inserted raw results into results table and updated duplicates count')
 
     del m_con
-    return
+    return True
 
 
 def run_transfer_results(modus, results_filename='data/results.json'):
+    """
+
+    Parameters
+    ----------
+    modus : str
+        The environment to use for firebase and mysql
+        Can be either 'development' or 'production'
+    results_filename : str
+        The name of the file with the results
+
+    Returns
+    -------
+    bool
+        True if successful, False otherwise
+    """
+
 
     # get dev or production environment for firebase and mysql
     firebase, mysqlDB = get_environment(modus)
@@ -412,6 +550,8 @@ def run_transfer_results(modus, results_filename='data/results.json'):
         logging.warning('ALL - run_transfer_results - removed %s' % results_filename)
     else:
         logging.warning('ALL - run_transfer_results - there are no results to transfer in firebase')
+
+    return True
 
 ########################################################################################################################
 # EXPORT                                                                                                               #
