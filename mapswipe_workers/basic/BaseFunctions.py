@@ -417,6 +417,7 @@ def results_to_txt(all_results):
 
     results_txt_file.close()
     logging.warning('ALL - results_to_txt - there are %s results to import' % number_of_results)
+    logging.warning('ALL - results_to_txt - created file: %s' % results_txt_filename)
     return results_txt_filename
 
 
@@ -469,9 +470,12 @@ def save_results_mysql(mysqlDB, results_filename):
             LOAD DATA LOCAL INFILE 'raw_results.txt' INTO TABLE raw_results
             '''
     m_con.query(sql_insert, None)
-    os.remove(results_filename)
+    logging.warning('ALL - save_results_mysql - inserted raw results into table raw_results')
 
-    # second importer all entries into the task table and convert into psql geometry
+    os.remove(results_filename)
+    logging.warning('ALL - save_results_mysql - deleted file: %s' % results_filename)
+
+    # second import all entries into the task table and convert into psql geometry
     sql_insert = '''
         INSERT INTO
           results
@@ -484,7 +488,7 @@ def save_results_mysql(mysqlDB, results_filename):
     '''
 
     m_con.query(sql_insert, None)
-    logging.warning('ALL - save_results_mysql - inserted raw results into results table and updated duplicates count')
+    logging.warning('ALL - save_results_mysql - inserted results into results table and updated duplicates count')
 
     del m_con
     return True
@@ -505,6 +509,11 @@ def run_transfer_results(modus, results_filename='data/results.json'):
     -------
     bool
         True if successful, False otherwise
+
+    TODO
+    ----
+    How to deal with results from projects with different types?
+    Projects might not always return an integer as result.
     """
 
 
