@@ -79,8 +79,12 @@ class BuildAreaProject(BaseProject):
                     self.info['zoomlevel'] = 18
 
                 # get api key for tileserver, this is only needed for non custom tileservers, e.g. Bing
+
                 if self.info['tileserver'] != 'custom':
-                    self.info['api_key'] = project_data['info']['api_key']
+                    try:
+                        self.info['api_key'] = project_data['info']['api_key']
+                    except:
+                        self.info['api_key'] = None
                 else:
                     self.info['api_key'] = None
 
@@ -90,7 +94,10 @@ class BuildAreaProject(BaseProject):
                 except:
                     self.info['custom_tileserver_url'] = None
 
-                self.info['extent'] = project_data['info']['extent']
+                try:
+                    self.info['extent'] = project_data['info']['extent']
+                except:
+                    self.info['extent'] = None
 
             else:
                 self.info = {}

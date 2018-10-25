@@ -1,11 +1,9 @@
 #!/usr/bin/env python
-
 import time
 import argparse
 import logging
 
-from mapswipe_workers.update import update_projects
-from mapswipe_workers.utils import error_handling
+from mapswipe_workers.basic import BaseFunctions as b
 
 ########################################################################################################################
 logging.basicConfig(filename='./logs/run_update.log',
@@ -24,16 +22,17 @@ parser.add_argument('-s', '--sleep_time', required=False, default=None, type=int
 parser.add_argument('-m', '--max_iterations', required=False, default=None, type=int,
                     help='the maximum number of imports that should be performed')
 
-parser.add_argument('-pf', '--project_filter', nargs='?', default='active',
-                    choices=['all', 'not_finished', 'active', 'user_list'])
 
+parser.add_argument('-mo', '--modus', nargs='?', default='development',
+                    choices=['development', 'production'])
+
+parser.add_argument('-f', '--filter', nargs='?', default='active',
+                    choices=['all', 'not_finished', 'active', 'user'])
 parser.add_argument('-p', '--user_project_list', nargs='+', required=None, default=None, type=int,
                     help='project id of the project to process. You can add multiple project ids.')
 parser.add_argument('-o', '--output_path', required=None, default='/var/www/html', type=str,
                     help='output path. please provide a location where the exported files should be stored.')
 
-parser.add_argument('-mo', '--modus', nargs='?', default='development',
-                    choices=['development', 'production'])
 ####################################################################################################
 
 if __name__ == '__main__':
@@ -54,42 +53,32 @@ if __name__ == '__main__':
 
     while x > 0:
 
-        print(' ')
-        print('###### ###### ###### ######')
-        print('###### iteration: %s ######' % counter)
-        print('###### ###### ###### ######')
-
-        logging.warning('### START update_projects.py workflow ###')
+        print('###### ###### ###### ###### ###### ###### ###### ###### ###### ###### ###### ######')
 
         # this runs the script and sends an email if an error happens within the execution
         try:
-            update_projects.run_update(args.modus, args.project_filter, args.user_project_list, args.output_path)
-        except:
-            tb = sys.exc_info()
-            # log error
-            logging.warning(str(tb))
-            # send mail to mapswipe google group with
-            print(tb)
-            msg = str(tb)
-            head = 'google-mapswipe-workers: update_projects.py: error occured'
-            send_slack_message(head + '\n' + msg)
+            if args.filter == 'user':
+                filter = args.user_project_list
+            else:
+                filter = args.filter
+            b.run_update(args.modus, filter, args.output_path)
+        except Exception as error:
+            pass
+
 
         # check if the script should be looped
         if args.loop:
             if args.max_iterations > counter:
                 counter = counter + 1
-                print('update finished. will pause for %s seconds' % args.sleep_time)
-                logging.warning('update finished. will pause for %s seconds' % args.sleep_time)
+                print('importer finished. will pause for %s seconds' % args.sleep_time)
                 x = 1
                 time.sleep(args.sleep_time)
             else:
                 x = 0
                 # print('importer finished and max iterations reached. stop here.')
-                print('update finished and max iterations reached. sleeping now for %s sec.' % args.sleep_time)
-                logging.warning('update finished and max iterations reached. sleeping now for %s sec.' % args.sleep_time)
+                print('importer finished and max iterations reached. sleeping now.')
                 time.sleep(args.sleep_time)
         # the script should run only once
         else:
             print("Don't loop. Stop after the first run.")
-            logging.warning("<<< Don't loop. Stop after the first run. >>>")
             x = 0

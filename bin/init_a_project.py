@@ -16,6 +16,18 @@ root.addHandler(ch)
 firebase = auth.dev_firebase_admin_auth()
 mysqlDB = auth.dev_mysqlDB
 
+filter = 'active'
+output_path = 'data'
+
+filter = [1010, 1050]
+project_list = b.get_projects(firebase, mysqlDB, filter)
+print(len(project_list))
+
+for proj in project_list:
+    proj.update_project(firebase, mysqlDB, output_path)
+
+
+'''
 project_type = 1
 project_id = 1056
 
@@ -26,5 +38,5 @@ print(proj)
 print(vars(proj))
 
 
-proj.get_progress(firebase)
-print(proj.progress)
+proj.update_project(firebase, mysqlDB)
+'''
