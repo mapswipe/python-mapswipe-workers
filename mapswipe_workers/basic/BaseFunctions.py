@@ -291,19 +291,24 @@ def results_to_txt(all_results):
         for child_id, result in results.items():
             number_of_results += 1
 
-            output_list = [
-                task_id,
-                result['data']['user'],
-                int(result['data']['projectId']),
-                int(result['data']['timestamp']),
-                int(result['data']['result']),
-                result['data']['wkt'],
-                task_id.split('-')[1],
-                task_id.split('-')[2],
-                task_id.split('-')[0],
-                0
-            ]
-            csvwriter.writerow(output_list)
+            try:
+                output_list = [
+                    task_id,
+                    result['data']['user'],
+                    int(result['data']['projectId']),
+                    int(result['data']['timestamp']),
+                    int(result['data']['result']),
+                    result['data']['wkt'],
+                    task_id.split('-')[1],
+                    task_id.split('-')[2],
+                    task_id.split('-')[0],
+                    0
+                ]
+                csvwriter.writerow(output_list)
+            except Exception as e:
+                logging.warning('ALL - results_to_txt - result missed critical information: %s' % e)
+
+
 
     results_txt_file.close()
     logging.warning('ALL - results_to_txt - there are %s results to import' % number_of_results)
@@ -317,7 +322,6 @@ def save_results_mysql(mysqlDB, results_filename):
     m_con = mysqlDB()
     sql_insert = 'DROP TABLE IF EXISTS raw_results CASCADE;'
     m_con.query(sql_insert, None)
-    print('dropped raw results table')
 
     # first importer to a table where we store the geom as text
     sql_insert = '''
@@ -336,7 +340,6 @@ def save_results_mysql(mysqlDB, results_filename):
         '''
 
     m_con.query(sql_insert, None)
-    print('Created new table for raw results')
 
     # copy data to the new table
     # we should use LOAD DATA LOCAL INFILE Syntax
@@ -345,7 +348,6 @@ def save_results_mysql(mysqlDB, results_filename):
             '''
     m_con.query(sql_insert, None)
     os.remove(results_filename)
-    print('copied results information to mysql')
 
     # second importer all entries into the task table and convert into psql geometry
     sql_insert = '''
@@ -360,7 +362,7 @@ def save_results_mysql(mysqlDB, results_filename):
     '''
 
     m_con.query(sql_insert, None)
-    print('inserted raw results into results table and updated duplicates count')
+    logging.warning('ALL - save_results_mysql - inserted raw results into results table and updated duplicates count')
 
     del m_con
     return
@@ -385,7 +387,6 @@ def run_transfer_results(modus, results_filename='data/results.json'):
         logging.warning('ALL - run_transfer_results - removed "results.json" file')
 
     fb_db = firebase.database()
-    print('opened connection to firebase')
 
     # this tries to set the max pool connections to 100
     adapter = requests.adapters.HTTPAdapter(max_retries=5, pool_connections=100, pool_maxsize=100)
