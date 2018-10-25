@@ -95,7 +95,7 @@ class BuildAreaProject(BaseProject):
             except:
                 self.info['extent'] = None
 
-            logging.warning('init complete for project %s' % self.id)
+            logging.warning('%s - __init__ - init complete' % self.id)
         elif hasattr(self, 'is_new'):
             # this is a new project, which have not been imported
             self.info = {}
@@ -122,11 +122,11 @@ class BuildAreaProject(BaseProject):
 
             self.kml_to_file(import_dict['kml'])
             if not self.check_input_geometry():
-                logging.warning("project geometry is invalid. can't init project")
+                logging.warning("%s - __init__ - project geometry is invalid. can't init project" % self.id)
                 return None
 
             del self.is_new
-            logging.warning('init complete for project %s' % self.id)
+            logging.warning('%s - __init__ - init complete' % self.id)
 
     def kml_to_file(self, kml, outpath='data'):
         """
@@ -179,12 +179,12 @@ class BuildAreaProject(BaseProject):
         # check if layer is empty
         if layer.GetFeatureCount() < 1:
             err = 'empty file. No geometries provided'
-            logging.warning(err)
+            logging.warning("%s - check_input_geometry - %s" % (self.id, err))
             return False
             # check if more than 1 geometry is provided
         elif layer.GetFeatureCount() > 1:
             err = 'Input file contains more than one geometry. Make sure to provide exact one input geometry.'
-            logging.warning(err)
+            logging.warning("%s - check_input_geometry - %s" % (self.id, err))
             return False
 
         # check if the input geometry is a valid polygon
@@ -193,17 +193,18 @@ class BuildAreaProject(BaseProject):
             geom_name = feat_geom.GetGeometryName()
             if not feat_geom.IsValid():
                 err = 'geometry is not valid: %s. Tested with IsValid() ogr method. probably self-intersections.' % geom_name
+                logging.warning("%s - check_input_geometry - %s" % (self.id, err))
                 return False
             # we accept only POLYGON or MULTIPOLYGON geometries
             if geom_name != 'POLYGON' and geom_name != 'MULTIPOLYGON':
                 err = 'invalid geometry type: %s. please provide "POLYGON" or "MULTIPOLYGON"' % geom_name
-                print(err)
+                logging.warning("%s - check_input_geometry - %s" % (self.id, err))
                 return False
 
         del datasource
         del layer
 
-        logging.warning('input geometry is correct.')
+        logging.warning('%s - check_input_geometry - input geometry is correct.' % self.id)
         return True
 
     ####################################################################################################################
@@ -227,6 +228,7 @@ class BuildAreaProject(BaseProject):
             group = BuildAreaGroup(self, slice_id, slice)
             groups[group.id] = group
 
+        logging.warning("%s -- create_groups -- created groups dictionary" % self.id)
         return groups
 
 

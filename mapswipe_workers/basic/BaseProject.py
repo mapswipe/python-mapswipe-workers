@@ -45,7 +45,7 @@ class BaseProject(object):
     ####################################################################################################################
     def __init__(self, project_id: int, firebase: object, mysqlDB: object, import_key: str = None, import_dict: dict = None) -> object:
 
-        logging.warning('start init for project %s' % project_id)
+        logging.warning('%s - __init__ - start init' % project_id)
 
         # set basic project information
         self.id = project_id
@@ -82,14 +82,14 @@ class BaseProject(object):
 
             # first we check, whether there is no project with the same id in the mysql database
             if self.project_exists_mysql(mysqlDB):
-                logging.warning("project is new, but has been imported to mysql already. Can't init project.")
+                logging.warning("%s - __init__ - project is new, but has been imported to mysql already. Can't init project." % self.id)
                 return None
             # then let's check if the import_key and import_dict are provided
             elif not import_key:
-                logging.warning("no import_key has been provided to create a new project. Can't init project.")
+                logging.warning("%s - __init__ - no import_key has been provided to create a new project. Can't init project." % self.id)
                 return None
             elif not import_dict:
-                logging.warning("no import_dict information has been provided to create a new project. Cant't init project.")
+                logging.warning("%s - __init__ - no import_dict information has been provided to create a new project. Cant't init project." % self.id)
                 return None
             else:
                 try:
@@ -108,8 +108,8 @@ class BaseProject(object):
                     self.progress = 0
                     self.contributors = 0
                 except Exception as e:
-                    logging.warning("could not get all project info from dict. Cant't init project.")
-                    logging.warning(e)
+                    logging.warning("%s - __init__ - could not get all project info from dict. Cant't init project." % self.id)
+                    logging.warning("%s - __init__ - %s" % (self.id, e) )
                     return None
 
 
@@ -135,11 +135,11 @@ class BaseProject(object):
         project_data = fb_db.child("projects").child(self.id).get().val()
 
         if not project_data:
-            logging.warning('project not in firebase. project: %s' % self.id)
+            logging.warning('%s - project_exists_firebase - project not in firebase' % self.id)
             return False
         # a valid project in firebase has at least 12 attributes
         elif len(project_data) < 12:
-            logging.warning('project is in firebase, but misses critical information. project: %s' % self.id)
+            logging.warning('%s - project_exists_firebase - project is in firebase, but misses critical information' % self.id)
             return False
         else:
             # we will also check if at least one group exists for this project
@@ -147,10 +147,10 @@ class BaseProject(object):
             groups_data = fb_db.child("groups").child(self.id).shallow().get().val()
 
             if not groups_data:
-                logging.warning('groups not in firebase. project: %s' % self.id)
+                logging.warning('%s - project_exists_firebase - groups not in firebase' % self.id)
                 return False
             else:
-                logging.warning('project and groups exist in firebase. project: %s' % self.id)
+                logging.warning('%s - project_exists_firebase - project and groups exist in firebase' % self.id)
                 return project_data
 
     def project_exists_mysql(self, mysqlDB):
@@ -183,10 +183,10 @@ class BaseProject(object):
         del m_con
 
         if not project_data:
-            logging.warning('not in mysql database. project: %s' % self.id)
+            logging.warning('%s - project_exists_firebase - not in mysql database' % self.id)
             return False
         else:
-            logging.warning('exists in mysql database. project: %s' % self.id)
+            logging.warning('%s - project_exists_firebase - exists in mysql database' % self.id)
             return True
 
     ####################################################################################################################
@@ -210,17 +210,17 @@ class BaseProject(object):
         """
 
         try:
-            logging.warning('start importing project %s' % self.id)
+            logging.warning('%s - import_project - start importing' % self.id)
             groups = self.create_groups()
             self.set_groups_firebase(firebase, groups)
             self.set_project_mysql(mysqlDB)
             self.set_project_firebase(firebase)
             self.set_import_complete(firebase)
-            logging.warning('imported project %s' % self.id)
+            logging.warning('%s - import_project - import finished' % self.id)
             return True
         except Exception as e:
-            logging.warning('could not import project %s' % self.id)
-            logging.warning(e)
+            logging.warning('%s - import_project - could not import project' % self.id)
+            logging.warning("%s - import_project - %s" % (self.id, e))
             self.delete_project(firebase, mysqlDB)
             return False
 
@@ -247,7 +247,7 @@ class BaseProject(object):
         # upload groups in firebase
         fb_db = firebase.database()
         fb_db.child("groups").child(self.id).set(final_groups)
-        logging.warning('uploaded groups in firebase for project %s' % self.id)
+        logging.warning('%s - set_groups_firebase - uploaded groups in firebase' % self.id)
 
     def set_project_firebase(self, firebase):
         """
@@ -289,7 +289,7 @@ class BaseProject(object):
 
         fb_db = firebase.database()
         fb_db.child("projects").child(project['id']).set(project)
-        logging.warning('uploaded project in firebase for project %s' % self.id)
+        logging.warning('%s - set_project_firebase - uploaded project in firebase' % self.id)
         return True
 
 
@@ -317,7 +317,7 @@ class BaseProject(object):
             del m_con
             raise
 
-        logging.warning('inserted project info in mysql for project %s' % self.id)
+        logging.warning('%s - set_project_mysql - inserted project info in mysql' % self.id)
         return True
 
     def set_import_complete(self, firebase):
@@ -338,7 +338,7 @@ class BaseProject(object):
         fb_db = firebase.database()
         fb_db.child("imports").child(self.import_key).child('complete').set(True)
 
-        logging.warning('set import complete for import %s and project %s' % (self.import_key, self.id))
+        logging.warning('%s - set_import_complete - set import complete for import %s' % (self.id, self.import_key))
         return True
 
     ####################################################################################################################
@@ -362,11 +362,11 @@ class BaseProject(object):
             True if successful. False otherwise
         """
 
-        logging.warning('start deleting project %s' % self.id)
+        logging.warning('%s - delete_project - start deleting project' % self.id)
         self.delete_groups_firebase(firebase)
         self.delete_project_firebase(firebase)
         self.delete_project_mysql(mysqlDB)
-        logging.warning('deleted project %s' % self.id)
+        logging.warning('%s - delete_project - finished delete project' % self.id)
         return True
 
     def delete_groups_firebase(self, firebase):
@@ -386,7 +386,7 @@ class BaseProject(object):
 
         fb_db = firebase.database()
         fb_db.child("groups").child(self.id).remove()
-        logging.warning('deleted groups in firebase for project %s' % self.id)
+        logging.warning('%s - delete_groups_firebase - deleted groups in firebase' % self.id)
         return
 
     def delete_project_firebase(self, firebase):
@@ -406,7 +406,7 @@ class BaseProject(object):
 
         fb_db = firebase.database()
         fb_db.child("projects").child(self.id).remove()
-        logging.warning('deleted project in firebase for project %s' % self.id)
+        logging.warning('%s - delete_project_firebase - deleted project in firebase' % self.id)
         return True
 
     def delete_import_firebase(self, firebase):
@@ -426,7 +426,7 @@ class BaseProject(object):
         fb_db = firebase.database()
         fb_db.child("imports").child(self.import_key).remove()
 
-        logging.warning('deleted import in firebase for project %s' % self.import_key)
+        logging.warning('%s - delete_import_firebase - deleted import in firebase' % self.import_key)
         return True
 
     def delete_project_mysql(self, mysqlDB):
@@ -456,7 +456,7 @@ class BaseProject(object):
         m_con.query(sql_insert, data)
         del m_con
 
-        logging.warning('deleted project info in mysql for project %s' % self.id)
+        logging.warning('%s - delete_project_mysql - deleted project info in mysql' % self.id)
         return True
 
     ####################################################################################################################
@@ -507,7 +507,7 @@ class BaseProject(object):
 
             except Exception as e:
                 # add a catch, if something with the connection to firebase goes wrong and log potential errors
-                logging.warning(e)
+                logging.warning("%s - get_groups_progress - %s" % (self.id,e))
                 # if we can't get the completed count for a group, we will set it to 0.0
                 completed_count = 0.0
                 progress = 0.0
@@ -542,7 +542,7 @@ class BaseProject(object):
 
         # it is important to use the shallow option, only keys will be loaded and not the complete json
         all_groups = fb_db.child("groups").child(self.id).shallow().get().val()
-        logging.warning('downloaded all groups of project %s from firebase' % self.id)
+        logging.warning('%s -- get_progress - downloaded all keys for groups from firebase' % self.id)
 
         # we will use a queue to limit the number of threads running in parallel
         q = Queue(maxsize=0)
@@ -550,7 +550,7 @@ class BaseProject(object):
 
         for group_id in all_groups:
             q.put([fb_db, group_progress_list, group_id])
-        logging.warning('added all groups of project %s to queue' % self.id)
+        logging.warning('%s - get_progress - added all groups to queue' % self.id)
 
         logging.warning('setup threading with %s workers' % num_threads)
         for i in range(num_threads):
@@ -561,11 +561,11 @@ class BaseProject(object):
 
         q.join()
         del fb_db
-        logging.warning('downloaded progress for all groups of project %s from firebase' % self.id)
+        logging.warning('%s - get_progress - downloaded progress for all groups from firebase' % self.id)
 
         # calculate project progress
         self.progress = np.average(group_progress_list, axis=0)[-1]
-        logging.warning('calculated progress for project %s. progress = %s' % (self.id, self.progress))
+        logging.warning('%s - get_progress - calculated progress. progress = %s' % (self.id, self.progress))
 
     def get_contributors(self, mysqlDB):
         """
@@ -599,7 +599,7 @@ class BaseProject(object):
         # delete/close db connection
         del m_con
 
-        logging.warning("got project contributors from mysql for project: %s" % self.id)
+        logging.warning("%s - get_contributors - got project contributors from mysql. contributors =  %s" % (self.id, self.contributors))
 
     def set_progress(self, firebase):
         """
@@ -619,7 +619,7 @@ class BaseProject(object):
         fb_db = firebase.database()
         fb_db.child("projects").child(self.id).update({"progress": self.progress})
 
-        logging.warning('set progress in firebase for project: %s' % self.id)
+        logging.warning('%s - set_progress - set progress in firebase' % self.id)
         return True
 
     def set_contributors(self, firebase):
@@ -640,7 +640,7 @@ class BaseProject(object):
         fb_db = firebase.database()
         fb_db.child("projects").child(self.id).update({"contributors": self.contributors})
 
-        logging.warning('set contributors in firebase for project: %s' % self.id)
+        logging.warning('%s - set_contributors - set contributors in firebase' % self.id)
         return True
 
     ####################################################################################################################
@@ -672,7 +672,7 @@ class BaseProject(object):
             outline = "{},{}\n".format(timestamp, self.progress)
             output_file.write(outline)
 
-        logging.warning('log progress to file for project %s successful' % self.id)
+        logging.warning('%s - log_project_progress - logged progress to file: %s' % (self.id, filename))
         return True
 
     def log_project_contributors(self, output_path='data'):
@@ -701,7 +701,7 @@ class BaseProject(object):
             outline = "{},{}\n".format(timestamp, self.contributors)
             output_file.write(outline)
 
-        logging.warning('log contributors to file for project %s successful' % self.id)
+        logging.warning('%s - log_project_contributors - logged contributors to file: %s' % (self.id, filename))
         return True
 
 

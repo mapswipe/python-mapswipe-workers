@@ -20,12 +20,12 @@ def get_environment(modus):
         # we use the dev instance for testing
         firebase = auth.dev_firebase_admin_auth()
         mysqlDB = auth.dev_mysqlDB
-        print('We are using the development instance')
+        logging.warning('ALL - get_environment - use development instance')
     elif modus == 'production':
         # we use the dev instance for testing
         firebase = auth.firebase_admin_auth()
         mysqlDB = auth.mysqlDB
-        print('We are using the production instance')
+        logging.warning('ALL - get_environment - use production instance')
     else:
         firebase = None
         mysqlDB = None
@@ -79,7 +79,7 @@ def get_projects(firebase, mysqlDB, filter='all'):
 
         # a valid project in firebase has at least 12 attributes
         if len(all_projects[project_id]) < 12:
-            logging.warning('project is in firebase, but misses critical information. project: %s' % project_id)
+            logging.warning('%s - get_projects - project is in firebase, but misses critical information' % project_id)
             continue
 
         # we check all conditions for each group of projects
@@ -135,10 +135,10 @@ def get_new_project_id(firebase):
     project_ids.sort()
     highest_project_id = project_ids[-1]
 
-    logging.warning('highest existing project id: %s' % highest_project_id)
+    logging.warning('ALL - get_new_project_id - highest existing project id: %s' % highest_project_id)
     new_project_id = highest_project_id + 2
 
-    logging.warning('returned new project id: %s' % highest_project_id)
+    logging.warning('ALL - get_new_project_id - returned new project id: %s' % new_project_id)
     return new_project_id
 
 
@@ -170,7 +170,7 @@ def get_new_imports(firebase):
                 # insert into new projects dict
                 new_imports[import_key] = new_import
 
-    logging.warning('got %s projects which have not been imported' % len(new_imports))
+    logging.warning('ALL - get_new_imports - got %s projects which have not been imported' % len(new_imports))
     return new_imports
 
 
@@ -275,7 +275,7 @@ def delete_firebase_results(firebase, all_results):
     fb_db.update(data)
     del fb_db
 
-    logging.warning('deleted results in firebase')
+    logging.warning('ALL - delete_firebase_results - deleted all results in firebase')
     return True
 
 
@@ -306,7 +306,7 @@ def results_to_txt(all_results):
             csvwriter.writerow(output_list)
 
     results_txt_file.close()
-    logging.warning('there are %s results to import' % number_of_results)
+    logging.warning('ALL - results_to_txt - there are %s results to import' % number_of_results)
     return results_txt_filename
 
 
@@ -371,20 +371,18 @@ def run_transfer_results(modus, results_filename='data/results.json'):
     # get dev or production environment for firebase and mysql
     firebase, mysqlDB = get_environment(modus)
 
-
     # first check if we have results stored locally, that have not been inserted in MySQL
     if os.path.isfile(results_filename):
         # start to import the old results first
         with open(results_filename) as results_file:
             results = json.load(results_file)
             results_txt_filename = results_to_txt(results)
-            logging.warning("there are results in %s that we didnt't insert. do it now!" % results_filename)
+            logging.warning("ALL - run_transfer_results - there are results in %s that we didnt't insert. do it now!" % results_filename)
             save_results_mysql(mysqlDB, results_txt_filename)
             delete_firebase_results(firebase, results)
 
         os.remove(results_filename)
-        print('removed "results.json" file')
-        logging.warning('removed "results.json" file')
+        logging.warning('ALL - run_transfer_results - removed "results.json" file')
 
     fb_db = firebase.database()
     print('opened connection to firebase')
@@ -399,24 +397,20 @@ def run_transfer_results(modus, results_filename='data/results.json'):
     all_results = fb_db.child("results").get().val()
     del fb_db
 
-    print('downloaded all results from firebase')
-    logging.warning('downloaded all results from firebase')
+    logging.warning('ALL - run_transfer_results - downloaded all results from firebase')
     # test if there are any results to transfer
     if all_results:
         with open(results_filename, 'w') as fp:
             json.dump(all_results, fp)
-            logging.warning('wrote results data to %s' % results_filename)
-            print('wrote results data to %s' % results_filename)
+            logging.warning('ALL - run_transfer_results - wrote results data to %s' % results_filename)
 
         results_txt_filename = results_to_txt(all_results)
         save_results_mysql(mysqlDB, results_txt_filename)
         delete_firebase_results(firebase, all_results)
         os.remove(results_filename)
-        print('removed "results.json" file')
-        logging.warning('removed "results.json" file')
+        logging.warning('ALL - run_transfer_results - removed %s' % results_filename)
     else:
-        logging.warning('there are no results to transfer in firebase')
-        print('there are no results to transfer in firebase')
+        logging.warning('ALL - run_transfer_results - there are no results to transfer in firebase')
 
 ########################################################################################################################
 # EXPORT                                                                                                               #
