@@ -137,6 +137,10 @@ class BaseProject(object):
         if not project_data:
             logging.warning('project not in firebase. project: %s' % self.id)
             return False
+        # a valid project in firebase has at least 12 attributes
+        elif len(project_data) < 12:
+            logging.warning('project is in firebase, but misses critical information. project: %s' % self.id)
+            return False
         else:
             # we will also check if at least one group exists for this project
             fb_db = firebase.database()

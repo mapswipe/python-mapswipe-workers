@@ -128,7 +128,6 @@ class BuildAreaProject(BaseProject):
             del self.is_new
             logging.warning('init complete for project %s' % self.id)
 
-
     def kml_to_file(self, kml, outpath='data'):
         """
         The function to save a kml string as a file
@@ -157,7 +156,6 @@ class BuildAreaProject(BaseProject):
 
         self.info['extent'] = filename
         return filename
-
 
     def check_input_geometry(self):
         """
