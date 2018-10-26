@@ -1,6 +1,7 @@
 import os
 import logging
 import ogr
+import json
 
 from mapswipe_workers.cfg import auth
 from mapswipe_workers.basic.BaseProject import BaseProject
@@ -230,5 +231,25 @@ class BuildAreaProject(BaseProject):
 
         logging.warning("%s -- create_groups -- created groups dictionary" % self.id)
         return groups
+
+    ####################################################################################################################
+    # EXPORT - We define a bunch of functions related to exporting exiting projects                                    #
+    ####################################################################################################################
+    def export_results(self, mysqlDB, output_path):
+        mysql_results = super().get_results_mysql(mysqlDB)
+
+        # do something with the mysql_results
+        results = {}
+
+        # save the results as json
+        output_json_file = '{}/projects/{}.json'.format(output_path, self.id)
+        with open(output_json_file, 'w') as outfile:
+            json.dump(results, outfile)
+        logging.warning('ALL - export_results - exported results file: %s' % output_json_file)
+        return True
+
+
+
+
 
 

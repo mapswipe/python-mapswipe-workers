@@ -704,6 +704,37 @@ class BaseProject(object):
         logging.warning('%s - log_project_contributors - logged contributors to file: %s' % (self.id, filename))
         return True
 
+    def get_results_mysql(self, mysqlDB):
+
+        # get contributors data from mysql
+        m_con = mysqlDB()
+        # sql command
+        sql_query = '''
+            SELECT
+              *
+            FROM
+              results
+            WHERE
+              project_id = %s
+            '''
+
+        data = [project_id]
+        project_results = m_con.retr_query(sql_query, data)
+        logging.warning('%s - export_results - got results from mysql' % self.id)
+        del m_con
+
+        return project_results
+
+
+
+
+
+
+        # save project progress in firebase
+        # we need to adjust to the nginx output path on the server
+        output_json_file = '{}/projects/{}.json'.format(output_path, project_id)
+        json_output_file = rows_to_json(project_id, project_results, output_json_file)
+
 
     def export_groups_as_json(self):
         project_json = 'some json'
