@@ -565,5 +565,58 @@ def run_transfer_results(modus, results_filename='data/results.json'):
 ########################################################################################################################
 # EXPORT                                                                                                               #
 ########################################################################################################################
+def export_users_and_stats(firebase, output_path='data'):
+    """
+    The function to save users and stats as a json file
+
+    Parameters
+    ----------
+    firebase : pyrebase firebase object
+        initialized firebase app with admin authentication
+    output_path: str
+        The output path of the json files
+
+    Returns
+    -------
+    bool
+        True if successful, False otherwise
+    """
+    # check if output path for projects is correct and existing
+    if not os.path.isdir(output_path):
+        os.mkdir(output_path)
+
+    fb_db = firebase.database()
+    all_users = fb_db.child("users").get().val()
+
+    if not all_users:
+        logging.warning("ALL - export_users_and_stats - no users in firebase. Can't export")
+        return None
+    else:
+        # compute stats from user data and save in dict
+        stats = {
+            'users': len(all_users),
+            'totalDistanceMappedInSqKm': 0,
+            'totalContributionsByUsers': 0
+        }
+
+        for user in all_users:
+            stats['totalDistanceMappedInSqKm'] += all_users[user]['distance']
+            stats['totalContributionsByUsers'] += all_users[user]['contributions']
+
+        # export users as json file
+        output_json_file = '{}/users.json'.format(output_path)
+        with open(output_json_file, 'w') as outfile:
+            json.dump(all_users, outfile)
+        logging.warning('ALL - export_users_and_stats - exported users file: %s' % output_json_file)
+
+        # export stats as json file
+        output_json_file = '{}/stats.json'.format(output_path)
+        with open(output_json_file, 'w') as outfile:
+            json.dump(stats, outfile)
+        logging.warning('ALL - export_users_and_stats - exported stats file: %s' % output_json_file)
+
+        return True
+
+
 def run_export():
     pass
