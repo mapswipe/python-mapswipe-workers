@@ -711,6 +711,9 @@ class BaseProject(object):
         return project_json
 
     def export_project_as_json(self):
+
+
+
         project_json = 'some json'
         print("exported project as json")
         return project_json

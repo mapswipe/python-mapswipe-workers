@@ -565,6 +565,42 @@ def run_transfer_results(modus, results_filename='data/results.json'):
 ########################################################################################################################
 # EXPORT                                                                                                               #
 ########################################################################################################################
+def export_all_projects(firebase, output_path='data'):
+    """
+    The function to export all projects in a json file
+
+    Parameters
+    ----------
+    firebase : pyrebase firebase object
+        initialized firebase app with admin authentication
+    output_path: str
+        The output path of the json files
+
+    Returns
+    -------
+    bool
+        True if successful, False otherwise
+    """
+    # check if output path for projects is correct and existing
+    if not os.path.isdir(output_path):
+        os.mkdir(output_path)
+
+    fb_db = firebase.database()
+    all_projects = fb_db.child("projects").get().val()
+
+    if not all_projects:
+        logging.warning("ALL - export_all_projects - no projects in firebase. Can't export")
+        return False
+    else:
+        # save projects as json
+        output_json_file = '{}/projects.json'.format(output_path)
+        with open(output_json_file, 'w') as outfile:
+            json.dump(all_projects, outfile)
+        logging.warning('ALL - export_all_projects - exported projects file: %s' % output_json_file)
+        return True
+
+
+
 def export_users_and_stats(firebase, output_path='data'):
     """
     The function to save users and stats as a json file
@@ -590,7 +626,7 @@ def export_users_and_stats(firebase, output_path='data'):
 
     if not all_users:
         logging.warning("ALL - export_users_and_stats - no users in firebase. Can't export")
-        return None
+        return False
     else:
         # compute stats from user data and save in dict
         stats = {
@@ -614,9 +650,8 @@ def export_users_and_stats(firebase, output_path='data'):
         with open(output_json_file, 'w') as outfile:
             json.dump(stats, outfile)
         logging.warning('ALL - export_users_and_stats - exported stats file: %s' % output_json_file)
-
         return True
 
 
-def run_export():
+def run_export(modus, filter, output_path='data'):
     pass
