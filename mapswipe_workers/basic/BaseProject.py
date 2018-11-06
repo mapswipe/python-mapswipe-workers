@@ -5,6 +5,8 @@ import numpy as np
 from queue import Queue
 import requests
 import time
+import json
+import pandas as pd
 
 class BaseProject(object):
     """
@@ -706,34 +708,43 @@ class BaseProject(object):
 
     def get_results_mysql(self, mysqlDB):
 
-        # get contributors data from mysql
+        # get results data from mysql
         m_con = mysqlDB()
-        # sql command
+
+        table_header = ['task_id', 'project_id', 'result']
         sql_query = '''
             SELECT
-              *
+              task_id
+              ,project_id
+              ,result
             FROM
               results
-            WHERE
-              project_id = %s
+            -- WHERE
+            --  project_id = %s
             '''
 
-        data = [project_id]
-        project_results = m_con.retr_query(sql_query, data)
+        data = [self.id]
+        project_results = list(m_con.retr_query(sql_query, data))
+        project_results_df = pd.DataFrame.from_records(project_results, columns=table_header)
         logging.warning('%s - export_results - got results from mysql' % self.id)
         del m_con
 
-        return project_results
+        return project_results_df
 
 
+    def export_results(self, mysqlDB, output_path='data'):
 
 
+        mysql_results = self.get_results_mysql(mysqlDB)
+
+        # this function is set concerning the project type
+        results = self.aggregate_results(mysqlDB, mysql_results)
 
 
-        # save project progress in firebase
-        # we need to adjust to the nginx output path on the server
-        output_json_file = '{}/projects/{}.json'.format(output_path, project_id)
-        json_output_file = rows_to_json(project_id, project_results, output_json_file)
+        output_json_file = '{}/projects/{}.json'.format(output_path, self.id)
+        results.to_json(output_json_file, orient='index')
+        logging.warning('ALL - export_results - exported results file: %s' % output_json_file)
+        return True
 
 
     def export_groups_as_json(self):

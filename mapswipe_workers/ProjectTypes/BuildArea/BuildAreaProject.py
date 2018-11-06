@@ -2,6 +2,7 @@ import os
 import logging
 import ogr
 import json
+import pandas as pd
 
 from mapswipe_workers.cfg import auth
 from mapswipe_workers.basic.BaseProject import BaseProject
@@ -235,18 +236,25 @@ class BuildAreaProject(BaseProject):
     ####################################################################################################################
     # EXPORT - We define a bunch of functions related to exporting exiting projects                                    #
     ####################################################################################################################
-    def export_results(self, mysqlDB, output_path):
-        mysql_results = super().get_results_mysql(mysqlDB)
+    def aggregate_results(self, mysqlDB, mysql_results):
 
-        # do something with the mysql_results
-        results = {}
+        # aggregate by task_id
+        agg_dict = {
+            'task_id': {
+                'task_count': 'count'
+            },
+            'result': {
+                'average_result': 'mean',
+                'yes_count': lambda x: x == 1
+            }
+        }
 
-        # save the results as json
-        output_json_file = '{}/projects/{}.json'.format(output_path, self.id)
-        with open(output_json_file, 'w') as outfile:
-            json.dump(results, outfile)
-        logging.warning('ALL - export_results - exported results file: %s' % output_json_file)
-        return True
+        # group by task_id and aggregate
+        df = mysql_results.groupby('task_id').agg(agg_dict)
+        print(df)
+
+        return df
+
 
 
 
