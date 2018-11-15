@@ -28,3 +28,4 @@ class BuildAreaGroup(BaseGroup):
                 tasks[task.id] = task
 
         self.tasks = tasks
+        self.count = len(tasks)
