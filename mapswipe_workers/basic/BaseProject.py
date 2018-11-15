@@ -6,7 +6,7 @@ from queue import Queue
 import requests
 import time
 import json
-import pandas as pd
+
 
 class BaseProject(object):
     """
@@ -708,6 +708,15 @@ class BaseProject(object):
 
 
     def export_results(self, mysqlDB, output_path='data'):
+        """
+        The function save the results of the project in a list of jsons'
+
+        Parameters
+        ----------
+        output_path : str, optional
+            The path where the json file will be stored. Default='data'
+        """
+
 
         # this function is set concerning the project type
         results_list = self.aggregate_results(mysqlDB)
@@ -719,14 +728,3 @@ class BaseProject(object):
 
         logging.warning('ALL - export_results - exported results file: %s' % output_json_file)
         return True
-
-
-    def export_groups_as_json(self):
-        project_json = 'some json'
-        print("exported project as json")
-        return project_json
-
-    def export_project_as_json(self):
-        project_json = 'some json'
-        print("exported project as json")
-        return project_json
