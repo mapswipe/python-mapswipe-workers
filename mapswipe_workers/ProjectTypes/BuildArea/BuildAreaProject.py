@@ -226,7 +226,7 @@ class BuildAreaProject(BaseProject):
         groups = {}
         for slice_id, slice in slices.items():
             group = BuildAreaGroup(self, slice_id, slice)
-            groups[group.id] = group
+            groups[group.id] = group.to_dict()
 
         logging.warning("%s -- create_groups -- created groups dictionary" % self.id)
         return groups

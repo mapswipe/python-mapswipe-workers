@@ -4,7 +4,7 @@ class BaseGroup(object):
         self.project_id = project.id
         self.id = group_id
         self.completedCount = 0
-        self.neededCount = 0
+        self.neededCount = project.verification_count
         self.count = 0
         self.users = []
 
