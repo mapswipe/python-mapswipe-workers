@@ -549,7 +549,7 @@ class BaseProject(object):
             q.put([fb_db, group_progress_list, group_id])
         logging.warning('%s - get_progress - added all groups to queue' % self.id)
 
-        logging.warning('%s - get_progress - setup threading with %s workers' % (self.id, self.progress, num_threads))
+        logging.warning('%s - get_progress - setup threading with %s workers' % (self.id, num_threads))
         for i in range(num_threads):
             worker = threading.Thread(
                 target=self.get_group_progress,
