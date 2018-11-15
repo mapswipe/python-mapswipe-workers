@@ -539,7 +539,7 @@ class BaseProject(object):
 
         # it is important to use the shallow option, only keys will be loaded and not the complete json
         all_groups = fb_db.child("groups").child(self.id).shallow().get().val()
-        logging.warning('%s -- get_progress - downloaded all keys for groups from firebase' % self.id)
+        logging.warning('%s - get_progress - downloaded all keys for groups from firebase' % self.id)
 
         # we will use a queue to limit the number of threads running in parallel
         q = Queue(maxsize=0)
@@ -549,7 +549,7 @@ class BaseProject(object):
             q.put([fb_db, group_progress_list, group_id])
         logging.warning('%s - get_progress - added all groups to queue' % self.id)
 
-        logging.warning('setup threading with %s workers' % num_threads)
+        logging.warning('%s - get_progress - setup threading with %s workers' % (self.id, self.progress, num_threads))
         for i in range(num_threads):
             worker = threading.Thread(
                 target=self.get_group_progress,
