@@ -10,7 +10,5 @@ class FootprintTask(BaseTask):
 
         super(FootprintTask, self).__init__(group, task_id)
         self.type = 2
-        self.info = {
-            "feature_id": feature_id,
-            "geojson": feature_geometry
-        }
+        self.feature_id = feature_id
+        self.geojson = feature_geometry
