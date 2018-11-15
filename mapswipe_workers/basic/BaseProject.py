@@ -706,43 +706,17 @@ class BaseProject(object):
         logging.warning('%s - log_project_contributors - logged contributors to file: %s' % (self.id, filename))
         return True
 
-    def get_results_mysql(self, mysqlDB):
-
-        # get results data from mysql
-        m_con = mysqlDB()
-
-        table_header = ['task_id', 'project_id', 'result']
-        sql_query = '''
-            SELECT
-              task_id
-              ,project_id
-              ,result
-            FROM
-              results
-            -- WHERE
-            --  project_id = %s
-            '''
-
-        data = [self.id]
-        project_results = list(m_con.retr_query(sql_query, data))
-        project_results_df = pd.DataFrame.from_records(project_results, columns=table_header)
-        logging.warning('%s - export_results - got results from mysql' % self.id)
-        del m_con
-
-        return project_results_df
-
 
     def export_results(self, mysqlDB, output_path='data'):
 
-
-        mysql_results = self.get_results_mysql(mysqlDB)
-
         # this function is set concerning the project type
-        results = self.aggregate_results(mysqlDB, mysql_results)
-
+        results_list = self.aggregate_results(mysqlDB)
 
         output_json_file = '{}/projects/{}.json'.format(output_path, self.id)
-        results.to_json(output_json_file, orient='index')
+
+        with open(output_json_file, 'w') as outfile:
+            json.dump(results_list, outfile)
+
         logging.warning('ALL - export_results - exported results file: %s' % output_json_file)
         return True
 
@@ -753,9 +727,6 @@ class BaseProject(object):
         return project_json
 
     def export_project_as_json(self):
-
-
-
         project_json = 'some json'
         print("exported project as json")
         return project_json

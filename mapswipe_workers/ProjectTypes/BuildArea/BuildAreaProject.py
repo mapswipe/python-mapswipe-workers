@@ -236,24 +236,58 @@ class BuildAreaProject(BaseProject):
     ####################################################################################################################
     # EXPORT - We define a bunch of functions related to exporting exiting projects                                    #
     ####################################################################################################################
-    def aggregate_results(self, mysqlDB, mysql_results):
+    def aggregate_results(self, mysqlDB):
 
-        # aggregate by task_id
-        agg_dict = {
-            'task_id': {
-                'task_count': 'count'
-            },
-            'result': {
-                'average_result': 'mean',
-                'yes_count': lambda x: x == 1
-            }
-        }
+        m_con = mysqlDB()
+        # sql command
+        sql_query = '''
+            select
+              task_id as id
+              ,project_id as project
+              ,task_x
+              ,task_y
+              ,task_z
+              ,avg(result) as decision
+              ,SUM(CASE
+                WHEN result = 1 THEN 1
+                ELSE 0
+               END) AS yes_count
+               ,SUM(CASE
+                WHEN result = 2 THEN 1
+                ELSE 0
+               END) AS maybe_count
+               ,SUM(CASE
+                WHEN result = 3 THEN 1
+                ELSE 0
+               END) AS bad_imagery_count
+               ,wkt
+            from
+              results
+            where
+              project_id = %s and result > 0
+            group by
+              task_id, wkt'''
 
-        # group by task_id and aggregate
-        df = mysql_results.groupby('task_id').agg(agg_dict)
-        print(df)
+        header = ['id', 'project', 'task_x', 'task_y', 'task_z',
+                  'decision', 'yes_count', 'maybe_count', 'bad_imagery_count', 'wkt']
+        data = [self.id]
 
-        return df
+        project_results = m_con.retr_query(sql_query, data)
+        # delete/close db connection
+        del m_con
+
+        results_list = []
+        for row in project_results:
+            row_dict = {}
+            for i in range(0, len(header)):
+                if header[i] in ['decision', 'yes_count', 'maybe_count', 'bad_imagery_count']:
+                    row_dict[header[i]] = float(str(row[i]))
+                else:
+                    row_dict[header[i]] = row[i]
+            results_list.append(row_dict)
+
+        logging.warning('got results information from mysql for project: %s. rows = %s' % (self.id, len(project_results)))
+        return results_list
 
 
 
