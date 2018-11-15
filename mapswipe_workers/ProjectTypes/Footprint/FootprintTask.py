@@ -9,6 +9,5 @@ class FootprintTask(BaseTask):
         )
 
         super(FootprintTask, self).__init__(group, task_id)
-        self.type = 2
         self.feature_id = feature_id
         self.geojson = feature_geometry
