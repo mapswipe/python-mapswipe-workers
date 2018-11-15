@@ -66,11 +66,11 @@ def init_project(project_type, project_id, firebase, mysqlDB, import_key=None, i
 
     class_to_type = {
         # Make sure to import all project types here
-        1: BuildAreaProject(project_id, firebase, mysqlDB, import_key, import_dict),
-        # 2: FootprintProject(project_id, firebase, import_key, import_dict)
+        1: BuildAreaProject,
+        2: FootprintProject
     }
 
-    proj = class_to_type[project_type]
+    proj = class_to_type[project_type](project_id, firebase, mysqlDB, import_key, import_dict)
     return proj
 
 

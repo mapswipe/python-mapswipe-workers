@@ -63,7 +63,7 @@ class BaseProject(object):
             self.image = project_data['image']
             self.look_for = project_data['lookFor']
             self.project_details = project_data['projectDetails']
-            self.verification_count = project_data['verificationCount']
+            self.verification_count = int(project_data['verificationCount'])
 
             # the following attributes are set regardless the imported information
             self.is_featured = project_data['isFeatured']
@@ -101,7 +101,7 @@ class BaseProject(object):
                     self.image = import_dict['project']['image']
                     self.look_for = import_dict['project']['lookFor']
                     self.project_details = import_dict['project']['projectDetails']
-                    self.verification_count = import_dict['project']['verificationCount']
+                    self.verification_count = int(import_dict['project']['verificationCount'])
 
                     # the following attributes are set regardless the imported information
                     self.is_featured = False
@@ -241,14 +241,9 @@ class BaseProject(object):
             True if groups have been uploaded to firebase, False otherwise
         """
 
-        # create a dictionary for uploading in firebase
-        final_groups = {}
-        for group_id, group in groups.items():
-            final_groups[group_id] = group.to_dict()
-
         # upload groups in firebase
         fb_db = firebase.database()
-        fb_db.child("groups").child(self.id).set(final_groups)
+        fb_db.child("groups").child(self.id).set(groups)
         logging.warning('%s - set_groups_firebase - uploaded groups in firebase' % self.id)
 
     def set_project_firebase(self, firebase):
