@@ -1,8 +1,6 @@
 import os
 import logging
 import ogr
-import json
-import pandas as pd
 
 from mapswipe_workers.cfg import auth
 from mapswipe_workers.basic.BaseProject import BaseProject
@@ -237,6 +235,7 @@ class BuildAreaProject(BaseProject):
     # EXPORT - We define a bunch of functions related to exporting exiting projects                                    #
     ####################################################################################################################
     def aggregate_results(self, mysqlDB):
+
 
         m_con = mysqlDB()
         # sql command

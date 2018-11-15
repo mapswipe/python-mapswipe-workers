@@ -636,8 +636,12 @@ def export_users_and_stats(firebase, output_path='data'):
         }
 
         for user in all_users:
-            stats['totalDistanceMappedInSqKm'] += all_users[user]['distance']
-            stats['totalContributionsByUsers'] += all_users[user]['contributions']
+            try:
+                # for some user there might be no distance attribute, if they didn't map anything etc.
+                stats['totalDistanceMappedInSqKm'] += all_users[user]['distance']
+                stats['totalContributionsByUsers'] += all_users[user]['contributions']
+            except:
+                pass
 
         # export users as json file
         output_json_file = '{}/users.json'.format(output_path)
