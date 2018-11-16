@@ -614,7 +614,8 @@ class BaseProject(object):
         """
 
         fb_db = firebase.database()
-        fb_db.child("projects").child(self.id).update({"progress": self.progress})
+        # progress will be displayed as integer in the app
+        fb_db.child("projects").child(self.id).update({"progress": int(self.progress)})
 
         logging.warning('%s - set_progress - set progress in firebase' % self.id)
         return True
