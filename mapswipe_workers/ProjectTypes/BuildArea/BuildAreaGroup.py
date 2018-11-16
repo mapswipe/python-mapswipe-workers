@@ -10,7 +10,7 @@ class BuildAreaGroup(BaseGroup):
         super(BuildAreaGroup, self).__init__(project, group_id)
 
         # add the type specific attributes
-        self.zoomlevel = project.info['zoomlevel']
+        self.zoomLevel = project.info['zoomlevel']
         self.xMax = slice['xMax']
         self.xMin = slice['xMin']
         self.yMax = slice['yMax']

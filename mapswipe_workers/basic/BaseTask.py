@@ -1,7 +1,7 @@
 class BaseTask(object):
     def __init__(self, group, task_id):
         # set basic group information
-        self.project_id = group.project_id
+        self.projectId = group.projectId
         self.id = task_id
 
         # this will be the place for project type specific settings
