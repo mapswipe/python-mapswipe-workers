@@ -228,7 +228,7 @@ class BuildAreaProject(BaseProject):
             group = BuildAreaGroup(self, slice_id, slice)
             groups[group.id] = group.to_dict()
 
-        logging.warning("%s -- create_groups -- created groups dictionary" % self.id)
+        logging.warning("%s - create_groups - created groups dictionary" % self.id)
         return groups
 
     ####################################################################################################################
