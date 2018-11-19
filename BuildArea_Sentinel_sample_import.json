@@ -13,7 +13,7 @@
     "verificationCount" : "3"
   },
   "projectType" : 1,
-  "tileServer" : "singergise",
+  "tileServer" : "sinergise",
   "wmtsLayerName" : "NDVI",
   "zoomLevel": 14
 }
