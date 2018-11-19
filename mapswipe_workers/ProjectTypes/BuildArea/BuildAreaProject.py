@@ -91,6 +91,11 @@ class BuildAreaProject(BaseProject):
                 self.info['custom_tileserver_url'] = None
 
             try:
+                self.info['wmts_layer']
+            except:
+                self.info['wmts_layer'] = None
+
+            try:
                 self.info['extent']
             except:
                 self.info['extent'] = None
@@ -119,6 +124,11 @@ class BuildAreaProject(BaseProject):
                 self.info['custom_tileserver_url'] = import_dict['custom_tileserver_url']
             except:
                 self.info['custom_tileserver_url'] = None
+
+            try:
+                self.info['wmts_layer'] = import_dict['wmtsLayerName']
+            except:
+                self.info['wmts_layer'] = None
 
             self.kml_to_file(import_dict['kml'])
             if not self.check_input_geometry():

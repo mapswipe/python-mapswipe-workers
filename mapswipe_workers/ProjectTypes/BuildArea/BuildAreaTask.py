@@ -21,7 +21,8 @@ class BuildAreaTask(BaseTask):
             project.info['zoomlevel'],
             project.info['tileserver'],
             project.info['api_key'],
-            project.info['custom_tileserver_url']
+            project.info['custom_tileserver_url'],
+            project.info['wmts_layer']
         )
 
         # we no longer provide wkt geometry, you can calc using some python scripts
