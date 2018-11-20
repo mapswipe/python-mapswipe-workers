@@ -4,8 +4,7 @@ import os
 import csv
 import requests
 
-
-from mapswipe_workers.cfg import auth
+from mapswipe_workers.basic import auth
 # Make sure to import all project types here
 from mapswipe_workers.ProjectTypes.BuildArea.BuildAreaProject import BuildAreaProject
 from mapswipe_workers.ProjectTypes.Footprint.FootprintProject import FootprintProject

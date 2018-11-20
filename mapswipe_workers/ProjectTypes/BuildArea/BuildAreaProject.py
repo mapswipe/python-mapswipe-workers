@@ -2,7 +2,7 @@ import os
 import logging
 import ogr
 
-from mapswipe_workers.cfg import auth
+from mapswipe_workers.basic import auth
 from mapswipe_workers.basic.BaseProject import BaseProject
 from mapswipe_workers.ProjectTypes.BuildArea.BuildAreaGroup import BuildAreaGroup
 from mapswipe_workers.ProjectTypes.BuildArea import GroupingFunctions as g
