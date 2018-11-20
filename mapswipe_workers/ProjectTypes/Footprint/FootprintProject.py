@@ -3,7 +3,7 @@ import logging
 import ogr
 import urllib.request
 
-from mapswipe_workers.cfg import auth
+from mapswipe_workers.basic import auth
 from mapswipe_workers.basic.BaseProject import BaseProject
 from mapswipe_workers.ProjectTypes.Footprint.FootprintGroup import FootprintGroup
 from mapswipe_workers.ProjectTypes.Footprint import GroupingFunctions as g
