@@ -1,0 +1,16 @@
+{
+  "complete" : true,
+  "key" : "your_key",
+  "kml" : "<?xml version=\"1.0\" encoding=\"UTF-8\"?><kml xmlns=\"http://www.opengis.net/kml/2.2\"><Document><Placemark><ExtendedData></ExtendedData><Polygon><outerBoundaryIs><LinearRing><coordinates>39.24164056777954,-6.830327975195192 39.239559173583984,-6.835036441101737 39.23992395401001,-6.839617030848041 39.242026805877686,-6.841896656819487 39.25131797790527,-6.837124343268994 39.26146745681763,-6.832053707900555 39.25992250442505,-6.8301788375086065 39.25704717636108,-6.827345212630162 39.24715518951416,-6.829411842957439 39.24164056777954,-6.830327975195192</coordinates></LinearRing></outerBoundaryIs></Polygon></Placemark></Document></kml>",
+  "project" : {
+    "image" : "http://www.redcrosseth.org/media/k2/items/cache/5a05a447acfdf6fcc40548cc4c1cea8d_L.jpg",
+    "lookFor" : "DAMAGED BUILDINGS",
+    "name" : "BuildArea UAV Sample Project",
+    "projectDetails" : "This project uses very high resolution imagery captured using an UAV and provided by OpenAerialMap. Due to the very high resolution (6cm) we use even higher zoomlevels for mapping, e.g. 21 for this project. This will be useful for quickly identifying specific objects such as damaged buildings.",
+    "verificationCount" : "3"
+  },
+  "projectType" : 1,
+  "tileServer" : "custom",
+  "tileserverUrl": "http://tiles.openaerialmap.org/7/0/556f7a49ac00a903002fb01d/{z}/{x}/{y}.png",
+  "zoomLevel": 21
+}
