@@ -104,31 +104,35 @@ class BuildAreaProject(BaseProject):
         elif hasattr(self, 'is_new'):
             # this is a new project, which have not been imported
             self.info = {}
+
             try:
                 self.info['tileserver'] = import_dict['tileServer']
             except:
                 self.info['tileserver'] = 'bing'
 
             try:
+                self.info["tileserver_url"] = import_dict['tileserverUrl']
+            except:
+                self.info["tileserver_url"] = auth.get_tileserver_url(self.info['tileserver'])
+
+            try:
+                self.info["layer_name"] = import_dict['wmtsLayerName']
+            except:
+                self.info["layer_name"] = None
+
+            try:
+                self.info['api_key'] = import_dict['apiKey']
+            except:
+                try:
+                    self.info['api_key'] = auth.get_api_key(self.info['tileserver'])
+                except:
+                    self.info['api_key'] = None
+
+            try:
                 self.info['zoomlevel'] = import_dict['zoomLevel']
             except:
                 self.info['zoomlevel'] = 18
 
-            # get api key for tileserver
-            if self.info['tileserver'] != 'custom':
-                self.info['api_key'] = auth.get_api_key(self.info['tileserver'])
-            else:
-                self.info['api_key'] = None
-
-            try:
-                self.info['custom_tileserver_url'] = import_dict['custom_tileserver_url']
-            except:
-                self.info['custom_tileserver_url'] = None
-
-            try:
-                self.info['wmts_layer'] = import_dict['wmtsLayerName']
-            except:
-                self.info['wmts_layer'] = None
 
             self.kml_to_file(import_dict['kml'])
             if not self.check_input_geometry():
