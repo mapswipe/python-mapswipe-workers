@@ -82,9 +82,18 @@ def dev_firebase_admin_auth():
 # get the api_key
 def get_api_key(tileserver):
     try:
-        return CONFIG['imagery'][tileserver]
+        return CONFIG['imagery'][tileserver]['api_key']
     except KeyError:
         print('Could not find the API key for imagery tileserver {} in {}.'.format(tileserver, CONFIG_PATH))
+        raise
+
+
+# get tileserver url
+def get_tileserver_url(tileserver):
+    try:
+        return CONFIG['imagery'][tileserver]['url']
+    except KeyError:
+        print('Could not find the url for imagery tileserver {} in {}.'.format(tileserver, CONFIG_PATH))
         raise
 
 
