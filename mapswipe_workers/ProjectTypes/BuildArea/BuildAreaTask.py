@@ -10,7 +10,8 @@ class BuildAreaTask(BaseTask):
             TileX,
             TileY
         )
-        super(BuildAreaTask, self).__init__(group, task_id)
+        super(BuildAreaTask, self).__init__(task_id)
+        self.projectId = group.projectId
 
         self.taskX = str(TileX)
         self.taskY = str(TileY)

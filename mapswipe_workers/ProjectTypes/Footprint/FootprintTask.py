@@ -8,6 +8,6 @@ class FootprintTask(BaseTask):
             project.id, group.id, feature_id
         )
 
-        super(FootprintTask, self).__init__(group, task_id)
-        self.feature_id = feature_id
+        super(FootprintTask, self).__init__(task_id)
+        self.featureId = feature_id
         self.geojson = feature_geometry

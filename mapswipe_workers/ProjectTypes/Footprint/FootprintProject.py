@@ -51,18 +51,23 @@ class FootprintProject(BaseProject):
             self.info = {}
             self.info['tileserver'] = import_dict['tileServer']
 
-            if self.info['tileserver'] != 'custom':
-                try:
-                    self.info['api_key']
-                except:
-                    self.info['api_key'] = auth.get_api_key(self.info['tileserver'])
-            else:
-                self.info['api_key'] = None
+            try:
+                self.info["tileserver_url"] = import_dict['tileserverUrl']
+            except:
+                self.info["tileserver_url"] = auth.get_tileserver_url(self.info['tileserver'])
 
             try:
-                self.info["custom_tileserver_url"] = import_dict['tileserverUrl']
+                self.info["layer_name"] = import_dict['wmtsLayerName']
             except:
-                self.info["custom_tileserver_url"] = None
+                self.info["layer_name"] = None
+
+            try:
+                self.info['api_key'] = import_dict['apiKey']
+            except:
+                try:
+                    self.info['api_key'] = auth.get_api_key(self.info['tileserver'])
+                except:
+                    self.info['api_key'] = None
 
             # ToDO get groups size from import dict
             self.info["group_size"] = 50
