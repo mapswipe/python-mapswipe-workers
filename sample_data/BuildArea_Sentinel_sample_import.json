@@ -14,6 +14,6 @@
   },
   "projectType" : 1,
   "tileServer" : "sinergise",
-  "wmtsLayerName" : "NDVI",
+  "wmtsLayerName" : "FALSE_COLOR",
   "zoomLevel": 14
 }
