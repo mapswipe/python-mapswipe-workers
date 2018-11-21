@@ -32,7 +32,7 @@ def get_environment(modus='development'):
     if modus == 'development':
         # we use the dev instance for testing
         firebase = auth.dev_firebase_admin_auth()
-        mysqlDB = auth.dev_mysqlDB
+        mysqlDB = auth.dev_psqlDB
         logging.warning('ALL - get_environment - use development instance')
     elif modus == 'production':
         # we use the dev instance for testing
@@ -388,7 +388,9 @@ def results_to_txt(all_results):
 
     # If csv file is a file object, it should be opened with newline=''
     results_txt_file = open(results_txt_filename, 'w', newline='')
-    csvwriter = csv.writer(results_txt_file, delimiter='\t')
+
+    fieldnames = ('task_id', 'project_id', 'user_id', 'timestamp', 'info')
+    w = csv.DictWriter(results_txt_file, fieldnames=fieldnames, delimiter='\t', quotechar="'")
 
     number_of_results = 0
     for task_id, results in all_results.items():
@@ -396,23 +398,27 @@ def results_to_txt(all_results):
             number_of_results += 1
 
             try:
-                output_list = [
-                    task_id,
-                    result['data']['user'],
-                    int(result['data']['projectId']),
-                    int(result['data']['timestamp']),
-                    int(result['data']['result']),
-                    result['data']['wkt'],
-                    task_id.split('-')[1],
-                    task_id.split('-')[2],
-                    task_id.split('-')[0],
-                    0
-                ]
-                csvwriter.writerow(output_list)
+                output_dict = {
+                    "task_id": result['data']['id'],
+                    "project_id": int(result['data']['projectId']),
+                    "user_id": result['data']['user'],
+                    "timestamp": int(result['data']['timestamp']),
+                    "info": {}
+                }
+
+                for key in result['data'].keys():
+                    # those keys have already been set
+                    if not key in ['user', 'projectId', 'timestamp', 'id']:
+                        output_dict['info'][key] = result['data'][key]
+
+                # the info column should have json format for uploading to mysql
+                output_dict['info'] = json.dumps(output_dict['info'])
+
+                print(output_dict)
+                w.writerow(output_dict)
+
             except Exception as e:
                 logging.warning('ALL - results_to_txt - result missed critical information: %s' % e)
-
-
 
     results_txt_file.close()
     logging.warning('ALL - results_to_txt - there are %s results to import' % number_of_results)
@@ -447,29 +453,26 @@ def save_results_mysql(mysqlDB, results_filename):
 
     # first importer to a table where we store the geom as text
     sql_insert = '''
+        DROP TABLE IF EXISTS raw_results;
         CREATE TABLE raw_results (
-            task_id varchar(45)
-            ,user_id varchar(45)
-            ,project_id int(5)
-            ,timestamp bigint(32)
-            ,result int(1)
-            ,wkt varchar(256)
-            ,task_x varchar(45)
-            ,task_y varchar(45)
-            ,task_z varchar(45)
-            ,duplicates int(5)
+            task_id varchar,
+            project_id int,
+            user_id varchar,
+            timestamp bigint,
+            info json
         );
         '''
 
     m_con.query(sql_insert, None)
 
     # copy data to the new table
-    # we should use LOAD DATA LOCAL INFILE Syntax
-    sql_insert = '''
-            LOAD DATA LOCAL INFILE 'raw_results.txt' INTO TABLE raw_results
-            '''
-    m_con.query(sql_insert, None)
+    # old: mysql we should use LOAD DATA LOCAL INFILE Syntax
+
+    f = open(results_filename, 'r')
+    columns = ['task_id', 'project_id', 'user_id', 'timestamp', 'info']
+    m_con.copy_from(f, 'raw_results', sep='\t', columns=columns)
     logging.warning('ALL - save_results_mysql - inserted raw results into table raw_results')
+    f.close()
 
     os.remove(results_filename)
     logging.warning('ALL - save_results_mysql - deleted file: %s' % results_filename)
@@ -479,11 +482,13 @@ def save_results_mysql(mysqlDB, results_filename):
         INSERT INTO
           results
         SELECT
-          *
+          *,
+          -- duplicates is set to zero by default, this will be updated on conflict only
+          0
         FROM
           raw_results
-        ON DUPLICATE KEY
-          UPDATE results.duplicates = results.duplicates + 1
+        ON CONFLICT ON CONSTRAINT "results_pkey"
+          DO UPDATE SET duplicates = results.duplicates + 1
     '''
 
     m_con.query(sql_insert, None)
@@ -526,8 +531,8 @@ def run_transfer_results(modus, results_filename='data/results.json'):
             results = json.load(results_file)
             results_txt_filename = results_to_txt(results)
             logging.warning("ALL - run_transfer_results - there are results in %s that we didnt't insert. do it now!" % results_filename)
-            save_results_mysql(mysqlDB, results_txt_filename)
-            delete_firebase_results(firebase, results)
+            #save_results_mysql(mysqlDB, results_txt_filename)
+            #delete_firebase_results(firebase, results)
 
         os.remove(results_filename)
         logging.warning('ALL - run_transfer_results - removed "results.json" file')
@@ -553,7 +558,7 @@ def run_transfer_results(modus, results_filename='data/results.json'):
 
         results_txt_filename = results_to_txt(all_results)
         save_results_mysql(mysqlDB, results_txt_filename)
-        delete_firebase_results(firebase, all_results)
+        #delete_firebase_results(firebase, all_results)
         os.remove(results_filename)
         logging.warning('ALL - run_transfer_results - removed %s' % results_filename)
     else:
