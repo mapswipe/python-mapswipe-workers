@@ -5,6 +5,7 @@
 
 import pyrebase
 import pymysql  # handle mysql
+import psycopg2 # handle postgres
 import json
 import sys
 
@@ -189,6 +190,59 @@ class dev_mysqlDB(object):
         self._db_connection.commit()
         self._db_cur.close()
         return content
+
+    def __del__(self):
+        # self._db_cur.close()
+        self._db_connection.close()
+
+
+class dev_psqlDB(object):
+    _db_connection = None
+    _db_cur = None
+
+    def __init__(self):
+        # try to load configuration from config file
+        try:
+            dbname = CONFIG['dev_psql']['database']
+            user = CONFIG['dev_psql']['username']
+            password = CONFIG['dev_psql']['password']
+            host = CONFIG['dev_psql']['host']
+            port = CONFIG['dev_psql']['port']
+            # print('use configuration for psql as provided by config.json')
+        except:
+            # Default configuration
+            print('we could not load psql dev info from the config file')
+            sys.exit(1)
+
+        self._db_connection = psycopg2.connect(
+            database=dbname,
+            user=user,
+            password=password,
+            host=host,
+            port=port
+        )
+
+    def query(self, query, data):
+        self._db_cur = self._db_connection.cursor()
+        self._db_cur.execute(query, data)
+        self._db_connection.commit()
+        self._db_cur.close()
+        return
+
+    def retr_query(self, query, data):
+        self._db_cur = self._db_connection.cursor()
+        self._db_cur.execute(query, data)
+        content = self._db_cur.fetchall()
+        self._db_connection.commit()
+        self._db_cur.close()
+        return content
+
+    def copy_from(self, file, table, sep='\t', null='\\N', size=8192, columns=None):
+        self._db_cur = self._db_connection.cursor()
+        self._db_cur.copy_from(file, table, sep=sep, null='\\N', size=8192, columns=columns)
+        self._db_connection.commit()
+        self._db_cur.close()
+        return
 
     def __del__(self):
         # self._db_cur.close()
