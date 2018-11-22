@@ -6,6 +6,7 @@ from queue import Queue
 import requests
 import time
 import json
+import csv
 
 
 class BaseProject(object):
@@ -215,6 +216,7 @@ class BaseProject(object):
             logging.warning('%s - import_project - start importing' % self.id)
             groups = self.create_groups()
             self.set_groups_firebase(firebase, groups)
+            self.set_tasks(mysqlDB, groups)
             self.set_project_mysql(mysqlDB)
             self.set_project_firebase(firebase)
             self.set_import_complete(firebase)
@@ -288,6 +290,95 @@ class BaseProject(object):
         fb_db.child("projects").child(project['id']).set(project)
         logging.warning('%s - set_project_firebase - uploaded project in firebase' % self.id)
         return True
+
+    def set_tasks_psql(self, mysqlDB, groups, groups_txt_filename):
+        """
+        The function iterates over the groups and extracts tasks and uploads them into postgresql
+        Parameters
+        ----------
+        mysqlDB
+
+        Returns
+        -------
+
+        """
+        # save tasks in txt file
+        groups_txt_file = open(groups_txt_filename, 'w', newline='')
+
+        fieldnames = ('task_id', 'project_id', 'group_id', 'info')
+        w = csv.DictWriter(groups_txt_file, fieldnames=fieldnames, delimiter='\t', quotechar="'")
+
+        for group in groups:
+            for task in groups[group]['tasks']:
+
+                try:
+                    output_dict = {
+                        "task_id": groups[group]['tasks'][task]['id'],
+                        "project_id": int(groups[group]['tasks'][task]['projectId']),
+                        "group_id": int(group),
+                        "info": {}
+                    }
+
+                    for key in groups[group]['tasks'][task].keys():
+                        if not key in ['id', 'projectId',]:
+                            output_dict['info'][key] = groups[group]['tasks'][task][key]
+                    output_dict['info'] = json.dumps(output_dict['info'])
+
+                    print(output_dict)
+                    w.writerow(output_dict)
+
+                except Exception as e:
+                    logging.warning('ALL - set_tasks_psql - tasks missed critical information: %s' % e)
+
+        groups_txt_file.close()
+
+        # upload data to psql
+
+        m_con = mysqlDB()
+
+        sql_insert = 'DROP TABLE IF EXISTS raw_tasks CASCADE;'
+        m_con.query(sql_insert, None)
+
+        # first importer to a table where we store the geom as text
+        sql_insert = '''
+            DROP TABLE IF EXISTS tasks_results;
+            CREATE TABLE tasks_results (
+                task_id varchar
+                ,group_id int
+                ,project_id int
+                ,info json
+            );
+            '''
+
+        f = open(groups_txt_filename, 'r')
+        columns = ['task_id', 'project_id', 'group_id', 'info']
+        m_con.copy_from(f, 'task_results', sep='\t', columns=columns)
+        logging.warning('ALL - save_results_mysql - inserted raw tasks into table raw_tasks')
+        f.close()
+
+        m_con.query(sql_insert, None)
+
+        os.remove(groups_txt_filename)
+        logging.warning('ALL - set_tasks_psql - deleted file: %s' % groups_txt_filename)
+
+        # TODO discuss if conflict resolution necessary?
+
+        sql_insert = '''
+                INSERT INTO
+                  tasks
+                SELECT
+                  *,
+                  -- duplicates is set to zero by default, this will be updated on conflict only
+                  0
+                FROM
+                  raw_tasks
+                ON CONFLICT ON CONSTRAINT "tasks_pkey"
+                  
+            '''
+        m_con.query(sql_insert, None)
+        logging.warning('ALL - set_tasks_psql - inserted tasks into tasks table')
+
+        del m_con
 
 
     def set_project_mysql(self, mysqlDB):
