@@ -2,61 +2,86 @@
 # -*- coding: UTF-8 -*-
 # Author: M. Reinmuth, B. Herfort
 ####################################################################################################
-from cfg.auth import mysqlDB as mysqlDB
+from mapswipe_workers.basic import auth
 
+def create_projects_table(mysqlDB):
 
-def create_projects_table():
     m_con = mysqlDB()
 
     sql_string = """
     CREATE TABLE IF NOT EXISTS projects (
     project_id int(11)
-    ,objective varchar(20)
-    ,name varchar(45)
+    ,name varchar
+    ,objective varchar
+    ,project_type int(1)
+    ,CONSTRAINT projects_pkey PRIMARY KEY(project_id)
     );
-    ALTER TABLE projects ADD PRIMARY KEY (project_id)
     """
 
     # create table
     m_con.query(sql_string, None)
-    del m_con
 
     print('created projects table')
 
+    del m_con
 
-def create_results_table():
+def create_tasks_table(mysqlDB):
+
+    m_con = mysqlDB()
+
+    sql_string = """
+        CREATE TABLE IF NOT EXISTS tasks (
+        task_id varchar
+        ,group_id int
+        ,project_id int
+        ,info json
+        ,CONSTRAINT projects_pkey PRIMARY KEY(task_id, group_id, project_id)
+        );
+        """
+
+    m_con.query(sql_string, None)
+
+    print('created tasks table')
+
+    del m_con
+
+def create_results_table(mysqlDB):
+
     m_con = mysqlDB()
 
     sql_string = """
     CREATE TABLE IF NOT EXISTS results (
-    task_id varchar(45)
-    ,user_id varchar(45)
-    ,project_id int(5)
-    ,timestamp bigint(32)
-    ,result int(1)
-    ,wkt varchar(256)
-    ,task_x varchar(45)
-    ,task_y varchar(45)
-    ,task_z varchar(45)
-    ,duplicates int(5)
+    task_id character varying NOT NULL
+    ,project_id integer NOT NULL
+    ,user_id character varying NOT NULL
+    ,"timestamp" bigint
+    ,info json
+    ,duplicates integer
+    ,CONSTRAINT results_pkey PRIMARY KEY (task_id, user_id, project_id)
     );
-    ALTER TABLE results ADD PRIMARY KEY (task_id, user_id, project_id)
     """
 
     # create table
     m_con.query(sql_string, None)
-    del m_con
 
     print('created results table')
 
+    del m_con
 
 def setup_database_tables():
+    mysqlDB = auth.dev_psqlDB
+
     # create projects table
-    create_projects_table()
+    create_projects_table(mysqlDB)
+
+    # create tasks table
+    create_tasks_table(mysqlDB)
 
     # create results table
-    create_results_table()
+    create_results_table(mysqlDB)
 
+    # close db connection
+    del mysqlDB
 
 ####################################################################################################
 
