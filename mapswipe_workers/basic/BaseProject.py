@@ -216,7 +216,7 @@ class BaseProject(object):
             logging.warning('%s - import_project - start importing' % self.id)
             groups = self.create_groups()
             self.set_groups_firebase(firebase, groups)
-            self.set_tasks(mysqlDB, groups)
+            self.set_tasks_psql(mysqlDB, groups)
             self.set_project_mysql(mysqlDB)
             self.set_project_firebase(firebase)
             self.set_import_complete(firebase)
@@ -291,7 +291,7 @@ class BaseProject(object):
         logging.warning('%s - set_project_firebase - uploaded project in firebase' % self.id)
         return True
 
-    def set_tasks_psql(self, mysqlDB, groups, groups_txt_filename):
+    def set_tasks_psql(self, mysqlDB, groups, tasks_txt_filename = 'raw_tasks.txt'):
         """
         The function iterates over the groups and extracts tasks and uploads them into postgresql
         Parameters
@@ -303,10 +303,10 @@ class BaseProject(object):
 
         """
         # save tasks in txt file
-        groups_txt_file = open(groups_txt_filename, 'w', newline='')
+        tasks_txt_file = open(tasks_txt_filename, 'w', newline='')
 
         fieldnames = ('task_id', 'project_id', 'group_id', 'info')
-        w = csv.DictWriter(groups_txt_file, fieldnames=fieldnames, delimiter='\t', quotechar="'")
+        w = csv.DictWriter(tasks_txt_file, fieldnames=fieldnames, delimiter='\t', quotechar="'")
 
         for group in groups:
             for task in groups[group]['tasks']:
@@ -330,7 +330,7 @@ class BaseProject(object):
                 except Exception as e:
                     logging.warning('ALL - set_tasks_psql - tasks missed critical information: %s' % e)
 
-        groups_txt_file.close()
+        tasks_txt_file.close()
 
         # upload data to psql
 
@@ -341,8 +341,8 @@ class BaseProject(object):
 
         # first importer to a table where we store the geom as text
         sql_insert = '''
-            DROP TABLE IF EXISTS tasks_results;
-            CREATE TABLE tasks_results (
+            DROP TABLE IF EXISTS raw_tasks;
+            CREATE TABLE raw_tasks (
                 task_id varchar
                 ,group_id int
                 ,project_id int
@@ -350,29 +350,29 @@ class BaseProject(object):
             );
             '''
 
-        f = open(groups_txt_filename, 'r')
+        m_con.query(sql_insert, None)
+
+        f = open(tasks_txt_filename, 'r')
         columns = ['task_id', 'project_id', 'group_id', 'info']
-        m_con.copy_from(f, 'task_results', sep='\t', columns=columns)
+        m_con.copy_from(f, 'raw_tasks', sep='\t', columns=columns)
         logging.warning('ALL - save_results_mysql - inserted raw tasks into table raw_tasks')
         f.close()
 
-        m_con.query(sql_insert, None)
+        os.remove(tasks_txt_filename)
+        logging.warning('ALL - set_tasks_psql - deleted file: %s' % tasks_txt_filename)
 
-        os.remove(groups_txt_filename)
-        logging.warning('ALL - set_tasks_psql - deleted file: %s' % groups_txt_filename)
-
-        # TODO discuss if conflict resolution necessary?
+        # TODO discuss if conflict resolution necessary
 
         sql_insert = '''
                 INSERT INTO
                   tasks
                 SELECT
-                  *,
+                  *
                   -- duplicates is set to zero by default, this will be updated on conflict only
-                  0
+                  --,0
                 FROM
                   raw_tasks
-                ON CONFLICT ON CONSTRAINT "tasks_pkey"
+                --ON CONFLICT ON CONSTRAINT "tasks_pkey";
                   
             '''
         m_con.query(sql_insert, None)
@@ -396,8 +396,8 @@ class BaseProject(object):
         """
 
         m_con = mysqlDB()
-        sql_insert = "INSERT INTO projects Values(%s,%s,%s)"
-        data = [int(self.id), self.look_for, self.name]
+        sql_insert = "INSERT INTO projects Values(%s,%s,%s,%s)"
+        data = [int(self.id), int(self.project_type), self.look_for, self.name]
         # insert in table
         try:
             m_con.query(sql_insert, data)

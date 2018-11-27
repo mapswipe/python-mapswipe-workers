@@ -35,7 +35,7 @@ def create_tasks_table(mysqlDB):
         ,group_id int
         ,project_id int
         ,info json
-        ,CONSTRAINT projects_pkey PRIMARY KEY(task_id, group_id, project_id)
+        ,CONSTRAINT tasks_pkey PRIMARY KEY(task_id, group_id, project_id)
         );
         """
 
