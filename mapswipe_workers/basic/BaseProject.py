@@ -260,7 +260,7 @@ class BaseProject(object):
         Returns
         -------
         bool
-            True if successfull. False otherwise
+            True if successful. False otherwise
 
         Notes
         -----
@@ -296,10 +296,17 @@ class BaseProject(object):
         The function iterates over the groups and extracts tasks and uploads them into postgresql
         Parameters
         ----------
-        mysqlDB
+        mysqlDB : database connection class
+            The database connection to mysql database
+        groups : dictionary
+            Dictionary containing groups of a project
+        tasks_txt_filename : string
+            Pointer for storing the tasks temporary in csv format
 
         Returns
         -------
+        bool
+            True if successful. False otherwise
 
         """
         # save tasks in txt file
