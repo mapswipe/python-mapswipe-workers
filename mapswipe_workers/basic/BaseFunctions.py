@@ -531,8 +531,8 @@ def run_transfer_results(modus, results_filename='data/results.json'):
             results = json.load(results_file)
             results_txt_filename = results_to_txt(results)
             logging.warning("ALL - run_transfer_results - there are results in %s that we didnt't insert. do it now!" % results_filename)
-            #save_results_mysql(mysqlDB, results_txt_filename)
-            #delete_firebase_results(firebase, results)
+            save_results_mysql(mysqlDB, results_txt_filename)
+            delete_firebase_results(firebase, results)
 
         os.remove(results_filename)
         logging.warning('ALL - run_transfer_results - removed "results.json" file')
@@ -558,7 +558,7 @@ def run_transfer_results(modus, results_filename='data/results.json'):
 
         results_txt_filename = results_to_txt(all_results)
         save_results_mysql(mysqlDB, results_txt_filename)
-        #delete_firebase_results(firebase, all_results)
+        delete_firebase_results(firebase, all_results)
         os.remove(results_filename)
         logging.warning('ALL - run_transfer_results - removed %s' % results_filename)
     else:
