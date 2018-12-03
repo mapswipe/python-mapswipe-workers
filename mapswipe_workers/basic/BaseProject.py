@@ -387,6 +387,8 @@ class BaseProject(object):
 
         del m_con
 
+        return True
+
 
     def set_project_mysql(self, mysqlDB):
         """
