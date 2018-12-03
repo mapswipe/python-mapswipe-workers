@@ -25,10 +25,11 @@ RUN pip install GDAL>=2.2.4
 # WORKDIR /data
 # RUN git clone https://github.com/mapswipe/python-mapswipe-workers.git
 # make sure to use correct branch
-# WORKDIR /data/python-mapswipe-workers
+# WORKDIR /python-mapswipe-workers
 # RUN git checkout benni.new-project-types
 
 # copy mapswipe workers repo from local repo
+WORKDIR /python-mapswipe-workers
 COPY ./ .
 
 # Make sure to provide a config file and service account key file
