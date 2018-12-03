@@ -37,12 +37,12 @@ COPY ./ .
 # COPY ./cfg/dev-mapswipe_serviceAccountKey.json ./cfg
 
 # create directories for data and logs
-RUN mkdir logs
-RUN mkdir data
+RUN mkdir -p  logs
+RUN mkdir -p data
 
 # Install dependencies and mapswipe-workers
 RUN python setup.py install
 
-CMD ["python", "bin/run_import.py --modus=development"]
+CMD ["python", "run_mapswipe_worker.py", "--modus=development", "--process=import"]
 
 
