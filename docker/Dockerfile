@@ -1,21 +1,45 @@
-# Simple Python Dockerfile to run tests.
-FROM python:3.6
+FROM python:3.6-stretch
 
-
+# Update base container install
 RUN apt-get update
-# Upgrade repo for GDAL
-# RUN apt-get install python-software-properties
-RUN apt-get -y install software-properties-common
-RUN add-apt-repository ppa:ubuntugis/ppa
+RUN apt-get upgrade -y
 
-# Install binary dependencies and GDAL
-COPY ./install_gdal.sh .
-RUN bash install_gdal.sh
+# Add unstable repo to allow us to access latest GDAL builds
+RUN echo deb http://ftp.uk.debian.org/debian unstable main contrib non-free >> /etc/apt/sources.list
+RUN apt-get update
+
+# Existing binutils causes a dependency conflict, correct version will be installed when GDAL gets intalled
+RUN apt-get remove -y binutils
+
+# Install GDAL dependencies
+RUN apt-get -t unstable install -y libgdal-dev g++
+
+# Update C env vars so compiler can find gdal
+ENV CPLUS_INCLUDE_PATH=/usr/include/gdal
+ENV C_INCLUDE_PATH=/usr/include/gdal
+
+# This will install latest version of GDAL
+RUN pip install GDAL>=2.2.4
+
+# get repository from github
+WORKDIR /data
+RUN git clone https://github.com/mapswipe/python-mapswipe-workers.git
+
+# make sure to use correct branch
+WORKDIR /data/python-mapswipe-workers
+RUN git checkout benni.new-project-types
+
+# create directories for data and logs
+RUN mkdir logs
+RUN mkdir data
+
+# Make sure to provide a config file and service account key file
+COPY ./cfg/config.cfg ./cfg/
+COPY ./cfg/dev-mapswipe_serviceAccountKey.json ./cfg
+
+# Install dependencies and mapswipe-workers
+RUN python setup.py install
+
+CMD ["python", "bin/run_import.py --modus=development"]
 
 
-# Install requirements for the first time
-COPY ./requirements.txt .
-RUN pip install -r requirements.txt
-
-RUN mkdir -p /home/mapswipe-workers
-WORKDIR /home/mapswipe-workers
