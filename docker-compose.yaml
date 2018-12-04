@@ -1,11 +1,32 @@
-version: "2"
+version: "3"
 services:
-  mapswipe-workers:
+  import:
+    container_name: import
     build:
-        context: ../.
-        dockerfile: ./docker/Dockerfile
+      context: ./Dockerfile
+      args:
+        modus: development
+        process: import
+        filter: false
+        list: false
+        output: ./data/
+        sleep_time: 60
+        max_iterations: 2
     volumes:
-      # Copy complete folder.
-      - .././:/home/mapswipe-workers/:rw
-    # FIXME - Add working test command.
-    # command: "cd /home/mapswipe-workers/; make tests"
+      - ./data/:/home/mapswipe-workers/data/:rw
+      - ./logs/:/home/mapswipe-workers/data/:rw
+  update:
+    container_name: update
+    build:
+      context: ./Dockerfile
+      args:
+        modus: development
+        process: update
+        filter: active
+        list: false
+        output: ./data/
+        sleep_time: 120
+        max_iterations: 2
+    volumes:
+      - ./data/:/home/mapswipe-workers/data/:rw
+      - ./logs/:/home/mapswipe-workers/data/:rw
