@@ -42,16 +42,3 @@ RUN mkdir -p data
 
 # Install dependencies and mapswipe-workers
 RUN python setup.py install
-
-# set arguments which can be used during build
-ARG modus
-ARG process
-ARG filter
-ARG list
-ARG output
-ARG sleep_time
-ARG max_iterations
-
-CMD ["python", "run_mapswipe_worker.py", "--modus=$modus", "--process=$process", "--filter=$filter", "--list=$list", "--output=$output", "--sleep_time=$sleep_time", "--max_iterations=$max_iterations" ]
-
-
