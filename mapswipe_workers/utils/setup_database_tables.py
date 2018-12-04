@@ -10,10 +10,10 @@ def create_projects_table(mysqlDB):
 
     sql_string = """
     CREATE TABLE IF NOT EXISTS projects (
-    project_id int(11)
+    project_id int
     ,name varchar
     ,objective varchar
-    ,project_type int(1)
+    ,project_type int
     ,CONSTRAINT projects_pkey PRIMARY KEY(project_id)
     );
     """
