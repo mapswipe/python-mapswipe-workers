@@ -3,30 +3,18 @@ services:
   import:
     container_name: import
     build:
-      context: ./Dockerfile
-      args:
-        modus: development
-        process: import
-        filter: false
-        list: false
-        output: ./data/
-        sleep_time: 60
-        max_iterations: 2
+      context: .
+      dockerfile: Dockerfile
+    command: ["python", "run_mapswipe_worker.py", "--modus=development", "--process=import", "--output=./data/", "--sleep_time=120", "--max_iterations=2"]
     volumes:
-      - ./data/:/home/mapswipe-workers/data/:rw
-      - ./logs/:/home/mapswipe-workers/data/:rw
+      - ./data/:/python-mapswipe-workers/data/:rw
+      - ./logs/:/python-mapswipe-workers/logs/:rw
   update:
     container_name: update
     build:
-      context: ./Dockerfile
-      args:
-        modus: development
-        process: update
-        filter: active
-        list: false
-        output: ./data/
-        sleep_time: 120
-        max_iterations: 2
+      context: .
+      dockerfile: Dockerfile
+    command: ["python", "run_mapswipe_worker.py", "--modus=development", "--process=update", "--filter=active", --output=./data/", "--sleep_time=180", "--max_iterations=3"]
     volumes:
-      - ./data/:/home/mapswipe-workers/data/:rw
-      - ./logs/:/home/mapswipe-workers/data/:rw
+      - ./data/:/python-mapswipe-workers/data/:rw
+      - ./logs/:/python-mapswipe-workers/logs/:rw
