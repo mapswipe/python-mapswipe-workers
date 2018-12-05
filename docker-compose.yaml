@@ -14,7 +14,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    command: ["python", "run_mapswipe_worker.py", "--modus=development", "--process=update", "--filter=active", ""--output=./data/", "--sleep_time=180", "--max_iterations=3"]
+    command: ["python", "run_mapswipe_worker.py", "--modus=development", "--process=update", "--filter=active", "--output=./data/", "--sleep_time=180", "--max_iterations=3"]
     volumes:
       - ./data/:/python-mapswipe-workers/data/:rw
       - ./logs/:/python-mapswipe-workers/logs/:rw
