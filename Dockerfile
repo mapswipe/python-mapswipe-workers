@@ -5,7 +5,7 @@ WORKDIR /python-mapswipe-workers
 COPY ./mapswipe_workers/ ./mapswipe_workers
 COPY ./requirements.txt ./requirements.txt
 COPY ./setup.py ./setup.py
-COPY ./run_mapswipe_workers.py ./run_mapswipe_workers.py
+COPY ./run_mapswipe_worker.py ./run_mapswipe_worker.py
 
 # create directories for data and logs if they don't exist
 RUN mkdir -p  logs
