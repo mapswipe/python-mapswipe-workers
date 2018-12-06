@@ -331,7 +331,6 @@ class BaseProject(object):
                             output_dict['info'][key] = groups[group]['tasks'][task][key]
                     output_dict['info'] = json.dumps(output_dict['info'])
 
-                    print(output_dict)
                     w.writerow(output_dict)
 
                 except Exception as e:
