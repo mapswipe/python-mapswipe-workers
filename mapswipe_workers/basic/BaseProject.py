@@ -291,7 +291,7 @@ class BaseProject(object):
         logging.warning('%s - set_project_firebase - uploaded project in firebase' % self.id)
         return True
 
-    def set_tasks_psql(self, mysqlDB, groups, tasks_txt_filename = 'raw_tasks.txt'):
+    def set_tasks_psql(self, mysqlDB, groups, tasks_txt_filename='raw_tasks.txt'):
         """
         The function iterates over the groups and extracts tasks and uploads them into postgresql
         Parameters
@@ -405,7 +405,7 @@ class BaseProject(object):
 
         m_con = mysqlDB()
         sql_insert = "INSERT INTO projects Values(%s,%s,%s,%s)"
-        data = [int(self.id), int(self.project_type), self.look_for, self.name]
+        data = [int(self.id), int(self.project_type), self.name, self.look_for]
         # insert in table
         try:
             m_con.query(sql_insert, data)
