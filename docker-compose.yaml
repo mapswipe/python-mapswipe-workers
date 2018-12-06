@@ -22,6 +22,7 @@ services:
       dockerfile: Dockerfile
     command: ["python", "run_mapswipe_worker.py", "--modus=development", "--process=import", "--output=./data/", "--sleep_time=120", "--max_iterations=2"]
     volumes:
+      - ./cfg/:/python-mapswipe-workers/cfg/:rw
       - ./data/:/python-mapswipe-workers/data/:rw
       - ./logs/:/python-mapswipe-workers/logs/:rw
     depends_on:
@@ -35,6 +36,7 @@ services:
       dockerfile: Dockerfile
     command: ["python", "run_mapswipe_worker.py", "--modus=development", "--process=update", "--filter=active", "--output=./data/", "--sleep_time=180", "--max_iterations=3"]
     volumes:
+      - ./cfg/:/python-mapswipe-workers/cfg/:rw
       - ./data/:/python-mapswipe-workers/data/:rw
       - ./logs/:/python-mapswipe-workers/logs/:rw
     depends_on:

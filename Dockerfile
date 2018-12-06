@@ -2,7 +2,10 @@ FROM thinkwhere/gdal-python
 
 # copy mapswipe workers repo from local repo
 WORKDIR /python-mapswipe-workers
-COPY ./ .
+COPY ./mapswipe_workers/ ./mapwipe_workers
+COPY ./requirements.txt ./requirements.txt
+COPY ./setup.py ./setup.py
+COPY ./run_mapswipe_workers.py ./run_mapswipe_workers.py
 
 # create directories for data and logs if they don't exist
 RUN mkdir -p  logs
