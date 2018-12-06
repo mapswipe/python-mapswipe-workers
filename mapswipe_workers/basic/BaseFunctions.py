@@ -414,7 +414,6 @@ def results_to_txt(all_results):
                 # the info column should have json format for uploading to mysql
                 output_dict['info'] = json.dumps(output_dict['info'])
 
-                print(output_dict)
                 w.writerow(output_dict)
 
             except Exception as e:
