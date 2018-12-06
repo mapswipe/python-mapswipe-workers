@@ -5,7 +5,7 @@ services:
     container_name: postgres
     build:
       context: .
-      dockerfile: postgres_Dockerfile
+      dockerfile: docker/postgres_Dockerfile
     volumes:
       - ./postgres-data:/var/lib/postgresql/data:rw
     environment:
@@ -14,6 +14,7 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
     ports:
       - "5432:5432"
+    restart: unless-stopped
     networks:
       - mapswipe_workers_network
   # the webserver provides simple access to mapswipe data (in ./data folder)
@@ -21,11 +22,12 @@ services:
     container_name: nginx
     build:
       context: .
-      dockerfile: nginx_Dockerfile
+      dockerfile: docker/nginx_Dockerfile
     volumes:
       - ./data/:/usr/share/nginx/html:ro
     ports:
       - "80:80"
+    restart: unless-stopped
     networks:
       - mapswipe_workers_network
   # MapSwipe workers split into 4 processes: import, update, transfer_results, export
@@ -33,12 +35,13 @@ services:
     container_name: import
     build:
       context: .
-      dockerfile: Dockerfile
-    command: ["python", "run_mapswipe_worker.py", "--modus=development", "--process=import", "--output=./data/", "--sleep_time=120", "--max_iterations=2"]
+      dockerfile: docker/mapswipe_workers_Dockerfile
+    command: ["python", "run_mapswipe_worker.py", "--modus=development", "--process=import", "--output=./data/", "--sleep_time=3600", "--max_iterations=24"]
     volumes:
       - ./cfg/:/python-mapswipe-workers/cfg/:rw
       - ./data/:/python-mapswipe-workers/data/:rw
       - ./logs/:/python-mapswipe-workers/logs/:rw
+    restart: unless-stopped
     depends_on:
       - postgres
     networks:
@@ -47,12 +50,13 @@ services:
     container_name: update
     build:
       context: .
-      dockerfile: Dockerfile
-    command: ["python", "run_mapswipe_worker.py", "--modus=development", "--process=update", "--filter=active", "--output=./data/", "--sleep_time=180", "--max_iterations=3"]
+      dockerfile: docker/mapswipe_workers_Dockerfile
+    command: ["python", "run_mapswipe_worker.py", "--modus=development", "--process=update", "--filter=active", "--output=./data/", "--sleep_time=900", "--max_iterations=96"]
     volumes:
       - ./cfg/:/python-mapswipe-workers/cfg/:rw
       - ./data/:/python-mapswipe-workers/data/:rw
       - ./logs/:/python-mapswipe-workers/logs/:rw
+    restart: unless-stopped
     depends_on:
       - postgres
     networks:
@@ -61,12 +65,13 @@ services:
     container_name: transfer_results
     build:
       context: .
-      dockerfile: Dockerfile
-    command: ["python", "run_mapswipe_worker.py", "--modus=development", "--process=transfer_results", "--sleep_time=60", "--max_iterations=3"]
+      dockerfile: docker/mapswipe_workers_Dockerfile
+    command: ["python", "run_mapswipe_worker.py", "--modus=development", "--process=transfer_results", "--sleep_time=60", "--max_iterations=1440"]
     volumes:
       - ./cfg/:/python-mapswipe-workers/cfg/:rw
       - ./data/:/python-mapswipe-workers/data/:rw
       - ./logs/:/python-mapswipe-workers/logs/:rw
+    restart: unless-stopped
     depends_on:
       - postgres
     networks:
@@ -75,12 +80,13 @@ services:
     container_name: export
     build:
       context: .
-      dockerfile: Dockerfile
-    command: ["python", "run_mapswipe_worker.py", "--modus=development", "--process=export", "--filter=active", "--output=./data/", "--sleep_time=60", "--max_iterations=3"]
+      dockerfile: docker/mapswipe_workers_Dockerfile
+    command: ["python", "run_mapswipe_worker.py", "--modus=development", "--process=export", "--filter=active", "--output=./data/", "--sleep_time=900", "--max_iterations=96"]
     volumes:
       - ./cfg/:/python-mapswipe-workers/cfg/:rw
       - ./data/:/python-mapswipe-workers/data/:rw
       - ./logs/:/python-mapswipe-workers/logs/:rw
+    restart: unless-stopped
     depends_on:
       - postgres
     networks:

@@ -1,7 +1,9 @@
 #!/usr/bin/env python
+import sys
 import time
 import argparse
 import logging
+import traceback
 
 from mapswipe_workers.basic import BaseFunctions as b
 from mapswipe_workers.utils import error_handling
@@ -53,7 +55,7 @@ if __name__ == '__main__':
 
     while counter < args.max_iterations:
         counter += 1
-
+        logging.warning("=== === === === ===>>> start {} <<<=== === === === ===".format(args.process))
         try:
             if args.process == 'import':
                 b.run_import(args.modus)
@@ -65,10 +67,20 @@ if __name__ == '__main__':
                 b.run_export(args.modus, args.filter, args.ouput)
 
         except Exception as error:
-            # error_handling.send_error(error, 'run_import.py')
+            error_traceback = sys.exc_info()[-1]
+            stk = traceback.extract_tb(error_traceback, 1)
+
+            error_msg = '{error_class}. In {function}, the following error happened - {detail} at line {line}.'.format(
+                error_class=error.__class__.__name__,
+                function=stk[0][2],
+                detail=error.args[0],
+                line=stk[-1][1]
+            )
+            logging.error(error_msg)
             pass
 
         if counter < args.max_iterations:
-            print('pause for %s seconds' % args.sleep_time)
+            logging.warning('pause for %s seconds' % args.sleep_time)
             time.sleep(args.sleep_time)
+
 
