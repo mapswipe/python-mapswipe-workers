@@ -23,4 +23,11 @@
 * `docker image ls`: list all docker images
 * `docker-compose build --no-cache import`: re build the image for a specific container (here: import), e.g. after changing some settings like `sleep_time`
 * `docker exec -it import bash `: open shell in a running container (here: import)
-* `tail -100 ./logs/run_import.log`
+* `tail -100 ./logs/run_import.log`: show logs of container
+* `docker stats`: show memory usage, CPU consumption for all running containers
+
+## How to update a container (e.g. after changing something in python-mapswipe-workers)
+* `git pull`: get changes from github
+* `docker-compose build --no-cache import`: build a new docker image for the container you need to update
+* `docker stop import`
+* `docker-compose up -d import`
