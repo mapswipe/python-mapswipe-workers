@@ -270,7 +270,7 @@ def run_update(modus, filter, output_path):
     # get dev or production environment for firebase and mysql
     firebase, mysqlDB = get_environment(modus)
 
-    project_list = get_projects(firebase, filter)
+    project_list = get_projects(firebase, mysqlDB, filter)
     updated_projects = []
     for proj in project_list:
         proj.update_project(firebase, mysqlDB, output_path)
