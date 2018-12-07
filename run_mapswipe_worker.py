@@ -14,7 +14,7 @@ parser = argparse.ArgumentParser(description='Process some integers.')
 
 # choose the process and instance
 parser.add_argument('-p', '--process', nargs='?', required=True,
-                    choices=['import', 'update', 'transfer_results', 'export'])
+                    choices=['import', 'update', 'transfer_results', 'export', 'delete'])
 parser.add_argument('-mo', '--modus', nargs='?', default='development',
                     choices=['development', 'production'])
 
@@ -55,7 +55,7 @@ if __name__ == '__main__':
 
     while counter < args.max_iterations:
         counter += 1
-        logging.warning("=== === === === ===>>> start {} <<<=== === === === ===".format(args.process))
+        logging.warning("=== === === === ===>>> started {} <<<=== === === === ===".format(args.process))
         try:
             if args.process == 'import':
                 b.run_import(args.modus)
@@ -64,23 +64,21 @@ if __name__ == '__main__':
             elif args.process == 'transfer_results':
                 b.run_transfer_results(args.modus)
             elif args.process == 'export':
-                b.run_export(args.modus, args.filter, args.ouput)
+                b.run_export(args.modus, args.filter, args.output)
+            elif args.process == 'delete':
+                b.run_delete(args.modus, args.list)
+            elif args.process == 'archive':
+                b.run_archive(args.modus, args.output)
+            logging.warning(":-) :-) :-) :-) :-)>>> finished {} <<<(-: (-: (-: (-: (-:".format(args.process))
+
 
         except Exception as error:
-            error_traceback = sys.exc_info()[-1]
-            stk = traceback.extract_tb(error_traceback, 1)
-
-            error_msg = '{error_class}. In {function}, the following error happened - {detail} at line {line}.'.format(
-                error_class=error.__class__.__name__,
-                function=stk[0][2],
-                detail=error.args[0],
-                line=stk[-1][1]
-            )
-            logging.error(error_msg)
+            logging.warning("-.-' -.-' -.-' -.-'>>> errored {} <<<'-.- '-.- '-.- '-.-".format(args.process))
+            logging.exception('Got exception.')
             pass
 
         if counter < args.max_iterations:
-            logging.warning('pause for %s seconds' % args.sleep_time)
+            logging.warning('zZz zZz zZz zZz zZz>>> sleep for %s seconds <<<zZz zZz zZz zZz zZz' % args.sleep_time)
             time.sleep(args.sleep_time)
 
 

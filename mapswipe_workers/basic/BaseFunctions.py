@@ -603,7 +603,6 @@ def export_all_projects(firebase, output_path='data'):
         return True
 
 
-
 def export_users_and_stats(firebase, output_path='data'):
     """
     The function to save users and stats as a json file
@@ -661,4 +660,48 @@ def export_users_and_stats(firebase, output_path='data'):
 
 
 def run_export(modus, filter, output_path='data'):
+    logging.warning('currently not implemented.')
     pass
+
+########################################################################################################################
+# DELETE PROJECTS                                                                                                      #
+########################################################################################################################
+def run_delete(modus, list):
+
+    # get dev or production environment for firebase and mysql
+    firebase, mysqlDB = get_environment(modus)
+
+    if not list:
+        logging.warning('ALL - run_delete - no input list provided.')
+        return False
+    else:
+        project_list = get_projects(firebase, mysqlDB, list)
+        deleted_projects = []
+        for proj in project_list:
+            proj.delete_project(firebase, mysqlDB)
+            deleted_projects.append(proj.id)
+
+        return deleted_projects
+
+
+########################################################################################################################
+# ARCHIVE PROJECTS                                                                                                      #
+########################################################################################################################
+def run_archive(modus, list, output_path):
+
+    # get dev or production environment for firebase and mysql
+    firebase, mysqlDB = get_environment(modus)
+
+    if not list:
+        logging.warning('ALL - run_archive - no input list provided.')
+        return False
+    else:
+        project_list = get_projects(firebase, mysqlDB, list)
+        archived_projects = []
+        for proj in project_list:
+            pass
+            # TODO implement archive function on project level
+            # proj.archive_project(firebase, mysqlDB, output_path)
+            # archived_projects.append(proj.id)
+
+        return archived_projects
