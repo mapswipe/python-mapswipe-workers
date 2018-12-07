@@ -462,6 +462,7 @@ class BaseProject(object):
         self.delete_groups_firebase(firebase)
         self.delete_project_firebase(firebase)
         self.delete_project_mysql(mysqlDB)
+        self.delete_results_mysql(mysqlDB)
         logging.warning('%s - delete_project - finished delete project' % self.id)
         return True
 
@@ -553,6 +554,36 @@ class BaseProject(object):
         del m_con
 
         logging.warning('%s - delete_project_mysql - deleted project info in mysql' % self.id)
+        return True
+
+
+    def delete_results_mysql(self, mysqlDB):
+        """
+        The function to delete all results of project in the mysql results table.
+
+        Parameters
+        ----------
+        mysqlDB : database connection class
+            The database connection to mysql database
+
+        Returns
+        -------
+        bool
+            True is successful. False otherwise.
+
+        TODO:
+        -----
+        Handle exception:
+            pymysql.err.InternalError: (1205, 'Lock wait timeout exceeded; try restarting transaction')
+        """
+
+        m_con = mysqlDB()
+        sql_insert = "DELETE FROM results WHERE project_id = %s"
+        data = [int(self.id)]
+        m_con.query(sql_insert, data)
+        del m_con
+
+        logging.warning('%s - delete_results_mysql - deleted all results in mysql' % self.id)
         return True
 
     ####################################################################################################################
@@ -822,4 +853,32 @@ class BaseProject(object):
             json.dump(results_list, outfile)
 
         logging.warning('ALL - export_results - exported results file: %s' % output_json_file)
+        return True
+
+    ####################################################################################################################
+    # ARCHIVE - We define a bunch of functions related to archiving exiting projects                                   #
+    ####################################################################################################################
+    def archive_project(self, firebase, mysqlDB):
+        """
+        The function to archives all project related information in firebase
+            This includes information on groups
+
+        Parameters
+        ----------
+        firebase : pyrebase firebase object
+            initialized firebase app with admin authentication
+        mysqlDB : database connection class
+            The database connection to mysql database
+
+        Returns
+        -------
+        bool
+            True if successful. False otherwise
+        """
+
+        logging.warning('%s - archive_project - start archiving project' % self.id)
+        self.archive_groups_firebase(firebase)
+        self.archive_project_firebase(firebase)
+        self.archive_project_mysql(mysqlDB)
+        logging.warning('%s - archive_project - finished archive project' % self.id)
         return True
