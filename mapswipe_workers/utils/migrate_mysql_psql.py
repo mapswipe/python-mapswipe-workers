@@ -10,25 +10,32 @@ def setup_mysql_fdw(mysqlDB):
 
     m_con = mysqlDB()
 
+    mysql_properties = auth.CONFIG['mysql']
+    mysql_properties['port'] = '3306'
+    mysql_properties = [mysql_properties['host'], mysql_properties['port'],mysql_properties['username'],
+                        mysql_properties['password']]
+
     sql_string = '''
     CREATE EXTENSION IF NOT EXISTS mysql_fdw;
     
     --remote connection
     CREATE SERVER mysql_server FOREIGN DATA WRAPPER mysql_fdw
-	OPTIONS (host '35.227.87.198', port '3306');
+    OPTIONS (host '%s', port '%s');
     
     --mapping of local user to remote user
-    CREATE USER MAPPING FOR "mapswipe-workers" SERVER mysql_server OPTIONS (username 'mapswipe-workers', password '3q2siQGDhN^6~Vh*<>');
+    CREATE USER MAPPING FOR "%s" SERVER mysql_server OPTIONS (username '%s', password '%s');
     
     --schema for remote tables
     CREATE SCHEMA mysql;
     -- import of schema + tables tables
     IMPORT FOREIGN SCHEMA "mapswipe" from server mysql_server into mysql;
-
+    
     --show search_path;
     -- otherwise schema has to be called when querying tabls like: FROM mysql.results
     --set search_path= 'mapswipe';
-        '''
+    ''' % (mysql_properties[0], mysql_properties[1], mysql_properties[2], mysql_properties[2],
+           mysql_properties[3])
+    print(sql_string)
 
     # create table
     m_con.query(sql_string, None)
