@@ -9,7 +9,7 @@ from slackclient import SlackClient
 
 def get_slack_client():
     try:
-        with open('../cfg/config.cfg') as json_data_file:
+        with open('./cfg/config.cfg') as json_data_file:
             data = json.load(json_data_file)
             slack_token = data['slack']['token']
             channel = data['slack']['channel']
