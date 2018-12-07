@@ -1,33 +1,21 @@
 """Error handling utils."""
 import sys
 import traceback
-
-import logging
-
 from mapswipe_workers.utils import slack
 
 
 def _get_error_message_details(error):
     """Nicely extract error text and traceback."""
-    error_traceback = sys.exc_info()[-1]
-    stk = traceback.extract_tb(error_traceback, 1)
-
-    return (
-        '{error_class}. In {function}, the following error happened - {detail} at line {line}. '
-    ).format(
-        error_class=error.__class__.__name__,
-        function=stk[0][2],
-        detail=error.args[0],
-        line=stk[-1][1]
-    )
+    type_, value_, traceback_ = sys.exc_info()
+    error_msg = traceback.format_exception(type_, value_, traceback_)
+    error_msg_string = ''
+    for part in error_msg:
+        error_msg_string += part + '\n'
+    return error_msg_string
 
 
-def send_error(error, code_file):
+def send_error(error, process):
     """Send error message to logger and Slack."""
     error_msg = _get_error_message_details(error)
-    logging.error(error_msg)
-    # send mail to mapswipe google group with
-    print(error_msg)
-    error_msg = _get_error_message_details(error)
-    head = 'google-mapswipe-workers: {}: error occured'.format(code_file)
+    head = 'python-mapswipe-workers: error occured during "{}"'.format(process)
     slack.send_slack_message(head + '\n' + error_msg)

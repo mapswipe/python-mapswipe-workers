@@ -69,13 +69,12 @@ if __name__ == '__main__':
                 b.run_delete(args.modus, args.list)
             elif args.process == 'archive':
                 b.run_archive(args.modus, args.output)
-            logging.warning(":-) :-) :-) :-) :-)>>> finished {} <<<(-: (-: (-: (-: (-:".format(args.process))
-
+            logging.warning("=== === === === ===>>> finished {} <<<=== === === === ===".format(args.process))
 
         except Exception as error:
-            logging.warning("-.-' -.-' -.-' -.-'>>> errored {} <<<'-.- '-.- '-.- '-.-".format(args.process))
-            logging.exception('Got exception.')
-            pass
+            logging.exception('ALL - run_mapswipe_workers - got exception')
+            error_handling.send_error(error, args.process)
+            logging.warning("XXX XXX XXX XXX XXX>>> errored {} <<<XXX XXX XXX XXX XXX".format(args.process))
 
         if counter < args.max_iterations:
             logging.warning('zZz zZz zZz zZz zZz>>> sleep for %s seconds <<<zZz zZz zZz zZz zZz' % args.sleep_time)
