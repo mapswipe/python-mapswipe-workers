@@ -20,9 +20,9 @@ sys.path.insert(0, os.path.abspath('../'))
 
 # -- Project information -----------------------------------------------------
 
-project = 'Mapswipe Backend'
-copyright = '2018, GIScience'
-author = 'GIScience'
+project = 'Mapswipe Workers'
+copyright = '2018, Mapswipe'
+author = 'Mapswipe'
 
 # The short X.Y version
 version = ''
@@ -43,8 +43,6 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.napoleon',
 ]
-
-napoleon_google_docstring = False
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -166,3 +164,5 @@ texinfo_documents = [
 
 
 # -- Extension configuration -------------------------------------------------
+
+napoleon_google_docstring = False
