@@ -10,18 +10,18 @@ Welcome to Mapswipe Backend's documentation!
    :maxdepth: 2
    :caption: Contents:
    
+   setup
+   use_cases
+   import
+   export
+   transfer
    api
+   update
+   mapswipe_data_model
    buildArea_project_type
    Enable new project types
-   export
    footprint_project_type
-   import
-   mapswipe_data_model
    population_density_estimation
-   setup
-   transfer
-   update
-   use_cases
 
 
 Indices and tables
