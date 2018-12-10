@@ -217,7 +217,7 @@ class BaseProject(object):
             groups = self.create_groups()
             self.set_groups_firebase(firebase, groups)
             self.set_tasks_psql(mysqlDB, groups)
-            self.set_project_mysql(mysqlDB)
+            self.set_project_psql(mysqlDB)
             self.set_project_firebase(firebase)
             self.set_import_complete(firebase)
             logging.warning('%s - import_project - import finished' % self.id)
@@ -389,7 +389,7 @@ class BaseProject(object):
         return True
 
 
-    def set_project_mysql(self, mysqlDB):
+    def set_project_psql(self, mysqlDB):
         """
         The function to create a project in mysql
         Parameters
@@ -404,8 +404,8 @@ class BaseProject(object):
         """
 
         m_con = mysqlDB()
-        sql_insert = "INSERT INTO projects Values(%s,%s,%s,%s)"
-        data = [int(self.id), int(self.project_type), self.name, self.look_for]
+        sql_insert = "INSERT INTO projects Values(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
+        data = [int(self.contributors), int(self.group_average), int(self.id), self.image, self.import_key, self.is_featured, self.look_for, self.name, self.progress, self.project_details, self.state, self.info, int(self.project_type)]
         # insert in table
         try:
             m_con.query(sql_insert, data)
@@ -413,7 +413,7 @@ class BaseProject(object):
             del m_con
             raise
 
-        logging.warning('%s - set_project_mysql - inserted project info in mysql' % self.id)
+        logging.warning('%s - set_project_psql - inserted project info in mysql' % self.id)
         return True
 
     def set_import_complete(self, firebase):
@@ -462,6 +462,7 @@ class BaseProject(object):
         self.delete_groups_firebase(firebase)
         self.delete_project_firebase(firebase)
         self.delete_project_mysql(mysqlDB)
+        self.delete_tasks_psql(mysqlDB)
         self.delete_results_mysql(mysqlDB)
         logging.warning('%s - delete_project - finished delete project' % self.id)
         return True
@@ -586,6 +587,15 @@ class BaseProject(object):
         logging.warning('%s - delete_results_mysql - deleted all results in mysql' % self.id)
         return True
 
+    def delete_tasks_psql(self, mysqlDB):
+        m_con = mysqlDB()
+        sql_insert = "DELETE FROM tasks WHERE project_id = %s"
+        data = [int(self.id)]
+        m_con.query(sql_insert, data)
+        del m_con
+
+        logging.warning('%s - delete_tasks_psql - deleted all tasks in psql' % self.id)
+        return True
     ####################################################################################################################
     # UPDATE - We define a bunch of functions related to updating existing projects                                    #
     ####################################################################################################################
