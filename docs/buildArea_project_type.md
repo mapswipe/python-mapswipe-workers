@@ -1,3 +1,5 @@
+# Project type structure - BuildArea
+
 ## Import structure
 
 ```
