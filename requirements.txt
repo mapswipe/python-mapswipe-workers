@@ -32,5 +32,6 @@ requests-toolbelt==0.7.0
 rsa==3.4.2
 six==1.11.0
 slackclient==1.1.2
+sphinx_markdown_tables
 urllib3==1.24.1
 websocket-client==0.46.0
