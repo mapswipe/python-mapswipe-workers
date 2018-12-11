@@ -8,21 +8,30 @@ Welcome to Mapswipe Backend's documentation!
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
+   :caption: First Steps:
    
    setup
+   mapswipe_data_model
    use_cases
+   api
+   population_density_estimation
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Module Documentation:
+
    import
    export
    transfer
-   api
    update
-   mapswipe_data_model
-   buildArea_project_type
-   Enable new project types
-   footprint_project_type
-   population_density_estimation
 
+.. toctree::
+   :maxdepth: 2
+   :caption: Project Types:
+
+   buildArea_project_type
+   footprint_project_type
+   enable_new_project_types
 
 Indices and tables
 ==================
