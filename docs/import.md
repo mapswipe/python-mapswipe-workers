@@ -1,4 +1,4 @@
-# Import Module Documentation
+# Import Module
 The import module uses data uploaded to the firebase imports table and creates the respective project information and information regarding groups and tasks.
 
 The import module gets data from firebase and creates the following tables/files:
