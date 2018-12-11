@@ -13,7 +13,6 @@ CREATE TABLE IF NOT EXISTS projects (
   ,projectDetails varchar
   ,state int
   ,verificationCount int
-  ,zoom int
   ,project_type int
   ,info json
 
