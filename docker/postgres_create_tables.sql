@@ -15,6 +15,7 @@ CREATE TABLE IF NOT EXISTS projects (
   ,verificationCount int
   ,zoom int
   ,project_type int
+  ,info json
 
   ,CONSTRAINT projects_pkey PRIMARY KEY(project_id)
 );
@@ -45,7 +46,7 @@ CREATE TABLE IF NOT EXISTS groups (
   ,completedCount int
   ,distributedCount int
 
-  ,CONSTRAINT groups_pkeay PRIMARY KEY(project_id, group_id)
+  ,CONSTRAINT groups_pkey PRIMARY KEY(project_id, group_id)
 );
 
 CREATE TABLE IF NOT EXISTS users (
@@ -54,7 +55,7 @@ CREATE TABLE IF NOT EXISTS users (
   ,distance int
   ,username varchar
 
-  ,CONSTRAINT users_pkeay PRIMARY KEY(user_id)
+  ,CONSTRAINT users_pkey PRIMARY KEY(user_id)
 );
 
 CREATE TABLE IF NOT EXISTS results (
@@ -70,7 +71,7 @@ CREATE TABLE IF NOT EXISTS results (
 
 CREATE TABLE IF NOT EXISTS progress(
   project_id int
-  ,contributions int
+  ,contributors int
   ,progress int
   ,timestamp bigint
 
