@@ -221,6 +221,7 @@ class BaseProject(object):
             self.set_groups_psql(mysqlDB, groups)
             self.set_project_psql(mysqlDB)
             self.set_project_firebase(firebase)
+            self.set_import_psql(mysqlDB, firebase)
             self.set_import_complete(firebase)
             logging.warning('%s - import_project - import finished' % self.id)
             return True
@@ -498,7 +499,27 @@ class BaseProject(object):
             del m_con
             raise
 
-        logging.warning('%s - set_project_psql - inserted project info in mysql' % self.id)
+        logging.warning('%s - set_project_psql - inserted project info in psql' % self.id)
+        return True
+
+    def set_import_psql(self, mysqlDB, firebase):
+
+
+        m_con = mysqlDB()
+        sql_insert = "INSERT INTO imports Values(%s,%s)"
+
+        id = self.import_key
+        info = firebase.database().child("imports").child(self.import_key).get()
+
+        data = [id, json.dumps(info.val())]
+        # insert in table
+        try:
+            m_con.query(sql_insert, data)
+        except Exception as e:
+            del m_con
+            raise
+
+        logging.warning('%s - set_imports_psql - inserted import info in psql' % self.id)
         return True
 
     def set_import_complete(self, firebase):
@@ -550,6 +571,7 @@ class BaseProject(object):
         self.delete_tasks_psql(mysqlDB)
         self.delete_groups_psql(mysqlDB)
         self.delete_results_mysql(mysqlDB)
+        self.delete_import_psql(mysqlDB)
         logging.warning('%s - delete_project - finished delete project' % self.id)
         return True
 
@@ -692,6 +714,17 @@ class BaseProject(object):
 
         logging.warning('%s - delete_groups_psql - deleted all groups in psql' % self.id)
         return True
+
+    def delete_import_psql(self, mysqlDB):
+        m_con = mysqlDB()
+        sql_insert = "DELETE FROM imports WHERE id = %s"
+        data = [self.import_key]
+        m_con.query(sql_insert, data)
+        del m_con
+
+        logging.warning('%s - delete_import_psql - deleted import in psql' % self.id)
+        return True
+
     ####################################################################################################################
     # UPDATE - We define a bunch of functions related to updating existing projects                                    #
     ####################################################################################################################
