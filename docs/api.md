@@ -1,4 +1,4 @@
-# MapSwipe API documentation
+# API
 
 ## Intro
 

@@ -1,4 +1,4 @@
-# Update Module Documentation
+# Update Module
 
 The update module updates the progress and number of contributors for MapSwipe projects stored in the firebase projects table.
 
