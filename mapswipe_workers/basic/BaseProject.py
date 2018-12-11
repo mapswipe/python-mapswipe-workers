@@ -8,6 +8,7 @@ import time
 import json
 import csv
 
+from mapswipe_workers.utils import error_handling
 
 class BaseProject(object):
     """
@@ -217,6 +218,7 @@ class BaseProject(object):
             groups = self.create_groups()
             self.set_groups_firebase(firebase, groups)
             self.set_tasks_psql(mysqlDB, groups)
+            self.set_groups_psql(mysqlDB, groups)
             self.set_project_psql(mysqlDB)
             self.set_project_firebase(firebase)
             self.set_import_complete(firebase)
@@ -225,6 +227,7 @@ class BaseProject(object):
         except Exception as e:
             logging.warning('%s - import_project - could not import project' % self.id)
             logging.warning("%s - import_project - %s" % (self.id, e))
+            error_handling.log_error(e, logging)
             self.delete_project(firebase, mysqlDB)
             return False
 
@@ -327,7 +330,7 @@ class BaseProject(object):
                     }
 
                     for key in groups[group]['tasks'][task].keys():
-                        if not key in ['id', 'projectId',]:
+                        if not key in ['id', 'projectId']:
                             output_dict['info'][key] = groups[group]['tasks'][task][key]
                     output_dict['info'] = json.dumps(output_dict['info'])
 
@@ -361,7 +364,7 @@ class BaseProject(object):
         f = open(tasks_txt_filename, 'r')
         columns = ['task_id', 'project_id', 'group_id', 'info']
         m_con.copy_from(f, 'raw_tasks', sep='\t', columns=columns)
-        logging.warning('ALL - save_results_mysql - inserted raw tasks into table raw_tasks')
+        logging.warning('ALL - set_tasks_psql - inserted raw tasks into table raw_tasks')
         f.close()
 
         os.remove(tasks_txt_filename)
@@ -388,6 +391,86 @@ class BaseProject(object):
 
         return True
 
+    def set_groups_psql(self, mysqlDB, groups, groups_txt_filename='raw_groups.txt'):
+
+        groups_txt_file = open(groups_txt_filename, 'w', newline='')
+
+        fieldnames = ('project_id', 'group_id', 'completedCount', 'count', 'info')
+        w = csv.DictWriter(groups_txt_file, fieldnames=fieldnames, delimiter='\t', quotechar="'")
+
+        for group in groups:
+            try:
+                output_dict = {
+                    "project_id": int(groups[group]['projectId']),
+                    "group_id": int(groups[group]['id']),
+                    "count": int(groups[group]['count']),
+                    "completedCount": int(groups[group]['completedCount']),
+                    "info": {}
+
+                }
+
+                for key in groups[group].keys():
+                    if not key in ['project_id', 'group_id', 'count',
+                                   'completedCount', 'tasks']:
+                        output_dict['info'][key] = groups[group][key]
+                output_dict['info'] = json.dumps(output_dict['info'])
+
+                w.writerow(output_dict)
+
+            except Exception as e:
+                logging.warning('ALL - set_groups_psql - groups missed critical information: %s' % e)
+                error_handling.log_error(e, logging)
+
+        groups_txt_file.close()
+
+        m_con = mysqlDB()
+
+        sql_insert = 'DROP TABLE IF EXISTS raw_groups CASCADE;'
+        m_con.query(sql_insert, None)
+
+        # first importer to a table where we store the geom as text
+        sql_insert = '''
+            DROP TABLE IF EXISTS raw_groups;
+            CREATE TABLE raw_groups (
+              project_id int
+              ,group_id int
+              ,count int
+              ,completedCount int
+              ,info json
+                                );
+            '''
+
+        m_con.query(sql_insert, None)
+
+        f = open(groups_txt_filename, 'r')
+        columns = ['project_id', 'group_id', 'count', 'completedCount', 'info']
+        m_con.copy_from(f, 'raw_groups', sep='\t', columns=columns)
+        logging.warning('ALL - set_groups_psql - inserted raw groups into table raw_groups')
+        f.close()
+
+        os.remove(groups_txt_filename)
+        logging.warning('ALL - set_groups_psql - deleted file: %s' % groups_txt_filename)
+
+        sql_insert = '''
+                        INSERT INTO
+                          groups
+                        SELECT
+                          *
+                          -- duplicates is set to zero by default, this will be updated on conflict only
+                          --,0
+                        FROM
+                          raw_groups
+                        --ON CONFLICT ON CONSTRAINT "tasks_pkey";
+
+                    '''
+        m_con.query(sql_insert, None)
+        logging.warning('ALL - set_groups_psql - inserted groups into groups table')
+
+        del m_con
+
+        return True
+
+
 
     def set_project_psql(self, mysqlDB):
         """
@@ -405,7 +488,9 @@ class BaseProject(object):
 
         m_con = mysqlDB()
         sql_insert = "INSERT INTO projects Values(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
-        data = [int(self.contributors), int(self.group_average), int(self.id), self.image, self.import_key, self.is_featured, self.look_for, self.name, self.progress, self.project_details, self.state, self.info, int(self.project_type)]
+        data = [int(self.contributors), int(self.group_average), int(self.id), self.image, self.import_key,
+                self.is_featured, self.look_for, self.name, self.progress, self.project_details, int(self.state),
+                int(self.project_type),int(self.verification_count), json.dumps(self.info)]
         # insert in table
         try:
             m_con.query(sql_insert, data)
@@ -463,6 +548,7 @@ class BaseProject(object):
         self.delete_project_firebase(firebase)
         self.delete_project_mysql(mysqlDB)
         self.delete_tasks_psql(mysqlDB)
+        self.delete_groups_psql(mysqlDB)
         self.delete_results_mysql(mysqlDB)
         logging.warning('%s - delete_project - finished delete project' % self.id)
         return True
@@ -596,6 +682,16 @@ class BaseProject(object):
 
         logging.warning('%s - delete_tasks_psql - deleted all tasks in psql' % self.id)
         return True
+
+    def delete_groups_psql(self, mysqlDB):
+        m_con = mysqlDB()
+        sql_insert = "DELETE FROM groups WHERE project_id = %s"
+        data = [int(self.id)]
+        m_con.query(sql_insert, data)
+        del m_con
+
+        logging.warning('%s - delete_groups_psql - deleted all groups in psql' % self.id)
+        return True
     ####################################################################################################################
     # UPDATE - We define a bunch of functions related to updating existing projects                                    #
     ####################################################################################################################
@@ -606,6 +702,7 @@ class BaseProject(object):
         self.get_progress(firebase)
         self.set_progress(firebase)
         self.log_project_progress(output_path)
+        #self.set project_progress_psql()
 
     def get_group_progress(self, q):
         """
