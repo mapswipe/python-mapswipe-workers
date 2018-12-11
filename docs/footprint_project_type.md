@@ -1,3 +1,5 @@
+# Project type structure - Footprint
+
 ## Import structure
 
 ```
@@ -74,4 +76,3 @@ Imports which have been imported successfully will have a `complete` attribute s
 
 
 ```
-
