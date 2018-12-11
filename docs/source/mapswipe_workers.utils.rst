@@ -12,6 +12,14 @@ mapswipe\_workers.utils.error\_handling module
     :undoc-members:
     :show-inheritance:
 
+mapswipe\_workers.utils.migrate\_mysql\_psql module
+---------------------------------------------------
+
+.. automodule:: mapswipe_workers.utils.migrate_mysql_psql
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 mapswipe\_workers.utils.setup\_database\_tables module
 ------------------------------------------------------
 
