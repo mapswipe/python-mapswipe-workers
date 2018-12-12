@@ -19,3 +19,8 @@ def send_error(error, process):
     error_msg = _get_error_message_details(error)
     head = 'python-mapswipe-workers: error occured during "{}"'.format(process)
     slack.send_slack_message(head + '\n' + error_msg)
+
+
+def log_error(error, logger):
+    error_msg = _get_error_message_details(error)
+    logger.error('Error detail:\n' + error_msg)
