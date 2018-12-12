@@ -1,4 +1,4 @@
-# Transfer Results Module
+# Transfer Results
 
 The transfer results module downloads results from firebase results table and inserts them into the mysql results table. All results that have been inserted successfully will be removed from firebase. Results that have already been imported (*duplicates*) will be removed from firebase.
 
