@@ -1,6 +1,6 @@
 # Setup
 
-To setup the Mapswipe back end you need a [Firebase instance](https://firebase.google.com/) and use Docker to install and run it.
+To setup the Mapswipe back end you need to setup a [Firebase instance](https://firebase.google.com/) and use Docker to install and run it.
 
 
 ## Firebase
@@ -56,39 +56,38 @@ In [Firebase](https://firebase.google.com/) following [database rules](https://c
 
 ## Docker
 
-### Clone Repository
+### 1. Clone Repository
 
-1. `git clone https://github.com/mapswipe/python-mapswipe-workers.git`
-2. `cd python-mapswipe-workers`
-3. for current development branch: `git checkout benni.new-project-types`
+- `git clone https://github.com/mapswipe/python-mapswipe-workers.git`
+- `cd python-mapswipe-workers`
+- for current development branch: `git checkout benni.new-project-types`
 
 
-### Configuration
+### 2. Configuration
 
 Provide a config file, the Firebase ServiceAccountKey and optionally an environment file for Postgres.
 
-4. add your passwords etc. to `cfg/config.cfg`
+- add your passwords etc. to `cfg/config.cfg`
     - you can use the template `cfg/your_ServiceAccountKey` for this.
-5. add your firebase `cfg/ServiceAccountKey.json`
+- add your firebase `cfg/ServiceAccountKey.json`
     - you can get it from your firebase instance [Admin SDK](https://console.firebase.google.com/project/_/settings/serviceaccounts/adminsdk).
-6. if you want to use a local psql instance provide an `.env` file with:
-    ```env
+- if you want to use a local psql instance provide an `.env` file with:
+    ```
     POSTGRES_PASSWORD=your_psql_password
     POSTGRES_USER=mapswipe_workers
     POSTGRES_DB=mapswipe
     ```
 
+### 3. Run Docker Compose
 
-### Run Docker Compose
-
-7. `docker-compose up -d`
+- `docker-compose up -d`
 
 
 ## Useful commands
 
 * `docker ps -a`: list all containers and check status
 * `docker image ls`: list all docker images
-* `docker-compose build --no-cache import`: re build the image for a specific container (here: import), e.g. after changing some settings like `sleep_time`
+* `docker-compose build --no-cache import`: rebuild the image for a specific container (here: import), e.g. after changing some settings like `sleep_time`
 * `docker exec -it import bash `: open shell in a running container (here: import)
 * `tail -100 ./logs/run_import.log`: show logs of container
 * `docker stats`: show memory usage, CPU consumption for all running containers
@@ -98,7 +97,7 @@ Provide a config file, the Firebase ServiceAccountKey and optionally an environm
 
 How to update a container (e.g. after changing something in python-mapswipe-workers).
 
-* `git pull`: get changes from github
-* `docker-compose build --no-cache import`: build a new docker image for the container you need to update
-* `docker stop import`
-* `docker-compose up -d import`
+1. `git pull`: get changes from github
+2. `docker-compose build --no-cache import`: build a new docker image for the container you need to update
+3. `docker stop import`
+4. `docker-compose up -d import`

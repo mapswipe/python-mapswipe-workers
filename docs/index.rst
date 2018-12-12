@@ -9,38 +9,41 @@ Welcome to Mapswipe Backend's documentation!
 .. toctree::
    :maxdepth: 2
    :caption: Getting Started:
-   
+
    setup
    data_model
    use_cases
 
+
 .. toctree::
    :maxdepth: 2
-   :caption: Processes:
+   :caption: Using:
 
-   import
-   export
-   transfer
-   update
-
-.. api::
-   :maxdepth: 2
-   :caption: API:
+   processes
    api
+
 
 .. toctree::
    :maxdepth: 2
    :caption: Project Type Structure:
 
-   buildArea_project_type
-   footprint_project_type
+   project_type-buildArea
+   project_type-footprint
+
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Packages and Modules:
+
+   source/modules
+
 
 .. toctree::
    :maxdepth: 2
    :caption: Miscellaneous:
 
-   proposal_new_project_type
-   enable_new_project_types
+   project_type-proposal
+   project_type-enable
 
 Indices and tables
 ==================
