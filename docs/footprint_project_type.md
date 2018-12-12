@@ -1,4 +1,4 @@
-# Project type structure - Footprint
+# Footprint
 
 ## Import structure
 
