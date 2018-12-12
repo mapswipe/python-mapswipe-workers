@@ -1,7 +1,7 @@
 # Data Model
 The MapSwipe crowdsourcing workflow is designed following an approach already presented by [Albuquerque et al. (2016)](http://www.mdpi.com/2072-4292/8/10/859). Four concepts are important in the following: projects, groups, tasks and results.
 
-![Mapswipe Data Model](/img/mapswipe_data_model.png)
+![Mapswipe Data Model](/_static/img/mapswipe_data_model.png)
 
 
 ## Projects
