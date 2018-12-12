@@ -13,7 +13,6 @@ CREATE TABLE IF NOT EXISTS projects (
   ,projectDetails varchar
   ,state int
   ,verificationCount int
-  ,zoom int
   ,project_type int
   ,info json
 
@@ -22,11 +21,7 @@ CREATE TABLE IF NOT EXISTS projects (
 
 CREATE TABLE IF NOT EXISTS imports (
   import_id varchar
-  ,complete boolean
-  ,key varchar
-  ,kml varchar
-  ,project_id int
-  ,tileServer varchar
+  info json
 
   ,CONSTRAINT imports_pkey PRIMARY KEY(import_id)
 );
@@ -43,8 +38,9 @@ CREATE TABLE IF NOT EXISTS tasks (
 CREATE TABLE IF NOT EXISTS groups (
   project_id int
   ,group_id int
+  ,count int
   ,completedCount int
-  ,distributedCount int
+  ,info json
 
   ,CONSTRAINT groups_pkey PRIMARY KEY(project_id, group_id)
 );
