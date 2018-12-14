@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS projects (
 
 CREATE TABLE IF NOT EXISTS imports (
   import_id varchar
-  info json
+  ,info json
 
   ,CONSTRAINT imports_pkey PRIMARY KEY(import_id)
 );
@@ -48,7 +48,7 @@ CREATE TABLE IF NOT EXISTS groups (
 CREATE TABLE IF NOT EXISTS users (
   user_id varchar
   ,contributions int
-  ,distance int
+  ,distance double precision
   ,username varchar
 
   ,CONSTRAINT users_pkey PRIMARY KEY(user_id)
