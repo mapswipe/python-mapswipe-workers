@@ -15,6 +15,7 @@ CREATE TABLE IF NOT EXISTS projects (
   ,verificationCount int
   ,project_type int
   ,info json
+  ,archive boolean
 
   ,CONSTRAINT projects_pkey PRIMARY KEY(project_id)
 );
