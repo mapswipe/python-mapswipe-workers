@@ -203,6 +203,85 @@ def get_new_imports(firebase):
     return new_imports
 
 
+def update_users(firebase, mysqlDB, users_txt_filename='raw_users.txt'):
+    users_txt_file = open(users_txt_filename, 'w', newline='')
+
+    fieldnames = ('user_id', 'contributions', 'distance', 'username')
+    w = csv.DictWriter(users_txt_file, fieldnames=fieldnames, delimiter=';', quotechar="'")
+
+    #query users from fdb
+    users = firebase.database().child("users").get().val()
+    for user in users:
+        try:
+            #check for missing info, add dummy values
+            if not 'username' in users[user]:
+                users[user]['username'] = 'unknown'
+            if not 'contributions' in users[user]:
+                users[user]['contributions'] = 0
+            if not 'distance' in users[user]:
+                users[user]['distance'] = 0
+
+            output_dict = {
+                "user_id": user,
+                "contributions": users[user]['contributions'],
+                "distance": users[user]['distance'],
+                "username": users[user]['username']
+            }
+
+            w.writerow(output_dict)
+
+        except Exception as e:
+            logging.warning('ALL - update_users - users missed critical information: %s' % e)
+
+    users_txt_file.close()
+
+    m_con = mysqlDB()
+
+    sql_insert = 'DROP TABLE IF EXISTS raw_users CASCADE;'
+    m_con.query(sql_insert, None)
+
+    sql_insert = 'DROP TABLE IF EXISTS raw_users CASCADE;'
+    m_con.query(sql_insert, None)
+
+    sql_insert = '''
+        DROP TABLE IF EXISTS raw_users;
+        CREATE TABLE raw_users (
+            user_id varchar
+            ,contributions int
+            ,distance double precision
+            ,username varchar
+        );
+        '''
+    m_con.query(sql_insert, None)
+
+    f = open(users_txt_filename, 'r')
+    columns = ['user_id', 'contributions', 'distance', 'username']
+    m_con.copy_from(f, 'raw_users', sep=';', columns=columns)
+    logging.warning('ALL - update_users - inserted raw users into table raw_users')
+    f.close()
+    os.remove(users_txt_filename)
+    logging.warning('ALL - update_users - deleted file: %s' % users_txt_filename)
+
+    sql_insert = '''
+        INSERT INTO
+          users
+        SELECT
+          *
+          -- duplicates is set to zero by default, this will be updated on conflict only
+          --0
+        FROM
+          raw_users a
+        ON CONFLICT ON CONSTRAINT "users_pkey"
+          DO UPDATE SET contributions = excluded.contributions
+          ,distance = excluded.distance
+        ;
+        '''
+    m_con.query(sql_insert, None)
+    logging.warning('ALL - update_users - inserted results into users table and updated contributions and/or distance')
+
+    del m_con
+    return True
+
 def run_import(modus):
     """
     A function to create all newly imported projects in firebase
@@ -275,6 +354,9 @@ def run_update(modus, filter, output_path):
     for proj in project_list:
         proj.update_project(firebase, mysqlDB, output_path)
         updated_projects.append(proj.id)
+
+    # update users
+    update_users(firebase, mysqlDB)
 
     return updated_projects
 
