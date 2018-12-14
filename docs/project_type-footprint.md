@@ -1,8 +1,8 @@
-# Project type structure - Footprint
+# Footprint
 
 ## Import structure
 
-```
+```json
 {
   "inputGeometries" : "https://heibox.uni-heidelberg.de/f/7a61e549b6/?dl=1",
   "project" : {
@@ -13,7 +13,7 @@
     "verificationCount" : "3"
   },
   "projectType" : 2,
-  "tileServer" : "bing",
+  "tileServer" : "bing"
 }
 ```
 
@@ -22,9 +22,9 @@ The `tileserver` attribute can have the following values: `bing`, `custom`. If a
 Imports which have been imported successfully will have a `complete` attribute set to `true`.
 
 
-## Project Structure
+## Project structure
 
-```
+```json
 {
   "contributors" : 0,
   "groupAverage" : 0,
@@ -49,7 +49,8 @@ Imports which have been imported successfully will have a `complete` attribute s
 ```
 
 
-## Group Structure
+## Group structure
+
 ```
 {
   "completedCount" : 0,
@@ -62,8 +63,10 @@ Imports which have been imported successfully will have a `complete` attribute s
 
 ```
 
-## Task Structure
-```
+
+## Task structure
+
+```json
 {
   "feature_id" : 0,
   "geojson" : {
@@ -73,6 +76,4 @@ Imports which have been imported successfully will have a `complete` attribute s
   "id" : "13564_100_0",
   "project_id" : 13564
 }
-
-
 ```

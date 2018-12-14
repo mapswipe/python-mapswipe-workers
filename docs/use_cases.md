@@ -18,7 +18,7 @@ This has been the focus for most MapSwipe projects. Buildings are relatively eas
 
 Building mapping can be done at zoom level 18 or higher.
 
-<img src="/img/building_example1.JPG" alt="building_example1" width="250px"><img src="/img/building_example2.JPG" alt="building_example2" width="250px"><img src="/img/building_example3.JPG" alt="building_example3" width="250px">
+<img src="/_static/img/building_example1.JPG" alt="building_example1" width="250px"><img src="/_static/img/building_example2.JPG" alt="building_example2" width="250px"><img src="/_static/img/building_example3.JPG" alt="building_example3" width="250px">
 
 
 ### Landcover Mapping - e.g. Mangroves
@@ -36,4 +36,4 @@ This approach can be used to quickly assess area, where new satellite imagery be
 
 Custom tiles for these type of MapSwipe project can be generated using [MapBox Studio](https://www.mapbox.com/mapbox-studio/). There you can style the OSM data overlay and choose several base layers.
 
-<img src="/img/osm_validation_example.png" alt="osm_validation_example" width="250px">
+<img src="/_static/img/osm_validation_example.png" alt="osm_validation_example" width="250px">
