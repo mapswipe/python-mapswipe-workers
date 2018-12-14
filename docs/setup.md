@@ -1,11 +1,11 @@
-# Setting everything up
-To run the MapSwipe backend we currently use the following setting:
-* firebase instance
-* google cloud Compute Engine (n1-standard-2 (2 vCPUs, 7.5 GB RAM, 1000 GB SSD))
-* google cloud SQL server (MySQL 5.6, 2 vCPUs, 7.5 GB RAM, 50 GB SSD)
+# Setup
+
+To setup the Mapswipe back end you need to setup a [Firebase instance](https://firebase.google.com/) and use Docker to install and run it.
+
 
 ## Firebase
-In firebase we need to set the [database rules](https://console.firebase.google.com/project/_/database/msf-mapswipe/rules):
+
+In [Firebase](https://firebase.google.com/) following [database rules](https://console.firebase.google.com/project/_/database/msf-mapswipe/rules) need to be applied:
 
 ```json
 {
@@ -53,66 +53,51 @@ In firebase we need to set the [database rules](https://console.firebase.google.
 }
 ```
 
-## Compute Engine
-On the compute engine we use PM2 to monitor the python scripts, python3 in a virtual environment to run the scripts and we need GDAL for geometry processing.
 
-### Install PM2
-```
-npm install pm2@latest -g
-```
+## Docker
 
-For more information on PM2 go to this [site](http://pm2.keymetrics.io/docs/usage/quick-start/).
+### 1. Clone Repository
 
-### Install Python 3
-A good documentation can be found [here](https://www.digitalocean.com/community/tutorials/how-to-install-python-3-and-set-up-a-local-programming-environment-on-ubuntu-16-04).
+- `git clone https://github.com/mapswipe/python-mapswipe-workers.git`
+- `cd python-mapswipe-workers`
+- for current development branch: `git checkout benni.new-project-types`
 
-Ubuntu 16.04 ships with both Python 3 and Python 2 pre-installed. To manage software packages for Python, let’s install pip.
 
-`sudo apt-get install -y python3-pip`
+### 2. Configuration
 
-Set up a virtual environment.
+Provide a config file, the Firebase ServiceAccountKey and optionally an environment file for Postgres.
 
-```
-sudo su
-apt-get install -y python3-venv
-mkdir /data/environments
-cd /data/environments
-python3 -m venv mapswipe_workers
-```
+- add your passwords etc. to `cfg/config.cfg`
+    - you can use the template `cfg/your_ServiceAccountKey` for this.
+- add your firebase `cfg/ServiceAccountKey.json`
+    - you can get it from your firebase instance [Admin SDK](https://console.firebase.google.com/project/_/settings/serviceaccounts/adminsdk).
+- if you want to use a local psql instance provide an `.env` file with:
+    ```
+    POSTGRES_PASSWORD=your_psql_password
+    POSTGRES_USER=mapswipe_workers
+    POSTGRES_DB=mapswipe
+    ```
 
-### Install GDAL
+### 3. Run Docker Compose
 
-Install `GDAL` at the system level:
+- `docker-compose up -d`
 
-     sudo apt-get install libgdal-dev
 
- Before installing the Python library, you'll need to set up your environment to build it correctly (it needs to know where the system `GDAL` libraries are). Set the following environment variables to do that:
+## Useful commands
 
-     export CPLUS_INCLUDE_PATH=/usr/include/gdal
-     export C_INCLUDE_PATH=/usr/include/gdal
+* `docker ps -a`: list all containers and check status
+* `docker image ls`: list all docker images
+* `docker-compose build --no-cache import`: rebuild the image for a specific container (here: import), e.g. after changing some settings like `sleep_time`
+* `docker exec -it import bash `: open shell in a running container (here: import)
+* `tail -100 ./logs/run_import.log`: show logs of container
+* `docker stats`: show memory usage, CPU consumption for all running containers
 
- Finally, install the Python library. You'll need to specify the same version for the Python library as you have installed on the system. Use this to find your system version:
 
-     gdal-config --version
+## Update a container 
 
- and install the library via pip with:
+How to update a container (e.g. after changing something in python-mapswipe-workers).
 
-     pip3 install GDAL==$VERSION
-
- or this handy one-liner for both:
-
-     pip3 install GDAL==$(gdal-config --version | awk -F'[.]' '{print $1"."$2}')
-
-### Install the required python packages
-```
-source /data/environments/mapswipe_workers/bin/activate
-pip3 install -r /data/python-mapswipe-workers/requirements.txt
-```
-
-## Cloud SQL
-The MySQL database consists of two tables:
-* `projects`
-* `results`
-
-You can create these tables using `utils/setup_database_tables.py`.
-
+1. `git pull`: get changes from github
+2. `docker-compose build --no-cache import`: build a new docker image for the container you need to update
+3. `docker stop import`
+4. `docker-compose up -d import`

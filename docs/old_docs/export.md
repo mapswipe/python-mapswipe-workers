@@ -1,4 +1,4 @@
-# Export Module
+# Export
 
 The export module gets data from firebase and mysql and saves it as json files. The following files are created:
 * `projects.json`: contains all project information as in firebase projects table
