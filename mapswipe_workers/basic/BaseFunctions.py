@@ -202,8 +202,19 @@ def get_new_imports(firebase):
     logging.warning('ALL - get_new_imports - got %s projects which have not been imported' % len(new_imports))
     return new_imports
 
+def update_users_psql(firebase, mysqlDB, users_txt_filename='raw_users.txt')-> bool:
+    """
 
-def update_users(firebase, mysqlDB, users_txt_filename='raw_users.txt'):
+    Parameters
+    ----------
+    firebase
+    mysqlDB
+    users_txt_filename
+
+    Returns
+    -------
+
+    """
     users_txt_file = open(users_txt_filename, 'w', newline='')
 
     fieldnames = ('user_id', 'contributions', 'distance', 'username')
@@ -356,7 +367,7 @@ def run_update(modus, filter, output_path):
         updated_projects.append(proj.id)
 
     # update users
-    update_users(firebase, mysqlDB)
+    update_users_psql(firebase, mysqlDB)
 
     return updated_projects
 

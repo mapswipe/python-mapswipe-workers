@@ -735,6 +735,7 @@ class BaseProject(object):
         self.get_progress(firebase)
         self.set_progress(firebase)
         self.log_project_progress(output_path)
+        self.set_project_stats_psql(mysqlDB)
         #self.set project_progress_psql()
 
     def get_group_progress(self, q):
@@ -972,6 +973,26 @@ class BaseProject(object):
         logging.warning('%s - log_project_contributors - logged contributors to file: %s' % (self.id, filename))
         return True
 
+    def set_project_stats_psql(self, mysqlDB)-> bool:
+
+        m_con = mysqlDB()
+        sql_insert = '''
+            INSERT INTO
+              statistics
+            VALUES 
+              (%s,%s,%s,%s);
+            '''
+        timestamp = int(time.time())
+        data = [self.id, self.contributors,
+                self.progress, timestamp]
+
+        m_con.query(sql_insert, data)
+
+        logging.warning('%s - set_project_stats_psql - inserted new entry for contributors and progress in statistics table' % self.id)
+
+        del m_con
+
+        return True
 
     def export_results(self, mysqlDB, output_path='data'):
         """

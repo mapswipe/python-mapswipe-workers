@@ -65,7 +65,7 @@ CREATE TABLE IF NOT EXISTS results (
   ,CONSTRAINT results_pkey PRIMARY KEY (task_id, user_id, project_id)
 );
 
-CREATE TABLE IF NOT EXISTS progress(
+CREATE TABLE IF NOT EXISTS statistics(
   project_id int
   ,contributors int
   ,progress int
