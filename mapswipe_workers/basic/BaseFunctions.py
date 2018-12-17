@@ -248,14 +248,8 @@ def update_users_psql(firebase, mysqlDB, users_txt_filename='raw_users.txt')-> b
 
     m_con = mysqlDB()
 
-    sql_insert = 'DROP TABLE IF EXISTS raw_users CASCADE;'
-    m_con.query(sql_insert, None)
-
-    sql_insert = 'DROP TABLE IF EXISTS raw_users CASCADE;'
-    m_con.query(sql_insert, None)
-
     sql_insert = '''
-        DROP TABLE IF EXISTS raw_users;
+        DROP TABLE IF EXISTS raw_users CASCADE;
         CREATE TABLE raw_users (
             user_id varchar
             ,contributions int
@@ -540,12 +534,10 @@ def save_results_mysql(mysqlDB, results_filename):
 
     # pre step delete table if exist
     m_con = mysqlDB()
-    sql_insert = 'DROP TABLE IF EXISTS raw_results CASCADE;'
-    m_con.query(sql_insert, None)
 
     # first importer to a table where we store the geom as text
     sql_insert = '''
-        DROP TABLE IF EXISTS raw_results;
+        DROP TABLE IF EXISTS raw_results CASCADE;
         CREATE TABLE raw_results (
             task_id varchar,
             project_id int,

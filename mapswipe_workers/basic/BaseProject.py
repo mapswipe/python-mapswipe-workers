@@ -346,12 +346,9 @@ class BaseProject(object):
 
         m_con = mysqlDB()
 
-        sql_insert = 'DROP TABLE IF EXISTS raw_tasks CASCADE;'
-        m_con.query(sql_insert, None)
-
         # first importer to a table where we store the geom as text
         sql_insert = '''
-            DROP TABLE IF EXISTS raw_tasks;
+            DROP TABLE IF EXISTS raw_tasks CASCADE;
             CREATE TABLE raw_tasks (
                 task_id varchar
                 ,group_id int
@@ -426,12 +423,9 @@ class BaseProject(object):
 
         m_con = mysqlDB()
 
-        sql_insert = 'DROP TABLE IF EXISTS raw_groups CASCADE;'
-        m_con.query(sql_insert, None)
-
         # first importer to a table where we store the geom as text
         sql_insert = '''
-            DROP TABLE IF EXISTS raw_groups;
+            DROP TABLE IF EXISTS raw_groups CASCADE;
             CREATE TABLE raw_groups (
               project_id int
               ,group_id int
