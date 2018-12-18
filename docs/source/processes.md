@@ -9,8 +9,8 @@ The MapSwipe workers fulfill several tasks, which we call *processes* from here 
 * **Delete**: Delete a MapSwipe project and all corresponding results in Firebase and postgresql.
 
 You can easily run a process using the `run_mapswipe_worker.py` script using the following parameters:
-* `-p` or `--process`: 
-* `-mo` or `--modus`:
+* `-p` or `--process`: choose the process you want to run (choices: 'import', 'transfer_results', 'update', 'export', 'archive', 'delete')
+* `-mo` or `--modus`: choose which mapswipe instance to use. (choices: 'development' (default), 'production')
 * `-f` or `--filter`: choose which projects to process (choices: 'all', 'not_finished', 'active', 'list')
 * `-l` or `--list`: project id of the project(s) to process. You can add multiple project ids. will only be considered if `--filter=='list'`
 * `-o` or `--output`: output path. Provide a location for storing files.
