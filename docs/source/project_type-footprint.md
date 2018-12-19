@@ -77,3 +77,19 @@ Imports which have been imported successfully will have a `complete` attribute s
   "project_id" : 13564
 }
 ```
+
+## Result Structure
+```
+{"OzDyJJ8su8TQtctYVIg9w5tplaX2":
+  {"data":
+    {"device":"6a39e920622c4fbb",
+     "id":"13555_105_298",
+     "item":"Buildings",
+     "projectId":13555,
+     "result":1,
+     "timestamp":1544613097198,
+     "user":"OzDyJJ8su8TQtctYVIg9w5tplaX2"
+     }
+  }
+}
+```
