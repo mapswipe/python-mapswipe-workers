@@ -4,9 +4,9 @@
 ####################################################################################################
 from mapswipe_workers.basic import auth
 
-def create_projects_table(mysqlDB):
+def create_projects_table(postgres):
 
-    m_con = mysqlDB()
+    p_con = postgres()
 
     sql_string = """
     CREATE TABLE IF NOT EXISTS projects (
@@ -19,15 +19,15 @@ def create_projects_table(mysqlDB):
     """
 
     # create table
-    m_con.query(sql_string, None)
+    p_con.query(sql_string, None)
 
     print('created projects table')
 
-    del m_con
+    del p_con
 
-def create_tasks_table(mysqlDB):
+def create_tasks_table(postgres):
 
-    m_con = mysqlDB()
+    p_con = postgres()
 
     sql_string = """
         CREATE TABLE IF NOT EXISTS tasks (
@@ -39,15 +39,15 @@ def create_tasks_table(mysqlDB):
         );
         """
 
-    m_con.query(sql_string, None)
+    p_con.query(sql_string, None)
 
     print('created tasks table')
 
-    del m_con
+    del p_con
 
-def create_results_table(mysqlDB):
+def create_results_table(postgres):
 
-    m_con = mysqlDB()
+    p_con = postgres()
 
     sql_string = """
     CREATE TABLE IF NOT EXISTS results (
@@ -62,26 +62,26 @@ def create_results_table(mysqlDB):
     """
 
     # create table
-    m_con.query(sql_string, None)
+    p_con.query(sql_string, None)
 
     print('created results table')
 
-    del m_con
+    del p_con
 
 def setup_database_tables():
-    mysqlDB = auth.dev_psqlDB
+    postgres = auth.dev_psqlDB
 
     # create projects table
-    create_projects_table(mysqlDB)
+    create_projects_table(postgres)
 
     # create tasks table
-    create_tasks_table(mysqlDB)
+    create_tasks_table(postgres)
 
     # create results table
-    create_results_table(mysqlDB)
+    create_results_table(postgres)
 
     # close db connection
-    del mysqlDB
+    del postgres
 
 ####################################################################################################
 

@@ -47,7 +47,7 @@ class BaseProject(object):
     ####################################################################################################################
     # INIT - Existing projects from id, new projects from import_key and import_dict                                   #
     ####################################################################################################################
-    def __init__(self, project_id: int, firebase: object, mysqlDB: object, import_key: str = None, import_dict: dict = None) -> object:
+    def __init__(self, project_id: int, firebase: object, postgres: object, import_key: str = None, import_dict: dict = None) -> object:
 
         logging.warning('%s - __init__ - start init' % project_id)
 
@@ -84,9 +84,9 @@ class BaseProject(object):
             # this is a new project, which has not been imported, we indicate this by setting a temporary attribute
             self.is_new = True
 
-            # first we check, whether there is no project with the same id in the mysql database
-            if self.project_exists_mysql(mysqlDB):
-                logging.warning("%s - __init__ - project is new, but has been imported to mysql already. Can't init project." % self.id)
+            # first we check, whether there is no project with the same id in the postgres database
+            if self.project_exists_postgres(postgres):
+                logging.warning("%s - __init__ - project is new, but has been imported to postgres already. Can't init project." % self.id)
                 return None
             # then let's check if the import_key and import_dict are provided
             elif not import_key:
@@ -157,22 +157,22 @@ class BaseProject(object):
                 logging.warning('%s - project_exists_firebase - project and groups exist in firebase' % self.id)
                 return project_data
 
-    def project_exists_mysql(self, mysqlDB):
+    def project_exists_postgres(self, postgres):
         """
-        The function to check whether a project exists in mysql.
+        The function to check whether a project exists in postgres.
 
         Parameters
         ----------
-        mysqlDB : database connection class
-            The database connection to mysql database
+        postgres : database connection class
+            The database connection to postgres database
 
         Returns
         -------
         bool
-            True is project exists in mysql database. False otherwise.
+            True is project exists in postgres database. False otherwise.
         """
 
-        m_con = mysqlDB()
+        p_con = postgres()
         sql_query = '''
             SELECT
               *
@@ -183,20 +183,20 @@ class BaseProject(object):
         '''
 
         data = [self.id]
-        project_data = m_con.retr_query(sql_query, data)
-        del m_con
+        project_data = p_con.retr_query(sql_query, data)
+        del p_con
 
         if not project_data:
-            logging.warning('%s - project_exists_firebase - not in mysql database' % self.id)
+            logging.warning('%s - project_exists_firebase - not in postgres database' % self.id)
             return False
         else:
-            logging.warning('%s - project_exists_firebase - exists in mysql database' % self.id)
+            logging.warning('%s - project_exists_firebase - exists in postgres database' % self.id)
             return True
 
     ####################################################################################################################
     # IMPORT - We define a bunch of functions related to importing new projects                                        #
     ####################################################################################################################
-    def import_project(self, firebase, mysqlDB):
+    def import_project(self, firebase, postgres):
         """
         The function to import a new project
 
@@ -204,8 +204,8 @@ class BaseProject(object):
         ----------
         firebase : pyrebase firebase object
             initialized firebase app with admin authentication
-        mysqlDB : database connection class
-            The database connection to mysql database
+        postgres : database connection class
+            The database connection to postgres database
 
         Returns
         -------
@@ -217,11 +217,11 @@ class BaseProject(object):
             logging.warning('%s - import_project - start importing' % self.id)
             groups = self.create_groups()
             self.set_groups_firebase(firebase, groups)
-            self.set_tasks_psql(mysqlDB, groups)
-            self.set_groups_psql(mysqlDB, groups)
-            self.set_project_psql(mysqlDB)
+            self.set_tasks_postgres(postgres, groups)
+            self.set_groups_postgres(postgres, groups)
+            self.set_project_postgres(postgres)
             self.set_project_firebase(firebase)
-            self.set_import_psql(mysqlDB, firebase)
+            self.set_import_postgres(postgres, firebase)
             self.set_import_complete(firebase)
             logging.warning('%s - import_project - import finished' % self.id)
             return True
@@ -229,7 +229,7 @@ class BaseProject(object):
             logging.warning('%s - import_project - could not import project' % self.id)
             logging.warning("%s - import_project - %s" % (self.id, e))
             error_handling.log_error(e, logging)
-            self.delete_project(firebase, mysqlDB)
+            self.delete_project(firebase, postgres)
             return False
 
     def set_groups_firebase(self, firebase, groups):
@@ -295,13 +295,13 @@ class BaseProject(object):
         logging.warning('%s - set_project_firebase - uploaded project in firebase' % self.id)
         return True
 
-    def set_tasks_psql(self, mysqlDB, groups, tasks_txt_filename='raw_tasks.txt'):
+    def set_tasks_postgres(self, postgres, groups, tasks_txt_filename='raw_tasks.txt'):
         """
         The function iterates over the groups and extracts tasks and uploads them into postgresql
         Parameters
         ----------
-        mysqlDB : database connection class
-            The database connection to mysql database
+        postgres : database connection class
+            The database connection to postgres database
         groups : dictionary
             Dictionary containing groups of a project
         tasks_txt_filename : string
@@ -338,13 +338,13 @@ class BaseProject(object):
                     w.writerow(output_dict)
 
                 except Exception as e:
-                    logging.warning('ALL - set_tasks_psql - tasks missed critical information: %s' % e)
+                    logging.warning('ALL - set_tasks_postgres - tasks missed critical information: %s' % e)
 
         tasks_txt_file.close()
 
-        # upload data to psql
+        # upload data to postgres
 
-        m_con = mysqlDB()
+        p_con = postgres()
 
         # first importer to a table where we store the geom as text
         sql_insert = '''
@@ -357,16 +357,17 @@ class BaseProject(object):
             );
             '''
 
-        m_con.query(sql_insert, None)
+        p_con.query(sql_insert, None)
 
         f = open(tasks_txt_filename, 'r')
         columns = ['task_id', 'project_id', 'group_id', 'info']
-        m_con.copy_from(f, 'raw_tasks', sep='\t', columns=columns)
-        logging.warning('ALL - set_tasks_psql - inserted raw tasks into table raw_tasks')
+        p_con.copy_from(f, 'raw_tasks', sep='\t', columns=columns)
+
+        logging.warning('ALL - set_tasks_postgres - inserted raw tasks into table raw_tasks')
         f.close()
 
         os.remove(tasks_txt_filename)
-        logging.warning('ALL - set_tasks_psql - deleted file: %s' % tasks_txt_filename)
+        logging.warning('ALL - set_tasks_postgres - deleted file: %s' % tasks_txt_filename)
 
         # TODO discuss if conflict resolution necessary
 
@@ -382,14 +383,14 @@ class BaseProject(object):
                 --ON CONFLICT ON CONSTRAINT "tasks_pkey";
                   
             '''
-        m_con.query(sql_insert, None)
-        logging.warning('ALL - set_tasks_psql - inserted tasks into tasks table')
+        p_con.query(sql_insert, None)
+        logging.warning('ALL - set_tasks_postgres - inserted tasks into tasks table')
 
-        del m_con
+        del p_con
 
         return True
 
-    def set_groups_psql(self, mysqlDB, groups, groups_txt_filename='raw_groups.txt'):
+    def set_groups_postgres(self, postgres, groups, groups_txt_filename='raw_groups.txt'):
 
         groups_txt_file = open(groups_txt_filename, 'w', newline='')
 
@@ -416,12 +417,12 @@ class BaseProject(object):
                 w.writerow(output_dict)
 
             except Exception as e:
-                logging.warning('ALL - set_groups_psql - groups missed critical information: %s' % e)
+                logging.warning('ALL - set_groups_postgres - groups missed critical information: %s' % e)
                 error_handling.log_error(e, logging)
 
         groups_txt_file.close()
 
-        m_con = mysqlDB()
+        p_con = postgres()
 
         # first importer to a table where we store the geom as text
         sql_insert = '''
@@ -435,16 +436,16 @@ class BaseProject(object):
                                 );
             '''
 
-        m_con.query(sql_insert, None)
+        p_con.query(sql_insert, None)
 
         f = open(groups_txt_filename, 'r')
         columns = ['project_id', 'group_id', 'count', 'completedCount', 'info']
-        m_con.copy_from(f, 'raw_groups', sep='\t', columns=columns)
-        logging.warning('ALL - set_groups_psql - inserted raw groups into table raw_groups')
+        p_con.copy_from(f, 'raw_groups', sep='\t', columns=columns)
+        logging.warning('ALL - set_groups_postgres - inserted raw groups into table raw_groups')
         f.close()
 
         os.remove(groups_txt_filename)
-        logging.warning('ALL - set_groups_psql - deleted file: %s' % groups_txt_filename)
+        logging.warning('ALL - set_groups_postgres - deleted file: %s' % groups_txt_filename)
 
         sql_insert = '''
                         INSERT INTO
@@ -458,22 +459,22 @@ class BaseProject(object):
                         --ON CONFLICT ON CONSTRAINT "tasks_pkey";
 
                     '''
-        m_con.query(sql_insert, None)
-        logging.warning('ALL - set_groups_psql - inserted groups into groups table')
+        p_con.query(sql_insert, None)
+        logging.warning('ALL - set_groups_postgres - inserted groups into groups table')
 
-        del m_con
+        del p_con
 
         return True
 
 
 
-    def set_project_psql(self, mysqlDB):
+    def set_project_postgres(self, postgres):
         """
-        The function to create a project in mysql
+        The function to create a project in postgres
         Parameters
         ----------
-        mysqlDB : database connection class
-            The database connection to mysql database
+        postgres : database connection class
+            The database connection to postgres database
 
         Returns
         -------
@@ -481,25 +482,25 @@ class BaseProject(object):
             True if successful. False otherwise
         """
 
-        m_con = mysqlDB()
+        p_con = postgres()
         sql_insert = "INSERT INTO projects Values(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
         data = [int(self.contributors), int(self.group_average), int(self.id), self.image, self.import_key,
                 self.is_featured, self.look_for, self.name, self.progress, self.project_details, int(self.state),
                 int(self.project_type),int(self.verification_count), json.dumps(self.info)]
         # insert in table
         try:
-            m_con.query(sql_insert, data)
+            p_con.query(sql_insert, data)
         except Exception as e:
-            del m_con
+            del p_con
             raise
 
-        logging.warning('%s - set_project_psql - inserted project info in psql' % self.id)
+        logging.warning('%s - set_project_postgres - inserted project info in postgres' % self.id)
         return True
 
-    def set_import_psql(self, mysqlDB, firebase):
+    def set_import_postgres(self, postgres, firebase):
 
 
-        m_con = mysqlDB()
+        p_con = postgres()
         sql_insert = "INSERT INTO imports Values(%s,%s)"
 
         id = self.import_key
@@ -508,12 +509,12 @@ class BaseProject(object):
         data = [id, json.dumps(info.val())]
         # insert in table
         try:
-            m_con.query(sql_insert, data)
+            p_con.query(sql_insert, data)
         except Exception as e:
-            del m_con
+            del p_con
             raise
 
-        logging.warning('%s - set_imports_psql - inserted import info in psql' % self.id)
+        logging.warning('%s - set_imports_postgres - inserted import info in postgres' % self.id)
         return True
 
     def set_import_complete(self, firebase):
@@ -540,17 +541,17 @@ class BaseProject(object):
     ####################################################################################################################
     # DELETE - We define a bunch of functions related to delete project information                                    #
     ####################################################################################################################
-    def delete_project(self, firebase, mysqlDB):
+    def delete_project(self, firebase, postgres):
         """
-        The function to delete all project related information in firebase and mysql
+        The function to delete all project related information in firebase and postgres
             This includes information on groups
 
         Parameters
         ----------
         firebase : pyrebase firebase object
             initialized firebase app with admin authentication
-        mysqlDB : database connection class
-            The database connection to mysql database
+        postgres : database connection class
+            The database connection to postgres database
 
         Returns
         -------
@@ -561,11 +562,11 @@ class BaseProject(object):
         logging.warning('%s - delete_project - start deleting project' % self.id)
         self.delete_groups_firebase(firebase)
         self.delete_project_firebase(firebase)
-        self.delete_project_mysql(mysqlDB)
-        self.delete_tasks_psql(mysqlDB)
-        self.delete_groups_psql(mysqlDB)
-        self.delete_results_mysql(mysqlDB)
-        self.delete_import_psql(mysqlDB)
+        self.delete_project_postgres(postgres)
+        self.delete_tasks_postgres(postgres)
+        self.delete_groups_postgres(postgres)
+        self.delete_results_postgres(postgres)
+        self.delete_import_postgres(postgres)
         logging.warning('%s - delete_project - finished delete project' % self.id)
         return True
 
@@ -629,14 +630,14 @@ class BaseProject(object):
         logging.warning('%s - delete_import_firebase - deleted import in firebase' % self.import_key)
         return True
 
-    def delete_project_mysql(self, mysqlDB):
+    def delete_project_postgres(self, postgres):
         """
-        The function to delete a project in the mysql projects table.
+        The function to delete a project in the postgres projects table.
 
         Parameters
         ----------
-        mysqlDB : database connection class
-            The database connection to mysql database
+        postgres : database connection class
+            The database connection to postgres database
 
         Returns
         -------
@@ -646,28 +647,28 @@ class BaseProject(object):
         TODO:
         -----
         Handle exception:
-            pymysql.err.InternalError: (1205, 'Lock wait timeout exceeded; try restarting transaction')
+            pypostgres.err.InternalError: (1205, 'Lock wait timeout exceeded; try restarting transaction')
         """
 
-        m_con = mysqlDB()
+        p_con = postgres()
         sql_insert = "DELETE FROM projects WHERE project_id = %s"
         data = [int(self.id)]
         # insert in table
-        m_con.query(sql_insert, data)
-        del m_con
+        p_con.query(sql_insert, data)
+        del p_con
 
-        logging.warning('%s - delete_project_mysql - deleted project info in mysql' % self.id)
+        logging.warning('%s - delete_project_postgres - deleted project info in postgres' % self.id)
         return True
 
 
-    def delete_results_mysql(self, mysqlDB):
+    def delete_results_postgres(self, postgres):
         """
-        The function to delete all results of project in the mysql results table.
+        The function to delete all results of project in the postgres results table.
 
         Parameters
         ----------
-        mysqlDB : database connection class
-            The database connection to mysql database
+        postgres : database connection class
+            The database connection to postgres database
 
         Returns
         -------
@@ -677,60 +678,60 @@ class BaseProject(object):
         TODO:
         -----
         Handle exception:
-            pymysql.err.InternalError: (1205, 'Lock wait timeout exceeded; try restarting transaction')
+            pypostgres.err.InternalError: (1205, 'Lock wait timeout exceeded; try restarting transaction')
         """
 
-        m_con = mysqlDB()
+        p_con = postgres()
         sql_insert = "DELETE FROM results WHERE project_id = %s"
         data = [int(self.id)]
-        m_con.query(sql_insert, data)
-        del m_con
+        p_con.query(sql_insert, data)
+        del p_con
 
-        logging.warning('%s - delete_results_mysql - deleted all results in mysql' % self.id)
+        logging.warning('%s - delete_results_postgres - deleted all results in postgres' % self.id)
         return True
 
-    def delete_tasks_psql(self, mysqlDB):
-        m_con = mysqlDB()
+    def delete_tasks_postgres(self, postgres):
+        p_con = postgres()
         sql_insert = "DELETE FROM tasks WHERE project_id = %s"
         data = [int(self.id)]
-        m_con.query(sql_insert, data)
-        del m_con
+        p_con.query(sql_insert, data)
+        del p_con
 
-        logging.warning('%s - delete_tasks_psql - deleted all tasks in psql' % self.id)
+        logging.warning('%s - delete_tasks_postgres - deleted all tasks in postgres' % self.id)
         return True
 
-    def delete_groups_psql(self, mysqlDB):
-        m_con = mysqlDB()
+    def delete_groups_postgres(self, postgres):
+        p_con = postgres()
         sql_insert = "DELETE FROM groups WHERE project_id = %s"
         data = [int(self.id)]
-        m_con.query(sql_insert, data)
-        del m_con
+        p_con.query(sql_insert, data)
+        del p_con
 
-        logging.warning('%s - delete_groups_psql - deleted all groups in psql' % self.id)
+        logging.warning('%s - delete_groups_postgres - deleted all groups in postgres' % self.id)
         return True
 
-    def delete_import_psql(self, mysqlDB):
-        m_con = mysqlDB()
+    def delete_import_postgres(self, postgres):
+        p_con = postgres()
         sql_insert = "DELETE FROM imports WHERE id = %s"
         data = [self.import_key]
-        m_con.query(sql_insert, data)
-        del m_con
+        p_con.query(sql_insert, data)
+        del p_con
 
-        logging.warning('%s - delete_import_psql - deleted import in psql' % self.id)
+        logging.warning('%s - delete_import_postgres - deleted import in postgres' % self.id)
         return True
 
     ####################################################################################################################
     # UPDATE - We define a bunch of functions related to updating existing projects                                    #
     ####################################################################################################################
-    def update_project(self, firebase, mysqlDB, output_path='data'):
-        self.get_contributors(mysqlDB)
+    def update_project(self, firebase, postgres, output_path='data'):
+        self.get_contributors(postgres)
         self.set_contributors(firebase)
         self.log_project_contributors(output_path)
         self.get_progress(firebase)
         self.set_progress(firebase)
         self.log_project_progress(output_path)
-        self.set_project_stats_psql(mysqlDB)
-        #self.set project_progress_psql()
+        self.set_project_stats_postgres(postgres)
+        #self.set project_progress_postgres()
 
     def get_group_progress(self, q):
         """
@@ -829,14 +830,14 @@ class BaseProject(object):
         self.progress = np.average(group_progress_list, axis=0)[-1]
         logging.warning('%s - get_progress - calculated progress. progress = %s' % (self.id, self.progress))
 
-    def get_contributors(self, mysqlDB):
+    def get_contributors(self, postgres):
         """
-        The function to query the number of contributor for the project from the mysql database
+        The function to query the number of contributor for the project from the postgres database
 
         Parameters
         ----------
-        mysqlDB : database connection class
-            The database connection to mysql database
+        postgres : database connection class
+            The database connection to postgres database
 
         Returns
         -------
@@ -844,8 +845,8 @@ class BaseProject(object):
             The number of users who contributed to this project
         """
 
-        # establish mysql connection
-        m_con = mysqlDB()
+        # establish postgres connection
+        p_con = postgres()
         # sql command
         sql_query = '''
                 SELECT
@@ -857,11 +858,11 @@ class BaseProject(object):
             '''
         data = [self.id]
         # one row with one value will be returned
-        self.contributors = m_con.retr_query(sql_query, data)[0][0]
+        self.contributors = p_con.retr_query(sql_query, data)[0][0]
         # delete/close db connection
-        del m_con
+        del p_con
 
-        logging.warning("%s - get_contributors - got project contributors from mysql. contributors =  %s" % (self.id, self.contributors))
+        logging.warning("%s - get_contributors - got project contributors from postgres. contributors =  %s" % (self.id, self.contributors))
 
     def set_progress(self, firebase):
         """
@@ -967,9 +968,9 @@ class BaseProject(object):
         logging.warning('%s - log_project_contributors - logged contributors to file: %s' % (self.id, filename))
         return True
 
-    def set_project_stats_psql(self, mysqlDB)-> bool:
+    def set_project_stats_postgres(self, postgres)-> bool:
 
-        m_con = mysqlDB()
+        p_con = postgres()
         sql_insert = '''
             INSERT INTO
               statistics
@@ -980,15 +981,15 @@ class BaseProject(object):
         data = [self.id, self.contributors,
                 self.progress, timestamp]
 
-        m_con.query(sql_insert, data)
+        p_con.query(sql_insert, data)
 
-        logging.warning('%s - set_project_stats_psql - inserted new entry for contributors and progress in statistics table' % self.id)
+        logging.warning('%s - set_project_stats_postgres - inserted new entry for contributors and progress in statistics table' % self.id)
 
-        del m_con
+        del p_con
 
         return True
 
-    def export_results(self, mysqlDB, output_path='data'):
+    def export_results(self, postgres, output_path='data'):
         """
         The function save the results of the project in a list of jsons'
 
@@ -1000,7 +1001,7 @@ class BaseProject(object):
 
 
         # this function is set concerning the project type
-        results_list = self.aggregate_results(mysqlDB)
+        results_list = self.aggregate_results(postgres)
 
         output_json_file = '{}/projects/{}.json'.format(output_path, self.id)
 
@@ -1013,7 +1014,7 @@ class BaseProject(object):
     ####################################################################################################################
     # ARCHIVE - We define a bunch of functions related to archiving exiting projects                                   #
     ####################################################################################################################
-    def archive_project(self, firebase, mysqlDB):
+    def archive_project(self, firebase, postgres):
         """
         The function to archives all project related information in firebase
             This includes information on groups
@@ -1022,8 +1023,8 @@ class BaseProject(object):
         ----------
         firebase : pyrebase firebase object
             initialized firebase app with admin authentication
-        mysqlDB : database connection class
-            The database connection to mysql database
+        postgres : database connection class
+            The database connection to postgres database
 
         Returns
         -------
@@ -1034,6 +1035,6 @@ class BaseProject(object):
         logging.warning('%s - archive_project - start archiving project' % self.id)
         self.archive_groups_firebase(firebase)
         self.archive_project_firebase(firebase)
-        self.archive_project_mysql(mysqlDB)
+        self.archive_project_postgres(postgres)
         logging.warning('%s - archive_project - finished archive project' % self.id)
         return True

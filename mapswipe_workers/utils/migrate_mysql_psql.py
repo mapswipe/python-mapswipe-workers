@@ -6,13 +6,12 @@ from mapswipe_workers.basic import auth
 from psycopg2 import sql
 
 
-def setup_mysql_fdw(mysqlDB):
-
-    m_con = mysqlDB()
+def setup_mysql_fdw(postgres):
+    p_con = postgres()
 
     mysql_properties = auth.CONFIG['mysql']
     mysql_properties['port'] = '3306'
-    mysql_properties = [mysql_properties['host'], mysql_properties['port'],mysql_properties['username'],
+    mysql_properties = [mysql_properties['host'], mysql_properties['port'], mysql_properties['username'],
                         mysql_properties['password']]
 
     sql_string = '''
@@ -33,20 +32,19 @@ def setup_mysql_fdw(mysqlDB):
     --show search_path;
     -- otherwise schema has to be called when querying tabls like: FROM mysql.results
     --set search_path= 'mapswipe';
-    ''' % (mysql_properties[0], mysql_properties[1], mysql_properties[2], mysql_properties[2],
-           mysql_properties[3])
+    ''' % (mysql_properties[0], mysql_properties[1], mysql_properties[2], mysql_properties[2], mysql_properties[3])
     print(sql_string)
 
     # create table
-    m_con.query(sql_string, None)
+    p_con.query(sql_string, None)
 
     print('established mysql fdw on our postgres db')
 
-    del m_con
+    del p_con
 
 
-def check_mysql_schema(mysqlDB) -> bool:
-    m_con = mysqlDB()
+def check_mysql_schema(postgres) -> bool:
+    p_con = postgres()
 
     sql_string = '''
     SELECT
@@ -55,14 +53,15 @@ def check_mysql_schema(mysqlDB) -> bool:
         information_schema.schemata
     '''
 
-    schemas = m_con.retr_query(sql_string, None)
+    schemas = p_con.retr_query(sql_string, None)
 
-    del m_con
+    del p_con
 
     return 'mysql' in schemas[-1][0]
 
-def get_projects(mysqlDB):
-    m_con = mysqlDB()
+
+def get_projects(postgres):
+    p_con = postgres()
 
     sql_string = '''
         SELECT
@@ -73,14 +72,15 @@ def get_projects(mysqlDB):
     msql_string = sql.SQL(sql_string).format(sql.Identifier('mysql'))
     psql_string = sql.SQL(sql_string).format(sql.Identifier('public'))
 
-    msql_projects_count = m_con.retr_query(msql_string, None)
-    psql_projects_count = m_con.retr_query(psql_string, None)
+    msql_projects_count = p_con.retr_query(msql_string, None)
+    psql_projects_count = p_con.retr_query(psql_string, None)
 
-    del m_con
+    del p_con
     return msql_projects_count, psql_projects_count
 
-def create_materialized_views(mysqlDB):
-    m_con = mysqlDB()
+
+def create_materialized_views(postgres):
+    p_con = postgres()
 
     sql_string = '''
         CREATE MATERIALIZED VIEW IF NOT EXISTS public.msql_projects as (
@@ -105,11 +105,12 @@ def create_materialized_views(mysqlDB):
                 1000
         );
         '''
-    m_con.query(sql_string, None)
-    del m_con
+    p_con.query(sql_string, None)
+    del p_con
 
-def import_projects(mysqlDB):
-    m_con = mysqlDB()
+
+def import_projects(postgres):
+    p_con = postgres()
 
     sql_string = '''
         INSERT INTO public.projects
@@ -120,10 +121,11 @@ def import_projects(mysqlDB):
         FROM
           public.msql_projects;
     '''
-    del m_con
+    del p_con
 
-def import_results(mysqlDB):
-    m_con = mysqlDB()
+
+def import_results(postgres):
+    p_con = postgres()
 
     sql_string = '''
         INSERT INTO public.results
@@ -134,19 +136,19 @@ def import_results(mysqlDB):
         FROM
           public.msql_results;
     '''
-    del m_con
+    del p_con
 
 
 ####################################################################################################
 if __name__ == '__main__':
 
-    mysqlDB = auth.dev_psqlDB
+    postgres = auth.dev_psqlDB
 
-    if not check_mysql_schema(mysqlDB):
-        setup_mysql_fdw(mysqlDB)
+    if not check_mysql_schema(postgres):
+        setup_mysql_fdw(postgres)
 
-    print('Projects: \nmysql: %i \npsql: %i ' %(get_projects(mysqlDB)[0][0][0],get_projects(mysqlDB)[1][0][0]))
+    print('Projects: \nmysql: %i \npsql: %i ' % (get_projects(postgres)[0][0][0], get_projects(postgres)[1][0][0]))
 
-    create_materialized_views(mysqlDB)
+    create_materialized_views(postgres)
 
     print('Materialized views created')

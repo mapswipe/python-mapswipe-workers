@@ -15,7 +15,7 @@ from mapswipe_workers.ProjectTypes.Footprint.FootprintProject import FootprintPr
 ########################################################################################################################
 def get_environment(modus='development'):
     """
-    The function to get the firebase and mysql configuration
+    The function to get the firebase and postgres configuration
 
     Parameters
     ----------
@@ -26,27 +26,27 @@ def get_environment(modus='development'):
     -------
     firebase : pyrebase firebase object
             initialized firebase app with admin authentication
-    mysqlDB : database connection class
-        The database connection to mysql database
+    postgres : database connection class
+        The database connection to postgres database
     """
     if modus == 'development':
         # we use the dev instance for testing
         firebase = auth.dev_firebase_admin_auth()
-        mysqlDB = auth.dev_psqlDB
+        postgres = auth.dev_psqlDB
         logging.warning('ALL - get_environment - use development instance')
     elif modus == 'production':
         # we use the dev instance for testing
         firebase = auth.firebase_admin_auth()
-        mysqlDB = auth.mysqlDB
+        postgres = auth.psqlDB
         logging.warning('ALL - get_environment - use production instance')
     else:
         firebase = None
-        mysqlDB = None
+        postgres = None
 
-    return firebase, mysqlDB
+    return firebase, postgres
 
 
-def init_project(project_type, project_id, firebase, mysqlDB, import_key=None, import_dict=None):
+def init_project(project_type, project_id, firebase, postgres, import_key=None, import_dict=None):
     """
     The function to init a project in regard to its type
 
@@ -69,19 +69,19 @@ def init_project(project_type, project_id, firebase, mysqlDB, import_key=None, i
         2: FootprintProject
     }
 
-    proj = class_to_type[project_type](project_id, firebase, mysqlDB, import_key, import_dict)
+    proj = class_to_type[project_type](project_id, firebase, postgres, import_key, import_dict)
     return proj
 
 
-def get_projects(firebase, mysqlDB, filter='all'):
+def get_projects(firebase, postgres, filter='all'):
     """
     The function to download project information from firebase and init the projects
     Parameters
     ----------
     firebase : pyrebase firebase object
             initialized firebase app with admin authentication
-    mysqlDB : database connection class
-        The database connection to mysql database
+    postgres : database connection class
+        The database connection to postgres database
     filter : str or list
         The filter for the projects.
         Can be either 'all', 'active', 'not_finished' or a list of project ids as integer
@@ -124,7 +124,7 @@ def get_projects(firebase, mysqlDB, filter='all'):
                 project_type = all_projects[project_id]['projectType']
             except:
                 project_type = 1
-            proj = init_project(project_type, project_id, firebase, mysqlDB)
+            proj = init_project(project_type, project_id, firebase, postgres)
             projects_list.append(proj)
 
     return projects_list
@@ -202,13 +202,13 @@ def get_new_imports(firebase):
     logging.warning('ALL - get_new_imports - got %s projects which have not been imported' % len(new_imports))
     return new_imports
 
-def update_users_psql(firebase, mysqlDB, users_txt_filename='raw_users.txt')-> bool:
+def update_users_postgres(firebase, postgres, users_txt_filename='raw_users.txt')-> bool:
     """
 
     Parameters
     ----------
     firebase
-    mysqlDB
+    postgres
     users_txt_filename
 
     Returns
@@ -246,7 +246,7 @@ def update_users_psql(firebase, mysqlDB, users_txt_filename='raw_users.txt')-> b
 
     users_txt_file.close()
 
-    m_con = mysqlDB()
+    p_con = postgres()
 
     sql_insert = '''
         DROP TABLE IF EXISTS raw_users CASCADE;
@@ -257,11 +257,11 @@ def update_users_psql(firebase, mysqlDB, users_txt_filename='raw_users.txt')-> b
             ,username varchar
         );
         '''
-    m_con.query(sql_insert, None)
+    p_con.query(sql_insert, None)
 
     f = open(users_txt_filename, 'r')
     columns = ['user_id', 'contributions', 'distance', 'username']
-    m_con.copy_from(f, 'raw_users', sep=';', columns=columns)
+    p_con.copy_from(f, 'raw_users', sep=';', columns=columns)
     logging.warning('ALL - update_users - inserted raw users into table raw_users')
     f.close()
     os.remove(users_txt_filename)
@@ -276,15 +276,16 @@ def update_users_psql(firebase, mysqlDB, users_txt_filename='raw_users.txt')-> b
           --0
         FROM
           raw_users a
+          
         ON CONFLICT ON CONSTRAINT "users_pkey"
           DO UPDATE SET contributions = excluded.contributions
           ,distance = excluded.distance
         ;
-        '''
-    m_con.query(sql_insert, None)
+        '''  # conflict action https://www.postgresql.org/docs/current/sql-insert.html
+    p_con.query(sql_insert, None)
     logging.warning('ALL - update_users - inserted results into users table and updated contributions and/or distance')
 
-    del m_con
+    del p_con
     return True
 
 def run_import(modus):
@@ -302,8 +303,8 @@ def run_import(modus):
         list of project ids of imported projects
     """
 
-    # get dev or production environment for firebase and mysql
-    firebase, mysqlDB = get_environment(modus)
+    # get dev or production environment for firebase and postgres
+    firebase, postgres = get_environment(modus)
 
     # this will return a list of imports
     imported_projects = []
@@ -320,8 +321,8 @@ def run_import(modus):
             project_type = 1
 
         # this will be the place, where we distinguish different project types
-        proj = init_project(project_type, project_id, firebase, mysqlDB, import_key, new_import)
-        proj.import_project(firebase, mysqlDB)
+        proj = init_project(project_type, project_id, firebase, postgres, import_key, new_import)
+        proj.import_project(firebase, postgres)
         imported_projects.append(proj.id)
 
     return imported_projects
@@ -337,7 +338,7 @@ def run_update(modus, filter, output_path):
     Parameters
     ----------
     modus : str
-        The environment to use for firebase and mysql
+        The environment to use for firebase and postgres
         Can be either 'development' or 'production'
     filter : str or list
         The filter for the projects.
@@ -351,17 +352,17 @@ def run_update(modus, filter, output_path):
         The list of all projects ids for projects which have been updated
     """
 
-    # get dev or production environment for firebase and mysql
-    firebase, mysqlDB = get_environment(modus)
+    # get dev or production environment for firebase and postgres
+    firebase, postgres = get_environment(modus)
 
-    project_list = get_projects(firebase, mysqlDB, filter)
+    project_list = get_projects(firebase, postgres, filter)
     updated_projects = []
     for proj in project_list:
-        proj.update_project(firebase, mysqlDB, output_path)
+        proj.update_project(firebase, postgres, output_path)
         updated_projects.append(proj.id)
 
     # update users
-    update_users_psql(firebase, mysqlDB)
+    update_users_postgres(firebase, postgres)
 
     return updated_projects
 
@@ -498,7 +499,7 @@ def results_to_txt(all_results):
                     if not key in ['user', 'projectId', 'timestamp', 'id']:
                         output_dict['info'][key] = result['data'][key]
 
-                # the info column should have json format for uploading to mysql
+                # the info column should have json format for uploading to postgres
                 output_dict['info'] = json.dumps(output_dict['info'])
 
                 w.writerow(output_dict)
@@ -512,14 +513,14 @@ def results_to_txt(all_results):
     return results_txt_filename
 
 
-def save_results_mysql(mysqlDB, results_filename):
+def save_results_postgres(postgres, results_filename):
     """
-    The function to save results in the mysql database
+    The function to save results in the postgres database
 
     Parameters
     ----------
-    mysqlDB : database connection class
-            The database connection to mysql database
+    postgres : database connection class
+            The database connection to postgres database
     results_filename : str
         The name of the file with the results
 
@@ -530,10 +531,10 @@ def save_results_mysql(mysqlDB, results_filename):
     """
 
 
-    ### this function saves the results from firebase to the mysql database
+    ### this function saves the results from firebase to the postgres database
 
     # pre step delete table if exist
-    m_con = mysqlDB()
+    p_con = postgres()
 
     # first importer to a table where we store the geom as text
     sql_insert = '''
@@ -547,19 +548,19 @@ def save_results_mysql(mysqlDB, results_filename):
         );
         '''
 
-    m_con.query(sql_insert, None)
+    p_con.query(sql_insert, None)
 
     # copy data to the new table
-    # old: mysql we should use LOAD DATA LOCAL INFILE Syntax
+    # old: postgres we should use LOAD DATA LOCAL INFILE Syntax
 
     f = open(results_filename, 'r')
     columns = ['task_id', 'project_id', 'user_id', 'timestamp', 'info']
-    m_con.copy_from(f, 'raw_results', sep='\t', columns=columns)
-    logging.warning('ALL - save_results_mysql - inserted raw results into table raw_results')
+    p_con.copy_from(f, 'raw_results', sep='\t', columns=columns)
+    logging.warning('ALL - save_results_postgres - inserted raw results into table raw_results')
     f.close()
 
     os.remove(results_filename)
-    logging.warning('ALL - save_results_mysql - deleted file: %s' % results_filename)
+    logging.warning('ALL - save_results_postgres - deleted file: %s' % results_filename)
 
     # second import all entries into the task table and convert into psql geometry
     sql_insert = '''
@@ -575,10 +576,10 @@ def save_results_mysql(mysqlDB, results_filename):
           DO UPDATE SET duplicates = results.duplicates + 1
     '''
 
-    m_con.query(sql_insert, None)
-    logging.warning('ALL - save_results_mysql - inserted results into results table and updated duplicates count')
+    p_con.query(sql_insert, None)
+    logging.warning('ALL - save_results_postgres - inserted results into results table and updated duplicates count')
 
-    del m_con
+    del p_con
     return True
 
 
@@ -588,7 +589,7 @@ def run_transfer_results(modus, results_filename='data/results.json'):
     Parameters
     ----------
     modus : str
-        The environment to use for firebase and mysql
+        The environment to use for firebase and postgres
         Can be either 'development' or 'production'
     results_filename : str
         The name of the file with the results
@@ -605,17 +606,17 @@ def run_transfer_results(modus, results_filename='data/results.json'):
     """
 
 
-    # get dev or production environment for firebase and mysql
-    firebase, mysqlDB = get_environment(modus)
+    # get dev or production environment for firebase and postgres
+    firebase, postgres = get_environment(modus)
 
-    # first check if we have results stored locally, that have not been inserted in MySQL
+    # first check if we have results stored locally, that have not been inserted in postgres
     if os.path.isfile(results_filename):
         # start to import the old results first
         with open(results_filename) as results_file:
             results = json.load(results_file)
             results_txt_filename = results_to_txt(results)
             logging.warning("ALL - run_transfer_results - there are results in %s that we didnt't insert. do it now!" % results_filename)
-            save_results_mysql(mysqlDB, results_txt_filename)
+            save_results_postgres(postgres, results_txt_filename)
             delete_firebase_results(firebase, results)
 
         os.remove(results_filename)
@@ -641,7 +642,7 @@ def run_transfer_results(modus, results_filename='data/results.json'):
             logging.warning('ALL - run_transfer_results - wrote results data to %s' % results_filename)
 
         results_txt_filename = results_to_txt(all_results)
-        save_results_mysql(mysqlDB, results_txt_filename)
+        save_results_postgres(postgres, results_txt_filename)
         delete_firebase_results(firebase, all_results)
         os.remove(results_filename)
         logging.warning('ALL - run_transfer_results - removed %s' % results_filename)
@@ -753,17 +754,17 @@ def run_export(modus, filter, output_path='data'):
 ########################################################################################################################
 def run_delete(modus, list):
 
-    # get dev or production environment for firebase and mysql
-    firebase, mysqlDB = get_environment(modus)
+    # get dev or production environment for firebase and postgres
+    firebase, postgres = get_environment(modus)
 
     if not list:
         logging.warning('ALL - run_delete - no input list provided.')
         return False
     else:
-        project_list = get_projects(firebase, mysqlDB, list)
+        project_list = get_projects(firebase, postgres, list)
         deleted_projects = []
         for proj in project_list:
-            proj.delete_project(firebase, mysqlDB)
+            proj.delete_project(firebase, postgres)
             deleted_projects.append(proj.id)
 
         return deleted_projects
@@ -774,19 +775,19 @@ def run_delete(modus, list):
 ########################################################################################################################
 def run_archive(modus, list, output_path):
 
-    # get dev or production environment for firebase and mysql
-    firebase, mysqlDB = get_environment(modus)
+    # get dev or production environment for firebase and postgres
+    firebase, postgres = get_environment(modus)
 
     if not list:
         logging.warning('ALL - run_archive - no input list provided.')
         return False
     else:
-        project_list = get_projects(firebase, mysqlDB, list)
+        project_list = get_projects(firebase, postgres, list)
         archived_projects = []
         for proj in project_list:
             pass
             # TODO implement archive function on project level
-            # proj.archive_project(firebase, mysqlDB, output_path)
+            # proj.archive_project(firebase, postgres, output_path)
             # archived_projects.append(proj.id)
 
         return archived_projects

@@ -21,7 +21,7 @@ class FootprintProject(BaseProject):
     ####################################################################################################################
     # INIT - Existing projects from id, new projects from import_key and import_dict                                   #
     ####################################################################################################################
-    def __init__(self, project_id, firebase, mysqlDB, import_key=None, import_dict=None):
+    def __init__(self, project_id, firebase, postgres, import_key=None, import_dict=None):
         """
         The function to init a project
 
@@ -31,15 +31,15 @@ class FootprintProject(BaseProject):
             The id of the project
         firebase : pyrebase firebase object
             initialized firebase app with admin authentication
-        mysqlDB : database connection class
-            The database connection to mysql database
+        postgres : database connection class
+            The database connection to postgres database
         import_key : str, optional
             The key of this import from firebase imports tabel
         import_dict : dict, optional
             The project information to be imported as a dictionary
         """
 
-        super().__init__(project_id, firebase, mysqlDB, import_key, import_dict)
+        super().__init__(project_id, firebase, postgres, import_key, import_dict)
 
         if not hasattr(self, 'contributors'):
             # we check if the super().__init__ was able to set the contributors attribute (was successful)
@@ -197,16 +197,16 @@ class FootprintProject(BaseProject):
     ####################################################################################################################
     # EXPORT - We define a bunch of functions related to exporting exiting projects                                    #
     ####################################################################################################################
-    def aggregate_results(self, mysqlDB):
+    def aggregate_results(self, postgres):
 
-        m_con = mysqlDB()
+        p_con = postgres()
 
         # your sql command
 
         data = [self.id]
-        project_results = m_con.retr_query(sql_query, data)
+        project_results = p_con.retr_query(sql_query, data)
         # delete/close db connection
-        del m_con
+        del p_con
 
         results_list = []
         for row in project_results:
@@ -216,6 +216,6 @@ class FootprintProject(BaseProject):
 
             results_list.append(row_dict)
 
-        logging.warning('got results information from mysql for project: %s. rows = %s' % (self.id, len(project_results)))
+        logging.warning('got results information from postgres for project: %s. rows = %s' % (self.id, len(project_results)))
         return results_list
 
