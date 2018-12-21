@@ -730,7 +730,7 @@ class BaseProject(object):
         self.get_progress(firebase)
         self.set_progress(firebase)
         self.log_project_progress(output_path)
-        self.set_project_stats_postgres(postgres)
+        self.set_project_progress_postgres(postgres)
         #self.set project_progress_postgres()
 
     def get_group_progress(self, q):
@@ -910,7 +910,7 @@ class BaseProject(object):
     ####################################################################################################################
     # EXPORT - We define a bunch of functions related to exporting exiting projects                                    #
     ####################################################################################################################
-    def log_project_progress(self, output_path='data'):
+    def export_progress(self, output_path='data'):
         """
         The function to log the progress to a txt file in the format 'progress_{ID}.txt'
 
@@ -925,18 +925,36 @@ class BaseProject(object):
         We log a unix timestamp and the progress separated by comma
         """
 
+
         # check if output path for projects is correct and existing
         if not os.path.exists(output_path + '/progress'):
             os.makedirs(output_path + '/progress')
 
-        filename = "{}/progress/progress_{}.txt".format(output_path, self.id)
+        filename = "{}/progress/progress_{}.json".format(output_path, self.id)
 
-        with open(filename, 'a') as output_file:
-            timestamp = int(time.time())
-            outline = "{},{}\n".format(timestamp, self.progress)
-            output_file.write(outline)
+        # json already exists
+        if os.path.isfile(filename):
+            with open(filename, 'r') as input_file:
+                progress_dict = json.load(input_file)
+                # remove file
+            os.remove(filename)
+        # create new empty dict
+        else:
+            progress_dict = {
+                "timestamps": [],
+                "progress": [],
+                "contributors": []
+            }
 
-        logging.warning('%s - log_project_progress - logged progress to file: %s' % (self.id, filename))
+        progress_dict['timestamps'].append(int(time.time()))
+        progress_dict['progress'].append(self.progress)
+        progress_dict['contributors'].append(self.contributors)
+        # write file
+        with open(filename, 'w') as output_file:
+            json.dump(progress_dict, output_file, indent=4)
+
+
+        logging.warning('%s - export_progress - exported progress to file: %s' % (self.id, filename))
         return True
 
     def log_project_contributors(self, output_path='data'):
@@ -968,7 +986,7 @@ class BaseProject(object):
         logging.warning('%s - log_project_contributors - logged contributors to file: %s' % (self.id, filename))
         return True
 
-    def set_project_stats_postgres(self, postgres)-> bool:
+    def set_project_progress_postgres(self, postgres)-> bool:
 
         p_con = postgres()
         sql_insert = '''
@@ -983,7 +1001,7 @@ class BaseProject(object):
 
         p_con.query(sql_insert, data)
 
-        logging.warning('%s - set_project_stats_postgres - inserted new entry for contributors and progress in statistics table' % self.id)
+        logging.warning('%s - set_project_progress_postgres - inserted new entry for contributors and progress in statistics table' % self.id)
 
         del p_con
 
@@ -991,6 +1009,7 @@ class BaseProject(object):
 
     def export_results(self, postgres, output_path='data'):
         """
+        TODO implement aggregate results per project type
         The function save the results of the project in a list of jsons'
 
         Parameters
@@ -999,11 +1018,13 @@ class BaseProject(object):
             The path where the json file will be stored. Default='data'
         """
 
+        logging.warning('not yet implemented')
+        return
 
         # this function is set concerning the project type
         results_list = self.aggregate_results(postgres)
 
-        output_json_file = '{}/projects/{}.json'.format(output_path, self.id)
+        output_json_file = '{}/projects/results_{}.json'.format(output_path, self.id)
 
         with open(output_json_file, 'w') as outfile:
             json.dump(results_list, outfile)

@@ -262,7 +262,7 @@ class psqlDB(object):
             port = CONFIG['psql']['port']  # print('use configuration for psql as provided by config.json')
         except:
             # Default configuration
-            print('we could not load psql dev info from the config file')
+            print('we could not load psql info from the config file')
             sys.exit(1)
 
         self._db_connection = psycopg2.connect(database=dbname, user=user, password=password, host=host, port=port)

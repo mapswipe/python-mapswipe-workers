@@ -684,7 +684,7 @@ def export_all_projects(firebase, output_path='data'):
         # save projects as json
         output_json_file = '{}/projects.json'.format(output_path)
         with open(output_json_file, 'w') as outfile:
-            json.dump(all_projects, outfile)
+            json.dump(all_projects, outfile, indent=4)
         logging.warning('ALL - export_all_projects - exported projects file: %s' % output_json_file)
         return True
 
@@ -734,20 +734,43 @@ def export_users_and_stats(firebase, output_path='data'):
         # export users as json file
         output_json_file = '{}/users.json'.format(output_path)
         with open(output_json_file, 'w') as outfile:
-            json.dump(all_users, outfile)
+            json.dump(all_users, outfile, indent=4)
         logging.warning('ALL - export_users_and_stats - exported users file: %s' % output_json_file)
 
         # export stats as json file
         output_json_file = '{}/stats.json'.format(output_path)
         with open(output_json_file, 'w') as outfile:
-            json.dump(stats, outfile)
+            json.dump(stats, outfile, indent=4)
         logging.warning('ALL - export_users_and_stats - exported stats file: %s' % output_json_file)
         return True
 
 
 def run_export(modus, filter, output_path='data'):
+    # get all active projects
+
     logging.warning('currently not implemented.')
-    pass
+
+    firebase, postgres = get_environment(modus)
+
+    active_projects = get_projects(firebase, postgres, 'active')
+    logging.warning('ALL - run_export - got %s active projects' % len(active_projects))
+    for a_project in active_projects:
+        a_project.export_progress()
+        logging.warning('%s - run_export - progress succesfull exported' % a_project.id)
+        a_project.export_results(postgres)
+        logging.warning('%s - run_export - results succesfull exported' % a_project.id)
+
+    export_all_projects(firebase)
+
+    export_users_and_stats(firebase)
+
+    return True
+
+
+
+
+
+
 
 ########################################################################################################################
 # DELETE PROJECTS                                                                                                      #
