@@ -1,5 +1,7 @@
 # API
 
+> This is very much work in progress. I made this so that we could have something out sooner rather than later. If you are looking to add projects to Mapswipe, please email pete.masters@london.msf.org 
+
 ## Intro 
 
 **File size**
