@@ -1,11 +1,31 @@
 # Setup
 
-To setup the Mapswipe back end you need to setup a [Firebase instance](https://firebase.google.com/) and use Docker to install and run it.
+To run Mapswipe Workers you need to:
+1. Clone the repository
+2. Setup a [Firebase Project](https://firebase.google.com/)
+3. Provide custom configurations
+4. Use [Docker](https://www.docker.com/) to run Mapswipe Workers
 
 
-## Firebase
+## 1. Clone Repository
 
-In [Firebase](https://firebase.google.com/) following [database rules](https://console.firebase.google.com/project/_/database/msf-mapswipe/rules) need to be applied:
+- `git clone https://github.com/mapswipe/python-mapswipe-workers.git`
+- `cd python-mapswipe-workers`
+- for current development branch: `git checkout benni.new-project-types`
+
+
+## 2. Firebase
+
+Create [**Firebase Project**](https://firebase.google.com/)
+1. Login
+2. Add project
+
+Set **Database Rules**
+3. `> Develop > Database > Create Database`
+4. `> Database > Rules`
+    1. Copy and paste database rules
+    2. `> Publish`
+    - Make sure you are using 'Realtime Database' not 'Cloud Firestore' otherwise your will get an error message (e.g. `Error saving rules - Line 1: mismatched input '{' expecting {'function', 'service', 'rules_version'}`)
 
 ```json
 {
@@ -17,6 +37,8 @@ In [Firebase](https://firebase.google.com/) following [database rules](https://c
         ".read" : true,
         "$project_id" : {
           "$group_id" : {
+            ".indexOn": ["distributedCount", "completedCount"],
+            ".write": "auth != null",
             "completedCount" : {
               ".write": "auth != null",
             }
@@ -26,12 +48,17 @@ In [Firebase](https://firebase.google.com/) following [database rules](https://c
       },
       "imports" : {
         ".read" : false,
-        ".write" : true
+        ".write" : true,
+        ".indexOn": ["complete"]
       },
      "projects" : {
         ".write": false,
         ".read" : true,
       },
+     "announcement": {
+       ".write": true,
+      ".read": true,
+     },
     "results" : {
       ".write": false,
       ".read" : true,
@@ -46,56 +73,94 @@ In [Firebase](https://firebase.google.com/) following [database rules](https://c
         ".read": "auth != null && auth.uid == $uid",
         ".write": "auth != null && auth.uid == $uid",
       }
-    }
-
-
+    }     
   }
 }
 ```
 
+Get **Web API Key**
+- `> Settings > Project settings > General`
 
-## Docker
-
-### 1. Clone Repository
-
-- `git clone https://github.com/mapswipe/python-mapswipe-workers.git`
-- `cd python-mapswipe-workers`
-- for current development branch: `git checkout benni.new-project-types`
+Download **Service Account Key**
+- `> Settings > Project settings > Service accounts > Firebase Admin SDK > Generate new private key`
+- Put the downloaded Firebase Service Account Key into the folder `cfg` of the cloned Mapswipe Workers Project.
 
 
-### 2. Configuration
+## 3. Configuration
 
-Provide a config file, the Firebase ServiceAccountKey and optionally an environment file for Postgres.
+Provide a config file, the Firebase ServiceAccountKey and an environment file for Postgres.
 
-- add your passwords etc. to `cfg/config.cfg`
-    - you can use the template `cfg/your_ServiceAccountKey` for this.
-- add your firebase `cfg/ServiceAccountKey.json`
-    - you can get it from your firebase instance [Admin SDK](https://console.firebase.google.com/project/_/settings/serviceaccounts/adminsdk).
-- if you want to use a local psql instance provide an `.env` file with:
-    ```
-    POSTGRES_PASSWORD=your_psql_password
-    POSTGRES_USER=mapswipe_workers
-    POSTGRES_DB=mapswipe
-    ```
 
-### 3. Run Docker Compose
+### config.cfg
 
+<!-- TODO -->
+
+**Change**
+- line 2: `"psql":{` to `"dev_psql":{`
+- line 9: `"firebase":{` to `"dev_firebase":{`
+
+**postgres**
+- provide usename und password for postgres
+
+**firebase**
+- provide configurations for your Firebase instance
+- for example:
+```cfg
+"dev_firebase":{
+  "api_key": " AIzaSyCFa1egVJwlf-soet5653GAjfH8V-1ujig ",
+  "auth_domain": "dev-mapswipe.firebaseapp.com",
+  "database_url": "https://dev-mapswipe.firebaseio.com",
+  "storage_bucket": "dev-mapswipe.appspot.com",
+  "service_account": "./cfg/dev-mapswipe_serviceAccountKey.json"
+```
+
+
+### .ENV
+
+Create an **Environment file** with following variables. Set custom user and password.
+
+```env
+POSTGRES_USER=mapswipe-workers
+POSTGRES_PASSWORD=postgres
+POSTGRES_DB=mapswipe
+```
+
+
+### docker-compose.yaml
+
+<!-- TODO -->
+
+**Change service > postgres > ports**
+- line 16: `"5432:5432"` to `"5433:5432"`
+
+
+## 4. Installing Mapswipe Workers
+
+Start the **Docker Daemon**
+- `systemctl start docker`
+
+Run **Docker Compose**
 - `docker-compose up -d`
 
-
-## Useful commands
-
-* `docker ps -a`: list all containers and check status
-* `docker image ls`: list all docker images
-* `docker-compose build --no-cache import`: rebuild the image for a specific container (here: import), e.g. after changing some settings like `sleep_time`
-* `docker exec -it import bash `: open shell in a running container (here: import)
-* `tail -100 ./logs/run_import.log`: show logs of container
-* `docker stats`: show memory usage, CPU consumption for all running containers
+Usefull **Docker Commands**
+- `docker ps -a`: list all containers and check status
+- `docker image ls`: list all docker images
+- `docker-compose build --no-cache import`: rebuild the image for a specific container (here: import), e.g. after changing some settings like `sleep_time`
+- `docker exec -it import bash `: open shell in a running container (here: import)
+- `tail -100 ./logs/run_import.log`: show logs of container
+- `docker stats`: show memory usage, CPU consumption for all running containers
 
 
-## Update a container 
+## Debugging
 
-How to update a container (e.g. after changing something in python-mapswipe-workers).
+**Where can I find the logs?**
+- `docker logs import`
+- logs folder
+
+
+## Update
+
+How to update a container (e.g. import):
 
 1. `git pull`: get changes from github
 2. `docker-compose build --no-cache import`: build a new docker image for the container you need to update
