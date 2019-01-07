@@ -35,7 +35,7 @@ Welcome to Mapswipe Workers's documentation!
    :maxdepth: 2
    :caption: Packages and Modules:
 
-   modules
+   source/modules
 
 
 .. toctree::
