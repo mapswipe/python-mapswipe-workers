@@ -4,16 +4,16 @@
 
 ## Intro 
 
-**File size**
+**File size:**
 Since Mapswipe results are fairly large, we recommend minimizing the amount of requests you make to our API to save bandwidth costs. If we notice that your IP is making excessive use of our resources we will block your IP address. 
 
-**Untouched data**
+**Untouched data:**
 This is RAW, UNPROCESSED data, meaning that you have to decide what is valid and invalid data. We simply provide users with a way to contribute, it is up to you which users to filter out. We provide the user_id property in results so you can ban users if you find results unacceptable. The user id will not change for a user, ever. In the future we will try to catch cheaters more effectively. 
 
-**Tiles**
+**Tiles:**
 We do not publish the tile URLs to avoid abuse at the moment. This may change in the future. If you want, you can always calculate the tile url based on the task x, y, and z, which correspond to tile x, y, and z on Bing. Make sure you ask Bing for your own API key. 
 
-**Large, complex applications**
+**Large, complex applications:**
 Please email pim@whitespell.com for a read-only MySQL connection to public data. 
 
 
