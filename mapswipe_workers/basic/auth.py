@@ -9,7 +9,8 @@ import psycopg2 # handle postgres
 import json
 import sys
 
-CONFIG_PATH = './cfg/config.cfg'
+#CONFIG_PATH = './cfg/config.cfg'
+CONFIG_PATH = '../../cfg/config.cfg'
 
 try:
     with open(CONFIG_PATH) as f:
