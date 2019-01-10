@@ -12,11 +12,6 @@ mapswipe\_workers.basic.BaseFunctions module
     :undoc-members:
     :show-inheritance:
 
-.. autofunction:: mapswipe_workers.basic.BaseFunctions
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 mapswipe\_workers.basic.BaseGroup module
 ----------------------------------------
 
