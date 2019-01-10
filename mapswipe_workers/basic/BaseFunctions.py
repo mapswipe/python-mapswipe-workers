@@ -97,6 +97,7 @@ def get_projects(firebase, postgres, filter='all'):
     projects_list : list
         The list containing the projects
     """
+    
     # create a list for projects according to filter
     projects_list = []
 
@@ -208,6 +209,7 @@ def get_new_imports(firebase):
     logging.warning('ALL - get_new_imports - got %s projects which have not been imported' % len(new_imports))
     return new_imports
 
+
 def update_users_postgres(firebase, postgres, users_txt_filename='raw_users.txt')-> bool:
     """
 
@@ -221,6 +223,7 @@ def update_users_postgres(firebase, postgres, users_txt_filename='raw_users.txt'
     -------
 
     """
+
     users_txt_file = open(users_txt_filename, 'w', newline='')
 
     fieldnames = ('user_id', 'contributions', 'distance', 'username')
@@ -478,6 +481,7 @@ def results_to_txt(all_results):
         The name of the file with the results
 
     """
+
     results_txt_filename = 'raw_results.txt'
 
     # If csv file is a file object, it should be opened with newline=''
@@ -535,7 +539,6 @@ def save_results_postgres(postgres, results_filename):
     bool
         True if successful, False otherwise
     """
-
 
     ### this function saves the results from firebase to the postgres database
 
@@ -611,7 +614,6 @@ def run_transfer_results(modus, results_filename='data/results.json'):
     Projects might not always return an integer as result.
     """
 
-
     # get dev or production environment for firebase and postgres
     firebase, postgres = get_environment(modus)
 
@@ -635,7 +637,6 @@ def run_transfer_results(modus, results_filename='data/results.json'):
     for scheme in ('http://', 'https://'):
         fb_db.requests.mount(scheme, adapter)
 
-
     # download all results and save as in json file to avoid data loss when script fails
     all_results = fb_db.child("results").get().val()
     del fb_db
@@ -656,6 +657,7 @@ def run_transfer_results(modus, results_filename='data/results.json'):
         logging.warning('ALL - run_transfer_results - there are no results to transfer in firebase')
 
     return True
+
 
 ########################################################################################################################
 # EXPORT                                                                                                               #
@@ -773,11 +775,6 @@ def run_export(modus, filter, output_path='data'):
     return True
 
 
-
-
-
-
-
 ########################################################################################################################
 # DELETE PROJECTS                                                                                                      #
 ########################################################################################################################
@@ -820,3 +817,6 @@ def run_archive(modus, list, output_path):
             # archived_projects.append(proj.id)
 
         return archived_projects
+
+if __name__ == '__main__':
+    pass
