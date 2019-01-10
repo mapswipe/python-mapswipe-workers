@@ -14,17 +14,17 @@ To run Mapswipe Workers you need to:
 - for current development branch: `git checkout benni.new-project-types`
 
 
-## 2. Firebase
+## 2. Setting up a Firebase Project
 
-Create [**Firebase Project**](https://firebase.google.com/)
+Create [**Firebase Project**](https://firebase.google.com/):
 1. Login
 2. Add project
 
-Set **Database Rules**
-3. `> Develop > Database > Create Database`
-4. `> Database > Rules`
-    1. Copy and paste database rules
-    2. `> Publish`
+Set **Database Rules**:
+1. `> Develop > Database > Create Database`
+2. `> Database > Rules`
+    - Copy and paste database rules
+    - `> Publish`
     - Make sure you are using 'Realtime Database' not 'Cloud Firestore' otherwise your will get an error message (e.g. `Error saving rules - Line 1: mismatched input '{' expecting {'function', 'service', 'rules_version'}`)
 
 ```json
@@ -78,10 +78,10 @@ Set **Database Rules**
 }
 ```
 
-Get **Web API Key**
+Get **Web API Key**:
 - `> Settings > Project settings > General`
 
-Download **Service Account Key**
+Download **Service Account Key**:
 - `> Settings > Project settings > Service accounts > Firebase Admin SDK > Generate new private key`
 - Put the downloaded Firebase Service Account Key into the folder `cfg` of the cloned Mapswipe Workers Project.
 
@@ -95,14 +95,14 @@ Provide a config file, the Firebase ServiceAccountKey and an environment file fo
 
 <!-- TODO -->
 
-**Change**
+**Change**:
 - line 2: `"psql":{` to `"dev_psql":{`
 - line 9: `"firebase":{` to `"dev_firebase":{`
 
-**postgres**
+**postgres**:
 - provide usename und password for postgres
 
-**firebase**
+**firebase**:
 - provide configurations for your Firebase instance
 - for example:
 ```cfg
@@ -130,19 +130,19 @@ POSTGRES_DB=mapswipe
 
 <!-- TODO -->
 
-**Change service > postgres > ports**
+**Change service > postgres > ports**:
 - line 16: `"5432:5432"` to `"5433:5432"`
 
 
-## 4. Installing Mapswipe Workers
+## 4. Installing Mapswipe Workers using Docker
 
-Start the **Docker Daemon**
+Start the **Docker Daemon**:
 - `systemctl start docker`
 
-Run **Docker Compose**
+Run **Docker Compose**:
 - `docker-compose up -d`
 
-Usefull **Docker Commands**
+Usefull **Docker Commands**:
 - `docker ps -a`: list all containers and check status
 - `docker image ls`: list all docker images
 - `docker-compose build --no-cache import`: rebuild the image for a specific container (here: import), e.g. after changing some settings like `sleep_time`
@@ -153,7 +153,7 @@ Usefull **Docker Commands**
 
 ## Debugging
 
-**Where can I find the logs?**
+**Where can I find the logs?**:
 - `docker logs import`
 - logs folder
 
