@@ -8,8 +8,22 @@ import pymysql  # handle mysql
 import psycopg2 # handle postgres
 import json
 import sys
+import os.path
+import errno
 
-CONFIG_PATH = './cfg/config.cfg'
+if os.path.isfile('./cfg/config.cfg'):
+    CONFIG_PATH = './cfg/config.cfg'
+elif os.path.isfile('./cfg/your-config-file.cfg'):
+    CONFIG_PATH = './cfg/your-config-file.cfg'
+else:
+    raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), filename)
+    
+# try:
+#     CONFIG_PATH = './cfg/config.cfg'
+#     os.path.isfile(CONFIG_PATH) 
+# except:
+#     CONFIG_PATH = './cfg/your_config.cfg'
+#     os.path.isfile(CONFIG_PATH)
 
 try:
     with open(CONFIG_PATH) as f:
