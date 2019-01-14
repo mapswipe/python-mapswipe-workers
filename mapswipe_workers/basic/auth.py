@@ -15,8 +15,6 @@ if os.path.isfile('../../cfg/config.cfg'):
     CONFIG_PATH = '../../cfg/config.cfg'
 elif os.path.isfile('../../cfg/your_config_file.cfg'):
     CONFIG_PATH = '../../cfg/your_config_file.cfg'
-else:
-    raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), '../../cfg/config.cfg')
     
 # try:
 #     CONFIG_PATH = './cfg/config.cfg'
