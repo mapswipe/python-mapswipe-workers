@@ -10,16 +10,8 @@ import json
 import sys
 import os.path
 
-# if os.path.isfile('../../cfg/config.cfg'):
-#     CONFIG_PATH = '../../cfg/config.cfg'
-# elif os.path.isfile('../../cfg/your_config_file.cfg'):
-#     CONFIG_PATH = '../../cfg/your_config_file.cfg'
-# else:
-#     raise FileNotFoundError
-
 
 CONFIG_PATH = './cfg/config.cfg'
-CONFIG = load_config()
 
 
 def load_config(path=CONFIG_PATH):
@@ -55,6 +47,7 @@ def load_config(path=CONFIG_PATH):
 
 # Configuration of the firebase database
 def firebase_admin_auth():
+    CONFIG = load_config()
     try:
         api_key = CONFIG['firebase']['api_key']
         auth_domain = CONFIG['firebase']['auth_domain']
@@ -81,6 +74,7 @@ def firebase_admin_auth():
 
 
 def dev_firebase_admin_auth():
+    CONFIG = load_config()
     try:
         api_key = CONFIG['dev_firebase']['api_key']
         auth_domain = CONFIG['dev_firebase']['auth_domain']
@@ -110,6 +104,7 @@ def dev_firebase_admin_auth():
 
 # get the api_key
 def get_api_key(tileserver):
+    CONFIG = load_config()
     try:
         return CONFIG['imagery'][tileserver]['api_key']
     except KeyError:
@@ -119,6 +114,7 @@ def get_api_key(tileserver):
 
 # get tileserver url
 def get_tileserver_url(tileserver):
+    CONFIG = load_config()
     try:
         return CONFIG['imagery'][tileserver]['url']
     except KeyError:
@@ -128,6 +124,7 @@ def get_tileserver_url(tileserver):
 
 # get the import submission_key
 def get_submission_key():
+    CONFIG = load_config()
     try:
         return CONFIG['import']['submission_key']
     except KeyError:
@@ -140,6 +137,7 @@ class mysqlDB(object):
     _db_cur = None
 
     def __init__(self):
+        CONFIG = load_config()
         # try to load configuration from config file
         try:
             dbname = CONFIG['mysql']['database']
@@ -230,6 +228,7 @@ class dev_psqlDB(object):
 
     def __init__(self):
         # try to load configuration from config file
+        CONFIG = load_config()
         try:
             dbname = CONFIG['dev_psql']['database']
             user = CONFIG['dev_psql']['username']
