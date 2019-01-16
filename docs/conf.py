@@ -170,4 +170,5 @@ texinfo_documents = [
 
 napoleon_google_docstring = False
 autodoc_mock_imports = ["GDAL"]
+autodoc_mock_imports = ["ogr"]
 autodoc_mock_imports = ["mapswipe_workers.basic.auth"]
