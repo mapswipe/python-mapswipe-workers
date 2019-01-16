@@ -169,3 +169,5 @@ texinfo_documents = [
 # -- Extension configuration -------------------------------------------------
 
 napoleon_google_docstring = False
+autodoc_mock_imports = ["GDAL"]
+autodoc_mock_imports = ["ogr"]
