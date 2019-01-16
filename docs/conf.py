@@ -169,4 +169,4 @@ texinfo_documents = [
 # -- Extension configuration -------------------------------------------------
 
 napoleon_google_docstring = False
-autodoc_mock_imports = ["mapswipe_workers.basic.auth", "ogr", "osr"]
+autodoc_mock_imports = ["ogr", "osr"]
