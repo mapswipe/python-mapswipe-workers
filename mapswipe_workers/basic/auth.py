@@ -19,18 +19,20 @@ import os.path
 
 CONFIG_PATH = './cfg/config.cfg'
 
-try:
-    with open(CONFIG_PATH) as f:
-        config_data = f.read()
-except IOError:
-    print('Unable to load configuration file at {}. Exiting.'.format(CONFIG_PATH))
-    raise
+# try:
+#     with open(CONFIG_PATH) as f:
+#         config_data = f.read()
+# except IOError:
+#     print('Unable to load configuration file at {}. Exiting.'.format(CONFIG_PATH))
+#     raise
 
-try:
-    CONFIG = json.loads(config_data)
-except ValueError:
-    print("Unable to parse configuration file at {}, likely because of malformed JSON. Exiting.".format(CONFIG_PATH))
-    raise
+# try:
+#     CONFIG = json.loads(config_data)
+# except ValueError:
+#     print("Unable to parse configuration file at {}, likely because of malformed JSON. Exiting.".format(CONFIG_PATH))
+#     raise
+
+CONFIG = None
 
 
 # Configuration of the firebase database
