@@ -726,12 +726,9 @@ class BaseProject(object):
     def update_project(self, firebase, postgres, output_path='data'):
         self.get_contributors(postgres)
         self.set_contributors(firebase)
-        self.log_project_contributors(output_path)
         self.get_progress(firebase)
         self.set_progress(firebase)
-        self.log_project_progress(output_path)
         self.set_project_progress_postgres(postgres)
-        #self.set project_progress_postgres()
 
     def get_group_progress(self, q):
         """

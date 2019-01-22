@@ -231,27 +231,31 @@ def update_users_postgres(firebase, postgres, users_txt_filename='raw_users.txt'
 
     #query users from fdb
     users = firebase.database().child("users").get().val()
-    for user in users:
-        try:
-            #check for missing info, add dummy values
-            if not 'username' in users[user]:
-                users[user]['username'] = 'unknown'
-            if not 'contributions' in users[user]:
-                users[user]['contributions'] = 0
-            if not 'distance' in users[user]:
-                users[user]['distance'] = 0
 
-            output_dict = {
-                "user_id": user,
-                "contributions": users[user]['contributions'],
-                "distance": users[user]['distance'],
-                "username": users[user]['username']
-            }
+    if not users:
+        logging.warning('ALL - update_users - there are no users in firebase')
+    else:
+        for user in users:
+            try:
+                #check for missing info, add dummy values
+                if not 'username' in users[user]:
+                    users[user]['username'] = 'unknown'
+                if not 'contributions' in users[user]:
+                    users[user]['contributions'] = 0
+                if not 'distance' in users[user]:
+                    users[user]['distance'] = 0
 
-            w.writerow(output_dict)
+                output_dict = {
+                    "user_id": user,
+                    "contributions": users[user]['contributions'],
+                    "distance": users[user]['distance'],
+                    "username": users[user]['username']
+                }
 
-        except Exception as e:
-            logging.warning('ALL - update_users - users missed critical information: %s' % e)
+                w.writerow(output_dict)
+
+            except Exception as e:
+                logging.warning('ALL - update_users - users missed critical information: %s' % e)
 
     users_txt_file.close()
 
