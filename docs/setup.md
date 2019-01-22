@@ -107,7 +107,7 @@ Provide a config file, the Firebase ServiceAccountKey and an environment file fo
 - for example:
 ```cfg
 "dev_firebase":{
-  "api_key": " AIzaSyCFa1egVJwlf-soet5653GAjfH8V-1ujig ",
+  "api_key": "TBaSDnrFaJEWgVaslf-vpt5dg53fAjfdsV-1uaig",
   "auth_domain": "dev-mapswipe.firebaseapp.com",
   "database_url": "https://dev-mapswipe.firebaseio.com",
   "storage_bucket": "dev-mapswipe.appspot.com",
