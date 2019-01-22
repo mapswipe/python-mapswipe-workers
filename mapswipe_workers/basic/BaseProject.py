@@ -561,12 +561,12 @@ class BaseProject(object):
 
         logging.warning('%s - delete_project - start deleting project' % self.id)
         self.delete_groups_firebase(firebase)
-        self.delete_project_firebase(firebase)
         self.delete_project_postgres(postgres)
         self.delete_tasks_postgres(postgres)
         self.delete_groups_postgres(postgres)
         self.delete_results_postgres(postgres)
         self.delete_import_postgres(postgres)
+        self.delete_project_firebase(firebase)
         logging.warning('%s - delete_project - finished delete project' % self.id)
         return True
 
@@ -691,6 +691,21 @@ class BaseProject(object):
         return True
 
     def delete_tasks_postgres(self, postgres):
+        """
+        The function to delete all tasks of project in the postgres tasks table.
+
+        Parameters
+        ----------
+        postgres : database connection class
+            The database connection to postgres database
+
+        Returns
+        -------
+        bool
+            True is successful. False otherwise.
+
+        """
+
         p_con = postgres()
         sql_insert = "DELETE FROM tasks WHERE project_id = %s"
         data = [int(self.id)]
@@ -701,6 +716,20 @@ class BaseProject(object):
         return True
 
     def delete_groups_postgres(self, postgres):
+        """
+        The function to delete all groups of project in the postgres groups table.
+
+        Parameters
+        ----------
+        postgres : database connection class
+            The database connection to postgres database
+
+        Returns
+        -------
+        bool
+            True is successful. False otherwise.
+        """
+
         p_con = postgres()
         sql_insert = "DELETE FROM groups WHERE project_id = %s"
         data = [int(self.id)]
@@ -711,8 +740,22 @@ class BaseProject(object):
         return True
 
     def delete_import_postgres(self, postgres):
+        """
+        The function to delete all import of project in the postgres imports table.
+
+        Parameters
+        ----------
+        postgres : database connection class
+            The database connection to postgres database
+
+        Returns
+        -------
+        bool
+            True is successful. False otherwise.
+        """
+
         p_con = postgres()
-        sql_insert = "DELETE FROM imports WHERE id = %s"
+        sql_insert = "DELETE FROM imports WHERE import_id = %s"
         data = [self.import_key]
         p_con.query(sql_insert, data)
         del p_con
