@@ -93,7 +93,7 @@ Provide a config file, the Firebase ServiceAccountKey and an environment file fo
 
 ### config.cfg
 
-<!-- TODO -->
+Edit following variables in the config file (`cfg/your_config_file.cfg`) and rename it to `config.cfg`.
 
 **Change**:
 - line 2: `"psql":{` to `"dev_psql":{`
@@ -117,7 +117,7 @@ Provide a config file, the Firebase ServiceAccountKey and an environment file fo
 
 ### .ENV
 
-Create an **Environment file** at root of the project (`python-mapswipe-workers/`) with following variables:
+Create an **Environment file** (`.env`) at root of the project (`python-mapswipe-workers/`) with following variables:
 ```env
 POSTGRES_USER=mapswipe-workers
 POSTGRES_PASSWORD=postgres
