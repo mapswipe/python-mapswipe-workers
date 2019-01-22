@@ -88,7 +88,7 @@ Download **Service Account Key**:
 
 ## 3. Configuration
 
-Provide a config file, the Firebase ServiceAccountKey and an environment file for Postgres.
+Provide a config file and an environment file for Postgres.
 
 
 ### config.cfg
@@ -104,6 +104,7 @@ Edit following variables in the config file (`cfg/your_config_file.cfg`) and ren
 
 **firebase**:
 - provide configurations for your Firebase instance
+- make sure the name of your Service Account Key is correct
 - for example:
 ```cfg
 "dev_firebase":{
@@ -134,7 +135,42 @@ Start the **Docker Daemon**:
 Run **Docker Compose**:
 - `docker-compose up -d`
 
-Usefull **Docker Commands**:
+Check if your Docker Containers are running:
+- `docker ps`
+
+
+## Debugging
+
+**Where can I find logs?**
+- There are two locations for logs
+- `docker logs container_name` (eg. `docker logs import`): take a look at those if your container is not running
+- logs folder at the root of project (`python-mapswipe-workers/logs/`): take a look at those for logs of already running containers
+
+**ERROR: for postgres during docker-compose:**
+- ERROR: for postgres  `Cannot start service postgres: driver failed programming external connectivity on endpoint postgres`
+- Probably a postgres instance is already running on Port 5432
+- SOLUTION: Change postgres port in your docker-compose file  (`docker-compose.yaml`)
+    - docker-compose.yaml: services > postgres > ports: Change `"5432:5432"` to `"5433:5432"`
+
+**Docker containers are always restarting:**
+
+Take a look at the docker logs (eg. `docker logs import`). If you get an `Unable to load configuration file at ./cfg/config.cfg. Exiting.` due to `PermissionError: [Errno 13] Permission denied: './cfg/config.cfg'` error message, you probably have SELinux on your system enabled. If so you have to configure (change mount option of volumes) your docker-compose file. Please read the documentation provided by Docker regarding this configuration (https://docs.docker.com/storage/bind-mounts/ Chapter: "Configure the selinux label").
+
+
+## Tips
+
+### Update
+
+How to update a container (e.g. import):
+
+1. `git pull`: get changes from github
+2. `docker-compose build --no-cache import`: build a new docker image for the container you need to update
+3. `docker stop import`
+4. `docker-compose up -d import`
+
+
+### Usefull Docker Commands
+
 - `docker ps -a`: list all containers and check status
 - `docker image ls`: list all docker images
 - `docker-compose build --no-cache import`: rebuild the image for a specific container (here: import), e.g. after changing some settings like `sleep_time`
@@ -143,27 +179,3 @@ Usefull **Docker Commands**:
 - `docker stats`: show memory usage, CPU consumption for all running containers
 - `docker system prune`: clean up any resources — images, containers, volumes, and networks — that are dangling (not associated with a container)
 
-
-## Debugging
-
-**Where can I find the logs?**:
-- There are two locations for logs
-    - `docker logs container_name` (eg. `docker logs import`)
-        - take a look at those if your container is not running
-    - logs folder at the root of project (`python-mapswipe-workers/logs/`)
-        - take a look at those for logs of already running containers
-
-**ERROR: for postgres during docker-compose**
-- ERROR: for postgres  `Cannot start service postgres: driver failed programming external connectivity on endpoint postgres`
-- Probably a postgres instance is already running on Port 5432
-- SOLUTION: Change postgres port in your docker-compose file  (`docker-compose.yaml`)
-    - docker-compose.yaml: services > postgres > ports: Change `"5432:5432"` to `"5433:5432"`
-
-## Update
-
-How to update a container (e.g. import):
-
-1. `git pull`: get changes from github
-2. `docker-compose build --no-cache import`: build a new docker image for the container you need to update
-3. `docker stop import`
-4. `docker-compose up -d import`
