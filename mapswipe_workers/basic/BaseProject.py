@@ -391,9 +391,26 @@ class BaseProject(object):
         return True
 
     def set_groups_postgres(self, postgres, groups, groups_txt_filename='raw_groups.txt'):
+        """
+        The function to import all groups for the project into postgres groups table
 
+        Parameters
+        ----------
+        postgres : database connection class
+            The database connection to postgres database
+        groups : dict
+            The dictionary with the group information
+        groups_txt_filename : str
+            The path where a temporary txt file will be stored to import into postgres
+
+        Returns
+        -------
+        bool
+            True if successful. False otherwise
+        """
+
+        # create txt file with header for later import with copy function into postgres
         groups_txt_file = open(groups_txt_filename, 'w', newline='')
-
         fieldnames = ('project_id', 'group_id', 'completedCount', 'count', 'info')
         w = csv.DictWriter(groups_txt_file, fieldnames=fieldnames, delimiter='\t', quotechar="'")
 
@@ -424,7 +441,7 @@ class BaseProject(object):
 
         p_con = postgres()
 
-        # first importer to a table where we store the geom as text
+        # first create a table for the raw groups information
         sql_insert = '''
             DROP TABLE IF EXISTS raw_groups CASCADE;
             CREATE TABLE raw_groups (
@@ -438,15 +455,16 @@ class BaseProject(object):
 
         p_con.query(sql_insert, None)
 
+        # insert data from txt file into raw groups table in postgres
         f = open(groups_txt_filename, 'r')
         columns = ['project_id', 'group_id', 'count', 'completedCount', 'info']
         p_con.copy_from(f, 'raw_groups', sep='\t', columns=columns)
         logging.warning('ALL - set_groups_postgres - inserted raw groups into table raw_groups')
         f.close()
-
         os.remove(groups_txt_filename)
         logging.warning('ALL - set_groups_postgres - deleted file: %s' % groups_txt_filename)
 
+        # insert groups into postgres groups table and handle conflicts
         sql_insert = '''
                         INSERT INTO
                           groups
@@ -465,8 +483,6 @@ class BaseProject(object):
         del p_con
 
         return True
-
-
 
     def set_project_postgres(self, postgres):
         """
@@ -498,7 +514,22 @@ class BaseProject(object):
         return True
 
     def set_import_postgres(self, postgres, firebase):
+        """
+        The function saves the import information from firebase to the posgres imports table
 
+        Parameters
+        ----------
+        postgres : database connection class
+            The database connection to postgres database
+        firebase : pyrebase firebase object
+            initialized firebase app with admin authentication
+
+        Returns
+        -------
+        bool
+            True if successful. False otherwise
+
+        """
 
         p_con = postgres()
         sql_insert = "INSERT INTO imports Values(%s,%s)"
