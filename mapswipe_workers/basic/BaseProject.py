@@ -702,7 +702,7 @@ class BaseProject(object):
         Returns
         -------
         bool
-            True is successful. False otherwise.
+            True if successful. False otherwise.
 
         """
 
@@ -727,7 +727,7 @@ class BaseProject(object):
         Returns
         -------
         bool
-            True is successful. False otherwise.
+            True if successful. False otherwise.
         """
 
         p_con = postgres()
@@ -751,11 +751,12 @@ class BaseProject(object):
         Returns
         -------
         bool
-            True is successful. False otherwise.
+            True if successful. False otherwise.
         """
 
         p_con = postgres()
         sql_insert = "DELETE FROM imports WHERE import_id = %s"
+
         data = [self.import_key]
         p_con.query(sql_insert, data)
         del p_con
