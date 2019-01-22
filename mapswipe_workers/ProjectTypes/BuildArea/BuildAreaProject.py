@@ -257,32 +257,28 @@ class BuildAreaProject(BaseProject):
             select
               task_id as id
               ,project_id as project
-              ,task_x
-              ,task_y
-              ,task_z
-              ,avg(result) as decision
+              ,avg(cast(info ->> 'result' as integer))as decision
               ,SUM(CASE
-                WHEN result = 1 THEN 1
+                WHEN cast(info ->> 'result' as integer) = 1 THEN 1
                 ELSE 0
                END) AS yes_count
                ,SUM(CASE
-                WHEN result = 2 THEN 1
+                WHEN cast(info ->> 'result' as integer) = 2 THEN 1
                 ELSE 0
                END) AS maybe_count
                ,SUM(CASE
-                WHEN result = 3 THEN 1
+                WHEN cast(info ->> 'result' as integer) = 3 THEN 1
                 ELSE 0
                END) AS bad_imagery_count
-               ,wkt
             from
               results
             where
-              project_id = %s and result > 0
+              project_id = %s and cast(info ->> 'result' as integer) > 0
             group by
-              task_id, wkt'''
+              task_id
+              ,project_id'''
 
-        header = ['id', 'project', 'task_x', 'task_y', 'task_z',
-                  'decision', 'yes_count', 'maybe_count', 'bad_imagery_count', 'wkt']
+        header = ['id', 'project_id','decision', 'yes_count', 'maybe_count', 'bad_imagery_count']
         data = [self.id]
 
         project_results = p_con.retr_query(sql_query, data)
