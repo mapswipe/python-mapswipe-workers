@@ -30,7 +30,6 @@ class BuildAreaGroup(BaseGroup):
         ----------
         project: BaseProject object
             The project the group is associated with
-
         group_id: int
             The id of the group
         slice: dict
@@ -52,7 +51,7 @@ class BuildAreaGroup(BaseGroup):
 
     def create_tasks(self, project: object):
         """
-        The Function to create tasks of the group
+        The Function to create tasks for the group of the build area project type
 
         Parameters
         ----------
