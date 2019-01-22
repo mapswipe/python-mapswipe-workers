@@ -6,6 +6,8 @@ class BaseGroup(object):
         ----------
         projectId : int
             The id of the project the group is associated with
+        id: int
+            The id of the group
         completedCount: int
             Number of users who finished the group
         neededCount: int
@@ -14,7 +16,22 @@ class BaseGroup(object):
              Number of tasks associated with the group
 
     """
-    def __init__(self, project, group_id):
+    def __init__(self, project: object, group_id: int):
+        """
+            The Constructor Method for a group instance
+
+        Parameters
+        ----------
+        project: BaseProject object
+            The project the group is associated with
+
+        group_id: int
+            The id of the group
+
+        Returns
+        -------
+        object
+        """
         # set basic group information, make sure to spell exactly as represented in firebase and consumed by the app
         # projectId is a string in firebase
         self.projectId = project.id

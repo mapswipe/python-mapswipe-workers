@@ -3,6 +3,7 @@ from mapswipe_workers.basic.BaseGroup import *
 
 
 class FootprintGroup(BaseGroup):
+
     type = 2
 
     def __init__(self, project, group_id, feature_ids, feature_geometries):
