@@ -212,26 +212,32 @@ def get_new_imports(firebase):
 
 def update_users_postgres(firebase, postgres, users_txt_filename='raw_users.txt')-> bool:
     """
+    The replace the users table in postgres with the current information from firebase
 
     Parameters
     ----------
-    firebase
-    postgres
-    users_txt_filename
+    firebase :  pyrebase firebase object
+        initialized firebase app with admin authentication
+    postgres : database connection class
+        the database connection to postgres database
+    users_txt_filename : string
+        the path for the textfile which temporally stores the raw information
 
     Returns
     -------
-
+    bool
+        True if successful, False otherwise
     """
 
+    # open new txt file and write header
     users_txt_file = open(users_txt_filename, 'w', newline='')
-
     fieldnames = ('user_id', 'contributions', 'distance', 'username')
     w = csv.DictWriter(users_txt_file, fieldnames=fieldnames, delimiter=';', quotechar="'")
 
     #query users from fdb
     users = firebase.database().child("users").get().val()
 
+    # check that there are users in firebase
     if not users:
         logging.warning('ALL - update_users - there are no users in firebase')
     else:
@@ -259,8 +265,8 @@ def update_users_postgres(firebase, postgres, users_txt_filename='raw_users.txt'
 
     users_txt_file.close()
 
+    # create new table in postgres for raw_users
     p_con = postgres()
-
     sql_insert = '''
         DROP TABLE IF EXISTS raw_users CASCADE;
         CREATE TABLE raw_users (
@@ -272,6 +278,7 @@ def update_users_postgres(firebase, postgres, users_txt_filename='raw_users.txt'
         '''
     p_con.query(sql_insert, None)
 
+    # insert user data from text file into new table in postgres
     f = open(users_txt_filename, 'r')
     columns = ['user_id', 'contributions', 'distance', 'username']
     p_con.copy_from(f, 'raw_users', sep=';', columns=columns)
@@ -280,6 +287,7 @@ def update_users_postgres(firebase, postgres, users_txt_filename='raw_users.txt'
     os.remove(users_txt_filename)
     logging.warning('ALL - update_users - deleted file: %s' % users_txt_filename)
 
+    # update users in postgres, update contributions and distance and handle conflicts
     sql_insert = '''
         INSERT INTO
           users
@@ -758,13 +766,13 @@ def export_users_and_stats(firebase, output_path='data'):
 
 
 def run_export(modus, filter, output_path='data'):
+
+
     # get all active projects
-
-    logging.warning('currently not implemented.')
-
     firebase, postgres = get_environment(modus)
-
     active_projects = get_projects(firebase, postgres, 'active')
+
+
     logging.warning('ALL - run_export - got %s active projects' % len(active_projects))
     for a_project in active_projects:
         a_project.export_progress()
@@ -783,6 +791,7 @@ def run_export(modus, filter, output_path='data'):
 # DELETE PROJECTS                                                                                                      #
 ########################################################################################################################
 def run_delete(modus, list):
+
 
     # get dev or production environment for firebase and postgres
     firebase, postgres = get_environment(modus)
