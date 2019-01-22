@@ -152,7 +152,7 @@ class BaseProject(object):
 
             if not groups_data:
                 logging.warning('%s - project_exists_firebase - groups not in firebase' % self.id)
-                return False
+                return project_data
             else:
                 logging.warning('%s - project_exists_firebase - project and groups exist in firebase' % self.id)
                 return project_data
@@ -591,19 +591,14 @@ class BaseProject(object):
         """
 
         logging.warning('%s - delete_project - start deleting project' % self.id)
-        self.delete_groups_firebase(firebase)
         self.delete_project_postgres(postgres)
-        self.delete_tasks_postgres(postgres)
-        self.delete_groups_postgres(postgres)
-        self.delete_results_postgres(postgres)
-        self.delete_import_postgres(postgres)
         self.delete_project_firebase(firebase)
         logging.warning('%s - delete_project - finished delete project' % self.id)
         return True
 
-    def delete_groups_firebase(self, firebase):
+    def delete_project_firebase(self, firebase):
         """
-        The function to delete all groups of a project in firebase
+        The function to delete the project and groups in firebase
 
         Parameters
         ----------
@@ -617,53 +612,22 @@ class BaseProject(object):
         """
 
         fb_db = firebase.database()
-        fb_db.child("groups").child(self.id).remove()
-        logging.warning('%s - delete_groups_firebase - deleted groups in firebase' % self.id)
-        return
 
-    def delete_project_firebase(self, firebase):
-        """
-        The function to delete the project entry in the firebase projects table
+        # we create this element to do a multi location update
+        data = {
+            "projects/{}/".format(self.id): None,
+            "groups/{}/".format(self.id): None,
+            "imports/{}/".format(self.import_key): None
+        }
 
-        Parameters
-        ----------
-        firebase : pyrebase firebase object
-            initialized firebase app with admin authentication
+        fb_db.update(data)
+        logging.warning('%s - delete_project_firebase - deleted project and groups and import in firebase' % self.id)
 
-        Returns
-        -------
-        bool
-            True if successful. False otherwise.
-        """
-
-        fb_db = firebase.database()
-        fb_db.child("projects").child(self.id).remove()
-        logging.warning('%s - delete_project_firebase - deleted project in firebase' % self.id)
-        return True
-
-    def delete_import_firebase(self, firebase):
-        """
-        The function to delete an import in firebase
-        Parameters
-        ----------
-        firebase : pyrebase firebase object
-            initialized firebase app with admin authentication
-
-        Returns
-        -------
-        bool
-            True if successful. False otherwise.
-        """
-
-        fb_db = firebase.database()
-        fb_db.child("imports").child(self.import_key).remove()
-
-        logging.warning('%s - delete_import_firebase - deleted import in firebase' % self.import_key)
         return True
 
     def delete_project_postgres(self, postgres):
         """
-        The function to delete a project in the postgres projects table.
+        The function to delete results, tasks, groups, import of project in postgres.
 
         Parameters
         ----------
@@ -682,117 +646,19 @@ class BaseProject(object):
         """
 
         p_con = postgres()
-        sql_insert = "DELETE FROM projects WHERE project_id = %s"
-        data = [int(self.id)]
-        # insert in table
-        p_con.query(sql_insert, data)
-        del p_con
+        sql_insert = """
+            DELETE FROM projects WHERE project_id = %s;
+            DELETE FROM results WHERE project_id = %s;
+            DELETE FROM tasks WHERE project_id = %s;
+            DELETE FROM groups WHERE project_id = %s;
+            DELETE FROM imports WHERE import_id = %s
 
-        logging.warning('%s - delete_project_postgres - deleted project info in postgres' % self.id)
-        return True
-
-
-    def delete_results_postgres(self, postgres):
         """
-        The function to delete all results of project in the postgres results table.
-
-        Parameters
-        ----------
-        postgres : database connection class
-            The database connection to postgres database
-
-        Returns
-        -------
-        bool
-            True is successful. False otherwise.
-
-        TODO:
-        -----
-        Handle exception:
-            pypostgres.err.InternalError: (1205, 'Lock wait timeout exceeded; try restarting transaction')
-        """
-
-        p_con = postgres()
-        sql_insert = "DELETE FROM results WHERE project_id = %s"
-        data = [int(self.id)]
+        data = [int(self.id), int(self.id), int(self.id), int(self.id), str(self.import_key)]
         p_con.query(sql_insert, data)
         del p_con
 
         logging.warning('%s - delete_results_postgres - deleted all results in postgres' % self.id)
-        return True
-
-    def delete_tasks_postgres(self, postgres):
-        """
-        The function to delete all tasks of project in the postgres tasks table.
-
-        Parameters
-        ----------
-        postgres : database connection class
-            The database connection to postgres database
-
-        Returns
-        -------
-        bool
-            True if successful. False otherwise.
-
-        """
-
-        p_con = postgres()
-        sql_insert = "DELETE FROM tasks WHERE project_id = %s"
-        data = [int(self.id)]
-        p_con.query(sql_insert, data)
-        del p_con
-
-        logging.warning('%s - delete_tasks_postgres - deleted all tasks in postgres' % self.id)
-        return True
-
-    def delete_groups_postgres(self, postgres):
-        """
-        The function to delete all groups of project in the postgres groups table.
-
-        Parameters
-        ----------
-        postgres : database connection class
-            The database connection to postgres database
-
-        Returns
-        -------
-        bool
-            True if successful. False otherwise.
-        """
-
-        p_con = postgres()
-        sql_insert = "DELETE FROM groups WHERE project_id = %s"
-        data = [int(self.id)]
-        p_con.query(sql_insert, data)
-        del p_con
-
-        logging.warning('%s - delete_groups_postgres - deleted all groups in postgres' % self.id)
-        return True
-
-    def delete_import_postgres(self, postgres):
-        """
-        The function to delete all import of project in the postgres imports table.
-
-        Parameters
-        ----------
-        postgres : database connection class
-            The database connection to postgres database
-
-        Returns
-        -------
-        bool
-            True if successful. False otherwise.
-        """
-
-        p_con = postgres()
-        sql_insert = "DELETE FROM imports WHERE import_id = %s"
-
-        data = [self.import_key]
-        p_con.query(sql_insert, data)
-        del p_con
-
-        logging.warning('%s - delete_import_postgres - deleted import in postgres' % self.id)
         return True
 
     ####################################################################################################################
