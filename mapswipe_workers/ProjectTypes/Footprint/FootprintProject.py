@@ -2,6 +2,7 @@ import os
 import logging
 import ogr
 import urllib.request
+from typing import Union
 
 from mapswipe_workers.basic import auth
 from mapswipe_workers.basic.BaseProject import BaseProject
@@ -87,13 +88,17 @@ class FootprintProject(BaseProject):
             # we need to set the "input geometries file" attribute
             self.info["input_geometries_file"] = valid_geometries_file
 
-
             del self.is_new
             logging.warning('%s - __init__ - init complete' % self.id)
 
-    def check_input_geometries(self, input_geometries_file):
+    def check_input_geometries(self, input_geometries_file: str) -> Union[str, bool]:
         """
-        The function to validate to input geometry
+        The function to validate the input geometry
+
+        Parameters
+        ----------
+        input_geometries_file: str
+            String pointing to a geojson containing the geometries to validate
 
         Returns
         -------
@@ -170,11 +175,11 @@ class FootprintProject(BaseProject):
         logging.warning('%s - check_input_geometry - filtered correct input geometries' % self.id)
         return outfile
 
-
     ####################################################################################################################
     # IMPORT - We define a bunch of functions related to importing new projects                                        #
     ####################################################################################################################
-    def create_groups(self):
+
+    def create_groups(self) -> dict:
         """
         The function to create groups of footprint geometries
 
@@ -197,11 +202,23 @@ class FootprintProject(BaseProject):
     ####################################################################################################################
     # EXPORT - We define a bunch of functions related to exporting exiting projects                                    #
     ####################################################################################################################
-    def aggregate_results(self, postgres):
 
-        p_con = postgres()
+    def aggregate_results(self, postgres: object) -> dict:
+        """
+        The Function to aggregate results per task.
 
-        # your sql command
+        Parameters
+        ----------
+        postgres : database connection class
+            The database connection to postgres database
+
+        Returns
+        -------
+        results_dict : dict
+            result of the aggregation as dictionary. Key for every object is task id. Properties are decision,
+            yes_count, maybe_count, bad_imagery_count
+
+        """
         p_con = postgres()
         # sql command
         sql_query = '''
