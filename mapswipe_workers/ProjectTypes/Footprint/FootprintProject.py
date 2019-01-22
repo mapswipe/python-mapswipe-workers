@@ -236,21 +236,26 @@ class FootprintProject(BaseProject):
         # delete/close db connection
         del p_con
 
-        results_list = []
+        results_dict = {}
         for row in project_results:
+            row_id = ''
             row_dict = {}
             for i in range(0, len(header)):
-                if header[i] == 'decision':
+                # check for task id
+                if header[i] == 'id':
+                    row_id = str(row[i])
+                elif header[i] == 'decision':  # check for float value
                     row_dict[header[i]] = float(str(row[i]))
+                # check for integer value
                 elif header[i] in ['yes_count', 'maybe_count', 'bad_imagery_count']:
                     row_dict[header[i]] = int(str(row[i]))
+                # all other values will be handled as strings
                 else:
                     row_dict[header[i]] = row[i]
-            results_list.append(row_dict)
+            results_dict[row_id] = row_dict
 
-        logging.warning(
-            'got results information from postgres for project: %s. rows = %s' % (self.id, len(project_results)))
-
-        return results_list
+        logging.warning('got results information from postgres for project: %s. rows = %s' % (self.id,
+                                                                                              len(project_results)))
+        return results_dict
 
 

@@ -907,14 +907,18 @@ class BaseProject(object):
     ####################################################################################################################
     # EXPORT - We define a bunch of functions related to exporting exiting projects                                    #
     ####################################################################################################################
-    def export_progress(self, output_path='data'):
+    def export_progress(self, output_path):
         """
         The function to log the progress to a txt file in the format 'progress_{ID}.txt'
 
         Parameters
         ----------
-        output_path : str, optional
-            The path where the txt file will be stored. Default='data'
+        output_path : str
+
+        Returns
+        -------
+        bool
+            True if successful, False otherwise.
 
         Notes
         -----
@@ -1004,24 +1008,25 @@ class BaseProject(object):
 
         return True
 
-    def export_results(self, postgres, output_path='data'):
+    def export_results(self, postgres: object, output_path: str)-> bool:
         """
-        TODO implement aggregate results per project type
-        The function save the results of the project in a list of jsons'
+            TODO implement aggregate results per project type
+            The function save the results of the project in a list of jsons'
 
-        Parameters
-        ----------
-        output_path : str, optional
-            The path where the json file will be stored. Default='data'
+            Parameters
+            ----------
+            postgres : object
+            output_path : str
+
+            Returns
+            -------
+
         """
-
-        #logging.warning('not yet implemented')
-        #return
 
         # this function is set concerning the project type
         results_list = self.aggregate_results(postgres)
 
-        # check if output path for results is cexisting
+        # check if output path for results is existing
         if not os.path.exists(output_path + '/results'):
             os.makedirs(output_path + '/results')
 

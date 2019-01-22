@@ -9,6 +9,7 @@ import json
 import os
 import csv
 import requests
+from typing import Union
 
 from mapswipe_workers.basic import auth
 # Make sure to import all project types here
@@ -757,26 +758,90 @@ def export_users_and_stats(firebase, output_path='data'):
         return True
 
 
-def run_export(modus, filter, output_path='data'):
-    # get all active projects
+def run_export(modus: str, filter: Union[str, list], output_path='data')-> list:
+    """
+        The function to export general statistics along with progress and results per
+        projects as well as all users in json format for to use in the mapswipe api.
 
-    logging.warning('currently not implemented.')
+        Examples
+        ----------
+        Output structure:
+            progress_<project_id>.json
+                {
+                    "timestamps": [
+                        int,
+                        int,
+                        ..
+                    ],
+                    "progress": [
+                        int,
+                        int,
+                        ..
+                    ],
+                    "contributors": [
+                        int,
+                        int
+                    ]
+                }
+            stats.json
+                {
+                    "users": int,
+                    "totalDistanceMappedInSqKm": float,
+                    "totalContributionsByUsers": int
+                }
+            results_<project_id>.json
+                 {
+                    "task_id": {
+                        "project_id": int,
+                        "decision": float,
+                        "yes_count": int,
+                        "maybe_count": int,
+                        "bad_imagery_count": int,
+                }
+            users.json
+                {
+                    "user_id": {
+                        "contribution": int,
+                        "distance": int,
+                        "username": str
+                    }
+                }
+
+        Parameters
+        ----------
+        modus : str
+            The environment to use for firebase and postgres
+            Can be either 'development' or 'production'
+        filter : str or list
+            The filter for the projects.
+            Can be either 'all', 'active', 'not_finished' or a list of project ids as integer
+        output_path: str
+            The output path of the logs for progress and contributors
+
+        Returns
+        -------
+        exported_projects : list
+            The list of all projects ids for projects which have been updated
+        """
 
     firebase, postgres = get_environment(modus)
 
-    active_projects = get_projects(firebase, postgres, 'active')
-    logging.warning('ALL - run_export - got %s active projects' % len(active_projects))
-    for a_project in active_projects:
-        a_project.export_progress()
-        logging.warning('%s - run_export - progress succesfull exported' % a_project.id)
-        a_project.export_results(postgres)
-        logging.warning('%s - run_export - results succesfull exported' % a_project.id)
+    project_list = get_projects(firebase, postgres, filter)
+    logging.warning('ALL - run_export - got %s projects to export. Filter is set for %s projects' % (len(project_list),
+                                                                                                     filter))
+    exported_projects = []
+    for project in project_list:
+        project.export_progress(output_path)
+        logging.warning('%s - run_export - progress successfully exported' % project.id)
+        project.export_results(postgres, output_path)
+        logging.warning('%s - run_export - results successfully exported' % project.id)
+        exported_projects.append(project.id)
+
 
     export_all_projects(firebase)
-
     export_users_and_stats(firebase)
 
-    return True
+    return exported_projects
 
 
 ########################################################################################################################
