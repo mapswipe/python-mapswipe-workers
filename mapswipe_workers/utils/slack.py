@@ -8,6 +8,18 @@ from slackclient import SlackClient
 
 
 def get_slack_client():
+    """
+    The function to init the slack client from information provided in config file
+
+    Returns
+    -------
+    sc : SlackClient
+    channel: str
+        name of slack channel
+    username : str
+        user name for the bot in slack
+    """
+
     try:
         with open('./cfg/config.cfg') as json_data_file:
             data = json.load(json_data_file)
@@ -22,6 +34,20 @@ def get_slack_client():
 
 
 def send_slack_message(msg):
+    """
+    The function to send a message to a slack channel
+
+    Parameters
+    ----------
+    msg : str
+        the message to send as string
+
+    Returns
+    -------
+    bool
+        True if successful, False otherwise
+    """
+
     if not get_slack_client():
         return False
     else:
@@ -42,6 +68,5 @@ if __name__ == '__main__':
 
     head = 'Test slack api python integration:'
     message = 'Hello world!'
-
     send_slack_message(head + '\n' + message)
 
