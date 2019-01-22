@@ -24,11 +24,11 @@ class BuildAreaGroup(BaseGroup):
 
     def __init__(self, project, group_id, slice: dict):
         """
-            The Constructor Method for a group instance of the build area project type
+            The constructor method for a group instance of the build area project type
 
         Parameters
         ----------
-        project: BaseProject object
+        project: BuildAreaProject object
             The project the group is associated with
         group_id: int
             The id of the group
@@ -55,7 +55,7 @@ class BuildAreaGroup(BaseGroup):
 
         Parameters
         ----------
-        project: BaseProject object
+        project: BuildAreaProject object
             The project the group is associated with
         """
         tasks = {}

@@ -15,7 +15,7 @@ class FootprintGroup(BaseGroup):
 
         Parameters
         ----------
-        project: BaseProject object
+        project: FootprintProject object
             The project the group is associated with
         group_id:
             The id of the group
@@ -35,13 +35,14 @@ class FootprintGroup(BaseGroup):
 
         Parameters
         ----------
-        project: BaseProject object
+        project: FootprintProject object
             The project the group is associated with
-        feature_ids: int
-            The id of the feature
-        feature_geometries: dict
-            The geometry of the feature as geojson. Consisting of two keys: coordinates and type. Coordinates
-            consists of four two pair coordinates representing the footprint of an object
+        feature_ids: list
+            THe list of the ids of the features
+        feature_geometries: list
+            A list of geometries oor feature in geojson format. These consist two keys: coordinates and type.
+            Coordinates of four two pair coordinates. Every coordinate pair is a vertex, representing the footprint
+            of an object.
         """
 
         tasks = {}
