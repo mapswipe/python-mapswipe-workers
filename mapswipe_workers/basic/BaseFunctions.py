@@ -98,7 +98,7 @@ def get_projects(firebase, postgres, filter='all'):
     projects_list : list
         The list containing the projects
     """
-    
+
     # create a list for projects according to filter
     projects_list = []
 
@@ -213,26 +213,32 @@ def get_new_imports(firebase):
 
 def update_users_postgres(firebase, postgres, users_txt_filename='raw_users.txt')-> bool:
     """
+    The replace the users table in postgres with the current information from firebase
 
     Parameters
     ----------
-    firebase
-    postgres
-    users_txt_filename
+    firebase :  pyrebase firebase object
+        initialized firebase app with admin authentication
+    postgres : database connection class
+        the database connection to postgres database
+    users_txt_filename : string
+        the path for the textfile which temporally stores the raw information
 
     Returns
     -------
-
+    bool
+        True if successful, False otherwise
     """
 
+    # open new txt file and write header
     users_txt_file = open(users_txt_filename, 'w', newline='')
-
     fieldnames = ('user_id', 'contributions', 'distance', 'username')
     w = csv.DictWriter(users_txt_file, fieldnames=fieldnames, delimiter=';', quotechar="'")
 
     #query users from fdb
     users = firebase.database().child("users").get().val()
 
+    # check that there are users in firebase
     if not users:
         logging.warning('ALL - update_users - there are no users in firebase')
     else:
@@ -260,8 +266,8 @@ def update_users_postgres(firebase, postgres, users_txt_filename='raw_users.txt'
 
     users_txt_file.close()
 
+    # create new table in postgres for raw_users
     p_con = postgres()
-
     sql_insert = '''
         DROP TABLE IF EXISTS raw_users CASCADE;
         CREATE TABLE raw_users (
@@ -273,6 +279,7 @@ def update_users_postgres(firebase, postgres, users_txt_filename='raw_users.txt'
         '''
     p_con.query(sql_insert, None)
 
+    # insert user data from text file into new table in postgres
     f = open(users_txt_filename, 'r')
     columns = ['user_id', 'contributions', 'distance', 'username']
     p_con.copy_from(f, 'raw_users', sep=';', columns=columns)
@@ -281,6 +288,7 @@ def update_users_postgres(firebase, postgres, users_txt_filename='raw_users.txt'
     os.remove(users_txt_filename)
     logging.warning('ALL - update_users - deleted file: %s' % users_txt_filename)
 
+    # update users in postgres, update contributions and distance and handle conflicts
     sql_insert = '''
         INSERT INTO
           users
@@ -290,7 +298,7 @@ def update_users_postgres(firebase, postgres, users_txt_filename='raw_users.txt'
           --0
         FROM
           raw_users a
-          
+
         ON CONFLICT ON CONSTRAINT "users_pkey"
           DO UPDATE SET contributions = excluded.contributions
           ,distance = excluded.distance
@@ -848,27 +856,58 @@ def run_export(modus: str, filter: Union[str, list], output_path='data')-> list:
 # DELETE PROJECTS                                                                                                      #
 ########################################################################################################################
 def run_delete(modus, list):
+    """
+    The function to delete a list of projects and all corresponding information (results, tasks, groups) in firebase and postgres
+
+    Parameters
+    ----------
+    modus : str
+        The environment to use for firebase and postgres
+        Can be either 'development' or 'production'
+    list : list
+        The ids of the projects to delete
+
+    Returns
+    -------
+    deleted_projects : list
+        The list of all projects ids for projects which have been deleted
+    """
 
     # get dev or production environment for firebase and postgres
     firebase, postgres = get_environment(modus)
+    deleted_projects = []
 
     if not list:
         logging.warning('ALL - run_delete - no input list provided.')
-        return False
     else:
         project_list = get_projects(firebase, postgres, list)
-        deleted_projects = []
         for proj in project_list:
             proj.delete_project(firebase, postgres)
             deleted_projects.append(proj.id)
 
-        return deleted_projects
+    return deleted_projects
 
 
 ########################################################################################################################
 # ARCHIVE PROJECTS                                                                                                      #
 ########################################################################################################################
-def run_archive(modus, list, output_path):
+def run_archive(modus, list):
+    """
+    The function to archive a list of projects and its corresponding information (groups) to reduce storage in firebase
+
+    Parameters
+    ----------
+    modus : str
+        The environment to use for firebase and postgres
+        Can be either 'development' or 'production'
+    list : list
+        The ids of the projects to archive
+
+    Returns
+    -------
+    archived_projects : list
+        The list of all projects ids for projects which have been archived
+    """
 
     # get dev or production environment for firebase and postgres
     firebase, postgres = get_environment(modus)
@@ -880,6 +919,7 @@ def run_archive(modus, list, output_path):
         project_list = get_projects(firebase, postgres, list)
         archived_projects = []
         for proj in project_list:
+            logging.warning('ALL - run_archive - currently not implemented.')
             pass
             # TODO implement archive function on project level
             # proj.archive_project(firebase, postgres, output_path)

@@ -391,9 +391,26 @@ class BaseProject(object):
         return True
 
     def set_groups_postgres(self, postgres, groups, groups_txt_filename='raw_groups.txt'):
+        """
+        The function to import all groups for the project into postgres groups table
 
+        Parameters
+        ----------
+        postgres : database connection class
+            The database connection to postgres database
+        groups : dict
+            The dictionary with the group information
+        groups_txt_filename : str
+            The path where a temporary txt file will be stored to import into postgres
+
+        Returns
+        -------
+        bool
+            True if successful. False otherwise
+        """
+
+        # create txt file with header for later import with copy function into postgres
         groups_txt_file = open(groups_txt_filename, 'w', newline='')
-
         fieldnames = ('project_id', 'group_id', 'completedCount', 'count', 'info')
         w = csv.DictWriter(groups_txt_file, fieldnames=fieldnames, delimiter='\t', quotechar="'")
 
@@ -424,7 +441,7 @@ class BaseProject(object):
 
         p_con = postgres()
 
-        # first importer to a table where we store the geom as text
+        # first create a table for the raw groups information
         sql_insert = '''
             DROP TABLE IF EXISTS raw_groups CASCADE;
             CREATE TABLE raw_groups (
@@ -438,15 +455,16 @@ class BaseProject(object):
 
         p_con.query(sql_insert, None)
 
+        # insert data from txt file into raw groups table in postgres
         f = open(groups_txt_filename, 'r')
         columns = ['project_id', 'group_id', 'count', 'completedCount', 'info']
         p_con.copy_from(f, 'raw_groups', sep='\t', columns=columns)
         logging.warning('ALL - set_groups_postgres - inserted raw groups into table raw_groups')
         f.close()
-
         os.remove(groups_txt_filename)
         logging.warning('ALL - set_groups_postgres - deleted file: %s' % groups_txt_filename)
 
+        # insert groups into postgres groups table and handle conflicts
         sql_insert = '''
                         INSERT INTO
                           groups
@@ -465,8 +483,6 @@ class BaseProject(object):
         del p_con
 
         return True
-
-
 
     def set_project_postgres(self, postgres):
         """
@@ -498,7 +514,22 @@ class BaseProject(object):
         return True
 
     def set_import_postgres(self, postgres, firebase):
+        """
+        The function saves the import information from firebase to the posgres imports table
 
+        Parameters
+        ----------
+        postgres : database connection class
+            The database connection to postgres database
+        firebase : pyrebase firebase object
+            initialized firebase app with admin authentication
+
+        Returns
+        -------
+        bool
+            True if successful. False otherwise
+
+        """
 
         p_con = postgres()
         sql_insert = "INSERT INTO imports Values(%s,%s)"
@@ -561,12 +592,12 @@ class BaseProject(object):
 
         logging.warning('%s - delete_project - start deleting project' % self.id)
         self.delete_groups_firebase(firebase)
-        self.delete_project_firebase(firebase)
         self.delete_project_postgres(postgres)
         self.delete_tasks_postgres(postgres)
         self.delete_groups_postgres(postgres)
         self.delete_results_postgres(postgres)
         self.delete_import_postgres(postgres)
+        self.delete_project_firebase(firebase)
         logging.warning('%s - delete_project - finished delete project' % self.id)
         return True
 
@@ -691,6 +722,21 @@ class BaseProject(object):
         return True
 
     def delete_tasks_postgres(self, postgres):
+        """
+        The function to delete all tasks of project in the postgres tasks table.
+
+        Parameters
+        ----------
+        postgres : database connection class
+            The database connection to postgres database
+
+        Returns
+        -------
+        bool
+            True if successful. False otherwise.
+
+        """
+
         p_con = postgres()
         sql_insert = "DELETE FROM tasks WHERE project_id = %s"
         data = [int(self.id)]
@@ -701,6 +747,20 @@ class BaseProject(object):
         return True
 
     def delete_groups_postgres(self, postgres):
+        """
+        The function to delete all groups of project in the postgres groups table.
+
+        Parameters
+        ----------
+        postgres : database connection class
+            The database connection to postgres database
+
+        Returns
+        -------
+        bool
+            True if successful. False otherwise.
+        """
+
         p_con = postgres()
         sql_insert = "DELETE FROM groups WHERE project_id = %s"
         data = [int(self.id)]
@@ -711,8 +771,23 @@ class BaseProject(object):
         return True
 
     def delete_import_postgres(self, postgres):
+        """
+        The function to delete all import of project in the postgres imports table.
+
+        Parameters
+        ----------
+        postgres : database connection class
+            The database connection to postgres database
+
+        Returns
+        -------
+        bool
+            True if successful. False otherwise.
+        """
+
         p_con = postgres()
-        sql_insert = "DELETE FROM imports WHERE id = %s"
+        sql_insert = "DELETE FROM imports WHERE import_id = %s"
+
         data = [self.import_key]
         p_con.query(sql_insert, data)
         del p_con
@@ -723,7 +798,23 @@ class BaseProject(object):
     ####################################################################################################################
     # UPDATE - We define a bunch of functions related to updating existing projects                                    #
     ####################################################################################################################
-    def update_project(self, firebase, postgres, output_path='data'):
+    def update_project(self, firebase, postgres):
+        """
+        The function to update the progress and contributors of a project in firebase and postgres
+
+        Parameters
+        ----------
+        firebase : pyrebase firebase object
+            initialized firebase app with admin authentication
+        postgres : database connection class
+            The database connection to postgres database
+
+        Returns
+        -------
+        bool
+            True if successful. False otherwise.
+        """
+
         self.get_contributors(postgres)
         self.set_contributors(firebase)
         self.get_progress(firebase)
@@ -904,6 +995,38 @@ class BaseProject(object):
         logging.warning('%s - set_contributors - set contributors in firebase' % self.id)
         return True
 
+    def set_project_progress_postgres(self, postgres)-> bool:
+        """
+        The function insert id, contributors, progress and timestamp into postgres statistics table
+
+        Parameters
+        ----------
+        postgres : database connection class
+            The database connection to postgres database
+
+        Returns
+        -------
+        bool
+            True if successful. False otherwise
+        """
+
+        p_con = postgres()
+        sql_insert = '''
+            INSERT INTO
+              statistics
+            VALUES
+              (%s,%s,%s,%s);
+            '''
+        timestamp = int(time.time())
+        data = [self.id, self.contributors,
+                self.progress, timestamp]
+
+        p_con.query(sql_insert, data)
+        logging.warning('%s - set_project_progress_postgres - inserted new entry for contributors and progress in statistics table' % self.id)
+        del p_con
+
+        return True
+
     ####################################################################################################################
     # EXPORT - We define a bunch of functions related to exporting exiting projects                                    #
     ####################################################################################################################
@@ -956,56 +1079,6 @@ class BaseProject(object):
 
 
         logging.warning('%s - export_progress - exported progress to file: %s' % (self.id, filename))
-        return True
-
-    def log_project_contributors(self, output_path='data'):
-        """
-        The function to log the contributors to a txt file in the format 'contributors_{ID}.txt'
-
-        Parameters
-        ----------
-        output_path : str, optional
-            The path where the txt file will be stored. Default='data'
-
-        Notes
-        -----
-        The generated txt file will consist of a single line per log.
-        We log a unix timestamp and the contributors separated by comma
-        """
-
-        # check if output path for projects is correct and existing
-        if not os.path.exists(output_path + '/contributors'):
-            os.makedirs(output_path + '/contributors')
-
-        filename = "{}/contributors/contributors_{}.txt".format(output_path, self.id)
-
-        with open(filename, 'a') as output_file:
-            timestamp = int(time.time())
-            outline = "{},{}\n".format(timestamp, self.contributors)
-            output_file.write(outline)
-
-        logging.warning('%s - log_project_contributors - logged contributors to file: %s' % (self.id, filename))
-        return True
-
-    def set_project_progress_postgres(self, postgres)-> bool:
-
-        p_con = postgres()
-        sql_insert = '''
-            INSERT INTO
-              statistics
-            VALUES 
-              (%s,%s,%s,%s);
-            '''
-        timestamp = int(time.time())
-        data = [self.id, self.contributors,
-                self.progress, timestamp]
-
-        p_con.query(sql_insert, data)
-
-        logging.warning('%s - set_project_progress_postgres - inserted new entry for contributors and progress in statistics table' % self.id)
-
-        del p_con
-
         return True
 
     def export_results(self, postgres: object, output_path: str)-> bool:
