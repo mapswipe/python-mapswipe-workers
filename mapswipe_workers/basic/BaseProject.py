@@ -766,7 +766,23 @@ class BaseProject(object):
     ####################################################################################################################
     # UPDATE - We define a bunch of functions related to updating existing projects                                    #
     ####################################################################################################################
-    def update_project(self, firebase, postgres, output_path='data'):
+    def update_project(self, firebase, postgres):
+        """
+        The function to update the progress and contributors of a project in firebase and postgres
+
+        Parameters
+        ----------
+        firebase : pyrebase firebase object
+            initialized firebase app with admin authentication
+        postgres : database connection class
+            The database connection to postgres database
+
+        Returns
+        -------
+        bool
+            True if successful. False otherwise.
+        """
+
         self.get_contributors(postgres)
         self.set_contributors(firebase)
         self.get_progress(firebase)
@@ -947,6 +963,38 @@ class BaseProject(object):
         logging.warning('%s - set_contributors - set contributors in firebase' % self.id)
         return True
 
+    def set_project_progress_postgres(self, postgres)-> bool:
+        """
+        The function insert id, contributors, progress and timestamp into postgres statistics table
+
+        Parameters
+        ----------
+        postgres : database connection class
+            The database connection to postgres database
+
+        Returns
+        -------
+        bool
+            True if successful. False otherwise
+        """
+
+        p_con = postgres()
+        sql_insert = '''
+            INSERT INTO
+              statistics
+            VALUES
+              (%s,%s,%s,%s);
+            '''
+        timestamp = int(time.time())
+        data = [self.id, self.contributors,
+                self.progress, timestamp]
+
+        p_con.query(sql_insert, data)
+        logging.warning('%s - set_project_progress_postgres - inserted new entry for contributors and progress in statistics table' % self.id)
+        del p_con
+
+        return True
+
     ####################################################################################################################
     # EXPORT - We define a bunch of functions related to exporting exiting projects                                    #
     ####################################################################################################################
@@ -995,56 +1043,6 @@ class BaseProject(object):
 
 
         logging.warning('%s - export_progress - exported progress to file: %s' % (self.id, filename))
-        return True
-
-    def log_project_contributors(self, output_path='data'):
-        """
-        The function to log the contributors to a txt file in the format 'contributors_{ID}.txt'
-
-        Parameters
-        ----------
-        output_path : str, optional
-            The path where the txt file will be stored. Default='data'
-
-        Notes
-        -----
-        The generated txt file will consist of a single line per log.
-        We log a unix timestamp and the contributors separated by comma
-        """
-
-        # check if output path for projects is correct and existing
-        if not os.path.exists(output_path + '/contributors'):
-            os.makedirs(output_path + '/contributors')
-
-        filename = "{}/contributors/contributors_{}.txt".format(output_path, self.id)
-
-        with open(filename, 'a') as output_file:
-            timestamp = int(time.time())
-            outline = "{},{}\n".format(timestamp, self.contributors)
-            output_file.write(outline)
-
-        logging.warning('%s - log_project_contributors - logged contributors to file: %s' % (self.id, filename))
-        return True
-
-    def set_project_progress_postgres(self, postgres)-> bool:
-
-        p_con = postgres()
-        sql_insert = '''
-            INSERT INTO
-              statistics
-            VALUES 
-              (%s,%s,%s,%s);
-            '''
-        timestamp = int(time.time())
-        data = [self.id, self.contributors,
-                self.progress, timestamp]
-
-        p_con.query(sql_insert, data)
-
-        logging.warning('%s - set_project_progress_postgres - inserted new entry for contributors and progress in statistics table' % self.id)
-
-        del p_con
-
         return True
 
     def export_results(self, postgres, output_path='data'):
