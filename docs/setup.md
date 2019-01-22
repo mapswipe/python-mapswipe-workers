@@ -117,13 +117,13 @@ Provide a config file, the Firebase ServiceAccountKey and an environment file fo
 
 ### .ENV
 
-Create an **Environment file** with following variables. Set custom user and password.
-
+Create an **Environment file** at root of the project (`python-mapswipe-workers/`) with following variables:
 ```env
 POSTGRES_USER=mapswipe-workers
 POSTGRES_PASSWORD=postgres
 POSTGRES_DB=mapswipe
 ```
+ Set custom user and password.
 
 
 ### docker-compose.yaml
