@@ -289,13 +289,15 @@ class BuildAreaProject(BaseProject):
         for row in project_results:
             row_dict = {}
             for i in range(0, len(header)):
-                if header[i] in ['decision', 'yes_count', 'maybe_count', 'bad_imagery_count']:
+                if header[i] == 'decision':
                     row_dict[header[i]] = float(str(row[i]))
+                elif header[i] in ['yes_count', 'maybe_count', 'bad_imagery_count']:
+                    row_dict[header[i]] = int(str(row[i]))
                 else:
                     row_dict[header[i]] = row[i]
             results_list.append(row_dict)
 
-        logging.warning('got results information from mysql for project: %s. rows = %s' % (self.id, len(project_results)))
+        logging.warning('got results information from postgres for project: %s. rows = %s' % (self.id, len(project_results)))
         return results_list
 
 

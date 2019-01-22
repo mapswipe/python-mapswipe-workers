@@ -202,8 +202,36 @@ class FootprintProject(BaseProject):
         p_con = postgres()
 
         # your sql command
+        p_con = postgres()
+        # sql command
+        sql_query = '''
+                    select
+                      task_id as id
+                      ,project_id as project
+                      ,avg(cast(info ->> 'result' as integer))as decision
+                      ,SUM(CASE
+                        WHEN cast(info ->> 'result' as integer) = 1 THEN 1
+                        ELSE 0
+                       END) AS yes_count
+                       ,SUM(CASE
+                        WHEN cast(info ->> 'result' as integer) = 2 THEN 1
+                        ELSE 0
+                       END) AS maybe_count
+                       ,SUM(CASE
+                        WHEN cast(info ->> 'result' as integer) = 3 THEN 1
+                        ELSE 0
+                       END) AS bad_imagery_count
+                    from
+                      results
+                    where
+                      project_id = %s and cast(info ->> 'result' as integer) > 0
+                    group by
+                      task_id
+                      ,project_id'''
 
+        header = ['id', 'project_id', 'decision', 'yes_count', 'maybe_count', 'bad_imagery_count']
         data = [self.id]
+
         project_results = p_con.retr_query(sql_query, data)
         # delete/close db connection
         del p_con
@@ -211,11 +239,18 @@ class FootprintProject(BaseProject):
         results_list = []
         for row in project_results:
             row_dict = {}
-
-            # your code to create a dictionary
-
+            for i in range(0, len(header)):
+                if header[i] == 'decision':
+                    row_dict[header[i]] = float(str(row[i]))
+                elif header[i] in ['yes_count', 'maybe_count', 'bad_imagery_count']:
+                    row_dict[header[i]] = int(str(row[i]))
+                else:
+                    row_dict[header[i]] = row[i]
             results_list.append(row_dict)
 
-        logging.warning('got results information from postgres for project: %s. rows = %s' % (self.id, len(project_results)))
+        logging.warning(
+            'got results information from postgres for project: %s. rows = %s' % (self.id, len(project_results)))
+
         return results_list
+
 
