@@ -149,6 +149,7 @@ Usefull **Docker Commands**:
 - `docker exec -it import bash `: open shell in a running container (here: import)
 - `tail -100 ./logs/run_import.log`: show logs of container
 - `docker stats`: show memory usage, CPU consumption for all running containers
+- `docker system prune`: clean up any resources — images, containers, volumes, and networks — that are dangling (not associated with a container)
 
 
 ## Debugging
