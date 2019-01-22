@@ -1018,16 +1018,20 @@ class BaseProject(object):
             The path where the json file will be stored. Default='data'
         """
 
-        logging.warning('not yet implemented')
-        return
+        #logging.warning('not yet implemented')
+        #return
 
         # this function is set concerning the project type
         results_list = self.aggregate_results(postgres)
 
-        output_json_file = '{}/projects/results_{}.json'.format(output_path, self.id)
+        # check if output path for results is cexisting
+        if not os.path.exists(output_path + '/results'):
+            os.makedirs(output_path + '/results')
+
+        output_json_file = '{}/results/results_{}.json'.format(output_path, self.id)
 
         with open(output_json_file, 'w') as outfile:
-            json.dump(results_list, outfile)
+            json.dump(results_list, outfile, indent=4)
 
         logging.warning('ALL - export_results - exported results file: %s' % output_json_file)
         return True
