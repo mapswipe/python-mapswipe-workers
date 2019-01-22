@@ -248,9 +248,22 @@ class BuildAreaProject(BaseProject):
     ####################################################################################################################
     # EXPORT - We define a bunch of functions related to exporting exiting projects                                    #
     ####################################################################################################################
-    def aggregate_results(self, postgres):
+    def aggregate_results(self, postgres: object) -> dict:
+        """
+        The Function to aggregate results per task.
 
+        Parameters
+        ----------
+        postgres : database connection class
+            The database connection to postgres database
 
+        Returns
+        -------
+        results_dict : dict
+            result of the aggregation as dictionary. Key for every object is task id. Properties are decision,
+            yes_count, maybe_count, bad_imagery_count
+
+        """
         p_con = postgres()
         # sql command
         sql_query = '''
