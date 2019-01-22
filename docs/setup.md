@@ -147,8 +147,11 @@ Usefull **Docker Commands**:
 ## Debugging
 
 **Where can I find the logs?**:
-- `docker logs import`
-- logs folder
+- There are two locations for logs
+    - `docker logs container_name` (eg. `docker logs import`)
+        - take a look at those if your container is not running
+    - logs folder at the root of project (`python-mapswipe-workers/logs/`)
+        - take a look at those for logs of already running containers
 
 **ERROR: for postgres during docker-compose**
 - ERROR: for postgres  `Cannot start service postgres: driver failed programming external connectivity on endpoint postgres`
