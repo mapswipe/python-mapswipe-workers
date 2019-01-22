@@ -123,15 +123,7 @@ POSTGRES_USER=mapswipe-workers
 POSTGRES_PASSWORD=postgres
 POSTGRES_DB=mapswipe
 ```
- Set custom user and password.
-
-
-### docker-compose.yaml
-
-<!-- TODO -->
-
-**Change service > postgres > ports**:
-- line 16: `"5432:5432"` to `"5433:5432"`
+Set custom user and password.
 
 
 ## 4. Installing Mapswipe Workers using Docker
@@ -158,6 +150,11 @@ Usefull **Docker Commands**:
 - `docker logs import`
 - logs folder
 
+**ERROR: for postgres during docker-compose**
+- ERROR: for postgres  `Cannot start service postgres: driver failed programming external connectivity on endpoint postgres`
+- Probably a postgres instance is already running on Port 5432
+- SOLUTION: Change postgres port in your docker-compose file  (`docker-compose.yaml`)
+    - docker-compose.yaml: services > postgres > ports: Change `"5432:5432"` to `"5433:5432"`
 
 ## Update
 
