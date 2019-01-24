@@ -21,6 +21,21 @@ parser.add_argument('-z', '--zoomlevel', required=False, default=18, type=int,
 
 
 def get_geometry_from_file(infile):
+    """
+    The function to load input geometries from an .shp, .kml or .geojson file
+
+    Parameters
+    ----------
+    infile : str
+        the path to the .shp, .kml or .geojson file containing the input geometries
+
+    Returns
+    -------
+    extent : list
+        the extent of the layer as [x_min, x_max, y_min, y_max]
+    geomcol : ogr.Geometry(ogr.wkbGeometryCollection)
+        a geometry collection of all feature geometries for the given file
+    """
 
     try:
         infile_name = infile.split('.')[0]
@@ -61,6 +76,25 @@ def get_geometry_from_file(infile):
 
 
 def get_horizontal_slice(extent, geomcol, zoom):
+    """
+    The function slices all input geometries vertically using a height of max 3 tiles per geometry. The function iterates over all input geometries. For each geometry tile coordinates are calculated. Then this geometry is split into several geometries using the min and max tile coordinates for the geometry.
+
+    Parameters
+    ----------
+    extent : list
+        the extent of the layer as [x_min, x_max, y_min, y_max]
+    geomcol : ogr.Geometry(ogr.wkbGeometryCollection)
+        a geometry collection of all feature geometries for the given file
+    zoom : int
+        the tile map service zoom level
+
+    Returns
+    -------
+    slice_infos : dict
+        a dictionary containing a list of "tile_y_top" coordinates, a list of "tile_y_bottom" coordinates and a "slice_collection" containing a ogr geometry collection
+    """
+
+
     logging.info('geomcol: %s' % geomcol)
 
     slice_infos = {
@@ -150,14 +184,25 @@ def get_horizontal_slice(extent, geomcol, zoom):
     return slice_infos
 
 
-def get_vertical_slice(slice_infos, zoom):
-    # this functions slices the horizontal stripes vertically
-    # each stripe has a height of three tiles
-    # the width depends on the width threshold set below
-    # the final group polygon is calculated from TileX_min, TileX_max, TileY_min, TileY_max
+def get_vertical_slice(slice_infos, zoom, width_threshold=40):
+    """
+    The function slices the horizontal stripes vertically. Each input stripe has a height of three tiles and will be splitted into vertical parts. The width of each part is defined by the width threshold set below.
 
-    # the width threshold defines how "long" the groups are
-    width_threshold = 40
+    Parameters
+    ----------
+    slice_infos : dict
+        a dictionary containing a list of "tile_y_top" coordinates, a list of "tile_y_bottom" coordinates and a "slice_collection" containing a ogr geometry collection
+    zoom : int
+        the tile map service zoom level
+    width_threshold :  int
+        the number of vertical tiles for a group, this defines how "long" groups are.
+
+    Returns
+    -------
+    raw_groups : dict
+        a dictionary containing "xMin", "xMax", "yMin", "yMax" and a "group_polygon" as ogr.Geometry(ogr.wkbPolygon) and the "group_id" as key
+    """
+
     # create an empty dict for the group ids and TileY_min, TileY_may, TileX_min, TileX_max
     raw_groups = {}
     group_id = 100
@@ -258,22 +303,52 @@ def get_vertical_slice(slice_infos, zoom):
     return raw_groups
 
 
-def extent_to_slices(input_file, zoomlevel):
+def extent_to_slices(infile, zoom):
+    """
+    The function to polygon geometries of a given input file into horizontal slices and then vertical slices.
 
-    extent, geomcol = get_geometry_from_file(input_file)
+    Parameters
+    ----------
+    infile : str
+        the path to the .shp, .kml or .geojson file containing the input geometries
+    zoom : int
+        the tile map service zoom level
+
+    Returns
+    -------
+    raw_groups_dict : dict
+        a dictionary containing "xMin", "xMax", "yMin", "yMax" and a "group_polygon" as ogr.Geometry(ogr.wkbPolygon) and the "group_id" as key
+    """
+    extent, geomcol = get_geometry_from_file(infile)
 
     # get horizontal slices --> rows
-    horizontal_slice_infos = get_horizontal_slice(extent, geomcol, zoomlevel)
+    horizontal_slice_infos = get_horizontal_slice(extent, geomcol, zoom)
     # outfile = 'data/horizontally_sliced_groups_{}.geojson'.format(config["project_id"])
     # save_geom_as_geojson(horizontal_slice_infos['slice_collection'], outfile)
 
     # then get vertical slices --> columns
-    vertical_slice_infos = get_vertical_slice(horizontal_slice_infos, zoomlevel)
+    raw_groups_dict = get_vertical_slice(horizontal_slice_infos, zoom)
 
-    return vertical_slice_infos
+    return raw_groups_dict
 
 
 def save_geom_as_geojson(geomcol, outfile):
+    """
+    The function to create a geojson file from a ogr geometry collection
+
+    Parameters
+    ----------
+    geomcol : ogr.Geometry(ogr.wkbGeometryCollection)
+        a geometry collection of all feature geometries for the given file
+    outfile : str
+        the path to the .shp, .kml or .geojson file containing the input geometries
+
+    Returns
+    -------
+    bool
+        True if successful, False otherwise.
+    """
+
     wgs = osr.SpatialReference()
     wgs.ImportFromEPSG(4326)
 
@@ -308,8 +383,26 @@ def save_geom_as_geojson(geomcol, outfile):
     geomcol = None
     data_final.Destroy()
 
+    return True
 
-def save_slices_as_geojson(vertical_slice_infos, outfile):
+
+def save_slices_as_geojson(raw_group_infos, outfile):
+    """
+    The function to create a geojson file from the groups dictionary.
+
+    Parameters
+    ----------
+    raw_group_infos : dict
+        a dictionary containing "xMin", "xMax", "yMin", "yMax" and a "group_polygon" as ogr.Geometry(ogr.wkbPolygon) and the "group_id" as key
+    outfile : str
+        the path a .geojson file for storing the output
+
+    Returns
+    -------
+    bool
+        True if successful, False otherwise.
+    """
+
     # Create the output Driver
     outDriver = ogr.GetDriverByName('GeoJSON')
     # Create the output GeoJSON
@@ -322,7 +415,7 @@ def save_slices_as_geojson(vertical_slice_infos, outfile):
     outLayer.CreateField(ogr.FieldDefn('ymin', ogr.OFTInteger))
     outLayer.CreateField(ogr.FieldDefn('ymax', ogr.OFTInteger))
 
-    for group_id, group in vertical_slice_infos.items():
+    for group_id, group in raw_group_infos.items():
         # write to geojson file
         featureDefn = outLayer.GetLayerDefn()
         outFeature = ogr.Feature(featureDefn)
@@ -337,6 +430,7 @@ def save_slices_as_geojson(vertical_slice_infos, outfile):
 
     outDataSource = None
     logging.info('created all %s.' % outfile)
+    return True
 
 
 ########################################################################################################################

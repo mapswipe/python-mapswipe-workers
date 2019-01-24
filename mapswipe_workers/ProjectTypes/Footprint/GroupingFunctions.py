@@ -13,6 +13,21 @@ parser.add_argument('-g', '--group_size', required=False, default=50, type=int,
 ########################################################################################################################
 
 def group_input_geometries(input_geometries_file, group_size):
+    """
+    The function to create groups of input geometries using the given size (number of features) per group
+
+    Parameters
+    ----------
+    input_geometries_file : str
+        the path to the GeoJSON file containing the input geometries
+    group_size : int
+        the maximum number of features per group
+
+    Returns
+    -------
+    groups : dict
+        the dictionary containing a list of "feature_ids" and a list of "feature_geometries" per group with given group id key
+    """
 
     driver = ogr.GetDriverByName('GeoJSON')
     datasource = driver.Open(input_geometries_file, 0)
