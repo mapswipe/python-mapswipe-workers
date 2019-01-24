@@ -325,7 +325,7 @@ class BaseProject(object):
                 try:
                     output_dict = {
                         "task_id": groups[group]['tasks'][task]['id'],
-                        "project_id": int(groups[group]['tasks'][task]['projectId']),
+                        "project_id": self.id,
                         "group_id": int(group),
                         "info": {}
                     }
@@ -363,11 +363,11 @@ class BaseProject(object):
         columns = ['task_id', 'project_id', 'group_id', 'info']
         p_con.copy_from(f, 'raw_tasks', sep='\t', columns=columns)
 
-        logging.warning('ALL - set_tasks_postgres - inserted raw tasks into table raw_tasks')
+        logging.warning('%s - set_tasks_postgres - inserted raw tasks into table raw_tasks' % self.id)
         f.close()
 
         os.remove(tasks_txt_filename)
-        logging.warning('ALL - set_tasks_postgres - deleted file: %s' % tasks_txt_filename)
+        logging.warning('%s - set_tasks_postgres - deleted file: %s' % (self.id, tasks_txt_filename))
 
         # TODO discuss if conflict resolution necessary
 
@@ -384,7 +384,7 @@ class BaseProject(object):
                   
             '''
         p_con.query(sql_insert, None)
-        logging.warning('ALL - set_tasks_postgres - inserted tasks into tasks table')
+        logging.warning('%s - set_tasks_postgres - inserted tasks into tasks table' % self.id)
 
         del p_con
 
@@ -417,7 +417,7 @@ class BaseProject(object):
         for group in groups:
             try:
                 output_dict = {
-                    "project_id": int(groups[group]['projectId']),
+                    "project_id": self.id,
                     "group_id": int(groups[group]['id']),
                     "count": int(groups[group]['count']),
                     "completedCount": int(groups[group]['completedCount']),
@@ -434,7 +434,7 @@ class BaseProject(object):
                 w.writerow(output_dict)
 
             except Exception as e:
-                logging.warning('ALL - set_groups_postgres - groups missed critical information: %s' % e)
+                logging.warning('%s - set_groups_postgres - groups missed critical information: %s' % (self.id, e))
                 error_handling.log_error(e, logging)
 
         groups_txt_file.close()
@@ -459,10 +459,10 @@ class BaseProject(object):
         f = open(groups_txt_filename, 'r')
         columns = ['project_id', 'group_id', 'count', 'completedCount', 'info']
         p_con.copy_from(f, 'raw_groups', sep='\t', columns=columns)
-        logging.warning('ALL - set_groups_postgres - inserted raw groups into table raw_groups')
+        logging.warning('%s - set_groups_postgres - inserted raw groups into table raw_groups' % self.id)
         f.close()
         os.remove(groups_txt_filename)
-        logging.warning('ALL - set_groups_postgres - deleted file: %s' % groups_txt_filename)
+        logging.warning('%s - set_groups_postgres - deleted file: %s' % (self.id, groups_txt_filename))
 
         # insert groups into postgres groups table and handle conflicts
         sql_insert = '''
@@ -478,7 +478,7 @@ class BaseProject(object):
 
                     '''
         p_con.query(sql_insert, None)
-        logging.warning('ALL - set_groups_postgres - inserted groups into groups table')
+        logging.warning('%s - set_groups_postgres - inserted groups into groups table' % self.id)
 
         del p_con
 
@@ -502,7 +502,7 @@ class BaseProject(object):
         sql_insert = "INSERT INTO projects Values(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
         data = [int(self.contributors), int(self.group_average), int(self.id), self.image, self.import_key,
                 self.is_featured, self.look_for, self.name, self.progress, self.project_details, int(self.state),
-                int(self.project_type),int(self.verification_count), json.dumps(self.info)]
+                int(self.project_type), int(self.verification_count), json.dumps(self.info)]
         # insert in table
         try:
             p_con.query(sql_insert, data)
@@ -572,7 +572,7 @@ class BaseProject(object):
     ####################################################################################################################
     # DELETE - We define a bunch of functions related to delete project information                                    #
     ####################################################################################################################
-    def delete_project(self, firebase, postgres):
+    def delete_project(self, firebase, postgres, data_path='data'):
         """
         The function to delete all project related information in firebase and postgres
             This includes information on groups
@@ -583,6 +583,8 @@ class BaseProject(object):
             initialized firebase app with admin authentication
         postgres : database connection class
             The database connection to postgres database
+        data_path : str
+            the path where all data for the projects is stored on your local machine
 
         Returns
         -------
@@ -591,8 +593,10 @@ class BaseProject(object):
         """
 
         logging.warning('%s - delete_project - start deleting project' % self.id)
+        self.delete_local_files(data_path)
         self.delete_project_postgres(postgres)
         self.delete_project_firebase(firebase)
+
         logging.warning('%s - delete_project - finished delete project' % self.id)
         return True
 
@@ -660,6 +664,44 @@ class BaseProject(object):
 
         logging.warning('%s - delete_results_postgres - deleted all results in postgres' % self.id)
         return True
+
+    def delete_local_files(self, data_path):
+        """
+        The function to delete all local files of this project at the server.
+
+        Parameters
+        ----------
+        data_path : str
+            the path where all data for the projects is stored
+
+        Returns
+        -------
+        deleted_files : list
+            a list with the names of the deleted files
+        """
+
+        # we are going to delete:
+        # results/results_{project_id}.json
+        # input_geometries/input_geometries_{project_id}.kml or input_geometries/input_geometries_{project_id}.geojson
+        # statistics/stats_{project_id}.json
+
+        deleted_files = []
+
+        file_list = [
+            '{}/results/results_{}.json'.format(data_path, self.id),
+            '{}/input_geometries/input_geometries_{}.kml'.format(data_path, self.id),
+            '{}/input_geometries/input_geometries_{}.geojson'.format(data_path, self.id),
+            '{}/results/stats_{}.json'.format(data_path, self.id),
+        ]
+
+        for filepath in file_list:
+            if os.path.isfile(filepath):
+                os.remove(filepath)
+                deleted_files.append(filepath)
+
+        logging.warning('%s - delete_project_firebase - deleted local files: %s' % (self.id, deleted_files))
+        return deleted_files
+
 
     ####################################################################################################################
     # UPDATE - We define a bunch of functions related to updating existing projects                                    #
