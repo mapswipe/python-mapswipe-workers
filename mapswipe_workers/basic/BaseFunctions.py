@@ -13,8 +13,13 @@ from typing import Union
 
 from mapswipe_workers.basic import auth
 # Make sure to import all project types here
+from mapswipe_workers.ProjectTypes.BuildArea.BuildAreaImport import BuildAreaImport
 from mapswipe_workers.ProjectTypes.BuildArea.BuildAreaProject import BuildAreaProject
+
+
+from mapswipe_workers.ProjectTypes.Footprint.FootprintImport import FootprintImport
 from mapswipe_workers.ProjectTypes.Footprint.FootprintProject import FootprintProject
+
 
 
 ########################################################################################################################
@@ -53,7 +58,34 @@ def get_environment(modus='development'):
     return firebase, postgres
 
 
-def init_project(project_type, project_id, firebase, postgres, import_key=None, import_dict=None):
+def init_import(project_type, import_key, import_dict, output_path):
+    """
+    The function to init an import in regard to its type
+
+    Parameters
+    ----------
+    project_type : int
+        the type of the project
+    project_id: int
+        the id of the project
+
+    Returns
+    -------
+    proj :
+        the project instance
+    """
+
+    class_to_type = {
+        # Make sure to import all project types here
+        1: BuildAreaImport,
+        2: FootprintImport
+    }
+
+    imp = class_to_type[project_type](import_key, import_dict, output_path)
+    return imp
+
+
+def init_project(project_type, project_id, firebase, postgres, output_path):
     """
     The function to init a project in regard to its type
 
@@ -76,11 +108,11 @@ def init_project(project_type, project_id, firebase, postgres, import_key=None, 
         2: FootprintProject
     }
 
-    proj = class_to_type[project_type](project_id, firebase, postgres, import_key, import_dict)
+    proj = class_to_type[project_type](project_id, firebase, postgres, output_path)
     return proj
 
 
-def get_projects(firebase, postgres, filter='all'):
+def get_projects(firebase, postgres, output_path, filter='all'):
     """
     The function to download project information from firebase and init the projects
     Parameters
@@ -132,18 +164,25 @@ def get_projects(firebase, postgres, filter='all'):
                 project_type = all_projects[project_id]['projectType']
             except:
                 project_type = 1
-            proj = init_project(project_type, project_id, firebase, postgres)
+            proj = init_project(project_type, project_id, firebase, postgres, output_path)
             projects_list.append(proj)
 
     return projects_list
 
+def project_exists(project_id, firebase, postgres):
 
-########################################################################################################################
-# IMPORT                                                                                                               #
-########################################################################################################################
-def get_new_project_id(firebase):
+    in_firebase = project_exists_firebase(project_id, firebase)
+    in_postgres = project_exists_postgres(project_id, postgres)
+
+    if in_firebase is True and in_postgres is True:
+        return True
+    else:
+        return False
+
+
+def project_exists_firebase(project_id, firebase):
     """
-    The function to get a project id which is not used in firebase
+    The function to check whether a project exists in firebase.
 
     Parameters
     ----------
@@ -152,31 +191,81 @@ def get_new_project_id(firebase):
 
     Returns
     -------
-    new_project_id : int
-        a new project id which has not been used in firebase
-
-    Notes
-    -----
-        the new project id needs to be increased by more than 1 to avoid firebase json parsed as an array
-        more information here: https://firebase.googleblog.com/2014/04/best-practices-arrays-in-firebase.html
+    bool
+        True if project info and group info exist in firebase, false otherwise
     """
 
     fb_db = firebase.database()
+    project_data = fb_db.child("projects").child(project_id).get().val()
 
-    project_keys = fb_db.child('projects').shallow().get().val()
-    if not project_keys:
-        # set mininum project id to 1000, if no project has been imported yet
-        project_keys = [1000]
+    if not project_data:
+        logging.warning('%s - project_exists_firebase - project info NOT in firebase' % project_id)
+    else:
+        logging.warning('%s - project_exists_firebase - project info in firebase' % project_id)
 
-    project_ids = list(map(int, list(project_keys)))
-    project_ids.sort()
-    highest_project_id = project_ids[-1]
+    groups_data = fb_db.child("groups").child(project_id).shallow().get().val()
+    if not groups_data:
+        logging.warning('%s - project_exists_firebase - groups info NOT in firebase' % project_id)
+    else:
+        logging.warning('%s - project_exists_firebase - groups info in firebase' % project_id)
 
-    logging.warning('ALL - get_new_project_id - highest existing project id: %s' % highest_project_id)
-    new_project_id = highest_project_id + 2
+    if project_data and groups_data:
+        return True
+    else:
+        return False
 
-    logging.warning('ALL - get_new_project_id - returned new project id: %s' % new_project_id)
-    return new_project_id
+
+def project_exists_postgres(project_id, postgres):
+    """
+    The function to check whether a project exists in postgres.
+
+    Parameters
+    ----------
+    postgres : database connection class
+        The database connection to postgres database
+
+    Returns
+    -------
+    bool
+        True is project info, group info and task info exist in postgres database. False otherwise.
+    """
+
+    p_con = postgres()
+    data = [project_id]
+
+    sql_query = 'SELECT * FROM projects WHERE project_id = %s'
+    project_data = p_con.retr_query(sql_query, data)
+    if not project_data:
+        logging.warning('%s - project_exists_postgres - project info NOT in postgres' % project_id)
+    else:
+        logging.warning('%s - project_exists_postgres - project info in postgres' % project_id)
+
+    sql_query = 'SELECT * FROM groups WHERE project_id = %s LIMIT 1'
+    groups_data = p_con.retr_query(sql_query, data)
+    if not groups_data:
+        logging.warning('%s - project_exists_postgres - groups info NOT in postgres' % project_id)
+    else:
+        logging.warning('%s - project_exists_postgres - groups info in postgres' % project_id)
+
+    sql_query = 'SELECT * FROM tasks WHERE project_id = %s LIMIT 1'
+    tasks_data = p_con.retr_query(sql_query, data)
+    if not tasks_data:
+        logging.warning('%s - project_exists_postgres - tasks info NOT in postgres' % project_id)
+    else:
+        logging.warning('%s - project_exists_postgres - tasks info in postgres' % project_id)
+
+    del p_con
+
+    if project_data and groups_data and tasks_data:
+        return True
+    else:
+        return False
+
+
+########################################################################################################################
+# IMPORT                                                                                                               #
+########################################################################################################################
+
 
 
 def get_new_imports(firebase):
@@ -211,9 +300,89 @@ def get_new_imports(firebase):
     return new_imports
 
 
+def run_import(modus, output_path):
+    """
+    A function to create all newly imported projects in firebase
+
+    Parameters
+    ----------
+    modus : str
+        either `development` or `production to decide which firebase configuration to use
+
+    Returns
+    -------
+    imported_projects : list
+        list of project ids of imported projects
+    """
+
+    # get dev or production environment for firebase and postgres
+    firebase, postgres = get_environment(modus)
+
+    # this will return a list of imports
+    imported_projects = []
+
+    # check for new imports in firebase
+    imports = get_new_imports(firebase)
+
+    for import_key, import_dict in imports.items():
+        # let's have a look at the project type
+        try:
+            project_type = import_dict['projectType']
+        except:
+            project_type = 1
+
+        # now let's init the import
+        imp = init_import(project_type, import_key, import_dict, output_path)
+
+        # and now let's finally create a project
+        imp.create_project(firebase, postgres, output_path)
+        imported_projects.append(imp.import_key)
+
+    return imported_projects
+
+
+########################################################################################################################
+# UPDATE                                                                                                               #
+########################################################################################################################
+def run_update(modus, filter, output_path):
+    """
+    The function to update project progress and contributors in firebase
+
+    Parameters
+    ----------
+    modus : str
+        The environment to use for firebase and postgres
+        Can be either 'development' or 'production'
+    filter : str or list
+        The filter for the projects.
+        Can be either 'all', 'active', 'not_finished' or a list of project ids as integer
+    output_path: str
+        The output path of the logs for progress and contributors
+
+    Returns
+    -------
+    updated_projects : list
+        The list of all projects ids for projects which have been updated
+    """
+
+    # get dev or production environment for firebase and postgres
+    firebase, postgres = get_environment(modus)
+
+    project_list = get_projects(firebase, postgres, output_path, filter)
+    updated_projects = []
+    for proj in project_list:
+        proj.update_project(firebase, postgres, output_path)
+        updated_projects.append(proj.id)
+
+    # update users
+    update_users_postgres(firebase, postgres)
+
+    return updated_projects
+
+
 def update_users_postgres(firebase, postgres, users_txt_filename='raw_users.txt')-> bool:
     """
-    The replace the users table in postgres with the current information from firebase
+    The fucntion to replace the users table in postgres with the current information from firebase
 
     Parameters
     ----------
@@ -309,84 +478,6 @@ def update_users_postgres(firebase, postgres, users_txt_filename='raw_users.txt'
 
     del p_con
     return True
-
-def run_import(modus):
-    """
-    A function to create all newly imported projects in firebase
-
-    Parameters
-    ----------
-    modus : str
-        either `development` or `production to decide which firebase configuration to use
-
-    Returns
-    -------
-    imported_projects : list
-        list of project ids of imported projects
-    """
-
-    # get dev or production environment for firebase and postgres
-    firebase, postgres = get_environment(modus)
-
-    # this will return a list of imports
-    imported_projects = []
-
-    # check for new imports in firebase
-    imports = get_new_imports(firebase)
-    for import_key, new_import in imports.items():
-
-        # let's create a project now
-        project_id = get_new_project_id(firebase)
-        try:
-            project_type = new_import['projectType']
-        except:
-            project_type = 1
-
-        # this will be the place, where we distinguish different project types
-        proj = init_project(project_type, project_id, firebase, postgres, import_key, new_import)
-        proj.import_project(firebase, postgres)
-        imported_projects.append(proj.id)
-
-    return imported_projects
-
-
-########################################################################################################################
-# UPDATE                                                                                                               #
-########################################################################################################################
-def run_update(modus, filter, output_path):
-    """
-    The function to update project progress and contributors in firebase
-
-    Parameters
-    ----------
-    modus : str
-        The environment to use for firebase and postgres
-        Can be either 'development' or 'production'
-    filter : str or list
-        The filter for the projects.
-        Can be either 'all', 'active', 'not_finished' or a list of project ids as integer
-    output_path: str
-        The output path of the logs for progress and contributors
-
-    Returns
-    -------
-    updated_projects : list
-        The list of all projects ids for projects which have been updated
-    """
-
-    # get dev or production environment for firebase and postgres
-    firebase, postgres = get_environment(modus)
-
-    project_list = get_projects(firebase, postgres, filter)
-    updated_projects = []
-    for proj in project_list:
-        proj.update_project(firebase, postgres, output_path)
-        updated_projects.append(proj.id)
-
-    # update users
-    update_users_postgres(firebase, postgres)
-
-    return updated_projects
 
 
 ########################################################################################################################
@@ -605,7 +696,7 @@ def save_results_postgres(postgres, results_filename):
     return True
 
 
-def run_transfer_results(modus, results_filename='data/results.json'):
+def run_transfer_results(modus, output_path):
     """
 
     Parameters
@@ -626,6 +717,8 @@ def run_transfer_results(modus, results_filename='data/results.json'):
     How to deal with results from projects with different types?
     Projects might not always return an integer as result.
     """
+
+    results_filename = '{}/tmp/results.json'.format(output_path)
 
     # get dev or production environment for firebase and postgres
     firebase, postgres = get_environment(modus)
@@ -834,7 +927,7 @@ def run_export(modus: str, filter: Union[str, list], output_path='data')-> list:
 
     firebase, postgres = get_environment(modus)
 
-    project_list = get_projects(firebase, postgres, filter)
+    project_list = get_projects(firebase, postgres, output_path, filter)
     logging.warning('ALL - run_export - got %s projects to export. Filter is set for %s projects' % (len(project_list),
                                                                                                      filter))
     exported_projects = []
@@ -855,7 +948,112 @@ def run_export(modus: str, filter: Union[str, list], output_path='data')-> list:
 ########################################################################################################################
 # DELETE PROJECTS                                                                                                      #
 ########################################################################################################################
-def run_delete(modus, list):
+
+def delete_project_firebase(project_id, import_key, firebase):
+    """
+    The function to delete the project and groups in firebase
+
+    Parameters
+    ----------
+    firebase : pyrebase firebase object
+        initialized firebase app with admin authentication
+
+    Returns
+    -------
+    bool
+        True if successful. False otherwise
+    """
+
+    fb_db = firebase.database()
+    # we create this element to do a multi location update
+    data = {
+        "projects/{}/".format(project_id): None,
+        "groups/{}/".format(project_id): None,
+        "imports/{}/".format(import_key): None
+    }
+
+    fb_db.update(data)
+    logging.warning('%s - delete_project_firebase - deleted project and groups and import in firebase' % project_id)
+
+    return True
+
+def delete_project_postgres(project_id, import_key, postgres):
+    """
+    The function to delete results, tasks, groups, import of project in postgres.
+
+    Parameters
+    ----------
+    postgres : database connection class
+        The database connection to postgres database
+
+    Returns
+    -------
+    bool
+        True is successful. False otherwise.
+
+    TODO:
+    -----
+    Handle exception:
+        pypostgres.err.InternalError: (1205, 'Lock wait timeout exceeded; try restarting transaction')
+    """
+
+    p_con = postgres()
+    sql_insert = """
+        DELETE FROM projects WHERE project_id = %s;
+        DELETE FROM results WHERE project_id = %s;
+        DELETE FROM tasks WHERE project_id = %s;
+        DELETE FROM groups WHERE project_id = %s;
+        DELETE FROM imports WHERE import_id = %s
+
+    """
+    data = [int(project_id), int(project_id), int(project_id), int(project_id), str(import_key)]
+    p_con.query(sql_insert, data)
+    del p_con
+
+    logging.warning('%s - delete_results_postgres - deleted all results, tasks, groups and import and project in postgres' % project_id)
+    return True
+
+def delete_local_files(project_id, import_key, output_path):
+    """
+    The function to delete all local files of this project at the server.
+
+    Parameters
+    ----------
+    data_path : str
+        the path where all data for the projects is stored
+
+    Returns
+    -------
+    deleted_files : list
+        a list with the names of the deleted files
+    """
+
+    # we are going to delete:
+    # results/results_{project_id}.json
+    # input_geometries/input_geometries_{project_id}.kml or input_geometries/input_geometries_{project_id}.geojson
+    # statistics/stats_{project_id}.json
+
+    deleted_files = []
+
+    file_list = [
+        '{}/results/results_{}.json'.format(output_path, project_id),
+        '{}/import/raw_input_{}.geojson'.format(output_path, import_key),
+        '{}/import/raw_input_{}.kml'.format(output_path, import_key),
+        '{}/import/valid_input_{}.geojson'.format(output_path, import_key),
+        '{}/import/valid_input_{}.kml'.format(output_path, import_key),
+        '{}/progress/progress_{}.json'.format(output_path, project_id),
+    ]
+
+    for filepath in file_list:
+        if os.path.isfile(filepath):
+            os.remove(filepath)
+            deleted_files.append(filepath)
+
+    logging.warning('%s - delete_project_firebase - deleted local files: %s' % (project_id, deleted_files))
+    return deleted_files
+
+
+def run_delete(modus, list, output_path):
     """
     The function to delete a list of projects and all corresponding information (results, tasks, groups) in firebase and postgres
 
@@ -880,9 +1078,9 @@ def run_delete(modus, list):
     if not list:
         logging.warning('ALL - run_delete - no input list provided.')
     else:
-        project_list = get_projects(firebase, postgres, list)
+        project_list = get_projects(firebase, postgres, output_path, list)
         for proj in project_list:
-            proj.delete_project(firebase, postgres)
+            proj.delete_project(firebase, postgres, output_path)
             deleted_projects.append(proj.id)
 
     return deleted_projects
@@ -891,7 +1089,7 @@ def run_delete(modus, list):
 ########################################################################################################################
 # ARCHIVE PROJECTS                                                                                                      #
 ########################################################################################################################
-def run_archive(modus, list):
+def run_archive(modus, list, output_path):
     """
     The function to archive a list of projects and its corresponding information (groups) to reduce storage in firebase
 
@@ -916,7 +1114,7 @@ def run_archive(modus, list):
         logging.warning('ALL - run_archive - no input list provided.')
         return False
     else:
-        project_list = get_projects(firebase, postgres, list)
+        project_list = get_projects(firebase, postgres, output_path, list)
         archived_projects = []
         for proj in project_list:
             logging.warning('ALL - run_archive - currently not implemented.')

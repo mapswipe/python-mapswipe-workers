@@ -23,7 +23,7 @@ class BuildAreaTask(BaseTask):
 
 
     """
-    def __init__(self, group, project, TileX, TileY):
+    def __init__(self, group, imp, TileX, TileY):
         """
             The Constructor method for a group instance of the footprint project type.
 
@@ -40,7 +40,7 @@ class BuildAreaTask(BaseTask):
         """
         # the task id is composed of TileZ-TileX-TileY
         task_id = '{}-{}-{}'.format(
-            project.info['zoomlevel'],
+            imp.info['zoomLevel'],
             TileX,
             TileY
         )
@@ -49,15 +49,15 @@ class BuildAreaTask(BaseTask):
 
         self.taskX = str(TileX)
         self.taskY = str(TileY)
-        self.taskZ = str(project.info['zoomlevel'])
+        self.taskZ = str(imp.info['zoomLevel'])
         self.url = t.tile_coords_zoom_and_tileserver_to_URL(
             TileX,
             TileY,
-            project.info['zoomlevel'],
-            project.info['tileserver'],
-            project.info['api_key'],
-            project.info['tileserver_url'],
-            project.info['layer_name']
+            imp.info['zoomLevel'],
+            imp.info['tileServer'],
+            imp.info['apiKey'],
+            imp.info['tileServerUrl'],
+            imp.info['layerName']
         )
 
         # we no longer provide wkt geometry, you can calc using some python scripts

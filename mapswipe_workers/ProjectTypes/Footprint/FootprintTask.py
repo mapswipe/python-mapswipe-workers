@@ -16,7 +16,7 @@ class FootprintTask(BaseTask):
             consists of four two pair coordinates representing the footprint of an object
 
     """
-    def __init__(self, group, project, feature_id, feature_geometry):
+    def __init__(self, group, feature_id, feature_geometry):
         """
             The constructor method for a group instance of the footprint project type.
 
@@ -35,7 +35,7 @@ class FootprintTask(BaseTask):
         """
         # super() executes fine now
         task_id = '{}_{}_{}'.format(
-            project.id, group.id, feature_id
+            group.projectId, group.id, feature_id
         )
 
         super(FootprintTask, self).__init__(task_id)

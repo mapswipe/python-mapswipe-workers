@@ -22,7 +22,7 @@ class BuildAreaGroup(BaseGroup):
     """
     type = 1
 
-    def __init__(self, project, group_id, slice: dict):
+    def __init__(self, imp, project_id, group_id, slice: dict):
         """
             The constructor method for a group instance of the build area project type
 
@@ -37,19 +37,19 @@ class BuildAreaGroup(BaseGroup):
             consisting of 4 values
         """
         # super() executes fine now
-        super(BuildAreaGroup, self).__init__(project, group_id)
+        super(BuildAreaGroup, self).__init__(imp, project_id, group_id)
 
         # add the type specific attributes
-        self.zoomLevel = project.info['zoomlevel']
+        self.zoomLevel = imp.info['zoomLevel']
         self.xMax = slice['xMax']
         self.xMin = slice['xMin']
         self.yMax = slice['yMax']
         self.yMin = slice['yMin']
 
         # we need to add the tasks then, is this happening during init?
-        self.create_tasks(project)
+        self.create_tasks(imp)
 
-    def create_tasks(self, project: object):
+    def create_tasks(self, imp: object):
         """
         The Function to create tasks for the group of the build area project type
 
@@ -62,7 +62,7 @@ class BuildAreaGroup(BaseGroup):
         for TileX in range(int(self.xMin), int(self.xMax) + 1):
             for TileY in range(int(self.yMin), int(self.yMax) + 1):
 
-                task = BuildAreaTask(self, project, TileX, TileY)
+                task = BuildAreaTask(self, imp, TileX, TileY)
                 tasks[task.id] = task
 
         self.tasks = tasks

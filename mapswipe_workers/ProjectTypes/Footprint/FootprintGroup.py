@@ -9,7 +9,7 @@ class FootprintGroup(BaseGroup):
 
     type = 2
 
-    def __init__(self, project, group_id, feature_ids, feature_geometries):
+    def __init__(self, imp, project_id,  group_id, feature_ids, feature_geometries):
         """
            The Constructor Method for a group instance of the footprint project type.
 
@@ -26,10 +26,10 @@ class FootprintGroup(BaseGroup):
             consists of four two pair coordinates representing the footprint of an object
         """
         # super() executes fine now
-        super(FootprintGroup, self).__init__(project, group_id)
-        self.create_tasks(project, feature_ids, feature_geometries)
+        super(FootprintGroup, self).__init__(imp, project_id, group_id)
+        self.create_tasks(feature_ids, feature_geometries)
 
-    def create_tasks(self, project, feature_ids, feature_geometries):
+    def create_tasks(self, feature_ids, feature_geometries):
         """
         The Function to create tasks for the group of the footprint project type
 
@@ -47,7 +47,7 @@ class FootprintGroup(BaseGroup):
 
         tasks = {}
         for i in range(0, len(feature_ids)):
-            task = FootprintTask(self, project, feature_ids[i], feature_geometries[i])
+            task = FootprintTask(self, feature_ids[i], feature_geometries[i])
             tasks[task.id] = task
 
         self.tasks = tasks
