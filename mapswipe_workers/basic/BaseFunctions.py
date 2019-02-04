@@ -856,67 +856,67 @@ def export_users_and_stats(firebase):
 
 def run_export(modus: str, filter: Union[str, list])-> list:
     """
-        The function to export general statistics along with progress and results per
-        projects as well as all users in json format for to use in the mapswipe api.
+    The function to export general statistics along with progress and results per
+    projects as well as all users in json format for to use in the mapswipe api.
 
-        Examples
-        ----------
-        Output structure:
-            progress_<project_id>.json
-                {
-                    "timestamps": [
-                        int,
-                        int,
-                        ..
-                    ],
-                    "progress": [
-                        int,
-                        int,
-                        ..
-                    ],
-                    "contributors": [
-                        int,
-                        int
-                    ]
+    Examples
+    ----------
+    Output structure:
+        progress_<project_id>.json
+            {
+                "timestamps": [
+                    int,
+                    int,
+                    ..
+                ],
+                "progress": [
+                    int,
+                    int,
+                    ..
+                ],
+                "contributors": [
+                    int,
+                    int
+                ]
+            }
+        stats.json
+            {
+                "users": int,
+                "totalDistanceMappedInSqKm": float,
+                "totalContributionsByUsers": int
+            }
+        results_<project_id>.json
+             {
+                "task_id": {
+                    "project_id": int,
+                    "decision": float,
+                    "yes_count": int,
+                    "maybe_count": int,
+                    "bad_imagery_count": int,
+            }
+        users.json
+            {
+                "user_id": {
+                    "contribution": int,
+                    "distance": int,
+                    "username": str
                 }
-            stats.json
-                {
-                    "users": int,
-                    "totalDistanceMappedInSqKm": float,
-                    "totalContributionsByUsers": int
-                }
-            results_<project_id>.json
-                 {
-                    "task_id": {
-                        "project_id": int,
-                        "decision": float,
-                        "yes_count": int,
-                        "maybe_count": int,
-                        "bad_imagery_count": int,
-                }
-            users.json
-                {
-                    "user_id": {
-                        "contribution": int,
-                        "distance": int,
-                        "username": str
-                    }
-                }
+            }
 
-        Parameters
-        ----------
-        modus : str
-            The environment to use for firebase and postgres
-            Can be either 'development' or 'production'
-        filter : str or list
-            The filter for the projects.
-            Can be either 'all', 'active', 'not_finished' or a list of project ids as integer
+    Parameters
+    ----------
+    modus : str
+        The environment to use for firebase and postgres
+        Can be either 'development' or 'production'
+    filter : str or list
+        The filter for the projects.
+        Can be either 'all', 'active', 'not_finished' or a list of project ids as integer
 
-        Returns
-        -------
-        exported_projects : list
-            The list of all projects ids for projects which have been updated
-        """
+    Returns
+    -------
+    exported_projects : list
+        The list of all projects ids for projects which have been updated
+    """
 
     firebase, postgres = get_environment(modus)
 

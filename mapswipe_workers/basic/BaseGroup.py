@@ -18,7 +18,7 @@ class BaseGroup(object):
     """
     def __init__(self, imp: object, project_id: int, group_id: int):
         """
-            The Constructor Method for a group instance
+        The Constructor Method for a group instance
 
         Parameters
         ----------
