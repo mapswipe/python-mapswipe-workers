@@ -37,8 +37,8 @@ class BuildAreaImport(BaseImport):
             self.info['zoomLevel'] = 18
             logging.warning('%s - __init__ - we set zoom level to 18' % import_key)
 
-        # we need to get the tileserver_url
-        if not 'tileServerUrl' in self.info.keys():
+        # we need to get the tileserver_url if the tileserver is not custom
+        if not 'tileServerUrl' in self.info.keys() and self.info['tileServer'] != 'custom':
             try:
                 self.info["tileServerUrl"] = auth.get_tileserver_url(self.info['tileServer'])
             except:
@@ -46,6 +46,12 @@ class BuildAreaImport(BaseImport):
                 import_key, self.info['tileServer']))
                 raise Exception(
                     'Attribute "tileServerUrl" not provided in import_dict and not in "auth.get_tileserver_url" function.')
+        # we need to get the tileserver_url from the attributes if the tileserver is custom
+        elif not 'tileServerUrl' in self.info.keys() and self.info['tileServer'] == 'custom':
+            logging.warning('%s - __init__ - we need a tilserver_url for the tileserver: %s' % (
+            import_key, self.info['tileServer']))
+            raise Exception(
+                'Attribute "tileServerUrl" not provided in import_dict for custom tileserver')
 
         if not 'apiKey' in self.info.keys() and self.info['tileServer'] != 'custom':
             try:
