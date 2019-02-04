@@ -11,7 +11,7 @@ import requests
 from mapswipe_workers.basic import BaseFunctions as b
 from psycopg2 import sql
 
-def imports_to_postgres(firebase, psotgres):
+def imports_to_postgres(firebase, postgres):
     fb_db = firebase.database()
     # get a dict with all imports
     imports = fb_db.child("imports").get().val()
@@ -108,10 +108,9 @@ def download_groups_tasks(q):
         group = fb_db.child("groups").child(project_id).child(group_id).get().val()
         group_tasks = group['tasks']
 
-        print()
+
         if len(group_tasks) > 0:
             for task_id, keys in group_tasks.items():
-                print(task_id)
 
                 info = {}
 
@@ -121,7 +120,7 @@ def download_groups_tasks(q):
 
                 outline = '%s;%i;%i;%s\n' % (group_tasks[task_id]['id'],
                                              int(group_id),
-                                             int(group_tasks[task_id]['projectId']),
+                                             int(group['projectId']),
                                              json.dumps(info))
                 task_file.write(outline)
 
@@ -132,7 +131,7 @@ def download_groups_tasks(q):
             if not group_key in ['projectId', 'id', 'count', 'completedCount']:
                 group_info.update(group_key=group_vals)
 
-        group_outline = '%i,%i,%i,%i,%s\n' % (int(group['projectId']),
+        group_outline = '%i;%i;%i;%i;%s\n' % (int(group['projectId']),
                                               int(group['id']),
                                               int(group['count']),
                                               int(group['completedCount']),
@@ -141,6 +140,86 @@ def download_groups_tasks(q):
 
         q.task_done()
 
+def save_groups_tasks_psql(postgres, project, task_filename, group_filename):
+
+    p_con = postgres()
+
+    # Open CSV file
+    task_file = open(task_filename, 'r')
+    group_file = open(group_filename, 'r')
+    import_tasks_table_name = 'import_tasks'
+    import_task_table_name = import_tasks_table_name + '_{}'.format(project)
+
+    import_groups_table_name = 'import_groups'
+    import_groups_table_name = import_groups_table_name + '_{}'.format(project)
+
+    task_columns = ('task_id', 'group_id', 'project_id', 'info')
+    group_columns = ('project_id', 'group_id', 'count', 'completedCount', 'info')
+
+    sql_insert = '''
+            DROP TABLE IF EXISTS {};
+            CREATE TABLE {} (
+                task_id varchar NOT NULL
+                ,group_id int
+                ,project_id int
+                ,info json
+            );
+            '''
+
+    sql_insert = sql.SQL(sql_insert).format(sql.Identifier(import_task_table_name),
+                                            sql.Identifier(import_task_table_name))
+
+    p_con.query(sql_insert, None)
+
+    sql_insert = '''
+            DROP TABLE IF EXISTS {};
+            CREATE TABLE {} (
+                project_id int
+                ,group_id int
+                ,count int
+                ,completedCount int
+                ,info json
+            );
+            '''
+    sql_insert = sql.SQL(sql_insert).format(sql.Identifier(import_groups_table_name),
+                                            sql.Identifier(import_groups_table_name))
+
+    p_con.query(sql_insert, None)
+
+    # copy data to the new table
+    p_con.copy_from(task_file, import_task_table_name, sep=';', columns=task_columns)
+    p_con.copy_from(group_file, import_groups_table_name, sep=';', columns=group_columns)
+
+    task_file.close()
+    os.remove(task_filename)
+    print('uploaded task + group information to psql')
+
+    sql_insert = '''
+        INSERT INTO tasks
+        SELECT
+          *
+        FROM
+           {}
+          ;
+    '''
+
+    sql_insert = sql.SQL(sql_insert).format(sql.Identifier(import_tasks_table_name))
+    print(sql_insert)
+    p_con.query(sql_insert, None)
+
+    sql_insert = '''
+        INSERT INTO groups
+        SELECT
+          *
+        FROM
+          {};
+        '''
+
+    sql_insert = sql.SQL(sql_insert).format(sql.Identifier(import_groups_table_name))
+
+    p_con.query(sql_insert, None)
+
+    print('inserted into table')
 
 def groups_tasks_to_postgres(firebase,postgres):
 
@@ -184,9 +263,14 @@ def groups_tasks_to_postgres(firebase,postgres):
 
 
         task_file.close()
-        print('Saved tasks file')
+        group_file.close()
+        save_groups_tasks_psql(postgres, project, task_filename, group_filename)
+
+        print(project)
+        break
 
     del fb_db
+
 
 #def users_to_postgres(firebase,postgres):
 
@@ -206,10 +290,9 @@ if __name__ == '__main__':
 
     # projects
     #projects_to_postgres(firebase,postgres)
-    # groups
+    # groups + tasks
     groups_tasks_to_postgres(firebase,postgres)
-    # tasks
-    #tasks_to_postgres(firebase,postgres)
+
     # users
     #users_to_postgres(firebase,postgres)
 
