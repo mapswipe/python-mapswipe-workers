@@ -9,20 +9,12 @@ import psycopg2 # handle postgres
 import json
 import sys
 import os.path
+from mapswipe_workers.definitions import CONFIG_PATH
 
 
-CONFIG_PATH = './cfg/config.cfg'
-
-
-def load_config(path=CONFIG_PATH):
+def load_config():
     """
     Reads and loads the user configuration values.
-
-    Parameters
-    ----------
-    path : string
-        The path to the configurations file.
-        Defaults to './cfg/config.cfg'
 
     Returns
     -------
