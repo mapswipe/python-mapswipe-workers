@@ -11,6 +11,7 @@ import csv
 import requests
 from typing import Union
 
+from mapswipe_workers.definitions import DATA_PATH
 from mapswipe_workers.basic import auth
 # Make sure to import all project types here
 from mapswipe_workers.ProjectTypes.BuildArea.BuildAreaImport import BuildAreaImport
@@ -58,7 +59,7 @@ def get_environment(modus='development'):
     return firebase, postgres
 
 
-def init_import(project_type, import_key, import_dict, output_path='data'):
+def init_import(project_type, import_key, import_dict):
     """
     The function to init an import in regard to its type
 
@@ -81,11 +82,11 @@ def init_import(project_type, import_key, import_dict, output_path='data'):
         2: FootprintImport
     }
 
-    imp = class_to_type[project_type](import_key, import_dict, output_path)
+    imp = class_to_type[project_type](import_key, import_dict)
     return imp
 
 
-def init_project(project_type, project_id, firebase, postgres, output_path):
+def init_project(project_type, project_id, firebase, postgres):
     """
     The function to init a project in regard to its type
 
@@ -108,11 +109,11 @@ def init_project(project_type, project_id, firebase, postgres, output_path):
         2: FootprintProject
     }
 
-    proj = class_to_type[project_type](project_id, firebase, postgres, output_path)
+    proj = class_to_type[project_type](project_id, firebase, postgres)
     return proj
 
 
-def get_projects(firebase, postgres, output_path, filter='all'):
+def get_projects(firebase, postgres, filter='all'):
     """
     The function to download project information from firebase and init the projects
     Parameters
@@ -164,7 +165,7 @@ def get_projects(firebase, postgres, output_path, filter='all'):
                 project_type = all_projects[project_id]['projectType']
             except:
                 project_type = 1
-            proj = init_project(project_type, project_id, firebase, postgres, output_path)
+            proj = init_project(project_type, project_id, firebase, postgres)
             projects_list.append(proj)
 
     return projects_list
@@ -300,7 +301,7 @@ def get_new_imports(firebase):
     return new_imports
 
 
-def run_import(modus, output_path):
+def run_import(modus):
     """
     A function to create all newly imported projects in firebase
 
@@ -332,10 +333,10 @@ def run_import(modus, output_path):
             project_type = 1
 
         # now let's init the import
-        imp = init_import(project_type, import_key, import_dict, output_path)
+        imp = init_import(project_type, import_key, import_dict)
 
         # and now let's finally create a project
-        imp.create_project(firebase, postgres, output_path)
+        imp.create_project(firebase, postgres)
         imported_projects.append(imp.import_key)
 
     return imported_projects
@@ -344,7 +345,7 @@ def run_import(modus, output_path):
 ########################################################################################################################
 # UPDATE                                                                                                               #
 ########################################################################################################################
-def run_update(modus, filter, output_path):
+def run_update(modus, filter):
     """
     The function to update project progress and contributors in firebase
 
@@ -356,8 +357,6 @@ def run_update(modus, filter, output_path):
     filter : str or list
         The filter for the projects.
         Can be either 'all', 'active', 'not_finished' or a list of project ids as integer
-    output_path: str
-        The output path of the logs for progress and contributors
 
     Returns
     -------
@@ -368,10 +367,10 @@ def run_update(modus, filter, output_path):
     # get dev or production environment for firebase and postgres
     firebase, postgres = get_environment(modus)
 
-    project_list = get_projects(firebase, postgres, output_path, filter)
+    project_list = get_projects(firebase, postgres, filter)
     updated_projects = []
     for proj in project_list:
-        proj.update_project(firebase, postgres, output_path)
+        proj.update_project(firebase, postgres)
         updated_projects.append(proj.id)
 
     # update users
@@ -696,7 +695,7 @@ def save_results_postgres(postgres, results_filename):
     return True
 
 
-def run_transfer_results(modus, output_path):
+def run_transfer_results(modus):
     """
 
     Parameters
@@ -718,7 +717,7 @@ def run_transfer_results(modus, output_path):
     Projects might not always return an integer as result.
     """
 
-    results_filename = '{}/tmp/results.json'.format(output_path)
+    results_filename = '{}/tmp/results.json'.format(DATA_PATH)
 
     # get dev or production environment for firebase and postgres
     firebase, postgres = get_environment(modus)
@@ -768,7 +767,7 @@ def run_transfer_results(modus, output_path):
 ########################################################################################################################
 # EXPORT                                                                                                               #
 ########################################################################################################################
-def export_all_projects(firebase, output_path='data'):
+def export_all_projects(firebase):
     """
     The function to export all projects in a json file
 
@@ -776,8 +775,6 @@ def export_all_projects(firebase, output_path='data'):
     ----------
     firebase : pyrebase firebase object
         initialized firebase app with admin authentication
-    output_path: str
-        The output path of the json files
 
     Returns
     -------
@@ -785,8 +782,8 @@ def export_all_projects(firebase, output_path='data'):
         True if successful, False otherwise
     """
     # check if output path for projects is correct and existing
-    if not os.path.isdir(output_path):
-        os.mkdir(output_path)
+    if not os.path.isdir(DATA_PATH):
+        os.mkdir(DATA_PATH)
 
     fb_db = firebase.database()
     all_projects = fb_db.child("projects").get().val()
@@ -796,14 +793,14 @@ def export_all_projects(firebase, output_path='data'):
         return False
     else:
         # save projects as json
-        output_json_file = '{}/projects.json'.format(output_path)
+        output_json_file = '{}/projects.json'.format(DATA_PATH)
         with open(output_json_file, 'w') as outfile:
             json.dump(all_projects, outfile, indent=4)
         logging.warning('ALL - export_all_projects - exported projects file: %s' % output_json_file)
         return True
 
 
-def export_users_and_stats(firebase, output_path='data'):
+def export_users_and_stats(firebase):
     """
     The function to save users and stats as a json file
 
@@ -811,8 +808,6 @@ def export_users_and_stats(firebase, output_path='data'):
     ----------
     firebase : pyrebase firebase object
         initialized firebase app with admin authentication
-    output_path: str
-        The output path of the json files
 
     Returns
     -------
@@ -820,8 +815,8 @@ def export_users_and_stats(firebase, output_path='data'):
         True if successful, False otherwise
     """
     # check if output path for projects is correct and existing
-    if not os.path.isdir(output_path):
-        os.mkdir(output_path)
+    if not os.path.isdir(DATA_PATH):
+        os.mkdir(DATA_PATH)
 
     fb_db = firebase.database()
     all_users = fb_db.child("users").get().val()
@@ -846,20 +841,20 @@ def export_users_and_stats(firebase, output_path='data'):
                 pass
 
         # export users as json file
-        output_json_file = '{}/users.json'.format(output_path)
+        output_json_file = '{}/users.json'.format(DATA_PATH)
         with open(output_json_file, 'w') as outfile:
             json.dump(all_users, outfile, indent=4)
         logging.warning('ALL - export_users_and_stats - exported users file: %s' % output_json_file)
 
         # export stats as json file
-        output_json_file = '{}/stats.json'.format(output_path)
+        output_json_file = '{}/stats.json'.format(DATA_PATH)
         with open(output_json_file, 'w') as outfile:
             json.dump(stats, outfile, indent=4)
         logging.warning('ALL - export_users_and_stats - exported stats file: %s' % output_json_file)
         return True
 
 
-def run_export(modus: str, filter: Union[str, list], output_path='data')-> list:
+def run_export(modus: str, filter: Union[str, list])-> list:
     """
         The function to export general statistics along with progress and results per
         projects as well as all users in json format for to use in the mapswipe api.
@@ -916,8 +911,6 @@ def run_export(modus: str, filter: Union[str, list], output_path='data')-> list:
         filter : str or list
             The filter for the projects.
             Can be either 'all', 'active', 'not_finished' or a list of project ids as integer
-        output_path: str
-            The output path of the logs for progress and contributors
 
         Returns
         -------
@@ -927,14 +920,14 @@ def run_export(modus: str, filter: Union[str, list], output_path='data')-> list:
 
     firebase, postgres = get_environment(modus)
 
-    project_list = get_projects(firebase, postgres, output_path, filter)
+    project_list = get_projects(firebase, postgres, filter)
     logging.warning('ALL - run_export - got %s projects to export. Filter is set for %s projects' % (len(project_list),
                                                                                                      filter))
     exported_projects = []
     for project in project_list:
-        project.export_progress(output_path)
+        project.export_progress(DATA_PATH)
         logging.warning('%s - run_export - progress successfully exported' % project.id)
-        project.export_results(postgres, output_path)
+        project.export_results(postgres, DATA_PATH)
         logging.warning('%s - run_export - results successfully exported' % project.id)
         exported_projects.append(project.id)
 
@@ -1013,14 +1006,13 @@ def delete_project_postgres(project_id, import_key, postgres):
     logging.warning('%s - delete_results_postgres - deleted all results, tasks, groups and import and project in postgres' % project_id)
     return True
 
-def delete_local_files(project_id, import_key, output_path):
+def delete_local_files(project_id, import_key):
     """
     The function to delete all local files of this project at the server.
 
     Parameters
     ----------
-    data_path : str
-        the path where all data for the projects is stored
+    project_id: int
 
     Returns
     -------
@@ -1036,12 +1028,13 @@ def delete_local_files(project_id, import_key, output_path):
     deleted_files = []
 
     file_list = [
-        '{}/results/results_{}.json'.format(output_path, project_id),
-        '{}/import/raw_input_{}.geojson'.format(output_path, import_key),
-        '{}/import/raw_input_{}.kml'.format(output_path, import_key),
-        '{}/import/valid_input_{}.geojson'.format(output_path, import_key),
-        '{}/import/valid_input_{}.kml'.format(output_path, import_key),
-        '{}/progress/progress_{}.json'.format(output_path, project_id),
+    import_key: 
+        '{}/results/results_{}.json'.format(DATA_PATH, project_id),
+        '{}/import/raw_input_{}.geojson'.format(DATA_PATH, import_key),
+        '{}/import/raw_input_{}.kml'.format(DATA_PATH, import_key),
+        '{}/import/valid_input_{}.geojson'.format(DATA_PATH, import_key),
+        '{}/import/valid_input_{}.kml'.format(DATA_PATH, import_key),
+        '{}/progress/progress_{}.json'.format(DATA_PATH, project_id),
     ]
 
     for filepath in file_list:
@@ -1053,7 +1046,7 @@ def delete_local_files(project_id, import_key, output_path):
     return deleted_files
 
 
-def run_delete(modus, list, output_path):
+def run_delete(modus, list):
     """
     The function to delete a list of projects and all corresponding information (results, tasks, groups) in firebase and postgres
 
@@ -1078,9 +1071,9 @@ def run_delete(modus, list, output_path):
     if not list:
         logging.warning('ALL - run_delete - no input list provided.')
     else:
-        project_list = get_projects(firebase, postgres, output_path, list)
+        project_list = get_projects(firebase, postgres, list)
         for proj in project_list:
-            proj.delete_project(firebase, postgres, output_path)
+            proj.delete_project(firebase, postgres)
             deleted_projects.append(proj.id)
 
     return deleted_projects
@@ -1089,7 +1082,7 @@ def run_delete(modus, list, output_path):
 ########################################################################################################################
 # ARCHIVE PROJECTS                                                                                                      #
 ########################################################################################################################
-def run_archive(modus, list, output_path):
+def run_archive(modus, list):
     """
     The function to archive a list of projects and its corresponding information (groups) to reduce storage in firebase
 
@@ -1114,13 +1107,13 @@ def run_archive(modus, list, output_path):
         logging.warning('ALL - run_archive - no input list provided.')
         return False
     else:
-        project_list = get_projects(firebase, postgres, output_path, list)
+        project_list = get_projects(firebase, postgres, list)
         archived_projects = []
         for proj in project_list:
             logging.warning('ALL - run_archive - currently not implemented.')
             pass
             # TODO implement archive function on project level
-            # proj.archive_project(firebase, postgres, output_path)
+            # proj.archive_project(firebase, postgres)
             # archived_projects.append(proj.id)
 
         return archived_projects

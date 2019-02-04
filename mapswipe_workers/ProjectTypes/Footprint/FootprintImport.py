@@ -3,6 +3,7 @@ import logging
 import urllib.request
 import ogr
 
+from mapswipe_workers.definitions import DATA_PATH
 from mapswipe_workers.basic import auth
 from mapswipe_workers.basic.BaseImport import BaseImport
 from mapswipe_workers.ProjectTypes.Footprint import GroupingFunctions as g
@@ -19,9 +20,9 @@ class FootprintImport(BaseImport):
 
     project_type = 2
 
-    def __init__(self, import_key, import_dict, output_path):
+    def __init__(self, import_key, import_dict):
         # this will create the basis attributes
-        super().__init__(import_key, import_dict, output_path)
+        super().__init__(import_key, import_dict)
 
         # set group size
         self.info["groupSize"] = 50
@@ -49,16 +50,16 @@ class FootprintImport(BaseImport):
                 logging.warning('%s - __init__ - we need an api key for the tileserver: %s' % (import_key, self.info['tileServer']))
                 raise Exception('Attribute "api_key" not provided in import_dict and not in "auth.get_api_key" function.')
 
-        self.validate_geometries(output_path)
+        self.validate_geometries()
 
 
-    def validate_geometries(self, output_path):
+    def validate_geometries(self):
 
-        raw_input_file = '{}/import/raw_input_{}.geojson'.format(output_path, self.import_key)
-        valid_input_file = '{}/import/valid_input_{}.geojson'.format(output_path, self.import_key)
+        raw_input_file = '{}/import/raw_input_{}.geojson'.format(DATA_PATH, self.import_key)
+        valid_input_file = '{}/import/valid_input_{}.geojson'.format(DATA_PATH, self.import_key)
 
-        if not os.path.isdir('{}/import'.format(output_path)):
-            os.mkdir('{}/import'.format(output_path))
+        if not os.path.isdir('{}/import'.format(DATA_PATH)):
+            os.mkdir('{}/import'.format(DATA_PATH))
 
         # download file from given url
         url = self.info['inputGeometries']

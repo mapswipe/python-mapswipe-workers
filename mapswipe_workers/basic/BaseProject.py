@@ -6,8 +6,8 @@ from queue import Queue
 import requests
 import time
 import json
-
 from mapswipe_workers.basic import BaseFunctions as b
+from mapswipe_workers.definitions import DATA_PATH
 
 class BaseProject(object):
     """
@@ -46,7 +46,7 @@ class BaseProject(object):
     ####################################################################################################################
     # INIT - Existing projects from id, new projects from import_key and import_dict                                   #
     ####################################################################################################################
-    def __init__(self, project_id: int, firebase: object, postgres: object, output_path: str) -> object:
+    def __init__(self, project_id: int, firebase: object, postgres: object,) -> object:
 
         logging.warning('%s - __init__ - start init' % project_id)
 
@@ -84,7 +84,7 @@ class BaseProject(object):
     # DELETE - We define a bunch of functions related to delete project information                                    #
     ####################################################################################################################
 
-    def delete_project(self, firebase, postgres, output_path):
+    def delete_project(self, firebase, postgres):
         """
         The function to delete all project related information in firebase and postgres
             This includes information on groups
@@ -95,8 +95,6 @@ class BaseProject(object):
             initialized firebase app with admin authentication
         postgres : database connection class
             The database connection to postgres database
-        data_path : str
-            the path where all data for the projects is stored on your local machine
 
         Returns
         -------
@@ -105,7 +103,7 @@ class BaseProject(object):
         """
 
         logging.warning('%s - delete_project - start deleting project' % self.id)
-        b.delete_local_files(self.id, self.import_key, output_path)
+        b.delete_local_files(self.id, self.import_key)
         b.delete_project_postgres(self.id, self.import_key, postgres)
         b.delete_project_firebase(self.id, self.import_key, firebase)
 
@@ -347,13 +345,9 @@ class BaseProject(object):
     ####################################################################################################################
     # EXPORT - We define a bunch of functions related to exporting exiting projects                                    #
     ####################################################################################################################
-    def export_progress(self, output_path):
+    def export_progress(self):
         """
         The function to log the progress to a txt file in the format 'progress_{ID}.txt'
-
-        Parameters
-        ----------
-        output_path : str
 
         Returns
         -------
@@ -368,10 +362,10 @@ class BaseProject(object):
 
 
         # check if output path for projects is correct and existing
-        if not os.path.exists(output_path + '/progress'):
-            os.makedirs(output_path + '/progress')
+        if not os.path.exists(DATA_PATH + '/progress'):
+            os.makedirs(DATA_PATH + '/progress')
 
-        filename = "{}/progress/progress_{}.json".format(output_path, self.id)
+        filename = "{}/progress/progress_{}.json".format(DATA_PATH, self.id)
 
         # json already exists
         if os.path.isfile(filename):
@@ -398,7 +392,7 @@ class BaseProject(object):
         logging.warning('%s - export_progress - exported progress to file: %s' % (self.id, filename))
         return True
 
-    def export_results(self, postgres: object, output_path: str)-> bool:
+    def export_results(self, postgres: object)-> bool:
         """
             TODO implement aggregate results per project type
             The function save the results of the project in a list of jsons'
@@ -406,7 +400,6 @@ class BaseProject(object):
             Parameters
             ----------
             postgres : object
-            output_path : str
 
             Returns
             -------
@@ -417,10 +410,10 @@ class BaseProject(object):
         results_list = self.aggregate_results(postgres)
 
         # check if output path for results is existing
-        if not os.path.exists(output_path + '/results'):
-            os.makedirs(output_path + '/results')
-
-        output_json_file = '{}/results/results_{}.json'.format(output_path, self.id)
+        if not os.path.exists(DATA_PATH + '/results'):
+            os.makedirs(DATA_PATH + '/results')
+        
+        output_json_file = '{}/results/results_{}.json'.format(DATA_PATH, self.id)
 
         with open(output_json_file, 'w') as outfile:
             json.dump(results_list, outfile, indent=4)

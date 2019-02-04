@@ -3,13 +3,14 @@ import logging
 import json
 import csv
 
+from mapswipe_workers.definitions import DATA_PATH
 from mapswipe_workers.utils import error_handling
 from mapswipe_workers.basic import BaseFunctions as b
 
 
 class BaseImport(object):
 
-    def __init__(self, import_key, import_dict, output_path):
+    def __init__(self, import_key, import_dict):
 
         logging.warning('%s - __init__ - start init' % import_key)
         self.import_key = import_key
@@ -28,7 +29,7 @@ class BaseImport(object):
             if key not in ['name', 'image', 'lookFor', 'projectDetails', 'verification_count', 'projectType']:
                 self.info[key] = import_dict[key]
 
-    def create_project(self, firebase, postgres, output_path):
+    def create_project(self, firebase, postgres):
         """
         The function to import a new project
 
@@ -74,8 +75,8 @@ class BaseImport(object):
             # upload data to postgres
             self.set_import_postgres(postgres)
             self.set_project_postgres(postgres, project_dict)
-            self.set_groups_postgres(postgres, project_id, groups_dict, output_path)
-            self.set_tasks_postgres(postgres, project_id, groups_dict, output_path)
+            self.set_groups_postgres(postgres, project_id, groups_dict)
+            self.set_tasks_postgres(postgres, project_id, groups_dict)
 
             # upload data to firebase
             self.set_project_firebase(firebase, project_dict)
@@ -95,7 +96,7 @@ class BaseImport(object):
             # ToDO need to check how to delete if project could not be imported.
             b.delete_project_postgres(project_id, self.import_key, postgres)
             b.delete_project_firebase(project_id, self.import_key, firebase)
-            b.delete_local_files(project_id, self.import_key, output_path)
+            b.delete_local_files(project_id, self.import_key)
             return False
 
     def get_new_project_id(self, firebase):
@@ -210,7 +211,7 @@ class BaseImport(object):
         logging.warning('%s - set_project_postgres - inserted project info in postgres' % project_dict['id'])
         return True
 
-    def set_groups_postgres(self, postgres, project_id, groups, output_path):
+    def set_groups_postgres(self, postgres, project_id, groups):
         """
         The function to import all groups for the project into postgres groups table
 
@@ -229,11 +230,11 @@ class BaseImport(object):
             True if successful. False otherwise
         """
 
-        if not os.path.isdir('{}/tmp'.format(output_path)):
-            os.mkdir('{}/tmp'.format(output_path))
+        if not os.path.isdir('{}/tmp'.format(DATA_PATH)):
+            os.mkdir('{}/tmp'.format(DATA_PATH))
 
         # create txt file with header for later import with copy function into postgres
-        groups_txt_filename = '{}/tmp/raw_groups_{}.txt'.format(output_path, project_id)
+        groups_txt_filename = '{}/tmp/raw_groups_{}.txt'.format(DATA_PATH, project_id)
         groups_txt_file = open(groups_txt_filename, 'w', newline='')
         fieldnames = ('project_id', 'group_id', 'completedCount', 'count', 'info')
         w = csv.DictWriter(groups_txt_file, fieldnames=fieldnames, delimiter='\t', quotechar="'")
@@ -307,7 +308,7 @@ class BaseImport(object):
         logging.warning('%s - set_groups_postgres - inserted groups into groups table' % project_id)
         return True
 
-    def set_tasks_postgres(self, postgres, project_id, groups, output_path):
+    def set_tasks_postgres(self, postgres, project_id, groups):
         """
         The function iterates over the groups and extracts tasks and uploads them into postgresql
         Parameters
@@ -326,11 +327,11 @@ class BaseImport(object):
 
         """
 
-        if not os.path.isdir('{}/tmp'.format(output_path)):
-            os.mkdir('{}/tmp'.format(output_path))
+        if not os.path.isdir('{}/tmp'.format(DATA_DIR)):
+            os.mkdir('{}/tmp'.format(DATA_DIR))
 
         # save tasks in txt file
-        tasks_txt_filename = '{}/tmp/raw_tasks_{}.txt'.format(output_path, project_id)
+        tasks_txt_filename = '{}/tmp/raw_tasks_{}.txt'.format(DATA_DIR, project_id)
         tasks_txt_file = open(tasks_txt_filename, 'w', newline='')
 
         fieldnames = ('task_id', 'project_id', 'group_id', 'info')
