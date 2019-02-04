@@ -21,7 +21,7 @@ class FootprintImport(BaseImport):
 
     def __init__(self, import_key, import_dict, output_path):
         # this will create the basis attributes
-        super().__init__(import_key, import_dict)
+        super().__init__(import_key, import_dict, output_path)
 
         # set group size
         self.info["groupSize"] = 50
