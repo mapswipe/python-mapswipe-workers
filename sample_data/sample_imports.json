@@ -43,6 +43,7 @@
     "zoomLevel": 21
   },
   "footprint_polygon_geometries": {
+    "key": "your_key",
     "inputGeometries" : "https://heibox.uni-heidelberg.de/f/7a61e549b6/?dl=1",
     "project" : {
       "image" : "http://www.fragosus.com/test/Javita.jpg",
