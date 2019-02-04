@@ -1,0 +1,59 @@
+{
+    "psql": {
+        "database": "mapswipe",
+        "username": "mapswipe-workers",
+        "password": "YOUR_PSQL_PASSWORD",
+        "host": "postgres",
+        "port": 5432
+    },
+    "firebase": {
+        "api_key": "YOUR_FIREBASE_API_KEY",
+        "auth_domain": "YOUR_FIREBASE.firebaseapp.com",
+        "database_url": "https://YOUR_FIREBASE.firebaseio.com",
+        "storage_bucket": "YOUR_FIREBASE.appspot.com",
+        "service_account": "./cfg/YOUR_FIREBASE_serviceAccountKey.json"
+    },
+    "imagery": {
+        "bing": {
+            "api_key": "YOUR_BING_API_KEY",
+            "url": "http://t0.tiles.virtualearth.net/tiles/a{quad_key}.jpeg?g=854&mkt=en-US&token={key}"
+        },
+        "digital_globe": {
+            "api_key": "YOUR_DIGITAL_GLOBE_API_KEY",
+            "url": "https://api.mapbox.com/v4/digitalglobe.nal0g75k/{z}/{x}/{y}.png?access_token={key}"
+        },
+        "sinergise": {
+            "api_key": "YOUR_SINERGISE_API_KEY",
+            "url": "https://services.sentinel-hub.com/ogc/wmts/{key}?request=getTile&tilematrixset=PopularWebMercator256&tilematrix={z}&tilecol={x}&tilerow={y}&layer={name}"
+        }
+    },
+    "slack": {
+        "token": "YOUR_SLACK_TOKEN",
+        "channel": "backend-notifications",
+        "username": "python-backend-workers"
+    },
+    "processes": {
+        "import": {
+            "submission_key": "YOUR_SUBMISSION_KEY",
+            "sleep_time": 3600,
+            "max_iterations": 24,
+            "filter": "active"
+        },
+        "export": {
+            "sleep_time": 900,
+            "max_iterations": 96,
+            "filter": "active"
+        },
+        "update": {
+            "sleep_time": 900,
+            "max_iterations": 96,
+            "filter": "active"
+        },
+        "transfer_results": {
+            "sleep_time": 60,
+            "max_iterations": 1440,
+            "filter": "active"
+        }
+
+    }
+}
