@@ -925,9 +925,9 @@ def run_export(modus: str, filter: Union[str, list])-> list:
                                                                                                      filter))
     exported_projects = []
     for project in project_list:
-        project.export_progress(DATA_PATH)
+        project.export_progress()
         logging.warning('%s - run_export - progress successfully exported' % project.id)
-        project.export_results(postgres, DATA_PATH)
+        project.export_results(postgres)
         logging.warning('%s - run_export - results successfully exported' % project.id)
         exported_projects.append(project.id)
 
@@ -1030,10 +1030,10 @@ def delete_local_files(project_id, import_key):
     file_list = [
     import_key: 
         '{}/results/results_{}.json'.format(DATA_PATH, project_id),
-        '{}/import/raw_input_{}.geojson'.format(DATA_PATH, import_key),
-        '{}/import/raw_input_{}.kml'.format(DATA_PATH, import_key),
-        '{}/import/valid_input_{}.geojson'.format(DATA_PATH, import_key),
-        '{}/import/valid_input_{}.kml'.format(DATA_PATH, import_key),
+        '{}/input_geometries/raw_input_{}.geojson'.format(DATA_PATH, import_key),
+        '{}/input_geometries/raw_input_{}.kml'.format(DATA_PATH, import_key),
+        '{}/input_geometries/valid_input_{}.geojson'.format(DATA_PATH, import_key),
+        '{}/input_geometries/valid_input_{}.kml'.format(DATA_PATH, import_key),
         '{}/progress/progress_{}.json'.format(DATA_PATH, project_id),
     ]
 
