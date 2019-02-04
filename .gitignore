@@ -115,7 +115,7 @@ import_module/data
 cfg/config.cfg
 cfg/msf-mapswipe_serviceAccountKey.json
 cfg/dev-mapswipe_serviceAccountKey.json
-
+cfg/configurations.json
 
 
 .DS_Store
