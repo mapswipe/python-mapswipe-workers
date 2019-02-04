@@ -70,7 +70,7 @@ class BuildAreaImport(BaseImport):
 
     def validate_geometries(self):
 
-        raw_input_file = '{}/import/raw_input_{}.kml'.format(DATA_PATH, self.import_key)
+        raw_input_file = '{}/input_geometries/raw_input_{}.kml'.format(DATA_PATH, self.import_key)
 
         # check if a 'data' folder exists and create one if not
         if not os.path.isdir('{}/import'.format(DATA_PATH)):
