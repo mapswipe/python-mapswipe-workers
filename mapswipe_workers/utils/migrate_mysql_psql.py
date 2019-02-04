@@ -60,38 +60,29 @@ def check_mysql_schema(postgres) -> bool:
     return 'mysql' in schemas[-1][0]
 
 
-def get_projects(postgres):
+def get_results(postgres):
     p_con = postgres()
 
     sql_string = '''
         SELECT
             count(*)
         FROM
-            {}.projects
+            {}.results
         '''
     msql_string = sql.SQL(sql_string).format(sql.Identifier('mysql'))
     psql_string = sql.SQL(sql_string).format(sql.Identifier('public'))
 
-    msql_projects_count = p_con.retr_query(msql_string, None)
-    psql_projects_count = p_con.retr_query(psql_string, None)
+    msql_results_count = p_con.retr_query(msql_string, None)
+    psql_results_count = p_con.retr_query(psql_string, None)
 
     del p_con
-    return msql_projects_count, psql_projects_count
+    return msql_results_count, psql_results_count
 
 
 def create_materialized_views(postgres):
     p_con = postgres()
 
     sql_string = '''
-        CREATE MATERIALIZED VIEW IF NOT EXISTS public.msql_projects as (
-            SELECT
-                project_id
-                ,1 as project_type
-                ,name
-                ,objective
-            FROM
-                mysql.projects
-        );
         CREATE MATERIALIZED VIEW IF NOT EXISTS public.msql_results as (
             SELECT 
                 task_id
@@ -101,28 +92,10 @@ def create_materialized_views(postgres):
                 ,json_build_object('device', '', 'item', '', 'result', result, 'wkt', wkt) as info
                 ,duplicates
             FROM mysql.results 
-            LIMIT
-                1000
         );
         '''
     p_con.query(sql_string, None)
     del p_con
-
-
-def import_projects(postgres):
-    p_con = postgres()
-
-    sql_string = '''
-        INSERT INTO public.projects
-        SELECT
-          *
-          -- duplicates is set to zero by default, this will be updated on conflict only
-          --,0
-        FROM
-          public.msql_projects;
-    '''
-    del p_con
-
 
 def import_results(postgres):
     p_con = postgres()
@@ -147,8 +120,10 @@ if __name__ == '__main__':
     if not check_mysql_schema(postgres):
         setup_mysql_fdw(postgres)
 
-    print('Projects: \nmysql: %i \npsql: %i ' % (get_projects(postgres)[0][0][0], get_projects(postgres)[1][0][0]))
+    print('Results: \nmysql: %i \npsql: %i ' % (get_results(postgres)[0][0][0], get_results(postgres)[1][0][0]))
 
     create_materialized_views(postgres)
 
     print('Materialized views created')
+
+    import_results(postgres)
