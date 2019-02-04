@@ -58,7 +58,7 @@ def get_environment(modus='development'):
     return firebase, postgres
 
 
-def init_import(project_type, import_key, import_dict, output_path):
+def init_import(project_type, import_key, import_dict, output_path='data'):
     """
     The function to init an import in regard to its type
 
