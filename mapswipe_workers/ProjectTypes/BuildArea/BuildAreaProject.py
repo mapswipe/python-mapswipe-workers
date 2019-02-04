@@ -39,7 +39,7 @@ class BuildAreaProject(BaseProject):
     ####################################################################################################################
     # INIT - Existing projects from id, new projects from import_key and import_dict                                   #
     ####################################################################################################################
-    def __init__(self, project_id, firebase, postgres, output_path=None, import_key=None, import_dict=None):
+    def __init__(self, project_id, firebase, postgres, import_key=None, import_dict=None):
         """
         The function to init a project
 
@@ -57,7 +57,7 @@ class BuildAreaProject(BaseProject):
             The project information to be imported as a dictionary
         """
 
-        super().__init__(project_id, firebase, postgres, output_path)
+        super().__init__(project_id, firebase, postgres)
         logging.warning('%s - __init__ - init complete' % self.id)
 
     ####################################################################################################################

@@ -1,5 +1,6 @@
 from mapswipe_workers.basic import auth
 from mapswipe_workers.basic import BaseFunctions as b
+from mapswipe_workers.definitions import DATA_PATH
 
 import logging
 import sys
@@ -26,7 +27,6 @@ firebase, mysqlDB = b.get_environment(modus)
 
 filter = 'active'
 #filter = [13523, 13531]
-output_path = 'data'
 project_list = b.get_projects(firebase, mysqlDB, filter)
 print(len(project_list))
 
@@ -37,7 +37,7 @@ for proj in project_list:
 '''
 
 #for proj in project_list:
-#    proj.update_project(firebase, mysqlDB, output_path)
+#    proj.update_project(firebase, mysqlDB)
 
 
 b.run_transfer_results('development')

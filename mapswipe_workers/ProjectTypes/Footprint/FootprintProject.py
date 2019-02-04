@@ -22,7 +22,7 @@ class FootprintProject(BaseProject):
     ####################################################################################################################
     # INIT - Existing projects from id, new projects from import_key and import_dict                                   #
     ####################################################################################################################
-    def __init__(self, project_id, firebase, postgres, output_path):
+    def __init__(self, project_id, firebase, postgres):
         """
         The function to init a project
 
@@ -40,7 +40,7 @@ class FootprintProject(BaseProject):
             The project information to be imported as a dictionary
         """
 
-        super().__init__(project_id, firebase, postgres, output_path)
+        super().__init__(project_id, firebase, postgres)
 
     ####################################################################################################################
     # EXPORT - We define a bunch of functions related to exporting exiting projects                                    #
@@ -117,5 +117,3 @@ class FootprintProject(BaseProject):
         logging.warning('got results information from postgres for project: %s. rows = %s' % (self.id,
                                                                                               len(project_results)))
         return results_dict
-
-

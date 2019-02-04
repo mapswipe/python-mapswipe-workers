@@ -2,6 +2,7 @@ import os
 import logging
 import ogr
 
+from mapswipe_workers.definitions import DATA_PATH
 from mapswipe_workers.basic import auth
 from mapswipe_workers.basic.BaseImport import BaseImport
 from mapswipe_workers.ProjectTypes.BuildArea.BuildAreaGroup import BuildAreaGroup
@@ -17,9 +18,9 @@ class BuildAreaImport(BaseImport):
 
     project_type = 1
 
-    def __init__(self, import_key, import_dict, output_path):
+    def __init__(self, import_key, import_dict):
         # this will create the basis attributes
-        super().__init__(import_key, import_dict, output_path)
+        super().__init__(import_key, import_dict)
 
         # set group size
         self.info["groupSize"] = 50
@@ -65,15 +66,15 @@ class BuildAreaImport(BaseImport):
         if not 'layerName' in self.info.keys():
             self.info['layerName'] = None
 
-        self.validate_geometries(output_path)
+        self.validate_geometries()
 
-    def validate_geometries(self, output_path):
+    def validate_geometries(self):
 
-        raw_input_file = '{}/import/raw_input_{}.kml'.format(output_path, self.import_key)
+        raw_input_file = '{}/import/raw_input_{}.kml'.format(DATA_PATH, self.import_key)
 
         # check if a 'data' folder exists and create one if not
-        if not os.path.isdir('{}/import'.format(output_path)):
-            os.mkdir('{}/import'.format(output_path))
+        if not os.path.isdir('{}/import'.format(DATA_PATH)):
+            os.mkdir('{}/import'.format(DATA_PATH))
 
         # write string to geom file
         with open(raw_input_file, 'w') as geom_file:
