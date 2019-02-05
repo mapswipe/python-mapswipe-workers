@@ -10,7 +10,7 @@ import json
 import sys
 import os.path
 from mapswipe_workers.definitions import CONFIG_PATH
-
+from mapswipe_workers.definitions import ROOT_DIR
 
 def load_config():
     """
@@ -52,6 +52,7 @@ def firebase_admin_auth():
         print('could not get firebase informtaion from config file')
         sys.exit(1)
 
+    service_key_path = os.path.abspath(os.path.join(ROOT_DIR, '..', 'cfg', service_account))
     # adapt this to your firebase setting
     config = {
         "apiKey": api_key,
@@ -59,7 +60,7 @@ def firebase_admin_auth():
         "databaseURL": database_url,
         "storageBucket": storage_bucket,
         # this is important if you want to login as admin
-        "serviceAccount": service_account
+        "serviceAccount": service_key_path
     }
     firebase = pyrebase.initialize_app(config)
     return firebase
@@ -78,6 +79,7 @@ def dev_firebase_admin_auth():
         print('Could not get firebase dev information from config file.')
         sys.exit(1)
 
+    service_key_path = os.path.abspath(os.path.join(ROOT_DIR, '..', 'cfg', service_account))
     # adapt this to your firebase setting
     config = {
         "apiKey": api_key,
@@ -85,7 +87,7 @@ def dev_firebase_admin_auth():
         "databaseURL": database_url,
         "storageBucket": storage_bucket,
         # this is important if you want to login as admin
-        "serviceAccount": service_account
+        "serviceAccount": service_key_path
     }
 
     print('use dev configuration: %s' % config)
