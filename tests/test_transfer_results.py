@@ -56,11 +56,11 @@ def simulate_user_contributions(project_id, project_type, user_id='test_user', m
             count = val['count']
             random_sample = random.sample(task_ids, int(count/2))
             for task_id in random_sample:
-                create_build_area_result_in_firebase(project_id, task_id, user_id, firebase)
+                create_build_area_result_in_firebase(project_id, task_id, user_id, firebase, modus)
             print("created build area results in firebase")
         elif project_type == 2:
             for task_id in task_ids:
-                create_footprint_result_in_firebase(project_id, task_id, user_id, firebase)
+                create_footprint_result_in_firebase(project_id, task_id, user_id, firebase, modus)
             print("created footprint results in firebase")
 
         # update groups completed count
@@ -69,16 +69,15 @@ def simulate_user_contributions(project_id, project_type, user_id='test_user', m
         print("updated completed count")
 
 
-modus = 'development'
+modus = 'production'
 
 project_id = 13555
 project_type = 1
-simulate_user_contributions(project_id, project_type)
+simulate_user_contributions(project_id, project_type, modus)
 
 project_id = 13541
 project_type = 2
-simulate_user_contributions(project_id, project_type)
+simulate_user_contributions(project_id, project_type, modus)
 
 # run transfer results from firebase to postgres
 BaseFunctions.run_transfer_results(modus)
-
