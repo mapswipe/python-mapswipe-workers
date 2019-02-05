@@ -39,7 +39,7 @@
     },
     "projectType" : 1,
     "tileServer" : "custom",
-    "tileserverUrl": "http://tiles.openaerialmap.org/7/0/556f7a49ac00a903002fb01d/{z}/{x}/{y}.png",
+    "tileServerUrl": "http://tiles.openaerialmap.org/7/0/556f7a49ac00a903002fb01d/{z}/{x}/{y}.png",
     "zoomLevel": 21
   },
   "footprint_polygon_geometries": {

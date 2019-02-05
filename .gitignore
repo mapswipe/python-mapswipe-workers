@@ -120,5 +120,8 @@ cfg/msf-mapswipe_serviceAccountKey.json
 cfg/dev-mapswipe_serviceAccountKey.json
 cfg/test-mapswipe_serviceAccountKey.json
 
+# don´t upload data dir
+data/
+
 
 .DS_Store

@@ -63,6 +63,9 @@ class BuildAreaImport(BaseImport):
                 raise Exception(
                     'Attribute "api_key" not provided in import_dict and not in "auth.get_api_key" function.')
 
+        elif not 'apiKey' in self.info.keys() and self.info['tileServer'] == 'custom':
+            self.info['apiKey'] = ''
+
         if not 'layerName' in self.info.keys():
             self.info['layerName'] = None
 
@@ -73,8 +76,8 @@ class BuildAreaImport(BaseImport):
         raw_input_file = '{}/input_geometries/raw_input_{}.kml'.format(DATA_PATH, self.import_key)
 
         # check if a 'data' folder exists and create one if not
-        if not os.path.isdir('{}/import'.format(DATA_PATH)):
-            os.mkdir('{}/import'.format(DATA_PATH))
+        if not os.path.isdir('{}/input_geometries'.format(DATA_PATH)):
+            os.mkdir('{}/input_geometries'.format(DATA_PATH))
 
         # write string to geom file
         with open(raw_input_file, 'w') as geom_file:

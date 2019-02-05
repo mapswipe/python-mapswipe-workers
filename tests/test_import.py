@@ -1,7 +1,15 @@
 from mapswipe_workers.basic import BaseFunctions
+import test_init
 
-# you can load sample imports from ../sample_data/sample_imports.json
 
+def import_process():
+    test_init.upload_sample_data_to_firebase()
+    BaseFunctions.run_import('production')
+
+
+if __name__ == '__main__':
+    import_process()
+    print("Everything passed")
 
 # upload each import to firebase imports table
 
@@ -9,8 +17,6 @@ from mapswipe_workers.basic import BaseFunctions
 
 # now try to run import process with correct parameters
 
-
-BaseFunctions.run_import()
 
 
 

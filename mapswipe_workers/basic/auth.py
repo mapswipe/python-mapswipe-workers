@@ -49,8 +49,7 @@ def firebase_admin_auth():
         # print('use configuration for psql as provided by config.json')
     except:
         # Default Configuration
-        print('could not get firebase informtaion from config file')
-        sys.exit(1)
+        raise Exception('could not get firebase informtaion from config file')
 
     service_key_path = os.path.abspath(os.path.join(ROOT_DIR, '..', 'cfg', service_account))
     # adapt this to your firebase setting
@@ -76,8 +75,7 @@ def dev_firebase_admin_auth():
         service_account = CONFIG['dev_firebase']['service_account']
     except:
         # Default Configuration
-        print('Could not get firebase dev information from config file.')
-        sys.exit(1)
+        raise Exception('Could not get firebase dev information from config file.')
 
     service_key_path = os.path.abspath(os.path.join(ROOT_DIR, '..', 'cfg', service_account))
     # adapt this to your firebase setting
@@ -140,15 +138,14 @@ class mysqlDB(object):
             host = CONFIG['mysql']['host']
             # print('use configuration for mysql as provided by config.json')
         except:
-            print('Could not load mysql info from config file.')
-            sys.exit(1)
+            raise Exception('Could not load mysql info from config file.')
 
         self._db_connection = pymysql.connect(
             database=dbname,
             user=user,
             password=password,
             host=host,
-            # we need to enable this to upload files to mysql
+            #  need to enable this to upload files to mysql
             local_infile=True)
 
     def query(self, query, data):
@@ -177,6 +174,7 @@ class dev_mysqlDB(object):
 
     def __init__(self):
         # try to load configuration from config file
+        CONFIG = load_config()
         try:
             dbname = CONFIG['dev_mysql']['database']
             user = CONFIG['dev_mysql']['username']
@@ -185,8 +183,7 @@ class dev_mysqlDB(object):
             # print('use configuration for mysql as provided by config.json')
         except:
             # Default configuration
-            print('we could not load mysql dev info from the config file')
-            sys.exit(1)
+            raise Exception('Could not load mysql dev info from the config file')
 
         self._db_connection = pymysql.connect(
             database=dbname,
@@ -232,8 +229,7 @@ class dev_psqlDB(object):
             # print('use configuration for psql as provided by config.json')
         except:
             # Default configuration
-            print('we could not load psql dev info from the config file')
-            sys.exit(1)
+            raise Exception('Could not load psql dev info from the config file')
 
         self._db_connection = psycopg2.connect(
             database=dbname,
@@ -275,6 +271,7 @@ class psqlDB(object):
 
     def __init__(self):
         # try to load configuration from config file
+        CONFIG = load_config()
         try:
             dbname = CONFIG['psql']['database']
             user = CONFIG['psql']['username']
@@ -283,8 +280,7 @@ class psqlDB(object):
             port = CONFIG['psql']['port']  # print('use configuration for psql as provided by config.json')
         except:
             # Default configuration
-            print('we could not load psql info from the config file')
-            sys.exit(1)
+            raise Exception('Could not load psql info from the config file')
 
         self._db_connection = psycopg2.connect(database=dbname, user=user, password=password, host=host, port=port)
 
