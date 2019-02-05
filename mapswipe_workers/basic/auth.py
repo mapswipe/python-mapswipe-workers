@@ -14,7 +14,7 @@ from mapswipe_workers.definitions import ROOT_DIR
 
 def load_config():
     """
-    Reads and loads the user configuration values.
+    Loads the user configuration values.
 
     Returns
     -------
