@@ -2,16 +2,16 @@
     "psql": {
         "database": "mapswipe",
         "username": "mapswipe-workers",
-        "password": "YOUR_PSQL_PASSWORD",
+        "password": "postgres",
         "host": "postgres",
         "port": 5432
     },
     "firebase": {
-        "api_key": "YOUR_FIREBASE_API_KEY",
-        "auth_domain": "YOUR_FIREBASE.firebaseapp.com",
-        "database_url": "https://YOUR_FIREBASE.firebaseio.com",
-        "storage_bucket": "YOUR_FIREBASE.appspot.com",
-        "service_account": "./cfg/YOUR_FIREBASE_serviceAccountKey.json"
+        "api_key": "AIzaSyCFa1egVJwlf-soet5653GAjfH8V-1ujig",
+        "auth_domain": "test_mapswipe.firebaseapp.com",
+        "database_url": "https://test-mapswipe.firebaseio.com",
+        "storage_bucket": "test-mapswipe.appspot.com",
+        "service_account": "./cfg/test-mapswipe_serviceAccountKey.json"
     },
     "imagery": {
         "bing": {
