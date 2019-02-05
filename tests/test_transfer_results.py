@@ -77,10 +77,7 @@ def simulate_user_footprint_project(project_id, user_id='test_user', modus='deve
 
         tasks = val['tasks']
         task_ids = tasks.keys()
-        count = val['count']
-
-        random_sample = random.sample(task_ids, int(count/2))
-        for task_id in random_sample:
+        for task_id in task_ids:
             create_footprint_result_in_firebase(project_id, task_id, user_id, firebase)
         print("created results in firebase")
 
