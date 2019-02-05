@@ -67,13 +67,15 @@ def init_import(project_type, import_key, import_dict):
     ----------
     project_type : int
         the type of the project
-    project_id: int
-        the id of the project
+    import_key : str
+        the key for the import as depicted in firebase
+    import_dict : dict
+        a dictionary with the attributes for the import
 
     Returns
     -------
-    proj :
-        the project instance
+    imp :
+        the import instance
     """
 
     class_to_type = {
@@ -94,8 +96,12 @@ def init_project(project_type, project_id, firebase, postgres):
     ----------
     project_type : int
         the type of the project
-    project_id: int
+    project_id : int
         the id of the project
+    firebase : pyrebase firebase object
+            initialized firebase app with admin authentication
+    postgres : database connection class
+        The database connection to postgres database
 
     Returns
     -------
@@ -171,7 +177,23 @@ def get_projects(firebase, postgres, filter='all'):
     return projects_list
 
 def project_exists(project_id, firebase, postgres):
+    """
+    The function to check if all project information exists in firebase and postgres database.
 
+    Parameters
+    ----------
+    project_id : int
+        the id of the project
+    firebase : pyrebase firebase object
+        initialized firebase app with admin authentication
+    postgres : database connection class
+        The database connection to postgres database
+
+    Returns
+    -------
+    bool
+        True if project exists, False it not
+    """
     in_firebase = project_exists_firebase(project_id, firebase)
     in_postgres = project_exists_postgres(project_id, postgres)
 
@@ -187,6 +209,8 @@ def project_exists_firebase(project_id, firebase):
 
     Parameters
     ----------
+    project_id : int
+        the id of the project
     firebase : pyrebase firebase object
         initialized firebase app with admin authentication
 
@@ -222,6 +246,8 @@ def project_exists_postgres(project_id, postgres):
 
     Parameters
     ----------
+    project_id : int
+        the id of the project
     postgres : database connection class
         The database connection to postgres database
 
@@ -699,24 +725,19 @@ def save_results_postgres(postgres, results_filename):
 
 def run_transfer_results(modus):
     """
+    The function to download results from firebase, upload them to postgres and then delete the transfered results in firebase.
 
     Parameters
     ----------
     modus : str
         The environment to use for firebase and postgres
         Can be either 'development' or 'production'
-    results_filename : str
-        The name of the file with the results
 
     Returns
     -------
     bool
         True if successful, False otherwise
 
-    TODO
-    ----
-    How to deal with results from projects with different types?
-    Projects might not always return an integer as result.
     """
 
     results_filename = '{}/tmp/results.json'.format(DATA_PATH)
@@ -952,6 +973,10 @@ def delete_project_firebase(project_id, import_key, firebase):
 
     Parameters
     ----------
+    project_id : int
+        the id of the project
+    import_key : str
+        the key for the import as depicted in firebase
     firebase : pyrebase firebase object
         initialized firebase app with admin authentication
 
@@ -980,6 +1005,10 @@ def delete_project_postgres(project_id, import_key, postgres):
 
     Parameters
     ----------
+    project_id : int
+        the id of the project
+    import_key : str
+        the key for the import as depicted in firebase
     postgres : database connection class
         The database connection to postgres database
 
@@ -1016,7 +1045,10 @@ def delete_local_files(project_id, import_key):
 
     Parameters
     ----------
-    project_id: int
+    project_id : int
+        the id of the project
+    import_key : str
+        the key for the import as depicted in firebase
 
     Returns
     -------
@@ -1024,10 +1056,6 @@ def delete_local_files(project_id, import_key):
         a list with the names of the deleted files
     """
 
-    # we are going to delete:
-    # results/results_{project_id}.json
-    # input_geometries/input_geometries_{project_id}.kml or input_geometries/input_geometries_{project_id}.geojson
-    # statistics/stats_{project_id}.json
 
     deleted_files = []
 

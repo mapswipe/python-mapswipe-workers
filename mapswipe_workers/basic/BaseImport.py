@@ -9,8 +9,44 @@ from mapswipe_workers.basic import BaseFunctions as b
 
 
 class BaseImport(object):
+    """
+    The basic class for an import
+
+    Attributes
+    ----------
+    import_key : str
+        The key of an import as depicted in firebase
+    name : str
+        The name of a project
+    project_details : str
+        The detailed description of the project
+    look_for : str
+        The objects of interest / objects to look for in this project
+    image: str
+        The URL of the header image of the project
+    verification_count : int
+        The number of users required for each task to be finished
+    info : dict
+        A dictionary containing further attributes set by specific types of projects
+    """
+
 
     def __init__(self, import_key, import_dict):
+        """
+        The function to initialize a new import
+
+        Parameters
+        ----------
+        import_key : str
+            The key of an import as depicted in firebase
+        import_dict: dict
+            A dictionary containing all attributes of the import
+
+        Returns
+        -------
+        bool
+           True if successful. False otherwise.
+        """
 
         logging.warning('%s - __init__ - start init' % import_key)
         self.import_key = import_key
@@ -31,7 +67,7 @@ class BaseImport(object):
 
     def create_project(self, firebase, postgres):
         """
-        The function to import a new project
+        The function to import a new project in firebase and postgres.
 
         Parameters
         ----------
@@ -144,8 +180,6 @@ class BaseImport(object):
         ----------
         postgres : database connection class
             The database connection to postgres database
-        firebase : pyrebase firebase object
-            initialized firebase app with admin authentication
 
         Returns
         -------
@@ -175,6 +209,8 @@ class BaseImport(object):
         ----------
         postgres : database connection class
             The database connection to postgres database
+        project_dict : dict
+            a dictionary containing all project attributes (e.g. Name, Description, Project Type...)
 
         Returns
         -------
@@ -219,10 +255,10 @@ class BaseImport(object):
         ----------
         postgres : database connection class
             The database connection to postgres database
+        project_id : int
+            The id of the project
         groups : dict
             The dictionary with the group information
-        groups_txt_filename : str
-            The path where a temporary txt file will be stored to import into postgres
 
         Returns
         -------
@@ -315,10 +351,10 @@ class BaseImport(object):
         ----------
         postgres : database connection class
             The database connection to postgres database
+        project_id : int
+            The id of the project
         groups : dictionary
             Dictionary containing groups of a project
-        tasks_txt_filename : string
-            Pointer for storing the tasks temporary in csv format
 
         Returns
         -------
@@ -415,6 +451,8 @@ class BaseImport(object):
         ----------
         firebase : pyrebase firebase object
             initialized firebase app with admin authentication
+        project_dict : dict
+            a dictionary containing all project attributes (e.g. Name, Description, Project Type...)
 
         Returns
         -------
@@ -461,6 +499,10 @@ class BaseImport(object):
         ----------
         firebase : pyrebase firebase object
             initialized firebase app with admin authentication
+        project_id : int
+            The id of the project
+        groups : dictionary
+            Dictionary containing groups of a project
 
         Returns
         -------
