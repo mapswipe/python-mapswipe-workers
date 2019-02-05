@@ -593,6 +593,8 @@ def results_to_txt(all_results):
     fieldnames = ('task_id', 'project_id', 'user_id', 'timestamp', 'info')
     w = csv.DictWriter(results_txt_file, fieldnames=fieldnames, delimiter='\t', quotechar="'")
 
+    print(all_results)
+
     number_of_results = 0
     for task_id, results in all_results.items():
         for child_id, result in results.items():
@@ -718,6 +720,8 @@ def run_transfer_results(modus):
     """
 
     results_filename = '{}/tmp/results.json'.format(DATA_PATH)
+    if not os.path.isdir(DATA_PATH+'/tmp'):
+        os.mkdir(DATA_PATH+'/tmp')
 
     # get dev or production environment for firebase and postgres
     firebase, postgres = get_environment(modus)
@@ -1028,7 +1032,6 @@ def delete_local_files(project_id, import_key):
     deleted_files = []
 
     file_list = [
-    import_key: 
         '{}/results/results_{}.json'.format(DATA_PATH, project_id),
         '{}/input_geometries/raw_input_{}.geojson'.format(DATA_PATH, import_key),
         '{}/input_geometries/raw_input_{}.kml'.format(DATA_PATH, import_key),
