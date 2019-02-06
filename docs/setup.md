@@ -93,7 +93,7 @@ Provide a config file and an environment file for Postgres.
 
 ### config.cfg
 
-Edit following variables in the config file (`cfg/your_config_file.cfg`) and rename it to `config.cfg`.
+Edit following variables in the configuratiouration  file (`cfg/your_configuration.json`) and rename it to `configuration.json`.
 
 **Change**:
 - line 2: `"psql":{` to `"dev_psql":{`
