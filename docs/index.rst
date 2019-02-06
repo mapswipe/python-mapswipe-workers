@@ -41,7 +41,8 @@ Welcome to Mapswipe Workers's documentation!
 .. toctree::
    :maxdepth: 2
    :caption: Miscellaneous:
-
+   
+   testing
    project_type-proposal
    project_type-enable
 
