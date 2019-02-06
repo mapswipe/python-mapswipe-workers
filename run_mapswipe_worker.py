@@ -23,8 +23,6 @@ parser.add_argument('-f', '--filter', nargs='?', default='active',
                     choices=['all', 'not_finished', 'active', 'list'])
 parser.add_argument('-l', '--list', nargs='+', required=None, default=None, type=int,
                     help='project id of the project to process. You can add multiple project ids.')
-parser.add_argument('-o', '--output', required=None, default='data', type=str,
-                    help='output path. Provide a location for storing files.')
 
 # do you want to loop the process?
 parser.add_argument('-s', '--sleep_time', required=False, default=600, type=int,
@@ -58,17 +56,17 @@ if __name__ == '__main__':
         logging.warning("=== === === === ===>>> started {} <<<=== === === === ===".format(args.process))
         #try:
         if args.process == 'import':
-            b.run_import(args.modus, args.output)
+            b.run_import(args.modus)
         elif args.process == 'update':
-            b.run_update(args.modus, args.filter, args.output)
+            b.run_update(args.modus, args.filter)
         elif args.process == 'transfer_results':
-            b.run_transfer_results(args.modus, args.output)
+            b.run_transfer_results(args.modus)
         elif args.process == 'export':
-            b.run_export(args.modus, args.filter, args.output)
+            b.run_export(args.modus, args.filter)
         elif args.process == 'delete':
-            b.run_delete(args.modus, args.list, args.output)
+            b.run_delete(args.modus, args.list)
         elif args.process == 'archive':
-            b.run_archive(args.modus, args.output)
+            b.run_archive(args.modus)
         logging.warning("=== === === === ===>>> finished {} <<<=== === === === ===".format(args.process))
 
         #except Exception as error:
