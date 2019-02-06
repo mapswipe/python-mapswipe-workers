@@ -4,6 +4,7 @@ import urllib.request
 import ogr
 
 from mapswipe_workers.definitions import DATA_PATH
+from mapswipe_workers.definitions import CustomError
 from mapswipe_workers.basic import auth
 from mapswipe_workers.basic.BaseImport import BaseImport
 from mapswipe_workers.ProjectTypes.Footprint import GroupingFunctions as g
@@ -70,8 +71,11 @@ class FootprintImport(BaseImport):
         # open the raw input file and get layer
         driver = ogr.GetDriverByName('GeoJSON')
         datasource = driver.Open(raw_input_file, 0)
-        layer = datasource.GetLayer()
-        LayerDefn = layer.GetLayerDefn()
+        try:
+            layer = datasource.GetLayer()
+            LayerDefn = layer.GetLayerDefn()
+        except AttributeError:
+            raise CustomError('Value error in input geometries file')
 
         # create layer for valid_input_file to store all valid geometries
         outDriver = ogr.GetDriverByName("GeoJSON")

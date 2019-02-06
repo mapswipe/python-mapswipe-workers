@@ -363,11 +363,11 @@ class BaseImport(object):
 
         """
 
-        if not os.path.isdir('{}/tmp'.format(DATA_DIR)):
-            os.mkdir('{}/tmp'.format(DATA_DIR))
+        if not os.path.isdir('{}/tmp'.format(DATA_PATH)):
+            os.mkdir('{}/tmp'.format(DATA_PATH))
 
         # save tasks in txt file
-        tasks_txt_filename = '{}/tmp/raw_tasks_{}.txt'.format(DATA_DIR, project_id)
+        tasks_txt_filename = '{}/tmp/raw_tasks_{}.txt'.format(DATA_PATH, project_id)
         tasks_txt_file = open(tasks_txt_filename, 'w', newline='')
 
         fieldnames = ('task_id', 'project_id', 'group_id', 'info')

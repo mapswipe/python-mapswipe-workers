@@ -11,7 +11,9 @@ import csv
 import requests
 from typing import Union
 
+from mapswipe_workers.utils import error_handling
 from mapswipe_workers.definitions import DATA_PATH
+from mapswipe_workers.definitions import CustomError
 from mapswipe_workers.basic import auth
 # Make sure to import all project types here
 from mapswipe_workers.ProjectTypes.BuildArea.BuildAreaImport import BuildAreaImport
@@ -365,11 +367,15 @@ def run_import(modus):
             project_type = 1
 
         # now let's init the import
-        imp = init_import(project_type, import_key, import_dict)
-
-        # and now let's finally create a project
-        imp.create_project(firebase, postgres)
-        imported_projects.append(imp.import_key)
+        try:
+            imp = init_import(project_type, import_key, import_dict)
+            # and now let's finally create a project
+            imp.create_project(firebase, postgres)
+            imported_projects.append(imp.import_key)
+        except CustomError as error:
+            error_handling.send_error(error, import_key)
+            logging.exception('%s - get_new_imports - import failed' % import_key)
+            continue
 
     return imported_projects
 
