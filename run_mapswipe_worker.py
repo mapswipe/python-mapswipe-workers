@@ -54,25 +54,25 @@ if __name__ == '__main__':
     while counter < args.max_iterations:
         counter += 1
         logging.warning("=== === === === ===>>> started {} <<<=== === === === ===".format(args.process))
-        #try:
-        if args.process == 'import':
-            b.run_import(args.modus)
-        elif args.process == 'update':
-            b.run_update(args.modus, args.filter)
-        elif args.process == 'transfer_results':
-            b.run_transfer_results(args.modus)
-        elif args.process == 'export':
-            b.run_export(args.modus, args.filter)
-        elif args.process == 'delete':
-            b.run_delete(args.modus, args.list)
-        elif args.process == 'archive':
-            b.run_archive(args.modus)
-        logging.warning("=== === === === ===>>> finished {} <<<=== === === === ===".format(args.process))
+        try:
+            if args.process == 'import':
+                b.run_import(args.modus)
+            elif args.process == 'update':
+                b.run_update(args.modus, args.filter)
+            elif args.process == 'transfer_results':
+                b.run_transfer_results(args.modus)
+            elif args.process == 'export':
+                b.run_export(args.modus, args.filter)
+            elif args.process == 'delete':
+                b.run_delete(args.modus, args.list)
+            elif args.process == 'archive':
+                b.run_archive(args.modus)
+            logging.warning("=== === === === ===>>> finished {} <<<=== === === === ===".format(args.process))
 
-        #except Exception as error:
-        #    logging.exception('ALL - run_mapswipe_workers - got exception')
-        #    error_handling.send_error(error, args.process)
-        #    logging.warning("XXX XXX XXX XXX XXX>>> errored {} <<<XXX XXX XXX XXX XXX".format(args.process))
+        except Exception as error:
+            logging.exception('ALL - run_mapswipe_workers - got exception')
+            #error_handling.send_error(error, args.process)
+            logging.warning("XXX XXX XXX XXX XXX>>> errored {} <<<XXX XXX XXX XXX XXX".format(args.process))
 
         if counter < args.max_iterations:
             logging.warning('zZz zZz zZz zZz zZz>>> sleep for %s seconds <<<zZz zZz zZz zZz zZz' % args.sleep_time)

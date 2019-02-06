@@ -143,6 +143,12 @@ def get_projects(firebase, postgres, filter='all'):
 
     fb_db = firebase.database()
     all_projects = fb_db.child("projects").get().val()
+    
+    # return empty list if there are no projects in firebase
+    if all_projects == None:
+        logging.warning('All - get_projects - no projects in firebase')
+        projects_list = []
+        return projects_list
 
     # we need to check if the user provided a list of project ids to filter
     if type(filter) is list:
