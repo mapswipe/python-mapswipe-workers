@@ -3,6 +3,7 @@
 # Author: M. Reinmuth, B. Herfort
 ####################################################################################################
 import os
+import time
 import json
 import threading
 from queue import Queue
@@ -98,10 +99,10 @@ def projects_to_postgres(firebase, postgres):
     del fb_db
     del p_con
 
-def download_groups_tasks(q):
+def download_groups_tasks_per_project(q):
     while not q.empty():
 
-        project_id, group_id, task_file, group_file= q.get()
+        project_id, group_id, task_file, group_file = q.get()
 
         fb_db = firebase.database()
 
@@ -221,24 +222,15 @@ def save_groups_tasks_psql(postgres, project, task_filename, group_filename):
 
     print('inserted into table')
 
-def groups_tasks_to_postgres(firebase,postgres):
+def download_all_groups_tasks(firebase):
 
     fb_db = firebase.database()
 
     all_projects = fb_db.child("projects").get().val()
 
     for project in all_projects.keys():
-        print(project)
-
-        task_filename = 'data/%s_tasks.csv' % project
-        group_filename = 'data/%s_groups.csv' % project
-
-        task_file = open(task_filename, 'w')
-        group_file = open(group_filename, 'w')
 
         group_ids = fb_db.child("groups").child(project).shallow().get().val()
-
-        print('got group ids data from firebase')
 
         # this tries to set the max pool connections to 100
         adapter = requests.adapters.HTTPAdapter(max_retries=5, pool_connections=100, pool_maxsize=100)
@@ -248,42 +240,84 @@ def groups_tasks_to_postgres(firebase,postgres):
         # we will use a queue to limit the number of threads running in parallel
         q = Queue(maxsize=0)
         num_threads = 8
+        if group_ids:
 
-        for group_id in group_ids:
-            q.put([project, group_id, task_file, group_file])
+            task_filename = 'data/%s_tasks.csv' % project
+            group_filename = 'data/%s_groups.csv' % project
 
-        for i in range(num_threads):
-            worker = threading.Thread(
-                target=download_groups_tasks,
-                args=(q,))
-            #worker.setDaemon(True)
-            worker.start()
+            if not os.path.exists('data'):
+                os.makedirs('data')
 
-        q.join()
+            task_file = open(task_filename, 'w')
+            group_file = open(group_filename, 'w')
 
+            for group_id in group_ids:
+                q.put([project, group_id, task_file, group_file])
 
-        task_file.close()
-        group_file.close()
-        save_groups_tasks_psql(postgres, project, task_filename, group_filename)
+            for i in range(num_threads):
+                worker = threading.Thread(
+                    target=download_groups_tasks_per_project,
+                    args=(q,))
+                # worker.setDaemon(True)
+                worker.start()
 
-        print(project)
-        break
+            q.join()
+            task_file.close()
+            group_file.close()
+
+        else:
+            print('no groups for project: %s ..skippin it' % project)
+
+        print('project: %s downloaded' % project)
 
     del fb_db
 
 
-#def users_to_postgres(firebase,postgres):
+def download_users(firebase,postgres):
+    fb_db = firebase.database()
+    p_con = postgres()
+
+    users = fb_db.child("users").get().val()
+
+    user_dict = {}
+
+    for key, val in users.items():
+        user_dict['user_id'] = key
+        try:
+            user_dict['contributions'] = val['contributions']
+            user_dict['distance'] = val['distance']
+            user_dict['username'] = val['username']
+        except KeyError:
+            user_dict['contributions'] = 0
+            user_dict['distance'] = 0
+            user_dict['username'] = 'None'
+
+    users_filename = 'data/users.csv'
+
+    if not os.path.exists('data'):
+        os.makedirs('data')
+
+    users_file = open(users_filename, 'w')
+
+    users_outline = '%s;%i;%f;%s\n' % (user_dict['user_id'],
+                                       int(user_dict['contributions']),
+                                       float(user_dict['distance']),
+                                       user_dict['username'])
+    users_file.write(users_outline)
+
+    users_file.close()
+    del p_con
+    del fb_db
 
 
 ####################################################################################################
 if __name__ == '__main__':
 
-    # no idea..
 
-    os.chdir('../..')
+    starttime = time.time()
+    #os.chdir('../..')
     #enable connection to firebase
     firebase, postgres = b.get_environment()
-
 
     # imports
     #imports_to_postgres(firebase,postgres)
@@ -291,8 +325,11 @@ if __name__ == '__main__':
     # projects
     #projects_to_postgres(firebase,postgres)
     # groups + tasks
-    groups_tasks_to_postgres(firebase,postgres)
+    #download_all_groups_tasks(firebase)
 
     # users
-    #users_to_postgres(firebase,postgres)
+    download_users(firebase,postgres)
 
+    endtime = time.time() - starttime
+
+    print(endtime)
