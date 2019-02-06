@@ -95,10 +95,6 @@ Provide a config file and an environment file for Postgres.
 
 Edit following variables in the configuratiouration  file (`cfg/your_configuration.json`) and rename it to `configuration.json`.
 
-**Change**:
-- line 2: `"psql":{` to `"dev_psql":{`
-- line 9: `"firebase":{` to `"dev_firebase":{`
-
 **postgres**:
 - provide usename und password for postgres
 
@@ -129,14 +125,11 @@ Set custom user and password.
 
 ## 4. Installing Mapswipe Workers using Docker
 
-Start the **Docker Daemon**:
-- `systemctl start docker`
+Start the **Docker Daemon**: `systemctl start docker`
 
-Run **Docker Compose**:
-- `docker-compose up -d`
+Run **Docker Compose**: `docker-compose up -d`
 
-Check if your Docker Containers are running:
-- `docker ps`
+Check if your Docker Containers are running: `docker ps`
 
 
 ## Debugging
