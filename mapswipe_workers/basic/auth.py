@@ -21,7 +21,7 @@ def load_config():
     dictonary
     """
     with open(CONFIG_PATH) as f:
-        CONFIG = json.loads(f)
+        CONFIG = json.load(f)
     return CONFIG
 
 
