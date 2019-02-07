@@ -131,6 +131,7 @@ Run **Docker Compose**: `docker-compose up -d`
 
 Check if your Docker Containers are running: `docker ps`
 
+Interactive shell session for using e.g. utils: `docker-compose run utils`
 
 ## Debugging
 
