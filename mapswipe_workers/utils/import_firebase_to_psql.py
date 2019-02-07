@@ -3,7 +3,9 @@
 # Author: M. Reinmuth, B. Herfort
 ####################################################################################################
 import os
+import logging
 import time
+import argparse
 import json
 import threading
 from queue import Queue
@@ -11,8 +13,20 @@ import requests
 
 from mapswipe_workers.basic import BaseFunctions as b
 from psycopg2 import sql
+####################################################################################################
+parser = argparse.ArgumentParser(description='Process some integers.')
 
-def imports_to_postgres(firebase, postgres):
+parser.add_argument('-op', '--operation', nargs='?', required=True,
+                    choices=['download', 'import'])
+
+parser.add_argument('-mo', '--modus', nargs='?', default='development',
+                    choices=['development', 'production'])
+
+
+####################################################################################################
+def imports_to_postgres(firebase):
+    logging.info('Imports import started')
+
     fb_db = firebase.database()
     # get a dict with all imports
     imports = fb_db.child("imports").get().val()
@@ -31,7 +45,11 @@ def imports_to_postgres(firebase, postgres):
         # set import in postgres
         imp.set_import_postgres(postgres)
 
+    del fb_db
+
+
 def projects_to_postgres(firebase, postgres):
+    logging.info('Projects import started')
     ### this functions gets the IDs of all projects in firebase
     ### and returns a list
 
@@ -99,6 +117,7 @@ def projects_to_postgres(firebase, postgres):
     del fb_db
     del p_con
 
+
 def download_groups_tasks_per_project(q):
     while not q.empty():
 
@@ -141,88 +160,99 @@ def download_groups_tasks_per_project(q):
 
         q.task_done()
 
-def save_groups_tasks_psql(postgres, project, task_filename, group_filename):
+
+def import_all_groups_tasks(postgres):
+    logging.info('Groups + tasks import started')
 
     p_con = postgres()
 
-    # Open CSV file
-    task_file = open(task_filename, 'r')
-    group_file = open(group_filename, 'r')
-    import_tasks_table_name = 'import_tasks'
-    import_task_table_name = import_tasks_table_name + '_{}'.format(project)
+    # list all group csv's
+    os.chdir('data')
+    for file in os.listdir():
 
-    import_groups_table_name = 'import_groups'
-    import_groups_table_name = import_groups_table_name + '_{}'.format(project)
+        if file.endswith('_groups.csv'):
+            group_file = open(file, 'r')
+            import_groups_table_name = 'import_groups'
+            project = file.split('_')[0]
+            import_groups_table_name = import_groups_table_name + '_{}'.format(project)
+            group_columns = ('project_id', 'group_id', 'count', 'completedCount', 'info')
+            sql_insert = '''
+                        DROP TABLE IF EXISTS {};
+                        CREATE TABLE {} (
+                            project_id int
+                            ,group_id int
+                            ,count int
+                            ,completedCount int
+                            ,info json
+                        );
+                        '''
+            sql_insert = sql.SQL(sql_insert).format(sql.Identifier(import_groups_table_name),
+                                                    sql.Identifier(import_groups_table_name))
+            p_con.query(sql_insert, None)
 
-    task_columns = ('task_id', 'group_id', 'project_id', 'info')
-    group_columns = ('project_id', 'group_id', 'count', 'completedCount', 'info')
+            p_con.copy_from(group_file, import_groups_table_name, sep=';', columns=group_columns)
 
-    sql_insert = '''
-            DROP TABLE IF EXISTS {};
-            CREATE TABLE {} (
-                task_id varchar NOT NULL
-                ,group_id int
-                ,project_id int
-                ,info json
-            );
-            '''
+            group_file.close()
 
-    sql_insert = sql.SQL(sql_insert).format(sql.Identifier(import_task_table_name),
-                                            sql.Identifier(import_task_table_name))
+            sql_insert = '''
+                    INSERT INTO groups
+                    SELECT
+                      *
+                    FROM
+                       {}
+                      ;
+                '''
+            sql_insert = sql.SQL(sql_insert).format(sql.Identifier(import_groups_table_name))
 
-    p_con.query(sql_insert, None)
+            p_con.query(sql_insert, None)
 
-    sql_insert = '''
-            DROP TABLE IF EXISTS {};
-            CREATE TABLE {} (
-                project_id int
-                ,group_id int
-                ,count int
-                ,completedCount int
-                ,info json
-            );
-            '''
-    sql_insert = sql.SQL(sql_insert).format(sql.Identifier(import_groups_table_name),
-                                            sql.Identifier(import_groups_table_name))
+            logging.info('Project: %s, groups imported' % project)
 
-    p_con.query(sql_insert, None)
+        elif (file.endswith('_tasks.csv')):
+            task_file = open(file, 'r')
+            import_tasks_table_name = 'import_tasks'
+            project = file.split('_')[0]
+            import_tasks_table_name = import_tasks_table_name + '_{}'.format(project)
 
-    # copy data to the new table
-    p_con.copy_from(task_file, import_task_table_name, sep=';', columns=task_columns)
-    p_con.copy_from(group_file, import_groups_table_name, sep=';', columns=group_columns)
+            task_columns = ('task_id', 'group_id', 'project_id', 'info')
+            sql_insert = '''
+                        DROP TABLE IF EXISTS {};
+                            CREATE TABLE {} (
+                                task_id varchar NOT NULL
+                                ,group_id int
+                                ,project_id int
+                                ,info json
+                             );
+                        '''
+            sql_insert = sql.SQL(sql_insert).format(sql.Identifier(import_tasks_table_name),
+                                                    sql.Identifier(import_tasks_table_name))
+            p_con.query(sql_insert, None)
 
-    task_file.close()
-    os.remove(task_filename)
-    print('uploaded task + group information to psql')
+            p_con.copy_from(task_file, import_tasks_table_name, sep=';', columns=task_columns)
 
-    sql_insert = '''
-        INSERT INTO tasks
-        SELECT
-          *
-        FROM
-           {}
-          ;
-    '''
+            task_file.close()
 
-    sql_insert = sql.SQL(sql_insert).format(sql.Identifier(import_tasks_table_name))
-    print(sql_insert)
-    p_con.query(sql_insert, None)
+            sql_insert = '''
+                    INSERT INTO tasks
+                    SELECT
+                      *
+                    FROM
+                       {}
+                      ;
+                '''
+            sql_insert = sql.SQL(sql_insert).format(sql.Identifier(import_tasks_table_name))
 
-    sql_insert = '''
-        INSERT INTO groups
-        SELECT
-          *
-        FROM
-          {};
-        '''
+            p_con.query(sql_insert, None)
 
-    sql_insert = sql.SQL(sql_insert).format(sql.Identifier(import_groups_table_name))
+            logging.info('Project: %s, tasks imported' % project)
+        else:
+            continue
 
-    p_con.query(sql_insert, None)
+    del p_con
 
-    print('inserted into table')
 
 def download_all_groups_tasks(firebase):
+    logging.info('Groups + tasks download started')
 
     fb_db = firebase.database()
 
@@ -266,16 +296,17 @@ def download_all_groups_tasks(firebase):
             group_file.close()
 
         else:
-            print('no groups for project: %s ..skippin it' % project)
+            logging.info('No groups for project: %s ..skippin it' % project)
 
-        print('project: %s downloaded' % project)
+        logging.info('Groups + tasks for project: %s downloaded' % project)
 
     del fb_db
 
 
-def download_users(firebase,postgres):
+def download_users(firebase):
+    logging.info('Users import started')
+
     fb_db = firebase.database()
-    p_con = postgres()
 
     users = fb_db.child("users").get().val()
 
@@ -306,30 +337,50 @@ def download_users(firebase,postgres):
     users_file.write(users_outline)
 
     users_file.close()
-    del p_con
+
+    logging.info('Downloaded all Users')
     del fb_db
 
 
+def import_users(postgres):
+    logging.info('Users import started')
+    p_con = postgres()
+    users_file = open('data/users.csv')
+    users_columns = ('user_id', 'contributions', 'distance', 'username')
+    p_con.copy_from(users_file, 'users', sep=';', columns=users_columns)
+    users_file.close()
+    logging.info('Imported all users')
+
 ####################################################################################################
 if __name__ == '__main__':
+    start_time = time.time()
+    args = parser.parse_args()
 
+    logging.basicConfig(format="%(asctime)s :: %(name)s :: %(levelname)s :: %(message)s",
+                        datefmt="%Y-%m-%d %H:%M:%S",
+                        filename='./logs/utils_{}.log'.format(args.operation),
+                        filemode="a",
+                        level=logging.INFO)
 
-    starttime = time.time()
-    #os.chdir('../..')
-    #enable connection to firebase
-    firebase, postgres = b.get_environment()
+    logger = logging.getLogger(name="utils_{}".format(args.operation))
 
-    # imports
-    #imports_to_postgres(firebase,postgres)
+    firebase, postgres = b.get_environment(args.modus)
 
-    # projects
-    #projects_to_postgres(firebase,postgres)
-    # groups + tasks
-    #download_all_groups_tasks(firebase)
+    logging.info("Operation: %s started." % args.operation)
 
-    # users
-    download_users(firebase,postgres)
+    if args.operation == 'download':
+        download_all_groups_tasks(firebase)
+        download_users(firebase, postgres)
+    elif args.operation == 'import':
+        #imports_to_postgres(firebase)
+        #projects_to_postgres(firebase, postgres)
+        #import_all_groups_tasks(postgres)
+        #import_users(postgres)
+        pass
+    else:
 
-    endtime = time.time() - starttime
+        pass
 
-    print(endtime)
+    end_time = time.time() - start_time
+
+    logging.info("Operation: %s done. Duration: %s" % (args.operation, end_time))
