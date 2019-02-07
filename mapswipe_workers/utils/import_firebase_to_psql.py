@@ -352,6 +352,8 @@ def import_users(postgres):
     logging.info('Imported all users')
 
 ####################################################################################################
+
+
 if __name__ == '__main__':
     start_time = time.time()
     args = parser.parse_args()
@@ -370,7 +372,7 @@ if __name__ == '__main__':
 
     if args.operation == 'download':
         download_all_groups_tasks(firebase)
-        download_users(firebase, postgres)
+        download_users(firebase)
     elif args.operation == 'import':
         #imports_to_postgres(firebase)
         #projects_to_postgres(firebase, postgres)
