@@ -96,7 +96,7 @@ services:
     build:
       context: .
       dockerfile: docker/mapswipe_workers_Dockerfile
-    command: "sh"
+    command: "bash"
     volumes:
       - ./cfg/:/python-mapswipe-workers/cfg/:rw
       - ./data/:/python-mapswipe-workers/data/:rw
