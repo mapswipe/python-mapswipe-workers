@@ -374,10 +374,10 @@ if __name__ == '__main__':
         download_all_groups_tasks(firebase)
         download_users(firebase)
     elif args.operation == 'import':
-        #imports_to_postgres(firebase)
-        #projects_to_postgres(firebase, postgres)
-        #import_all_groups_tasks(postgres)
-        #import_users(postgres)
+        imports_to_postgres(firebase)
+        projects_to_postgres(firebase, postgres)
+        import_all_groups_tasks(postgres)
+        import_users(postgres)
         pass
     else:
 
