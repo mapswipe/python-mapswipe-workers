@@ -11,6 +11,7 @@ import json
 import threading
 from queue import Queue
 import requests
+import ogr
 
 from mapswipe_workers.basic import BaseFunctions as b
 from psycopg2 import sql
@@ -31,6 +32,7 @@ def imports_to_postgres(firebase):
     fb_db = firebase.database()
     # get a dict with all imports
     imports = fb_db.child("imports").get().val()
+    raw_geom = 'data/check_kml.kml'
 
     # loop over imports
     for import_key, import_dict in imports.items():
@@ -40,11 +42,35 @@ def imports_to_postgres(firebase):
         except:
             project_type = 1
 
+        if not 'tileServer' in import_dict.keys():
+            import_dict['tileServer'] = 'bing'
+
+        if len(import_dict['project'].keys()) < 4:
+            continue
+
+        if 'projectDescription' in import_dict['project'].keys():
+            import_dict['project']['projectDetails'] = import_dict['project']['projectDescription']
+
+        with open(raw_geom, 'w') as geom_file:
+            geom_file.write(import_dict['kml'])
+
+        try:
+            driver = ogr.GetDriverByName('KML')
+            datasource = driver.Open(raw_geom, 0)
+            layer = datasource.GetLayer()
+            if not layer.GetFeatureCount() > 0:
+                continue
+            else:
+                pass
+        except:
+            continue
+
         # now let's init the import
         imp = b.init_import(project_type, import_key, import_dict)
 
         # set import in postgres
         imp.set_import_postgres(postgres)
+        os.remove(raw_geom)
 
     del fb_db
 
@@ -66,6 +92,12 @@ def projects_to_postgres(firebase, postgres):
     for key, project_dict in all_projects.items():
 
         info = {}
+
+        if len(project_dict.keys()) < 4:
+            logging.info('project %s. got less than 4 attributes. will be skipped' % key)
+            proj_left = proj_left - 1
+            logging.info('.. %i projects left' % proj_left)
+            continue
 
         for project_dict_key, val in project_dict.items():
             if not project_dict_key in ['contributors', 'groupAverage', 'id', 'image',
@@ -102,7 +134,7 @@ def projects_to_postgres(firebase, postgres):
             '''
 
         data = [int(project_dict['contributors']),
-                int(project_dict['groupAverage']),
+                float(project_dict['groupAverage']),
                 int(project_dict['id']),
                 project_dict['image'],
                 project_dict['importKey'],
@@ -386,11 +418,11 @@ if __name__ == '__main__':
         download_all_groups_tasks(firebase)
         download_users(firebase)
     elif args.operation == 'import':
-        imports_to_postgres(firebase)
+        #imports_to_postgres(firebase)
         projects_to_postgres(firebase, postgres)
-        import_all_groups_tasks(postgres)
-        os.chdir(cwd)
-        import_users(postgres)
+        #import_all_groups_tasks(postgres)
+        #os.chdir(cwd)
+        #import_users(postgres)
     else:
         pass
 
