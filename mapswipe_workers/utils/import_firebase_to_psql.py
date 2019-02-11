@@ -418,11 +418,11 @@ if __name__ == '__main__':
         download_all_groups_tasks(firebase)
         download_users(firebase)
     elif args.operation == 'import':
-        #imports_to_postgres(firebase)
+        imports_to_postgres(firebase)
         projects_to_postgres(firebase, postgres)
-        #import_all_groups_tasks(postgres)
-        #os.chdir(cwd)
-        #import_users(postgres)
+        import_all_groups_tasks(postgres)
+        os.chdir(cwd)
+        import_users(postgres)
     else:
         pass
 
