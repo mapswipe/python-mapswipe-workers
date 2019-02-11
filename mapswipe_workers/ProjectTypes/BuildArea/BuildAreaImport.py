@@ -41,7 +41,7 @@ class BuildAreaImport(BaseImport):
         # we need to get the tileserver_url if the tileserver is not custom
         if not 'tileServerUrl' in self.info.keys() and self.info['tileServer'] != 'custom':
             try:
-                self.info["tilesServerUrl"] = auth.get_tileserver_url(self.info['tileServer'])
+                self.info["tileServerUrl"] = auth.get_tileserver_url(self.info['tileServer'])
             except:
                 logging.warning('%s - __init__ - we need a tilserver_url for the tileserver: %s' % (
                 import_key, self.info['tileServer']))
