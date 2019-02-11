@@ -108,7 +108,7 @@ ENV/
 # [Project Specific gitignore files]
 
 .envrc
-
+.pickle
 .idea
 import_module/data
 

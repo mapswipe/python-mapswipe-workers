@@ -7,6 +7,7 @@ import traceback
 
 from mapswipe_workers.basic import BaseFunctions as b
 from mapswipe_workers.utils import error_handling
+from mapswipe_workers.utils import path_helper
 
 
 ########################################################################################################################
@@ -29,10 +30,17 @@ parser.add_argument('-s', '--sleep_time', required=False, default=600, type=int,
                     help='the time in seconds for which the script will pause in between two imports')
 parser.add_argument('-m', '--max_iterations', required=False, default=1, type=int,
                     help='the maximum number of imports that should be performed')
+
+# custom configuration path. Default ist '/cfg/configuration.json'
+parser.add_argument('-c', '--config', required=False, type=str,
+                    help='path to configuration.json. Defaults to /cfg/configuration.json')
 ########################################################################################################################
 
 
 if __name__ == '__main__':
+
+    # copy the configuration file into mapswipe_workers module
+    path_helper.copy_config()
 
     args = parser.parse_args()
 
@@ -77,5 +85,3 @@ if __name__ == '__main__':
         if counter < args.max_iterations:
             logging.warning('zZz zZz zZz zZz zZz>>> sleep for %s seconds <<<zZz zZz zZz zZz zZz' % args.sleep_time)
             time.sleep(args.sleep_time)
-
-
