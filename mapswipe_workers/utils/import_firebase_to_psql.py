@@ -2,7 +2,8 @@
 # -*- coding: UTF-8 -*-
 # Author: M. Reinmuth, B. Herfort
 ####################################################################################################
-import os
+
+import os, sys
 import logging
 import time
 import argparse
@@ -59,11 +60,14 @@ def projects_to_postgres(firebase, postgres):
 
     all_projects = fb_db.child("projects").get().val()
 
+    proj_left = len(all_projects)
+    logging.info('%i projects available.' % proj_left)
+
     for key, project_dict in all_projects.items():
 
         info = {}
 
-        for project_dict_key , val in project_dict.items():
+        for project_dict_key, val in project_dict.items():
             if not project_dict_key in ['contributors', 'groupAverage', 'id', 'image',
                                         'importKey', 'isFeatured', 'lookFor', 'name',
                                         'progress', 'projectDetails', 'state',
@@ -113,6 +117,8 @@ def projects_to_postgres(firebase, postgres):
                 json.dumps(project_dict['info'])]
 
         p_con.query(sql_insert, data)
+        proj_left = proj_left - 1
+        logging.info('%i project imported, %i projects left' % (int(project_dict['id']), proj_left))
 
     del fb_db
     del p_con
@@ -201,8 +207,10 @@ def import_all_groups_tasks(postgres):
                     FROM
                        {}
                       ;
+                     DROP TABLE IF EXISTS {};
                 '''
-            sql_insert = sql.SQL(sql_insert).format(sql.Identifier(import_groups_table_name))
+            sql_insert = sql.SQL(sql_insert).format(sql.Identifier(import_groups_table_name),
+                                                    sql.Identifier(import_groups_table_name))
 
             p_con.query(sql_insert, None)
 
@@ -239,8 +247,10 @@ def import_all_groups_tasks(postgres):
                     FROM
                        {}
                       ;
+                    DROP TABLE IF EXISTS {};
                 '''
-            sql_insert = sql.SQL(sql_insert).format(sql.Identifier(import_tasks_table_name))
+            sql_insert = sql.SQL(sql_insert).format(sql.Identifier(import_tasks_table_name),
+                                                    sql.Identifier(import_tasks_table_name))
 
             p_con.query(sql_insert, None)
 
@@ -370,6 +380,8 @@ if __name__ == '__main__':
 
     logging.info("Operation: %s started." % args.operation)
 
+    cwd = os.getcwd()
+
     if args.operation == 'download':
         download_all_groups_tasks(firebase)
         download_users(firebase)
@@ -377,10 +389,9 @@ if __name__ == '__main__':
         imports_to_postgres(firebase)
         projects_to_postgres(firebase, postgres)
         import_all_groups_tasks(postgres)
+        os.chdir(cwd)
         import_users(postgres)
-        pass
     else:
-
         pass
 
     end_time = time.time() - start_time
