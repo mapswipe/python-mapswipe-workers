@@ -86,7 +86,7 @@ def init_import(project_type, import_key, import_dict):
         2: FootprintImport
     }
 
-    imp = class_to_type[project_type](import_key, import_dict)
+    imp = class_to_type[int(project_type)](import_key, import_dict)
     return imp
 
 
