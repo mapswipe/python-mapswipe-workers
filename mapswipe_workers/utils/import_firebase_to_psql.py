@@ -351,8 +351,13 @@ def download_users(firebase):
     fb_db = firebase.database()
 
     users = fb_db.child("users").get().val()
-
     user_dict = {}
+    users_filename = 'data/users.csv'
+
+    if not os.path.exists('data'):
+        os.makedirs('data')
+
+    users_file = open(users_filename, 'w')
 
     for key, val in users.items():
         user_dict['user_id'] = key
@@ -365,18 +370,11 @@ def download_users(firebase):
             user_dict['distance'] = 0
             user_dict['username'] = 'None'
 
-    users_filename = 'data/users.csv'
-
-    if not os.path.exists('data'):
-        os.makedirs('data')
-
-    users_file = open(users_filename, 'w')
-
-    users_outline = '%s;%i;%f;%s\n' % (user_dict['user_id'],
-                                       int(user_dict['contributions']),
-                                       float(user_dict['distance']),
-                                       user_dict['username'])
-    users_file.write(users_outline)
+        users_outline = '%s;%i;%f;%s\n' % (user_dict['user_id'],
+                                           int(user_dict['contributions']),
+                                           float(user_dict['distance']),
+                                           user_dict['username'])
+        users_file.write(users_outline)
 
     users_file.close()
 
