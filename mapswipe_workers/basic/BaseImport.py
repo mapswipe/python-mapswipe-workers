@@ -65,6 +65,7 @@ class BaseImport(object):
             if key not in ['name', 'image', 'lookFor', 'projectDetails', 'verification_count', 'projectType']:
                 self.info[key] = import_dict[key]
 
+
     def create_project(self, firebase, postgres):
         """
         The function to import a new project in firebase and postgres.
@@ -129,11 +130,12 @@ class BaseImport(object):
             logging.warning("%s - import_project - %s" % (self.import_key, e))
             error_handling.log_error(e, logging)
 
-            # ToDO need to check how to delete if project could not be imported.
+            # TODO: need to check how to delete if project could not be imported.
             b.delete_project_postgres(project_id, self.import_key, postgres)
             b.delete_project_firebase(project_id, self.import_key, firebase)
             b.delete_local_files(project_id, self.import_key)
             return False
+
 
     def get_new_project_id(self, firebase):
         """
@@ -172,6 +174,106 @@ class BaseImport(object):
         logging.warning('ALL - get_new_project_id - returned new project id: %s' % new_project_id)
         return new_project_id
 
+
+    def set_all(self, postgres):
+        '''
+        '''
+
+        sql_insert_import_query = '''
+            BEGIN
+            INSERT INTO imports Values(%s,%s);
+            '''
+        data_import = [self.import_key, json.dumps(vars(self))]
+
+        sql_insert_project_query = '''
+            INSERT INTO projects Values(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s);
+            '''
+        data_project = [
+            int(project_dict['contributors']),
+            int(project_dict['groupAverage']),
+            int(project_dict['id']),
+            project_dict['image'],
+            project_dict['importKey'],
+            project_dict['isFeatured'],
+            project_dict['lookFor'],
+            project_dict['name'],
+            project_dict['progress'],
+            project_dict['projectDetails'],
+            int(project_dict['state']),
+            int(project_dict['projectType']),
+            int(project_dict['verificationCount']),
+            json.dumps(project_dict['info'])
+        ]
+
+        sql_create_groups = '''
+            DROP TABLE IF EXISTS raw_groups CASCADE;
+            CREATE TABLE raw_groups (
+              project_id int
+              ,group_id int
+              ,count int
+              ,completedCount int
+              ,info json
+                                );
+            '''
+
+        sql_insert_groups = '''
+            INSERT INTO
+              groups
+            SELECT
+              *
+            FROM
+              raw_groups
+            '''
+
+        sql_insert_tasks = '''
+            INSERT INTO
+              tasks
+            SELECT
+              *
+            FROM
+              raw_tasks
+        '''
+
+
+        # insert in table
+        groups_txt_filename = generate_groups_txt_file(project_id, groups)
+        tasks_txt_filename = generate_tasks_txt_file(project_id, groups)
+        groups_columns = ['project_id', 'group_id', 'count', 'completedCount', 'info']
+        tasks_columns = ['task_id', 'project_id', 'group_id', 'info']
+
+        try:
+            p_con = postgres()
+            p_con._db_cur = p_con._db_connection.cursor()
+            self._db_cur.execute(sql_insert_import_query, data_import)
+            self._db_cur.execute(sql_insert_project_query, data_project)
+            with open(groups_txt_filename, 'r'):
+                self._db_cur.copy_from(
+                        groups_file,
+                        'raw_groups',
+                        sep='\t',
+                        null='\\N',
+                        size=8192,
+                        columns=columns
+                        )
+            with open(tasks_txt_filename, 'r'):
+                self._db_cur.copy_from(
+                        tasks_file,
+                        'raw_tasks',
+                        sep='\t',
+                        null='\\N',
+                        size=8192,
+                        columns=columns
+                        )
+            self._db_connection.commit()
+            self._db_cur.close()
+        except Exception as e:
+            del p_con
+            raise
+
+        os.remove(groups_txt_filename)
+        os.remove(tasks_txt_filename)
+
+
     def set_import_postgres(self, postgres):
         """
         The function saves the import information from firebase to the posgres imports table
@@ -201,6 +303,7 @@ class BaseImport(object):
 
         logging.warning('%s - set_imports_postgres - inserted import info in postgres' % self.import_key)
         return True
+
 
     def set_project_postgres(self, postgres, project_dict):
         """
@@ -246,6 +349,7 @@ class BaseImport(object):
 
         logging.warning('%s - set_project_postgres - inserted project info in postgres' % project_dict['id'])
         return True
+
 
     def set_groups_postgres(self, postgres, project_id, groups):
         """
@@ -343,6 +447,62 @@ class BaseImport(object):
 
         logging.warning('%s - set_groups_postgres - inserted groups into groups table' % project_id)
         return True
+
+
+    def generate_groups_txt_file(project_id, groups):
+        """
+        Generates a text file containing groups information for a specific project.
+
+
+        Parameters
+        ----------
+        project_id : int
+            The id of the project
+        groups : dict
+            The dictionary with the group information
+
+        Returns
+        -------
+        string
+            filename
+        """
+
+        if not os.path.isdir('{}/tmp'.format(DATA_PATH)):
+            os.mkdir('{}/tmp'.format(DATA_PATH))
+
+        # create txt file with header for later import with copy function into postgres
+        groups_txt_filename = '{}/tmp/raw_groups_{}.txt'.format(DATA_PATH, project_id)
+        groups_txt_file = open(groups_txt_filename, 'w', newline='')
+        fieldnames = ('project_id', 'group_id', 'completedCount', 'count', 'info')
+        w = csv.DictWriter(groups_txt_file, fieldnames=fieldnames, delimiter='\t', quotechar="'")
+
+        for group in groups:
+            try:
+                output_dict = {
+                    "project_id": project_id,
+                    "group_id": int(groups[group]['id']),
+                    "count": int(groups[group]['count']),
+                    "completedCount": int(groups[group]['completedCount']),
+                    "info": {}
+
+                }
+
+                for key in groups[group].keys():
+                    if not key in ['project_id', 'group_id', 'count',
+                                   'completedCount', 'tasks']:
+                        output_dict['info'][key] = groups[group][key]
+                output_dict['info'] = json.dumps(output_dict['info'])
+
+                w.writerow(output_dict)
+
+            except Exception as e:
+                logging.warning('%s - set_groups_postgres - groups missed critical information: %s' % (project_id, e))
+                error_handling.log_error(e, logging)
+
+        groups_txt_file.close()
+
+        return groups_txt_filename
+
 
     def set_tasks_postgres(self, postgres, project_id, groups):
         """
@@ -443,6 +603,7 @@ class BaseImport(object):
         logging.warning('%s - set_tasks_postgres - inserted tasks into tasks table' % project_id)
         return True
 
+
     def set_project_firebase(self, firebase, project_dict):
         """
         The function to upload the project information to the firebase projects table
@@ -471,6 +632,62 @@ class BaseImport(object):
         logging.warning('%s - set_project_firebase - uploaded project in firebase' % project_dict['id'])
         return True
 
+
+    def generate_tasks_txt_file(project_id, groups):
+        """
+        Generates a text file containing tasks. It interates over groups and extracts tasks. Purpose of the text file is later import into postgres.
+        Parameters
+        ----------
+        project_id : int
+            The id of the project
+        groups : dictionary
+            Dictionary containing groups of a project
+
+        Returns
+        -------
+        string 
+            Filename
+        """
+
+        if not os.path.isdir('{}/tmp'.format(DATA_PATH)):
+            os.mkdir('{}/tmp'.format(DATA_PATH))
+
+        # save tasks in txt file
+        tasks_txt_filename = '{}/tmp/raw_tasks_{}.txt'.format(DATA_PATH, project_id)
+        tasks_txt_file = open(tasks_txt_filename, 'w', newline='')
+
+        fieldnames = ('task_id', 'project_id', 'group_id', 'info')
+        w = csv.DictWriter(tasks_txt_file, fieldnames=fieldnames, delimiter='\t', quotechar="'")
+
+        for group in groups:
+            for task in groups[group]['tasks']:
+
+                try:
+                    output_dict = {
+                        "task_id": groups[group]['tasks'][task]['id'],
+                        "project_id": project_id,
+                        "group_id": int(group),
+                        "info": {}
+                    }
+
+                    for key in groups[group]['tasks'][task].keys():
+                        if not key in ['id', 'projectId']:
+                            output_dict['info'][key] = groups[group]['tasks'][task][key]
+                    output_dict['info'] = json.dumps(output_dict['info'])
+
+                    w.writerow(output_dict)
+
+                except Exception as e:
+                    logging.warning('%s - set_tasks_postgres - tasks missed critical information: %s' % (project_id, e))
+
+        tasks_txt_file.close()
+
+        os.remove(tasks_txt_filename)
+
+        # TODO discuss if conflict resolution necessary
+        return tasks_txt_filename
+
+
     def set_groups_firebase(self, firebase, project_id, groups):
         """
         The function to upload groups to firebase
@@ -490,6 +707,7 @@ class BaseImport(object):
         fb_db = firebase.database()
         fb_db.child("groups").child(project_id).set(groups)
         logging.warning('%s - set_groups_firebase - uploaded groups in firebase' % project_id)
+
 
     def set_import_complete(self, firebase):
         """
