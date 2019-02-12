@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import sys
+import os
 import time
 import argparse
 import logging
@@ -8,6 +9,11 @@ import traceback
 from mapswipe_workers.basic import BaseFunctions as b
 from mapswipe_workers.utils import error_handling
 from mapswipe_workers.utils import path_helper
+
+
+# Path variables
+ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
+CONFIG_PATH = os.path.abspath(os.path.join(ROOT_DIR, 'cfg', 'configuration.json'))
 
 
 ########################################################################################################################
@@ -32,17 +38,18 @@ parser.add_argument('-m', '--max_iterations', required=False, default=1, type=in
                     help='the maximum number of imports that should be performed')
 
 # custom configuration path. Default ist '/cfg/configuration.json'
-parser.add_argument('-c', '--config', required=False, type=str,
-                    help='path to configuration.json. Defaults to /cfg/configuration.json')
+parser.add_argument('-c', '--config', required=False, default=CONFIG_PATH, type=str,
+                    help='path to configuration.json. Defaults to cfg/configuration.json')
 ########################################################################################################################
 
 
 if __name__ == '__main__':
 
     # copy the configuration file into mapswipe_workers module
-    path_helper.copy_config()
 
     args = parser.parse_args()
+
+    path_helper.copy_config(args.config)
 
     if args.filter == 'list' and not args.list:
         parser.error('if you want to use a list of project ids for the process,'

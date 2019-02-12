@@ -7,8 +7,6 @@ from mapswipe_workers.utils import path_helper
 
 def upload_sample_data_to_firebase():
     
-    path_helper.copy_config()
-
     firebase, postgres = BaseFunctions.get_environment('production')
     fb_db = firebase.database()
 
