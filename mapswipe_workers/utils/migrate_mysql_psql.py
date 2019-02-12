@@ -115,7 +115,7 @@ def import_results(postgres):
 ####################################################################################################
 if __name__ == '__main__':
 
-    postgres = auth.dev_psqlDB
+    postgres = auth.psqlDB()
 
     if not check_mysql_schema(postgres):
         setup_mysql_fdw(postgres)
