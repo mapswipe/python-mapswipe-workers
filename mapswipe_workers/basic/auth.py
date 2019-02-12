@@ -39,7 +39,7 @@ def firebase_admin_auth():
         # Default Configuration
         raise Exception('could not get firebase informtaion from config file')
 
-    service_key_path = os.path.abspath(os.path.join(ROOT_DIR, '..', 'cfg', service_account))
+    service_key_path = os.path.abspath(os.path.join(ROOT_DIR, 'cfg', service_account))
     # adapt this to your firebase setting
     config = {
         "apiKey": api_key,
@@ -65,7 +65,7 @@ def dev_firebase_admin_auth():
         # Default Configuration
         raise Exception('Could not get firebase dev information from config file.')
 
-    service_key_path = os.path.abspath(os.path.join(ROOT_DIR, '..', 'cfg', service_account))
+    service_key_path = os.path.abspath(os.path.join(ROOT_DIR, 'cfg', service_account))
     # adapt this to your firebase setting
     config = {
         "apiKey": api_key,
