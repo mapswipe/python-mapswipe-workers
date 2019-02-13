@@ -9,7 +9,9 @@ from psycopg2 import sql
 def setup_mysql_fdw(postgres):
     p_con = postgres()
 
-    mysql_properties = auth.CONFIG['mysql']
+    CONFIG = auth.load_config()
+
+    mysql_properties = CONFIG['mysql']
     mysql_properties['port'] = '3306'
     mysql_properties = [mysql_properties['host'], mysql_properties['port'], mysql_properties['username'],
                         mysql_properties['password']]
@@ -33,7 +35,6 @@ def setup_mysql_fdw(postgres):
     -- otherwise schema has to be called when querying tabls like: FROM mysql.results
     --set search_path= 'mapswipe';
     ''' % (mysql_properties[0], mysql_properties[1], mysql_properties[2], mysql_properties[2], mysql_properties[3])
-    print(sql_string)
 
     # create table
     p_con.query(sql_string, None)
@@ -115,7 +116,7 @@ def import_results(postgres):
 ####################################################################################################
 if __name__ == '__main__':
 
-    postgres = auth.psqlDB()
+    postgres = auth.psqlDB
 
     if not check_mysql_schema(postgres):
         setup_mysql_fdw(postgres)
