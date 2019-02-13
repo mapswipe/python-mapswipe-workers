@@ -2,7 +2,7 @@ import os
 import json
 
 
-ROOT_DIR = '/python-mapswipe-workers'
+ROOT_DIR = '/home/marcel/giscience/git/python-mapswipe-workers'
 CONFIG_PATH = os.path.abspath(os.path.join(ROOT_DIR, './cfg/configuration.json'))
 DATA_PATH = os.path.abspath(os.path.join(ROOT_DIR, './data/'))
 # DATA_PATH = get_data_path()

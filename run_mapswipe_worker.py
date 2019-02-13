@@ -49,7 +49,7 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    path_helper.copy_config(args.config)
+    #path_helper.copy_config(args.config)
 
     if args.filter == 'list' and not args.list:
         parser.error('if you want to use a list of project ids for the process,'
