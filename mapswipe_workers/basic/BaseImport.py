@@ -376,7 +376,7 @@ class BaseImport(object):
         # create txt file with header for later import with copy function into postgres
         groups_txt_filename = '{}/tmp/raw_groups_{}.txt'.format(DATA_PATH, project_id)
         groups_txt_file = open(groups_txt_filename, 'w', newline='')
-        fieldnames = ('project_id', 'group_id', 'completedCount', 'count', 'info')
+        fieldnames = ('project_id', 'group_id', 'completedCount', 'verificationCount', 'count', 'info')
         w = csv.DictWriter(groups_txt_file, fieldnames=fieldnames, delimiter='\t', quotechar="'")
 
         for group in groups:
@@ -386,13 +386,14 @@ class BaseImport(object):
                     "group_id": int(groups[group]['id']),
                     "count": int(groups[group]['count']),
                     "completedCount": int(groups[group]['completedCount']),
+                    "verificationCount": int(groups[group]['verificationCount']),
                     "info": {}
 
                 }
 
                 for key in groups[group].keys():
                     if not key in ['project_id', 'group_id', 'count',
-                                   'completedCount', 'tasks']:
+                                   'completedCount','verificationCount', 'tasks']:
                         output_dict['info'][key] = groups[group][key]
                 output_dict['info'] = json.dumps(output_dict['info'])
 
@@ -414,6 +415,7 @@ class BaseImport(object):
               ,group_id int
               ,count int
               ,completedCount int
+              ,verificationCount int
               ,info json
                                 );
             '''
@@ -422,7 +424,7 @@ class BaseImport(object):
 
         # insert data from txt file into raw groups table in postgres
         f = open(groups_txt_filename, 'r')
-        columns = ['project_id', 'group_id', 'count', 'completedCount', 'info']
+        columns = ['project_id', 'group_id', 'count', 'completedCount', 'verificationCount', 'info']
         p_con.copy_from(f, 'raw_groups', sep='\t', columns=columns)
         logging.warning('%s - set_groups_postgres - inserted raw groups into table raw_groups' % project_id)
         f.close()
@@ -483,13 +485,14 @@ class BaseImport(object):
                     "group_id": int(groups[group]['id']),
                     "count": int(groups[group]['count']),
                     "completedCount": int(groups[group]['completedCount']),
+                    "verificationCount": int(groups[group]['verificationCount']),
                     "info": {}
 
                 }
 
                 for key in groups[group].keys():
                     if not key in ['project_id', 'group_id', 'count',
-                                   'completedCount', 'tasks']:
+                                   'completedCount', 'verificationCount', 'tasks']:
                         output_dict['info'][key] = groups[group][key]
                 output_dict['info'] = json.dumps(output_dict['info'])
 

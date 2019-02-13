@@ -39,6 +39,7 @@ class BaseGroup(object):
         self.completedCount = 0
         #self.reportCount = 0 # not sure for what the reportCount is used
         self.neededCount = imp.verification_count
+        self.verificationCount = imp.verification_count
         #self.distributedCount = 0 # not sure for what the distributedCount is used
         self.count = 0
 
