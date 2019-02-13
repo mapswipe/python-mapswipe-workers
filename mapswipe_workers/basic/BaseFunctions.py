@@ -631,8 +631,6 @@ def results_to_txt(all_results):
     fieldnames = ('task_id', 'project_id', 'user_id', 'timestamp', 'info')
     w = csv.DictWriter(results_txt_file, fieldnames=fieldnames, delimiter='\t', quotechar="'")
 
-    print(all_results)
-
     number_of_results = 0
     for task_id, results in all_results.items():
         for child_id, result in results.items():
@@ -1041,9 +1039,9 @@ def delete_project_postgres(project_id, import_key, postgres):
         DELETE FROM results WHERE project_id = %s;
         DELETE FROM tasks WHERE project_id = %s;
         DELETE FROM groups WHERE project_id = %s;
-        DELETE FROM imports WHERE import_id = %s
-
+        DELETE FROM imports WHERE import_id = %s;
     """
+
     data = [int(project_id), int(project_id), int(project_id), int(project_id), str(import_key)]
     p_con.query(sql_insert, data)
     del p_con

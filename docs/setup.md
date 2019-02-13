@@ -133,6 +133,7 @@ Check if your Docker Containers are running: `docker ps`
 
 Interactive shell session for using e.g. utils: `docker-compose run utils`
 
+
 ## Debugging
 
 **Where can I find logs?**
@@ -149,6 +150,10 @@ Interactive shell session for using e.g. utils: `docker-compose run utils`
 **Docker containers are always restarting:**
 
 Take a look at the docker logs (eg. `docker logs import`). If you get an `Unable to load configuration file at ./cfg/config.cfg. Exiting.` due to `PermissionError: [Errno 13] Permission denied: './cfg/config.cfg'` error message, you probably have SELinux on your system enabled. If so you have to configure (change mount option of volumes) your docker-compose file. Please read the documentation provided by Docker regarding this configuration (https://docs.docker.com/storage/bind-mounts/ Chapter: "Configure the selinux label").
+
+**FileNotFoundError: configuration.json:**
+
+Currently the path to the configuration.json file is hard coded in `mapswipe_workers/definitions.py`. This should work as long as Mapswipe Workers is installed and running inside a Docker container. For custom setup adjust the `ROOT_PATH` variable accordingly.
 
 
 ## Tips

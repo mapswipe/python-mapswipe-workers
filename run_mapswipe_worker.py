@@ -13,7 +13,8 @@ from mapswipe_workers.utils import path_helper
 
 # Path variables
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
-CONFIG_PATH = os.path.abspath(os.path.join(ROOT_DIR, 'cfg', 'configuration.json'))
+CONFIG_DIR = os.path.abspath(os.path.join(ROOT_DIR, 'cfg'))
+CONFIG_PATH = os.path.abspath(os.path.join(ROOT_DIR, CONFIG_DIR, 'configuration.json'))
 
 
 ########################################################################################################################
@@ -40,6 +41,9 @@ parser.add_argument('-m', '--max_iterations', required=False, default=1, type=in
 # custom configuration path. Default ist '/cfg/configuration.json'
 parser.add_argument('-c', '--config', required=False, default=CONFIG_PATH, type=str,
                     help='path to configuration.json. Defaults to cfg/configuration.json')
+
+parser.add_argument('--service-account-key', required=False, default=CONFIG_DIR, type=str,
+                    help='path to directory of firebase ServiceAccountKey. Defaults to cfg/')
 ########################################################################################################################
 
 
@@ -49,7 +53,8 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    path_helper.copy_config(args.config)
+    # path_helper.copy_config(args.config)
+    # path_helper.copy_firebase_service_account_key(args.service-account-key)
 
     if args.filter == 'list' and not args.list:
         parser.error('if you want to use a list of project ids for the process,'

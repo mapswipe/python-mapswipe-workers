@@ -115,6 +115,7 @@ import_module/data
 # don't upload config files and api keys etc.
 cfg/config.cfg
 cfg/configuration.json
+mapswipe_workers/configuration.json
 cfg/serviceAccountKey.json
 cfg/msf-mapswipe_serviceAccountKey.json
 cfg/dev-mapswipe_serviceAccountKey.json
