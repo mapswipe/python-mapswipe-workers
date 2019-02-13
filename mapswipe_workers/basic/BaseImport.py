@@ -182,17 +182,14 @@ class BaseImport(object):
         return new_project_id
 
 
-    def execute_import_queries(self, postgres, project_id project_dict, groups_dict):
+    def execute_import_queries(self, postgres, project_id, project_dict, groups_dict):
         '''
         Defines SQL queries and data for import a project into postgres.
         SQL queries will be executed as transaction.
         (Either every query will be executed or none)
         '''
 
-        query_insert_import = '''
-            BEGIN
-            INSERT INTO imports Values(%s,%s);
-            '''
+        query_insert_import = 'INSERT INTO imports Values(%s,%s);'
 
         data_import = [self.import_key, json.dumps(vars(self))]
 
@@ -217,7 +214,7 @@ class BaseImport(object):
             json.dumps(project_dict['info'])
         ]
 
-        query_create_raw_groups = '''
+        query_recreate_raw_groups = '''
             DROP TABLE IF EXISTS raw_groups CASCADE;
             CREATE TABLE raw_groups (
               project_id int
@@ -237,7 +234,7 @@ class BaseImport(object):
               raw_groups
             '''
 
-        query_create_raw_tasks =  '''
+        query_recreate_raw_tasks =  '''
             DROP TABLE IF EXISTS raw_tasks CASCADE;
             CREATE TABLE raw_tasks (
                 task_id varchar
@@ -256,8 +253,8 @@ class BaseImport(object):
               raw_tasks
             '''
 
-        groups_txt_filename = create_groups_txt_file(project_id, groups_dict)
-        tasks_txt_filename = create_tasks_txt_file(project_id, groups_dict)
+        groups_txt_filename = self.create_groups_txt_file(project_id, groups_dict)
+        tasks_txt_filename = self.create_tasks_txt_file(project_id, groups_dict)
 
         groups_columns = ['project_id', 'group_id', 'count', 'completedCount', 'info']
         tasks_columns = ['task_id', 'project_id', 'group_id', 'info']
@@ -267,32 +264,32 @@ class BaseImport(object):
         try:
             p_con = postgres()
             p_con._db_cur = p_con._db_connection.cursor()
-            self._db_cur.execute(query_insert_import, data_import)
-            self._db_cur.execute(query_insert_project, data_project)
-            self._db_cur.execute(query_create_raw_tasks, None)
-            self._db_cur.execute(query_create_raw_tasks, None)
-            with open(groups_txt_filename, 'r'):
-                self._db_cur.copy_from(
+            p_con._db_cur.execute(query_insert_import, data_import)
+            p_con._db_cur.execute(query_insert_project, data_project)
+            p_con._db_cur.execute(query_recreate_raw_groups, None)
+            p_con._db_cur.execute(query_recreate_raw_tasks, None)
+            with open(groups_txt_filename, 'r') as groups_file:
+                p_con._db_cur.copy_from(
                         groups_file,
                         'raw_groups',
                         sep='\t',
                         null='\\N',
                         size=8192,
-                        columns=columns
+                        columns=groups_columns
                         )
-            with open(tasks_txt_filename, 'r'):
-                self._db_cur.copy_from(
+            with open(tasks_txt_filename, 'r') as tasks_file:
+                p_con._db_cur.copy_from(
                         tasks_file,
                         'raw_tasks',
                         sep='\t',
                         null='\\N',
                         size=8192,
-                        columns=columns
+                        columns=tasks_columns
                         )
-            self._db_cur.execute(query_insert_raw_groups, None)
-            self._db_cur.execute(query_insert_raw_tasks, None)
-            self._db_connection.commit()
-            self._db_cur.close()
+            p_con._db_cur.execute(query_insert_raw_groups, None)
+            p_con._db_cur.execute(query_insert_raw_tasks, None)
+            p_con._db_connection.commit()
+            p_con._db_cur.close()
         except Exception as e:
             del p_con
             raise
@@ -301,7 +298,7 @@ class BaseImport(object):
         os.remove(tasks_txt_filename)
 
 
-    def create_groups_txt_file(project_id, groups):
+    def create_groups_txt_file(self, project_id, groups):
         """
         Creates a text file containing groups information for a specific project.
         The text file is temporary and used only by BaseImport module.
@@ -336,7 +333,6 @@ class BaseImport(object):
                     "count": int(groups[group]['count']),
                     "completedCount": int(groups[group]['completedCount']),
                     "info": {}
-
                 }
 
                 for key in groups[group].keys():
@@ -356,7 +352,7 @@ class BaseImport(object):
         return groups_txt_filename
 
 
-    def create_tasks_txt_file(project_id, groups):
+    def create_tasks_txt_file(self, project_id, groups):
         """
         Creates a text file containing tasks information for a specific project.
         It interates over groups and extracts tasks.

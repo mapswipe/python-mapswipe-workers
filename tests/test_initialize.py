@@ -2,11 +2,17 @@ import json
 import pickle
 import os.path
 from mapswipe_workers.basic import BaseFunctions
-from mapswipe_workers.utils import path_helper
+# from mapswipe_workers.utils import path_helper
+
+# Path variables
+# ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
+# CONFIG_PATH = os.path.abspath(os.path.join(ROOT_DIR, '..', 'cfg', 'configuration.json'))
 
 
 def upload_sample_data_to_firebase():
     
+    # path_helper.copy_config(CONFIG_PATH)
+
     firebase, postgres = BaseFunctions.get_environment('production')
     fb_db = firebase.database()
 
