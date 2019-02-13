@@ -172,9 +172,11 @@ def download_groups_tasks_per_project(q):
 
                 info = {}
 
+
                 for task_key, vals in keys.items():
-                        if not task_key in ['id', 'projectId']:
-                            info[task_key]=vals
+
+                    if not task_key in ['id', 'projectId']:
+                        info[task_key]=vals
 
                 outline = '%s;%i;%i;%s\n' % (group_tasks[task_id]['id'],
                                              int(group_id),
@@ -186,13 +188,17 @@ def download_groups_tasks_per_project(q):
 
         for group_key, group_vals in group.items():
 
-            if not group_key in ['projectId', 'id', 'count', 'completedCount']:
-                group_info.update(group_key=group_vals)
+            if not group_key in ['projectId', 'id', 'count', 'completedCount', 'tasks']:
 
-        group_outline = '%i;%i;%i;%i;%s\n' % (int(group['projectId']),
+                group_info[group_key] = group_vals
+
+        group['verificationCount'] = group['completedCount']
+
+        group_outline = '%i;%i;%i;%i;%i;%s\n' % (int(group['projectId']),
                                               int(group['id']),
                                               int(group['count']),
                                               int(group['completedCount']),
+                                              int(group['verificationCount']),
                                               json.dumps(group_info))
         group_file.write(group_outline)
 
@@ -213,7 +219,7 @@ def import_all_groups_tasks(postgres):
             import_groups_table_name = 'import_groups'
             project = file.split('_')[0]
             import_groups_table_name = import_groups_table_name + '_{}'.format(project)
-            group_columns = ('project_id', 'group_id', 'count', 'completedCount', 'info')
+            group_columns = ('project_id', 'group_id', 'count', 'completedCount', 'verificationCount', 'info')
             sql_insert = '''
                         DROP TABLE IF EXISTS {};
                         CREATE TABLE {} (
@@ -221,6 +227,7 @@ def import_all_groups_tasks(postgres):
                             ,group_id int
                             ,count int
                             ,completedCount int
+                            ,verificationCount int                            
                             ,info json
                         );
                         '''
@@ -414,13 +421,14 @@ if __name__ == '__main__':
 
     if args.operation == 'download':
         download_all_groups_tasks(firebase)
-        download_users(firebase)
+        #download_users(firebase)
     elif args.operation == 'import':
-        imports_to_postgres(firebase)
-        projects_to_postgres(firebase, postgres)
+        #imports_to_postgres(firebase)
+        #projects_to_postgres(firebase, postgres)
         import_all_groups_tasks(postgres)
-        os.chdir(cwd)
-        import_users(postgres)
+        #os.chdir(cwd)
+        #import_users(postgres)
+        pass
     else:
         pass
 
