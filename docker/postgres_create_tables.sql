@@ -36,15 +36,23 @@ CREATE TABLE IF NOT EXISTS tasks (
   ,CONSTRAINT tasks_pkey PRIMARY KEY(task_id, group_id, project_id)
 );
 
+CREATE INDEX tasks_task_id ON public.tasks USING btree (task_id);
+CREATE INDEX tasks_groupid ON public.tasks USING btree (group_id);
+CREATE INDEX tasks_projectid ON public.tasks USING btree (project_id);
+
 CREATE TABLE IF NOT EXISTS groups (
   project_id int
   ,group_id int
   ,count int
   ,completedCount int
+  ,verificationCount int
   ,info json
 
   ,CONSTRAINT groups_pkey PRIMARY KEY(project_id, group_id)
 );
+
+CREATE INDEX groups_projectid ON public.groups USING btree (group_id);
+CREATE INDEX groups_goupid ON public.groups USING btree (project_id);
 
 CREATE TABLE IF NOT EXISTS users (
   user_id varchar
@@ -65,6 +73,9 @@ CREATE TABLE IF NOT EXISTS results (
 
   ,CONSTRAINT results_pkey PRIMARY KEY (task_id, user_id, project_id)
 );
+CREATE INDEX results_taskid ON public.results USING btree (task_id);
+CREATE INDEX results_projectid ON public.results USING btree (project_id);
+CREATE INDEX results_userid ON public.results USING btree (user_id);
 
 CREATE TABLE IF NOT EXISTS progress(
   project_id int
