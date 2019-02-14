@@ -631,7 +631,6 @@ def results_to_txt(all_results):
     fieldnames = ('task_id', 'project_id', 'user_id', 'timestamp', 'info')
     w = csv.DictWriter(results_txt_file, fieldnames=fieldnames, delimiter='\t', quotechar="'")
 
-    print(all_results)
 
     number_of_results = 0
     for task_id, results in all_results.items():
