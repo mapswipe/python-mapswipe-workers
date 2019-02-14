@@ -1,18 +1,9 @@
 from mapswipe_workers.basic import BaseFunctions
 
-# make sure that there is a project in firebase and postgres to update
-# e.g. import a project first
+
+def test_transfer_results():
+    BaseFunctions.run_export('production', [])
 
 
-# make sure that there are results for this project
-# make sure that different users contributed to this project
-
-
-# make sure that results for this project are transfered from firebase to postgresql
-
-
-# export project information for this project
-filter = [] # add project ids here
-BaseFunctions.run_export(filter)
-
-# check if exported files are as expected
+if __name__ == '__main__':
+    test_transfer_results()

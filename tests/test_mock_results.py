@@ -50,8 +50,8 @@ def create_footprint_result_in_firebase(
 def simulate_user_contributions(
         project_id,
         project_type,
+        modus,
         user_id='test_user',
-        modus='development'
         ):
     firebase, postgres = BaseFunctions.get_environment(modus)
 
@@ -75,7 +75,7 @@ def simulate_user_contributions(
                         task_id,
                         user_id,
                         firebase,
-                        modus)
+                        )
             print("created build area results in firebase")
         elif project_type == 2:
             for task_id in task_ids:
@@ -84,7 +84,7 @@ def simulate_user_contributions(
                         task_id,
                         user_id,
                         firebase,
-                        modus)
+                        )
             print("created footprint results in firebase")
 
         # update groups completed count
@@ -96,10 +96,10 @@ def simulate_user_contributions(
 if __name__ == '__main__':
     modus = 'production'
 
-    project_id = 13555
+    project_id = 1002
     project_type = 1
     simulate_user_contributions(project_id, project_type, modus)
 
-    project_id = 13541
+    project_id = 1004
     project_type = 2
     simulate_user_contributions(project_id, project_type, modus)

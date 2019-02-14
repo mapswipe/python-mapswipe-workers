@@ -49,9 +49,10 @@ def yes_or_no(question):
 
 
 if __name__ == '__main__':
-
-    if yes_or_no('This will delete all data in firebase and postgres\
-            (Not only the sample data). Do you wish to continue?'):
+    if yes_or_no('''
+            This will delete all data in firebase and postgres\
+            (Not only the sample data). Do you wish to continue?
+            '''):
         firebase, postgres = BaseFunctions.get_environment('production')
         fb_db = firebase.database()
         p_con = postgres()
@@ -60,5 +61,3 @@ if __name__ == '__main__':
         delete_sample_groups_from_firebase(fb_db)
         delete_sample_projects_from_firebase(fb_db)
         delete_sample_results_from_postgres(p_con)
-
-    # TODO: remove groups and projects
