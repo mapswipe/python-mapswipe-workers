@@ -9,7 +9,7 @@ def copy_config(source_path):
     shutil.copyfile(source_path, CONFIG_PATH)
 
 
-def copy_firebase_service_account_key(source_dir)
+def copy_firebase_service_account_key(source_dir):
     '''
     Copy user provided firebase service key into root of mapswipe_workers module for constistent access.
     '''
