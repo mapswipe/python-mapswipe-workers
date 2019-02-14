@@ -351,7 +351,7 @@ class BaseImport(object):
                     "group_id": int(groups[group]['id']),
                     "count": int(groups[group]['count']),
                     "completedCount": int(groups[group]['completedCount']),
-                    "verificationCount": int(groups[group]['verificationCount'])
+                    "verificationCount": int(groups[group]['verificationCount']),
                     "info": {}
                 }
 
