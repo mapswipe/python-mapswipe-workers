@@ -7,17 +7,17 @@ def import_process():
     firebase, postgres = BaseFunctions.get_environment('production')
     fb_db = firebase.database()
 
-    imported_project_keys = BaseFunctions.run_import('production')
+    imported_projects = BaseFunctions.run_import('production')
 
     # save all keys to disk
-    filename = 'firebase_imported_project_keys.pickle'
+    filename = 'firebase_imported_projects.pickle'
     if os.path.isfile(filename):
         with open(filename, 'rb') as f:
-            already_imported_project_keys = pickle.load(f)
-        imported_project_keys = already_imported_project_keys + imported_project_keys
+            already_imported_projects = pickle.load(f)
+        imported_projects = imported_projects + already_imported_projects
 
     with open(filename, 'wb') as f:
-        pickle.dump(imported_project_keys, f)
+        pickle.dump(imported_projects, f)
 
 
 if __name__ == '__main__':

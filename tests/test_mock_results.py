@@ -1,5 +1,6 @@
 import random
 import time
+import pickle
 from mapswipe_workers.basic import BaseFunctions
 
 
@@ -95,11 +96,17 @@ def simulate_user_contributions(
 
 if __name__ == '__main__':
     modus = 'production'
+    firebase, postgres = BaseFunctions.get_environment(modus)
 
-    project_id = 1002
-    project_type = 1
+    filename = 'firebase_imported_projects.pickle'
+    with open(filename, 'rb') as f:
+        imported_projects = pickle.load(f)
+
+    # Generate mock results for first two of the imported projects
+    project_id = imported_projects[0][1]
+    project_type = imported_projects[0][1]
     simulate_user_contributions(project_id, project_type, modus)
 
-    project_id = 1004
-    project_type = 2
+    project_id = imported_projects[1][1]
+    project_type = imported_projects[1][1]
     simulate_user_contributions(project_id, project_type, modus)

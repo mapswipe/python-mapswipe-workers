@@ -20,18 +20,18 @@ def upload_sample_data_to_firebase():
                 )
 
     # save all keys to disk
-    filename = 'firebase_imports_keys.pickle'
+    filename = 'firebase_uploaded_projects.pickle'
     if os.path.isfile(filename):
         with open(filename, 'rb') as f:
             already_uploaded_project_keys = pickle.load(f)
-        keys = already_uploaded_project_keys + uploaded_project_keys
+        uploaded_project_keys = already_uploaded_project_keys + uploaded_project_keys
     with open(filename, 'wb') as f:
-        pickle.dump(keys, f)
+        pickle.dump(uploaded_project_keys, f)
 
 
 if __name__ == '__main__':
     upload_sample_data_to_firebase()
-    with open('firebase_imports_keys.pickle', 'rb') as f:
+    with open('firebase_uploaded_projects.pickle', 'rb') as f:
         keys = pickle.load(f)
     print(keys)
     print("Everything passed")
