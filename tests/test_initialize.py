@@ -2,7 +2,6 @@ import json
 import pickle
 import os.path
 from mapswipe_workers.basic import BaseFunctions
-from mapswipe_workers.utils import path_helper
 
 
 def upload_sample_data_to_firebase():
