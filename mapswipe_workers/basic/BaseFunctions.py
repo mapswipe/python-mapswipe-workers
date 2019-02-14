@@ -347,7 +347,7 @@ def run_import(modus):
     Returns
     -------
     imported_projects : list
-        list of project ids of imported projects
+        list of tuple with import_key, project_id and project_type of imported projects
     """
 
     # get dev or production environment for firebase and postgres
@@ -370,8 +370,8 @@ def run_import(modus):
         try:
             imp = init_import(project_type, import_key, import_dict)
             # and now let's finally create a project
-            imp.create_project(firebase, postgres)
-            imported_projects.append(imp.import_key)
+            project_id, project_type = imp.create_project(firebase, postgres)
+            imported_projects.append((imp.import_key, project_id, project_type))
         except CustomError as error:
             error_handling.send_error(error, import_key)
             logging.exception('%s - get_new_imports - import failed' % import_key)

@@ -86,8 +86,8 @@ class BaseImport(object):
 
         Returns
         -------
-        bool
-            True if successful. False otherwise.
+        tuple
+            project_id and project_type
         """
 
         try:
@@ -133,13 +133,13 @@ class BaseImport(object):
             self.set_import_complete(firebase)
             logging.warning('%s - import_project - import finished' % self.import_key)
             logging.warning('%s - import_project - imported new project with id: %s' % (self.import_key, project_id))
-            return True
+            return (project_id, self.project_type)
 
         except Exception as e:
             logging.warning('%s - import_project - could not import project' % self.import_key)
             logging.warning("%s - import_project - %s" % (self.import_key, e))
             error_handling.log_error(e, logging)
-            return False
+            return (None, None)
 
 
     def get_new_project_id(self, firebase):
