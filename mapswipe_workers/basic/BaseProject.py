@@ -312,7 +312,7 @@ class BaseProject(object):
 
     def set_project_progress_postgres(self, postgres)-> bool:
         """
-        The function insert id, contributors, progress and timestamp into postgres statistics table
+        The function insert id, contributors, progress and timestamp into postgres progress relation
 
         Parameters
         ----------
@@ -328,7 +328,7 @@ class BaseProject(object):
         p_con = postgres()
         sql_insert = '''
             INSERT INTO
-              statistics
+              progress
             VALUES
               (%s,%s,%s,%s);
             '''
@@ -337,7 +337,7 @@ class BaseProject(object):
                 self.progress, timestamp]
 
         p_con.query(sql_insert, data)
-        logging.warning('%s - set_project_progress_postgres - inserted new entry for contributors and progress in statistics table' % self.id)
+        logging.warning('%s - set_project_progress_postgres - inserted new entry for contributors and progress in progress relation' % self.id)
         del p_con
 
         return True
