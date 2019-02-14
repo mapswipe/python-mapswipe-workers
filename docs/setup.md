@@ -146,9 +146,9 @@ Interactive shell session for using e.g. utils: `docker-compose run utils`
 - SOLUTION: Change postgres port in your docker-compose file  (`docker-compose.yaml`)
     - docker-compose.yaml: services > postgres > ports: Change `"5432:5432"` to `"5433:5432"`
 
-**Docker containers are always restarting:**
+**Docker containers are always restarting:** Take a look at the docker logs (eg. `docker logs import`). If you get an `Unable to load configuration file at ./cfg/config.cfg. Exiting.` due to `PermissionError: [Errno 13] Permission denied: './cfg/config.cfg'` error message, you probably have SELinux on your system enabled. If so you have to configure (change mount option of volumes) your docker-compose file. Please read the documentation provided by Docker regarding this configuration (https://docs.docker.com/storage/bind-mounts/ Chapter: "Configure the selinux label").
 
-Take a look at the docker logs (eg. `docker logs import`). If you get an `Unable to load configuration file at ./cfg/config.cfg. Exiting.` due to `PermissionError: [Errno 13] Permission denied: './cfg/config.cfg'` error message, you probably have SELinux on your system enabled. If so you have to configure (change mount option of volumes) your docker-compose file. Please read the documentation provided by Docker regarding this configuration (https://docs.docker.com/storage/bind-mounts/ Chapter: "Configure the selinux label").
+**configuration.json - FileNotFoundError:** Until fixed the configuration path is hard coded in `mapswipe_workers/definitions.py`. This should work, if Mapswipe Workers is installed and running inside a Docker Container. For custom setup adjust the `ROOT_PATH` variable in `definitions.py` accordingly.
 
 
 ## Tips
