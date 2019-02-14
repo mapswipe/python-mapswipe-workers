@@ -59,8 +59,8 @@ class FootprintImport(BaseImport):
         raw_input_file = '{}/input_geometries/raw_input_{}.geojson'.format(DATA_PATH, self.import_key)
         valid_input_file = '{}/input_geometries/valid_input_{}.geojson'.format(DATA_PATH, self.import_key)
 
-        if not os.path.isdir('{}/import'.format(DATA_PATH)):
-            os.mkdir('{}/import'.format(DATA_PATH))
+        if not os.path.isdir('{}/input_geometries'.format(DATA_PATH)):
+            os.mkdir('{}/input_geometries'.format(DATA_PATH))
 
         # download file from given url
         url = self.info['inputGeometries']
