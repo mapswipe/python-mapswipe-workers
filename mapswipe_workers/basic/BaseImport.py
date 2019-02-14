@@ -209,8 +209,8 @@ class BaseImport(object):
             project_dict['progress'],
             project_dict['projectDetails'],
             int(project_dict['state']),
-            int(project_dict['projectType']),
             int(project_dict['verificationCount']),
+            int(project_dict['projectType']),
             json.dumps(project_dict['info'])
         ]
 
@@ -223,7 +223,7 @@ class BaseImport(object):
               ,completedCount int
               ,verificationCount int
               ,info json
-                                );
+            );
             '''
 
         query_insert_raw_groups = '''
@@ -298,7 +298,8 @@ class BaseImport(object):
                         size=8192,
                         columns=tasks_columns
                         )
-            p_con._db_cur.execute(query_insert_raw_groups, None)
+            p_con._db_cur.execute(
+query_insert_raw_groups, None)
             p_con._db_cur.execute(query_insert_raw_tasks, None)
             p_con._db_connection.commit()
             p_con._db_cur.close()
@@ -337,9 +338,9 @@ class BaseImport(object):
         fieldnames = (
                 'project_id',
                 'group_id',
+                'count',
                 'completedCount',
                 'verificationCount',
-                'count',
                 'info'
                 )
         w = csv.DictWriter(groups_txt_file, fieldnames=fieldnames, delimiter='\t', quotechar="'")
