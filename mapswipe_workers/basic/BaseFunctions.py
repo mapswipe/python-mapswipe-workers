@@ -1011,6 +1011,7 @@ def delete_project_firebase(project_id, import_key, firebase):
 
     return True
 
+
 def delete_project_postgres(project_id, import_key, postgres):
     """
     The function to delete results, tasks, groups, import of project in postgres.
@@ -1037,12 +1038,13 @@ def delete_project_postgres(project_id, import_key, postgres):
 
     p_con = postgres()
     sql_insert = """
+        BEGIN TRANSACTION;
         DELETE FROM projects WHERE project_id = %s;
         DELETE FROM results WHERE project_id = %s;
         DELETE FROM tasks WHERE project_id = %s;
         DELETE FROM groups WHERE project_id = %s;
         DELETE FROM imports WHERE import_id = %s
-
+        END TRANSACTION;
     """
     data = [int(project_id), int(project_id), int(project_id), int(project_id), str(import_key)]
     p_con.query(sql_insert, data)
