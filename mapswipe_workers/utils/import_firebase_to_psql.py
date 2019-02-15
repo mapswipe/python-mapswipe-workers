@@ -307,12 +307,21 @@ def download_all_groups_tasks(firebase):
 
     all_projects = fb_db.child("projects").get().val()
 
-    for project in all_projects.keys():
+    downloaded_groups = []
+    downloaded_files = os.listdir('data')
 
+    for file in downloaded_files:
+        if file.endswith('_groups.csv'):
+            downloaded_groups.append(file.split('_')[0])
+
+    for project in all_projects.keys():
+        # skip downlaoded groups
+        if project in downloaded_groups:
+            continue
         group_ids = fb_db.child("groups").child(project).shallow().get().val()
 
         # this tries to set the max pool connections to 100
-        adapter = requests.adapters.HTTPAdapter(max_retries=5, pool_connections=100, pool_maxsize=100)
+        adapter = requests.adapters.HTTPAdapter(max_retries=10, pool_connections=100, pool_maxsize=100)
         for scheme in ('http://', 'https://'):
             fb_db.requests.mount(scheme, adapter)
 
