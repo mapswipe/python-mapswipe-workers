@@ -6,7 +6,7 @@ from mapswipe_workers.basic import BaseFunctions
 
 def upload_sample_data_to_firebase():
     
-    firebase, postgres = BaseFunctions.get_environment('production')
+    firebase, postgres = BaseFunctions.get_environment('development')
     fb_db = firebase.database()
 
     with open('sample_data.json') as f:

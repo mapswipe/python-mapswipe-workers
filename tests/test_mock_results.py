@@ -95,7 +95,7 @@ def simulate_user_contributions(
 
 
 if __name__ == '__main__':
-    modus = 'production'
+    modus = 'development'
     firebase, postgres = BaseFunctions.get_environment(modus)
 
     filename = 'firebase_imported_projects.pickle'

@@ -9,7 +9,7 @@ def test_transfer_results():
         imported_projects = pickle.load(f)
 
     project_ids = [i[1] for i in imported_projects]
-    BaseFunctions.run_export('production', project_ids)
+    BaseFunctions.run_export('development', project_ids)
 
 
 if __name__ == '__main__':

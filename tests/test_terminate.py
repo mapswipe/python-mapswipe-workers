@@ -53,7 +53,7 @@ if __name__ == '__main__':
             This will delete all data in firebase and postgres\
             (Not only the sample data). Do you wish to continue?
             '''):
-        firebase, postgres = BaseFunctions.get_environment('production')
+        firebase, postgres = BaseFunctions.get_environment('development')
         fb_db = firebase.database()
         p_con = postgres()
 

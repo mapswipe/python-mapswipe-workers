@@ -9,7 +9,7 @@ def test_update():
         imported_projects = pickle.load(f)
 
     project_ids = [i[1] for i in imported_projects]
-    BaseFunctions.run_update('production', project_ids)
+    BaseFunctions.run_update('development', project_ids)
 
 
 if __name__ == '__main__':

@@ -4,10 +4,10 @@ from mapswipe_workers.basic import BaseFunctions
 
 
 def import_process():
-    firebase, postgres = BaseFunctions.get_environment('production')
+    firebase, postgres = BaseFunctions.get_environment('development')
     fb_db = firebase.database()
 
-    imported_projects = BaseFunctions.run_import('production')
+    imported_projects = BaseFunctions.run_import('development')
 
     # save all keys to disk
     filename = 'firebase_imported_projects.pickle'
