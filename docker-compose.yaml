@@ -101,6 +101,7 @@ services:
       - ./cfg/:/python-mapswipe-workers/cfg/:rw
       - ./data/:/python-mapswipe-workers/data/:rw
       - ./logs/:/python-mapswipe-workers/logs/:rw
+      - ./tests/:/python-mapswipe-workers/tests/:rw
     restart: "no"
     depends_on:
       - postgres
