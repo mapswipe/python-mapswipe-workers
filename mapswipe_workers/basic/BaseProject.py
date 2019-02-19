@@ -159,6 +159,9 @@ class BaseProject(object):
             # this functions downloads only the completed count per group from firebase
             try:
                 # establish a new connection to firebase
+                # check for empty group_id, caused by old grouping generation
+                if not group_id:
+                    continue
                 completed_count = fb_db.child("groups").child(self.id).child(group_id).child("completedCount").get().val()
 
                 # progress in percent, progress can't be bigger than 100
