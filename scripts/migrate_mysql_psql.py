@@ -79,7 +79,7 @@ def get_results(postgres):
     del p_con
     return msql_results_count, psql_results_count
 
-
+utils
 def create_materialized_views(postgres):
     p_con = postgres()
 

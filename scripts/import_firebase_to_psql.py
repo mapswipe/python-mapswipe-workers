@@ -416,11 +416,11 @@ if __name__ == '__main__':
 
     logging.basicConfig(format="%(asctime)s :: %(name)s :: %(levelname)s :: %(message)s",
                         datefmt="%Y-%m-%d %H:%M:%S",
-                        filename='./logs/utils_{}.log'.format(args.operation),
+                        filename='./logs/aux_{}.log'.format(args.operation),
                         filemode="a",
                         level=logging.INFO)
 
-    logger = logging.getLogger(name="utils_{}".format(args.operation))
+    logger = logging.getLogger(name="aux_{}".format(args.operation))
 
     firebase, postgres = b.get_environment(args.modus)
 

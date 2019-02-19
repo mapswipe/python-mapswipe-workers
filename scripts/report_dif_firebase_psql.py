@@ -92,10 +92,10 @@ if __name__ == '__main__':
 
     logging.basicConfig(format="%(asctime)s :: %(name)s :: %(levelname)s :: %(message)s",
                         datefmt="%Y-%m-%d %H:%M:%S",
-                        filename='./logs/utils_report.log',
+                        filename='./logs/aux_report.log',
                         filemode="a",
                         level=logging.INFO)
-    logger = logging.getLogger(name="utils_report")
+    logger = logging.getLogger(name="aux_report")
 
     logging.info("Operation started in mode %s." % args.modus)
 
