@@ -150,13 +150,3 @@ if __name__ == '__main__':
     # Generate mock results for first two of the imported projects
     for import_key, project_id, project_type in imported_projects:
         simulate_user_contributions(project_id, project_type, modus)
-
-    '''
-    project_id = imported_projects[0][1]
-    project_type = imported_projects[0][2]
-    
-
-    project_id = imported_projects[1][1]
-    project_type = imported_projects[1][2]
-    simulate_user_contributions(project_id, project_type, modus)
-    '''
