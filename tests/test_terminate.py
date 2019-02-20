@@ -3,61 +3,73 @@ import os.path
 from mapswipe_workers.basic import BaseFunctions
 
 
-def delete_sample_data_from_firebase(fb_db):
-    fb_db.child('imports').set({})
 
-    # if os.path.isfile('firebase_imports_keys.pickle'):
-    #     with open('firebase_imports_keys.pickle', 'rb') as f:
-    #         keys = pickle.load(f)
-    #     os.remove('firebase_imports_keys.pickle')
-    # else:
-    #     raise FileNotFoundError
+def delete_sample_data_from_firebase(firebase, project_id, import_key):
+    fb_db = firebase.database()
 
-    # for key in keys:
-    #     print(key)
-    #     fb_db.child('imports').child(key).remove()
+    # first delete the project, import and all groups
+    fb_db.update(
+        {
+            "projects/{}".format(project_id): None,
+            "groups/{}".format(project_id): None,
+            "imports/{}".format(import_key): None
+        }
+    )
+    print('delete the import, project and all groups in firebase')
+
+    # then delete all results for this project in firebase
+
+    # get all results from firebase
+    all_results = fb_db.child("results").get()
+
+    data = {}
+    for task_id, results in all_results.items():
+        for child_id, result in results.items():
+
+            print(result)
+
+            if result['projectId'] == project_id:
+                key = 'results/{task_id}/{child_id}'.format(
+                    task_id=task_id,
+                    child_id=child_id)
+
+                data[key] = None
+
+    fb_db.update(data)
 
 
-def delete_sample_groups_from_firebase(fb_db):
-    fb_db.child('groups').set({})
-    # os.remove('firebase_imports_keys.pickle')
 
 
-def delete_sample_projects_from_firebase(fb_db):
-    fb_db.child('projects').set({})
 
+def delete_sample_results_from_postgres(postgres, project_id, import_key):
+    p_con = postgres()
 
-def delete_sample_results_from_postgres(p_con):
     sql_query = '''
-        DELETE FROM projects;
-        DELETE FROM results;
-        DELETE FROM tasks;
-        DELETE FROM groups;
-        DELETE FROM imports;
+        DELETE FROM projects WHERE project_id = %s;
+        DELETE FROM results WHERE project_id = %s;
+        DELETE FROM tasks WHERE project_id = %s;
+        DELETE FROM groups WHERE project_id = %s;
+        DELETE FROM imports WHERE import_key = %s;
         '''
-    p_con.query(sql_query, [])
 
+    data = [
+        project_id,
+        project_id,
+        project_id,
+        project_id,
+        import_key
+    ]
 
-def yes_or_no(question):
-    reply = str(input(question+' (y/n): ')).lower().strip()
-    if reply[0] == 'y':
-        return True
-    if reply[0] == 'n':
-        return False
-    else:
-        return yes_or_no("Uhhhh... please enter ")
+    p_con.query(sql_query, data)
+    print('deleted import, project, groups, tasks, results in postgres')
 
 
 if __name__ == '__main__':
-    if yes_or_no('''
-            This will delete all data in firebase and postgres\
-            (Not only the sample data). Do you wish to continue?
-            '''):
-        firebase, postgres = BaseFunctions.get_environment('development')
-        fb_db = firebase.database()
-        p_con = postgres()
 
-        delete_sample_data_from_firebase(fb_db)
-        delete_sample_groups_from_firebase(fb_db)
-        delete_sample_projects_from_firebase(fb_db)
-        delete_sample_results_from_postgres(p_con)
+    firebase, postgres = BaseFunctions.get_environment('development')
+
+    for import_key, project_id, project_type in imported_projects:
+        delete_sample_data_from_firebase(firebase, project_id, import_key)
+        delete_sample_results_from_postgres(postgres, project_id, import_key)
+
+
