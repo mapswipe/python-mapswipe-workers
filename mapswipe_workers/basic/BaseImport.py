@@ -68,6 +68,7 @@ class BaseImport(object):
 
         for key in import_dict.keys():
             if key not in [
+                    'project',
                     'name',
                     'image',
                     'lookFor',
