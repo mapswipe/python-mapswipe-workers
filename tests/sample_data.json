@@ -44,7 +44,7 @@
   },
   "footprint_polygon_geometries": {
     "key": "your_key",
-    "inputGeometries" : "https://heibox.uni-heidelberg.de/f/7a61e549b6/?dl=1",
+    "inputGeometries" : "https://firebasestorage.googleapis.com/v0/b/dev-mapswipe.appspot.com/o/buildings_heidelberg.geojson?alt=media&token=1631f7d4-5fb2-4e1b-a133-2e14582d116c",
     "project" : {
       "image" : "http://www.fragosus.com/test/Javita.jpg",
       "lookFor" : "Buildings",
