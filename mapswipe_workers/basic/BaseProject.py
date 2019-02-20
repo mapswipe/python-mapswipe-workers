@@ -6,6 +6,7 @@ from queue import Queue
 import requests
 import time
 import json
+from psycopg2 import sql
 from mapswipe_workers.basic import BaseFunctions as b
 from mapswipe_workers.definitions import DATA_PATH
 
@@ -132,9 +133,69 @@ class BaseProject(object):
 
         self.get_contributors(postgres)
         self.set_contributors(firebase)
-        self.get_progress(firebase)
+        groups_progress_list = self.get_progress(firebase)
         self.set_progress(firebase)
         self.set_project_progress_postgres(postgres)
+        self.set_groups_progress_postgres(postgres, groups_progress_list)
+
+    def set_groups_progress_postgres(self, postgres, groups_progress_list):
+        """
+        The function to set completed count for every group which got new contributions in postgres
+
+        Parameters
+        ----------
+        groups_progress_list : list
+
+        Returns
+        -------
+        """
+
+        groups_progress_file_path = DATA_PATH + '/groups_progess.csv'
+        groups_progress_file = open(groups_progress_file_path,'w')
+
+        #print(groups_progress_list)
+        for item in groups_progress_list:
+            outline = '%i,%i,%i\n' %(int(item[0]), int(item[1]), int(item[2]))
+            groups_progress_file.write(outline)
+
+        groups_progress_file.close()
+        groups_progress_file = open(groups_progress_file_path, 'r')
+
+        p_con = postgres()
+
+        groups_progress_tablename = 'groups_progress'
+        groups_progress_columns = ('project_id', 'group_id', 'completedcount')
+        sql_insert = '''
+                    DROP TABLE IF EXISTS {};
+                    CREATE TABLE {} (
+                        project_id int
+                        ,group_id int
+                        ,completedCount int
+                    );'''
+        sql_insert = sql.SQL(sql_insert).format(sql.Identifier(groups_progress_tablename),
+                                                sql.Identifier(groups_progress_tablename))
+
+        p_con.query(sql_insert, None)
+        p_con.copy_from(groups_progress_file, groups_progress_tablename, sep=',', columns=groups_progress_columns)
+        groups_progress_file.close()
+
+        sql_insert = '''
+                Update public.groups
+                set groups.completedcount = b.completedcount 
+                from
+                    {} b
+                where 
+                    groups.group_id = b.group_id
+                    and groups.project_id = b.proejct_id;
+                DROP TABLE IF EXISTS {};
+                        '''
+        sql_insert = sql.SQL(sql_insert).format(sql.Identifier(groups_progress_tablename),
+                                                sql.Identifier(groups_progress_tablename))
+
+        del p_con
+        logging.warning('%s - set_groups_progress_postgres - finished setting groups progress in postgres' % self.id)
+
+
 
     def get_group_progress(self, q):
         """
@@ -235,6 +296,8 @@ class BaseProject(object):
         # calculate project progress
         self.progress = np.average(group_progress_list, axis=0)[-1]
         logging.warning('%s - get_progress - calculated progress. progress = %s' % (self.id, self.progress))
+
+        return group_progress_list
 
     def get_contributors(self, postgres):
         """
