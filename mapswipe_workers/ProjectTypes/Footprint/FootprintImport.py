@@ -41,8 +41,15 @@ class FootprintImport(BaseImport):
             try:
                 self.info["tileServerUrl"] = auth.get_tileserver_url(self.info['tileServer'])
             except:
-                logging.warning('%s - __init__ - we need a tilserver_url for the tileserver: %s' % (import_key, self.info['tileServer']))
+                logging.warning('%s - __init__ - we need a tile server url for the tileserver: %s' % (import_key, self.info['tileServer']))
                 raise Exception('Attribute "tileServerUrl" not provided in import_dict and not in "auth.get_tileserver_url" function.')
+        elif self.info['tileServerUrl'] == "":
+            try:
+                self.info["tileServerUrl"] = auth.get_tileserver_url(self.info['tileServer'])
+            except:
+                logging.warning('%s - __init__ - we need a tils server url for the tileserver: %s' % (import_key, self.info['tileServer']))
+                raise Exception('Attribute "tileServerUrl" not provided in import_dict and not in "auth.get_tileserver_url" function.')
+
 
         if not 'apiKey' in self.info.keys() and self.info['tileServer'] != 'custom':
             try:
