@@ -6,6 +6,7 @@ import csv
 from mapswipe_workers.definitions import DATA_PATH
 from mapswipe_workers.utils import error_handling
 from mapswipe_workers.basic import BaseFunctions as b
+from mapswipe_workers.basic import auth as auth
 
 
 class BaseImport(object):
@@ -47,6 +48,10 @@ class BaseImport(object):
         bool
            True if successful. False otherwise.
         """
+
+        # check if the submission key is correct
+        if not import_dict['key'] == auth.get_submission_key():
+            raise Exception("submission key is not valid: %s" % import_dict['key'])
 
         logging.warning('%s - __init__ - start init' % import_key)
         self.import_key = import_key
