@@ -86,7 +86,7 @@ if __name__ == '__main__':
 
         except Exception as error:
             logging.exception('ALL - run_mapswipe_workers - got exception')
-            #error_handling.send_error(error, args.process)
+            error_handling.send_error(error, args.process)
             logging.warning("XXX XXX XXX XXX XXX>>> errored {} <<<XXX XXX XXX XXX XXX".format(args.process))
 
         if counter < args.max_iterations:

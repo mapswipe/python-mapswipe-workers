@@ -25,6 +25,7 @@ class BuildAreaImport(BaseImport):
         # set group size
         self.info["groupSize"] = 50
 
+
         if not 'kml' in self.info.keys():
             logging.warning('%s - __init__ - you need to provide a kml geometry' % import_key)
             raise Exception('Attribute "kml" not provided in import_dict.')
@@ -37,6 +38,9 @@ class BuildAreaImport(BaseImport):
             logging.warning('%s - __init__ - you need to provide a zoom level name' % import_key)
             self.info['zoomLevel'] = 18
             logging.warning('%s - __init__ - we set zoom level to 18' % import_key)
+        else:
+            # make sure that zoom level is an integer, web formular import might generate a string
+            self.info['zoomLevel'] = int(self.info['zoomLevel'])
 
         # we need to get the tileserver_url if the tileserver is not custom
         if not 'tileServerUrl' in self.info.keys() and self.info['tileServer'] != 'custom':
