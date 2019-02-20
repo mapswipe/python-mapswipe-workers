@@ -1,6 +1,7 @@
 import json
 import pickle
 import os.path
+from mapswipe_workers.basic import auth
 from mapswipe_workers.basic import BaseFunctions
 
 
@@ -28,6 +29,13 @@ def upload_sample_data_to_firebase():
     with open(filename, 'wb') as f:
         pickle.dump(uploaded_project_keys, f)
 
+    for import_key in uploaded_project_keys:
+
+        fb_db.update(
+            {
+                "imports/{}/key".format(import_key): auth.get_submission_key()
+            }
+        )
 
 if __name__ == '__main__':
     upload_sample_data_to_firebase()
