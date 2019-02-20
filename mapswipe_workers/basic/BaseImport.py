@@ -74,7 +74,8 @@ class BaseImport(object):
                     'lookFor',
                     'projectDetails',
                     'verification_count',
-                    'projectType'
+                    'projectType',
+                    'key'
                     ]:
                 self.info[key] = import_dict[key]
 
