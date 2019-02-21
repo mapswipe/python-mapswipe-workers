@@ -155,8 +155,9 @@ class BaseProject(object):
 
         #print(groups_progress_list)
         for item in groups_progress_list:
-            outline = '%i,%i,%i\n' %(int(item[0]), int(item[1]), int(item[2]))
-            groups_progress_file.write(outline)
+            if int(item[2]) > 0:
+                outline = '%i,%i,%i\n' %(int(item[0]), int(item[1]), int(item[2]))
+                groups_progress_file.write(outline)
 
         groups_progress_file.close()
         groups_progress_file = open(groups_progress_file_path, 'r')
@@ -180,13 +181,13 @@ class BaseProject(object):
         groups_progress_file.close()
 
         sql_insert = '''
-                Update public.groups
-                set groups.completedcount = b.completedcount 
-                from
-                    {} b
-                where 
+                UPDATE groups
+                SET completedcount = b.completedcount 
+                FROM
+                    {} as b
+                WHERE 
                     groups.group_id = b.group_id
-                    and groups.project_id = b.proejct_id;
+                    and groups.project_id = b.project_id;
                 DROP TABLE IF EXISTS {};
                         '''
         sql_insert = sql.SQL(sql_insert).format(sql.Identifier(groups_progress_tablename),
