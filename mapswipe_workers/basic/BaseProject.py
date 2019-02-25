@@ -164,10 +164,10 @@ class BaseProject(object):
 
         p_con = postgres()
 
-        groups_progress_tablename = 'groups_progress'
+        # groups_progress_tablename = 'groups_progress'
         groups_progress_columns = ('project_id', 'group_id', 'completedcount')
         sql_insert = '''
-                    DROP TABLE IF EXISTS {};
+                    DROP TABLE IF EXISTS ;
                     CREATE TABLE {} (
                         project_id int
                         ,group_id int
@@ -192,6 +192,8 @@ class BaseProject(object):
                         '''
         sql_insert = sql.SQL(sql_insert).format(sql.Identifier(groups_progress_tablename),
                                                 sql.Identifier(groups_progress_tablename))
+
+        p_con.query(sql_insert, None)
 
         del p_con
         logging.warning('%s - set_groups_progress_postgres - finished setting groups progress in postgres' % self.id)
