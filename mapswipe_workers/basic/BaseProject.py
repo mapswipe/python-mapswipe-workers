@@ -167,7 +167,7 @@ class BaseProject(object):
         groups_progress_tablename = 'groups_progress'
         groups_progress_columns = ('project_id', 'group_id', 'completedcount')
         sql_insert = '''
-                    DROP TABLE IF EXISTS ;
+                    DROP TABLE IF EXISTS {};
                     CREATE TABLE {} (
                         project_id int
                         ,group_id int
@@ -191,7 +191,7 @@ class BaseProject(object):
                     groups.project_id = b.project_id
                     and
                     groups.completedcount =! b.completedcount;
-                DROP TABLE IF EXISTS {};
+                DROP TABLE IF EXISTS {} ;
                         '''
         sql_insert = sql.SQL(sql_insert).format(sql.Identifier(groups_progress_tablename),
                                                 sql.Identifier(groups_progress_tablename))
