@@ -22,19 +22,23 @@ def delete_sample_data_from_firebase(firebase, project_id, import_key):
     # get all results from firebase
     all_results = fb_db.child("results").get().val()
 
-    data = {}
-    for task_id, results in all_results.items():
-        for child_id, result in results.items():
+    if not all_results:
+        print('there are no results in firebase')
+        pass
+    else:
+        data = {}
+        for task_id, results in all_results.items():
+            for child_id, result in results.items():
 
-            if result['data']['projectId'] == project_id:
-                key = 'results/{task_id}/{child_id}'.format(
-                    task_id=task_id,
-                    child_id=child_id)
+                if result['data']['projectId'] == project_id:
+                    key = 'results/{task_id}/{child_id}'.format(
+                        task_id=task_id,
+                        child_id=child_id)
 
-                data[key] = None
+                    data[key] = None
 
-    fb_db.update(data)
-    print('deleted all results for project %s' % project_id)
+        fb_db.update(data)
+        print('deleted all results for project %s' % project_id)
 
 
 
