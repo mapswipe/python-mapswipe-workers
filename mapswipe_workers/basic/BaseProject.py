@@ -164,7 +164,7 @@ class BaseProject(object):
 
         p_con = postgres()
 
-        # groups_progress_tablename = 'groups_progress'
+        groups_progress_tablename = 'groups_progress'
         groups_progress_columns = ('project_id', 'group_id', 'completedcount')
         sql_insert = '''
                     DROP TABLE IF EXISTS ;
