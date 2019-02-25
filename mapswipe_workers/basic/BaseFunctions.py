@@ -12,6 +12,7 @@ import requests
 from typing import Union
 
 from mapswipe_workers.utils import error_handling
+from mapswipe_workers.utils import slack
 from mapswipe_workers.definitions import DATA_PATH
 from mapswipe_workers.definitions import CustomError
 from mapswipe_workers.basic import auth
@@ -372,6 +373,24 @@ def run_import(modus):
             # and now let's finally create a project
             project_id, project_type = imp.create_project(firebase, postgres)
             imported_projects.append((imp.import_key, project_id, project_type))
+            try:
+                msg = """
+                IMPORT SUCCESSFUL
+                
+                project-name: %s
+                import-key: %s
+                project-id: %s
+                project-type: %s
+                
+                Make sure to activate the project in firebase.
+                
+                Happy Swiping. :)
+                """ % (imp.name, import_key, project_id, project_type)
+
+                slack.send_slack_message(msg)
+            except:
+                logging.exception('could not send slack message.')
+
         except CustomError as error:
             error_handling.send_error(error, import_key)
             logging.exception('%s - get_new_imports - import failed' % import_key)

@@ -307,8 +307,7 @@ class BaseImport(object):
                         size=8192,
                         columns=tasks_columns
                         )
-            p_con._db_cur.execute(
-query_insert_raw_groups, None)
+            p_con._db_cur.execute(query_insert_raw_groups, None)
             p_con._db_cur.execute(query_insert_raw_tasks, None)
             p_con._db_connection.commit()
             p_con._db_cur.close()
