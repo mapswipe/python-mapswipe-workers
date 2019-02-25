@@ -190,7 +190,7 @@ class BaseProject(object):
                     and
                     groups.project_id = b.project_id
                     and
-                    groups.completedcount =! b.completedcount;
+                    groups.completedcount !=  b.completedcount;
                 DROP TABLE IF EXISTS {} ;
                         '''
         sql_insert = sql.SQL(sql_insert).format(sql.Identifier(groups_progress_tablename),
