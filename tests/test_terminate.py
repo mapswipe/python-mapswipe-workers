@@ -68,15 +68,18 @@ def delete_sample_results_from_postgres(postgres, project_id, import_key):
 
 def delete_local_files(project_id, import_key):
 
-    os.remove(DATA_PATH+'results/results_{}.json'.format(project_id))
-    os.remove(DATA_PATH+'progress/progress_{}.json'.format(project_id))
-    os.remove(DATA_PATH+'progress/progress_{}.json'.format(project_id))
+    try:
+        os.remove(DATA_PATH+'/results/results_{}.json'.format(project_id))
+        os.remove(DATA_PATH+'/progress/progress_{}.json'.format(project_id))
+        os.remove(DATA_PATH+'/progress/progress_{}.json'.format(project_id))
+    except:
+        pass
 
     try:
-        os.remove(DATA_PATH+'input_geometries/raw_input_{}.geojson'.format(import_key))
-        os.remove(DATA_PATH+'input_geometries/valid_input_{}.geojson'.format(import_key))
+        os.remove(DATA_PATH+'/input_geometries/raw_input_{}.geojson'.format(import_key))
+        os.remove(DATA_PATH+'/input_geometries/valid_input_{}.geojson'.format(import_key))
     except:
-        os.remove(DATA_PATH + 'input_geometries/raw_input_{}.kml'.format(import_key))
+        os.remove(DATA_PATH + '/input_geometries/raw_input_{}.kml'.format(import_key))
 
 
 if __name__ == '__main__':
