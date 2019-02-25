@@ -507,8 +507,8 @@ def update_users_postgres(firebase, postgres, users_txt_filename='raw_users.txt'
 
         ON CONFLICT ON CONSTRAINT "users_pkey"
           DO UPDATE SET contributions = excluded.contributions
-          ,distance = excluded.distance
-        ;
+          ,distance = excluded.distance;
+        DROP TABLE IF EXISTS raw_users CASCADE;
         '''  # conflict action https://www.postgresql.org/docs/current/sql-insert.html
     p_con.query(sql_insert, None)
     logging.warning('ALL - update_users - inserted results into users table and updated contributions and/or distance')
@@ -724,7 +724,8 @@ def save_results_postgres(postgres, results_filename):
         FROM
           raw_results
         ON CONFLICT ON CONSTRAINT "results_pkey"
-          DO UPDATE SET duplicates = results.duplicates + 1
+          DO UPDATE SET duplicates = results.duplicates + 1;
+        DROP TABLE IF EXISTS raw_results CASCADE;
     '''
 
     p_con.query(sql_insert, None)

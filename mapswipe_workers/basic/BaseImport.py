@@ -239,7 +239,8 @@ class BaseImport(object):
             SELECT
               *
             FROM
-              raw_groups
+              raw_groups;
+            DROP TABLE IF EXISTS raw_groups CASCADE;
             '''
 
         query_recreate_raw_tasks =  '''
@@ -258,7 +259,8 @@ class BaseImport(object):
             SELECT
               *
             FROM
-              raw_tasks
+              raw_tasks;
+            DROP TABLE IF EXISTS raw_tasks CASCADE;
             '''
 
         groups_txt_filename = self.create_groups_txt_file(project_id, groups_dict)
