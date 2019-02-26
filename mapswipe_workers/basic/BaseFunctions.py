@@ -374,18 +374,7 @@ def run_import(modus):
             project_id, project_type = imp.create_project(firebase, postgres)
             imported_projects.append((imp.import_key, project_id, project_type))
             try:
-                msg = """
-                IMPORT SUCCESSFUL
-                
-                project-name: %s
-                import-key: %s
-                project-id: %s
-                project-type: %s
-                
-                Make sure to activate the project in firebase.
-                
-                Happy Swiping. :)
-                """ % (imp.name, import_key, project_id, project_type)
+                msg = "### IMPORT SUCCESSFUL ### \nproject-name: %s \nimport-key: %s \nproject-id: %s \nproject-type: %s \nMake sure to activate the project in firebase. \nHappy Swiping. :)" % (imp.name, import_key, project_id, project_type)
 
                 slack.send_slack_message(msg)
             except:
@@ -850,6 +839,14 @@ def export_all_projects(firebase):
     else:
         # save projects as json
         output_json_file = '{}/projects.json'.format(DATA_PATH)
+
+        # don't export api key
+        for project_id in all_projects.keys():
+            try:
+                del all_projects[project_id]['info']['apiKey']
+            except:
+                pass
+
         with open(output_json_file, 'w') as outfile:
             json.dump(all_projects, outfile, indent=4)
         logging.warning('ALL - export_all_projects - exported projects file: %s' % output_json_file)
