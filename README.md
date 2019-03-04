@@ -8,7 +8,7 @@ The python-mapswipe-workers consist of several python scripts. They do the follo
 * **update**: generate up-to-date statistics in the app, e.g. progress and number of contributors per project
 * **export**: provide access to MapSwipe data in json-format
 
-We created a documentation for this project at [readthedocs](https://mapswipe-workers.readthedocs.io/en/master/).
+We created a documentation for this project at [Read the Docs](https://mapswipe-workers.readthedocs.io/en/master/).
 
 ## Project Types
 The MapSwipe backend workers currently support the following project types:
