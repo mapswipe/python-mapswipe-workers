@@ -10,10 +10,6 @@ def upload_sample_data_to_firebase():
     firebase, postgres = BaseFunctions.get_environment('development')
     fb_db = firebase.database()
 
-    adapter = requests.adapters.HTTPAdapter(max_retries=5, pool_connections=100, pool_maxsize=100)
-    for scheme in ('http://', 'https://'):
-        fb_db.requests.mount(scheme, adapter)
-
     with open('sample_data.json') as f:
         sample_data = json.load(f)
 

@@ -172,6 +172,7 @@ class BaseImport(object):
         """
 
         fb_db = firebase.database()
+        fb_db.requests.get = b.myRequestsSession().get
 
         project_keys = fb_db.child('projects').shallow().get().val()
         if not project_keys:

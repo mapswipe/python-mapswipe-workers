@@ -608,7 +608,6 @@ def delete_firebase_results(firebase, all_results):
     """
 
     fb_db = firebase.database()
-    fb_db.requests.get = myRequestsSession().get
     # we will use multilocation update to deete the entries
     # therefore we crate an dict with the items we want to delete
     data = {}
@@ -804,12 +803,6 @@ def run_transfer_results(modus):
 
     fb_db = firebase.database()
     fb_db.requests.get = myRequestsSession().get
-
-    # this tries to set the max pool connections to 100
-    adapter = requests.adapters.HTTPAdapter(max_retries=5, pool_connections=100, pool_maxsize=100)
-    for scheme in ('http://', 'https://'):
-        fb_db.requests.mount(scheme, adapter)
-
     # download all results and save as in json file to avoid data loss when script fails
     all_results = fb_db.child("results").get().val()
     del fb_db
@@ -1040,7 +1033,6 @@ def delete_project_firebase(project_id, import_key, firebase):
     """
 
     fb_db = firebase.database()
-    fb_db.requests.get = myRequestsSession().get
     # we create this element to do a multi location update
     data = {
         "projects/{}/".format(project_id): None,

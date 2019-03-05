@@ -61,6 +61,7 @@ class BaseProject(object):
             raise Exception("can't init project.")
         else:
             fb_db = firebase.database()
+            fb_db.requests.get = b.myRequestsSession().get
             project_data = fb_db.child("projects").child(project_id).get().val()
 
             # we set attributes based on the data from firebase
@@ -271,10 +272,7 @@ class BaseProject(object):
         """
 
         fb_db = firebase.database()
-        # this tries to set the max pool connections to 100
-        adapter = requests.adapters.HTTPAdapter(max_retries=5, pool_connections=100, pool_maxsize=100)
-        for scheme in ('http://', 'https://'):
-            fb_db.requests.mount(scheme, adapter)
+        fb_db.requests.get = b.myRequestsSession().get
 
         # it is important to use the shallow option, only keys will be loaded and not the complete json
         all_groups = fb_db.child("groups").child(self.id).shallow().get().val()
