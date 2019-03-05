@@ -37,8 +37,12 @@ class myRequestsSession(requests.Session):
     def __init__(self):
         super(myRequestsSession, self).__init__()
 
+        adapter = requests.adapters.HTTPAdapter(max_retries=5, pool_connections=100, pool_maxsize=100)
+        for scheme in ('http://', 'https://'):
+            self.mount(scheme, adapter)
+
     def get(self, request_ref, headers, timeout=30):
-        print('Using customized get request with a timeout of 30 seconds.')
+        # print('Using customized get request with a timeout of 30 seconds.')
         return super(myRequestsSession, self).get(request_ref, headers=headers, timeout=timeout)
 
 
