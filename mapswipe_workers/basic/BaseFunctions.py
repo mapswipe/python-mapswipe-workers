@@ -29,6 +29,23 @@ from mapswipe_workers.ProjectTypes.Footprint.FootprintProject import FootprintPr
 ########################################################################################################################
 # INIT                                                                                                                 #
 ########################################################################################################################
+class myRequestsSession(requests.Session):
+    """
+    The class to replace the get function to allow a timeout parameter to be set.
+    """
+
+    def __init__(self):
+        super(myRequestsSession, self).__init__()
+
+        adapter = requests.adapters.HTTPAdapter(max_retries=5, pool_connections=100, pool_maxsize=100)
+        for scheme in ('http://', 'https://'):
+            self.mount(scheme, adapter)
+
+    def get(self, request_ref, headers, timeout=30):
+        # print('Using customized get request with a timeout of 30 seconds.')
+        return super(myRequestsSession, self).get(request_ref, headers=headers, timeout=timeout)
+
+
 def get_environment(modus='development'):
     """
     The function to get the firebase and postgres configuration
@@ -145,6 +162,7 @@ def get_projects(firebase, postgres, filter='all'):
     projects_list = []
 
     fb_db = firebase.database()
+    fb_db.requests.get = myRequestsSession().get
     all_projects = fb_db.child("projects").get().val()
     
     # return empty list if there are no projects in firebase
@@ -230,6 +248,7 @@ def project_exists_firebase(project_id, firebase):
     """
 
     fb_db = firebase.database()
+    fb_db.requests.get = myRequestsSession().get
     project_data = fb_db.child("projects").child(project_id).get().val()
 
     if not project_data:
@@ -320,6 +339,7 @@ def get_new_imports(firebase):
     """
 
     fb_db = firebase.database()
+    fb_db.requests.get = myRequestsSession().get
     all_imports = fb_db.child("imports").get().val()
 
     new_imports = {}
@@ -554,6 +574,7 @@ def get_results_from_firebase(firebase):
     """
 
     fb_db = firebase.database()
+    fb_db.requests.get = myRequestsSession().get
     results = fb_db.child("results").get().val()
     return results
 
@@ -781,12 +802,7 @@ def run_transfer_results(modus):
         logging.warning('ALL - run_transfer_results - removed "results.json" file')
 
     fb_db = firebase.database()
-
-    # this tries to set the max pool connections to 100
-    adapter = requests.adapters.HTTPAdapter(max_retries=5, pool_connections=100, pool_maxsize=100)
-    for scheme in ('http://', 'https://'):
-        fb_db.requests.mount(scheme, adapter)
-
+    fb_db.requests.get = myRequestsSession().get
     # download all results and save as in json file to avoid data loss when script fails
     all_results = fb_db.child("results").get().val()
     del fb_db
@@ -831,6 +847,7 @@ def export_all_projects(firebase):
         os.mkdir(DATA_PATH)
 
     fb_db = firebase.database()
+    fb_db.requests.get = myRequestsSession().get
     all_projects = fb_db.child("projects").get().val()
 
     if not all_projects:
@@ -872,6 +889,7 @@ def export_users_and_stats(firebase):
         os.mkdir(DATA_PATH)
 
     fb_db = firebase.database()
+    fb_db.requests.get = myRequestsSession().get
     all_users = fb_db.child("users").get().val()
 
     if not all_users:
