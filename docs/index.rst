@@ -43,6 +43,7 @@ Welcome to Mapswipe Workers's documentation!
    :caption: Miscellaneous:
    
    testing
+   diagrams
    project_type-proposal
    project_type-enable
 
