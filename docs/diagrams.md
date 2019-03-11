@@ -6,8 +6,8 @@ In the next MapSwipe version release (MapSwipe for Change Detection Analysis) th
 
 The Diagrams are drawn using [draw.io](https://.wwww.draw.io). You can download the `diagram.xml` file in the GitHub repository (docs/\_static/img/) and upload it to draw.io if you want to edit it
 
-![Deployment Diagram](/_static/diagram/deployment_diagram.png)
-![Database Schema - Firebase](/_static/diagram/database_schema-firebase.png)
-![Database Schema - Postgres](/_static/diagram/database_schema-postgres.png)
-![Database Schema - Analytics](/_static/diagram/database_schema-analytics.png)
-![Entity Relationship Diagram- Postgres](/_static/diagram/database_schema-postgres.png)
+![Deployment Diagram](/_static/img/deployment_diagram.png)
+![Database Schema - Firebase](/_static/img/database_schema-firebase.png)
+![Database Schema - Postgres](/_static/img/database_schema-postgres.png)
+![Database Schema - Analytics](/_static/img/database_schema-analytics.png)
+![Entity Relationship Diagram- Postgres](/_static/img/database_schema-postgres.png)
