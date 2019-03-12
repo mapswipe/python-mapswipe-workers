@@ -11,8 +11,13 @@ The Diagrams are drawn using [draw.io](https://.wwww.draw.io). You can download 
 
 ---
 
-**Database Schema - Firebase:**
-![Database Schema - Firebase](/_static/img/database_schema-firebase.png)
+**Current Data Structure - Firebase:**
+![Data Structure - Firebase](/_static/img/data_structure-current-firebase.png)
+
+---
+
+**Proposed Data Structure - Firebase:**
+![Data Structure - Firebase](/_static/img/data_structure-firebase.png)
 
 ---
 
