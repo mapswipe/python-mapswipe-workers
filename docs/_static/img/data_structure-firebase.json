@@ -1,35 +1,20 @@
 {
-    "groups": {
-        "projectId1": {
-            "groupId1": {
-                "completedcount": 1,
-                "count": 1,
-                "neededCount": 10,
-                "verificationCount": 1,
-                "xMax": 5,
-                "xMin": 6,
-                "yMax": 3,
-                "yMin": 4,
-                "zoomLevel": 1
-            }
-        }
-    },
-    "imports": {
-        "importId1": {
+    "projectDrafts": {
+        "projectDraftId1": {
             "complete": true,
             "key": "key",
             "kml": "kml",
+            "projectType": 1,
+            "tileServer": "url",
+            "wmtsLayerName": "layer",
+            "zoomLeve": 3,
             "project": {
                 "image": "image",
                 "lookFor": "text",
                 "name": "name",
                 "projectDetails": "text",
                 "verificationCount": 3
-            },
-            "projectType": 1,
-            "tileServer": "url",
-            "wmtsLayerName": "layer",
-            "zoomLeve": 3
+            }
         }
     },
     "projects": {
@@ -38,6 +23,13 @@
             "groupAverage": 2,
             "image": "image",
             "importKey": "importKey",
+            "isFeatured": true,
+            "lookFor": "text",
+            "progress": 44,
+            "projectDetails": "details",
+            "projectType": 2,
+            "state": 1,
+            "verificationCount": 1,
             "info": {
                 "apiKey": "Text string",
                 "groupSize": "Text string",
@@ -45,29 +37,36 @@
                 "tileServer": "Text string",
                 "tileServerUrl": "Text string",
                 "validinputGeometries": "Text string"
-            },
-            "isFeatured": true,
-            "lookFor": "text",
-            "progress": 44,
-            "projectDetails": "details",
-            "projectType": 2,
-            "state": 1,
-            "verificationCount": 1
+            }
         }
     },
-    "results": {
+    "users": {
+        "userId1": {
+            "distance": 1,
+            "username": "name",
+            "contributionCount": 1,
+            "contributions": {
+                "projectId1": {
+                    "groupId1": true
+                },
+                "projectId2": {
+                    "groupId2": true
+                }
+            }
+        }
+    },
+    "groups": {
         "projectId1": {
             "groupId1": {
-                "taskId1": {
-                    "userId1": {
-                        "resultId1": {
-                            "item": 1,
-                            "result": 1,
-                            "timestamp": 1,
-                            "wkt": "wkt"
-                        }
-                    }
-                }
+                "count": 1,
+                "neededCount": 10,
+                "completedCount": 1,
+                "verificationCount": 1,
+                "xMax": 5,
+                "xMin": 6,
+                "yMax": 3,
+                "yMin": 4,
+                "zoomLevel": 1
             }
         }
     },
@@ -84,11 +83,18 @@
             }
         }
     },
-    "users": {
-        "userId1": {
-            "contributions": 1,
-            "distance": 1,
-            "username": "name"
+    "results": {
+        "projectId1": {
+            "groupId1": {
+                "userId1": {
+                    "timestamp": "timestamp",
+                    "resultCount": 1,
+                    "taskId1": {
+                        "item": 1,
+                        "result": 1
+                    }
+                }
+            }
         }
     }
 }
