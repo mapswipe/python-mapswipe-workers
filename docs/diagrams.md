@@ -26,10 +26,13 @@ The Diagrams are drawn using [draw.io](https://.wwww.draw.io). You can download 
 
 ---
 
+**Entity Relationship Diagram - Postgres:**
+![Entity Relationship Diagram- Postgres](/_static/img/entity_relationship_diagram-postgres.png)
+
+---
+
 **Database Schema - Analytics:**
 ![Database Schema - Analytics](/_static/img/database_schema-analytics.png)
 
 ---
 
-**Entity Relationshipe Diagram - Postgres:**
-![Entity Relationship Diagram- Postgres](/_static/img/database_schema-postgres.png)
