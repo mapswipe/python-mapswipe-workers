@@ -6,7 +6,7 @@ import csv
 from mapswipe_workers.definitions import DATA_PATH
 from mapswipe_workers.utils import error_handling
 from mapswipe_workers.basic import BaseFunctions as b
-from mapswipe_workers.basic import auth as auth
+from mapswipe_workers.basic import auth
 
 
 class BaseImport(object):
@@ -15,8 +15,8 @@ class BaseImport(object):
 
     Attributes
     ----------
-    import_key : str
-        The key of an import as depicted in firebase
+    project_draft_id: str
+        The key of a project draft as depicted in firebase
     name : str
         The name of a project
     project_details : str
@@ -32,16 +32,15 @@ class BaseImport(object):
                 set by specific types of projects
     """
 
-    def __init__(self, import_key, import_dict):
+    def __init__(self, project_draft_id, project_draft):
         """
         The function to initialize a new import
 
         Parameters
         ----------
-        import_key : str
-            The key of an import as depicted in firebase
-        import_dict: dict
-            A dictionary containing all attributes of the import
+        project_draft_id : str
+        project_draft: dict
+            A dictionary containing all attributes of the project_draft
 
         Returns
         -------
@@ -50,46 +49,38 @@ class BaseImport(object):
         """
 
         # check if the submission key is correct
-        if not import_dict['key'] == auth.get_submission_key():
-            raise Exception("submission key is not valid: %s" % import_dict['key'])
+        submission_key = project_draft['key']
+        if not submission_key == auth.get_submission_key():
+            raise Exception(f"submission key is not valid: {submission_key}")
 
-        logging.warning('%s - __init__ - start init' % import_key)
-        self.import_key = import_key
+        logging.warning(f'{submission_key} - __init__ - start init')
 
-        # set the attributes from the parameters provided in the import_dict
-        self.name = import_dict['project']['name']
-        self.image = import_dict['project']['image']
-        self.look_for = import_dict['project']['lookFor']
-        self.project_details = import_dict['project']['projectDetails']
-        self.verification_count = int(import_dict['project']['verificationCount'])
+        self.project_draft_id = project_draft_id
+        self.project_type = project_draft['projectType'],
+        self.name = project_draft['name']
+        self.image = project_draft['image']
+        self.look_for = project_draft['lookFor']
+        self.project_details = project_draft['projectDetails']
+        self.verification_count = int(project_draft['verificationCount'])
 
         # eveything else will be stored in the info dict
         self.info = {}
-
-        for key in import_dict.keys():
+        for key in project_draft.keys():
             if key not in [
-                    'project',
                     'name',
                     'image',
                     'lookFor',
                     'projectDetails',
-                    'verification_count',
-                    'projectType',
+                    'verificationCount',
+                    'projectType'
                     'key'
                     ]:
-                self.info[key] = import_dict[key]
+                self.info[key] = project_draft[key]
 
 
-    def create_project(self, firebase, postgres):
+    def create_project(self):
         """
         The function to import a new project in firebase and postgres.
-
-        Parameters
-        ----------
-        firebase : pyrebase firebase object
-            initialized firebase app with admin authentication
-        postgres : database connection class
-            The database connection to postgres database
 
         Returns
         -------
@@ -97,17 +88,33 @@ class BaseImport(object):
             project_id and project_type
         """
 
+        fb_db = auth.firebaseDB()
+        psql_db = auth.psqlDB()
+
+        projects_ref = fb_db.reference('projects/')
+        groups_ref = fb_db.reference('groups/')
+        tasks_ref = fb_db.reference('tasks/')
+
         try:
-            logging.warning('%s - import_project - start importing' % self.import_key)
+            logging.warning(f'{self.project_draft_id}\
+                    - import_project - start importing')
 
-            # get a new project id
-            project_id = self.get_new_project_id(firebase)
+            # create a new empty project in firebase
+            new_project_ref = projects_ref.push()
+            # get the project id of new created project
+            project_id = new_project_ref.key
 
-            # create groups dict for this project.
+            # create groups and tasks for this project.
             # this function is defined by the respective type of this project
-            groups_dict = self.create_groups(project_id)
+            groups = self.create_groups(project_id)
 
-            project_dict = {
+            # extract tasks from groups
+            tasks = {}
+            for group in groups:
+                tasks[group.id] = group['tasks']
+                del group['tasks']
+
+            project = {
                 "id": project_id,
                 "projectType": self.project_type,
                 "name": self.name,
@@ -115,10 +122,10 @@ class BaseImport(object):
                 "lookFor": self.look_for,
                 "projectDetails": self.project_details,
                 "verificationCount": self.verification_count,
-                "importKey": self.import_key,
+                "projectDraftId": self.project_draft_id,
                 "info": self.info,
                 "isFeatured": False,
-                "state": 3,
+                "status": 'inactive',
                 "groupAverage": 0,
                 "progress": 0,
                 "contributors": 0
@@ -126,26 +133,39 @@ class BaseImport(object):
 
             # upload data to postgres
             self.execute_import_queries(
-                    postgres,
+                    pg_db,
                     project_id,
-                    project_dict,
-                    groups_dict
+                    project,
+                    groups,
+                    tasks,
                     )
 
             # upload data to firebase
-            self.set_project_firebase(firebase, project_dict)
-            self.set_groups_firebase(firebase, project_id, groups_dict)
+            new_project_ref.set(project)
+            logging.warning('%s - uploaded project in firebase' % project['id'])
 
-            # set import complete in firebase
-            self.set_import_complete(firebase)
-            logging.warning('%s - import_project - import finished' % self.import_key)
-            logging.warning('%s - import_project - imported new project with id: %s' % (self.import_key, project_id))
+            new_groups_ref = (f'{groups_ref}/{project_id}/')
+            new_groups.ref.set(groups)
+            logging.warning('%s - uploaded groups in firebase' % project_id)
+
+            new_tasks_ref = (f'{tasks_ref}/{project_id}/')
+            new_tasks_ref.set(tasks)
+            logging.warning('%s - uploaded tasks in firebase' % project_id)
+
+            # TODO
+            # # set import complete in firebase
+            # self.set_import_complete(firebase)
+            # logging.warning('%s - import_project - import finished' % self.import_key)
+            # logging.warning('%s - import_project - imported new project with id: %s' % (self.import_key, project_id))
+            # upload data to firebase
+
             return (project_id, self.project_type)
 
         except Exception as e:
-            logging.warning('%s - import_project - could not import project' % self.import_key)
-            logging.warning("%s - import_project - %s" % (self.import_key, e))
+            logging.warning('%s - import_project - could not import project' % self.project_draft_id)
+            logging.warning("%s - import_project - %s" % (self.project_draft_id, e))
             error_handling.log_error(e, logging)
+
             return (None, None)
 
 
@@ -170,6 +190,7 @@ class BaseImport(object):
             more information here:\
                     https://firebase.googleblog.com/2014/04/best-practices-arrays-in-firebase.html
         """
+        # TODO: Delete this function when made sure it is not used anymore
 
         fb_db = firebase.database()
         fb_db.requests.get = b.myRequestsSession().get
@@ -190,33 +211,39 @@ class BaseImport(object):
         return new_project_id
 
 
-    def execute_import_queries(self, postgres, project_id, project_dict, groups_dict):
+    def execute_import_queries(self, project_id, project, groups):
         '''
         Defines SQL queries and data for import a project into postgres.
         SQL queries will be executed as transaction.
         (Either every query will be executed or none)
         '''
+        # TODO: Where will this function be called? -> In create_project()
 
-        query_insert_import = 'INSERT INTO imports Values(%s,%s);'
+        query_insert_import = '''
+            INSERT INTO projectDrafts
+            VALUES (%s,%s);
+            '''
 
-        data_import = [self.import_key, json.dumps(vars(self))]
+        data_import = [self.project_draft_id, json.dumps(vars(self))]
 
         query_insert_project = '''
-            INSERT INTO projects Values(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s);
+            INSERT INTO projects
+            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s);
             '''
+
 
         data_project = [
             int(project_dict['contributors']),
             int(project_dict['groupAverage']),
             int(project_dict['id']),
             project_dict['image'],
-            project_dict['importKey'],
+            project_dict['projectDraftId'],
             project_dict['isFeatured'],
             project_dict['lookFor'],
             project_dict['name'],
             project_dict['progress'],
             project_dict['projectDetails'],
-            int(project_dict['state']),
+            project_dict['status'],
             int(project_dict['verificationCount']),
             int(project_dict['projectType']),
             json.dumps(project_dict['info'])
@@ -225,47 +252,46 @@ class BaseImport(object):
         query_recreate_raw_groups = '''
             DROP TABLE IF EXISTS raw_groups CASCADE;
             CREATE TABLE raw_groups (
-              project_id int
-              ,group_id int
-              ,count int
-              ,completedCount int
-              ,verificationCount int
-              ,info json
+              project_id int,
+              group_id int,
+              count int,
+              completedCount int,
+              verificationCount int,
+              info json,
+              PRIMARY KEY (group_id, project_id),
+              FOREIGN KEY (project_id) REFERENCES projects(project_id)
             );
             '''
 
         query_insert_raw_groups = '''
-            INSERT INTO
-              groups
-            SELECT
-              *
-            FROM
-              raw_groups;
+            INSERT INTO groups
+            SELECT *
+            FROM raw_groups;
             DROP TABLE IF EXISTS raw_groups CASCADE;
             '''
 
-        query_recreate_raw_tasks =  '''
+        query_recreate_raw_tasks = '''
             DROP TABLE IF EXISTS raw_tasks CASCADE;
             CREATE TABLE raw_tasks (
-                task_id varchar
-                ,group_id int
-                ,project_id int
-                ,info json
+                task_id varchar,
+                group_id int,
+                project_id int,
+                info json,
+                PRIMARY KEY (task_id, group_id, project_id),
+                FOREIGN KEY (project_id) REFERENCES projects(project_id),
+                FOREIGN KEY (group_id) REFERENCES groups(group_id)
             );
             '''
 
         query_insert_raw_tasks = '''
-            INSERT INTO
-              tasks
-            SELECT
-              *
-            FROM
-              raw_tasks;
+            INSERT INTO tasks
+            SELECT *
+            FROM raw_tasks;
             DROP TABLE IF EXISTS raw_tasks CASCADE;
             '''
 
-        groups_txt_filename = self.create_groups_txt_file(project_id, groups_dict)
-        tasks_txt_filename = self.create_tasks_txt_file(project_id, groups_dict)
+        groups_txt_filename = self.create_groups_txt_file(project_id, groups)
+        tasks_txt_filename = self.create_tasks_txt_file(project_id, groups)
 
         groups_columns = [
                 'project_id',
@@ -275,6 +301,7 @@ class BaseImport(object):
                 'verificationCount',
                 'info'
                 ]
+
         tasks_columns = [
                 'task_id',
                 'project_id',
@@ -366,7 +393,7 @@ class BaseImport(object):
                 }
 
                 for key in groups[group].keys():
-                    if not key in [
+                    if key not in [
                             'project_id',
                             'group_id',
                             'count',
@@ -388,7 +415,7 @@ class BaseImport(object):
         return groups_txt_filename
 
 
-    def create_tasks_txt_file(self, project_id, groups):
+    def create_tasks_txt_file(self, project_id, tasks):
         """
         Creates a text file containing tasks information for a specific project.
         It interates over groups and extracts tasks.
@@ -398,12 +425,12 @@ class BaseImport(object):
         ----------
         project_id : int
             The id of the project
-        groups : dictionary
-            Dictionary containing groups of a project
+        tasks : dictionary
+            Dictionary containing tasks of a project
 
         Returns
         -------
-        string 
+        string
             Filename
         """
 
@@ -417,80 +444,27 @@ class BaseImport(object):
         fieldnames = ('task_id', 'project_id', 'group_id', 'info')
         w = csv.DictWriter(tasks_txt_file, fieldnames=fieldnames, delimiter='\t', quotechar="'")
 
-        for group in groups:
-            for task in groups[group]['tasks']:
-
+        for group in tasks:
+            group_id = int(group)
+            for task in group:
                 try:
                     output_dict = {
-                        "task_id": groups[group]['tasks'][task]['id'],
-                        "project_id": project_id,
-                        "group_id": int(group),
-                        "info": {}
-                    }
-
-                    for key in groups[group]['tasks'][task].keys():
-                        if not key in ['id', 'projectId']:
-                            output_dict['info'][key] = groups[group]['tasks'][task][key]
+                            "task_id": str(task),
+                            "project_id": task['project_id'],
+                            "group_id": group_id,
+                            "info": {}
+                            }
+                    for key in task.keys():
+                        if key not in ['task_id', 'projectId', 'group_id']:
+                            output_dict['info'][key] = [task][key]
                     output_dict['info'] = json.dumps(output_dict['info'])
 
                     w.writerow(output_dict)
-
                 except Exception as e:
                     logging.warning('%s - set_tasks_postgres - tasks missed critical information: %s' % (project_id, e))
 
         tasks_txt_file.close()
-
         return tasks_txt_filename
-
-
-    def set_project_firebase(self, firebase, project_dict):
-        """
-        Upload the project information to the firebase projects table
-
-        Parameters
-        ----------
-        firebase : pyrebase firebase object
-            initialized firebase app with admin authentication
-        project_dict : dict
-            a dictionary containing all project attributes (e.g. Name, Description, Project Type...)
-
-        Returns
-        -------
-        bool
-            True if successful. False otherwise
-
-        Notes
-        -----
-        We don't upload all information to firebase
-        We need to be careful with spelling here
-        We do this to avoid uploading groups, etc.
-        """
-
-        fb_db = firebase.database()
-        fb_db.child("projects").child(project_dict['id']).set(project_dict)
-        logging.warning('%s - set_project_firebase - uploaded project in firebase' % project_dict['id'])
-        return True
-
-
-    def set_groups_firebase(self, firebase, project_id, groups):
-        """
-        The function to upload groups to firebase
-
-        Parameters
-        ----------
-        firebase : pyrebase firebase object
-            initialized firebase app with admin authentication
-
-        Returns
-        -------
-        bool
-            True if groups have been uploaded to firebase, False otherwise
-        """
-
-        # upload groups in firebase
-        fb_db = firebase.database()
-        fb_db.child("groups").child(project_id).set(groups)
-        logging.warning('%s - set_groups_firebase - uploaded groups in firebase' % project_id)
 
 
     def set_import_complete(self, firebase):
@@ -511,9 +485,11 @@ class BaseImport(object):
         bool
             True if successful. False otherwise
         """
+        # TODO: Do we need this funciton?
 
         fb_db = firebase.database()
-        fb_db.child("imports").child(self.import_key).child('complete').set(True)
+        fb_db.child("imports").child(self.project_draft_id).child('complete').set(True)
 
-        logging.warning('%s - set_import_complete - set import complete' % self.import_key)
+        logging.warning(f'{self.project_draft_id}\
+                - set_import_complete - set import complete')
         return True
