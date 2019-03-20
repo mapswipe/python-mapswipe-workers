@@ -4,17 +4,15 @@
             "complete": true,
             "key": "key",
             "kml": "kml",
-            "projectType": 1,
+            "projectType": 2,
             "tileServer": "url",
             "wmtsLayerName": "layer",
             "zoomLeve": 3,
-            "project": {
-                "image": "image",
-                "lookFor": "text",
-                "name": "name",
-                "projectDetails": "text",
-                "verificationCount": 3
-            }
+            "image": "image",
+            "lookFor": "text",
+            "name": "name",
+            "projectDetails": "text",
+            "verificationCount": 3
         }
     },
     "projects": {
@@ -29,15 +27,15 @@
             "projectDetails": "details",
             "projectType": 2,
             "state": 1,
+            "status": "active",
             "verificationCount": 1,
-            "info": {
-                "apiKey": "Text string",
-                "groupSize": "Text string",
-                "inputGeometries": "Text string",
-                "tileServer": "Text string",
-                "tileServerUrl": "Text string",
-                "validinputGeometries": "Text string"
-            }
+            "progress": 0.8,
+            "apiKey": "Text string",
+            "groupSize": "Text string",
+            "inputGeometries": "Text string",
+            "tileServer": "Text string",
+            "tileServerUrl": "Text string",
+            "validinputGeometries": "Text string"
         }
     },
     "users": {
@@ -47,10 +45,7 @@
             "contributionCount": 1,
             "contributions": {
                 "projectId1": {
-                    "groupId1": true
-                },
-                "projectId2": {
-                    "groupId2": true
+                    "groupId1": "timestamp"
                 }
             }
         }
@@ -62,11 +57,7 @@
                 "neededCount": 10,
                 "completedCount": 1,
                 "verificationCount": 1,
-                "xMax": 5,
-                "xMin": 6,
-                "yMax": 3,
-                "yMin": 4,
-                "zoomLevel": 1
+                "progress": 0.8
             }
         }
     },
@@ -74,11 +65,11 @@
         "projectId1": {
             "groupId1": {
                 "taskId1": {
-                    "taskX": 1,
-                    "taskY": 2,
-                    "taskZ": 3,
-                    "url": "url",
-                    "wkt": "wkt"
+                    "featureId": 1,
+                    "geojson": {
+                        "coordinates": 0,
+                        "type": "type"
+                    }
                 }
             }
         }
@@ -90,7 +81,6 @@
                     "timestamp": "timestamp",
                     "resultCount": 1,
                     "taskId1": {
-                        "item": 1,
                         "result": 1
                     }
                 }
