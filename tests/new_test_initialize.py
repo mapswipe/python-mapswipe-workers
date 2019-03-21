@@ -14,7 +14,7 @@ def create_project_drafts_in_firebase(ref):
     project_draft_keys = []
     for project in sample_project_drafts:
         project_draft_keys.append(
-                ref.push(sample_project_drafts[project])
+                ref.push(sample_project_drafts[project]).key
                 )
 
     save_project_draft_keys_to_disk(project_draft_keys)
@@ -40,8 +40,8 @@ def save_project_draft_keys_to_disk(project_draft_keys):
 
 if __name__ == '__main__':
 
-    db = auth.firebaseDB
+    db = auth.firebaseDB()
 
-    ref = db.reference('imports/')
+    ref = db.reference('projectDrafts/')
 
     create_project_drafts_in_firebase(ref)
