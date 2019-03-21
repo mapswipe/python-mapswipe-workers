@@ -159,7 +159,7 @@ class BaseImport(object):
             # logging.warning('%s - import_project - imported new project with id: %s' % (self.import_key, project_id))
             # upload data to firebase
 
-            return (project_id, self.project_type)
+            return project_id
 
         except Exception as e:
             logging.warning('%s - import_project - could not import project' % self.project_draft_id)

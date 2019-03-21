@@ -323,9 +323,9 @@ def project_exists_postgres(project_id, postgres):
 
 
 
-def get_new_imports(firebase):
+def get_new_project_drafts():
     """
-    The function to get new project imports from firebase which have not been imported
+    The function to get new project drafts from firebase
 
     Parameters
     ----------
@@ -334,26 +334,29 @@ def get_new_imports(firebase):
 
     Returns
     -------
-    new_imports : dict
-        a dictionary of imports which have not been imported already
+    new_project_drafts : list
+        a list of imports which have not been imported already
     """
+    # TODO: Check if deleting projectDraft after creation makes sense
 
-    fb_db = firebase.database()
-    fb_db.requests.get = myRequestsSession().get
-    all_imports = fb_db.child("imports").get().val()
+    fb_db = auth.firebaseDB()
+    ref = fb_db.reference('projectDrafts/')
+    project_drafts= ref.get()
 
-    new_imports = {}
-    if all_imports:
-        for import_key, new_import in all_imports.items():
-            try:
-                # check if project was already imported and "complete" is set
-                complete = new_import['complete']
-            except:
-                # insert into new projects dict
-                new_imports[import_key] = new_import
+    # key: project_draft_id
+    # value: dict containing project_draft
+    for project_draft_id, project_draft in project_drafts.items():
+        project_draft['project_draft_id'] = project_draft_id
 
-    logging.warning('ALL - get_new_imports - got %s projects which have not been imported' % len(new_imports))
-    return new_imports
+    new_project_drafts = list()
+    if project_drafts:
+     for project_draft in project_drafts:
+         if project_draft['complete']:
+             continue
+         else:
+             new_project_drafts.append(project_draft)
+
+    return new_project_drafts
 
 
 def run_import(modus):
@@ -370,20 +373,19 @@ def run_import(modus):
     imported_projects : list
         list of tuple with import_key, project_id and project_type of imported projects
     """
+    # TODO: delete this function after run_creat_project is working
 
-    # get dev or production environment for firebase and postgres
-    firebase, postgres = get_environment(modus)
+    fb_db = auth.firebaseDB()
 
-    # this will return a list of imports
     imported_projects = []
 
     # check for new imports in firebase
-    imports = get_new_imports(firebase)
+    project_drafts = get_new_project_drafts(firebase)
 
-    for import_key, import_dict in imports.items():
+    for project_draft_id, project_draft in project_drafts.items():
         # let's have a look at the project type
         try:
-            project_type = import_dict['projectType']
+            project_type = project_draft['projectType']
         except:
             project_type = 1
 
@@ -407,6 +409,63 @@ def run_import(modus):
 
     return imported_projects
 
+
+def run_create_project():
+    """
+    A function to create all newly imported projects in firebase
+
+    Parameters
+    ----------
+    modus : str
+        either `development` or `production to decide which firebase configuration to use
+
+    Returns
+    -------
+    created_projects : list
+        list of tuple with import_key, project_id and project_type of imported projects
+    """
+    project_types = {
+        # Make sure to import all project types here
+        1: BuildAreaImport,
+        2: FootprintImport
+    }
+
+    fb_db = auth.firebaseDB()
+
+    project_drafts = get_new_project_drafts(firebase)
+    created_project_ids = list()
+
+    for project_draft in project_drafts:
+        # let's have a look at the project type
+        try:
+            project_type = int(project_draft['projectType'])
+        except:
+            project_type = 1
+
+        try:
+             project = project_types[project_type](project_draft)
+             project_id = project.create_project()
+             created_project_ids.append(project_id)
+            try:
+
+                slack.send_slack_message(f'### IMPORT SUCCESSFUL ### \n
+                project_name: {project_draft["name"]}\n
+                project_draft_id: {project_draft["project_draft_id"] \n
+                project_id: {project_id} \n
+                project-type: {project_types[project_type]}\n
+                Make sure to activate the project in firebase. \n
+                Happy Swiping. :)')
+            except:
+                logging.exception('could not send slack message.')
+
+        except CustomError as error:
+            error_handling.send_error(error, import_key)
+            logging.exception(f'{project_draft_id} \
+                    - get_new_imports - \
+                    import failed')
+            continue
+
+    return created_project_ids
 
 ########################################################################################################################
 # UPDATE                                                                                                               #
