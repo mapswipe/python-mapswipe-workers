@@ -3,7 +3,6 @@
         "projectDraftId1": {
             "complete": true,
             "key": "key",
-            "kml": "kml",
             "projectType": 2,
             "tileServer": "url",
             "wmtsLayerName": "layer",
