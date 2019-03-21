@@ -1,10 +1,11 @@
-from mapswipe_workers.basic.BaseTask import *
+from mapswipe_workers.basic.BaseTask import BaseTask
 from mapswipe_workers.ProjectTypes.BuildArea import TileFunctions as t
 
 
 class BuildAreaTask(BaseTask):
     """
-        The subclass of BaseTask to specify tasks of the footprint project type.
+        The subclass of BaseTask to specify tasks of the footprint \
+                project type.
 
         Attributes
         ----------
@@ -19,13 +20,15 @@ class BuildAreaTask(BaseTask):
         taskZ: int
             Zoom level of the respective imagery of the task
         url: str
-            URL pointing to the respective imagery of the specified tiled imagery server
+            URL pointing to the respective imagery of the specified \
+                    tiled imagery server
 
 
     """
     def __init__(self, group, imp, TileX, TileY):
         """
-            The Constructor method for a group instance of the footprint project type.
+            The Constructor method for a group instance of the \
+                    footprint project type.
 
         Parameters
         ----------
@@ -60,8 +63,7 @@ class BuildAreaTask(BaseTask):
             imp.info['layerName']
         )
 
-        # we no longer provide wkt geometry, you can calc using some python scripts
+        # we no longer provide wkt geometry,
+        # you can calc using some python scripts
         # self.wkt = geometry_from_tile_coords(TileX, TileY, group.zoomlevel)
         self.wkt = ''
-
-
