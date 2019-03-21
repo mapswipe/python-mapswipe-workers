@@ -49,7 +49,7 @@ class BaseImport(object):
         """
 
         # check if the submission key is correct
-        submission_key = project_draft['key']
+        submission_key = project_draft['submissionKey']
         if not submission_key == auth.get_submission_key():
             raise Exception(f"submission key is not valid: {submission_key}")
 
