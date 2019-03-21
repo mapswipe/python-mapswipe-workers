@@ -18,9 +18,9 @@ class BuildAreaImport(BaseImport):
 
     project_type = 1
 
-    def __init__(self, project_draft_id, project_draft):
+    def __init__(self, project_draft):
         # this will create the basis attributes
-        super().__init__(project_draft_id, project_draft)
+        super().__init__(project_draft)
 
         # set group size
         self.info["groupSize"] = 50
@@ -92,8 +92,10 @@ class BuildAreaImport(BaseImport):
         self.validate_geometries()
 
     def validate_geometries(self):
-        raw_input_file = f'{DATA_PATH}/input_geometries/\
-                raw_input_{self.project_draft_id}.kml'
+        raw_input_file = (
+                f'{DATA_PATH}/input_geometries/'
+                f'raw_input_{self.project_draft_id}.kml'
+                )
 # check if a 'data' folder exists and create one if not
         if not os.path.isdir('{}/input_geometries'.format(DATA_PATH)):
             os.mkdir('{}/input_geometries'.format(DATA_PATH))

@@ -5,7 +5,7 @@ from mapswipe_workers.basic import BaseFunctions
 
 
 def test_import_process():
-    imported_projects = BaseFunctions.run_import('production')
+    imported_projects = BaseFunctions.run_create_project()
 
     # save all keys to disk
     filename = 'imported_project_ids.pickle'

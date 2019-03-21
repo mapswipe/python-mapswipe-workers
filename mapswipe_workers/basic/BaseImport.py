@@ -32,7 +32,7 @@ class BaseImport(object):
                 set by specific types of projects
     """
 
-    def __init__(self, project_draft_id, project_draft):
+    def __init__(self, project_draft):
         """
         The function to initialize a new import
 
@@ -55,7 +55,7 @@ class BaseImport(object):
 
         logging.warning(f'{submission_key} - __init__ - start init')
 
-        self.project_draft_id = project_draft_id
+        self.project_draft_id = project_draft['project_draft_id']
         self.project_type = project_draft['projectType'],
         self.name = project_draft['name']
         self.image = project_draft['image']
@@ -78,7 +78,7 @@ class BaseImport(object):
                 self.info[key] = project_draft[key]
 
 
-    def create_project(self):
+    def create_project(self, fb_db):
         """
         The function to import a new project in firebase and postgres.
 
@@ -88,17 +88,15 @@ class BaseImport(object):
             project_id and project_type
         """
 
-        fb_db = auth.firebaseDB()
-        psql_db = auth.psqlDB()
-
-        projects_ref = fb_db.reference('projects/')
-        groups_ref = fb_db.reference('groups/')
-        tasks_ref = fb_db.reference('tasks/')
+        # psql_db = auth.psqlDB()
 
         try:
-            logging.warning(f'{self.project_draft_id}\
-                    - import_project - start importing')
+            logging.warning(
+                f'{self.project_draft_id}'
+                f'- import_project - start importing'
+                )
 
+            projects_ref = fb_db.reference('projects/')
             # create a new empty project in firebase
             new_project_ref = projects_ref.push()
             # get the project id of new created project
@@ -109,9 +107,9 @@ class BaseImport(object):
             groups = self.create_groups(project_id)
 
             # extract tasks from groups
-            tasks = {}
-            for group in groups:
-                tasks[group.id] = group['tasks']
+            tasks = dict()
+            for group_id, group in groups.items():
+                tasks[group_id] = group['tasks']
                 del group['tasks']
 
             project = {
@@ -132,23 +130,24 @@ class BaseImport(object):
             }
 
             # upload data to postgres
-            self.execute_import_queries(
-                    pg_db,
-                    project_id,
-                    project,
-                    groups,
-                    tasks,
-                    )
+            # TODO: upload data to postgres! -> uncomment:
+            # self.execute_import_queries(
+            #         pg_db,
+            #         project_id,
+            #         project,
+            #         groups,
+            #         tasks,
+            #         )
 
             # upload data to firebase
             new_project_ref.set(project)
             logging.warning('%s - uploaded project in firebase' % project['id'])
 
-            new_groups_ref = (f'{groups_ref}/{project_id}/')
-            new_groups.ref.set(groups)
+            new_groups_ref = fb_db.reference(f'groups/{project_id}/')
+            new_groups_ref.set(groups)
             logging.warning('%s - uploaded groups in firebase' % project_id)
 
-            new_tasks_ref = (f'{tasks_ref}/{project_id}/')
+            new_tasks_ref = fb_db.reference(f'tasks/{project_id}/')
             new_tasks_ref.set(tasks)
             logging.warning('%s - uploaded tasks in firebase' % project_id)
 
@@ -490,6 +489,7 @@ class BaseImport(object):
         fb_db = firebase.database()
         fb_db.child("imports").child(self.project_draft_id).child('complete').set(True)
 
-        logging.warning(f'{self.project_draft_id}\
-                - set_import_complete - set import complete')
+        logging.warning(
+            f'{self.project_draft_id} '
+            f'- set_import_complete - set import complete')
         return True
