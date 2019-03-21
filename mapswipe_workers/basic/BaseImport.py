@@ -73,7 +73,7 @@ class BaseImport(object):
                     'projectDetails',
                     'verificationCount',
                     'projectType'
-                    'key'
+                    'submissionKey'
                     ]:
                 self.info[key] = project_draft[key]
 
