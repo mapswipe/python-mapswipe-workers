@@ -26,23 +26,29 @@ class BuildAreaImport(BaseImport):
         self.info["groupSize"] = 50
 
         if 'kml' not in self.info.keys():
-            logging.warning(f'{self.project_draft_id} \
-                    - __init__ -  a kml geometry needs to be provided')
+            logging.warning(
+                    f'{self.project_draft_id}'
+                    f'- __init__ -  a kml geometry needs to be provided'
+                    )
             raise Exception('Attribute "kml" not provided in project_draft.')
 
         if 'tileServer' not in self.info.keys():
-            logging.warning(f'{self.project_draft_id} \
-                    - __init__ - a tilesever name needs to be provided')
-            raise Exception(
-                    'Attribute "tileServer" not provided in project_draft.'
+            logging.warning(
+                    f'{self.project_draft_id}'
+                    f'- __init__ - a tilesever name needs to be provided'
                     )
+            raise Exception('Attribute "tileServer" not provided in project_draft.')
 
         if 'zoomLevel' not in self.info.keys():
-            logging.warning(f'{self.project_draft_id} \
-                    - __init__ - a zoom level needs to be provided')
+            logging.warning(
+                    f'{self.project_draft_id}'
+                    f'- __init__ - a zoom level needs to be provided'
+                    )
             self.info['zoomLevel'] = 18
-            logging.warning(f'{self.project_draft_id} \
-                    - __init__ - zoom level is set to 18')
+            logging.warning(
+                    f'{self.project_draft_id}'
+                    f'- __init__ - zoom level is set to 18'
+                    )
         else:
             self.info['zoomLevel'] = int(self.info['zoomLevel'])
 
@@ -54,10 +60,12 @@ class BuildAreaImport(BaseImport):
                         self.info['tileServer']
                         )
             except:
-                logging.warning(f'{self.project_draft_id} \
-                        - __init__ - no tileServerUrl is given \
-                        and tileServer ({self.info["tileServer"]}\
-                        is not preconfigured)')
+                logging.warning(
+                        f'{self.project_draft_id}'
+                        f' - __init__ - no tileServerUrl is given '
+                        f'and tileServer ({self.info["tileServer"]} '
+                        f'is not preconfigured)'
+                        )
                 raise Exception('Attribute "tileServerUrl" \
                         not provided in project_draft and \
                         not in "auth.get_tileserver_url" function.')
@@ -66,9 +74,11 @@ class BuildAreaImport(BaseImport):
         # if the tileserver is custom
         elif ('tileServerUrl' not in self.info.keys() and
                 self.info['tileServer'] == 'custom'):
-            logging.warning(f'{self.project_draft_id} \
-                    - __init__ - we need a tilserver_url for the tileserver: \
-                    {self.infp["tileServer"]}')
+            logging.warning(
+                    f'{self.project_draft_id}'
+                    f' - __init__ - we need a tilserver_url for the tileserver: '
+                    f'{self.infp["tileServer"]}'
+                    )
             raise Exception('Attribute "tileServerUrl" not \
                     provided in project_draft for custom tileserver')
 
@@ -77,10 +87,12 @@ class BuildAreaImport(BaseImport):
             try:
                 self.info['apiKey'] = auth.get_api_key(self.info['tileServer'])
             except:
-                logging.warning(f'{self.project_draft_id} \
-                        - __init__ - we need an api key for the tileserver: \
-                        {self.info["tileServer"]}')
-                raise Exception('Attribute "api_key" not provided in project_draft\
+                logging.warning(
+                        f'{self.project_draft_id}'
+                        f' - __init__ - we need an api key for the tileserver: '
+                        f'{self.info["tileServer"]}'
+                        )
+                raise Exception('Attribute "api_key" not provided in project_draft \
                         and not in "auth.get_api_key" function.')
 
         elif ('apiKey' not in self.info.keys() and
@@ -96,7 +108,7 @@ class BuildAreaImport(BaseImport):
                 f'{DATA_PATH}/input_geometries/'
                 f'raw_input_{self.project_draft_id}.kml'
                 )
-# check if a 'data' folder exists and create one if not
+        # check if a 'data' folder exists and create one if not
         if not os.path.isdir('{}/input_geometries'.format(DATA_PATH)):
             os.mkdir('{}/input_geometries'.format(DATA_PATH))
 
@@ -110,17 +122,21 @@ class BuildAreaImport(BaseImport):
 
         # check if layer is empty
         if layer.GetFeatureCount() < 1:
-            logging.warning(f'{self.project_draft_id} \
-                    - check_input_geometry - \
-                    Empty file. \
-                    No geometries are provided')
+            logging.warning(
+                    f'{self.project_draft_id}'
+                    f' - check_input_geometry - '
+                    f'Empty file. '
+                    f'No geometries are provided'
+                    )
             return False
             # check if more than 1 geometry is provided
         elif layer.GetFeatureCount() > 1:
-            logging.warning(f'{self.project_draft_id} \
-                    - check_input_geometry - \
-                    Input file contains more than one geometry.\
-                    Make sure to provide exact one input geometry.')
+            logging.warning(
+                    f'{self.project_draft_id}'
+                    f' - check_input_geometry - '
+                    f'Input file contains more than one geometry.'
+                    f'Make sure to provide exact one input geometry.'
+                    )
             return False
 
         # check if the input geometry is a valid polygon
@@ -128,19 +144,23 @@ class BuildAreaImport(BaseImport):
             feat_geom = feature.GetGeometryRef()
             geom_name = feat_geom.GetGeometryName()
             if not feat_geom.IsValid():
-                logging.warning(f'{self.project_draft_id} \
-                        - check_input_geometry - \
-                        Geometry is not valid: {geom_name}. \
-                        Tested with IsValid() ogr method. \
-                        Probably self-intersections.')
+                logging.warning(
+                        f'{self.project_draft_id}'
+                        f' - check_input_geometry - '
+                        f'Geometry is not valid: {geom_name}. '
+                        f'Tested with IsValid() ogr method. '
+                        f'Probably self-intersections.'
+                        )
                 return False
 
             # we accept only POLYGON or MULTIPOLYGON geometries
             if geom_name != 'POLYGON' and geom_name != 'MULTIPOLYGON':
-                logging.warning(f'{self.project_draft_id} \
-                        - check_input_geometry - \
-                        Invalid geometry type: {geom_name}. \
-                        Please provide "POLYGON" or "MULTIPOLYGON"')
+                logging.warning(
+                        f'{self.project_draft_id}'
+                        f' - check_input_geometry - '
+                        f'Invalid geometry type: {geom_name}. '
+                        f'Please provide "POLYGON" or "MULTIPOLYGON"'
+                        )
                 return False
 
         del datasource
@@ -173,7 +193,9 @@ class BuildAreaImport(BaseImport):
             group = BuildAreaGroup(self, project_id, group_id, slice)
             groups[group.id] = group.to_dict()
 
-        logging.warning(f'{self.project_draft_id} \
-                - create_groups - \
-                created groups dictionary')
+        logging.warning(
+                f'{self.project_draft_id}'
+                f' - create_groups - '
+                f'created groups dictionary'
+            )
         return groups

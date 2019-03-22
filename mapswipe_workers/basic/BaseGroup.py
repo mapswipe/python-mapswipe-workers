@@ -16,6 +16,7 @@ class BaseGroup(object):
              Number of tasks associated with the group
 
     """
+
     def __init__(self, imp: object, project_id: int, group_id: int):
         """
         The Constructor Method for a group instance
