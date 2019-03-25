@@ -55,6 +55,8 @@ class BaseImport(object):
 
         logging.warning(f'{submission_key} - __init__ - start init')
 
+        # TODO: remove project_draft_id
+        # (there should be one id for project and projectDraft)
         self.project_draft_id = project_draft['project_draft_id']
         self.project_type = project_draft['projectType'],
         self.name = project_draft['name']
@@ -77,8 +79,7 @@ class BaseImport(object):
                     ]:
                 self.info[key] = project_draft[key]
 
-
-    def create_project(self, fb_db):
+        def create_project(self, fb_db):
         """
         The function to import a new project in firebase and postgres.
 
@@ -87,20 +88,23 @@ class BaseImport(object):
         tuple
             project_id and project_type
         """
-
         # psql_db = auth.psqlDB()
-
         try:
             logging.warning(
                 f'{self.project_draft_id}'
                 f'- import_project - start importing'
                 )
 
-            projects_ref = fb_db.reference('projects/')
-            # create a new empty project in firebase
-            new_project_ref = projects_ref.push()
+            # TODO: remove if project_draft_id and project_id are the same
+            # projects_ref = fb_db.reference('projects/')
+            # # create a new empty project in firebase
+            # new_project_ref = projects_ref.push()
+            # # get the project id of new created project
+            # project_id = new_project_ref.key
+
+            project_id = self.project_draft_id
+            new_project_ref = fb_db.reference(f'projects/{project_id}')
             # get the project id of new created project
-            project_id = new_project_ref.key
 
             # create groups and tasks for this project.
             # this function is defined by the respective type of this project
@@ -141,7 +145,9 @@ class BaseImport(object):
 
             # upload data to firebase
             new_project_ref.set(project)
-            logging.warning('%s - uploaded project in firebase' % project['id'])
+            logging.warning(
+                    '%s - uploaded project in firebase' % project['id']
+                    )
 
             new_groups_ref = fb_db.reference(f'groups/{project_id}/')
             new_groups_ref.set(groups)
@@ -151,22 +157,36 @@ class BaseImport(object):
             new_tasks_ref.set(tasks)
             logging.warning('%s - uploaded tasks in firebase' % project_id)
 
-            # TODO
-            # # set import complete in firebase
-            # self.set_import_complete(firebase)
-            # logging.warning('%s - import_project - import finished' % self.import_key)
-            # logging.warning('%s - import_project - imported new project with id: %s' % (self.import_key, project_id))
-            # upload data to firebase
+            project_draft_ref = fb_db.reference(
+                    f'projectDrafts/{self.project_draft_id}/complete'
+                    )
+            project_draft_ref.set(True)
 
+            logging.warning(
+                f'{self.project_draft_id} '
+                f'- set_import_complete - set import complete'
+                )
+            logging.warning(
+                    '%s - import_project - import finished' % self.import_key
+                    )
+            logging.warning(
+                    f'{self.project_draft_id}'
+                    f' - import_project - '
+                    f'imported new project with id: {project_id}'
+                    )
             return project_id
 
         except Exception as e:
-            logging.warning('%s - import_project - could not import project' % self.project_draft_id)
-            logging.warning("%s - import_project - %s" % (self.project_draft_id, e))
+            logging.warning(
+                    f'{self.project_draft_id}'
+                    f' - import_project - '
+                    f'could not import project'
+                    )
+            logging.warning(
+                    "%s - import_project - %s" % (self.project_draft_id, e))
             error_handling.log_error(e, logging)
 
             return (None, None)
-
 
     def get_new_project_id(self, firebase):
         """
@@ -196,19 +216,25 @@ class BaseImport(object):
 
         project_keys = fb_db.child('projects').shallow().get().val()
         if not project_keys:
-            # set mininum project id to 1000, if no project has been imported yet
+            # set mininum project id to 1000,
+            # if no project has been imported yet
             project_keys = [1000]
 
         project_ids = list(map(int, list(project_keys)))
         project_ids.sort()
         highest_project_id = project_ids[-1]
 
-        logging.warning('ALL - get_new_project_id - highest existing project id: %s' % highest_project_id)
+        logging.warning(
+                f'ALL - get_new_project_id - '
+                f'highest existing project id: {highest_project_id}'
+                )
         new_project_id = highest_project_id + 2
 
-        logging.warning('ALL - get_new_project_id - returned new project id: %s' % new_project_id)
+        logging.warning(
+                f'ALL - get_new_project_id - '
+                f'returned new project id: {new_project_id}'
+                )
         return new_project_id
-
 
     def execute_import_queries(self, project_id, project, groups):
         '''
@@ -229,7 +255,6 @@ class BaseImport(object):
             INSERT INTO projects
             VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s);
             '''
-
 
         data_project = [
             int(project_dict['contributors']),
@@ -345,10 +370,10 @@ class BaseImport(object):
         os.remove(groups_txt_filename)
         os.remove(tasks_txt_filename)
 
-
     def create_groups_txt_file(self, project_id, groups):
         """
-        Creates a text file containing groups information for a specific project.
+        Creates a text file containing groups information
+        for a specific project.
         The text file is temporary and used only by BaseImport module.
 
         Parameters
@@ -367,8 +392,9 @@ class BaseImport(object):
         if not os.path.isdir('{}/tmp'.format(DATA_PATH)):
             os.mkdir('{}/tmp'.format(DATA_PATH))
 
-        # create txt file with header for later import with copy function into postgres
-        groups_txt_filename = '{}/tmp/raw_groups_{}.txt'.format(DATA_PATH, project_id)
+        # create txt file with header for later
+        # import with copy function into postgres
+        groups_txt_filename = f'{DATA_PATH}/tmp/raw_groups_{project_id}.txt'
         groups_txt_file = open(groups_txt_filename, 'w', newline='')
         fieldnames = (
                 'project_id',
@@ -378,7 +404,12 @@ class BaseImport(object):
                 'verificationCount',
                 'info'
                 )
-        w = csv.DictWriter(groups_txt_file, fieldnames=fieldnames, delimiter='\t', quotechar="'")
+        w = csv.DictWriter(
+                groups_txt_file,
+                fieldnames=fieldnames,
+                delimiter='\t',
+                quotechar="'",
+                )
 
         for group in groups:
             try:
@@ -387,7 +418,9 @@ class BaseImport(object):
                     "group_id": int(groups[group]['id']),
                     "count": int(groups[group]['count']),
                     "completedCount": int(groups[group]['completedCount']),
-                    "verificationCount": int(groups[group]['verificationCount']),
+                    "verificationCount": int(
+                        groups[group]['verificationCount']
+                        ),
                     "info": {}
                 }
 
@@ -406,17 +439,21 @@ class BaseImport(object):
                 w.writerow(output_dict)
 
             except Exception as e:
-                logging.warning('%s - set_groups_postgres - groups missed critical information: %s' % (project_id, e))
+                logging.warning(
+                        f'{project_id}'
+                        f' - set_groups_postgres - '
+                        f'groups missed critical information: {e}'
+                        )
                 error_handling.log_error(e, logging)
 
         groups_txt_file.close()
 
         return groups_txt_filename
 
-
     def create_tasks_txt_file(self, project_id, tasks):
         """
-        Creates a text file containing tasks information for a specific project.
+        Creates a text file containing tasks information
+        for a specific project.
         It interates over groups and extracts tasks.
         The text file is temporary and used only by BaseImport module.
 
@@ -437,11 +474,16 @@ class BaseImport(object):
             os.mkdir('{}/tmp'.format(DATA_PATH))
 
         # save tasks in txt file
-        tasks_txt_filename = '{}/tmp/raw_tasks_{}.txt'.format(DATA_PATH, project_id)
+        tasks_txt_filename = f'{DATA_PATH}/tmp/raw_tasks_{project_id}.txt'
         tasks_txt_file = open(tasks_txt_filename, 'w', newline='')
 
         fieldnames = ('task_id', 'project_id', 'group_id', 'info')
-        w = csv.DictWriter(tasks_txt_file, fieldnames=fieldnames, delimiter='\t', quotechar="'")
+        w = csv.DictWriter(
+                tasks_txt_file,
+                fieldnames=fieldnames,
+                delimiter='\t',
+                quotechar="'",
+                )
 
         for group in tasks:
             group_id = int(group)
@@ -460,36 +502,11 @@ class BaseImport(object):
 
                     w.writerow(output_dict)
                 except Exception as e:
-                    logging.warning('%s - set_tasks_postgres - tasks missed critical information: %s' % (project_id, e))
+                    logging.warning(
+                            f'{project_id}'
+                            f' - set_tasks_postgres - '
+                            f'tasks missed critical information: {e}'
+                            )
 
         tasks_txt_file.close()
         return tasks_txt_filename
-
-
-    def set_import_complete(self, firebase):
-        """
-        The function to set an import as complete by adding a "complete" attribute in firebase
-
-        Parameters
-        ----------
-        firebase : pyrebase firebase object
-            initialized firebase app with admin authentication
-        project_id : int
-            The id of the project
-        groups : dictionary
-            Dictionary containing groups of a project
-
-        Returns
-        -------
-        bool
-            True if successful. False otherwise
-        """
-        # TODO: Do we need this funciton?
-
-        fb_db = firebase.database()
-        fb_db.child("imports").child(self.project_draft_id).child('complete').set(True)
-
-        logging.warning(
-            f'{self.project_draft_id} '
-            f'- set_import_complete - set import complete')
-        return True

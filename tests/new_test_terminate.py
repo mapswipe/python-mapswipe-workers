@@ -64,22 +64,22 @@ if __name__ == '__main__':
     #pg_db = auth.postgresDB()
     fb_db = auth.firebaseDB()
 
-    filename = 'firebase_project_ids.pickle'
+    filename = 'created_project_ids.pickle'
     if os.path.isfile(filename):
         with open(filename, 'rb') as f:
             project_ids = pickle.load(f)
         for project_id, in projects_ids:
             delete_sample_data_from_firebase(fb_db, project_id)
-        os.remove('firebase_project_ids.pickle')
+        os.remove('created_project_ids.pickle')
 
-    filename = 'project_draft_keys.pickle'
+    filename = 'project_draft_ids.pickle'
     if os.path.isfile(filename):
         with open(filename, 'rb') as f:
             project_draft_ids = pickle.load(f)
         for project_draft_id in project_draft_ids:
             ref = fb_db.reference(f'projectDrafts/{project_draft_id}')
             ref.set({})
-        os.remove('project_draft_keys.pickle')
+        os.remove('project_draft_ids.pickle')
 
 
     # delete_local_files(project_id, import_key)
