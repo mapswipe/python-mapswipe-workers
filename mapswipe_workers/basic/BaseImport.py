@@ -2,6 +2,7 @@ import os
 import logging
 import json
 import csv
+from abc import ABCMeta, abstractmethod
 
 from mapswipe_workers.definitions import DATA_PATH
 from mapswipe_workers.utils import error_handling
@@ -9,9 +10,9 @@ from mapswipe_workers.basic import BaseFunctions as b
 from mapswipe_workers.basic import auth
 
 
-class BaseImport(object):
+class BaseImport(metaclass=ABCMeta):
     """
-    The basic class for an import
+    The base class for creating
 
     Attributes
     ----------
@@ -79,7 +80,7 @@ class BaseImport(object):
                     ]:
                 self.info[key] = project_draft[key]
 
-        def create_project(self, fb_db):
+    def create_project(self, fb_db):
         """
         The function to import a new project in firebase and postgres.
 
@@ -167,7 +168,7 @@ class BaseImport(object):
                 f'- set_import_complete - set import complete'
                 )
             logging.warning(
-                    '%s - import_project - import finished' % self.import_key
+                    '%s - import_project - import finished' % self.project_draft_id
                     )
             logging.warning(
                     f'{self.project_draft_id}'
@@ -188,61 +189,12 @@ class BaseImport(object):
 
             return (None, None)
 
-    def get_new_project_id(self, firebase):
-        """
-        The function to get a project id which is not used in firebase
-
-        Parameters
-        ----------
-        firebase : pyrebase firebase object
-            initialized firebase app with admin authentication
-
-        Returns
-        -------
-        new_project_id : int
-            a new project id which has not been used in firebase
-
-        Notes
-        -----
-            the new project id needs to be increased by more than 1\
-                    to avoid firebase json parsed as an array
-            more information here:\
-                    https://firebase.googleblog.com/2014/04/best-practices-arrays-in-firebase.html
-        """
-        # TODO: Delete this function when made sure it is not used anymore
-
-        fb_db = firebase.database()
-        fb_db.requests.get = b.myRequestsSession().get
-
-        project_keys = fb_db.child('projects').shallow().get().val()
-        if not project_keys:
-            # set mininum project id to 1000,
-            # if no project has been imported yet
-            project_keys = [1000]
-
-        project_ids = list(map(int, list(project_keys)))
-        project_ids.sort()
-        highest_project_id = project_ids[-1]
-
-        logging.warning(
-                f'ALL - get_new_project_id - '
-                f'highest existing project id: {highest_project_id}'
-                )
-        new_project_id = highest_project_id + 2
-
-        logging.warning(
-                f'ALL - get_new_project_id - '
-                f'returned new project id: {new_project_id}'
-                )
-        return new_project_id
-
     def execute_import_queries(self, project_id, project, groups):
         '''
         Defines SQL queries and data for import a project into postgres.
         SQL queries will be executed as transaction.
         (Either every query will be executed or none)
         '''
-        # TODO: Where will this function be called? -> In create_project()
 
         query_insert_import = '''
             INSERT INTO projectDrafts
@@ -507,6 +459,13 @@ class BaseImport(object):
                             f' - set_tasks_postgres - '
                             f'tasks missed critical information: {e}'
                             )
-
         tasks_txt_file.close()
         return tasks_txt_filename
+
+    @abstractmethod
+    def validate_geometries():
+        pass
+
+    @abstractmethod
+    def create_groups():
+        pass

@@ -1,4 +1,7 @@
-class BaseGroup(object):
+from abc import ABCMeta, abstractmethod
+
+
+class BaseGroup(metaclass=ABCMeta):
     """
         The basic class for a group
 
@@ -58,3 +61,7 @@ class BaseGroup(object):
         for task_id, task in group['tasks'].items():
             group['tasks'][task_id] = vars(task)
         return group
+    
+    @abstractmethod
+    def create_tasks(self, imp: object):
+        pass

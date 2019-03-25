@@ -66,9 +66,10 @@ class BuildAreaImport(BaseImport):
                         f'and tileServer ({self.info["tileServer"]} '
                         f'is not preconfigured)'
                         )
-                raise Exception('Attribute "tileServerUrl" \
-                        not provided in project_draft and \
-                        not in "auth.get_tileserver_url" function.')
+                raise Exception(
+                        'Attribute "tileServerUrl" not provided in project_draft and '
+                        'not in "auth.get_tileserver_url" function.'
+                        )
 
         # we need to get the tileserver_url from the attributes
         # if the tileserver is custom
@@ -79,8 +80,10 @@ class BuildAreaImport(BaseImport):
                     f' - __init__ - we need a tilserver_url for the tileserver: '
                     f'{self.infp["tileServer"]}'
                     )
-            raise Exception('Attribute "tileServerUrl" not \
-                    provided in project_draft for custom tileserver')
+            raise Exception(
+                    'Attribute "tileServerUrl" not '
+                    'provided in project_draft for custom tileserver'
+            )
 
         if ('apiKey' not in self.info.keys() and
                 self.info['tileServer'] != 'custom'):
@@ -92,8 +95,10 @@ class BuildAreaImport(BaseImport):
                         f' - __init__ - we need an api key for the tileserver: '
                         f'{self.info["tileServer"]}'
                         )
-                raise Exception('Attribute "api_key" not provided in project_draft \
-                        and not in "auth.get_api_key" function.')
+                raise Exception(
+                        'Attribute "api_key" not provided in project_draft '
+                        'and not in "auth.get_api_key" function.'
+                        )
 
         elif ('apiKey' not in self.info.keys() and
                 self.info['tileServer'] == 'custom'):
@@ -168,9 +173,11 @@ class BuildAreaImport(BaseImport):
 
         self.info['validInputGeometries'] = raw_input_file
 
-        logging.warning(f'{self.project_draft_id} \
-                - check_input_geometry - \
-                input geometry is correct.')
+        logging.warning(
+                f'{self.project_draft_id}'
+                f' - check_input_geometry - '
+                f'input geometry is correct.'
+                )
         return True
 
     def create_groups(self, project_id):

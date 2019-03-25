@@ -3,6 +3,7 @@ import logging
 import threading
 import numpy as np
 from queue import Queue
+from abc import ABCMeta, abstractmethod
 import requests
 import time
 import json
@@ -10,7 +11,7 @@ from psycopg2 import sql
 from mapswipe_workers.basic import BaseFunctions as b
 from mapswipe_workers.definitions import DATA_PATH
 
-class BaseProject(object):
+class BaseProject(metaclass=ABCMeta):
     """
     The basic class for a project
 
@@ -518,3 +519,7 @@ class BaseProject(object):
         self.archive_project_postgres(postgres)
         logging.warning('%s - archive_project - finished archive project' % self.id)
         return True
+
+    @abstractmethod
+    def aggregate_results(self, postgres):
+        pass
