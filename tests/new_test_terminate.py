@@ -10,19 +10,15 @@ def delete_sample_data_from_firebase(fb_db, project_id):
 
     ref = fb_db.reference(f'groups/{project_id}')
     ref.set({})
-    ref = fb_db.reference('tasks/{project_id}')
+    ref = fb_db.reference(f'tasks/{project_id}')
     ref.set({})
-    ref = fb_db.reference('results/{project_id}')
+    ref = fb_db.reference(f'results/{project_id}')
     ref.set({})
-    ref = fb_db.reference('projects/{project_id}')
+    ref = fb_db.reference(f'projects/{project_id}')
     ref.set({})
-    ref = fb_db.reference('projectDrafts/{project_id}')
+    ref = fb_db.reference(f'projectDrafts/{project_id}')
     ref.set({})
 
-    print(
-            f'deleted projectDraft, project, groups, tasks and results'
-            f'in firebase for the project with the id: {project_id}'
-            )
 
 
 def delete_sample_results_from_postgres(pg_db, project_id, import_key):
@@ -72,6 +68,10 @@ if __name__ == '__main__':
     fb_db = auth.firebaseDB()
 
     filename = 'project_ids.pickle'
+    project_ids = ['-LapZW2jBKOHxRTVUqfb', '-LapZW8DoVSfD1xflSRn', '-LapZWELyn05XyQTTMCH']
+    for project_id in project_ids:
+        delete_sample_data_from_firebase(fb_db, project_id)
+    
     if os.path.isfile(filename):
         with open(filename, 'rb') as f:
             project_ids = pickle.load(f)
@@ -79,6 +79,12 @@ if __name__ == '__main__':
             delete_sample_data_from_firebase(fb_db, project_id)
             # delete_sample_results_from_postgres(pg_db, project_id)
         os.remove('project_ids.pickle')
+        print(
+                f'deleted projectDraft, project, groups, tasks and results'
+                f'in firebase for the project with the id: {project_id}'
+                )
+    else:
+        print('No project_ids.pickle file found')
 
 
     filename = 'user_ids.pickle'
@@ -89,6 +95,9 @@ if __name__ == '__main__':
             ref = fb_db.reference(f'users/{user_ids}')
             ref.set({})
         os.remove('user_ids.pickle')
+    else:
+        print('No user_ids.pickle file found')
+
 
     # delete_local_files(project_id, import_key)
 

@@ -86,14 +86,14 @@ class BaseImport(metaclass=ABCMeta):
 
         Returns
         -------
-        tuple
-            project_id and project_type
+        boolean
+                True = Suceessful
         """
         # psql_db = auth.psqlDB()
         try:
             logging.warning(
                 f'{self.project_draft_id}'
-                f'- import_project - start importing'
+                f' - import_project - start importing'
                 )
 
             # TODO: remove if project_draft_id and project_id are the same
@@ -158,15 +158,6 @@ class BaseImport(metaclass=ABCMeta):
             new_tasks_ref.set(tasks)
             logging.warning('%s - uploaded tasks in firebase' % project_id)
 
-            project_draft_ref = fb_db.reference(
-                    f'projectDrafts/{self.project_draft_id}/complete'
-                    )
-            project_draft_ref.set(True)
-
-            logging.warning(
-                f'{self.project_draft_id} '
-                f'- set_import_complete - set import complete'
-                )
             logging.warning(
                     '%s - import_project - import finished' % self.project_draft_id
                     )
@@ -175,7 +166,7 @@ class BaseImport(metaclass=ABCMeta):
                     f' - import_project - '
                     f'imported new project with id: {project_id}'
                     )
-            return project_id
+            return True
 
         except Exception as e:
             logging.warning(
@@ -186,8 +177,7 @@ class BaseImport(metaclass=ABCMeta):
             logging.warning(
                     "%s - import_project - %s" % (self.project_draft_id, e))
             error_handling.log_error(e, logging)
-
-            return (None, None)
+            return False
 
     def execute_import_queries(self, project_id, project, groups):
         '''

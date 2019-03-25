@@ -356,57 +356,6 @@ def get_new_project_drafts(fb_db):
     return new_project_drafts
 
 
-def run_import(modus):
-    """
-    A function to create all newly imported projects in firebase
-
-    Parameters
-    ----------
-    modus : str
-        either `development` or `production to decide which firebase configuration to use
-
-    Returns
-    -------
-    imported_projects : list
-        list of tuple with import_key, project_id and project_type of imported projects
-    """
-    # TODO: delete this function after run_creat_project is working
-
-    fb_db = auth.firebaseDB()
-
-    imported_projects = []
-
-    # check for new imports in firebase
-    project_drafts = get_new_project_drafts(firebase)
-
-    for project_draft_id, project_draft in project_drafts.items():
-        # let's have a look at the project type
-        try:
-            project_type = project_draft['projectType']
-        except:
-            project_type = 1
-
-        # now let's init the import
-        try:
-            imp = init_import(project_type, import_key, import_dict)
-            # and now let's finally create a project
-            project_id, project_type = imp.create_project(firebase, postgres)
-            imported_projects.append((imp.import_key, project_id, project_type))
-            try:
-                msg = "### IMPORT SUCCESSFUL ### \nproject-name: %s \nimport-key: %s \nproject-id: %s \nproject-type: %s \nMake sure to activate the project in firebase. \nHappy Swiping. :)" % (imp.name, import_key, project_id, project_type)
-
-                slack.send_slack_message(msg)
-            except:
-                logging.exception('could not send slack message.')
-
-        except CustomError as error:
-            error_handling.send_error(error, import_key)
-            logging.exception('%s - get_new_imports - import failed' % import_key)
-            continue
-
-    return imported_projects
-
-
 def run_create_project():
     """
     A function to create all newly imported projects in firebase
@@ -428,11 +377,13 @@ def run_create_project():
     }
 
     fb_db = auth.firebaseDB()
+    ref = fb_db.reference('projectDrafts/')
+    project_drafts = ref.get()
 
-    project_drafts = get_new_project_drafts(fb_db)
     created_project_ids = list()
 
-    for project_draft in project_drafts:
+    for project_draft_id, project_draft in project_drafts.items():
+        project_draft['project_draft_id'] = project_draft_id
         # let's have a look at the project type
         try:
             project_type = int(project_draft['projectType'])
@@ -441,13 +392,16 @@ def run_create_project():
 
         try:
              project = project_types[project_type](project_draft)
-             project_id = project.create_project(fb_db)
-             created_project_ids.append(project_id)
+             if project.create_project(fb_db):
+                created_project_ids.append(project_draft_id)
+                # delete project draft from firebase after
+                # successfull project creation
+                ref = fb_db.reference(f'projectDrafts/{project_draft_id}')
+                ref.set({})
              try:
                 slack.send_slack_message(
                     f'### IMPORT SUCCESSFUL ### '
                     f'project_name: {project_draft["name"]}, '
-                    f'project_draft_id: {project_draft["project_draft_id"]}, '
                     f'project_id: {project_id}, '
                     f'project-type: {project_types[project_type]}, '
                     f'Make sure to activate the project in firebase. '
@@ -466,6 +420,7 @@ def run_create_project():
             continue
 
     return created_project_ids
+
 
 ########################################################################################################################
 # UPDATE                                                                                                               #
