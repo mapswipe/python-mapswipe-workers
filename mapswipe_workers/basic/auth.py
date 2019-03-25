@@ -34,10 +34,12 @@ def load_config():
 def firebaseDB():
     # Fetch the service account key JSON file contents
     cred = credentials.Certificate(SERVICE_ACCOUNT_KEY_PATH)
+    config = load_config()
+    databaseURL = config['firebase']['database_url']
 
     # Initialize the app with a service account, granting admin privileges
     firebase_admin.initialize_app(cred, {
-        'databaseURL': 'https://dev-mapswipe.firebaseio.com'
+        'databaseURL': databaseURL
     })
 
     return db
