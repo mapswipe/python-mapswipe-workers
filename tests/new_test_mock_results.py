@@ -64,7 +64,8 @@ def mock_user_contributions(
     ref = fb_db.reference(f'projects/{project_id}/')
     project = ref.get()
     ref = fb_db.reference(f'groups/{project_id}/')
-    groups = ref.get()
+    groups = ref.order_by_child("completedCount").limit_to_first(5).get()
+
     for group_id, group in groups.items():
         ref = fb_db.reference(f'tasks/{project_id}/{group_id}/')
         tasks = ref.get()
@@ -142,7 +143,6 @@ def mock_user_contributions(
 
 if __name__ == '__main__':
     fb_db = auth.firebaseDB()
-    pg_db = auth.postgresDB()
 
     filename = 'created_project_ids.pickle'
     with open(filename, 'rb') as f:
