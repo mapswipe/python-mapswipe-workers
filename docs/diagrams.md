@@ -37,12 +37,12 @@ The Diagrams are drawn using [draw.io](https://.wwww.draw.io). You can download 
 ---
 
 **Proposed Data Structure Project Type 1 - Firebase:**
-![Data Structure - Firebase](/_static/img/data_structure-firebase-1.png)
+![Data Structure - Firebase](/_static/img/data_structure-firebase-1.svg)
 
 ---
 
 **Proposed Data Structure Project Type 2 - Firebase:**
-![Data Structure - Firebase](/_static/img/data_structure-firebase-2.png)
+![Data Structure - Firebase](/_static/img/data_structure-firebase-2.svg)
 
 ---
 

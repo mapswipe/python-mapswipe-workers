@@ -1,8 +1,10 @@
 {
+    "announcement": {
+        "announcementId": "announcement"
+    },
     "projectDrafts": {
         "projectDraftId1": {
-            "complete": true,
-            "key": "key",
+            "submissionKey": "key",
             "kml": "kml",
             "projectType": 1,
             "tileServer": "url",
@@ -20,13 +22,11 @@
             "contributors": 2,
             "groupAverage": 2,
             "image": "image",
-            "importKey": "importKey",
             "isFeatured": true,
             "lookFor": "text",
             "progress": 44,
             "projectDetails": "details",
             "projectType": 2,
-            "state": 1,
             "status": "active",
             "verificationCount": 1,
             "progress": 0.8
