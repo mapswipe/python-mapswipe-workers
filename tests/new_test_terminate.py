@@ -1,8 +1,7 @@
 import pickle
 import os
 
-from mapswipe_workers.basic import auth
-from mapswipe_workers.basic import BaseFunctions
+from mapswipe_workers import auth
 from mapswipe_workers.definitions import DATA_PATH
 
 

@@ -8,7 +8,7 @@ from mapswipe_workers.base.base_project_draft import BaseProjectDraft
 from mapswipe_workers.project_types.build_area.build_area_group \
         import BuildAreaGroup
 from mapswipe_workers.project_types.build_area \
-        import GroupingFunctions
+        import grouping_functions
 
 
 class BuildAreaProjectDraft(BaseProjectDraft):
@@ -262,7 +262,7 @@ class BuildAreaProjectDraft(BaseProjectDraft):
             The group information containing task information
         """
         # first step get properties of each group from extent
-        raw_groups = GroupingFunctions.extent_to_slices(
+        raw_groups = grouping_functions.extent_to_slices(
                 self.validInputGeometries,
                 self.zoomLevel
                 )

@@ -1,8 +1,8 @@
-from mapswipe_workers.basic import BaseFunctions
+from mapswipe_workers.base import base_functions
 
 
 def test_import_process():
-    BaseFunctions.run_create_project()
+    base_functions.run_create_project()
 
 
 if __name__ == '__main__':

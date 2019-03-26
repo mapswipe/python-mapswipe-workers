@@ -2,7 +2,7 @@ import os
 import pickle
 import json
 
-from mapswipe_workers.basic import auth
+from mapswipe_workers import auth
 
 
 def create_project_drafts_in_firebase(fb_db):
