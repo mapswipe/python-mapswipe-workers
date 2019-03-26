@@ -5,96 +5,74 @@ import ogr
 
 from mapswipe_workers.definitions import DATA_PATH
 from mapswipe_workers.definitions import CustomError
-from mapswipe_workers.basic import auth
-from mapswipe_workers.basic.BaseImport import BaseImport
-from mapswipe_workers.ProjectTypes.Footprint import GroupingFunctions as g
-from mapswipe_workers.ProjectTypes.Footprint.FootprintGroup import FootprintGroup
+from mapswipe_workers.base import auth
+from mapswipe_workers.base.base_project_draft import BaseProjectDraft
+from mapswipe_workers.project_types.footprint import grouping_functions as g
+from mapswipe_workers.project_types.footprint.footprint_group import FootprintGroup
 
 ########################################################################################################################
 # A Footprint Import
 
 
-class FootprintImport(BaseImport):
+class FootprintProjectDraft(BaseProjectDraft):
     """
     The subclass for an import of the type Footprint
     """
 
-    project_type = 2
+    projectType = 2
 
     def __init__(self, project_draft):
         # this will create the basis attributes
         super().__init__(project_draft)
 
         # set group size
-        self.info["groupSize"] = 50
-
-        if not 'inputGeometries' in self.info.keys():
-            logging.warning(
-                    f'{project_draft_id}'
-                    f' - __init__ - you need to provide a link to a geojson file'
+        self.groupSize = 50
+        self.inputGeometries = project_draft['inputGeometries']
+        self.tileServer = project_draft['tileServer']
+        try:
+            self.tileServerUrl = project_draft.get(
+                    'tileServerUrl',
+                    auth.get_tileserver_url(self.tileServer)
                     )
-            raise Exception('Attribute "inputGeometries" not provided in project_draft.')
-
-        if not 'tileServer' in self.info.keys():
+        except:
             logging.warning(
-                    f'{project_draft_id}'
-                    f' - __init__ - you need to provide a tileserver name'
+                    f'{self.projectId}'
+                    f' - __init__ - we need a tile server url for the tileserver: '
+                    f'{self.tileServer}'
                     )
-            raise Exception('Attribute "tileServer" not provided in project_draft.')
+            raise Exception('Attribute "tileServerUrl" not provided in project_draft \
+                    and not in "auth.get_tileserver_url" function.')
+        try:
+            self.apiKey = project_draft.get(
+                    'apiKey',
+                    auth.get_api_key(self.tileServer)
+                    )
+        except:
+            logging.warning(
+                    f'{projectId}'
+                    f' - __init__ - we need an api key for the tileserver: '
+                    f'{self.tileServer}'
+                    )
+            raise Exception('Attribute "api_key" not provided in project_draft and not in "auth.get_api_key" function.')
 
-        # we need to get the tileserver_url
-        if not 'tileServerUrl' in self.info.keys():
-            try:
-                self.info["tileServerUrl"] = auth.get_tileserver_url(self.info['tileServer'])
-            except:
-                logging.warning(
-                        f'{project_draft_id}'
-                        f'- __init__ - we need a tile server url for the tileserver: '
-                        f'{self.infor["tileServer"]}'
-                        )
-                raise Exception('Attribute "tileServerUrl" not provided in project_draft \
-                        and not in "auth.get_tileserver_url" function.')
-        elif self.info['tileServerUrl'] == "":
-            try:
-                self.info["tileServerUrl"] = auth.get_tileserver_url(self.info['tileServer'])
-            except:
-                logging.warning(
-                        f'{project_draft_id}'
-                        f' - __init__ - we need a tils server url for the tileserver: '
-                        f'{self.info["tileServer"]}'
-                        )
-                raise Exception('Attribute "tileServerUrl" not provided in project_draft \
-                        and not in "auth.get_tileserver_url" function.')
-
-
-        if not 'apiKey' in self.info.keys() and self.info['tileServer'] != 'custom':
-            try:
-                self.info['apiKey'] = auth.get_api_key(self.info['tileServer'])
-            except:
-                logging.warning(
-                        f'{project_draft_id}'
-                        f' - __init__ - we need an api key for the tileserver: '
-                        f'{self.info["tileServer"]}'
-                        )
-                raise Exception('Attribute "api_key" not provided in project_draft and not in "auth.get_api_key" function.')
         self.validate_geometries()
 
     def validate_geometries(self):
-        raw_input_file = '{}/input_geometries/raw_input_{}.geojson'.format(DATA_PATH, self.project_draft_id)
-        valid_input_file = '{}/input_geometries/valid_input_{}.geojson'.format(DATA_PATH, self.project_draft_id)
+        raw_input_file = '{}/input_geometries/raw_input_{}.geojson'.format(DATA_PATH, self.projectId)
+        valid_input_file = '{}/input_geometries/valid_input_{}.geojson'.format(DATA_PATH, self.projectId)
 
         if not os.path.isdir('{}/input_geometries'.format(DATA_PATH)):
             os.mkdir('{}/input_geometries'.format(DATA_PATH))
 
         # download file from given url
-        url = self.info['inputGeometries']
+        url = self.inputGeometries
         urllib.request.urlretrieve(url, raw_input_file)
         logging.warning(
-                f'{self.project_draft_id}' 
+                f'{self.projectId}' 
                 f' - __init__ - downloaded input geometries from url and saved as file: ' 
                 f'{raw_input_file}'
                 )
-        self.info['inputGeometries'] = raw_input_file
+        self.inputGeometries = raw_input_file
 
         # open the raw input file and get layer
         driver = ogr.GetDriverByName('GeoJSON')
@@ -121,7 +99,7 @@ class FootprintImport(BaseImport):
         if layer.GetFeatureCount() < 1:
             err = 'empty file. No geometries provided'
             logging.warning(
-                    f'{self.project_draft_id} - check_input_geometry - {err}'
+                    f'{self.projectId} - check_input_geometry - {err}'
                     )
             raise Exception(err)
 
@@ -132,7 +110,7 @@ class FootprintImport(BaseImport):
             if not feat_geom.IsValid():
                 layer.DeleteFeature(feature.GetFID()) # removed geometry from layer
                 logging.warning(
-                    f'{self.project_draft_id}'
+                    f'{self.projectId}'
                     f' - check_input_geometries - '
                     f'deleted invalid feature {feature.GetFID()}'
                     )
@@ -141,7 +119,7 @@ class FootprintImport(BaseImport):
             elif geom_name != 'POLYGON' and geom_name != 'MULTIPOLYGON':
                 layer.DeleteFeature(feature.GetFID()) # removed geometry from layer
                 logging.warning(
-                    f'{self.project_draft_id}'
+                    f'{self.projectId}'
                     f' - check_input_geometries - '
                     f'deleted non polygon feature {feature.GetFID()}'
                     )
@@ -166,16 +144,16 @@ class FootprintImport(BaseImport):
         del outDataSource
         del layer
 
-        self.info['validInputGeometries'] = valid_input_file
+        self.validInputGeometries = valid_input_file
 
         logging.warning(
-                f'{self.project_draft_id}'
+                f'{self.projectId}'
                 f' - check_input_geometry - '
                 f'filtered correct input geometries and created file: {valid_input_file}'
                 )
         return True
 
-    def create_groups(self, project_id):
+    def create_groups(self, projectId):
         """
         The function to create groups of footprint geometries
 
@@ -185,12 +163,12 @@ class FootprintImport(BaseImport):
             The group information containing task information
         """
 
-        raw_groups = g.group_input_geometries(self.info["validInputGeometries"], self.info["groupSize"])
+        raw_groups = g.group_input_geometries(self.validInputGeometries, self.groupSize)
 
         groups = {}
         for group_id, item in raw_groups.items():
-            group = FootprintGroup(self, project_id, group_id, item['feature_ids'], item['feature_geometries'])
+            group = FootprintGroup(self, projectId, group_id, item['feature_ids'], item['feature_geometries'])
             groups[group.id] = group.to_dict()
 
-        logging.warning(f'{project_id} - create_groups - created groups dictionary')
+        logging.warning(f'{projectId} - create_groups - created groups dictionary')
         return groups

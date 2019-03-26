@@ -1,14 +1,16 @@
 import os
 import logging
 import threading
+import time
+import json
 import numpy as np
 from queue import Queue
 from abc import ABCMeta, abstractmethod
+
 import requests
-import time
-import json
 from psycopg2 import sql
-from mapswipe_workers.basic import BaseFunctions as b
+
+from mapswipe_workers.base import base_functions as b
 from mapswipe_workers.definitions import DATA_PATH
 
 class BaseProject(metaclass=ABCMeta):

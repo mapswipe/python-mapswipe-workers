@@ -1,5 +1,5 @@
-from mapswipe_workers.basic.BaseTask import BaseTask
-from mapswipe_workers.ProjectTypes.BuildArea import TileFunctions as t
+from mapswipe_workers.base.base_task import BaseTask
+from mapswipe_workers.project_types.build_area import tile_functions as t
 
 
 class BuildAreaTask(BaseTask):
@@ -43,27 +43,20 @@ class BuildAreaTask(BaseTask):
         """
         # the task id is composed of TileZ-TileX-TileY
         task_id = '{}-{}-{}'.format(
-            imp.info['zoomLevel'],
+            imp.zoomLevel,
             TileX,
             TileY
         )
         super(BuildAreaTask, self).__init__(task_id)
-        self.projectId = group.projectId
 
         self.taskX = str(TileX)
         self.taskY = str(TileY)
-        self.taskZ = str(imp.info['zoomLevel'])
         self.url = t.tile_coords_zoom_and_tileserver_to_URL(
             TileX,
             TileY,
-            imp.info['zoomLevel'],
-            imp.info['tileServer'],
-            imp.info['apiKey'],
-            imp.info['tileServerUrl'],
-            imp.info['layerName']
+            imp.zoomLevel,
+            imp.tileServer,
+            imp.apiKey,
+            imp.tileServerUrl,
+            imp.layerName,
         )
-
-        # we no longer provide wkt geometry,
-        # you can calc using some python scripts
-        # self.wkt = geometry_from_tile_coords(TileX, TileY, group.zoomlevel)
-        self.wkt = ''

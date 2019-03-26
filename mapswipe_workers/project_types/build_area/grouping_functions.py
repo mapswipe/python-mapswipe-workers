@@ -6,7 +6,7 @@ import osr
 import argparse
 import logging
 
-from mapswipe_workers.ProjectTypes.BuildArea import TileFunctions as t
+from mapswipe_workers.project_types.build_area import tile_functions as t
 
 
 ########################################################################################################################

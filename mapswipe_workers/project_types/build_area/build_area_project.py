@@ -2,10 +2,10 @@ import os
 import logging
 import ogr
 
-from mapswipe_workers.basic import auth
-from mapswipe_workers.basic.BaseProject import BaseProject
-from mapswipe_workers.ProjectTypes.BuildArea.BuildAreaGroup import BuildAreaGroup
-from mapswipe_workers.ProjectTypes.BuildArea import GroupingFunctions as g
+from mapswipe_workers import auth
+from mapswipe_workers.base.base_project import BaseProject
+from mapswipe_workers.project_types.build_area.build_area_group import BuildAreaGroup
+from mapswipe_workers.project_types.build_area import grouping_functions as g
 
 ########################################################################################################################
 # A Build Area Project

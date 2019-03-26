@@ -1,4 +1,4 @@
-from mapswipe_workers.basic.BaseTask import *
+from mapswipe_workers.base.base_task import BaseTask
 
 
 class FootprintTask(BaseTask):

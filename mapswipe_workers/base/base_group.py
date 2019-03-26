@@ -20,7 +20,7 @@ class BaseGroup(metaclass=ABCMeta):
 
     """
 
-    def __init__(self, imp: object, project_id: int, group_id: int):
+    def __init__(self, imp: object, projectId, group_id):
         """
         The Constructor Method for a group instance
 
@@ -38,7 +38,7 @@ class BaseGroup(metaclass=ABCMeta):
         """
         # set basic group information, make sure to spell exactly as represented in firebase and consumed by the app
         # projectId is a string in firebase
-        self.projectId = project_id
+        self.projectId = projectId
         self.id = group_id
         self.completedCount = 0
         #self.reportCount = 0 # not sure for what the reportCount is used

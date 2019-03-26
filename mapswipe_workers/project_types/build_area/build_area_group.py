@@ -1,5 +1,5 @@
-from mapswipe_workers.ProjectTypes.BuildArea.BuildAreaTask import BuildAreaTask
-from mapswipe_workers.basic.BaseGroup import BaseGroup
+from mapswipe_workers.project_types.build_area.build_area_task import BuildAreaTask
+from mapswipe_workers.base.base_group import BaseGroup
 
 
 class BuildAreaGroup(BaseGroup):
@@ -22,7 +22,7 @@ class BuildAreaGroup(BaseGroup):
             The minimum y coordinate of the extent of the group
     """
 
-    def __init__(self, imp, project_id, group_id, slice: dict):
+    def __init__(self, imp, projectId, group_id, slice: dict):
         """
             The constructor method for a group instance of the \
                     build area project type
@@ -38,10 +38,10 @@ class BuildAreaGroup(BaseGroup):
             of the group as extent consisting of 4 values
         """
         # super() executes fine now
-        super(BuildAreaGroup, self).__init__(imp, project_id, group_id)
+        super(BuildAreaGroup, self).__init__(imp, projectId, group_id)
 
         # add the type specific attributes
-        self.zoomLevel = imp.info['zoomLevel']
+        self.zoomLevel = imp.zoomLevel
         self.xMax = slice['xMax']
         self.xMin = slice['xMin']
         self.yMax = slice['yMax']

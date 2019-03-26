@@ -4,13 +4,12 @@ import json
 import csv
 from abc import ABCMeta, abstractmethod
 
+from mapswipe_workers import auth
 from mapswipe_workers.definitions import DATA_PATH
 from mapswipe_workers.utils import error_handling
-from mapswipe_workers.basic import BaseFunctions as b
-from mapswipe_workers.basic import auth
 
 
-class BaseImport(metaclass=ABCMeta):
+class BaseProjectDraft(metaclass=ABCMeta):
     """
     The base class for creating
 
@@ -53,32 +52,20 @@ class BaseImport(metaclass=ABCMeta):
         submission_key = project_draft['submissionKey']
         if not submission_key == auth.get_submission_key():
             raise Exception(f"submission key is not valid: {submission_key}")
-
         logging.warning(f'{submission_key} - __init__ - start init')
 
-        # TODO: remove project_draft_id
-        # (there should be one id for project and projectDraft)
-        self.project_draft_id = project_draft['project_draft_id']
-        self.project_type = project_draft['projectType'],
+        self.projectId = project_draft['project_draft_id']
+        self.projectType = int(project_draft['projectType'])
         self.name = project_draft['name']
+        self.projectDetails = project_draft['projectDetails']
         self.image = project_draft['image']
-        self.look_for = project_draft['lookFor']
-        self.project_details = project_draft['projectDetails']
-        self.verification_count = int(project_draft['verificationCount'])
-
-        # eveything else will be stored in the info dict
-        self.info = {}
-        for key in project_draft.keys():
-            if key not in [
-                    'name',
-                    'image',
-                    'lookFor',
-                    'projectDetails',
-                    'verificationCount',
-                    'projectType'
-                    'submissionKey'
-                    ]:
-                self.info[key] = project_draft[key]
+        self.lookFor = project_draft['lookFor']
+        self.verificationCount = int(project_draft['verificationCount'])
+        self.isFeatured = False
+        self.status = 'inactive'
+        self.groupAverage = 0
+        self.progress = 0
+        self.contributors = 0
 
     def create_project(self, fb_db):
         """
@@ -92,94 +79,65 @@ class BaseImport(metaclass=ABCMeta):
         # psql_db = auth.psqlDB()
         try:
             logging.warning(
-                f'{self.project_draft_id}'
+                f'{self.projectId}'
                 f' - import_project - start importing'
                 )
 
-            # TODO: remove if project_draft_id and project_id are the same
-            # projects_ref = fb_db.reference('projects/')
-            # # create a new empty project in firebase
-            # new_project_ref = projects_ref.push()
-            # # get the project id of new created project
-            # project_id = new_project_ref.key
-
-            project_id = self.project_draft_id
-            new_project_ref = fb_db.reference(f'projects/{project_id}')
-            # get the project id of new created project
-
-            # create groups and tasks for this project.
-            # this function is defined by the respective type of this project
-            groups = self.create_groups(project_id)
-
+            project = vars(self)  
+            groups = self.create_groups(self.projectId)
             # extract tasks from groups
             tasks = dict()
             for group_id, group in groups.items():
                 tasks[group_id] = group['tasks']
                 del group['tasks']
 
-            project = {
-                "id": project_id,
-                "projectType": self.project_type,
-                "name": self.name,
-                "image": self.image,
-                "lookFor": self.look_for,
-                "projectDetails": self.project_details,
-                "verificationCount": self.verification_count,
-                "projectDraftId": self.project_draft_id,
-                "info": self.info,
-                "isFeatured": False,
-                "status": 'inactive',
-                "groupAverage": 0,
-                "progress": 0,
-                "contributors": 0
-            }
-
             # upload data to postgres
             # TODO: upload data to postgres! -> uncomment:
             # self.execute_import_queries(
             #         pg_db,
-            #         project_id,
+            #         projectId,
             #         project,
             #         groups,
             #         tasks,
             #         )
 
             # upload data to firebase
+            new_project_ref = fb_db.reference(f'projects/{self.projectId}')
             new_project_ref.set(project)
             logging.warning(
-                    '%s - uploaded project in firebase' % project['id']
+                    f'{self.projectId} - uploaded project in firebase'
                     )
 
-            new_groups_ref = fb_db.reference(f'groups/{project_id}/')
+            new_groups_ref = fb_db.reference(f'groups/{self.projectId}/')
             new_groups_ref.set(groups)
-            logging.warning('%s - uploaded groups in firebase' % project_id)
+            logging.warning('%s - uploaded groups in firebase' % self.projectId)
 
-            new_tasks_ref = fb_db.reference(f'tasks/{project_id}/')
+            new_tasks_ref = fb_db.reference(f'tasks/{self.projectId}/')
             new_tasks_ref.set(tasks)
-            logging.warning('%s - uploaded tasks in firebase' % project_id)
+            logging.warning('%s - uploaded tasks in firebase' % self.projectId)
 
             logging.warning(
-                    '%s - import_project - import finished' % self.project_draft_id
+                    '%s - import_project - import finished' % self.projectId
                     )
             logging.warning(
-                    f'{self.project_draft_id}'
+                    f'{self.projectId}'
                     f' - import_project - '
-                    f'imported new project with id: {project_id}'
+                    f'imported new project with id'
                     )
             return True
 
         except Exception as e:
             logging.warning(
-                    f'{self.project_draft_id}'
+                    f'{self.projectId}'
                     f' - import_project - '
                     f'could not import project'
                     )
             logging.warning(
-                    "%s - import_project - %s" % (self.project_draft_id, e))
+                    "%s - import_project - %s" % (self.projectId, e))
             error_handling.log_error(e, logging)
             return False
 
-    def execute_import_queries(self, project_id, project, groups):
+    def execute_import_queries(self, projectId, project, groups):
         '''
         Defines SQL queries and data for import a project into postgres.
         SQL queries will be executed as transaction.
@@ -191,7 +149,7 @@ class BaseImport(metaclass=ABCMeta):
             VALUES (%s,%s);
             '''
 
-        data_import = [self.project_draft_id, json.dumps(vars(self))]
+        data_import = [self.projectId, json.dumps(vars(self))]
 
         query_insert_project = '''
             INSERT INTO projects
@@ -218,14 +176,14 @@ class BaseImport(metaclass=ABCMeta):
         query_recreate_raw_groups = '''
             DROP TABLE IF EXISTS raw_groups CASCADE;
             CREATE TABLE raw_groups (
-              project_id int,
+              projectId int,
               group_id int,
               count int,
               completedCount int,
               verificationCount int,
               info json,
-              PRIMARY KEY (group_id, project_id),
-              FOREIGN KEY (project_id) REFERENCES projects(project_id)
+              PRIMARY KEY (group_id, projectId),
+              FOREIGN KEY (projectId) REFERENCES projects(projectId)
             );
             '''
 
@@ -241,10 +199,10 @@ class BaseImport(metaclass=ABCMeta):
             CREATE TABLE raw_tasks (
                 task_id varchar,
                 group_id int,
-                project_id int,
+                projectId int,
                 info json,
-                PRIMARY KEY (task_id, group_id, project_id),
-                FOREIGN KEY (project_id) REFERENCES projects(project_id),
+                PRIMARY KEY (task_id, group_id, projectId),
+                FOREIGN KEY (projectId) REFERENCES projects(projectId),
                 FOREIGN KEY (group_id) REFERENCES groups(group_id)
             );
             '''
@@ -256,11 +214,11 @@ class BaseImport(metaclass=ABCMeta):
             DROP TABLE IF EXISTS raw_tasks CASCADE;
             '''
 
-        groups_txt_filename = self.create_groups_txt_file(project_id, groups)
-        tasks_txt_filename = self.create_tasks_txt_file(project_id, groups)
+        groups_txt_filename = self.create_groups_txt_file(projectId, groups)
+        tasks_txt_filename = self.create_tasks_txt_file(projectId, groups)
 
         groups_columns = [
-                'project_id',
+                'projectId',
                 'group_id',
                 'count',
                 'completedCount',
@@ -270,7 +228,7 @@ class BaseImport(metaclass=ABCMeta):
 
         tasks_columns = [
                 'task_id',
-                'project_id',
+                'projectId',
                 'group_id',
                 'info']
 
@@ -312,7 +270,7 @@ class BaseImport(metaclass=ABCMeta):
         os.remove(groups_txt_filename)
         os.remove(tasks_txt_filename)
 
-    def create_groups_txt_file(self, project_id, groups):
+    def create_groups_txt_file(self, projectId, groups):
         """
         Creates a text file containing groups information
         for a specific project.
@@ -320,7 +278,7 @@ class BaseImport(metaclass=ABCMeta):
 
         Parameters
         ----------
-        project_id : int
+        projectId : int
             The id of the project
         groups : dict
             The dictionary with the group information
@@ -336,10 +294,10 @@ class BaseImport(metaclass=ABCMeta):
 
         # create txt file with header for later
         # import with copy function into postgres
-        groups_txt_filename = f'{DATA_PATH}/tmp/raw_groups_{project_id}.txt'
+        groups_txt_filename = f'{DATA_PATH}/tmp/raw_groups_{projectId}.txt'
         groups_txt_file = open(groups_txt_filename, 'w', newline='')
         fieldnames = (
-                'project_id',
+                'projectId',
                 'group_id',
                 'count',
                 'completedCount',
@@ -356,7 +314,7 @@ class BaseImport(metaclass=ABCMeta):
         for group in groups:
             try:
                 output_dict = {
-                    "project_id": project_id,
+                    "projectId": projectId,
                     "group_id": int(groups[group]['id']),
                     "count": int(groups[group]['count']),
                     "completedCount": int(groups[group]['completedCount']),
@@ -368,7 +326,7 @@ class BaseImport(metaclass=ABCMeta):
 
                 for key in groups[group].keys():
                     if key not in [
-                            'project_id',
+                            'projectId',
                             'group_id',
                             'count',
                             'completedCount',
@@ -382,7 +340,7 @@ class BaseImport(metaclass=ABCMeta):
 
             except Exception as e:
                 logging.warning(
-                        f'{project_id}'
+                        f'{projectId}'
                         f' - set_groups_postgres - '
                         f'groups missed critical information: {e}'
                         )
@@ -392,7 +350,7 @@ class BaseImport(metaclass=ABCMeta):
 
         return groups_txt_filename
 
-    def create_tasks_txt_file(self, project_id, tasks):
+    def create_tasks_txt_file(self, projectId, tasks):
         """
         Creates a text file containing tasks information
         for a specific project.
@@ -401,7 +359,7 @@ class BaseImport(metaclass=ABCMeta):
 
         Parameters
         ----------
-        project_id : int
+        projectId : int
             The id of the project
         tasks : dictionary
             Dictionary containing tasks of a project
@@ -416,10 +374,10 @@ class BaseImport(metaclass=ABCMeta):
             os.mkdir('{}/tmp'.format(DATA_PATH))
 
         # save tasks in txt file
-        tasks_txt_filename = f'{DATA_PATH}/tmp/raw_tasks_{project_id}.txt'
+        tasks_txt_filename = f'{DATA_PATH}/tmp/raw_tasks_{projectId}.txt'
         tasks_txt_file = open(tasks_txt_filename, 'w', newline='')
 
-        fieldnames = ('task_id', 'project_id', 'group_id', 'info')
+        fieldnames = ('task_id', 'projectId', 'group_id', 'info')
         w = csv.DictWriter(
                 tasks_txt_file,
                 fieldnames=fieldnames,
@@ -433,7 +391,7 @@ class BaseImport(metaclass=ABCMeta):
                 try:
                     output_dict = {
                             "task_id": str(task),
-                            "project_id": task['project_id'],
+                            "projectId": task['projectId'],
                             "group_id": group_id,
                             "info": {}
                             }
@@ -445,7 +403,7 @@ class BaseImport(metaclass=ABCMeta):
                     w.writerow(output_dict)
                 except Exception as e:
                     logging.warning(
-                            f'{project_id}'
+                            f'{projectId}'
                             f' - set_tasks_postgres - '
                             f'tasks missed critical information: {e}'
                             )

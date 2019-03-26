@@ -15,14 +15,14 @@ from mapswipe_workers.utils import error_handling
 from mapswipe_workers.utils import slack
 from mapswipe_workers.definitions import DATA_PATH
 from mapswipe_workers.definitions import CustomError
-from mapswipe_workers.basic import auth
+from mapswipe_workers import auth
 # Make sure to import all project types here
-from mapswipe_workers.ProjectTypes.BuildArea.BuildAreaImport import BuildAreaImport
-from mapswipe_workers.ProjectTypes.BuildArea.BuildAreaProject import BuildAreaProject
+from mapswipe_workers.project_types.build_area.build_area_project_draft import BuildAreaProjectDraft
+from mapswipe_workers.project_types.build_area.build_area_project import BuildAreaProject
 
 
-from mapswipe_workers.ProjectTypes.Footprint.FootprintImport import FootprintImport
-from mapswipe_workers.ProjectTypes.Footprint.FootprintProject import FootprintProject
+from mapswipe_workers.project_types.footprint.footprint_project_draft import FootprintProjectDraft
+from mapswipe_workers.project_types.footprint.footprint_project import FootprintProject
 
 
 
@@ -100,8 +100,8 @@ def init_import(project_type, import_key, import_dict):
 
     class_to_type = {
         # Make sure to import all project types here
-        1: BuildAreaImport,
-        2: FootprintImport
+        1: BuildAreaProjectDraft,
+        2: FootprintProjectDraft
     }
 
     imp = class_to_type[int(project_type)](import_key, import_dict)
@@ -372,8 +372,8 @@ def run_create_project():
     """
     project_types = {
         # Make sure to import all project types here
-        1: BuildAreaImport,
-        2: FootprintImport
+        1: BuildAreaProjectDraft,
+        2: FootprintProjectDraft
     }
 
     fb_db = auth.firebaseDB()
@@ -392,8 +392,9 @@ def run_create_project():
 
         try:
              project = project_types[project_type](project_draft)
+             project_id = project_draft_id
              if project.create_project(fb_db):
-                created_project_ids.append(project_draft_id)
+                created_project_ids.append(project_id)
                 # delete project draft from firebase after
                 # successfull project creation
                 ref = fb_db.reference(f'projectDrafts/{project_draft_id}')

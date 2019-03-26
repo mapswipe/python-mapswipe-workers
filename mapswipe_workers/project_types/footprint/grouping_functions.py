@@ -1,4 +1,3 @@
-
 import ogr
 import argparse
 import json

@@ -1,5 +1,5 @@
-from mapswipe_workers.ProjectTypes.Footprint.FootprintTask import *
-from mapswipe_workers.basic.BaseGroup import *
+from mapswipe_workers.project_types.footprint.footprint_task import FootprintTask
+from mapswipe_workers.base.base_group import BaseGroup
 
 
 class FootprintGroup(BaseGroup):
@@ -9,7 +9,7 @@ class FootprintGroup(BaseGroup):
 
     type = 2
 
-    def __init__(self, imp, project_id,  group_id, feature_ids, feature_geometries):
+    def __init__(self, imp, projectId,  group_id, feature_ids, feature_geometries):
         """
            The Constructor Method for a group instance of the footprint project type.
 
@@ -26,7 +26,7 @@ class FootprintGroup(BaseGroup):
             consists of four two pair coordinates representing the footprint of an object
         """
         # super() executes fine now
-        super(FootprintGroup, self).__init__(imp, project_id, group_id)
+        super(FootprintGroup, self).__init__(imp, projectId, group_id)
         self.create_tasks(feature_ids, feature_geometries)
 
     def create_tasks(self, feature_ids, feature_geometries):
