@@ -6,7 +6,7 @@ import argparse
 import logging
 import traceback
 
-from mapswipe_workers.basic import BaseFunctions as b
+from mapswipe_workers.base import base_functions as b
 from mapswipe_workers.utils import error_handling
 from mapswipe_workers.utils import path_helper
 
