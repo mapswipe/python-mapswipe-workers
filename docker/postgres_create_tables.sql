@@ -1,7 +1,7 @@
 -- noinspection SqlNoDataSourceInspectionForFile
 
 CREATE TABLE IF NOT EXISTS projects (
-    project_id int,
+    project_id varchar,
     name varchar,
     project_type int,
     project_details varchar,
@@ -11,16 +11,15 @@ CREATE TABLE IF NOT EXISTS projects (
     is_featured boolean,
     look_for varchar,
     progress int,
-    state int,
+    status varchar,
     verification_count int,
     archive boolean,
     project_type_specifics json,
     PRIMARY KEY(project_id)
     );
 
-
 CREATE TABLE IF NOT EXISTS groups (
-    project_id int,
+    project_id varchar,
     group_id int,
     count int,
     completed_count int,
@@ -33,9 +32,8 @@ CREATE TABLE IF NOT EXISTS groups (
 CREATE INDEX groups_projectid ON public.groups USING btree (group_id);
 CREATE INDEX groups_goupid ON public.groups USING btree (project_id);
 
-
 CREATE TABLE IF NOT EXISTS tasks (
-    project_id int,
+    project_id varchar,
     group_id int,
     task_id varchar,
     project_type_specifics json,
@@ -48,7 +46,6 @@ CREATE INDEX tasks_task_id ON public.tasks USING btree (task_id);
 CREATE INDEX tasks_groupid ON public.tasks USING btree (group_id);
 CREATE INDEX tasks_projectid ON public.tasks USING btree (project_id);
 
-
 CREATE TABLE IF NOT EXISTS users (
     user_id varchar,
     contributions int,
@@ -57,11 +54,11 @@ CREATE TABLE IF NOT EXISTS users (
     PRIMARY KEY(user_id)
     );
 
-
 CREATE TABLE IF NOT EXISTS results (
-    task_id character varying NOT NULL,
-    project_id integer NOT NULL,
-    user_id character varying NOT NULL,
+    project_id varchar,
+    group_id int,
+    user_id varchar,
+    task_id varchar,
     "timestamp" bigint,
     info json,
     duplicates integer,
@@ -75,7 +72,6 @@ CREATE TABLE IF NOT EXISTS results (
 CREATE INDEX results_taskid ON public.results USING btree (task_id);
 CREATE INDEX results_projectid ON public.results USING btree (project_id);
 CREATE INDEX results_userid ON public.results USING btree (user_id);
-
 
 CREATE TABLE IF NOT EXISTS progress(
     project_id int
