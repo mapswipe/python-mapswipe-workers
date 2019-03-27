@@ -66,6 +66,7 @@ class BaseProjectDraft(metaclass=ABCMeta):
         self.groupAverage = 0
         self.progress = 0
         self.contributors = 0
+        self.archived = False
 
     def create_project(self, fb_db):
         """
@@ -76,7 +77,6 @@ class BaseProjectDraft(metaclass=ABCMeta):
         boolean
                 True = Suceessful
         """
-        # psql_db = auth.psqlDB()
         try:
             logging.warning(
                 f'{self.projectId}'
@@ -92,14 +92,11 @@ class BaseProjectDraft(metaclass=ABCMeta):
                 del group['tasks']
 
             # upload data to postgres
-            # TODO: upload data to postgres! -> uncomment:
-            # self.execute_import_queries(
-            #         pg_db,
-            #         projectId,
-            #         project,
-            #         groups,
-            #         tasks,
-            #         )
+            self.execute_import_queries(
+                    project,
+                    groups,
+                    tasks,
+                    )
 
             # upload data to firebase
             new_project_ref = fb_db.reference(f'projects/{self.projectId}')
@@ -137,53 +134,67 @@ class BaseProjectDraft(metaclass=ABCMeta):
             error_handling.log_error(e, logging)
             return False
 
-    def execute_import_queries(self, projectId, project, groups):
+    def execute_import_queries(self, project, groups, tasks):
         '''
         Defines SQL queries and data for import a project into postgres.
         SQL queries will be executed as transaction.
         (Either every query will be executed or none)
         '''
 
-        query_insert_import = '''
-            INSERT INTO projectDrafts
-            VALUES (%s,%s);
-            '''
-
-        data_import = [self.projectId, json.dumps(vars(self))]
-
         query_insert_project = '''
             INSERT INTO projects
-            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s);
+            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s);
             '''
-
+        
         data_project = [
-            int(project_dict['contributors']),
-            int(project_dict['groupAverage']),
-            int(project_dict['id']),
-            project_dict['image'],
-            project_dict['projectDraftId'],
-            project_dict['isFeatured'],
-            project_dict['lookFor'],
-            project_dict['name'],
-            project_dict['progress'],
-            project_dict['projectDetails'],
-            project_dict['status'],
-            int(project_dict['verificationCount']),
-            int(project_dict['projectType']),
-            json.dumps(project_dict['info'])
+                self.projectId,
+                self.name,
+                self.projectType,
+                self.projectDetails,
+                self.groupAverage,
+                self.contributors,
+                self.image,
+                self.isFeatured,
+                self.lookFor,
+                self.progress,
+                self.status,
+                self.verificationCount,
+                self.archived,
         ]
+
+        project_attributes = [
+                'projectId',
+                'name',
+                'projectType',
+                'projectDetails',
+                'groupAverage',
+                'contributors',
+                'image',
+                'isFeatured',
+                'lookFor',
+                'progress',
+                'status',
+                'verificationCount',
+                'archived',
+                ]
+
+        project_type_specifics = dict()
+        for key, value in project.items():
+            if key not in project_attributes:
+                project_type_specifics[key] = value
+        data_project.append(json.dumps(project_type_specifics))
 
         query_recreate_raw_groups = '''
             DROP TABLE IF EXISTS raw_groups CASCADE;
             CREATE TABLE raw_groups (
-              projectId int,
+              project_id varchar,
               group_id int,
               count int,
-              completedCount int,
-              verificationCount int,
-              info json,
-              PRIMARY KEY (group_id, projectId),
-              FOREIGN KEY (projectId) REFERENCES projects(projectId)
+              completed_count int,
+              verification_count int,
+              project_type_specifics json,
+              PRIMARY KEY (group_id, project_id),
+              FOREIGN KEY (project_id) REFERENCES projects(project_id)
             );
             '''
 
@@ -197,12 +208,12 @@ class BaseProjectDraft(metaclass=ABCMeta):
         query_recreate_raw_tasks = '''
             DROP TABLE IF EXISTS raw_tasks CASCADE;
             CREATE TABLE raw_tasks (
-                task_id varchar,
+                project_id varchar,
                 group_id int,
-                projectId int,
-                info json,
-                PRIMARY KEY (task_id, group_id, projectId),
-                FOREIGN KEY (projectId) REFERENCES projects(projectId),
+                task_id varchar,
+                project_type_specifics json,
+                PRIMARY KEY (task_id, group_id, project_id),
+                FOREIGN KEY (project_id) REFERENCES projects(project_id),
                 FOREIGN KEY (group_id) REFERENCES groups(group_id)
             );
             '''
@@ -214,30 +225,29 @@ class BaseProjectDraft(metaclass=ABCMeta):
             DROP TABLE IF EXISTS raw_tasks CASCADE;
             '''
 
-        groups_txt_filename = self.create_groups_txt_file(projectId, groups)
-        tasks_txt_filename = self.create_tasks_txt_file(projectId, groups)
+        groups_txt_filename = self.create_groups_txt_file(groups)
+        tasks_txt_filename = self.create_tasks_txt_file(groups)
 
         groups_columns = [
-                'projectId',
+                'project_id',
                 'group_id',
                 'count',
-                'completedCount',
-                'verificationCount',
-                'info'
+                'completed_count',
+                'verification_count',
+                'project_type_specifics'
                 ]
 
         tasks_columns = [
-                'task_id',
                 'projectId',
                 'group_id',
-                'info']
+                'task_id',
+                'project_type_specifics']
 
         # execution of all SQL-Statements as transaction
         # (either every query gets executed or none)
         try:
-            p_con = postgres()
+            p_con = auth.postgresDB()
             p_con._db_cur = p_con._db_connection.cursor()
-            p_con._db_cur.execute(query_insert_import, data_import)
             p_con._db_cur.execute(query_insert_project, data_project)
             p_con._db_cur.execute(query_recreate_raw_groups, None)
             p_con._db_cur.execute(query_recreate_raw_tasks, None)
@@ -270,7 +280,7 @@ class BaseProjectDraft(metaclass=ABCMeta):
         os.remove(groups_txt_filename)
         os.remove(tasks_txt_filename)
 
-    def create_groups_txt_file(self, projectId, groups):
+    def create_groups_txt_file(self, groups):
         """
         Creates a text file containing groups information
         for a specific project.
@@ -294,15 +304,15 @@ class BaseProjectDraft(metaclass=ABCMeta):
 
         # create txt file with header for later
         # import with copy function into postgres
-        groups_txt_filename = f'{DATA_PATH}/tmp/raw_groups_{projectId}.txt'
+        groups_txt_filename = f'{DATA_PATH}/tmp/raw_groups_{self.projectId}.txt'
         groups_txt_file = open(groups_txt_filename, 'w', newline='')
         fieldnames = (
-                'projectId',
+                'project_id',
                 'group_id',
                 'count',
-                'completedCount',
-                'verificationCount',
-                'info'
+                'completed_count',
+                'verification_count',
+                'project_type_specifics'
                 )
         w = csv.DictWriter(
                 groups_txt_file,
@@ -314,33 +324,33 @@ class BaseProjectDraft(metaclass=ABCMeta):
         for group in groups:
             try:
                 output_dict = {
-                    "projectId": projectId,
+                    "project_id": self.projectId,
                     "group_id": int(groups[group]['id']),
                     "count": int(groups[group]['count']),
-                    "completedCount": int(groups[group]['completedCount']),
-                    "verificationCount": int(
+                    "completed_count": int(groups[group]['completedCount']),
+                    "verification_count": int(
                         groups[group]['verificationCount']
                         ),
-                    "info": {}
+                    "project_type_specifics": {}
                 }
 
                 for key in groups[group].keys():
                     if key not in [
-                            'projectId',
+                            'project_id',
                             'group_id',
                             'count',
-                            'completedCount',
-                            'verificationCount',
+                            'completed_count',
+                            'verification_count',
                             'tasks'
                             ]:
-                        output_dict['info'][key] = groups[group][key]
-                output_dict['info'] = json.dumps(output_dict['info'])
+                        output_dict['project_type_specifics'][key] = groups[group][key]
+                output_dict['project_type_specifics'] = json.dumps(output_dict['project_type_specifics'])
 
                 w.writerow(output_dict)
 
             except Exception as e:
                 logging.warning(
-                        f'{projectId}'
+                        f'{self.project_id}'
                         f' - set_groups_postgres - '
                         f'groups missed critical information: {e}'
                         )
@@ -350,7 +360,7 @@ class BaseProjectDraft(metaclass=ABCMeta):
 
         return groups_txt_filename
 
-    def create_tasks_txt_file(self, projectId, tasks):
+    def create_tasks_txt_file(self, tasks):
         """
         Creates a text file containing tasks information
         for a specific project.
@@ -374,10 +384,15 @@ class BaseProjectDraft(metaclass=ABCMeta):
             os.mkdir('{}/tmp'.format(DATA_PATH))
 
         # save tasks in txt file
-        tasks_txt_filename = f'{DATA_PATH}/tmp/raw_tasks_{projectId}.txt'
+        tasks_txt_filename = f'{DATA_PATH}/tmp/raw_tasks_{self.projectId}.txt'
         tasks_txt_file = open(tasks_txt_filename, 'w', newline='')
 
-        fieldnames = ('task_id', 'projectId', 'group_id', 'info')
+        fieldnames = (
+                'project_id',
+                'group_id', 
+                'task_id',
+                'project_type_specifics'
+                )
         w = csv.DictWriter(
                 tasks_txt_file,
                 fieldnames=fieldnames,
@@ -385,28 +400,30 @@ class BaseProjectDraft(metaclass=ABCMeta):
                 quotechar="'",
                 )
 
-        for group in tasks:
-            group_id = int(group)
-            for task in group:
-                try:
-                    output_dict = {
-                            "task_id": str(task),
-                            "projectId": task['projectId'],
-                            "group_id": group_id,
-                            "info": {}
-                            }
-                    for key in task.keys():
-                        if key not in ['task_id', 'projectId', 'group_id']:
-                            output_dict['info'][key] = [task][key]
-                    output_dict['info'] = json.dumps(output_dict['info'])
+        for task in tasks:
+            try:
+                output_dict = {
+                        "project_id": self.project_id,
+                        "group_id": task['group_id'],
+                        "task_id": str(task['task_id']),
+                        "project_type_specifics": dict()
+                        }
+                for key in task.keys():
+                    if key not in [
+                            'project_id',
+                            'group_id'
+                            'task_id',
+                            ]:
+                        output_dict['project_type_specifics'][key] = [task][key]
+                output_dict['project_type_specifics'] = json.dumps(output_dict['project_type_specifics'])
 
-                    w.writerow(output_dict)
-                except Exception as e:
-                    logging.warning(
-                            f'{projectId}'
-                            f' - set_tasks_postgres - '
-                            f'tasks missed critical information: {e}'
-                            )
+                w.writerow(output_dict)
+            except Exception as e:
+                logging.warning(
+                        f'{self.projectId}'
+                        f' - set_tasks_postgres - '
+                        f'tasks missed critical information: {e}'
+                        )
         tasks_txt_file.close()
         return tasks_txt_filename
 

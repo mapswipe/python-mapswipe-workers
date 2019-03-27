@@ -241,11 +241,11 @@ class postgresDB(object):
         # try to load configuration from config file
         CONFIG = load_config()
         try:
-            dbname = CONFIG['psql']['database']
-            user = CONFIG['psql']['username']
-            password = CONFIG['psql']['password']
-            host = CONFIG['psql']['host']
-            port = CONFIG['psql']['port']  # print('use configuration for psql as provided by config.json')
+            dbname = CONFIG['postgres']['database']
+            user = CONFIG['postgres']['username']
+            password = CONFIG['postgres']['password']
+            host = CONFIG['postgres']['host']
+            port = CONFIG['postgres']['port']  # print('use configuration for psql as provided by config.json')
         except:
             # Default configuration
             raise Exception('Could not load psql info from the config file')
