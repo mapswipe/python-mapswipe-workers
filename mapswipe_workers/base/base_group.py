@@ -19,7 +19,7 @@ class BaseGroup(metaclass=ABCMeta):
              Number of tasks associated with the group
     """
 
-    def __init__(self, project, group_id):
+    def __init__(self, project, groupId):
         """
         The Constructor Method for a group instance
 
@@ -35,8 +35,8 @@ class BaseGroup(metaclass=ABCMeta):
         -------
         object
         """
-        self.project_id = project.projectId
-        self.group_id = group_id
+        self.projectId = project.projectId
+        self.groupId = groupId
         self.neededCount = project.verificationCount
         self.completedCount = 0
         self.verificationCount = project.verificationCount

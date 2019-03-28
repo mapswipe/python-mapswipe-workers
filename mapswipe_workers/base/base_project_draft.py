@@ -64,7 +64,7 @@ class BaseProjectDraft(metaclass=ABCMeta):
         self.name = project_draft['name']
         self.progress = 0
         self.projectDetails = project_draft['projectDetails']
-        self.projectId = project_draft['project_draft_id']
+        self.projectId = project_draft['projectDraftId']
         self.projectType = int(project_draft['projectType'])
         self.status = 'inactive'
         self.tileServer = project_draft['tileServer']
@@ -108,9 +108,9 @@ class BaseProjectDraft(metaclass=ABCMeta):
                 tasks = list()
                 for task in group['tasks']:
                     tasks.append(vars(task))
-                groupsOfTasks[group['group_id']] = tasks
+                groupsOfTasks[group['groupId']] = tasks
                 del group['tasks']
-                groups[group['group_id']] = group
+                groups[group['groupId']] = group
 
             del(project['groups'])
             project.pop('inputGeometries', None)
@@ -355,9 +355,9 @@ class BaseProjectDraft(metaclass=ABCMeta):
 
                 for key in group.keys():
                     if key not in [
-                            'project_id',
-                            'group_id',
-                            'number_of_tasks',
+                            'projectId',
+                            'groupId',
+                            'numberOfTasks',
                             'completedCount',
                             'verificationCount',
                             ]:
@@ -418,20 +418,20 @@ class BaseProjectDraft(metaclass=ABCMeta):
                 quotechar="'",
                 )
 
-        for group_id, tasks in groupsOfTasks.items():
+        for groupId, tasks in groupsOfTasks.items():
             for task in tasks:
             # try:
                 output_dict = {
                         "project_id": self.projectId,
-                        "group_id": group_id,
-                        "task_id": task['task_id'],
+                        "group_id": groupId,
+                        "task_id": task['taskId'],
                         "project_type_specifics": dict()
                         }
                 for key in task.keys():
                     if key not in [
-                            'project_id',
-                            'group_id'
-                            'task_id',
+                            'projectId',
+                            'groupId'
+                            'taskId',
                             ]:
                         output_dict['project_type_specifics'][key] = task[key]
                 output_dict['project_type_specifics'] = json.dumps(output_dict['project_type_specifics'])

@@ -41,12 +41,12 @@ class BuildAreaTask(BaseTask):
             Y coordinate of the imagery tile
         """
         # the task id is composed of TileZ-TileX-TileY
-        task_id = '{}-{}-{}'.format(
+        taskId = '{}-{}-{}'.format(
             project.zoomLevel,
             TileX,
             TileY
         )
-        super().__init__(group, task_id)
+        super().__init__(group, taskId)
         self.taskX = str(TileX)
         self.taskY = str(TileY)
         self.url = t.tile_coords_zoom_and_tileserver_to_URL(

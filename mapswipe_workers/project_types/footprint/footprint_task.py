@@ -38,8 +38,8 @@ class FootprintTask(BaseTask):
             Every coordinate pair is a vertex, representing the footprint
             of an object.
         """
-        task_id = '{}_{}_{}'.format(
-            group.project_id, group.group_id, feature_id
+        taskId = '{}_{}_{}'.format(
+            group.projectId, group.groupId, feature_id
         )
 
         super().__init__(group, task_id)

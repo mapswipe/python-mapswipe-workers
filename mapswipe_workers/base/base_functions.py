@@ -385,7 +385,7 @@ def run_create_project():
     created_project_ids = list()
 
     for project_draft_id, project_draft in project_drafts.items():
-        project_draft['project_draft_id'] = project_draft_id
+        project_draft['projectDraftId'] = project_draft_id
         # let's have a look at the project type
         try:
             project_type = int(project_draft['projectType'])

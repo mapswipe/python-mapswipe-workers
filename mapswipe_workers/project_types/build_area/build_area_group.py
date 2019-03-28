@@ -19,7 +19,7 @@ class BuildAreaGroup(BaseGroup):
             The minimum y coordinate of the extent of the group
     """
 
-    def __init__(self, project, group_id, slice):
+    def __init__(self, project, groupId, slice):
         """
             The constructor method for a group instance of the \
                     build area project type
@@ -34,7 +34,7 @@ class BuildAreaGroup(BaseGroup):
             The dictionary containing the spatial representation \
             of the group as extent consisting of 4 values
         """
-        super().__init__(project, group_id)
+        super().__init__(project, groupId)
         self.xMax = slice['xMax']
         self.xMin = slice['xMin']
         self.yMax = slice['yMax']

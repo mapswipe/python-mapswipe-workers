@@ -9,7 +9,7 @@ class FootprintGroup(BaseGroup):
 
     type = 2
 
-    def __init__(self, project,  group_id):
+    def __init__(self, project,  groupId):
         """
            The Constructor Method for a group instance of the footprint project type.
 
@@ -25,7 +25,7 @@ class FootprintGroup(BaseGroup):
             The geometry of the feature as geojson. Consisting of two keys: coordinates and type. Coordinates
             consists of four two pair coordinates representing the footprint of an object
         """
-        super().__init__(project, group_id)
+        super().__init__(project, groupId)
 
     def create_tasks(self, feature_ids, feature_geometries):
         """

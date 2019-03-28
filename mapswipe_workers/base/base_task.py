@@ -7,7 +7,7 @@ class BaseTask(object):
         id : int
             The id of the task
     """
-    def __init__(self, group, task_id):
+    def __init__(self, group, taskId):
         """
             The Constructor Method for a task instance
 
@@ -17,9 +17,9 @@ class BaseTask(object):
             The id of the task
         """
         # set basic group information
-        self.project_id = group.project_id
-        self.group_id = group.group_id
-        self.task_id = task_id
+        self.projectId = group.projectId
+        self.groupId = group.groupId
+        self.taskId = taskId
 
     def print_task_info(self):
         """
