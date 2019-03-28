@@ -1,5 +1,6 @@
 from mapswipe_workers.base import base_functions
-
+import logging
+import sys
 
 def test_import_process():
     base_functions.run_create_project()

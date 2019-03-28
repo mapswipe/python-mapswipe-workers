@@ -1,69 +1,46 @@
 import pickle
 import os
-from mapswipe_workers.basic import BaseFunctions
+
+from mapswipe_workers import auth
 from mapswipe_workers.definitions import DATA_PATH
 
 
-def delete_sample_data_from_firebase(firebase, project_id, import_key):
-    fb_db = firebase.database()
-
-    # first delete the project, import and all groups
-    fb_db.update(
-        {
-            "projects/{}".format(project_id): None,
-            "groups/{}".format(project_id): None,
-            "imports/{}".format(import_key): None
-        }
-    )
-    print('deleted the import, project and all groups in firebase')
-
-    # then delete all results for this project in firebase
-
-    # get all results from firebase
-    all_results = fb_db.child("results").get().val()
-
-    if not all_results:
-        print('there are no results in firebase')
-        pass
-    else:
-        data = {}
-        for task_id, results in all_results.items():
-            for child_id, result in results.items():
-
-                if result['data']['projectId'] == project_id:
-                    key = 'results/{task_id}/{child_id}'.format(
-                        task_id=task_id,
-                        child_id=child_id)
-
-                    data[key] = None
-
-        fb_db.update(data)
-        print('deleted all results for project %s' % project_id)
+def delete_sample_data_from_firebase(fb_db, project_id):
+    ref = fb_db.reference(f'results/{project_id}')
+    ref.set({})
+    ref = fb_db.reference(f'tasks/{project_id}')
+    ref.set({})
+    ref = fb_db.reference(f'groups/{project_id}')
+    ref.set({})
+    ref = fb_db.reference(f'projects/{project_id}')
+    ref.set({})
+    ref = fb_db.reference(f'projectDrafts/{project_id}')
+    ref.set({})
 
 
+def delete_sample_results_from_postgres(pg_db, project_id):
+    p_con = pg_db()
 
-
-def delete_sample_results_from_postgres(postgres, project_id, import_key):
-    p_con = postgres()
-
+    # DELETE FROM results
+    # WHERE EXISTS (
+    #     SELECT project_id
+    #     FROM results
+    #     WHERE project_id = %s
+    #     );
     sql_query = '''
-        DELETE FROM projects WHERE project_id = %s;
-        DELETE FROM results WHERE project_id = %s;
         DELETE FROM tasks WHERE project_id = %s;
         DELETE FROM groups WHERE project_id = %s;
-        DELETE FROM imports WHERE import_id = %s;
+        DELETE FROM projects WHERE project_id = %s;
         '''
 
     data = [
         project_id,
         project_id,
         project_id,
-        project_id,
-        import_key
     ]
 
     p_con.query(sql_query, data)
-    print('deleted import, project, groups, tasks, results in postgres')
+    print('deleted project, groups, tasks, results in postgres')
 
 
 def delete_local_files(project_id, import_key):
@@ -82,24 +59,43 @@ def delete_local_files(project_id, import_key):
         os.remove(DATA_PATH + '/input_geometries/raw_input_{}.kml'.format(import_key))
 
 
+def delete_sample_users(fb_db):
+    pass
+
 if __name__ == '__main__':
-    modus = 'development'
-    firebase, postgres = BaseFunctions.get_environment(modus)
+    pg_db = auth.postgresDB
+    fb_db = auth.firebaseDB()
 
-    filename = 'firebase_imported_projects.pickle'
-    with open(filename, 'rb') as f:
-        imported_projects = pickle.load(f)
+    filename = 'project_ids.pickle'
+    
+    if os.path.isfile(filename):
+        with open(filename, 'rb') as f:
+            project_ids = pickle.load(f)
+        for project_id in project_ids:
+            delete_sample_data_from_firebase(fb_db, project_id)
+            delete_sample_results_from_postgres(pg_db, project_id)
+            print(
+                    f'deleted projectDraft, project, groups, tasks and results'
+                    f'in firebase for the project with the id: {project_id}'
+                    )
+        os.remove('project_ids.pickle')
+    else:
+        print('No project_ids.pickle file found')
 
-    print(imported_projects)
 
-    for import_key, project_id, project_type in imported_projects:
-        delete_sample_data_from_firebase(firebase, project_id, import_key)
-        delete_sample_results_from_postgres(postgres, project_id, import_key)
-        delete_local_files(project_id, import_key)
+    filename = 'user_ids.pickle'
+    if os.path.isfile(filename):
+        with open(filename, 'rb') as f:
+            user_ids = pickle.load(f)
+        for user_id in user_ids:
+            ref = fb_db.reference(f'users/{user_ids}')
+            ref.set({})
+        os.remove('user_ids.pickle')
+    else:
+        print('No user_ids.pickle file found')
 
 
-    os.remove('firebase_imported_projects.pickle')
-    os.remove('firebase_uploaded_projects.pickle')
-    print('deleted firebase_imported_projects.pickle and firebase_uploaded_projects.pickle')
+    # delete_local_files(project_id, import_key)
 
-
+    # os.remove('firebase_uploaded_projects.pickle')
+    # print('deleted firebase_imported_projects.pickle and firebase_uploaded_projects.pickle')
