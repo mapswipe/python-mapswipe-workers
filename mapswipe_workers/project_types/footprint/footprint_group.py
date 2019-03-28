@@ -9,7 +9,7 @@ class FootprintGroup(BaseGroup):
 
     type = 2
 
-    def __init__(self, imp, projectId,  group_id, feature_ids, feature_geometries):
+    def __init__(self, project,  group_id):
         """
            The Constructor Method for a group instance of the footprint project type.
 
@@ -25,9 +25,7 @@ class FootprintGroup(BaseGroup):
             The geometry of the feature as geojson. Consisting of two keys: coordinates and type. Coordinates
             consists of four two pair coordinates representing the footprint of an object
         """
-        # super() executes fine now
-        super(FootprintGroup, self).__init__(imp, projectId, group_id)
-        self.create_tasks(feature_ids, feature_geometries)
+        super().__init__(project, group_id)
 
     def create_tasks(self, feature_ids, feature_geometries):
         """
@@ -35,20 +33,20 @@ class FootprintGroup(BaseGroup):
 
         Parameters
         ----------
-        project: FootprintProject object
-            The project the group is associated with
         feature_ids: list
             THe list of the ids of the features
         feature_geometries: list
             A list of geometries oor feature in geojson format. These consist two keys: coordinates and type.
             Coordinates of four two pair coordinates. Every coordinate pair is a vertex, representing the footprint
             of an object.
+
+        Returns
+        -------
+        tasks: list
         """
 
         tasks = {}
         for i in range(0, len(feature_ids)):
             task = FootprintTask(self, feature_ids[i], feature_geometries[i])
-            tasks[task.id] = task
-
-        self.tasks = tasks
-        self.count = len(tasks)
+            self.tasks.append(task)
+        self.numberOfTasks = len(tasks)

@@ -9,9 +9,6 @@ class BuildAreaGroup(BaseGroup):
 
         Attributes
         ----------
-        zoomLevel: int
-            The zoom level of the defined tiled imagery server \
-                    used for the project
         xMax: int
             The maximum x coordinate of the extent of the group
         xMin: int
@@ -22,7 +19,7 @@ class BuildAreaGroup(BaseGroup):
             The minimum y coordinate of the extent of the group
     """
 
-    def __init__(self, imp, projectId, group_id, slice: dict):
+    def __init__(self, project, group_id, slice):
         """
             The constructor method for a group instance of the \
                     build area project type
@@ -37,20 +34,13 @@ class BuildAreaGroup(BaseGroup):
             The dictionary containing the spatial representation \
             of the group as extent consisting of 4 values
         """
-        # super() executes fine now
-        super(BuildAreaGroup, self).__init__(imp, projectId, group_id)
-
-        # add the type specific attributes
-        self.zoomLevel = imp.zoomLevel
+        super().__init__(project, group_id)
         self.xMax = slice['xMax']
         self.xMin = slice['xMin']
         self.yMax = slice['yMax']
         self.yMin = slice['yMin']
 
-        # we need to add the tasks then, is this happening during init?
-        self.create_tasks(imp)
-
-    def create_tasks(self, imp: object):
+    def create_tasks(self, project):
         """
         The Function to create tasks for the group of the build \
                 area project type
@@ -60,10 +50,9 @@ class BuildAreaGroup(BaseGroup):
         project: BuildAreaProject object
             The project the group is associated with
         """
-        tasks = {}
+        tasks = list()
         for TileX in range(int(self.xMin), int(self.xMax) + 1):
             for TileY in range(int(self.yMin), int(self.yMax) + 1):
-                task = BuildAreaTask(self, imp, TileX, TileY)
-                tasks[task.id] = task
-        self.tasks = tasks
-        self.count = len(tasks)
+                task = BuildAreaTask(self, project, TileX, TileY)
+                self.tasks.append(task)
+        self.numberOfTasks = len(tasks)

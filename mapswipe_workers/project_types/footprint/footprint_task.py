@@ -3,7 +3,8 @@ from mapswipe_workers.base.base_task import BaseTask
 
 class FootprintTask(BaseTask):
     """
-        The subclass of BaseTask to specify tasks of the footprint project type.
+        The subclass of BaseTask to specify tasks of
+        the footprint project type.
 
         Attributes
         ----------
@@ -12,13 +13,15 @@ class FootprintTask(BaseTask):
         featureId: int
             The id of the feature
         geojson: dict
-            Geojson object containing the representation of the footprint. Coordinates
-            consists of four two pair coordinates representing the footprint of an object
-
+            Geojson object containing the representation of the footprint.
+            Coordinates consists of four two pair coordinates representing
+            the footprint of an object.
     """
+
     def __init__(self, group, feature_id, feature_geometry):
         """
-            The constructor method for a group instance of the footprint project type.
+            The constructor method for a group instance of the
+            footprint project type.
 
         Parameters
         ----------
@@ -29,15 +32,16 @@ class FootprintTask(BaseTask):
         feature_id: int
             The feature id
         feature_geometry: dict
-            The geometries or feature in geojson format. It consist of two keys: coordinates and type.
-            Coordinates of four two pair coordinates. Every coordinate pair is a vertex, representing the footprint
+            The geometries or feature in geojson format.
+            It consist of two keys: Coordinates and type.
+            Coordinates of four two pair coordinates.
+            Every coordinate pair is a vertex, representing the footprint
             of an object.
         """
-        # super() executes fine now
         task_id = '{}_{}_{}'.format(
-            group.projectId, group.id, feature_id
+            group.project_id, group.group_id, feature_id
         )
 
-        super(FootprintTask, self).__init__(task_id)
+        super().__init__(group, task_id)
         self.featureId = feature_id
         self.geojson = feature_geometry

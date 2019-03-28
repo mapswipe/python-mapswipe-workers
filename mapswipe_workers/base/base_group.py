@@ -17,10 +17,9 @@ class BaseGroup(metaclass=ABCMeta):
             Required number of users left to finish the group. Decreases with the increase of completedCount
         count: int
              Number of tasks associated with the group
-
     """
 
-    def __init__(self, imp: object, projectId, groupId):
+    def __init__(self, project, group_id):
         """
         The Constructor Method for a group instance
 
@@ -36,32 +35,20 @@ class BaseGroup(metaclass=ABCMeta):
         -------
         object
         """
-        # set basic group information, make sure to spell exactly as represented in firebase and consumed by the app
-        # projectId is a string in firebase
-        self.projectId = projectId
-        self.id = groupId
+        self.project_id = project.projectId
+        self.group_id = group_id
+        self.neededCount = project.verificationCount
         self.completedCount = 0
-        #self.reportCount = 0 # not sure for what the reportCount is used
-        self.neededCount = imp.verificationCount
-        self.verificationCount = imp.verificationCount
-        #self.distributedCount = 0 # not sure for what the distributedCount is used
-        self.count = 0
+        self.verificationCount = project.verificationCount
+        self.tasks = list()
+        self.numberOfTasks = 0
 
-    def to_dict(self) -> dict:
-        """
-        The Function to convert the group object to a dictionary
 
+    @abstractmethod
+    def create_tasks():
+        '''
         Returns
         -------
-        group: dict
-            Returns group attributes in a dictionary
-
-        """
-        group = vars(self)
-        for task_id, task in group['tasks'].items():
-            group['tasks'][task_id] = vars(task)
-        return group
-    
-    @abstractmethod
-    def create_tasks(self, imp: object):
+        tasks: list
+        '''
         pass

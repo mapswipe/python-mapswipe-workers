@@ -131,13 +131,5 @@ class BuildAreaProject(BaseProject):
                     row_dict[header[i]] = row[i]
             results_dict[row_id] = row_dict
 
-        logging.warning('got results information from postgres for project: %s.'' rows = %s' % (self.id,
-                                                                                                len(project_results)))
+        logging.warning('got results information from postgres for project: %s.'' rows = %s' % (self.id, len(project_results)))
         return results_dict
-
-
-
-
-
-
-

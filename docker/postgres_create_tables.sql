@@ -21,11 +21,11 @@ CREATE TABLE IF NOT EXISTS projects (
 CREATE TABLE IF NOT EXISTS groups (
     project_id varchar,
     group_id int,
-    count int,
+    number_of_tasks int,
     completed_count int,
     verification_count int,
     project_type_specifics json,
-    PRIMARY KEY(project_id, group_id)
+    PRIMARY KEY(project_id, group_id),
     FOREIGN KEY (project_id) REFERENCES projects (project_id)
     );
 
@@ -37,9 +37,9 @@ CREATE TABLE IF NOT EXISTS tasks (
     group_id int,
     task_id varchar,
     project_type_specifics json,
-    PRIMARY KEY(project_id, group_id, task_id)
-    FOREIGN KEY (project_id) REFERENCES projects (project_id)
-    FOREIGN KEY (group_id) REFERENCES groups (group_id)
+    PRIMARY KEY(project_id, group_id, task_id),
+    FOREIGN KEY (project_id) REFERENCES projects (project_id),
+    FOREIGN KEY (project_id, group_id) REFERENCES groups (project_id, group_id)
     );
 
 CREATE INDEX tasks_task_id ON public.tasks USING btree (task_id);
@@ -62,10 +62,10 @@ CREATE TABLE IF NOT EXISTS results (
     "timestamp" bigint,
     info json,
     duplicates integer,
-    PRIMARY KEY (project_id, group_id, task_id, user_id)
-    FOREIGN KEY (project_id) REFERENCES projects (project_id)
-    FOREIGN KEY (group_id) REFERENCES groups (group_id)
-    FOREIGN KEY (task_id) REFERENCES tasks (task_id)
+    PRIMARY KEY (project_id, group_id, task_id, user_id),
+    FOREIGN KEY (project_id) REFERENCES projects (project_id),
+    FOREIGN KEY (project_id, group_id) REFERENCES groups (project_id, group_id)
+    FOREIGN KEY (project_id, group_id, task_id) REFERENCES tasks (project_id, group_id, task_id),
     FOREIGN KEY (user_id) REFERENCES users (user_id)
 );
 
@@ -74,10 +74,9 @@ CREATE INDEX results_projectid ON public.results USING btree (project_id);
 CREATE INDEX results_userid ON public.results USING btree (user_id);
 
 CREATE TABLE IF NOT EXISTS progress(
-    project_id int
-    contributors int
-    progress int
-    timestamp bigint
-    PRIMARY KEY (project_id, group_id, task_id, user_id)
-    FOREIGN KEY (group_id) REFERENCES groups (group_id)
+    project_id int,
+    contributors int,
+    progress int,
+    timestamp bigint,
+    PRIMARY KEY (project_id)
     );

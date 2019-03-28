@@ -252,14 +252,9 @@ class BuildAreaProjectDraft(BaseProjectDraft):
                 )
         return True
 
-    def create_groups(self, projectId):
+    def create_groups(self, project):
         """
         The function to create groups from the project extent
-
-        Returns
-        -------
-        groups : dict
-            The group information containing task information
         """
         # first step get properties of each group from extent
         raw_groups = grouping_functions.extent_to_slices(
@@ -267,14 +262,13 @@ class BuildAreaProjectDraft(BaseProjectDraft):
                 self.zoomLevel
                 )
 
-        groups = dict()
         for group_id, slice in raw_groups.items():
-            group = BuildAreaGroup(self, projectId, group_id, slice)
-            groups[group.id] = group.to_dict()
+            group = BuildAreaGroup(project, group_id, slice)
+            group.create_tasks(project)
+            self.groups.append(group)
 
         logging.warning(
                 f'{self.projectId}'
                 f' - create_groups - '
                 f'created groups dictionary'
             )
-        return groups

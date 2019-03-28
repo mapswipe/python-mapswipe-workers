@@ -22,10 +22,9 @@ class BuildAreaTask(BaseTask):
         url: str
             URL pointing to the respective imagery of the specified \
                     tiled imagery server
-
-
     """
-    def __init__(self, group, imp, TileX, TileY):
+
+    def __init__(self, group, project, TileX, TileY):
         """
             The Constructor method for a group instance of the \
                     footprint project type.
@@ -43,20 +42,19 @@ class BuildAreaTask(BaseTask):
         """
         # the task id is composed of TileZ-TileX-TileY
         task_id = '{}-{}-{}'.format(
-            imp.zoomLevel,
+            project.zoomLevel,
             TileX,
             TileY
         )
-        super(BuildAreaTask, self).__init__(task_id)
-
+        super().__init__(group, task_id)
         self.taskX = str(TileX)
         self.taskY = str(TileY)
         self.url = t.tile_coords_zoom_and_tileserver_to_URL(
             TileX,
             TileY,
-            imp.zoomLevel,
-            imp.tileServer,
-            imp.apiKey,
-            imp.tileServerUrl,
-            imp.layerName,
+            project.zoomLevel,
+            project.tileServer,
+            project.apiKey,
+            project.tileServerUrl,
+            project.layerName,
         )

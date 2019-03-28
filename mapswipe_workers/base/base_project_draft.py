@@ -67,6 +67,7 @@ class BaseProjectDraft(metaclass=ABCMeta):
         self.progress = 0
         self.contributors = 0
         self.archived = False
+        self.groups = list()
 
     def create_project(self, fb_db):
         """
@@ -83,19 +84,26 @@ class BaseProjectDraft(metaclass=ABCMeta):
                 f' - import_project - start importing'
                 )
 
-            project = vars(self)  
-            groups = self.create_groups(self.projectId)
-            # extract tasks from groups
-            tasks = dict()
-            for group_id, group in groups.items():
-                tasks[group_id] = group['tasks']
-                del group['tasks']
+            self.create_groups(self)
 
+            project = vars(self)
+            groups = dict()
+            groupsOfTasks = dict()
+            for group in self.groups:
+                group = vars(group)
+                tasks = list()
+                for task in group['tasks']:
+                    tasks.append(vars(task))
+                groupsOfTasks[group['group_id']] = tasks
+                del group['tasks']
+                groups[group['group_id']] = group
+            
+            del(project['groups'])
             # upload data to postgres
             self.execute_import_queries(
                     project,
                     groups,
-                    tasks,
+                    groupsOfTasks,
                     )
 
             # upload data to firebase
@@ -110,7 +118,7 @@ class BaseProjectDraft(metaclass=ABCMeta):
             logging.warning('%s - uploaded groups in firebase' % self.projectId)
 
             new_tasks_ref = fb_db.reference(f'tasks/{self.projectId}/')
-            new_tasks_ref.set(tasks)
+            new_tasks_ref.set(groupsOfTasks)
             logging.warning('%s - uploaded tasks in firebase' % self.projectId)
 
             logging.warning(
@@ -134,7 +142,7 @@ class BaseProjectDraft(metaclass=ABCMeta):
             error_handling.log_error(e, logging)
             return False
 
-    def execute_import_queries(self, project, groups, tasks):
+    def execute_import_queries(self, project, groups, groupsOfTasks):
         '''
         Defines SQL queries and data for import a project into postgres.
         SQL queries will be executed as transaction.
@@ -189,12 +197,10 @@ class BaseProjectDraft(metaclass=ABCMeta):
             CREATE TABLE raw_groups (
               project_id varchar,
               group_id int,
-              count int,
+              number_of_tasks int,
               completed_count int,
               verification_count int,
-              project_type_specifics json,
-              PRIMARY KEY (group_id, project_id),
-              FOREIGN KEY (project_id) REFERENCES projects(project_id)
+              project_type_specifics json
             );
             '''
 
@@ -211,10 +217,7 @@ class BaseProjectDraft(metaclass=ABCMeta):
                 project_id varchar,
                 group_id int,
                 task_id varchar,
-                project_type_specifics json,
-                PRIMARY KEY (task_id, group_id, project_id),
-                FOREIGN KEY (project_id) REFERENCES projects(project_id),
-                FOREIGN KEY (group_id) REFERENCES groups(group_id)
+                project_type_specifics json
             );
             '''
 
@@ -226,19 +229,19 @@ class BaseProjectDraft(metaclass=ABCMeta):
             '''
 
         groups_txt_filename = self.create_groups_txt_file(groups)
-        tasks_txt_filename = self.create_tasks_txt_file(groups)
+        tasks_txt_filename = self.create_tasks_txt_file(groupsOfTasks)
 
         groups_columns = [
                 'project_id',
                 'group_id',
-                'count',
+                'number_of_tasks',
                 'completed_count',
                 'verification_count',
                 'project_type_specifics'
                 ]
 
         tasks_columns = [
-                'projectId',
+                'project_id',
                 'group_id',
                 'task_id',
                 'project_type_specifics']
@@ -309,7 +312,7 @@ class BaseProjectDraft(metaclass=ABCMeta):
         fieldnames = (
                 'project_id',
                 'group_id',
-                'count',
+                'number_of_tasks',
                 'completed_count',
                 'verification_count',
                 'project_type_specifics'
@@ -321,36 +324,33 @@ class BaseProjectDraft(metaclass=ABCMeta):
                 quotechar="'",
                 )
 
-        for group in groups:
+        for groupId, group in groups.items():
             try:
                 output_dict = {
                     "project_id": self.projectId,
-                    "group_id": int(groups[group]['id']),
-                    "count": int(groups[group]['count']),
-                    "completed_count": int(groups[group]['completedCount']),
-                    "verification_count": int(
-                        groups[group]['verificationCount']
-                        ),
-                    "project_type_specifics": {}
+                    "group_id": groupId,
+                    "number_of_tasks": group['numberOfTasks'],
+                    "completed_count": group['completedCount'],
+                    "verification_count": group['verificationCount'],
+                    "project_type_specifics": dict()
                 }
 
-                for key in groups[group].keys():
+                for key in group.keys():
                     if key not in [
-                            'project_id',
-                            'group_id',
-                            'count',
-                            'completed_count',
-                            'verification_count',
-                            'tasks'
+                            'projectId',
+                            'groupId',
+                            'numberOfTasks',
+                            'completedCount',
+                            'verificationCount',
                             ]:
-                        output_dict['project_type_specifics'][key] = groups[group][key]
+                        output_dict['project_type_specifics'][key] = group[key]
                 output_dict['project_type_specifics'] = json.dumps(output_dict['project_type_specifics'])
 
                 w.writerow(output_dict)
 
             except Exception as e:
                 logging.warning(
-                        f'{self.project_id}'
+                        f'{self.projectId}'
                         f' - set_groups_postgres - '
                         f'groups missed critical information: {e}'
                         )
@@ -360,7 +360,7 @@ class BaseProjectDraft(metaclass=ABCMeta):
 
         return groups_txt_filename
 
-    def create_tasks_txt_file(self, tasks):
+    def create_tasks_txt_file(self, groupsOfTasks):
         """
         Creates a text file containing tasks information
         for a specific project.
@@ -400,30 +400,31 @@ class BaseProjectDraft(metaclass=ABCMeta):
                 quotechar="'",
                 )
 
-        for task in tasks:
-            try:
+        for group_id, tasks in groupsOfTasks.items():
+            for task in tasks:
+            # try:
                 output_dict = {
-                        "project_id": self.project_id,
-                        "group_id": task['group_id'],
-                        "task_id": str(task['task_id']),
+                        "project_id": self.projectId,
+                        "group_id": group_id,
+                        "task_id": task['task_id'],
                         "project_type_specifics": dict()
                         }
                 for key in task.keys():
                     if key not in [
-                            'project_id',
-                            'group_id'
-                            'task_id',
+                            'projectId',
+                            'groupId'
+                            'taskId',
                             ]:
-                        output_dict['project_type_specifics'][key] = [task][key]
+                        output_dict['project_type_specifics'][key] = task[key]
                 output_dict['project_type_specifics'] = json.dumps(output_dict['project_type_specifics'])
 
                 w.writerow(output_dict)
-            except Exception as e:
-                logging.warning(
-                        f'{self.projectId}'
-                        f' - set_tasks_postgres - '
-                        f'tasks missed critical information: {e}'
-                        )
+            # except Exception as e:
+            #     logging.warning(
+            #             f'{self.projectId}'
+            #             f' - set_tasks_postgres - '
+            #             f'tasks missed critical information: {e}'
+            #             )
         tasks_txt_file.close()
         return tasks_txt_filename
 

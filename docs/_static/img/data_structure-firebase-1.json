@@ -8,8 +8,8 @@
             "kml": "kml",
             "projectType": 1,
             "tileServer": "url",
-            "wmtsLayerName": "layer",
-            "zoomLeve": 3,
+            "wmtsLayerName": "layer (optional)",
+            "zoomLevel": 3,
             "image": "image",
             "lookFor": "text",
             "name": "name",
@@ -19,6 +19,7 @@
     },
     "projects": {
         "projectId1": {
+            "projectId": "id",
             "contributors": 2,
             "groupAverage": 2,
             "image": "image",
@@ -26,10 +27,12 @@
             "lookFor": "text",
             "progress": 44,
             "projectDetails": "details",
-            "projectType": 2,
+            "projectType": 1,
             "status": "active",
             "verificationCount": 1,
-            "progress": 0.8
+            "progress": 0.8,
+            "groupSize": 10,
+            "zoomLevel": 18
         }
     },
     "users": {
@@ -47,7 +50,9 @@
     "groups": {
         "projectId1": {
             "groupId1": {
-                "count": 1,
+                "projectId": "id",
+                "groupId": 1,
+                "numberOfTasks": 1,
                 "neededCount": 10,
                 "completedCount": 1,
                 "verificationCount": 1,
@@ -64,6 +69,9 @@
         "projectId1": {
             "groupId1": {
                 "taskId1": {
+                    "projectId": "id",
+                    "groupId": 1,
+                    "taskId": "id",
                     "taskX": 1,
                     "taskY": 2,
                     "url": "url"

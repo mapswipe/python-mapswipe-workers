@@ -336,7 +336,6 @@ def get_new_project_drafts(fb_db):
     new_project_drafts : list
         a list of imports which have not been imported already
     """
-    # TODO: Check if deleting projectDraft after creation makes sense
 
     ref = fb_db.reference('projectDrafts/')
     project_drafts= ref.get()
@@ -379,6 +378,9 @@ def run_create_project():
     fb_db = auth.firebaseDB()
     ref = fb_db.reference('projectDrafts/')
     project_drafts = ref.get()
+
+    if project_drafts is None:
+        return None
 
     created_project_ids = list()
 

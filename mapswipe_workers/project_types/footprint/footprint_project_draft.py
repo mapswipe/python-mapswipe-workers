@@ -137,7 +137,7 @@ class FootprintProjectDraft(BaseProjectDraft):
         # check if layer is empty
         if layer.GetFeatureCount() < 1:
             err = 'no geometries left after checking validity and geometry type.'
-            logging.warning(f'{self.id} - check_input_geometry - {err}')
+            logging.warning(f'{self.projectId} - check_input_geometry - {err}')
             raise Exception(err)
 
         del datasource
@@ -153,22 +153,16 @@ class FootprintProjectDraft(BaseProjectDraft):
                 )
         return True
 
-    def create_groups(self, projectId):
+    def create_groups(self, project):
         """
         The function to create groups of footprint geometries
-
-        Returns
-        -------
-        groups : dict
-            The group information containing task information
         """
 
         raw_groups = g.group_input_geometries(self.validInputGeometries, self.groupSize)
 
-        groups = {}
         for group_id, item in raw_groups.items():
-            group = FootprintGroup(self, projectId, group_id, item['feature_ids'], item['feature_geometries'])
-            groups[group.id] = group.to_dict()
+            group = FootprintGroup(self, group_id)
+            group.create_tasks(item['feature_ids'], item['feature_geometries'])
+            self.groups.append(group)
 
-        logging.warning(f'{projectId} - create_groups - created groups dictionary')
-        return groups
+        logging.warning(f'{project.projectId} - create_groups - created groups dictionary')
