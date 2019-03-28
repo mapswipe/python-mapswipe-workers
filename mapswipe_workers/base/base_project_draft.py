@@ -54,20 +54,34 @@ class BaseProjectDraft(metaclass=ABCMeta):
             raise Exception(f"submission key is not valid: {submission_key}")
         logging.warning(f'{submission_key} - __init__ - start init')
 
+        self.archived = False
+        self.contributors = 0
+        self.groupAverage = 0
+        self.groups = list()
+        self.image = project_draft['image']
+        self.isFeatured = False
+        self.lookFor = project_draft['lookFor']
+        self.name = project_draft['name']
+        self.progress = 0
+        self.projectDetails = project_draft['projectDetails']
         self.projectId = project_draft['project_draft_id']
         self.projectType = int(project_draft['projectType'])
-        self.name = project_draft['name']
-        self.projectDetails = project_draft['projectDetails']
-        self.image = project_draft['image']
-        self.lookFor = project_draft['lookFor']
-        self.verificationCount = int(project_draft['verificationCount'])
-        self.isFeatured = False
         self.status = 'inactive'
-        self.groupAverage = 0
-        self.progress = 0
-        self.contributors = 0
-        self.archived = False
-        self.groups = list()
+        self.tileServer = project_draft['tileServer']
+        self.verificationCount = int(project_draft['verificationCount'])
+        if self.tileServer == 'custom':
+            self.tileServerUrl = project_draft['tileSeverUrl']
+        else:
+            self.tileServerUrl = auth.get_tileserver_url(
+                    self.tileServer
+                    )
+            try:
+                self.apiKey = project_draft.get(
+                        'apiKey',
+                        auth.get_api_key(self.tileServer)
+                        )
+            except KeyError:
+                self.apiKey = None
 
     def create_project(self, fb_db):
         """
@@ -97,8 +111,12 @@ class BaseProjectDraft(metaclass=ABCMeta):
                 groupsOfTasks[group['group_id']] = tasks
                 del group['tasks']
                 groups[group['group_id']] = group
-            
+
             del(project['groups'])
+            project.pop('inputGeometries', None)
+            project.pop('kml', None)
+            project.pop('validInputGeometries', None)
+
             # upload data to postgres
             self.execute_import_queries(
                     project,
@@ -337,9 +355,9 @@ class BaseProjectDraft(metaclass=ABCMeta):
 
                 for key in group.keys():
                     if key not in [
-                            'projectId',
-                            'groupId',
-                            'numberOfTasks',
+                            'project_id',
+                            'group_id',
+                            'number_of_tasks',
                             'completedCount',
                             'verificationCount',
                             ]:
@@ -411,9 +429,9 @@ class BaseProjectDraft(metaclass=ABCMeta):
                         }
                 for key in task.keys():
                     if key not in [
-                            'projectId',
-                            'groupId'
-                            'taskId',
+                            'project_id',
+                            'group_id'
+                            'task_id',
                             ]:
                         output_dict['project_type_specifics'][key] = task[key]
                 output_dict['project_type_specifics'] = json.dumps(output_dict['project_type_specifics'])

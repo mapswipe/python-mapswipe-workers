@@ -56,5 +56,5 @@ class BuildAreaTask(BaseTask):
             project.tileServer,
             project.apiKey,
             project.tileServerUrl,
-            project.layerName,
+            project.wmtsLayerName,
         )

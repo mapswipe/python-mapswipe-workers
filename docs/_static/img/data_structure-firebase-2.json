@@ -4,45 +4,46 @@
     },
     "projectDrafts": {
         "projectDraftId1": {
-            "submissionKey": "key",
-            "projectType": 2,
-            "tileServer": "url",
-            "wmtsLayerName": "layer",
             "image": "image",
             "lookFor": "text",
             "name": "name",
             "projectDetails": "text",
-            "verificationCount": 3
+            "projectType": 2,
+            "submissionKey": "key",
+            "tileServer": "name",
+            "tileServerUrl": "url (optional",
+            "verificationCount": 3,
+            "wmtsLayerName": "name (optional)"
         }
     },
     "projects": {
         "projectId1": {
+            "achived": false,
+            "apiKey": "Text string",
             "contributors": 2,
             "groupAverage": 2,
+            "groupSize": "Text string",
             "image": "image",
+            "inputGeometries": "Text string",
             "isFeatured": true,
             "lookFor": "text",
+            "progress": 0.8,
             "progress": 44,
             "projectDetails": "details",
             "projectType": 2,
             "status": "active",
-            "verificationCount": 1,
-            "progress": 0.8,
-            "apiKey": "Text string",
-            "groupSize": "Text string",
-            "inputGeometries": "Text string",
             "tileServer": "Text string",
-            "tileServerUrl": "Text string",
+            "tileServerUrl": "url",
             "validinputGeometries": "Text string",
-            "achived": false
+            "verificationCount": 1
         }
     },
     "users": {
         "userId1": {
-            "distance": 1,
-            "username": "name",
             "contributionCount": 1,
             "contributions": {
+            "distance": 1,
+            "username": "name",
                 "projectId1": {
                     "groupId1": "timestamp"
                 }
@@ -52,13 +53,13 @@
     "groups": {
         "projectId1": {
             "groupId1": {
-                "projectId": "id",
-                "groupId": 1,
-                "count": 1,
-                "neededCount": 10,
                 "completedCount": 1,
-                "verificationCount": 1,
-                "progress": 0.8
+                "count": 1,
+                "groupId": 1,
+                "neededCount": 10,
+                "progress": 0.8,
+                "projectId": "id",
+                "verificationCount": 1
             }
         }
     },
@@ -66,10 +67,10 @@
         "projectId1": {
             "groupId1": {
                 "taskId1": {
-                    "projectId": "id",
+                    "featureId": "id",
                     "groupId": 1,
-                    "taskId": "",
-                    "featureId: "id",
+                    "projectId": "id",
+                    "taskId": "id",
                     "geojson": {
                         "coordinates": 0,
                         "type": "type"
@@ -82,8 +83,8 @@
         "projectId1": {
             "groupId1": {
                 "userId1": {
-                    "timestamp": "timestamp",
                     "resultCount": 1,
+                    "timestamp": "timestamp",
                     "taskId1": {
                         "result": 1
                     }

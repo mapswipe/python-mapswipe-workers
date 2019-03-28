@@ -28,32 +28,6 @@ class FootprintProjectDraft(BaseProjectDraft):
         # set group size
         self.groupSize = 50
         self.inputGeometries = project_draft['inputGeometries']
-        self.tileServer = project_draft['tileServer']
-        try:
-            self.tileServerUrl = project_draft.get(
-                    'tileServerUrl',
-                    auth.get_tileserver_url(self.tileServer)
-                    )
-        except:
-            logging.warning(
-                    f'{self.projectId}'
-                    f' - __init__ - we need a tile server url for the tileserver: '
-                    f'{self.tileServer}'
-                    )
-            raise Exception('Attribute "tileServerUrl" not provided in project_draft \
-                    and not in "auth.get_tileserver_url" function.')
-        try:
-            self.apiKey = project_draft.get(
-                    'apiKey',
-                    auth.get_api_key(self.tileServer)
-                    )
-        except:
-            logging.warning(
-                    f'{projectId}'
-                    f' - __init__ - we need an api key for the tileserver: '
-                    f'{self.tileServer}'
-                    )
-            raise Exception('Attribute "api_key" not provided in project_draft and not in "auth.get_api_key" function.')
 
         self.validate_geometries()
 

@@ -402,12 +402,13 @@ def run_create_project():
                 ref = fb_db.reference(f'projectDrafts/{project_draft_id}')
                 ref.set({})
              try:
+                newline = '\n'
                 slack.send_slack_message(
-                    f'### IMPORT SUCCESSFUL ### '
-                    f'project_name: {project_draft["name"]}, '
-                    f'project_id: {project_id}, '
-                    f'project-type: {project_types[project_type]}, '
-                    f'Make sure to activate the project in firebase. '
+                    f'### IMPORT SUCCESSFUL ###{newline}'
+                    f'project_name: {project_draft["name"]},{newline}'
+                    f'project_id: {project_id},{newline}'
+                    f'project-type: {project_type},{newline}'
+                    f'Make sure to activate the project in firebase.{newline}'
                     f'Happy Swiping. :)'
                 )
              except:
