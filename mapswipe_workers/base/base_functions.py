@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#-*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 """
     Documentation Test
 """
@@ -373,7 +373,11 @@ def run_create_project():
         # Make sure to import all project types here
         1: BuildAreaProjectDraft,
         2: FootprintProjectDraft
-    }
+        }
+    project_type_names = {
+            1: 'Build Area',
+            2: 'Footprint'
+            }
 
     fb_db = auth.firebaseDB()
     ref = fb_db.reference('projectDrafts/')
@@ -404,10 +408,10 @@ def run_create_project():
              try:
                 newline = '\n'
                 slack.send_slack_message(
-                    f'### IMPORT SUCCESSFUL ###{newline}'
-                    f'project_name: {project_draft["name"]},{newline}'
-                    f'project_id: {project_id},{newline}'
-                    f'project-type: {project_type},{newline}'
+                    f'### PROJECT CREATION SUCCESSFUL ###{newline}'
+                    f'Project Name: {project_draft["name"]},{newline}'
+                    f'Project Id: {project_id},{newline}'
+                    f'Project Type: {project_type_names[project_type]},{newline}'
                     f'Make sure to activate the project in firebase.{newline}'
                     f'Happy Swiping. :)'
                 )

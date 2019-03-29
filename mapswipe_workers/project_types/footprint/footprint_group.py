@@ -49,4 +49,4 @@ class FootprintGroup(BaseGroup):
         for i in range(0, len(feature_ids)):
             task = FootprintTask(self, feature_ids[i], feature_geometries[i])
             self.tasks.append(task)
-        self.numberOfTasks = len(tasks)
+        self.numberOfTasks = len(self.tasks)

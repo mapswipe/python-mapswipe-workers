@@ -39,8 +39,8 @@ def create_user(fb_db):
             "username": "test user",
             "contributedCount": 0
             }
-    user_id = ref.push(user).key
-    save_user_id(user_id)
+    user = ref.push(user)
+    save_user_id(user.key)
 
 
 def save_project_draft_ids_to_disk(project_draft_ids):

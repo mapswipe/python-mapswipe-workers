@@ -82,7 +82,7 @@ if __name__ == '__main__':
     else:
         print('No project_ids.pickle file found')
 
-
+    # TODO: Delete users from postgres
     filename = 'user_ids.pickle'
     if os.path.isfile(filename):
         with open(filename, 'rb') as f:

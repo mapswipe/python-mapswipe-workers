@@ -55,4 +55,4 @@ class BuildAreaGroup(BaseGroup):
             for TileY in range(int(self.yMin), int(self.yMax) + 1):
                 task = BuildAreaTask(self, project, TileX, TileY)
                 self.tasks.append(task)
-        self.numberOfTasks = len(tasks)
+        self.numberOfTasks = len(self.tasks)
