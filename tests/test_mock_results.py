@@ -29,6 +29,7 @@ def create_result(
                 "result": rn
                 }
             }
+        ref.set(result_data)
     else:
         ref.update({
             "timestamp": timestamp,
@@ -65,7 +66,7 @@ def create_result(
     ref.update(user_data)
     print("updated user contribution count and contributions")
 
-    ref = fb_db.reference(f'groups/{project_id}')
+    ref = fb_db.reference(f'groups/{project_id}/{group_id}')
     group = ref.get()
     ref.update({
         'completedCount': group['completedCount'] + 1
