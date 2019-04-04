@@ -3,6 +3,7 @@ import datetime
 import pickle
 
 from mapswipe_workers import auth
+from mapswipe_workers.definitions import logger
 
 
 def create_result(
@@ -40,18 +41,17 @@ def create_result(
             })
     print("uploaded result")
 
-    ref = fb_db.reference(
-            f'users/{user_id}'
-            )
+    def increment(current_value):
+        return current_value + 1 if current_value else 1
+
+    user_ref = fb_db.reference(f'users/{user_id}')
+    user_contributions_ref = fb_db.reference(f'users/{user_id}/contributions')
+    project_contributors_ref = fb_db.reference(f'projects/{project_id}/contributors')
     user = ref.get()
 
     if 'contributions' in user:
         if project_id not in user['contributions']:
-            ref_project = fb_db.reference(
-                    f'projects/{project_id}/contributors'
-                    )
-            contributors = ref_project.get() + 1
-            ref_project.update(contributors)
+            project_contributors_ref.transaction(increment)
 
     user_data = {
             "contributedCount": user['contributedCount'] + 1,
@@ -66,11 +66,8 @@ def create_result(
     ref.update(user_data)
     print("updated user contribution count and contributions")
 
-    ref = fb_db.reference(f'groups/{project_id}/{group_id}')
-    group = ref.get()
-    ref.update({
-        'completedCount': group['completedCount'] + 1
-        })
+    group_ref = fb_db.reference(f'groups/{project_id}/{group_id}/completedCount')
+    group_ref.transaction(increment)
     print("updated project completed count")
 
 
@@ -80,8 +77,6 @@ def mock_user_contributions(
         user_id,
         ):
 
-    # temporary workaround because of faulty string encoding
-
     ref = fb_db.reference(f'groups/{project_id}/')
     groups = ref.order_by_child('completedCount').limit_to_last(5).get()
 
@@ -90,7 +85,8 @@ def mock_user_contributions(
         tasks = ref.get()
 
         numberOfTasks = group['numberOfTasks']
-        random_sample = random.sample(tasks, int(numberOfTasks/2))
+        random_sample = random.sample(tasks, int(numberOfTasks/10))
+        print(f'random sample has size: {random_sample.len()}')
         for task in random_sample:
             create_result(
                     fb_db,
@@ -103,6 +99,8 @@ def mock_user_contributions(
 
 if __name__ == '__main__':
     fb_db = auth.firebaseDB()
+
+    logger.info('test')
 
     filename = 'project_ids.pickle'
     with open(filename, 'rb') as f:

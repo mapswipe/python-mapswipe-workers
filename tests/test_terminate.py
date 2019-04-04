@@ -16,6 +16,11 @@ def delete_sample_data_from_firebase(fb_db, project_id):
     ref.set({})
     ref = fb_db.reference(f'projectDrafts/{project_id}')
     ref.set({})
+    print(
+            f'Firebase: '
+            f'deleted projectDraft, project, groups, tasks and results '
+            f'with the project id: {project_id}'
+            )
 
 
 def delete_sample_results_from_postgres(pg_db, project_id):
@@ -40,44 +45,55 @@ def delete_sample_results_from_postgres(pg_db, project_id):
     ]
 
     p_con.query(sql_query, data)
-    print('deleted project, groups, tasks, results in postgres')
+    print(
+            f'Postgres: '
+            f'deleted project, groups, tasks and results '
+            f'with the project id: {project_id}'
+            )
 
 
-def delete_local_files(project_id, import_key):
-
-    try:
-        os.remove(DATA_PATH+'/results/results_{}.json'.format(project_id))
-        os.remove(DATA_PATH+'/progress/progress_{}.json'.format(project_id))
-        os.remove(DATA_PATH+'/progress/progress_{}.json'.format(project_id))
-    except:
-        pass
-
-    try:
-        os.remove(DATA_PATH+'/input_geometries/raw_input_{}.geojson'.format(import_key))
-        os.remove(DATA_PATH+'/input_geometries/valid_input_{}.geojson'.format(import_key))
-    except:
-        os.remove(DATA_PATH + '/input_geometries/raw_input_{}.kml'.format(import_key))
+def delete_local_files(project_id):
+    fn = f'{DATA_PATH}/results/results_{project_id}.json'
+    if os.path.isfile(fn):
+        os.remove(fn)
+    # os.remove(
+    #         f'{DATA_PATH}'
+    #         f'/progress/progress_{project_id}.json'
+    #         )
+    # os.remove(
+    #         f'{DATA_PATH}'
+    #         f'/progress/progress_{project_id}.json'
+    #         )
+    fn = f'{DATA_PATH}/input_geometries/raw_input_{project_id}.geojson'
+    if os.path.isfile(fn):
+        os.remove(fn)
+    fn = f'{DATA_PATH}/input_geometries/valid_input_{project_id}.geojson'
+    if os.path.isfile(fn):
+        os.remove(fn)
+    print(
+            f'Local files: '
+            f'deleted raw_input and valid_input files'
+            f'with the project id: {project_id}'
+            )
 
 
 def delete_sample_users(fb_db):
     pass
+
 
 if __name__ == '__main__':
     pg_db = auth.postgresDB
     fb_db = auth.firebaseDB()
 
     filename = 'project_ids.pickle'
-    
+
     if os.path.isfile(filename):
         with open(filename, 'rb') as f:
             project_ids = pickle.load(f)
         for project_id in project_ids:
             delete_sample_data_from_firebase(fb_db, project_id)
             delete_sample_results_from_postgres(pg_db, project_id)
-            print(
-                    f'deleted projectDraft, project, groups, tasks and results'
-                    f'in firebase for the project with the id: {project_id}'
-                    )
+            delete_local_files(project_id)
         os.remove('project_ids.pickle')
     else:
         print('No project_ids.pickle file found')
@@ -93,9 +109,3 @@ if __name__ == '__main__':
         os.remove('user_ids.pickle')
     else:
         print('No user_ids.pickle file found')
-
-
-    # delete_local_files(project_id, import_key)
-
-    # os.remove('firebase_uploaded_projects.pickle')
-    # print('deleted firebase_imported_projects.pickle and firebase_uploaded_projects.pickle')
