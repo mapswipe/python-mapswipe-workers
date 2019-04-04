@@ -60,8 +60,7 @@ CREATE TABLE IF NOT EXISTS results (
     user_id varchar,
     task_id varchar,
     "timestamp" bigint,
-    info json,
-    duplicates integer,
+    result int,
     PRIMARY KEY (project_id, group_id, task_id, user_id),
     FOREIGN KEY (project_id) REFERENCES projects (project_id),
     FOREIGN KEY (project_id, group_id) REFERENCES groups (project_id, group_id)
