@@ -1,9 +1,8 @@
 import os
-import logging
 import ogr
 
-from mapswipe_workers import auth
 from mapswipe_workers.definitions import DATA_PATH
+from mapswipe_workers.definitions import logger
 from mapswipe_workers.base.base_project_draft import BaseProjectDraft
 from mapswipe_workers.project_types.build_area.build_area_group \
         import BuildAreaGroup
@@ -49,19 +48,19 @@ class BuildAreaProjectDraft(BaseProjectDraft):
 
         # check if layer is empty
         if layer.GetFeatureCount() < 1:
-            logging.warning(
+            logger.warning(
                     f'{self.projectId}'
-                    f' - check_input_geometry - '
+                    f' - validate geometry - '
                     f'Empty file. '
-                    f'No geometries are provided'
+                    f'No geometry is provided.'
                     )
             return False
             # check if more than 1 geometry is provided
         elif layer.GetFeatureCount() > 1:
-            logging.warning(
+            logger.warning(
                     f'{self.projectId}'
-                    f' - check_input_geometry - '
-                    f'Input file contains more than one geometry.'
+                    f' - validate geometry - '
+                    f'Input file contains more than one geometry. '
                     f'Make sure to provide exact one input geometry.'
                     )
             return False
@@ -71,9 +70,9 @@ class BuildAreaProjectDraft(BaseProjectDraft):
             feat_geom = feature.GetGeometryRef()
             geom_name = feat_geom.GetGeometryName()
             if not feat_geom.IsValid():
-                logging.warning(
+                logger.warning(
                         f'{self.projectId}'
-                        f' - check_input_geometry - '
+                        f' - validate geometry - '
                         f'Geometry is not valid: {geom_name}. '
                         f'Tested with IsValid() ogr method. '
                         f'Probably self-intersections.'
@@ -82,9 +81,9 @@ class BuildAreaProjectDraft(BaseProjectDraft):
 
             # we accept only POLYGON or MULTIPOLYGON geometries
             if geom_name != 'POLYGON' and geom_name != 'MULTIPOLYGON':
-                logging.warning(
+                logger.warning(
                         f'{self.projectId}'
-                        f' - check_input_geometry - '
+                        f' - validate geometry - '
                         f'Invalid geometry type: {geom_name}. '
                         f'Please provide "POLYGON" or "MULTIPOLYGON"'
                         )
@@ -95,9 +94,9 @@ class BuildAreaProjectDraft(BaseProjectDraft):
 
         self.validInputGeometries = raw_input_file
 
-        logging.warning(
+        logger.info(
                 f'{self.projectId}'
-                f' - check_input_geometry - '
+                f' - validate geometry - '
                 f'input geometry is correct.'
                 )
         return True
@@ -117,7 +116,7 @@ class BuildAreaProjectDraft(BaseProjectDraft):
             group.create_tasks(project)
             self.groups.append(group)
 
-        logging.warning(
+        logger.info(
                 f'{self.projectId}'
                 f' - create_groups - '
                 f'created groups dictionary'

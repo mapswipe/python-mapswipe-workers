@@ -15,6 +15,7 @@ from mapswipe_workers.utils import error_handling
 from mapswipe_workers.utils import slack
 from mapswipe_workers.definitions import DATA_PATH
 from mapswipe_workers.definitions import CustomError
+from mapswipe_workers.definitions import logger
 from mapswipe_workers import auth
 # Make sure to import all project types here
 from mapswipe_workers.project_types.build_area.build_area_project_draft import BuildAreaProjectDraft
@@ -409,18 +410,18 @@ def run_create_project():
                 newline = '\n'
                 slack.send_slack_message(
                     f'### PROJECT CREATION SUCCESSFUL ###{newline}'
-                    f'Project Name: {project_draft["name"]},{newline}'
-                    f'Project Id: {project_id},{newline}'
-                    f'Project Type: {project_type_names[project_type]},{newline}'
+                    f'Project Name: {project_draft["name"]}{newline}'
+                    f'Project Id: {project_id}{newline}'
+                    f'Project Type: {project_type_names[project_type]}{newline}'
                     f'Make sure to activate the project in firebase.{newline}'
                     f'Happy Swiping. :)'
                 )
              except:
-                 logging.exception('could not send slack message.')
+                 logger.exception('Could not send slack message.')
 
         except CustomError as error:
             error_handling.send_error(error, import_key)
-            logging.exception(
+            logger.exception(
                 f'{project_draft_id} '
                 f'- get_new_imports - '
                 f'import failed'
@@ -582,17 +583,6 @@ def get_results_from_firebase(firebase):
     Returns
     -------
     results : dict
-        The results in a dictionary with the following format:
-        {
-        "task_id" {
-            "user1_id": {
-                "data": {...}
-                },
-            "user2_id": {
-                "data": {...}
-                },
-            }
-        }
     """
 
     fb_db = firebase.database()
@@ -742,11 +732,12 @@ def save_results_postgres(postgres, results_filename):
     sql_insert = '''
         DROP TABLE IF EXISTS raw_results CASCADE;
         CREATE TABLE raw_results (
-            task_id varchar,
-            project_id int,
+            project_id varchar,
+            group_id int,
             user_id varchar,
+            task_id varchar,
             timestamp bigint,
-            info json
+            project_type_specifics json
         );
         '''
 
@@ -756,15 +747,23 @@ def save_results_postgres(postgres, results_filename):
     # old: postgres we should use LOAD DATA LOCAL INFILE Syntax
 
     f = open(results_filename, 'r')
-    columns = ['task_id', 'project_id', 'user_id', 'timestamp', 'info']
-    p_con.copy_from(f, 'raw_results', sep='\t', columns=columns)
-    logging.warning('ALL - save_results_postgres - inserted raw results into table raw_results')
-    f.close()
+    with open(results_filename, 'r') as f:
+        columns = [
+                'project_id',
+                'group_id',
+                'user_id',
+                'task_id',
+                'timestamp',
+                'project_type_specifics'
+                ]
+        p_con.copy_from(f, 'raw_results', sep='\t', columns=columns)
+        logging.warning('ALL - save_results_postgres - inserted raw results into table raw_results')
 
     os.remove(results_filename)
     logging.warning('ALL - save_results_postgres - deleted file: %s' % results_filename)
 
     # second import all entries into the task table and convert into psql geometry
+    # TODO: ON CONSTRAINT
     sql_insert = '''
         INSERT INTO
           results
@@ -786,15 +785,12 @@ def save_results_postgres(postgres, results_filename):
     return True
 
 
-def run_transfer_results(modus):
+def run_transfer_results():
     """
     The function to download results from firebase, upload them to postgres and then delete the transfered results in firebase.
 
     Parameters
     ----------
-    modus : str
-        The environment to use for firebase and postgres
-        Can be either 'development' or 'production'
 
     Returns
     -------
@@ -807,10 +803,12 @@ def run_transfer_results(modus):
     if not os.path.isdir(DATA_PATH+'/tmp'):
         os.mkdir(DATA_PATH+'/tmp')
 
-    # get dev or production environment for firebase and postgres
-    firebase, postgres = get_environment(modus)
+    fb_db = firebaseDB()
 
-    # first check if we have results stored locally, that have not been inserted in postgres
+    # first check if we have results stored locally,
+    # that have not been inserted in postgres
+    # TODO: do we need to check for file on disk?
+
     if os.path.isfile(results_filename):
         # start to import the old results first
         with open(results_filename) as results_file:

@@ -1,11 +1,11 @@
 import os
-import logging
 import json
 import csv
 from abc import ABCMeta, abstractmethod
 
 from mapswipe_workers import auth
 from mapswipe_workers.definitions import DATA_PATH
+from mapswipe_workers.definitions import logger
 from mapswipe_workers.utils import error_handling
 
 
@@ -52,7 +52,7 @@ class BaseProjectDraft(metaclass=ABCMeta):
         submission_key = project_draft['submissionKey']
         if not submission_key == auth.get_submission_key():
             raise Exception(f"submission key is not valid: {submission_key}")
-        logging.warning(f'{submission_key} - __init__ - start init')
+        logger.info(f'{submission_key} - __init__ - start init')
 
         self.archived = False
         self.contributors = 0
@@ -85,82 +85,92 @@ class BaseProjectDraft(metaclass=ABCMeta):
 
     def create_project(self, fb_db):
         """
-        The function to import a new project in firebase and postgres.
+        Creates a projects with groups and tasks
+        and saves it in firebase and postgres
 
         Returns
-        -------
-        boolean
-                True = Suceessful
+        ------
+            Boolean: True = Successful
         """
+        logger.info(
+            f'{self.projectId}'
+            f' - start creating a project'
+            )
+
+        self.create_groups(self)
+
+        # Convert object attributes to dictonaries for saving it to firebase
+        project = vars(self)
+        groups = dict()
+        groupsOfTasks = dict()
+        for group in self.groups:
+            group = vars(group)
+            tasks = list()
+            for task in group['tasks']:
+                tasks.append(vars(task))
+            groupsOfTasks[group['groupId']] = tasks
+            del group['tasks']
+            groups[group['groupId']] = group
+        del(project['groups'])
+        project.pop('inputGeometries', None)
+        project.pop('kml', None)
+        project.pop('validInputGeometries', None)
+
         try:
-            logging.warning(
-                f'{self.projectId}'
-                f' - import_project - start importing'
-                )
-
-            self.create_groups(self)
-
-            project = vars(self)
-            groups = dict()
-            groupsOfTasks = dict()
-            for group in self.groups:
-                group = vars(group)
-                tasks = list()
-                for task in group['tasks']:
-                    tasks.append(vars(task))
-                groupsOfTasks[group['groupId']] = tasks
-                del group['tasks']
-                groups[group['groupId']] = group
-
-            del(project['groups'])
-            project.pop('inputGeometries', None)
-            project.pop('kml', None)
-            project.pop('validInputGeometries', None)
-
-            # upload data to postgres
-            self.execute_import_queries(
+            self.save_to_postgres(
                     project,
                     groups,
                     groupsOfTasks,
                     )
-
-            # upload data to firebase
-            new_project_ref = fb_db.reference(f'projects/{self.projectId}')
-            new_project_ref.set(project)
-            logging.warning(
-                    f'{self.projectId} - uploaded project in firebase'
-                    )
-
-            new_groups_ref = fb_db.reference(f'groups/{self.projectId}/')
-            new_groups_ref.set(groups)
-            logging.warning('%s - uploaded groups in firebase' % self.projectId)
-
-            new_tasks_ref = fb_db.reference(f'tasks/{self.projectId}/')
-            new_tasks_ref.set(groupsOfTasks)
-            logging.warning('%s - uploaded tasks in firebase' % self.projectId)
-
-            logging.warning(
-                    '%s - import_project - import finished' % self.projectId
-                    )
-            logging.warning(
+            logger.info(
                     f'{self.projectId}'
-                    f' - import_project - '
-                    f'imported new project with id'
+                    f' - the project has been saved'
+                    f' to postgres'
                     )
-            return True
-
-        except Exception as e:
-            logging.warning(
+            try:
+                self.save_to_firebase(
+                        fb_db,
+                        project,
+                        groups,
+                        groupsOfTasks,
+                        )
+                logger.info(
+                        f'{self.projectId}'
+                        f' - the project has been saved'
+                        f' to firebase'
+                        )
+                return True
+            except Exception:
+                logger.exception(
+                        f'{self.projectId}'
+                        f' - the project could not be saved'
+                        f' to firebase. '
+                        )
+                self.delete_from_postgres()
+                return False
+        except Exception:
+            logger.exception(
                     f'{self.projectId}'
-                    f' - import_project - '
-                    f'could not import project'
+                    f' - the project could not be saved'
+                    f' to postgres and will therefor not be '
+                    f' saved to firebase'
                     )
-            logging.warning(
-                    "%s - import_project - %s" % (self.projectId, e))
-            error_handling.log_error(e, logging)
             return False
 
-    def execute_import_queries(self, project, groups, groupsOfTasks):
+    def save_to_firebase(self, fb_db, project, groups, groupsOfTasks):
+        ref = fb_db.reference('')
+        ref.update({
+            f'projects/{self.projectId}': project,
+            f'groups/{self.projectId}': groups,
+            f'tasks/{self.projectId}': groupsOfTasks,
+            })
+        logger.info(
+                f'{self.projectId} -'
+                f' uploaded project, groups and'
+                f' tasks to firebase realtime database'
+                )
+
+    def save_to_postgres(self, project, groups, groupsOfTasks):
         '''
         Defines SQL queries and data for import a project into postgres.
         SQL queries will be executed as transaction.
@@ -171,7 +181,7 @@ class BaseProjectDraft(metaclass=ABCMeta):
             INSERT INTO projects
             VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s);
             '''
-        
+
         data_project = [
                 self.projectId,
                 self.name,
@@ -294,7 +304,7 @@ class BaseProjectDraft(metaclass=ABCMeta):
             p_con._db_cur.execute(query_insert_raw_tasks, None)
             p_con._db_connection.commit()
             p_con._db_cur.close()
-        except Exception as e:
+        except Exception:
             del p_con
             raise
 
@@ -325,7 +335,9 @@ class BaseProjectDraft(metaclass=ABCMeta):
 
         # create txt file with header for later
         # import with copy function into postgres
-        groups_txt_filename = f'{DATA_PATH}/tmp/raw_groups_{self.projectId}.txt'
+        groups_txt_filename = (
+                f'{DATA_PATH}/tmp/raw_groups_{self.projectId}.txt'
+                )
         groups_txt_file = open(groups_txt_filename, 'w', newline='')
         fieldnames = (
                 'project_id',
@@ -362,17 +374,19 @@ class BaseProjectDraft(metaclass=ABCMeta):
                             'verificationCount',
                             ]:
                         output_dict['project_type_specifics'][key] = group[key]
-                output_dict['project_type_specifics'] = json.dumps(output_dict['project_type_specifics'])
+                output_dict['project_type_specifics'] = json.dumps(
+                        output_dict['project_type_specifics']
+                        )
 
                 w.writerow(output_dict)
 
             except Exception as e:
-                logging.warning(
+                logger.warning(
                         f'{self.projectId}'
                         f' - set_groups_postgres - '
                         f'groups missed critical information: {e}'
                         )
-                error_handling.log_error(e, logging)
+                error_handling.log_error(e, logger)
 
         groups_txt_file.close()
 
@@ -407,7 +421,7 @@ class BaseProjectDraft(metaclass=ABCMeta):
 
         fieldnames = (
                 'project_id',
-                'group_id', 
+                'group_id',
                 'task_id',
                 'project_type_specifics'
                 )
@@ -420,7 +434,6 @@ class BaseProjectDraft(metaclass=ABCMeta):
 
         for groupId, tasks in groupsOfTasks.items():
             for task in tasks:
-            # try:
                 output_dict = {
                         "project_id": self.projectId,
                         "group_id": groupId,
@@ -434,17 +447,34 @@ class BaseProjectDraft(metaclass=ABCMeta):
                             'taskId',
                             ]:
                         output_dict['project_type_specifics'][key] = task[key]
-                output_dict['project_type_specifics'] = json.dumps(output_dict['project_type_specifics'])
+                output_dict['project_type_specifics'] = json.dumps(
+                        output_dict['project_type_specifics']
+                        )
 
                 w.writerow(output_dict)
-            # except Exception as e:
-            #     logging.warning(
-            #             f'{self.projectId}'
-            #             f' - set_tasks_postgres - '
-            #             f'tasks missed critical information: {e}'
-            #             )
         tasks_txt_file.close()
         return tasks_txt_filename
+
+    def delete_from_postgres():
+        p_con = auth.postgresDB()
+
+        sql_query = '''
+            DELETE FROM tasks WHERE project_id = %s;
+            DELETE FROM groups WHERE project_id = %s;
+            DELETE FROM projects WHERE project_id = %s;
+            '''
+        data = [
+            project_id,
+            project_id,
+            project_id,
+        ]
+        p_con.query(sql_query, data)
+        del p_con
+        logger.info(
+                f'{project_id} - '
+                f'deleted project, groups and tasks '
+                f'from postgres'
+                )
 
     @abstractmethod
     def validate_geometries():

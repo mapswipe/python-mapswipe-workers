@@ -2,6 +2,8 @@ import sys
 import traceback
 from mapswipe_workers.utils import slack
 
+# TODO: Use buildin Handler methods from logging module instead of own implementaiton
+
 
 def _get_error_message_details(error):
     """

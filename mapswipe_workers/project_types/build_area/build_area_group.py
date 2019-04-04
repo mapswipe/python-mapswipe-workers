@@ -1,4 +1,5 @@
-from mapswipe_workers.project_types.build_area.build_area_task import BuildAreaTask
+from mapswipe_workers.project_types.build_area.build_area_task \
+        import BuildAreaTask
 from mapswipe_workers.base.base_group import BaseGroup
 
 
@@ -50,7 +51,6 @@ class BuildAreaGroup(BaseGroup):
         project: BuildAreaProject object
             The project the group is associated with
         """
-        tasks = list()
         for TileX in range(int(self.xMin), int(self.xMax) + 1):
             for TileY in range(int(self.yMin), int(self.yMax) + 1):
                 task = BuildAreaTask(self, project, TileX, TileY)
