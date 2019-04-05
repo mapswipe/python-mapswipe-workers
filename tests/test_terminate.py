@@ -25,20 +25,21 @@ def delete_sample_data_from_firebase(fb_db, project_id):
 
 def delete_sample_results_from_postgres(pg_db, project_id):
     p_con = pg_db()
-
-    # DELETE FROM results
-    # WHERE EXISTS (
-    #     SELECT project_id
-    #     FROM results
-    #     WHERE project_id = %s
-    #     );
     sql_query = '''
+        DELETE FROM results
+        WHERE EXISTS (
+            SELECT project_id
+            FROM results
+            WHERE project_id = %s
+            );
         DELETE FROM tasks WHERE project_id = %s;
         DELETE FROM groups WHERE project_id = %s;
         DELETE FROM projects WHERE project_id = %s;
+
         '''
 
     data = [
+        project_id,
         project_id,
         project_id,
         project_id,
@@ -109,3 +110,5 @@ if __name__ == '__main__':
         os.remove('user_ids.pickle')
     else:
         print('No user_ids.pickle file found')
+
+    print('Deleted all sample data in Firebase, Postgres and on disk')

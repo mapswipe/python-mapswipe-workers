@@ -14,61 +14,60 @@ def create_result(
         task_id,
         ):
 
-    ref = fb_db.reference(
+    result_ref = fb_db.reference(
             f'results/{project_id}/{group_id}/{user_id}'
             )
-    result = ref.get()
+    result = result_ref.get()
 
     rn = random.randint(1, 3)
-    timestamp = datetime.datetime.utcnow().strftime('%m/%d/%Y')
+    timestamp = datetime.datetime.utcnow().strftime('%m%d%Y')
 
     if result is None:
         result_data = {
             "timestamp": timestamp,
             "resultCount": 1,
-            task_id: {
-                "result": rn
-                }
+            task_id: rn
             }
-        ref.set(result_data)
+        result_ref.set(result_data)
     else:
-        ref.update({
+        result_ref.update({
             "timestamp": timestamp,
             "resultCount": result.get('resultCount', 0) + 1,
-            task_id: {
-                "result": rn
-                }
+            task_id: rn
             })
-    print("uploaded result")
+        print(f'uploaded result for task: {task_id}')
 
     def increment(current_value):
         return current_value + 1 if current_value else 1
 
     user_ref = fb_db.reference(f'users/{user_id}')
-    user_contributions_ref = fb_db.reference(f'users/{user_id}/contributions')
-    project_contributors_ref = fb_db.reference(f'projects/{project_id}/contributors')
-    user = ref.get()
+    user = user_ref.get()
+    project_contributors_ref = fb_db.reference(
+            f'projects/{project_id}/contributors'
+            )
 
     if 'contributions' in user:
         if project_id not in user['contributions']:
             project_contributors_ref.transaction(increment)
+            print('incremented project contributors by one')
 
     user_data = {
             "contributedCount": user['contributedCount'] + 1,
             "distance": user['distance'] + 12,
-            "username": user['username'],
             "contributions": {
                 project_id: {
                     group_id: timestamp
                     }
                 }
             }
-    ref.update(user_data)
+    user_ref.update(user_data)
     print("updated user contribution count and contributions")
 
-    group_ref = fb_db.reference(f'groups/{project_id}/{group_id}/completedCount')
+    group_ref = fb_db.reference(
+            f'groups/{project_id}/{group_id}/completedCount'
+            )
     group_ref.transaction(increment)
-    print("updated project completed count")
+    print("incremeted project completed count by one")
 
 
 def mock_user_contributions(
@@ -78,15 +77,18 @@ def mock_user_contributions(
         ):
 
     ref = fb_db.reference(f'groups/{project_id}/')
-    groups = ref.order_by_child('completedCount').limit_to_last(5).get()
+    groups = ref.order_by_key().limit_to_last(5).get()
 
     for group_id, group in groups.items():
         ref = fb_db.reference(f'tasks/{project_id}/{group_id}/')
         tasks = ref.get()
 
         numberOfTasks = group['numberOfTasks']
-        random_sample = random.sample(tasks, int(numberOfTasks/10))
-        print(f'random sample has size: {random_sample.len()}')
+        random_sample = random.sample(tasks, int(numberOfTasks/5))
+        print(
+                f'Generate results for random tasks selection '
+                f'of size: {len(random_sample)}'
+                )
         for task in random_sample:
             create_result(
                     fb_db,
@@ -109,6 +111,14 @@ if __name__ == '__main__':
     filename = 'user_ids.pickle'
     with open(filename, 'rb') as f:
         user_id = pickle.load(f)
+        print(user_id)
 
     for project_id in project_ids:
+        print('')
+        print(
+                f'start generating results for project ({project_id}) '
+                f'and user ({user_id})'
+                )
         mock_user_contributions(fb_db, project_id, user_id)
+
+    print('Uploaded sample results to Firebase')

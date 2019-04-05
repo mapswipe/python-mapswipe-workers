@@ -21,15 +21,8 @@ def create_project_drafts_in_firebase(fb_db):
                 f'Uploaded a new sample project draft with the id: '
                 f'{project_draft_id} '
                 )
-
+        print('')
     save_project_draft_ids_to_disk(project_draft_ids)
-
-    # for import_key in uploaded_project_keys:
-    #     fb_db.update(
-    #         {
-    #             "imports/{}/key".format(import_key): auth.get_submission_key()
-    #         }
-    #     )
 
 
 def create_user(fb_db):
@@ -39,8 +32,10 @@ def create_user(fb_db):
             "username": "test user",
             "contributedCount": 0
             }
-    user = ref.push(user)
-    save_user_id(user.key)
+    user_id = ref.push(user).key
+    print('Uploaded a sample user with the id: {user_id}')
+    print('')
+    save_user_id(user_id)
 
 
 def save_project_draft_ids_to_disk(project_draft_ids):
@@ -69,3 +64,7 @@ if __name__ == '__main__':
     fb_db = auth.firebaseDB()
     create_project_drafts_in_firebase(fb_db)
     create_user(fb_db)
+    print(
+            'Created sample project drafts and ' +
+            'a sample user in the Firebase Realtime Database.'
+            )
