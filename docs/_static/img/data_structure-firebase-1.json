@@ -2,53 +2,6 @@
     "announcement": {
         "announcementId": "announcement"
     },
-    "projectDrafts": {
-        "projectDraftId1": {
-            "image": "image",
-            "kml": "kml",
-            "lookFor": "text",
-            "name": "name",
-            "projectDetails": "text",
-            "projectType": 1,
-            "submissionKey": "key",
-            "tileServer": "name",
-            "tileServerUrl": "url",
-            "verificationCount": 3,
-            "wmtsLayerName": "layer (optional)",
-            "zoomLevel": 3
-        }
-    },
-    "projects": {
-        "projectId1": {
-            "archived": false,
-            "contributors": 2,
-            "groupAverage": 2,
-            "groupSize": 10,
-            "image": "image",
-            "isFeatured": true,
-            "lookFor": "text",
-            "progress": 0.8,
-            "progress": 44,
-            "projectDetails": "details",
-            "projectId": "id",
-            "projectType": 1,
-            "status": "active",
-            "verificationCount": 1,
-            "zoomLevel": 18
-        }
-    },
-    "users": {
-        "userId1": {
-            "contributionCount": 1,
-            "distance": 1,
-            "username": "name",
-            "contributions": {
-                "projectId1": {
-                    "groupId1": "timestamp"
-                }
-            }
-        }
-    },
     "groups": {
         "projectId1": {
             "groupId1": {
@@ -66,12 +19,68 @@
             }
         }
     },
+    "projectDrafts": {
+        "projectDraftId1": {
+            "country": "name",
+            "exampleImage": "exampleImage",
+            "exampleMessage": "exampleMessage",
+            "image": "image",
+            "kml": "kml",
+            "lookFor": "text",
+            "name": "name",
+            "projectDetails": "text",
+            "projectType": 1,
+            "submissionKey": "key",
+            "thankYouMessage": "brief message (140 chars)",
+            "tileServer": "name",
+            "tileServerUrl": "url",
+            "verificationCount": 3,
+            "wmtsLayerName": "layer (optional)",
+            "zoomLevel": 3
+        }
+    },
+    "projects": {
+        "projectId1": {
+            "archived": false,
+            "centroid": "wkt",
+            "contributors": 2,
+            "country": "name",
+            "exampleImage": "exampleImage",
+            "exampleMessage": "exampleMessage",
+            "groupAverage": 2,
+            "groupSize": 10,
+            "image": "image",
+            "imageOfMap": "image",
+            "isFeatured": true,
+            "lookFor": "text",
+            "progress": 44,
+            "projectDetails": "details",
+            "projectId": "id",
+            "projectType": 1,
+            "scale": "scale",
+            "status": "active",
+            "thankYouMessage": "brief message (140 chars)",
+            "verificationCount": 1,
+            "zoomLevel": 18
+        }
+    },
+    "results": {
+        "projectId1": {
+            "groupId1": {
+                "userId1": {
+                    "resultCount": 1,
+                    "resultId1(=taskId1)": 1,
+                    "timestamp": "timestamp"
+                }
+            }
+        }
+    },
     "tasks": {
         "projectId1": {
             "groupId1": {
                 "taskId1": {
-                    "projectId": "id",
                     "groupId": 1,
+                    "projectId": "id",
                     "taskId": "id",
                     "taskX": 1,
                     "taskY": 2,
@@ -80,17 +89,16 @@
             }
         }
     },
-    "results": {
-        "projectId1": {
-            "groupId1": {
-                "userId1": {
-                    "timestamp": "timestamp",
-                    "resultCount": 1,
-                    "taskId1": {
-                        "result": 1
-                    }
+    "users": {
+        "userId1": {
+            "contributionCount": 1,
+            "contributions": {
+                "projectId1": {
+                    "groupId1": "timestamp"
                 }
-            }
+            },
+            "distance": 1,
+            "username": "name"
         }
     }
 }
