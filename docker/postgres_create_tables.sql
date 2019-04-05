@@ -63,10 +63,10 @@ CREATE TABLE IF NOT EXISTS results (
     result int,
     PRIMARY KEY (project_id, group_id, task_id, user_id),
     FOREIGN KEY (project_id) REFERENCES projects (project_id),
-    FOREIGN KEY (project_id, group_id) REFERENCES groups (project_id, group_id)
+    FOREIGN KEY (project_id, group_id) REFERENCES groups (project_id, group_id),
     FOREIGN KEY (project_id, group_id, task_id) REFERENCES tasks (project_id, group_id, task_id),
     FOREIGN KEY (user_id) REFERENCES users (user_id)
-);
+    );
 
 CREATE INDEX results_taskid ON public.results USING btree (task_id);
 CREATE INDEX results_projectid ON public.results USING btree (project_id);
