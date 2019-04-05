@@ -121,8 +121,6 @@ def get_horizontal_slice(extent, geomcol, zoom):
         containing a ogr geometry collection
     """
 
-    logger.info('geomcol: %s' % geomcol)
-
     slice_infos = {
         'tile_y_top': [],
         'tile_y_bottom': [],

@@ -1,13 +1,23 @@
 import os
 import json
+import logging
+import logging.config
 
 
-ROOT_DIR = '/python-mapswipe-workers'
-CONFIG_PATH = os.path.abspath(os.path.join(ROOT_DIR, './cfg/configuration.json'))
-SERVICE_ACCOUNT_KEY_PATH = os.path.abspath(os.path.join(ROOT_DIR, './cfg/serviceAccountKey.json'))
-DATA_PATH = os.path.abspath(os.path.join(ROOT_DIR, './data/'))
+ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
+# CONFIG_PATH = os.path.abspath(os.path.join(ROOT_DIR, '/cfg/configuration.json'))
+CONFIG_PATH = os.path.join(ROOT_DIR, 'cfg', 'configuration.json')
+# SERVICE_ACCOUNT_KEY_PATH = os.path.abspath(os.path.join(ROOT_DIR, '/cfg/serviceAccountKey.json'))
+SERVICE_ACCOUNT_KEY_PATH = os.path.join(ROOT_DIR, 'cfg', 'serviceAccountKey.json')
+DATA_PATH = os.path.join(ROOT_DIR, 'data')
 # DATA_PATH = get_data_path()
+LOGGING_CONFIG_PATH = os.path.join(ROOT_DIR, 'logging.cfg')
 
+logging.config.fileConfig(
+        fname=LOGGING_CONFIG_PATH,
+        disable_existing_loggers=True
+        )
+logger = logging.getLogger('Mapswipe Workers')
 
 # def get_data_path():
 #     '''reads data path from config'''

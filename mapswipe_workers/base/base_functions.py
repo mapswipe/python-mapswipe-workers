@@ -17,19 +17,19 @@ from mapswipe_workers.definitions import DATA_PATH
 from mapswipe_workers.definitions import CustomError
 from mapswipe_workers.definitions import logger
 from mapswipe_workers import auth
-# Make sure to import all project types here
-from mapswipe_workers.project_types.build_area.build_area_project_draft import BuildAreaProjectDraft
-from mapswipe_workers.project_types.build_area.build_area_project import BuildAreaProject
+
+from mapswipe_workers.project_types.build_area.build_area_project_draft \
+        import BuildAreaProjectDraft
+from mapswipe_workers.project_types.build_area.build_area_project \
+        import BuildAreaProject
+
+from mapswipe_workers.project_types.footprint.footprint_project_draft \
+        import FootprintProjectDraft
+from mapswipe_workers.project_types.footprint.footprint_project import \
+        FootprintProject
 
 
-from mapswipe_workers.project_types.footprint.footprint_project_draft import FootprintProjectDraft
-from mapswipe_workers.project_types.footprint.footprint_project import FootprintProject
-
-
-
-########################################################################################################################
-# INIT                                                                                                                 #
-########################################################################################################################
+# TODO: still needed?
 class myRequestsSession(requests.Session):
     """
     The class to replace the get function to allow a timeout parameter to be set.
@@ -45,68 +45,6 @@ class myRequestsSession(requests.Session):
     def get(self, request_ref, headers, timeout=30):
         # print('Using customized get request with a timeout of 30 seconds.')
         return super(myRequestsSession, self).get(request_ref, headers=headers, timeout=timeout)
-
-
-def get_environment(modus='development'):
-    """
-    The function to get the firebase and postgres configuration
-
-    Parameters
-    ----------
-    modus : str
-        either `development` or `production to decide which firebase configuration to use
-
-    Returns
-    -------
-    firebase : pyrebase firebase object
-            initialized firebase app with admin authentication
-    postgres : database connection class
-        The database connection to postgres database
-    """
-    if modus == 'development':
-        # we use the dev instance for testing
-        firebase = auth.dev_firebase_admin_auth()
-        postgres = auth.dev_psqlDB
-        logging.warning('ALL - get_environment - use development instance')
-    elif modus == 'production':
-        # we use the dev instance for testing
-        firebase = auth.firebase_admin_auth()
-        postgres = auth.psqlDB
-        logging.warning('ALL - get_environment - use production instance')
-    else:
-        firebase = None
-        postgres = None
-
-    return firebase, postgres
-
-
-def init_import(project_type, import_key, import_dict):
-    """
-    The function to init an import in regard to its type
-
-    Parameters
-    ----------
-    project_type : int
-        the type of the project
-    import_key : str
-        the key for the import as depicted in firebase
-    import_dict : dict
-        a dictionary with the attributes for the import
-
-    Returns
-    -------
-    imp :
-        the import instance
-    """
-
-    class_to_type = {
-        # Make sure to import all project types here
-        1: BuildAreaProjectDraft,
-        2: FootprintProjectDraft
-    }
-
-    imp = class_to_type[int(project_type)](import_key, import_dict)
-    return imp
 
 
 def init_project(project_type, project_id, firebase, postgres):
@@ -142,7 +80,9 @@ def init_project(project_type, project_id, firebase, postgres):
 
 def get_projects(firebase, postgres, filter='all'):
     """
-    The function to download project information from firebase and init the projects
+    The function to download project information 
+    from firebase and init the projects
+
     Parameters
     ----------
     firebase : pyrebase firebase object
@@ -165,7 +105,7 @@ def get_projects(firebase, postgres, filter='all'):
     fb_db = firebase.database()
     fb_db.requests.get = myRequestsSession().get
     all_projects = fb_db.child("projects").get().val()
-    
+
     # return empty list if there are no projects in firebase
     if all_projects == None:
         logging.warning('All - get_projects - no projects in firebase')
@@ -203,6 +143,7 @@ def get_projects(firebase, postgres, filter='all'):
             projects_list.append(proj)
 
     return projects_list
+
 
 def project_exists(project_id, firebase, postgres):
     """
@@ -787,23 +728,20 @@ def save_results_postgres(postgres, results_filename):
 
 def run_transfer_results():
     """
-    The function to download results from firebase, upload them to postgres and then delete the transfered results in firebase.
-
-    Parameters
-    ----------
+    Download results from firebase,
+    saves them to postgres and then deletes the results in firebase.
 
     Returns
     -------
     bool
         True if successful, False otherwise
-
     """
 
     results_filename = '{}/tmp/results.json'.format(DATA_PATH)
     if not os.path.isdir(DATA_PATH+'/tmp'):
         os.mkdir(DATA_PATH+'/tmp')
 
-    fb_db = firebaseDB()
+    fb_db = auth.firebaseDB()
 
     # first check if we have results stored locally,
     # that have not been inserted in postgres
@@ -821,7 +759,6 @@ def run_transfer_results():
         os.remove(results_filename)
         logging.warning('ALL - run_transfer_results - removed "results.json" file')
 
-    fb_db = firebase.database()
     fb_db.requests.get = myRequestsSession().get
     # download all results and save as in json file to avoid data loss when script fails
     all_results = fb_db.child("results").get().val()
@@ -845,9 +782,10 @@ def run_transfer_results():
     return True
 
 
-########################################################################################################################
-# EXPORT                                                                                                               #
-########################################################################################################################
+#
+#
+# --- EXPORT ---
+#
 def export_all_projects(firebase):
     """
     The function to export all projects in a json file
