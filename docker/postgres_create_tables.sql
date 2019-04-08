@@ -48,9 +48,9 @@ CREATE INDEX tasks_projectid ON public.tasks USING btree (project_id);
 
 CREATE TABLE IF NOT EXISTS users (
     user_id varchar,
-    contributions int,
-    distance double precision,
     username varchar,
+    contribution_count int,
+    distance double precision,
     PRIMARY KEY(user_id)
     );
 
