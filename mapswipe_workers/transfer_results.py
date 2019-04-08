@@ -127,7 +127,7 @@ def save_results_to_postgres(results_file):
                 'result'
                 ]
         p_con.copy_from(results_file, 'results', columns)
-        del p_con
+        del(p_con)
         results_file.close()
         logger.info('Successfully saved results to Postgres')
         return True
@@ -161,7 +161,7 @@ def results_to_file(results):
 
     # If csv file is a file object, it should be opened with newline=''
 
-    results_file = io.StringIO('')
+    results_file = io.StringIO()
 
     print(results)
 

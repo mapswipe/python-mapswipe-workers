@@ -286,18 +286,12 @@ class BaseProjectDraft(metaclass=ABCMeta):
                 p_con._db_cur.copy_from(
                         groups_file,
                         'raw_groups',
-                        sep='\t',
-                        null='\\N',
-                        size=8192,
                         columns=groups_columns
                         )
             with open(tasks_txt_filename, 'r') as tasks_file:
                 p_con._db_cur.copy_from(
                         tasks_file,
                         'raw_tasks',
-                        sep='\t',
-                        null='\\N',
-                        size=8192,
                         columns=tasks_columns
                         )
             p_con._db_cur.execute(query_insert_raw_groups, None)
