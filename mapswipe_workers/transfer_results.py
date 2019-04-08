@@ -2,25 +2,42 @@ import csv
 import io
 
 from mapswipe_workers import auth
+from mapswipe_workers.definitions import logger
 
 
 def run_transfer_results():
-    """
+    '''
+
     Download results from firebase,
     saves them to postgres and then deletes the results in firebase.
+    This is implemented as a transactional operation as described in
+    the Firebase docs to avoid missing new generated results in
+    Firebase during execution of this function.
 
-    Returns
-    -------
-    bool
-        True if successful, False otherwise
-    """
+    '''
+
+    logger.info('Start transfering results')
 
     fb_db = auth.firebaseDB()
-    results_ref = fb_db.reference('results')
+    results_ref = fb_db.reference('results/')
 
-    results = results_ref.get()
-    results_file = results_to_file(results)
-    save_results_to_postgres(results_file)
+    # Firebase transaction function
+    def transfer(current_results):
+        if current_results is None:
+            logger.info('No results in Firebase')
+            return dict()
+        else:
+            results_file = results_to_file(current_results)
+            save_results_to_postgres(results_file)
+            return dict()
+
+    try:
+        results_ref.transaction(transfer)
+        logger.info('Firebase transaction for transfering results completed')
+    except fb_db.TransactionError:
+        logger.exception(
+                'Firebase transaction for transfering results failed to commit'
+                )
 
     del(fb_db)
 
@@ -83,9 +100,24 @@ def run_transfer_results():
 
 
 def save_results_to_postgres(results_file):
+    '''
+
+    Saves results to postgres using the COPY Statement of Postgres
+    for a more efficient import into the database.
+
+    Parameters
+    ----------
+    results_file: io.StringIO
+
+    Returns
+    -------
+    boolean: boolean
+        True if successful. False otherwise.
+
+    '''
+
     try:
         p_con = auth.postgresDB()
-        # with open(results_filename, 'r') as f:
         columns = [
                 'project_id',
                 'group_id',
@@ -94,11 +126,14 @@ def save_results_to_postgres(results_file):
                 'timestamp',
                 'result'
                 ]
-        p_con.copy_from(results_file, 'results', sep='\t', columns=columns)
+        p_con.copy_from(results_file, 'results', columns)
         del p_con
+        results_file.close()
+        logger.info('Successfully saved results to Postgres')
         return True
     except Exception:
-        return False
+        logger.exception('Could not save results to Postgres')
+        raise
 
 
 def results_to_file(results):
@@ -117,14 +152,18 @@ def results_to_file(results):
 
     Returns
     -------
-    results_file: object
+    results_file: io.StingIO
         The results in an StringIO buffer.
+
     '''
     # TODO: infer from resultCount and
     # existing results how many no where generated
 
     # If csv file is a file object, it should be opened with newline=''
+
     results_file = io.StringIO('')
+
+    print(results)
 
     fieldnames = (
             'project_id',
@@ -165,11 +204,11 @@ def results_to_file(results):
                             "result": result
                             }
                     w.writerow(output_dict)
-    results_file.close()
     return results_file
 
 
 def save_users_to_postgres(users):
+    # TODO: Update user details in postgres
     p_con = auth.postgresDB()
 
     sql_insert = '''
@@ -187,7 +226,3 @@ def save_users_to_postgres(users):
         p_con.query(sql_insert, data_user)
 
     del p_con
-
-
-def delete_results_firebase():
-    pass

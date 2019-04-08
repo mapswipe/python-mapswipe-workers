@@ -107,23 +107,20 @@ class postgresDB(object):
 
     def copy_from(
             self,
-            file,
+            f,
             table,
-            sep='\t',
-            null='\\N',
-            size=8192,
-            columns=None
+            columns
             ):
+        print(f.getvalue())
+        print(columns)
         self._db_cur = self._db_connection.cursor()
         self._db_cur.copy_from(
-                file,
+                f,
                 table,
-                sep=sep,
-                null='\\N',
-                size=8192,
                 columns=columns
                 )
         self._db_connection.commit()
+        print('yeah')
         self._db_cur.close()
 
     def retr_query(self, query, data):
