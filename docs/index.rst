@@ -10,6 +10,7 @@ Welcome to Mapswipe Workers's documentation!
    :maxdepth: 2
    :caption: Getting Started:
 
+   introduction
    setup
    data_model
    use_cases
@@ -25,7 +26,7 @@ Welcome to Mapswipe Workers's documentation!
 
 .. toctree::
    :maxdepth: 2
-   :caption: Project Type Structure:
+   :caption: Project Types:
 
    project_type-buildArea
    project_type-footprint

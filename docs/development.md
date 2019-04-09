@@ -24,14 +24,16 @@ Default logging level is Warning. To change the logging level edit the configura
 Per default logging of third-party packages is disabled. To change this edit the definition module (`mapswipe_workers/defintions.md`). Set the `disable_existing_loggers` parameter of the `logging.config.fileConfig()` function to False.
 
 
-## Firebase
+## Database Backup
+
+### Firebase
 
 **Manual Backup**
 - curl https://<instance>.firebaseio.com/.json?format=export
 - ref: https://stackoverflow.com/questions/27910784/is-it-possible-to-backup-firebase-db
 
 
-## Postgres
+### Postgres
 
 **Manual Backup**
 - Backup database in compressed splited files of specified size:

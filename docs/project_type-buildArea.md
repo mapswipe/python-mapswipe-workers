@@ -1,4 +1,4 @@
-# BuildArea
+# Build Area
 
 ## Import structure
 

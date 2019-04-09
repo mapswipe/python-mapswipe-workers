@@ -91,7 +91,7 @@ Download **Service Account Key**:
 Provide a config file and an environment file for Postgres.
 
 
-### config.cfg
+### configuration.json
 
 Edit following variables in the configuratiouration  file (`cfg/your_configuration.json`) and rename it to `configuration.json`.
 
@@ -112,7 +112,7 @@ Edit following variables in the configuratiouration  file (`cfg/your_configurati
 ```
 
 
-### .ENV
+### .env
 
 Create an **Environment file** (`.env`) at root of the project (`python-mapswipe-workers/`) with following variables:
 ```env
@@ -133,12 +133,14 @@ Check if your Docker Containers are running: `docker ps`
 
 Interactive shell session for using e.g. utils: `docker-compose run utils`
 
+
 ## Debugging
 
 **Where can I find logs?**
-- There are two locations for logs
-- `docker logs container_name` (eg. `docker logs import`): take a look at those if your container is not running
-- logs folder at the root of project (`python-mapswipe-workers/logs/`): take a look at those for logs of already running containers
+- Logs are written to directly to console and are written to `/var/log/mapswipe_workers.log`
+    - take a look at those for logs of already running containers
+- To view logs using docker: `docker logs container_name` (eg. `docker logs import`): 
+    - take a look at those if your container is not running
 
 **ERROR: for postgres during docker-compose:**
 - ERROR: for postgres  `Cannot start service postgres: driver failed programming external connectivity on endpoint postgres`
