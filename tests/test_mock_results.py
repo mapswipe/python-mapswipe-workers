@@ -52,7 +52,7 @@ def create_result(
             print('incremented project contributors by one')
 
     user_data = {
-            "contributedCount": user['contributedCount'] + 1,
+            "contributionCount": user['contributionCount'] + 1,
             "distance": user['distance'] + 12,
             "contributions": {
                 project_id: {

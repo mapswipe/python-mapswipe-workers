@@ -25,7 +25,7 @@ def update_user_data():
         w.writerow([
                 userId,
                 user['username'],
-                user['contributedCount'],
+                user['contributionCount'],
                 user['distance'],
                 ])
 
