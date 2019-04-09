@@ -2,6 +2,7 @@ import os
 import json
 import logging
 import logging.config
+from logging.handlers import TimedRotatingFileHandler
 
 
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))

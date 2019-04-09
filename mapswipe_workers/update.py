@@ -15,29 +15,28 @@ def update_user_data():
 
     users_file = io.StringIO('')
 
+    w = csv.writer(
+            users_file,
+            delimiter='\t',
+            quotechar="'"
+            )
+
+    for userId, user in users.items():
+        w.writerow([
+                userId,
+                user['username'],
+                user['contributedCount'],
+                user['distance'],
+                ])
+
+    users_file.seek(0)
+
     fieldnames = (
             'user_id',
             'username',
             'contribution_count',
             'distance',
             )
-
-    w = csv.DictWriter(
-            users_file,
-            fieldnames=fieldnames,
-            delimiter='\t',
-            quotechar="'"
-            )
-
-    for userId, user in users.items():
-        user_dict = {
-                'user_id': userId,
-                'username': user['username'],
-                'contribution_count': user['contributionCount'],
-                'distance': user['distance'],
-                }
-        w.writerow(user_dict)
-
     p_con = auth.postgresDB()
     p_con.copy_from(users_file, 'users', fieldnames)
 

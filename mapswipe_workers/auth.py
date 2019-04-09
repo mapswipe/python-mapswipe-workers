@@ -111,8 +111,6 @@ class postgresDB(object):
             table,
             columns
             ):
-        print(f.getvalue())
-        print(columns)
         self._db_cur = self._db_connection.cursor()
         self._db_cur.copy_from(
                 f,
@@ -120,7 +118,6 @@ class postgresDB(object):
                 columns=columns
                 )
         self._db_connection.commit()
-        print('yeah')
         self._db_cur.close()
 
     def retr_query(self, query, data):

@@ -33,7 +33,7 @@ def run_transfer_results():
 
     try:
         results_ref.transaction(transfer)
-        logger.info('Firebase transaction for transfering results completed')
+        logger.info('Transfered results')
     except fb_db.TransactionError:
         logger.exception(
                 'Firebase transaction for transfering results failed to commit'
@@ -161,21 +161,10 @@ def results_to_file(results):
 
     # If csv file is a file object, it should be opened with newline=''
 
-    results_file = io.StringIO()
+    results_file = io.StringIO('')
 
-    print(results)
-
-    fieldnames = (
-            'project_id',
-            'group_id',
-            'user_id',
-            'task_id',
-            'timestamp',
-            'result'
-            )
-    w = csv.DictWriter(
+    w = csv.writer(
             results_file,
-            fieldnames=fieldnames,
             delimiter='\t',
             quotechar="'"
             )
@@ -195,15 +184,15 @@ def results_to_file(results):
                 except:
                     pass
                 for taskId, result in results.items():
-                    output_dict = {
-                            "project_id": projectId,
-                            "group_id": groupId,
-                            "user_id": userId,
-                            "task_id": taskId,
-                            "timestamp": 0,
-                            "result": result
-                            }
-                    w.writerow(output_dict)
+                    w.writerow([
+                        projectId,
+                        groupId,
+                        userId,
+                        taskId,
+                        0,
+                        result,
+                        ])
+    results_file.seek(0)
     return results_file
 
 

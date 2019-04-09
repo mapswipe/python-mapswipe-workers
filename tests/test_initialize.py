@@ -30,7 +30,7 @@ def create_user(fb_db):
     user = {
             "distance": 0,
             "username": "test user",
-            "contributedCount": 0
+            "contributionCount": 0
             }
     user_id = ref.push(user).key
     print('Uploaded a sample user with the id: {user_id}')
