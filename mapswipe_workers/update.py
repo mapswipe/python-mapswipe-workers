@@ -2,10 +2,39 @@ import csv
 import io
 
 from mapswipe_workers import auth
+from mapswipe_workers.definitions import logger
 
 # TODO: Retrieve only data from firebase which recently changed
 # and therefor needs to be updated in postgres.
 # How can this be achived?
+
+
+def update_project_data():
+
+    fb_db = auth.firebaseDB()
+    projects_ref = db_db.reference('projects/')
+    projects = projects_ref.get()
+
+    pg_db = auth.postgresDB()
+
+    for projectId, project in projects.items():
+        query_update_project = '''
+            UPDATE projects
+            SET contributors=%s, progress=%s, status=%s
+            WHERE project_id=%s; 
+        '''
+        data_update_project = [
+                project['contributors'],
+                project['progress'],
+                project['status'],
+                project_id
+                ]
+        pg_db.query(query_update_project, data_update_project)
+
+    del(fb_db)
+    del(pg_db)
+
+    logger.info('Updated project data in Postgres')
 
 
 def update_user_data():
@@ -13,40 +42,27 @@ def update_user_data():
     users_ref = fb_db.reference('users/')
     users = users_ref.get()
 
-    users_file = io.StringIO('')
-
-    w = csv.writer(
-            users_file,
-            delimiter='\t',
-            quotechar="'"
-            )
+    pg_db = auth.postgresDB()
 
     for userId, user in users.items():
-        w.writerow([
-                userId,
-                user['username'],
+        query_update_user = '''
+            UPDATE users
+            SET contribution_count=%s, distance=%s, username=%s
+            WHERE user_id=%s; 
+        '''
+        data_update_user = [
                 user['contributionCount'],
                 user['distance'],
-                ])
+                user['username'],
+                userId
+                ]
+        pg_db.query(query_update_user, data_update_user)
 
-    users_file.seek(0)
+    del(fb_db)
+    del(pg_db)
 
-    fieldnames = (
-            'user_id',
-            'username',
-            'contribution_count',
-            'distance',
-            )
-    p_con = auth.postgresDB()
-    p_con.copy_from(users_file, 'users', fieldnames)
-
-    del(p_con)
-    users_file.close()
+    logger.info('Updated user data in Postgres')
 
 
 def update_group_data():
-    pass
-
-
-def update_project_data():
     pass
