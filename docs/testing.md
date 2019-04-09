@@ -4,7 +4,7 @@
 
 - Install GDAL
 - Setup virtual environment with system-site-packages enabled
-    - `python3 venv --system-site-packages venv`
+    - `python3 -m venv --system-site-packages venv`
 - Activate virtual environment
     - `source venv/bin/activate`
 - Install mapswipe_workers

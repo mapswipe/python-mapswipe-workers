@@ -11,7 +11,7 @@ To run Mapswipe Workers you need to:
 
 - `git clone https://github.com/mapswipe/python-mapswipe-workers.git`
 - `cd python-mapswipe-workers`
-- for current development branch: `git checkout benni.new-project-types`
+- for current development branch: `git checkout dev`
 
 
 ## 2. Setting up a Firebase Project
