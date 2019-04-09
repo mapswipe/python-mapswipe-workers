@@ -92,12 +92,16 @@
         "userId1": {
             "contributionCount": 1,
             "contributions": {
-                "distance": 1,
                 "projectId1": {
-                    "groupId1": "timestamp"
+                    "groupId1": "timestamp",
+                    "groupId2": "timestamp"
                 },
-                "username": "name"
-            }
+                "projectId2": {
+                    "groupId1": "timestamp"
+                }
+            },
+            "distance": 1,
+            "username": "name"
         }
     }
 }
