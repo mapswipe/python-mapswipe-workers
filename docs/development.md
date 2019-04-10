@@ -24,6 +24,18 @@ Default logging level is Warning. To change the logging level edit the configura
 Per default logging of third-party packages is disabled. To change this edit the definition module (`mapswipe_workers/defintions.md`). Set the `disable_existing_loggers` parameter of the `logging.config.fileConfig()` function to False.
 
 
+## Firebase Functions
+
+Firebase functions are used by Mapswipe Workers to calculate or increment attribute values wich are needed by the Mapswipe App. This includes at the moment:
+- project.progress
+- group.progress
+- group.completedCount
+- user.contributionCount
+- user.distance
+
+To contribute changes to the Firebase Functions please refer to the official (Guide on Cloud Function for Firebase)[https://firebase.google.com/docs/functions/get-started] on how to setup development enviroment and on how to deploy functions to the Firebase instance. For more information refer to the official (Reference on Cloud Function for Firebase)[https://firebase.google.com/docs/reference/functions/].
+
+
 ## Database Backup
 
 ### Firebase
