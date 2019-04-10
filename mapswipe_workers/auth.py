@@ -102,10 +102,8 @@ class postgresDB(object):
     def query(self, query, data=None):
         self._db_cur = self._db_connection.cursor()
         self._db_cur.execute(query, data)
-        respose = self._db_cur.fetchone()
         self._db_connection.commit()
         self._db_cur.close()
-        return respose
 
     def copy_from(
             self,
@@ -124,7 +122,7 @@ class postgresDB(object):
 
     # TODO: Delete this function if no used by any module
     # This functionality is implemented in query()
-    def retr_query(self, query, data):
+    def retr_query(self, query, data=None):
         self._db_cur = self._db_connection.cursor()
         self._db_cur.execute(query, data)
         content = self._db_cur.fetchall()
