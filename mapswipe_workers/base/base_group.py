@@ -35,13 +35,14 @@ class BaseGroup(metaclass=ABCMeta):
         -------
         object
         """
-        self.projectId = project.projectId
+        self.completedCount = 0
         self.groupId = groupId
         self.neededCount = project.verificationCount
-        self.completedCount = 0
-        self.verificationCount = project.verificationCount
-        self.tasks = list()
         self.numberOfTasks = 0
+        self.progress = 0
+        self.projectId = project.projectId
+        self.tasks = list()
+        self.verificationCount = project.verificationCount
 
 
     @abstractmethod
