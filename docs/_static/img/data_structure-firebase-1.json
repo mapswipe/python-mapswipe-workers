@@ -2,21 +2,16 @@
     "announcement": {
         "announcementId": "announcement"
     },
-    "groups": {
-        "projectId1": {
-            "groupId1": {
-                "completedCount": 1,
-                "groupId": 1,
-                "neededCount": 10,
-                "numberOfTasks": 1,
-                "progress": 0.8,
-                "projectId": "id",
-                "verificationCount": 1,
-                "xMax": 5,
-                "xMin": 6,
-                "yMax": 3,
-                "yMin": 4
-            }
+    "users": {
+        "userId1": {
+            "contributionCount": 1,
+            "contributions": {
+                "projectId1": {
+                    "groupId1": "timestamp"
+                }
+            },
+            "distance": 1,
+            "username": "name"
         }
     },
     "projectDrafts": {
@@ -64,14 +59,20 @@
             "zoomLevel": 18
         }
     },
-    "results": {
+    "groups": {
         "projectId1": {
             "groupId1": {
-                "userId1": {
-                    "resultCount": 1,
-                    "resultId1(=taskId1)": 1,
-                    "timestamp": "timestamp"
-                }
+                "completedCount": 1,
+                "groupId": 1,
+                "neededCount": 10,
+                "numberOfTasks": 1,
+                "progress": 0.8,
+                "projectId": "id",
+                "verificationCount": 1,
+                "xMax": 5,
+                "xMin": 6,
+                "yMax": 3,
+                "yMin": 4
             }
         }
     },
@@ -89,16 +90,14 @@
             }
         }
     },
-    "users": {
-        "userId1": {
-            "contributionCount": 1,
-            "contributions": {
-                "projectId1": {
-                    "groupId1": "timestamp"
+    "results": {
+        "projectId1": {
+            "groupId1": {
+                "userId1": {
+                    "resultId1(=taskId1)": 1,
+                    "timestamp": "timestamp"
                 }
-            },
-            "distance": 1,
-            "username": "name"
+            }
         }
     }
 }
