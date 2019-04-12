@@ -6,7 +6,7 @@
         "lookFor": "BUILDINGS",
         "name": "BuildArea Default with Bing Sample Project",
         "projectDetails": "This project uses Bing as the tile server and zoom level 18. This is the setup most MapSwipe projects used so far.",
-        "verificationCount": 3,
+        "verificationNumber": 3,
         "projectType": 1,
         "tileServer": "bing"
     },
@@ -17,7 +17,7 @@
         "lookFor": "VEGETATION",
         "name": "BuildArea Sentinel Sample Project",
         "projectDetails": "This project uses tiles based on Sentinel data provided by sinergise. We need to define a layer name for the WMTS, zoom level is set to 14",
-        "verificationCount": 3,
+        "verificationNumber": 3,
         "projectType": 1,
         "tileServer": "sinergise",
         "wmtsLayerName": "FALSE_COLOR",
@@ -30,7 +30,7 @@
         "lookFor": "Buildings",
         "name": "Footprint Sample Project",
         "projectDetails": "This is a template for a building by building project. We use Bing as the tile server.",
-        "verificationCount": 3,
+        "verificationNumber": 3,
         "projectType": 2,
         "tileServer": "bing"
     }
