@@ -35,21 +35,20 @@ class BaseGroup(metaclass=ABCMeta):
         -------
         object
         """
-        self.completedCount = 0
         self.groupId = groupId
-        self.neededCount = project.verificationCount
         self.numberOfTasks = 0
         self.progress = 0
         self.projectId = project.projectId
+        self.resultCounter = 0
         self.tasks = list()
-        self.verificationCount = project.verificationCount
-
 
     @abstractmethod
     def create_tasks():
         '''
-        Returns
-        -------
-        tasks: list
+            Create tasks as task object for one group
+            and appends those to a tasks list of the group object.
+
+            The number of tasks has to be calculated
+            and saved to the numberOfTasks attribute of the group object.
         '''
         pass

@@ -1,7 +1,8 @@
-import os
-import json
-import csv
 from abc import ABCMeta, abstractmethod
+from datetime import datetime
+import csv
+import json
+import os
 
 from mapswipe_workers import auth
 from mapswipe_workers.definitions import DATA_PATH
@@ -56,8 +57,11 @@ class BaseProjectDraft(metaclass=ABCMeta):
 
         self.archived = False
         self.contributors = 0
-        self.groupAverage = 0
+        self.created = datetime.now()
         self.groups = list()
+        self.groupMaxSize = project_draft.get('groupMaxSize', 0)
+        self.resultCounter = 0
+        self.resultRequiredCounter = 0
         self.image = project_draft['image']
         self.isFeatured = False
         self.lookFor = project_draft['lookFor']
@@ -66,9 +70,9 @@ class BaseProjectDraft(metaclass=ABCMeta):
         self.projectDetails = project_draft['projectDetails']
         self.projectId = project_draft['projectDraftId']
         self.projectType = int(project_draft['projectType'])
+        self.verificationNumber = project_draft['verificationNumber']
         self.status = 'inactive'
         self.tileServer = project_draft['tileServer']
-        self.verificationCount = int(project_draft['verificationCount'])
         if self.tileServer == 'custom':
             self.tileServerUrl = project_draft['tileSeverUrl']
         else:
@@ -82,6 +86,13 @@ class BaseProjectDraft(metaclass=ABCMeta):
                         )
             except KeyError:
                 self.apiKey = None
+
+    # TODO: Implement resultRequiredCounter as property.
+    # Does not work because for some reason project['group'] = vars()
+    # and then del project['group'] will delete also project.group.
+    # @property
+    # def resultRequiredCounter(self):
+    #     return self.resultRequiredCounter
 
     def create_project(self, fb_db):
         """
@@ -99,7 +110,11 @@ class BaseProjectDraft(metaclass=ABCMeta):
 
         self.create_groups(self)
 
-        # Convert object attributes to dictonaries for saving it to firebase
+        for group in self.groups:
+            group.resultRequiredCounter = group.numberOfTasks * self.verificationNumber
+            self.resultRequiredCounter = self.resultRequiredCounter + group.resultRequiredCounter
+
+        # Convert object attributes to dictonaries for saving it to firebase and postgres
         project = vars(self)
         groups = dict()
         groupsOfTasks = dict()
@@ -158,6 +173,7 @@ class BaseProjectDraft(metaclass=ABCMeta):
             return False
 
     def save_to_firebase(self, fb_db, project, groups, groupsOfTasks):
+        project['created'] = project['created'].timestamp()
         ref = fb_db.reference('')
         ref.update({
             f'projects/{self.projectId}': project,
@@ -179,39 +195,43 @@ class BaseProjectDraft(metaclass=ABCMeta):
 
         query_insert_project = '''
             INSERT INTO projects
-            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s);
+            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s);
             '''
 
         data_project = [
-                self.projectId,
-                self.name,
-                self.projectType,
-                self.projectDetails,
-                self.groupAverage,
-                self.contributors,
-                self.image,
-                self.isFeatured,
-                self.lookFor,
-                self.progress,
-                self.status,
-                self.verificationCount,
-                self.archived,
+                project['archived'],
+                project['created'],
+                project['contributors'],
+                project['image'],
+                project['isFeatured'],
+                project['lookFor'],
+                project['name'],
+                project['progress'],
+                project['projectDetails'],
+                project['projectId'],
+                project['projectType'],
+                project['resultCounter'],
+                project['resultRequiredCounter'],
+                project['status'],
+                project['verificationNumber'],
         ]
 
         project_attributes = [
-                'projectId',
-                'name',
-                'projectType',
-                'projectDetails',
-                'groupAverage',
+                'archived',
+                'created',
                 'contributors',
                 'image',
                 'isFeatured',
                 'lookFor',
+                'name',
                 'progress',
+                'projectDetails',
+                'projectId',
+                'projectType',
+                'resultCounter',
+                'resultRequiredCounter',
                 'status',
-                'verificationCount',
-                'archived',
+                'verificationNumber',
                 ]
 
         project_type_specifics = dict()
@@ -226,8 +246,9 @@ class BaseProjectDraft(metaclass=ABCMeta):
               project_id varchar,
               group_id int,
               number_of_tasks int,
-              completed_count int,
-              verification_count int,
+              result_counter int,
+              result_required_counter int,
+              progress int,
               project_type_specifics json
             );
             '''
@@ -263,8 +284,9 @@ class BaseProjectDraft(metaclass=ABCMeta):
                 'project_id',
                 'group_id',
                 'number_of_tasks',
-                'completed_count',
-                'verification_count',
+                'result_counter',
+                'result_required_counter',
+                'progress',
                 'project_type_specifics'
                 ]
 
@@ -337,8 +359,9 @@ class BaseProjectDraft(metaclass=ABCMeta):
                 'project_id',
                 'group_id',
                 'number_of_tasks',
-                'completed_count',
-                'verification_count',
+                'result_counter',
+                'result_required_counter',
+                'progress',
                 'project_type_specifics'
                 )
         w = csv.DictWriter(
@@ -354,19 +377,14 @@ class BaseProjectDraft(metaclass=ABCMeta):
                     "project_id": self.projectId,
                     "group_id": groupId,
                     "number_of_tasks": group['numberOfTasks'],
-                    "completed_count": group['completedCount'],
-                    "verification_count": group['verificationCount'],
+                    "result_counter": group['resultCounter'],
+                    "result_required_counter": group['resultRequiredCounter'],
+                    "progress": group['progress'],
                     "project_type_specifics": dict()
                 }
 
                 for key in group.keys():
-                    if key not in [
-                            'projectId',
-                            'groupId',
-                            'numberOfTasks',
-                            'completedCount',
-                            'verificationCount',
-                            ]:
+                    if key not in output_dict.keys():
                         output_dict['project_type_specifics'][key] = group[key]
                 output_dict['project_type_specifics'] = json.dumps(
                         output_dict['project_type_specifics']
@@ -435,11 +453,7 @@ class BaseProjectDraft(metaclass=ABCMeta):
                         "project_type_specifics": dict()
                         }
                 for key in task.keys():
-                    if key not in [
-                            'projectId',
-                            'groupId'
-                            'taskId',
-                            ]:
+                    if key not in output_dict.keys():
                         output_dict['project_type_specifics'][key] = task[key]
                 output_dict['project_type_specifics'] = json.dumps(
                         output_dict['project_type_specifics']
@@ -449,7 +463,7 @@ class BaseProjectDraft(metaclass=ABCMeta):
         tasks_txt_file.close()
         return tasks_txt_filename
 
-    def delete_from_postgres():
+    def delete_from_postgres(self):
         p_con = auth.postgresDB()
 
         sql_query = '''
@@ -458,14 +472,14 @@ class BaseProjectDraft(metaclass=ABCMeta):
             DELETE FROM projects WHERE project_id = %s;
             '''
         data = [
-            project_id,
-            project_id,
-            project_id,
+            self.project_id,
+            self.project_id,
+            self.project_id,
         ]
         p_con.query(sql_query, data)
         del p_con
         logger.info(
-                f'{project_id} - '
+                f'{self.project_id} - '
                 f'deleted project, groups and tasks '
                 f'from postgres'
                 )
