@@ -23,12 +23,14 @@
             "country": "name",
             "exampleImage": "exampleImage",
             "exampleMessage": "exampleMessage",
+            "groupMaxSize": 10,
             "image": "image",
             "kml": "kml",
             "lookFor": "text",
             "name": "name",
             "projectDetails": "text",
             "projectType": 2,
+            "purposeMessage": "brief message (140 chars)",
             "submissionKey": "key",
             "thankYouMessage": "brief message (140 chars)",
             "tileServer": "name",
@@ -44,10 +46,10 @@
             "centroid": "wkt",
             "contributors": 2,
             "country": "name",
+            "created": "timestamp",
             "exampleImage": "exampleImage",
             "exampleMessage": "exampleMessage",
-            "groupAverage": 2,
-            "groupSize": "Text string",
+            "groupMaxSize": 10,
             "image": "image",
             "imageOfMap": "image",
             "inputGeometries": "Text string",
@@ -56,24 +58,25 @@
             "progress": 44,
             "projectDetails": "details",
             "projectType": 2,
+            "resultCounter": 2,
+            "resultRequiredCounter": 142,
             "scale": "scale",
             "status": "active",
             "tileServer": "Text string",
             "tileServerUrl": "url",
             "validinputGeometries": "Text string",
-            "verificationCount": 1
+            "verificationNumber": 1
         }
     },
     "groups": {
         "projectId1": {
             "groupId1": {
-                "completedCount": 1,
-                "count": 1,
                 "groupId": 1,
-                "neededCount": 10,
-                "progress": 0.8,
+                "numberOfTask": 455,
+                "progress": 8,
                 "projectId": "id",
-                "verificationCount": 1
+                "resultCounter": 2,
+                "resultRequiredCounter": 142
             }
         }
     },
@@ -97,7 +100,7 @@
         "projectId1": {
             "groupId1": {
                 "userId1": {
-                    "resultId1(=taskId1)": 1,
+                    "resultId1(=taskId1)": 2,
                     "timestamp": "timestamp"
                 }
             }

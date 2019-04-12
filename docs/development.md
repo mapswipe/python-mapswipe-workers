@@ -3,6 +3,15 @@
 In this document some tips and workflows for development and hosting are loosely collected.
 
 
+## Configuration path and data path
+
+According to the [Filesystem Hierarchy Standard](http://www.pathname.com/fhs/pub/fhs-2.3.html#THEROOTFILESYSTEM) document
+`/var/log/mapswipe.log`
+`/var/lib/mapswipe/`
+`/etc/mapswipe/configuration.json`
+`/etc/mapswipe/serviceAccountKey.json`
+
+
 ## Logging
 
 Mapswipe workers logs are generated using the Python logging module of the standard library (See [Official docs](https://docs.python.org/3/library/logging.html) or this [Tutorial](https://realpython.com/python-logging/#the-logging-module). The configuration file of the logging module is located at `mapswipe_workers/logging.cfg`. With this configuration a logger object is generated in the `definitions` module (`mapswipe_workers.definitions.py`) and is imported in other modules to write logs.
