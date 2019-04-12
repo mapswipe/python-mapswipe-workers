@@ -1,5 +1,5 @@
 import random
-import datetime
+from datetime import datetime
 import pickle
 
 from mapswipe_workers import auth
@@ -20,54 +20,50 @@ def create_result(
     result = result_ref.get()
 
     rn = random.randint(1, 3)
-    timestamp = datetime.datetime.utcnow().strftime('%m%d%Y')
+    # timestamp = datetime.now().timestamp()
 
     if result is None:
         result_data = {
-            "timestamp": timestamp,
-            "resultCount": 1,
             task_id: rn
             }
         result_ref.set(result_data)
     else:
         result_ref.update({
-            "timestamp": timestamp,
-            "resultCount": result.get('resultCount', 0) + 1,
             task_id: rn
             })
-        print(f'uploaded result for task: {task_id}')
+    print(f'uploaded result for task: {task_id}')
 
     def increment(current_value):
         return current_value + 1 if current_value else 1
 
-    user_ref = fb_db.reference(f'users/{user_id}')
-    user = user_ref.get()
-    project_contributors_ref = fb_db.reference(
-            f'projects/{project_id}/contributors'
-            )
+    # user_ref = fb_db.reference(f'users/{user_id}')
+    # user = user_ref.get()
+    # project_contributors_ref = fb_db.reference(
+    #         f'projects/{project_id}/contributors'
+    #         )
 
-    if 'contributions' in user:
-        if project_id not in user['contributions']:
-            project_contributors_ref.transaction(increment)
-            print('incremented project contributors by one')
+    # if 'contributions' in user:
+    #     if project_id not in user['contributions']:
+    #         project_contributors_ref.transaction(increment)
+    #         print('incremented project contributors by one')
 
-    user_data = {
-            "contributionCount": user['contributionCount'] + 1,
-            "distance": user['distance'] + 12,
-            "contributions": {
-                project_id: {
-                    group_id: timestamp
-                    }
-                }
-            }
-    user_ref.update(user_data)
-    print("updated user contribution count and contributions")
+    # user_data = {
+    #         "contributionCount": user['contributionCount'] + 1,
+    #         "distance": user['distance'] + 12,
+    #         "contributions": {
+    #             project_id: {
+    #                 group_id: timestamp
+    #                 }
+    #             }
+    #         }
+    # user_ref.update(user_data)
+    # print("updated user contribution count and contributions")
 
-    group_ref = fb_db.reference(
-            f'groups/{project_id}/{group_id}/completedCount'
-            )
-    group_ref.transaction(increment)
-    print("incremeted project completed count by one")
+    # group_ref = fb_db.reference(
+    #         f'groups/{project_id}/{group_id}/completedCount'
+    #         )
+    # group_ref.transaction(increment)
+    # print("incremeted project completed count by one")
 
 
 def mock_user_contributions(
@@ -86,8 +82,8 @@ def mock_user_contributions(
         numberOfTasks = group['numberOfTasks']
         random_sample = random.sample(tasks, int(numberOfTasks/5))
         print(
-                f'Generate results for random tasks selection '
-                f'of size: {len(random_sample)}'
+                f'Generate results for a random selection selection of '
+                f'{len(random_sample)} tasks'
                 )
         for task in random_sample:
             create_result(
@@ -101,8 +97,6 @@ def mock_user_contributions(
 
 if __name__ == '__main__':
     fb_db = auth.firebaseDB()
-
-    logger.info('test')
 
     filename = 'project_ids.pickle'
     with open(filename, 'rb') as f:

@@ -33,7 +33,7 @@ def create_user(fb_db):
             "contributionCount": 0
             }
     user_id = ref.push(user).key
-    print('Uploaded a sample user with the id: {user_id}')
+    print(f'Uploaded a sample user with the id: {user_id}')
     print('')
     save_user_id(user_id)
 
