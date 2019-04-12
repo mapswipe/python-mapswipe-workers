@@ -8,17 +8,13 @@ class FootprintTask(BaseTask):
 
         Attributes
         ----------
-        task_id: int
-            The id of the task
-        featureId: int
-            The id of the feature
         geojson: dict
             Geojson object containing the representation of the footprint.
             Coordinates consists of four two pair coordinates representing
             the footprint of an object.
     """
 
-    def __init__(self, group, feature_id, feature_geometry):
+    def __init__(self, group, featureId, featureGeometry):
         """
             The constructor method for a group instance of the
             footprint project type.
@@ -27,8 +23,6 @@ class FootprintTask(BaseTask):
         ----------
         group: FootprintGroup object
             The group the task is associated with
-        project: FootprintProject object
-            The project the task is associated with
         feature_id: int
             The feature id
         feature_geometry: dict
@@ -38,10 +32,5 @@ class FootprintTask(BaseTask):
             Every coordinate pair is a vertex, representing the footprint
             of an object.
         """
-        taskId = '{}_{}_{}'.format(
-            group.projectId, group.groupId, feature_id
-        )
-
-        super().__init__(group, taskId)
-        self.featureId = feature_id
-        self.geojson = feature_geometry
+        super().__init__(group, taskId=featureId)
+        self.geojson = featureGeometry
