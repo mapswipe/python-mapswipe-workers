@@ -18,7 +18,7 @@ SERVICE_ACCOUNT_KEY_PATH = '/etc/mapswipe_workers/serviceAccountKey.json'
 #         os.path.join(ROOT_DIR, 'cfg', 'serviceAccountKey.json')
 #         )
 
-DATA_PATH = '/var/lib/mapswipe_workers'
+DATA_PATH = '/var/lib/mapswipe_workers/'
 # DATA_PATH = os.path.abspath(
 #         os.path.join(ROOT_DIR, './data/')
 #         )
