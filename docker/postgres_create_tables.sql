@@ -1,19 +1,21 @@
 -- noinspection SqlNoDataSourceInspectionForFile
 
 CREATE TABLE IF NOT EXISTS projects (
-    project_id varchar,
-    name varchar,
-    project_type int,
-    project_details varchar,
-    group_average int,
+    archive boolean,
+    created timestamp,
     contributors int,
     image varchar,
     is_featured boolean,
     look_for varchar,
+    name varchar,
     progress int,
+    project_details varchar,
+    project_id varchar,
+    project_type int,
+    resultCounter int,
+    resultRequiredCounter int,
     status varchar,
-    verification_count int,
-    archive boolean,
+    verification_number int,
     project_type_specifics json,
     PRIMARY KEY(project_id)
     );
@@ -22,8 +24,9 @@ CREATE TABLE IF NOT EXISTS groups (
     project_id varchar,
     group_id int,
     number_of_tasks int,
-    completed_count int,
-    verification_count int,
+    result_counter int,
+    result_required_counter int,
+    progress int,
     project_type_specifics json,
     PRIMARY KEY(project_id, group_id),
     FOREIGN KEY (project_id) REFERENCES projects (project_id)
