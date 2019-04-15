@@ -96,7 +96,7 @@ Provide custom configuration and environment file.
 
 ### configuration.json
 
-Edit following variables in the configuration file (`config/configuration.json`):
+Edit following variables in the configuration file (`config/example-configuration.json`) and rename the file to `configuration.json`:
 
 **postgres**:
 - provide usename und password for postgres
