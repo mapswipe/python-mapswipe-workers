@@ -43,8 +43,7 @@ Welcome to Mapswipe Workers's documentation!
    :maxdepth: 2
    :caption: Miscellaneous:
 
-   development
-   testing
+   contributing
    diagrams
    project_type-proposal
    project_type-enable

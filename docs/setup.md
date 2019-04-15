@@ -1,5 +1,7 @@
 # Setup
 
+This document discribes how to run Mapwipe Workers using Docker. For development setup without Docker pleas refer to the [Contributing page](contributing.md).
+
 To run Mapswipe Workers you need to:
 1. Clone the repository
 2. Setup a [Firebase Project](https://firebase.google.com/)
@@ -83,24 +85,24 @@ Get **Web API Key**:
 
 Download **Service Account Key**:
 - `> Settings > Project settings > Service accounts > Firebase Admin SDK > Generate new private key`
-- Put the downloaded Firebase Service Account Key into the folder `cfg` of the cloned Mapswipe Workers Project.
+
+Rename the downloaded json file to `serviceAccountKey.json` and move it to `python_mapswipe_workers/config/`
 
 
 ## 3. Configuration
 
-Provide a config file and an environment file for Postgres.
+Provide custom configuration and environment file.
 
 
 ### configuration.json
 
-Edit following variables in the configuratiouration  file (`cfg/your_configuration.json`) and rename it to `configuration.json`.
+Edit following variables in the configuration file (`config/configuration.json`):
 
 **postgres**:
 - provide usename und password for postgres
 
 **firebase**:
 - provide configurations for your Firebase instance
-- make sure the name of your Service Account Key is correct
 - for example:
 ```cfg
 "dev_firebase":{
@@ -108,7 +110,6 @@ Edit following variables in the configuratiouration  file (`cfg/your_configurati
   "auth_domain": "dev-mapswipe.firebaseapp.com",
   "database_url": "https://dev-mapswipe.firebaseio.com",
   "storage_bucket": "dev-mapswipe.appspot.com",
-  "service_account": "./cfg/dev-mapswipe_serviceAccountKey.json"
 ```
 
 
@@ -150,7 +151,7 @@ Interactive shell session for using e.g. utils: `docker-compose run utils`
 
 **Docker containers are always restarting:** Take a look at the docker logs (eg. `docker logs import`). If you get an `Unable to load configuration file at ./cfg/config.cfg. Exiting.` due to `PermissionError: [Errno 13] Permission denied: './cfg/config.cfg'` error message, you probably have SELinux on your system enabled. If so you have to configure (change mount option of volumes) your docker-compose file. Please read the documentation provided by Docker regarding this configuration (https://docs.docker.com/storage/bind-mounts/ Chapter: "Configure the selinux label").
 
-**configuration.json - FileNotFoundError:** Until fixed the configuration path is hard coded in `mapswipe_workers/definitions.py`. This should work, if Mapswipe Workers is installed and running inside a Docker Container. For custom setup adjust the `ROOT_PATH` variable in `definitions.py` accordingly.
+**configuration.json - FileNotFoundError:** Until fixed the configuration path is hard coded in `mapswipe_workers/definitions.py`. This should work, if Mapswipe Workers is installed and running inside a Docker Container. For custom setup refer to the [contribution page](contribution.md).
 
 
 ## Tips
