@@ -50,7 +50,7 @@ def generate_stats():
     '''
 
     query_select_user_contributions_total = '''
-        SELECT SUM(contribution_count)
+        SELECT SUM(contribution_counter)
         FROM users;
     '''
 

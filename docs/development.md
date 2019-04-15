@@ -5,11 +5,13 @@ In this document some tips and workflows for development and hosting are loosely
 
 ## Configuration path and data path
 
-According to the [Filesystem Hierarchy Standard](http://www.pathname.com/fhs/pub/fhs-2.3.html#THEROOTFILESYSTEM) document
-`/var/log/mapswipe.log`
-`/var/lib/mapswipe/`
-`/etc/mapswipe/configuration.json`
-`/etc/mapswipe/serviceAccountKey.json`
+According to the [Filesystem Hierarchy Standard](http://www.pathname.com/fhs/pub/fhs-2.3.html#THEROOTFILESYSTEM) document configuration, logs and data of a programm should be stored at following location:
+- logs: `/var/log/mapswipe.log`
+- data: `/var/lib/mapswipe/`
+- configuration: `/etc/mapswipe/configuration.json`
+- cofiguration: `/etc/mapswipe/serviceAccountKey.json`
+
+Depending on user permissions you have to change ownership/permissions (chown) of those directories for the application to work.
 
 
 ## Logging
@@ -42,7 +44,7 @@ Firebase functions are used by Mapswipe Workers to calculate or increment attrib
 - user.contributionCount
 - user.distance
 
-To contribute changes to the Firebase Functions please refer to the official (Guide on Cloud Function for Firebase)[https://firebase.google.com/docs/functions/get-started] on how to setup development enviroment and on how to deploy functions to the Firebase instance. For more information refer to the official (Reference on Cloud Function for Firebase)[https://firebase.google.com/docs/reference/functions/].
+To contribute changes to the Firebase Functions please refer to the official (Guide on Cloud Function for Firebase)[https://firebase.google.com/docs/functions/get-started] on how to setup development enviroment and on how to deploy functions to the Firebase instance. For more information refer to the official (Reference on Cloud Function for Firebase)[https://firebase.google.com/docs/reference/functions/]. For example function take a look at this (GitHub repository)[https://github.com/firebase/functions-samples].
 
 
 ## Database Backup

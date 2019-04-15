@@ -36,35 +36,6 @@ def create_result(
     def increment(current_value):
         return current_value + 1 if current_value else 1
 
-    # user_ref = fb_db.reference(f'users/{user_id}')
-    # user = user_ref.get()
-    # project_contributors_ref = fb_db.reference(
-    #         f'projects/{project_id}/contributors'
-    #         )
-
-    # if 'contributions' in user:
-    #     if project_id not in user['contributions']:
-    #         project_contributors_ref.transaction(increment)
-    #         print('incremented project contributors by one')
-
-    # user_data = {
-    #         "contributionCount": user['contributionCount'] + 1,
-    #         "distance": user['distance'] + 12,
-    #         "contributions": {
-    #             project_id: {
-    #                 group_id: timestamp
-    #                 }
-    #             }
-    #         }
-    # user_ref.update(user_data)
-    # print("updated user contribution count and contributions")
-
-    # group_ref = fb_db.reference(
-    #         f'groups/{project_id}/{group_id}/completedCount'
-    #         )
-    # group_ref.transaction(increment)
-    # print("incremeted project completed count by one")
-
 
 def mock_user_contributions(
         fb_db,

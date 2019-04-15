@@ -4,7 +4,7 @@
     },
     "users": {
         "userId1": {
-            "contributionCount": 1,
+            "contributionCounter": 1,
             "contributions": {
                 "projectId1": {
                     "groupId1": "timestamp",
@@ -84,7 +84,6 @@
         "projectId1": {
             "groupId1": {
                 "taskId1": {
-                    "featureId": "id",
                     "geojson": {
                         "coordinates": 0,
                         "type": "type"

@@ -11,6 +11,9 @@ from mapswipe_workers.definitions import logger
 
 def update_project_data():
 
+    # TODO: fetch only projects which are not already archived
+    # status != 'archived'
+
     fb_db = auth.firebaseDB()
     projects_ref = db_db.reference('projects/')
     projects = projects_ref.get()
@@ -47,11 +50,11 @@ def update_user_data():
     for userId, user in users.items():
         query_update_user = '''
             UPDATE users
-            SET contribution_count=%s, distance=%s, username=%s
+            SET contribution_counter=%s, distance=%s, username=%s
             WHERE user_id=%s; 
         '''
         data_update_user = [
-                user['contributionCount'],
+                user['contributionCounter'],
                 user['distance'],
                 user['username'],
                 userId
