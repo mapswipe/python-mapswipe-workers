@@ -79,7 +79,6 @@ class postgresDB(object):
     _db_cur = None
 
     def __init__(self):
-        # try to load configuration from config file
         CONFIG = load_config()
         try:
             dbname = CONFIG['postgres']['database']
@@ -88,7 +87,6 @@ class postgresDB(object):
             host = CONFIG['postgres']['host']
             port = CONFIG['postgres']['port']
         except KeyError:
-            # Default configuration
             raise Exception('Could not load psql info from the config file')
 
         self._db_connection = psycopg2.connect(
@@ -120,8 +118,6 @@ class postgresDB(object):
         self._db_connection.commit()
         self._db_cur.close()
 
-    # TODO: Delete this function if no used by any module
-    # This functionality is implemented in query()
     def retr_query(self, query, data=None):
         self._db_cur = self._db_connection.cursor()
         self._db_cur.execute(query, data)
@@ -131,5 +127,4 @@ class postgresDB(object):
         return content
 
     def __del__(self):
-        # self._db_cur.close()
         self._db_connection.close()
