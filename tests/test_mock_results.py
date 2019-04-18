@@ -1,40 +1,7 @@
 import random
-from datetime import datetime
 import pickle
 
 from mapswipe_workers import auth
-from mapswipe_workers.definitions import logger
-
-
-def create_result(
-        fb_db,
-        project_id,
-        group_id,
-        user_id,
-        task_id,
-        ):
-
-    result_ref = fb_db.reference(
-            f'results/{project_id}/{group_id}/{user_id}'
-            )
-    result = result_ref.get()
-
-    rn = random.randint(1, 3)
-    # timestamp = datetime.now().timestamp()
-
-    if result is None:
-        result_data = {
-            task_id: rn
-            }
-        result_ref.set(result_data)
-    else:
-        result_ref.update({
-            task_id: rn
-            })
-    print(f'uploaded result for task: {task_id}')
-
-    def increment(current_value):
-        return current_value + 1 if current_value else 1
 
 
 def mock_user_contributions(
@@ -45,25 +12,19 @@ def mock_user_contributions(
 
     ref = fb_db.reference(f'groups/{project_id}/')
     groups = ref.order_by_key().limit_to_last(5).get()
+    results = dict()
 
     for group_id, group in groups.items():
-        ref = fb_db.reference(f'tasks/{project_id}/{group_id}/')
-        tasks = ref.get()
+        tasks_ref = fb_db.reference(f'tasks/{project_id}/{group_id}/')
+        tasks = tasks_ref.get()
+        for task in tasks:
+            results[task['taskId']] = random.randint(1, 3)
 
-        numberOfTasks = group['numberOfTasks']
-        random_sample = random.sample(tasks, int(numberOfTasks/5))
-        print(
-                f'Generate results for a random selection selection of '
-                f'{len(random_sample)} tasks'
+        results_ref = fb_db.reference(
+                f'results/{project_id}/{group_id}/{user_id}'
                 )
-        for task in random_sample:
-            create_result(
-                    fb_db,
-                    project_id,
-                    group_id,
-                    user_id,
-                    task['taskId'],
-                    )
+        results_ref.update(results)
+        print(f'Uploaded results for group: {group_id}')
 
 
 if __name__ == '__main__':

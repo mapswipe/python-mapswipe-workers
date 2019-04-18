@@ -1,6 +1,6 @@
-from mapswipe_workers import transfer_results
+from mapswipe_workers import run
 
-transfer_results.run_transfer_results()
+run._run_transfer_results()
 
 print(
         'Transfered results from Firebase to Postgres' +

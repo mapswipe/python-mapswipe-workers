@@ -1,7 +1,7 @@
-from mapswipe_workers.base import base_functions
+from mapswipe_workers import run
 
 
-base_functions.run_create_project()
+run._run_create_project()
 print(
         'Created projects from existing project drafts in ' +
         'Firebase and saved them in Firebase and Postgres'
