@@ -5,7 +5,7 @@ import ogr
 from mapswipe_workers.definitions import DATA_PATH
 from mapswipe_workers.definitions import CustomError
 from mapswipe_workers.definitions import logger
-from mapswipe_workers.base.base_project_ import BaseProject
+from mapswipe_workers.base.base_project import BaseProject
 from mapswipe_workers.project_types.footprint import grouping_functions as g
 from mapswipe_workers.project_types.footprint.footprint_group \
         import FootprintGroup
