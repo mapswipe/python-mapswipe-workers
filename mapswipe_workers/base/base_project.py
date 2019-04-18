@@ -7,7 +7,6 @@ import os
 from mapswipe_workers import auth
 from mapswipe_workers.definitions import DATA_PATH
 from mapswipe_workers.definitions import logger
-from mapswipe_workers.utils import error_handling
 
 
 class BaseProject(metaclass=ABCMeta):
@@ -393,12 +392,11 @@ class BaseProject(metaclass=ABCMeta):
                 w.writerow(output_dict)
 
             except Exception as e:
-                logger.warning(
+                logger.exception(
                         f'{self.projectId}'
                         f' - set_groups_postgres - '
                         f'groups missed critical information: {e}'
                         )
-                error_handling.log_error(e, logger)
 
         groups_txt_file.close()
 
