@@ -11,9 +11,9 @@ setup(
     author_email='',
     url='www.mapswipe.org',
     packages=find_packages(exclude=('tests', 'docs')),
-    install_requires=requirements
+    install_requires=requirements,
     entry_points='''
         [console_scripts]
         run=run:cli
-    ''',
+    '''
 )
