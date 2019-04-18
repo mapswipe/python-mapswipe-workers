@@ -61,17 +61,24 @@ def get_submission_key():
 
 
 def firebaseDB():
-    # Fetch the service account key JSON file contents
-    cred = credentials.Certificate(SERVICE_ACCOUNT_KEY_PATH)
-    config = load_config()
-    databaseURL = config['firebase']['database_url']
+    try:
+        # Is an App instance already initialized?
+        # Then return the Firebase Realtime Database module
+        firebase_admin.get_app()
+        return db
+    except ValueError:
+        # Fetch the service account key JSON file contents
+        cred = credentials.Certificate(SERVICE_ACCOUNT_KEY_PATH)
+        config = load_config()
+        databaseURL = config['firebase']['database_url']
 
-    # Initialize the app with a service account, granting admin privileges
-    firebase_admin.initialize_app(cred, {
-        'databaseURL': databaseURL
-    })
+        # Initialize the app with a service account, granting admin privileges
+        firebase_admin.initialize_app(cred, {
+            'databaseURL': databaseURL
+        })
 
-    return db
+        # Return the Firebase Realtime Database module
+        return db
 
 
 class postgresDB(object):
