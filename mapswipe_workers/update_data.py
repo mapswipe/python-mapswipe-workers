@@ -9,16 +9,31 @@ from mapswipe_workers.definitions import logger
 # How can this be achived?
 
 
-def update_project_data():
+def update_project_data(projectIds=None):
+    """
+    Gets all attributes (progress, contributors, status)
+    of projects, which are subject to changes,
+    from Firebase and updates them in Postgres.
+    Default behavior is to update all projects.
+    If called with a list of project ids as parameter
+    only those projects will be updated.
 
-    # TODO: fetch only projects which are not already archived
-    # status != 'archived'
+    Parameters
+    ----------
+    projectIds: list
+    """
 
     fb_db = auth.firebaseDB()
-    projects_ref = db_db.reference('projects/')
-    projects = projects_ref.get()
-
     pg_db = auth.postgresDB()
+
+    if projectsIds:
+        projects = list()
+        for projectId in projectsIds
+            project_ref = db_db.reference(f'projects/{projectId}')
+            projects.append(project_ref.get())
+    else:
+        projects_ref = db_db.reference('projects/')
+        projects = projects_ref.get()
 
     for projectId, project in projects.items():
         query_update_project = '''
@@ -40,12 +55,30 @@ def update_project_data():
     logger.info('Updated project data in Postgres')
 
 
-def update_user_data():
-    fb_db = auth.firebaseDB()
-    users_ref = fb_db.reference('users/')
-    users = users_ref.get()
+def update_user_data(userIds=None):
+    """
+    Gets all attributes of users
+    from Firebase and updates them in Postgres.
+    Default behavior is to update all users.
+    If called with a list of user ids as parameter
+    only those user will be updated.
 
+    Parameters
+    ----------
+    userIds: list
+    """
+
+    fb_db = auth.firebaseDB()
     pg_db = auth.postgresDB()
+
+    if userIds:
+        users = list()
+        for userId in userIds:
+            user_ref = fb_db.reference(f'users/{userId}')
+            users.append(user_ref.get())
+    else:
+        users_ref = fb_db.reference('users/')
+        users = users_ref.get()
 
     for userId, user in users.items():
         query_update_user = '''

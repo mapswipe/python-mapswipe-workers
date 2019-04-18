@@ -10,7 +10,7 @@ from mapswipe_workers.definitions import logger
 from mapswipe_workers.utils import error_handling
 
 
-class BaseProjectDraft(metaclass=ABCMeta):
+class BaseProject(metaclass=ABCMeta):
     """
     The base class for creating
 

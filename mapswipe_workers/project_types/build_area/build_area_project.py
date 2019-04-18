@@ -3,14 +3,14 @@ import ogr
 
 from mapswipe_workers.definitions import DATA_PATH
 from mapswipe_workers.definitions import logger
-from mapswipe_workers.base.base_project_draft import BaseProjectDraft
+from mapswipe_workers.base.base_project import BaseProject
 from mapswipe_workers.project_types.build_area.build_area_group \
         import BuildAreaGroup
 from mapswipe_workers.project_types.build_area \
         import grouping_functions
 
 
-class BuildAreaProjectDraft(BaseProjectDraft):
+class BuildAreaProject(BaseProject):
     """
     The subclass for an import of the type Footprint
     """

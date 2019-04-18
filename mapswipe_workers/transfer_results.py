@@ -5,7 +5,7 @@ from mapswipe_workers import auth
 from mapswipe_workers.definitions import logger
 
 
-def run_transfer_results():
+def transfer_results():
     '''
 
     Download results from firebase,
@@ -38,7 +38,6 @@ def run_transfer_results():
         logger.exception(
                 'Firebase transaction for transfering results failed to commit'
                 )
-
     del(fb_db)
 
 

@@ -9,17 +9,23 @@ from logging.handlers import TimedRotatingFileHandler
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 # ROOT_DIR = '/python-mapswipe-workers'
 
-CONFIG_PATH = f'{xdg_config_home}/mapswipe_workers/configuration.json'
+CONFIG_PATH = os.path.abspath(
+        f'{xdg_config_home}/mapswipe_workers/configuration.json'
+        )
 # CONFIG_PATH = os.path.abspath(
 #         os.path.join(ROOT_DIR, './cfg/configuration.json')
 #         )
 
-SERVICE_ACCOUNT_KEY_PATH = f'{xdg_config_home}/mapswipe_workers/serviceAccountKey.json'
+SERVICE_ACCOUNT_KEY_PATH = os.path.abspath(
+        f'{xdg_config_home}/mapswipe_workers/serviceAccountKey.json'
+        )
 # SERVICE_ACCOUNT_KEY_PATH = os.path.abspath(
 #         os.path.join(ROOT_DIR, 'cfg', 'serviceAccountKey.json')
 #         )
 
-DATA_PATH = '/var/lib/mapswipe_workers/'
+DATA_PATH = os.path.abspath(
+        '/var/lib/mapswipe_workers/'
+        )
 # DATA_PATH = os.path.abspath(
 #         os.path.join(ROOT_DIR, './data/')
 #         )
@@ -27,7 +33,6 @@ DATA_PATH = '/var/lib/mapswipe_workers/'
 LOGGING_CONFIG_PATH = os.path.abspath(
         os.path.join(ROOT_DIR, 'logging.cfg')
         )
-
 logging.config.fileConfig(
         fname=LOGGING_CONFIG_PATH,
         disable_existing_loggers=True
