@@ -16,7 +16,7 @@ from mapswipe_workers.utils import slack
 
 from mapswipe_workers.project_types.build_area.build_area_project \
         import BuildAreaProject
-from mapswipe_workers.project_types.footprint \
+from mapswipe_workers.project_types.footprint.footprint_project \
         import FootprintProject
 
 
@@ -111,43 +111,46 @@ def _run_create_projects():
     project_drafts = ref.get()
 
     if project_drafts is None:
+        del(fb_db)
         return None
 
-    created_project_ids = list()
+    else:
+        created_project_ids = list()
 
-    for project_draft_id, project_draft in project_drafts.items():
-        project_draft['projectDraftId'] = project_draft_id
-        # Early projects have no projectType attribute.
-        # If so it defaults to 1
-        project_type = project_draft.get('projectType', 1)
-        try:
-            # TODO: Document properly
-            project = project_types[project_type](project_draft)
-            if project.create_project(fb_db):
-                created_project_ids.append(project.projectId)
-                # delete project draft from firebase after
-                # successfull project creation
-                ref = fb_db.reference(f'projectDrafts/{project_draft_id}')
-                ref.set({})
-                newline = '\n'
-                message = (
-                        f'### PROJECT CREATION SUCCESSFUL ###{newline}'
-                        f'Project Name: {project.name}{newline}'
-                        f'Project Id: {project.projectId}{newline}'
-                        f'Project Type: {project_type_names[project_type]}'
-                        f'{newline}'
-                        f'Make sure to activate the project in firebase.'
-                        f'{newline}'
-                        f'Happy Swiping. :)'
-                        )
-                slack.send_slack_message(message)
-                logger.info(message)
-        except CustomError:
-            logger.exception(
-                f'{project_draft_id} '
-                f'- project creation failed'
-                )
-            continue
+        for project_draft_id, project_draft in project_drafts.items():
+            project_draft['projectDraftId'] = project_draft_id
+            # Early projects have no projectType attribute.
+            # If so it defaults to 1
+            project_type = project_draft.get('projectType', 1)
+            try:
+                # TODO: Document properly
+                project = project_types[project_type](project_draft)
+                if project.create_project(fb_db):
+                    created_project_ids.append(project.projectId)
+                    # delete project draft from firebase after
+                    # successfull project creation
+                    ref = fb_db.reference(f'projectDrafts/{project_draft_id}')
+                    ref.set({})
+                    newline = '\n'
+                    message = (
+                            f'### PROJECT CREATION SUCCESSFUL ###{newline}'
+                            f'Project Name: {project.name}{newline}'
+                            f'Project Id: {project.projectId}{newline}'
+                            f'Project Type: {project_type_names[project_type]}'
+                            f'{newline}'
+                            f'Make sure to activate the project in firebase.'
+                            f'{newline}'
+                            f'Happy Swiping. :)'
+                            )
+                    slack.send_slack_message(message)
+                    logger.info(message)
+            except CustomError:
+                logger.exception(
+                    f'{project_draft_id} '
+                    f'- project creation failed'
+                    )
+                continue
+    del(fb_db)
     return created_project_ids
 
 
