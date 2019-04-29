@@ -1,7 +1,7 @@
 click==6.7
 firebase-admin==2.16.0
-mapswipe-workers==0.0.2
-psycopg2==2.7.7
+mapswipe-workers==3.0
+psycopg2-binary==2.8.2
 schedule==0.6.0
 slackclient==1.3.0
 xdg==4.0.0
