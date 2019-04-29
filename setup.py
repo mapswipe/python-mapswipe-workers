@@ -1,5 +1,11 @@
 from setuptools import setup, find_packages
 
+
+console_scripts='''
+    [console_scripts]
+    mapswipe_workers=mapswipe_workers.mapswipe_workers:cli
+    '''
+
 with open('requirements.txt') as f:
     requirements = f.read().splitlines()
 
@@ -12,8 +18,5 @@ setup(
     url='www.mapswipe.org',
     packages=find_packages(exclude=('tests', 'docs')),
     install_requires=requirements,
-    entry_points='''
-        [console_scripts]
-        run=run:cli
-    '''
+    entry_points=console_scripts
 )

@@ -3,7 +3,7 @@ import os
 import time
 
 import click
-import schedule
+import schedule as sched
 
 from mapswipe_workers import auth
 from mapswipe_workers import generate_stats
@@ -20,24 +20,29 @@ from mapswipe_workers.project_types.footprint.footprint_project \
         import FootprintProject
 
 
+@click.group()
+def cli():
+    pass
+
+
 @click.command('create-projects')
 @click.option('--schedule', default=None, help='')
-def run_create_project(schedule):
+def run_create_projects(schedule):
     if schedule:
         if schedule == 'm':
-            schedule.every(10).minutes.do(_run_create_projects)
+            sched.every(10).minutes.do(_run_create_projects)
             while True:
-                schedule.run_pending()
+                sched.run_pending()
                 time.sleep(1)
         elif schedule == 'h':
-            schedule.every().hour.do(_run_create_projects)
+            sched.every().hour.do(_run_create_projects)
             while True:
-                schedule.run_pending()
+                sched.run_pending()
                 time.sleep(1)
         elif schedule == 'd':
-            schedule.every().day.do(_run_create_projects)
+            sched.every().day.do(_run_create_projects)
             while True:
-                schedule.run_pending()
+                sched.run_pending()
                 time.sleep(1)
         else:
             pass
@@ -50,19 +55,19 @@ def run_create_project(schedule):
 def run_transfer_results(schedule):
     if schedule:
         if schedule == 'm':
-            schedule.every(10).minutes.do(_run_transfer_results)
+            sched.every(10).minutes.do(_run_transfer_results)
             while True:
-                schedule.run_pending()
+                sched.run_pending()
                 time.sleep(1)
         elif schedule == 'h':
-            schedule.every().hour.do(_run_transfer_results)
+            sched.every().hour.do(_run_transfer_results)
             while True:
-                schedule.run_pending()
+                sched.run_pending()
                 time.sleep(1)
         elif schedule == 'd':
-            schedule.every().day.do(_run_transfer_results)
+            sched.every().day.do(_run_transfer_results)
             while True:
-                schedule.run_pending()
+                sched.run_pending()
                 time.sleep(1)
         else:
             pass
@@ -75,19 +80,19 @@ def run_transfer_results(schedule):
 def run_generate_stats(schedule):
     if schedule:
         if schedule == 'm':
-            schedule.every(10).minutes.do(_run_generate_stats)
+            sched.every(10).minutes.do(_run_generate_stats)
             while True:
-                schedule.run_pending()
+                sched.run_pending()
                 time.sleep(1)
         elif schedule == 'h':
-            schedule.every().hour.do(_run_generate_stats)
+            sched.every().hour.do(_run_generate_stats)
             while True:
-                schedule.run_pending()
+                sched.run_pending()
                 time.sleep(1)
         elif schedule == 'd':
-            schedule.every().day.do(_run_generate_stats)
+            sched.every().day.do(_run_generate_stats)
             while True:
-                schedule.run_pending()
+                sched.run_pending()
                 time.sleep(1)
         else:
             pass
@@ -161,8 +166,6 @@ def _run_transfer_results():
 
 
 def _run_generate_stats():
-    if not os.path.isdir(DATA_PATH):
-        os.mkdir(DATA_PATH)
 
     data = generate_stats.generate_stats()
     filename = f'{DATA_PATH}/stats.json'
@@ -183,10 +186,6 @@ def _run_generate_stats():
     logger.info('exported aggregated results')
 
 
-if __name__ == '__main__':
-
-    schedule.every().hour.do(run_create_project)
-
-    while True:
-        schedule.run_pending()
-        time.sleep(1)
+cli.add_command(run_create_projects)
+cli.add_command(run_transfer_results)
+cli.add_command(run_generate_stats)
