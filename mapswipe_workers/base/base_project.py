@@ -59,12 +59,12 @@ class BaseProject(metaclass=ABCMeta):
         self.created = datetime.now()
         self.groups = list()
         self.groupMaxSize = project_draft.get('groupMaxSize', 0)
-        self.resultCounter = 0
-        self.resultRequiredCounter = 0
+        self.resultCount = 0
         self.image = project_draft['image']
         self.isFeatured = False
         self.lookFor = project_draft['lookFor']
         self.name = project_draft['name']
+        self.numberOfTasks = 0
         self.progress = 0
         self.projectDetails = project_draft['projectDetails']
         self.projectId = project_draft['projectDraftId']
@@ -110,10 +110,15 @@ class BaseProject(metaclass=ABCMeta):
         self.create_groups(self)
 
         for group in self.groups:
-            group.resultRequiredCounter = group.numberOfTasks * self.verificationNumber
-            self.resultRequiredCounter = self.resultRequiredCounter + group.resultRequiredCounter
+            group.requiredCount = self.verificationNumber
+            self.numberOfTasks = (
+                    self.numberOfTasks +
+                    group.requiredCount *
+                    group.numberOfTasks
+                    )
 
-        # Convert object attributes to dictonaries for saving it to firebase and postgres
+        # Convert object attributes to dictonaries
+        # for saving it to firebase and postgres
         project = vars(self)
         groups = dict()
         groupsOfTasks = dict()
@@ -205,12 +210,12 @@ class BaseProject(metaclass=ABCMeta):
                 project['isFeatured'],
                 project['lookFor'],
                 project['name'],
+                project['numberOfTasks'],
                 project['progress'],
                 project['projectDetails'],
                 project['projectId'],
                 project['projectType'],
-                project['resultCounter'],
-                project['resultRequiredCounter'],
+                project['resultCount'],
                 project['status'],
                 project['verificationNumber'],
         ]
@@ -223,12 +228,12 @@ class BaseProject(metaclass=ABCMeta):
                 'isFeatured',
                 'lookFor',
                 'name',
+                'numberOfTasks',
                 'progress',
                 'projectDetails',
                 'projectId',
                 'projectType',
-                'resultCounter',
-                'resultRequiredCounter',
+                'resultCount',
                 'status',
                 'verificationNumber',
                 ]
@@ -245,8 +250,8 @@ class BaseProject(metaclass=ABCMeta):
               project_id varchar,
               group_id int,
               number_of_tasks int,
-              result_counter int,
-              result_required_counter int,
+              finished_count int,
+              required_count int,
               progress int,
               project_type_specifics json
             );
@@ -283,8 +288,8 @@ class BaseProject(metaclass=ABCMeta):
                 'project_id',
                 'group_id',
                 'number_of_tasks',
-                'result_counter',
-                'result_required_counter',
+                'finished_count',
+                'required_count',
                 'progress',
                 'project_type_specifics'
                 ]
@@ -358,8 +363,8 @@ class BaseProject(metaclass=ABCMeta):
                 'project_id',
                 'group_id',
                 'number_of_tasks',
-                'result_counter',
-                'result_required_counter',
+                'finished_count',
+                'required_count',
                 'progress',
                 'project_type_specifics'
                 )
@@ -376,8 +381,8 @@ class BaseProject(metaclass=ABCMeta):
                     "project_id": self.projectId,
                     "group_id": groupId,
                     "number_of_tasks": group['numberOfTasks'],
-                    "result_counter": group['resultCounter'],
-                    "result_required_counter": group['resultRequiredCounter'],
+                    "finished_count": group['finishedCount'],
+                    "required_count": group['requiredCount'],
                     "progress": group['progress'],
                     "project_type_specifics": dict()
                 }

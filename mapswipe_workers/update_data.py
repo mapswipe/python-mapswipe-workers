@@ -90,11 +90,11 @@ def update_user_data(userIds=None):
         '''
         data_update_user = [
                 user['username'],
-                user['contributionCounter'],
+                user['contributionCount'],
                 user['distance'],
                 userId,
                 user['username'],
-                user['contributionCounter'],
+                user['contributionCount'],
                 user['distance'],
                 ]
         pg_db.query(query_update_user, data_update_user)

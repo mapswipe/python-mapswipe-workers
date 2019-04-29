@@ -21,7 +21,7 @@ def mock_user_contributions(
             results[task['taskId']] = random.randint(1, 3)
 
         results_ref = fb_db.reference(
-                f'results/{project_id}/{group_id}/{user_id}'
+                f'results/{project_id}/{group_id}/{user_id}/results/'
                 )
         results_ref.update(results)
         print(f'Uploaded results for group: {group_id}')

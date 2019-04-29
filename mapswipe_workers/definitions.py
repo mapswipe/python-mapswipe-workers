@@ -2,7 +2,7 @@ import os
 import json
 import logging
 import logging.config
-from xdg.BaseDirectory import xdg_config_home
+from xdg import XDG_CONFIG_HOME
 from logging.handlers import TimedRotatingFileHandler
 
 
@@ -10,14 +10,14 @@ ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 # ROOT_DIR = '/python-mapswipe-workers'
 
 CONFIG_PATH = os.path.abspath(
-        f'{xdg_config_home}/mapswipe_workers/configuration.json'
+        f'{XDG_CONFIG_HOME}/mapswipe_workers/configuration.json'
         )
 # CONFIG_PATH = os.path.abspath(
 #         os.path.join(ROOT_DIR, './cfg/configuration.json')
 #         )
 
 SERVICE_ACCOUNT_KEY_PATH = os.path.abspath(
-        f'{xdg_config_home}/mapswipe_workers/serviceAccountKey.json'
+        f'{XDG_CONFIG_HOME}/mapswipe_workers/serviceAccountKey.json'
         )
 # SERVICE_ACCOUNT_KEY_PATH = os.path.abspath(
 #         os.path.join(ROOT_DIR, 'cfg', 'serviceAccountKey.json')

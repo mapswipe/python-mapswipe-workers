@@ -39,7 +39,8 @@ class BaseGroup(metaclass=ABCMeta):
         self.numberOfTasks = 0
         self.progress = 0
         self.projectId = project.projectId
-        self.resultCounter = 0
+        self.finishedCount = 0
+        self.requiredCount = 0
         self.tasks = list()
 
     @abstractmethod
