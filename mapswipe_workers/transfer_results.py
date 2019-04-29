@@ -41,37 +41,6 @@ def transfer_results():
     del(fb_db)
 
 
-def save_results_to_postgres(results_file):
-    '''
-
-    Saves results to postgres using the COPY Statement of Postgres
-    for a more efficient import into the database.
-
-    Parameters
-    ----------
-    results_file: io.StringIO
-
-    Returns
-    -------
-    boolean: boolean
-        True if successful. False otherwise.
-
-    '''
-
-    p_con = auth.postgresDB()
-    columns = [
-            'project_id',
-            'group_id',
-            'user_id',
-            'task_id',
-            'timestamp',
-            'result'
-            ]
-    p_con.copy_from(results_file, 'results', columns)
-    results_file.close()
-    del(p_con)
-
-
 def results_to_file(results):
     '''
 
@@ -105,10 +74,6 @@ def results_to_file(results):
     for projectId, groups in results.items():
         for groupId, users in groups.items():
             for userId, results in users.items():
-                try:
-                    del(results['timestamp'])
-                except:
-                    pass
                 for taskId, result in results.items():
                     w.writerow([
                         projectId,
@@ -120,3 +85,34 @@ def results_to_file(results):
                         ])
     results_file.seek(0)
     return results_file
+
+
+def save_results_to_postgres(results_file):
+    '''
+
+    Saves results to postgres using the COPY Statement of Postgres
+    for a more efficient import into the database.
+
+    Parameters
+    ----------
+    results_file: io.StringIO
+
+    Returns
+    -------
+    boolean: boolean
+        True if successful. False otherwise.
+
+    '''
+
+    p_con = auth.postgresDB()
+    columns = [
+            'project_id',
+            'group_id',
+            'user_id',
+            'task_id',
+            'timestamp',
+            'result'
+            ]
+    p_con.copy_from(results_file, 'results', columns)
+    results_file.close()
+    del(p_con)

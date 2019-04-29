@@ -35,7 +35,6 @@ def delete_sample_results_from_postgres(pg_db, project_id):
         DELETE FROM tasks WHERE project_id = %s;
         DELETE FROM groups WHERE project_id = %s;
         DELETE FROM projects WHERE project_id = %s;
-
         '''
 
     data = [

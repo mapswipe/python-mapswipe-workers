@@ -26,13 +26,13 @@ def update_project_data(projectIds=None):
     fb_db = auth.firebaseDB()
     pg_db = auth.postgresDB()
 
-    if projectsIds:
+    if projectIds:
         projects = list()
-        for projectId in projectsIds
-            project_ref = db_db.reference(f'projects/{projectId}')
+        for projectId in projectIds:
+            project_ref = fb_db.reference(f'projects/{projectId}')
             projects.append(project_ref.get())
     else:
-        projects_ref = db_db.reference('projects/')
+        projects_ref = fb_db.reference('projects/')
         projects = projects_ref.get()
 
     for projectId, project in projects.items():
@@ -44,12 +44,11 @@ def update_project_data(projectIds=None):
         data_update_project = [
                 project['contributors'],
                 project['progress'],
-                project['status'],
-                project_id
+                project.get('status', ''),
+                projectId
                 ]
         pg_db.query(query_update_project, data_update_project)
 
-    del(fb_db)
     del(pg_db)
 
     logger.info('Updated project data in Postgres')
@@ -82,19 +81,24 @@ def update_user_data(userIds=None):
 
     for userId, user in users.items():
         query_update_user = '''
-            UPDATE users
-            SET contribution_counter=%s, distance=%s, username=%s
-            WHERE user_id=%s; 
+            INSERT INTO users (username, contribution_count, distance, user_id)
+            VALUES(%s, %s, %s, %s)
+            ON CONFLICT (user_id) DO UPDATE
+            SET username=%s,
+            contribution_count=%s,
+            distance=%s;
         '''
         data_update_user = [
+                user['username'],
                 user['contributionCounter'],
                 user['distance'],
+                userId,
                 user['username'],
-                userId
+                user['contributionCounter'],
+                user['distance'],
                 ]
         pg_db.query(query_update_user, data_update_user)
 
-    del(fb_db)
     del(pg_db)
 
     logger.info('Updated user data in Postgres')
