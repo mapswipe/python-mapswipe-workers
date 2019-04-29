@@ -153,6 +153,16 @@ Interactive shell session for using e.g. utils: `docker-compose run utils`
 
 **configuration.json - FileNotFoundError:** Until fixed the configuration path is hard coded in `mapswipe_workers/definitions.py`. This should work, if Mapswipe Workers is installed and running inside a Docker Container. For custom setup refer to the [contribution page](contribution.md).
 
+**FileNotFoundError: [Errno 2] No such file or directory: ...:**
+Mapsipe Workers needs access to three directories:
+- DATA_PATH (`/var/lib/mapswipe_workers/`)
+- CONFIG_PATH (`{XDG_CONFIG_HOME}/mapswipe_workers/`)
+- LOG_PATH (`/var/log/mapswipe_workers/`)
+Make sure those are existing and accessible.
+Use `mkdir DATA_PATH` to create the directory.
+Use `chown -R $USER:$USER DATA_PATH` to give write permission to current user.
+Alternatively you can change the PATH variables in `definitions.py` to your desired path. Except of the path for logs. This is defined in `logging.cfg`.
+
 
 ## Tips
 
