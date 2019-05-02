@@ -42,7 +42,15 @@ for key in sample_project_drafts.keys():
     project_dict.pop('inputGeometries', None)
     project_dict.pop('kml', None)
     project_dict.pop('validInputGeometries', None)
+    project_dict['created'] = project_dict['created'].timestamp()
 
+
+    project_dict['tileServerA'] = vars(project_dict['tileServerA'])
+    project_dict['tileServerB'] = vars(project_dict['tileServerB'])
+
+
+    with open(output_file.format(project.projectId, 'project'), 'w') as outfile:
+        json.dump(project_dict, outfile)
 
     with open(output_file.format(project.projectId, 'groups'), 'w') as outfile:
         json.dump(groups, outfile)
