@@ -5,13 +5,13 @@ from mapswipe_workers.definitions import DATA_PATH
 from mapswipe_workers.definitions import logger
 from mapswipe_workers import auth
 from mapswipe_workers.base.base_project import BaseProject
-from mapswipe_workers.project_types.build_area.build_area_group \
-        import BuildAreaGroup
-from mapswipe_workers.project_types.build_area \
+from mapswipe_workers.project_types.change_detection.change_detection_group \
+        import ChangeDetectionGroup
+from mapswipe_workers.project_types.change_detection \
         import grouping_functions
 
 
-class BuildAreaProject(BaseProject):
+class ChangeDetectionProject(BaseProject):
     """
     The subclass for an import of the type Footprint
     """
@@ -26,18 +26,29 @@ class BuildAreaProject(BaseProject):
         self.groupSize = 50
         self.kml = project_draft['kml']
         self.zoomLevel = int(project_draft.get('zoomLevel', 18))
+        self.validate_geometries()
 
-        self.tileServer = auth.tileServer(
-            project_draft['tileServer'].get('name', 'bing'),
-            project_draft['tileServer'].get('url',
-                                             auth.get_tileserver_url(project_draft['tileServer'].get('name', 'bing'))),
-            project_draft['tileServer'].get('apiKeyRequired'),
-            project_draft['tileServer'].get('apiKey',
-                                             auth.get_api_key(project_draft['tileServer'].get('name', 'bing'))),
-            project_draft['tileServer'].get('wmtsLayerName', None)
+        # set configuration for tile servers
+
+        self.tileServerA = auth.tileServer(
+            project_draft['tileServerA'].get('name', 'bing'),
+            project_draft['tileServerA'].get('url', auth.get_tileserver_url(project_draft['tileServerA'].get('name', 'bing'))),
+            project_draft['tileServerA'].get('apiKeyRequired'),
+            project_draft['tileServerA'].get('apiKey', auth.get_api_key(project_draft['tileServerA'].get('name', 'bing'))),
+            project_draft['tileServerA'].get('wmtsLayerName', None),
+            project_draft['tileServerA'].get('caption', None),
+            project_draft['tileServerA'].get('date', None)
         )
 
-        self.validate_geometries()
+        self.tileServerB = auth.tileServer(
+            project_draft['tileServerB'].get('name', 'bing'),
+            project_draft['tileServerB'].get('url', auth.get_tileserver_url(project_draft['tileServerA'].get('name', 'bing'))),
+            project_draft['tileServerB'].get('apiKeyRequired'),
+            project_draft['tileServerB'].get('apiKey', auth.get_api_key(project_draft['tileServerA'].get('name', 'bing'))),
+            project_draft['tileServerB'].get('wmtsLayerName', None),
+            project_draft['tileServerB'].get('caption', None),
+            project_draft['tileServerB'].get('date', None)
+        )
 
     def validate_geometries(self):
         raw_input_file = (
@@ -122,7 +133,7 @@ class BuildAreaProject(BaseProject):
                 )
 
         for group_id, slice in raw_groups.items():
-            group = BuildAreaGroup(self, group_id, slice)
+            group = ChangeDetectionGroup(self, group_id, slice)
             group.create_tasks(self)
             self.groups.append(group)
 

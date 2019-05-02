@@ -140,7 +140,7 @@ class FootprintProject(BaseProject):
                 )
         return True
 
-    def create_groups(self, project):
+    def create_groups(self):
         """
         The function to create groups of footprint geometries
         """
@@ -156,7 +156,7 @@ class FootprintProject(BaseProject):
             self.groups.append(group)
 
         logger.info(
-                f'{project.projectId} '
+                f'{self.projectId} '
                 f'- create_groups - '
                 f'created groups dictionary'
                 )

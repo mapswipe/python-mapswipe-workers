@@ -71,20 +71,6 @@ class BaseProject(metaclass=ABCMeta):
         self.projectType = int(project_draft['projectType'])
         self.verificationNumber = project_draft['verificationNumber']
         self.status = 'inactive'
-        self.tileServer = project_draft['tileServer']
-        if self.tileServer == 'custom':
-            self.tileServerUrl = project_draft['tileSeverUrl']
-        else:
-            self.tileServerUrl = auth.get_tileserver_url(
-                    self.tileServer
-                    )
-            try:
-                self.apiKey = project_draft.get(
-                        'apiKey',
-                        auth.get_api_key(self.tileServer)
-                        )
-            except KeyError:
-                self.apiKey = None
 
     # TODO: Implement resultRequiredCounter as property.
     # Does not work because for some reason project['group'] = vars()
@@ -107,7 +93,7 @@ class BaseProject(metaclass=ABCMeta):
             f' - start creating a project'
             )
 
-        self.create_groups(self)
+        self.create_groups()
 
         for group in self.groups:
             group.requiredCount = self.verificationNumber

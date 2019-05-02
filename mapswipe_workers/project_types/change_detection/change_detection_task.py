@@ -1,8 +1,8 @@
 from mapswipe_workers.base.base_task import BaseTask
-from mapswipe_workers.project_types.build_area import tile_functions as t
+from mapswipe_workers.project_types.change_detection import tile_functions as t
 
 
-class BuildAreaTask(BaseTask):
+class ChangeDetectionTask(BaseTask):
     """
         The subclass of BaseTask to specify tasks of the footprint \
                 project type.
@@ -12,7 +12,7 @@ class BuildAreaTask(BaseTask):
         task_id: str
             The id of the task
         projectId: str
-            The id of the associated BuildAreaProject
+            The id of the associated ChangeDetectionProject
         taskX: int
             X coordinate of the respective imagery of the task
         taskY: int
@@ -31,9 +31,9 @@ class BuildAreaTask(BaseTask):
 
         Parameters
         ----------
-        group: BuildAreaGroup object
+        group: ChangeDetectionGroup object
             The group the task is associated with
-        project: BuildAreaProject object
+        project: ChangeDetectionProject object
             The project the task is associated with
         TileX: str
             X coordinate of the imagery tile
@@ -49,12 +49,21 @@ class BuildAreaTask(BaseTask):
         super().__init__(group, taskId)
         self.taskX = str(TileX)
         self.taskY = str(TileY)
-        self.url = t.tile_coords_zoom_and_tileserver_to_URL(
+        self.urlA = t.tile_coords_zoom_and_tileserver_to_URL(
             TileX,
             TileY,
             project.zoomLevel,
-            project.tileServer.name,
-            project.tileServer.apiKey,
-            project.tileServer.url,
-            project.tileServer.wmtsLayerName,
+            project.tileServerA.name,
+            project.tileServerA.apiKey,
+            project.tileServerA.url,
+            project.tileServerA.wmtsLayerName,
+        )
+        self.urlB = t.tile_coords_zoom_and_tileserver_to_URL(
+            TileX,
+            TileY,
+            project.zoomLevel,
+            project.tileServerB.name,
+            project.tileServerB.apiKey,
+            project.tileServerB.url,
+            project.tileServerB.wmtsLayerName,
         )

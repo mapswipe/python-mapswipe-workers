@@ -81,6 +81,20 @@ def firebaseDB():
         return db
 
 
+class tileServer():
+    """
+    The class for a tileserver object
+    """
+    def __init__(self, name, url, apiKeyRequired, apiKey=None, wmtsLayerName=None, caption=None, date=None):
+        self.name = name
+        self.url = url
+        self.apiKeyRequired = apiKeyRequired
+        self.apiKey = apiKey
+        self.wmtsLayerName = wmtsLayerName
+        self.caption = caption
+        self.date = date
+
+
 class postgresDB(object):
     _db_connection = None
     _db_cur = None
