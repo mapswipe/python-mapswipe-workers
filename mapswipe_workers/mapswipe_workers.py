@@ -18,6 +18,8 @@ from mapswipe_workers.project_types.build_area.build_area_project \
         import BuildAreaProject
 from mapswipe_workers.project_types.footprint.footprint_project \
         import FootprintProject
+from mapswipe_workers.project_types.change_detection.change_detection_project \
+        import ChangeDetectionProject
 
 
 @click.group()
@@ -104,11 +106,13 @@ def _run_create_projects():
     project_types = {
             # Make sure to import all project types here
             1: BuildAreaProject,
-            2: FootprintProject
+            2: FootprintProject,
+            3: ChangeDetectionProject
             }
     project_type_names = {
             1: 'Build Area',
-            2: 'Footprint'
+            2: 'Footprint',
+            3: 'Change Detection'
             }
 
     fb_db = auth.firebaseDB()

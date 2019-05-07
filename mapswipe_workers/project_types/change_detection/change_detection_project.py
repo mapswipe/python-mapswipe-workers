@@ -30,7 +30,7 @@ class ChangeDetectionProject(BaseProject):
 
         # set configuration for tile servers
 
-        self.tileServerA = auth.tileServer(
+        self.tileServerA = vars(auth.tileServer(
             project_draft['tileServerA'].get('name', 'bing'),
             project_draft['tileServerA'].get('url', auth.get_tileserver_url(project_draft['tileServerA'].get('name', 'bing'))),
             project_draft['tileServerA'].get('apiKeyRequired'),
@@ -38,9 +38,9 @@ class ChangeDetectionProject(BaseProject):
             project_draft['tileServerA'].get('wmtsLayerName', None),
             project_draft['tileServerA'].get('caption', None),
             project_draft['tileServerA'].get('date', None)
-        )
+        ))
 
-        self.tileServerB = auth.tileServer(
+        self.tileServerB = vars(auth.tileServer(
             project_draft['tileServerB'].get('name', 'bing'),
             project_draft['tileServerB'].get('url', auth.get_tileserver_url(project_draft['tileServerA'].get('name', 'bing'))),
             project_draft['tileServerB'].get('apiKeyRequired'),
@@ -48,7 +48,7 @@ class ChangeDetectionProject(BaseProject):
             project_draft['tileServerB'].get('wmtsLayerName', None),
             project_draft['tileServerB'].get('caption', None),
             project_draft['tileServerB'].get('date', None)
-        )
+        ))
 
     def validate_geometries(self):
         raw_input_file = (

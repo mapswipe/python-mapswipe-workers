@@ -29,7 +29,7 @@ class FootprintProject(BaseProject):
 
         self.validate_geometries()
 
-        self.tileServer = auth.tileServer(
+        self.tileServer = vars(auth.tileServer(
             project_draft['tileServer'].get('name', 'bing'),
             project_draft['tileServer'].get('url',
                                              auth.get_tileserver_url(project_draft['tileServer'].get('name', 'bing'))),
@@ -39,7 +39,7 @@ class FootprintProject(BaseProject):
             project_draft['tileServer'].get('wmtsLayerName', None),
             project_draft['tileServer'].get('caption', None),
             project_draft['tileServer'].get('date', None)
-        )
+        ))
 
     def validate_geometries(self):
         raw_input_file = (

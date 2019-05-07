@@ -9,8 +9,17 @@ def create_project_drafts_in_firebase(fb_db):
 
     ref = fb_db.reference('projectDrafts/')
 
-    with open('sample_project_drafts.json') as f:
-        sample_project_drafts = json.load(f)
+    with open('build_area_project_drafts.json') as f:
+        build_area_project_drafts = json.load(f)
+
+    with open('footprint_project_drafts.json') as f:
+        footprint_project_drafts = json.load(f)
+
+    with open('change_detection_project_drafts.json') as f:
+        change_detection_project_drafts = json.load(f)
+
+
+    sample_project_drafts = {**build_area_project_drafts, **footprint_project_drafts, **change_detection_project_drafts}
 
     # upload sample data to firebaseio.com/imports
     project_draft_ids = []

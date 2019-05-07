@@ -27,7 +27,7 @@ class BuildAreaProject(BaseProject):
         self.kml = project_draft['kml']
         self.zoomLevel = int(project_draft.get('zoomLevel', 18))
 
-        self.tileServer = auth.tileServer(
+        self.tileServer = vars(auth.tileServer(
             project_draft['tileServer'].get('name', 'bing'),
             project_draft['tileServer'].get('url',
                                              auth.get_tileserver_url(project_draft['tileServer'].get('name', 'bing'))),
@@ -35,7 +35,7 @@ class BuildAreaProject(BaseProject):
             project_draft['tileServer'].get('apiKey',
                                              auth.get_api_key(project_draft['tileServer'].get('name', 'bing'))),
             project_draft['tileServer'].get('wmtsLayerName', None)
-        )
+        ))
 
         self.validate_geometries()
 

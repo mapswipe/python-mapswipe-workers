@@ -53,8 +53,8 @@ class BuildAreaTask(BaseTask):
             TileX,
             TileY,
             project.zoomLevel,
-            project.tileServer.name,
-            project.tileServer.apiKey,
-            project.tileServer.url,
-            project.tileServer.wmtsLayerName,
+            project.tileServer['name'],
+            project.tileServer['apiKey'],
+            project.tileServer['url'],
+            project.tileServer['wmtsLayerName'],
         )

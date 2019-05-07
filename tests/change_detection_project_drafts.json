@@ -7,7 +7,7 @@
         "name": "Change Detection Sample Project",
         "projectDetails": "This project uses Bing as the tile server and zoom level 18 for the before image. For after we use imagery from open aerial map.",
         "verificationNumber": 3,
-        "projectType": 1,
+        "projectType": 3,
         "tileServerA": {
               "name": "bing",
               "apiKeyRequired": true,
