@@ -1,5 +1,4 @@
 import json
-import os
 import time
 
 import click
@@ -26,7 +25,15 @@ def cli():
 
 
 @click.command('create-projects')
-@click.option('--schedule', default=None, help='')
+@click.option(
+        '--schedule',
+        default=None,
+        help=(
+            f'Will create projects every '
+            f'10 minutes (m), every hour (h) or every day (d). '
+            ),
+        type=click.Choice(['m', 'h', 'd'])
+        )
 def run_create_projects(schedule):
     if schedule:
         if schedule == 'm':
@@ -45,13 +52,26 @@ def run_create_projects(schedule):
                 sched.run_pending()
                 time.sleep(1)
         else:
-            pass
+            click.echo(
+                    f'{schedule} is not a valid input '
+                    f'for the schedule argument. '
+                    f'Use m for every 10 minutes, '
+                    f'h for every hour and d for every day.'
+                    )
     else:
         _run_create_projects()
 
 
 @click.command('transfer-results')
-@click.option('--schedule', default=None, help='')
+@click.option(
+        '--schedule',
+        default=None,
+        help=(
+            f'Will transfer results every '
+            f'10 minutes (m), every hour (h) or every day (d). '
+            ),
+        type=click.Choice(['m', 'h', 'd'])
+        )
 def run_transfer_results(schedule):
     if schedule:
         if schedule == 'm':
@@ -70,13 +90,26 @@ def run_transfer_results(schedule):
                 sched.run_pending()
                 time.sleep(1)
         else:
-            pass
+            click.echo(
+                    f'{schedule} is not a valid input '
+                    f'for the schedule argument. '
+                    f'Use m for every 10 minutes, '
+                    f'h for every hour and d for every day.'
+                    )
     else:
         _run_transfer_results()
 
 
 @click.command('generate-stats')
-@click.option('--schedule', default=None, help='')
+@click.option(
+        '--schedule',
+        default=None,
+        help=(
+            f'Will generate stats every '
+            f'10 minutes (m), every hour (h) or every day (d). '
+            ),
+        type=click.Choice(['m', 'h', 'd'])
+        )
 def run_generate_stats(schedule):
     if schedule:
         if schedule == 'm':
@@ -95,7 +128,12 @@ def run_generate_stats(schedule):
                 sched.run_pending()
                 time.sleep(1)
         else:
-            pass
+            click.echo(
+                    f'{schedule} is not a valid input '
+                    f'for the schedule argument. '
+                    f'Use m for every 10 minutes, '
+                    f'h for every hour and d for every day.'
+                    )
     else:
         _run_generate_stats()
 
@@ -166,7 +204,6 @@ def _run_transfer_results():
 
 
 def _run_generate_stats():
-
     data = generate_stats.generate_stats()
     filename = f'{DATA_PATH}/stats.json'
     with open(filename, 'w') as outfile:
