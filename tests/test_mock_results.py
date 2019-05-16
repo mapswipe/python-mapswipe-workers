@@ -1,5 +1,6 @@
 import random
 import pickle
+import time
 
 from mapswipe_workers import auth
 
@@ -13,16 +14,19 @@ def mock_user_contributions(
     ref = fb_db.reference(f'groups/{project_id}/')
     groups = ref.order_by_key().limit_to_last(5).get()
     results = dict()
+    results['results'] = dict()
+    results['timestamp'] = time.time()
 
     for group_id, group in groups.items():
         tasks_ref = fb_db.reference(f'tasks/{project_id}/{group_id}/')
         tasks = tasks_ref.get()
         for task in tasks:
-            results[task['taskId']] = random.randint(1, 3)
+            results['results'][task['taskId']] = random.randint(1, 3)
 
         results_ref = fb_db.reference(
-                f'results/{project_id}/{group_id}/{user_id}/results/'
+                f'results/{project_id}/{group_id}/{user_id}/'
                 )
+
         results_ref.update(results)
         print(f'Uploaded results for group: {group_id}')
 

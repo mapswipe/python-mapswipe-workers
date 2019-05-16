@@ -7,7 +7,7 @@ import argparse
 
 from mapswipe_workers.definitions import logger
 from mapswipe_workers.project_types.build_area import tile_functions as t
-from mapswipe_workers.project_types.build_area.test_grouping_functions import groups_overlap
+from mapswipe_workers.project_types.change_detection.test_grouping_functions import groups_overlap
 
 
 parser = argparse.ArgumentParser(
@@ -383,8 +383,6 @@ def extent_to_slices(infile, zoom):
     # then get vertical slices --> columns
     raw_groups_dict = get_vertical_slice(horizontal_slice_infos, zoom)
 
-    # test if there are overlaps
-
     assert groups_overlap(raw_groups_dict)
 
     return raw_groups_dict
@@ -495,6 +493,7 @@ def save_slices_as_geojson(raw_group_infos, outfile):
 
     outDataSource = None
     logger.info('created all %s.' % outfile)
+
     return True
 
 
