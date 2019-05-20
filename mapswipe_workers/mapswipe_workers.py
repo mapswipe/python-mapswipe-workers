@@ -172,12 +172,10 @@ def _run_create_projects():
             try:
                 # TODO: Document properly
                 project = project_types[project_type](project_draft)
-                if project.create_project(fb_db):
+                project.create_groups()
+                project.calc_number_of_tasks()
+                if project.save_project(fb_db):
                     created_project_ids.append(project.projectId)
-                    # delete project draft from firebase after
-                    # successfull project creation
-                    ref = fb_db.reference(f'projectDrafts/{project_draft_id}')
-                    ref.set({})
                     newline = '\n'
                     message = (
                             f'### PROJECT CREATION SUCCESSFUL ###{newline}'
