@@ -1,37 +1,22 @@
 import os
+import glob
 import pickle
 import json
 
 from mapswipe_workers import auth
 
 
-def create_project_drafts_in_firebase(fb_db):
+def create_project_drafts_in_firebase(sample_project_draft, fb_db):
 
     ref = fb_db.reference('projectDrafts/')
 
-    with open('build_area_project_drafts.json') as f:
-        build_area_project_drafts = json.load(f)
-
-    with open('footprint_project_drafts.json') as f:
-        footprint_project_drafts = json.load(f)
-
-    with open('change_detection_project_drafts.json') as f:
-        change_detection_project_drafts = json.load(f)
-
-
-    sample_project_drafts = {**build_area_project_drafts, **footprint_project_drafts, **change_detection_project_drafts}
-
-    # upload sample data to firebaseio.com/imports
-    project_draft_ids = []
-    for project in sample_project_drafts:
-        project_draft_id = ref.push(sample_project_drafts[project]).key
-        project_draft_ids.append(project_draft_id)
-        print(
-                f'Uploaded a new sample project draft with the id: '
-                f'{project_draft_id} '
-                )
-        print('')
-    save_project_draft_ids_to_disk(project_draft_ids)
+    project_id = ref.push(sample_project_draft).key
+    print(
+            f'Uploaded a new sample project draft with the id: '
+            f'{project_id} '
+            f''
+            )
+    return project_id
 
 
 def create_user(fb_db):
@@ -39,7 +24,7 @@ def create_user(fb_db):
     user = {
             "distance": 0,
             "username": "test user",
-            "contributionCounter": 0
+            "contributionCount": 0
             }
     user_id = ref.push(user).key
     print(f'Uploaded a sample user with the id: {user_id}')
@@ -47,15 +32,15 @@ def create_user(fb_db):
     save_user_id(user_id)
 
 
-def save_project_draft_ids_to_disk(project_draft_ids):
+def save_project_ids_to_disk(project_ids):
     filename = 'project_ids.pickle'
     if os.path.isfile(filename):
         with open(filename, 'rb') as f:
-            existing_project_draft_ids = pickle.load(f)
-        project_draft_ids = existing_project_draft_ids + project_draft_ids
+            existing_project_ids = pickle.load(f)
+        project_ids = existing_project_ids + project_ids
 
     with open(filename, 'wb') as f:
-        pickle.dump(project_draft_ids, f)
+        pickle.dump(project_ids, f)
 
 
 def save_user_id(user_id):
@@ -71,7 +56,23 @@ def save_user_id(user_id):
 
 if __name__ == '__main__':
     fb_db = auth.firebaseDB()
-    create_project_drafts_in_firebase(fb_db)
+
+    project_ids = list()
+
+    test_dir = os.path.dirname(os.path.abspath(__file__))
+    sample_data_dir = os.path.join(test_dir, 'sample_data/')
+    for sample_project_drafts_json in glob.glob(
+            sample_data_dir + '*_drafts.json'
+            ):
+        with open(sample_project_drafts_json) as f:
+            sample_project_drafts = json.load(f)
+            for key, sample_project_draft in sample_project_drafts.items():
+                project_id = create_project_drafts_in_firebase(
+                        sample_project_draft,
+                        fb_db
+                        )
+                project_ids.append(project_id)
+    save_project_ids_to_disk(project_ids)
     create_user(fb_db)
     print(
             'Created sample project drafts and ' +

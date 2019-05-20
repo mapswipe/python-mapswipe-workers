@@ -13,11 +13,20 @@ def mock_user_contributions(
 
     ref = fb_db.reference(f'groups/{project_id}/')
     groups = ref.order_by_key().limit_to_last(5).get()
+
+    # finishedCounts = dict()
+    # requiredCounts = dict()
     results = dict()
     results['results'] = dict()
     results['timestamp'] = time.time()
 
     for group_id, group in groups.items():
+        # finishedCounts[group_id] = fb_db.reference(
+        #         f'groups/{project_id}/{group_id}/finishedCount'
+        #         ).get()
+        # requiredCounts[group_id] = fb_db.reference(
+        #        f'groups/{project_id}/{group_id}/requiredCount'
+        #         ).get()
         tasks_ref = fb_db.reference(f'tasks/{project_id}/{group_id}/')
         tasks = tasks_ref.get()
         for task in tasks:
@@ -30,6 +39,18 @@ def mock_user_contributions(
         results_ref.update(results)
         print(f'Uploaded results for group: {group_id}')
 
+#     time.sleep(5)
+
+#     for group_id, group in groups.items():
+#         finishedCount = fb_db.reference(
+#                 f'groups/{project_id}/{group_id}/finishedCount'
+#                 ).get()
+#         requiredCount = fb_db.reference(
+#                f'groups/{project_id}/{group_id}/requiredCount'
+#                 ).get()
+#         assert finishedCounts[group_id] + 1 == finishedCount
+#         assert requiredCounts[group_id] - 1 == requiredCount
+
 
 if __name__ == '__main__':
     fb_db = auth.firebaseDB()
@@ -41,7 +62,6 @@ if __name__ == '__main__':
     filename = 'user_ids.pickle'
     with open(filename, 'rb') as f:
         user_id = pickle.load(f)
-        print(user_id)
 
     for project_id in project_ids:
         print('')
