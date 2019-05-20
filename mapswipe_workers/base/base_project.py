@@ -79,7 +79,7 @@ class BaseProject(metaclass=ABCMeta):
     # def resultRequiredCounter(self):
     #     return self.resultRequiredCounter
 
-    def create_project(self, fb_db):
+    def save_project(self, fb_db):
         """
         Creates a projects with groups and tasks
         and saves it in firebase and postgres
@@ -92,16 +92,6 @@ class BaseProject(metaclass=ABCMeta):
             f'{self.projectId}'
             f' - start creating a project'
             )
-
-        self.create_groups()
-
-        for group in self.groups:
-            group.requiredCount = self.verificationNumber
-            self.numberOfTasks = (
-                    self.numberOfTasks +
-                    group.requiredCount *
-                    group.numberOfTasks
-                    )
 
         # Convert object attributes to dictonaries
         # for saving it to firebase and postgres
@@ -121,6 +111,7 @@ class BaseProject(metaclass=ABCMeta):
         project.pop('kml', None)
         project.pop('validInputGeometries', None)
 
+        # Make sure projects get saved in Postgres and Firebase successful
         try:
             self.save_to_postgres(
                     project,
@@ -175,6 +166,8 @@ class BaseProject(metaclass=ABCMeta):
                 f' uploaded project, groups and'
                 f' tasks to firebase realtime database'
                 )
+        ref = fb_db.reference(f'projectDrafts/{self.projectId}')
+        ref.set({})
 
     def save_to_postgres(self, project, groups, groupsOfTasks):
         '''
@@ -472,6 +465,15 @@ class BaseProject(metaclass=ABCMeta):
                 f'deleted project, groups and tasks '
                 f'from postgres'
                 )
+
+    def calc_number_of_tasks(self):
+        for group in self.groups:
+            group.requiredCount = self.verificationNumber
+            self.numberOfTasks = (
+                    self.numberOfTasks +
+                    group.requiredCount *
+                    group.numberOfTasks
+                    )
 
     @abstractmethod
     def validate_geometries():
