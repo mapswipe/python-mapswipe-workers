@@ -70,19 +70,41 @@ def results_to_file(results):
             delimiter='\t',
             quotechar="'"
             )
-
+    # TODO: export Timestamp to valid postgres format
     for projectId, groups in results.items():
         for groupId, users in groups.items():
             for userId, results in users.items():
-                for taskId, result in results.items():
-                    w.writerow([
-                        projectId,
-                        groupId,
-                        userId,
-                        taskId,
-                        0,
-                        result,
-                        ])
+                timestamp = results['timestamp']
+                results = results['results']
+                if type(results) is dict:
+                    for taskId, result in results.items():
+                        w.writerow([
+                            projectId,
+                            groupId,
+                            userId,
+                            taskId,
+                            0,
+                            result,
+                            ])
+                elif type(results) is list:
+                    # TODO: optimize for performance
+                    # (make sure data from firebase is always a dict)
+                    # if key is a integer firebase will return a list
+                    # if first key (list index) is 5
+                    # list indicies 0-4 will have value None
+                    for taskId, result in enumerate(results):
+                        if result == None:
+                            continue
+                        w.writerow([
+                            projectId,
+                            groupId,
+                            userId,
+                            taskId,
+                            0,
+                            result,
+                            ])
+                else:
+                    raise TypeError
     results_file.seek(0)
     return results_file
 
