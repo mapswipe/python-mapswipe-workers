@@ -21,5 +21,32 @@
               "caption": "After",
               "date": "2018-02-21"
         }
+    },
+  "change_detection_uganda_planet_wms": {
+        "submissionKey": "5G9Ce2J7",
+        "kml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?><kml xmlns=\"http://www.opengis.net/kml/2.2\"><Document><Placemark><ExtendedData></ExtendedData><Polygon><outerBoundaryIs><LinearRing><coordinates>31.2721111717751,3.27480289144106 31.2879357583201,3.27504974680988 31.288244832276,3.26499034129148 31.2723584309399,3.26511377019121 31.2721111717751,3.27480289144106</coordinates></LinearRing></outerBoundaryIs></Polygon></Placemark></Document></kml>",
+        "image": "http://www.redcrosseth.org/media/k2/items/cache/5a05a447acfdf6fcc40548cc4c1cea8d_L.jpg",
+        "lookFor": "NEW BUILDINGS",
+        "name": "Change Detection Uganda",
+        "projectDetails": "This project uses planet imagery provided as WMS.",
+        "verificationNumber": 5,
+        "projectType": 3,
+        "zoomLevel": 16,
+        "tileServerA": {
+              "name": "custom",
+              "url": "https://tiles.planet.com/basemaps/v1/planet-tiles/global_quarterly_2017q1_mosaic/gmap/{z}/{x}/{y}.png?api_key=8d4aee7b35a94aa68e1d9119f27e01aa",
+              "apiKeyRequired": false,
+              "apiKey": "",
+              "caption": "Before",
+              "date": "2017-Q1"
+        },
+        "tileServerB": {
+              "name": "custom",
+              "url": "https://tiles.planet.com/basemaps/v1/planet-tiles/global_quarterly_2019q1_mosaic/gmap/{z}/{x}/{y}.png?api_key=8d4aee7b35a94aa68e1d9119f27e01aa",
+              "apiKeyRequired": false,
+              "apiKey": "",
+              "caption": "After",
+              "date": "2019-Q1"
+        }
     }
 }

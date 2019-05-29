@@ -30,7 +30,10 @@ def load_config():
 def get_api_key(tileserver):
     CONFIG = load_config()
     try:
-        return CONFIG['imagery'][tileserver]['api_key']
+        if tileserver == 'custom':
+            return None
+        else:
+            return CONFIG['imagery'][tileserver]['api_key']
     except KeyError:
         print(
                 f'Could not find the API key for imagery tileserver '
@@ -42,7 +45,10 @@ def get_api_key(tileserver):
 def get_tileserver_url(tileserver):
     CONFIG = load_config()
     try:
-        return CONFIG['imagery'][tileserver]['url']
+        if tileserver == 'custom':
+            return None
+        else:
+            return CONFIG['imagery'][tileserver]['url']
     except KeyError:
         print('Could not find the url for imagery tileserver {} in {}.'.format(
             tileserver,
