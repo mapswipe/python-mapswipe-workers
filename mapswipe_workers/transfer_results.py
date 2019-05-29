@@ -71,6 +71,7 @@ def results_to_file(results):
             quotechar="'"
             )
     # TODO: export Timestamp to valid postgres format
+    # Timestampformat: 1558439989663
     for projectId, groups in results.items():
         for groupId, users in groups.items():
             for userId, results in users.items():
