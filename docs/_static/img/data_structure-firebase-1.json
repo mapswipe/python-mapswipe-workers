@@ -4,7 +4,9 @@
     },
     "users": {
         "userId1": {
-            "contributionCounter": 1,
+            "projectContributionCount": 1,
+            "groupContributionCount": 1,
+            "taskContributionCount": 1,
             "contributions": {
                 "projectId1": {
                     "groupId1": "timestamp"
@@ -50,13 +52,13 @@
             "imageOfMap": "image",
             "isFeatured": true,
             "lookFor": "text",
+            "numberOfTasks": 100,
             "progress": 44,
             "projectDetails": "details",
             "projectId": "id",
             "projectType": 1,
             "purposeMessage": "brief message (140 chars)",
-            "resultCounter": 3,
-            "resultRequiredCounter": 125,
+            "resultCount": 3,
             "scale": "scale",
             "status": "active",
             "thankYouMessage": "brief message (140 chars)",
@@ -71,8 +73,8 @@
                 "numberOfTasks": 1,
                 "progress": 0.8,
                 "projectId": "id",
-                "resultCounter": 3,
-                "resultRequiredCounter": 125,
+                "finishedCount": 3,
+                "requiredCount": 125,
                 "xMax": 5,
                 "xMin": 6,
                 "yMax": 3,
@@ -98,8 +100,11 @@
         "projectId1": {
             "groupId1": {
                 "userId1": {
-                    "resultId1(=taskId1)": 1,
-                    "timestamp": "timestamp"
+                    "timestamp": "timestamp",
+                    "result": {
+                        "taskId01": 1,
+                        "taskId02": 2
+                    }
                 }
             }
         }
