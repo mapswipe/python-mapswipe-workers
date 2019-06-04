@@ -1,6 +1,8 @@
 import random
 import pickle
 import time
+import json
+
 
 from mapswipe_workers import auth
 
@@ -11,15 +13,20 @@ def mock_user_contributions(
         user_id,
         ):
 
+    project_ref = fb_db.reference(f'projects/{project_id}/')
+    project_data_before = project_ref.get()
+
     groups_ref = fb_db.reference(f'groups/{project_id}/')
     groups_data_before = groups_ref.order_by_key().limit_to_last(5).get()
 
-    project_ref = fb_db.reference(f'projects/{project_id}/')
-    project_data_before = project_ref.get()
+    user_ref = fb_db.reference(f'users/{user_id}/')
+    user_data_before = user_ref.get()
 
     results = dict()
     results['results'] = dict()
     results['timestamp'] = time.time()
+    results['start'] = time.time()
+    results['end'] = time.time()
 
     for group_id, group in groups_data_before.items():
         tasks_ref = fb_db.reference(f'tasks/{project_id}/{group_id}/')
@@ -34,7 +41,7 @@ def mock_user_contributions(
         results_ref.update(results)
         print(f'Uploaded results for group: {group_id}')
 
-    return (project_data_before, groups_data_before)
+    return (project_data_before, groups_data_before, user_data_before)
 
 
 def test_project_counter_progress(
@@ -61,34 +68,12 @@ def test_project_counter_progress(
     result_count_after = project_data_after['resultCount']
     number_of_tasks = project_data_after['numberOfTasks']
     progress_after = project_data_after['progress']
+    contributors = project_data_after['contributors']
     assert result_count_after == result_count, \
         f'project Id: {project_id}'
     assert progress_after == round(result_count_after*100/number_of_tasks), \
         f'project Id: {project_id}'
-
-
-def test_project_counter_progress_with_required_results_eq_zero(
-        fb_db,
-        project_id,
-        project_data_before
-        ):
-    '''
-    Test result count and progress of project
-    when new results are written to the firebase
-    but required count of the group is 0.
-    In this case result counter and progress of
-    the project should not change.
-    '''
-    project_ref = fb_db.reference(f'projects/{project_id}/')
-    project_data_after = project_ref.get()
-
-    result_count_before = project_data_before['resultCount']
-    result_count_after = project_data_after['resultCount']
-    progress_after = project_data_after['progress']
-    progress_before = project_data_before['progress']
-    assert result_count_before == result_count_after, \
-        f'project Id: {project_id}'
-    assert progress_before == progress_after, \
+    assert contributors == 1, \
         f'project Id: {project_id}'
 
 
@@ -139,6 +124,7 @@ def test_user_stats(
     user_ref = fb_db.reference(f'users/{user_id}/')
     user_data_after = user_ref.get()
 
+    # Init counter with values befor sending results
     total_number_of_projects = (
             user_data_before['projectContributionCount'] + len(project_ids)
             )
@@ -147,7 +133,9 @@ def test_user_stats(
 
     contributions = dict()
 
+    # Calculate should-be values for each counter
     for project_id in project_ids:
+        print(user_data_before)
         for key in user_data_before['contributions'].keys():
             if project_id == key:
                 total_number_of_projects -= 1
@@ -160,17 +148,17 @@ def test_user_stats(
             contributions_group[group_id] = True
         contributions[project_id] = contributions_group
 
-    # TODO: Calculate contribution count and distance
+    # Construct json with all data of user
+    # for comparision with json of firebase
+    # TODO: calculate timeSpentMapping
     user_data = {
             "contributions": contributions,
-            "distance": user_data_after['distance'],
             "groupContributionCount": total_number_of_groups,
             "projectContributionCount": total_number_of_projects,
             "taskContributionCount": total_number_of_tasks,
+            "timeSpentMapping": user_data_after['timeSpentMapping'],
             "username": user_data_after['username']
             }
-
-    import json
 
     user_data = json.dumps(user_data, sort_keys=True)
     user_data_after = json.dumps(user_data_after, sort_keys=True)
@@ -189,8 +177,6 @@ if __name__ == '__main__':
     with open(filename, 'rb') as f:
         user_id = pickle.load(f)
 
-    user_ref = fb_db.reference(f'users/{user_id}/')
-    user_data_before = user_ref.get()
     firebase_data_before = dict()
 
     for project_id in project_ids:
@@ -211,14 +197,15 @@ if __name__ == '__main__':
             f'Sleep for a 60 seconds to wait till '
             f'Firebase Functions are finished.'
             )
+
     time.sleep(60)
+
     print()
     print('Running tests for Firebase Functions.')
 
     for project_id in project_ids:
-        project_data_before, groups_data_before = firebase_data_before[
-                project_id
-                ]
+        project_data_before, groups_data_before, user_data_before = \
+                firebase_data_before[project_id]
         test_group_counter_progress(
                 fb_db,
                 project_id,
@@ -230,18 +217,18 @@ if __name__ == '__main__':
                 groups_data_before,
                 project_data_before,
                 )
+        test_user_stats(
+                fb_db,
+                user_id,
+                project_ids,
+                user_data_before
+                )
     print()
     print(
             f'Firebase functions for inc/dec of counters and '
             f'progress calculation terminated with expected results'
             )
 
-    test_user_stats(
-            fb_db,
-            user_id,
-            project_ids,
-            user_data_before
-            )
     print()
     print(
             f'Firebase functions for keeping track of user contributions '

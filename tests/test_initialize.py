@@ -23,7 +23,6 @@ def create_user(fb_db):
     ref = fb_db.reference('users/')
     user = {
             "contributions": {},
-            "distance": 0,
             "groupContributionCount": 0,
             "projectContributionCount": 0,
             "taskContributionCount": 0,
