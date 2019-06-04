@@ -6,11 +6,11 @@ import schedule as sched
 
 from mapswipe_workers import auth
 from mapswipe_workers import generate_stats
-from mapswipe_workers import transfer_results
-from mapswipe_workers import update_data
 from mapswipe_workers.definitions import CustomError
 from mapswipe_workers.definitions import DATA_PATH
 from mapswipe_workers.definitions import logger
+from mapswipe_workers.firebase_to_postgres import transfer_results
+from mapswipe_workers.firebase_to_postgres import update_data
 from mapswipe_workers.utils import slack
 
 from mapswipe_workers.project_types.build_area.build_area_project \
