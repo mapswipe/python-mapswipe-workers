@@ -44,11 +44,6 @@ def get_general_stats():
         FROM users;
     '''
 
-    query_select_user_distance_total = '''
-        SELECT SUM(distance)
-        FROM users;
-    '''
-
     query_select_user_contributions_total = '''
         SELECT SUM(contribution_count)
         FROM users;
@@ -62,7 +57,6 @@ def get_general_stats():
             query_select_project_avg_progress
             )[0]
     user_total = pg_db.retr_query(query_select_user_total)[0]
-    user_distance_total = pg_db.retr_query(query_select_user_distance_total)[0]
     user_contributions_total = pg_db.retr_query(
             query_select_user_contributions_total
             )[0]
@@ -74,7 +68,6 @@ def get_general_stats():
             'project_active': project_active,
             'project_avg_progress': project_avg_progress,
             'user_total': user_total,
-            'user_distance_total': user_distance_total,
             'user_contributions_total': user_contributions_total,
             }
 

@@ -81,6 +81,7 @@ def run_update(modus, filter):
     return updated_projects
 
 
+# TODO: Is this function still in use?
 def update_users_postgres(firebase, postgres, users_txt_filename='raw_users.txt')-> bool:
     """
     The fucntion to replace the users table in postgres with the current information from firebase
@@ -102,7 +103,7 @@ def update_users_postgres(firebase, postgres, users_txt_filename='raw_users.txt'
 
     # open new txt file and write header
     users_txt_file = open(users_txt_filename, 'w', newline='')
-    fieldnames = ('user_id', 'contributions', 'distance', 'username')
+    fieldnames = ('user_id', 'contributions', 'username')
     w = csv.DictWriter(users_txt_file, fieldnames=fieldnames, delimiter=';', quotechar="'")
 
     #query users from fdb
@@ -119,13 +120,10 @@ def update_users_postgres(firebase, postgres, users_txt_filename='raw_users.txt'
                     users[user]['username'] = 'unknown'
                 if not 'contributions' in users[user]:
                     users[user]['contributions'] = 0
-                if not 'distance' in users[user]:
-                    users[user]['distance'] = 0
 
                 output_dict = {
                     "user_id": user,
                     "contributions": users[user]['contributions'],
-                    "distance": users[user]['distance'],
                     "username": users[user]['username']
                 }
 
@@ -143,7 +141,6 @@ def update_users_postgres(firebase, postgres, users_txt_filename='raw_users.txt'
         CREATE TABLE raw_users (
             user_id varchar
             ,contributions int
-            ,distance double precision
             ,username varchar
         );
         '''
@@ -151,14 +148,14 @@ def update_users_postgres(firebase, postgres, users_txt_filename='raw_users.txt'
 
     # insert user data from text file into new table in postgres
     f = open(users_txt_filename, 'r')
-    columns = ['user_id', 'contributions', 'distance', 'username']
+    columns = ['user_id', 'contributions', 'username']
     p_con.copy_from(f, 'raw_users', sep=';', columns=columns)
     logging.warning('ALL - update_users - inserted raw users into table raw_users')
     f.close()
     os.remove(users_txt_filename)
     logging.warning('ALL - update_users - deleted file: %s' % users_txt_filename)
 
-    # update users in postgres, update contributions and distance and handle conflicts
+    # update users in postgres, update contributions and handle conflicts
     sql_insert = '''
         INSERT INTO
           users
@@ -170,12 +167,11 @@ def update_users_postgres(firebase, postgres, users_txt_filename='raw_users.txt'
           raw_users a
 
         ON CONFLICT ON CONSTRAINT "users_pkey"
-          DO UPDATE SET contributions = excluded.contributions
-          ,distance = excluded.distance;
+          DO UPDATE SET contributions = excluded.contributions;
         DROP TABLE IF EXISTS raw_users CASCADE;
         '''  # conflict action https://www.postgresql.org/docs/current/sql-insert.html
     p_con.query(sql_insert, None)
-    logging.warning('ALL - update_users - inserted results into users table and updated contributions and/or distance')
+    logging.warning('ALL - update_users - inserted results into users table and updated contributions')
 
     del p_con
     return True
@@ -400,8 +396,6 @@ def export_users_and_stats(firebase):
 
         for user in all_users:
             try:
-                # for some user there might be no distance attribute, if they didn't map anything etc.
-                stats['totalDistanceMappedInSqKm'] += all_users[user]['distance']
                 stats['totalContributionsByUsers'] += all_users[user]['contributions']
             except:
                 pass
@@ -420,6 +414,7 @@ def export_users_and_stats(firebase):
         return True
 
 
+# TODO: is this function still in use?
 def run_export(modus: str, filter: Union[str, list])-> list:
     """
     The function to export general statistics along with progress and results per
@@ -464,7 +459,6 @@ def run_export(modus: str, filter: Union[str, list])-> list:
             {
                 "user_id": {
                     "contribution": int,
-                    "distance": int,
                     "username": str
                 }
             }

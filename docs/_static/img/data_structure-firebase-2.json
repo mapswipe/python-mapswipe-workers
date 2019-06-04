@@ -9,14 +9,11 @@
             "taskContributionCount": 1,
             "contributions": {
                 "projectId1": {
-                    "groupId1": "timestamp",
-                    "groupId2": "timestamp"
-                },
-                "projectId2": {
-                    "groupId1": "timestamp"
+                    "groupId1": {
+                        "timestamp": "timestamp",
+                        "time": "time"
                 }
             },
-            "distance": 1,
             "username": "name"
         }
     },
@@ -46,7 +43,7 @@
             "achived": false,
             "apiKey": "Text string",
             "centroid": "wkt",
-            "contributors": 2,
+            "contributorsCount": 2,
             "country": "name",
             "created": "timestamp",
             "exampleImage": "exampleImage",
