@@ -8,6 +8,8 @@ from mapswipe_workers.definitions import logger
 # and therefor needs to be updated in postgres.
 # How can this be achived?
 
+# TODO: are all data repressented?
+
 
 def update_project_data(projectIds=None):
     """

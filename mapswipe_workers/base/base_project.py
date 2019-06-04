@@ -54,6 +54,8 @@ class BaseProject(metaclass=ABCMeta):
             raise Exception(f"submission key is not valid: {submission_key}")
         logger.info(f'{submission_key} - __init__ - start init')
 
+        # TODO: datetime.now() -> espected value?
+        # Right now it works with postgres timestamp
         self.archived = False
         self.contributors = 0
         self.created = datetime.now()
