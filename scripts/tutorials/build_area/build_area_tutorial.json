@@ -1,0 +1,47 @@
+{
+  "name": "Build Area Tutorial",
+  "projectType": 1,
+  "projectId": "build_area_tutorial",
+  "zoomLevel": 18,
+  "lookFor": "Buildings",
+  "status": "inactive",
+  "projectDetails": "This is a tutorial",
+  "progress": 0,
+  "contributors": 0,
+  "examplesFile": "build_area_examples.csv",
+  "tileServer":{
+    "name": "bing"
+  },
+  "categories": {
+    "building_easy": {
+      "pre": "Tap once on all tiles with at least one building.",
+      "post_correct": "Great. Swipe left and let's have a look a some more difficult examples.",
+      "post_wrong": "Oh no. Make sure to map all buildings. Swipe left to see more examples."
+    },
+    "building_difficult": {
+      "pre": "Some buildings (e.g. huts) are more difficult to spot.",
+      "post_correct": "Perfect. Always look for those details.",
+      "post_wrong": "Take a closer look. There are some buildings here."
+    },
+    "no_building_easy": {
+      "pre": "In many cases there will be no buildings. Just swipe left to map further.",
+      "post_correct": "Cool.",
+      "post_wrong": "Be careful. We can't find any buildings here."
+    },
+    "no_building_difficult": {
+      "pre": "Sometimes there are objects which look similar to buildings. Have a look at the surrounding.",
+      "post_correct": "Super. Only map buildings.",
+      "post_wrong": "No. There are no buildings in this area."
+    },
+    "bad_clouds": {
+      "pre": "If you see clouds and no buildings tap three times.",
+      "post_correct": "Perfect. Let's move on.",
+      "post_wrong": "Oh no. Make sure to indicate clouds as well."
+    },
+    "bad_no_imagery": {
+      "pre": "If imagery is lacking also tap three times.",
+      "post_correct": "Nice.",
+      "post_wrong": "Please mark all tiles for which there is no imagery."
+    }
+  }
+}

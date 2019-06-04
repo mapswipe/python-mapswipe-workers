@@ -1,0 +1,27 @@
+{
+  "name": "Change Detection Tutorial",
+  "projectType": 3,
+  "examplesFile": "https://mydata.com/change_detection_examples.geojson",
+  "categories": {
+    "changes_easy": {
+      "pre": "Tap once on all tiles with at least one building.",
+      "post_correct": "Great. Swipe left and let's have a look a some more difficult examples.",
+      "post_wrong": "Oh no. Make sure to map all buildings. Swipe left to see more examples."
+    },
+    "changes_difficult": {
+      "pre": "Tap once on all tiles with at least one building.",
+      "post_correct": "Great. Swipe left and let's have a look a some more difficult examples.",
+      "post_wrong": "Oh no. Make sure to map all buildings. Swipe left to see more examples."
+    },
+    "no_changes_easy": {
+      "pre": "Tap once on all tiles with at least one building.",
+      "post_correct": "Great. Swipe left and let's have a look a some more difficult examples.",
+      "post_wrong": "Oh no. Make sure to map all buildings. Swipe left to see more examples."
+    },
+    "no_changes_difficult": {
+      "pre": "Tap once on all tiles with at least one building.",
+      "post_correct": "Great. Swipe left and let's have a look a some more difficult examples.",
+      "post_wrong": "Oh no. Make sure to map all buildings. Swipe left to see more examples."
+    }
+  }
+}
