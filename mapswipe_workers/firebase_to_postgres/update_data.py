@@ -83,18 +83,18 @@ def update_user_data(userIds=None):
 
     for userId, user in users.items():
         query_update_user = '''
-            INSERT INTO users (username, contribution_count, user_id)
+            INSERT INTO users (username, total_time_mapped, user_id)
             VALUES(%s, %s, %s, %s)
             ON CONFLICT (user_id) DO UPDATE
             SET username=%s,
-            contribution_count=%s;
+            total_time_mapped=%s;
         '''
         data_update_user = [
                 user['username'],
-                user['contributionCount'],
+                user['totalTimeMapped'],
                 userId,
                 user['username'],
-                user['contributionCount'],
+                user['totalTimeMapped'],
                 ]
         pg_db.query(query_update_user, data_update_user)
 

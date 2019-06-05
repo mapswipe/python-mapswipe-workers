@@ -52,8 +52,7 @@ CREATE INDEX tasks_projectid ON public.tasks USING btree (project_id);
 CREATE TABLE IF NOT EXISTS users (
     user_id varchar,
     username varchar,
-    contribution_count int,
-    distance double precision,
+    total_time_mapped interval,
     PRIMARY KEY(user_id)
     );
 
@@ -62,7 +61,7 @@ CREATE TABLE IF NOT EXISTS results (
     group_id int,
     user_id varchar,
     task_id varchar,
-    "timestamp" bigint,
+    "timestamp" timestamp,
     result int,
     PRIMARY KEY (project_id, group_id, task_id, user_id),
     FOREIGN KEY (project_id) REFERENCES projects (project_id),
@@ -75,10 +74,11 @@ CREATE INDEX results_taskid ON public.results USING btree (task_id);
 CREATE INDEX results_projectid ON public.results USING btree (project_id);
 CREATE INDEX results_userid ON public.results USING btree (user_id);
 
+-- TODO: Is this table still in use?
 CREATE TABLE IF NOT EXISTS progress(
     project_id int,
     contributors int,
     progress int,
-    timestamp bigint,
+    timestamp timestamp,
     PRIMARY KEY (project_id)
     );
