@@ -7,14 +7,17 @@
             "projectContributionCount": 1,
             "groupContributionCount": 1,
             "taskContributionCount": 1,
+            "timeSpentMapping": 1,
+            "username": "name",
             "contributions": {
                 "projectId1": {
                     "groupId1": {
                         "timestamp": "timestamp",
-                        "time": "time"
+                        "startTime": "timestamp",
+                        "endTime": "timestamp"
+                    }
                 }
-            },
-            "username": "name"
+            }
         }
     },
     "projectDrafts": {
@@ -61,7 +64,7 @@
             "purposeMessage": "brief message (140 chars)",
             "resultCount": 3,
             "scale": "scale",
-            "status": "active",
+            "status": "active/inactive",
             "thankYouMessage": "brief message (140 chars)",
             "verificationNumber": 1,
             "zoomLevel": 18
@@ -102,6 +105,8 @@
             "groupId1": {
                 "userId1": {
                     "timestamp": "timestamp",
+                    "startTime": "timestamp",
+                    "endTime": "timestamp",
                     "result": {
                         "taskId01": 1,
                         "taskId02": 2

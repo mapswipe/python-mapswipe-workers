@@ -7,14 +7,17 @@
             "projectContributionCount": 1,
             "groupContributionCount": 1,
             "taskContributionCount": 1,
+            "timeSpentMapping": 1,
+            "username": "name",
             "contributions": {
                 "projectId1": {
                     "groupId1": {
                         "timestamp": "timestamp",
-                        "time": "time"
+                        "startTime": "timestamp",
+                        "endTime": "timestamp"
+                    }
                 }
-            },
-            "username": "name"
+            }
         }
     },
     "projectDrafts": {
@@ -60,7 +63,7 @@
             "projectType": 2,
             "resultCount": 2,
             "scale": "scale",
-            "status": "active",
+            "status": "active/inactive",
             "tileServer": "Text string",
             "tileServerUrl": "url",
             "validinputGeometries": "Text string",
@@ -99,6 +102,8 @@
             "groupId1": {
                 "userId1": {
                     "timestamp": "timestamp",
+                    "startTime": "timestamp",
+                    "endTime": "timestamp",
                     "result": {
                         "taskId01": 1,
                         "taksId02": 1
