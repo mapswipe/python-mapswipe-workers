@@ -4,6 +4,7 @@
     },
     "users": {
         "userId1": {
+            "created": "timestamp",
             "projectContributionCount": 1,
             "groupContributionCount": 1,
             "taskContributionCount": 1,
@@ -46,7 +47,7 @@
         "projectId1": {
             "archived": false,
             "centroid": "wkt",
-            "contributorsCount": 2,
+            "contributorCount": 2,
             "country": "name",
             "created": "timestamp",
             "exampleImage": "exampleImage",
