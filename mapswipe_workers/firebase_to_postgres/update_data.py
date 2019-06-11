@@ -56,7 +56,6 @@ def update_project_data(projectIds=None):
     logger.info('Updated project data in Postgres')
 
 
-# TODO: the function should not be update user data but should get_new_user accounts and only new!
 def update_user_data(userIds=None):
     """
     Gets all attributes of users
@@ -76,27 +75,34 @@ def update_user_data(userIds=None):
     if userIds:
         users = list()
         for userId in userIds:
-            user_ref = fb_db.reference(f'users/{userId}')
-            users.append(user_ref.get())
+            ref = fb_db.reference(f'users/{userId}')
+            users.append(ref.get())
     else:
-        users_ref = fb_db.reference('users/')
-        users = users_ref.get()
+        pg_query = '''
+            SELECT created
+            FROM users
+            ORDER BY created LIMIT 1
+            '''
+        last_updated = retr_query(pg_query)
+
+        ref = fb_db.reference('users/')
+        fb_query = ref.order_by_child(f'{userId}/created').end_at(last_updated)
+        users = fb_query.get
 
     for userId, user in users.items():
         query_update_user = '''
-            INSERT INTO users (username, total_time_mapped, user_id)
-            VALUES(%s, %s, %s, %s)
+            INSERT INTO users (user_id, username, created)
+            VALUES(%s, %s, %s)
             ON CONFLICT (user_id) DO UPDATE
             SET username=%s,
-            total_time_mapped=%s;
+            created=%s;
         '''
-# TODo: remove totalTimeMapped
         data_update_user = [
-                user['username'],
-                user['totalTimeMapped'],
                 userId,
                 user['username'],
-                user['totalTimeMapped'],
+                user['created'],
+                user['username'],
+                user['created'],
                 ]
         pg_db.query(query_update_user, data_update_user)
 
