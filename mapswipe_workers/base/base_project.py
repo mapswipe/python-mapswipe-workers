@@ -57,7 +57,7 @@ class BaseProject(metaclass=ABCMeta):
         # TODO: datetime.now() -> espected value?
         # Right now it works with postgres timestamp
         self.archived = False
-        self.contributors = 0
+        self.contributorCount = 0
         self.created = datetime.now()
         self.groups = list()
         self.groupMaxSize = project_draft.get('groupMaxSize', 0)
@@ -186,7 +186,7 @@ class BaseProject(metaclass=ABCMeta):
         data_project = [
                 project['archived'],
                 project['created'],
-                project['contributors'],
+                project['contributorCount'],
                 project['image'],
                 project['isFeatured'],
                 project['lookFor'],
@@ -204,7 +204,7 @@ class BaseProject(metaclass=ABCMeta):
         project_attributes = [
                 'archived',
                 'created',
-                'contributors',
+                'contributorCount',
                 'image',
                 'isFeatured',
                 'lookFor',

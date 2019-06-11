@@ -13,7 +13,7 @@ from mapswipe_workers.definitions import logger
 
 def update_project_data(projectIds=None):
     """
-    Gets all attributes (progress, contributors, status)
+    Gets all attributes (progress, contributorCount, status)
     of projects, which are subject to changes,
     from Firebase and updates them in Postgres.
     Default behavior is to update all projects.
@@ -40,11 +40,11 @@ def update_project_data(projectIds=None):
     for projectId, project in projects.items():
         query_update_project = '''
             UPDATE projects
-            SET contributors=%s, progress=%s, status=%s
+            SET contributor_count=%s, progress=%s, status=%s
             WHERE project_id=%s; 
         '''
         data_update_project = [
-                project['contributors'],
+                project['contributorCount'],
                 project['progress'],
                 project.get('status', ''),
                 projectId
@@ -56,6 +56,7 @@ def update_project_data(projectIds=None):
     logger.info('Updated project data in Postgres')
 
 
+# TODO: the function should not be update user data but should get_new_user accounts and only new!
 def update_user_data(userIds=None):
     """
     Gets all attributes of users
@@ -89,6 +90,7 @@ def update_user_data(userIds=None):
             SET username=%s,
             total_time_mapped=%s;
         '''
+# TODo: remove totalTimeMapped
         data_update_user = [
                 user['username'],
                 user['totalTimeMapped'],

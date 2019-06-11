@@ -5,6 +5,9 @@ from mapswipe_workers import auth
 from mapswipe_workers.definitions import DATA_PATH
 from mapswipe_workers.definitions import logger
 
+# TODO: user.counter
+# postgres views??
+
 
 def get_general_stats():
 
@@ -44,6 +47,7 @@ def get_general_stats():
         FROM users;
     '''
 
+# Attribute name changed
     query_select_user_contributions_total = '''
         SELECT SUM(contribution_count)
         FROM users;
