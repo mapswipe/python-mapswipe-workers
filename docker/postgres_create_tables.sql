@@ -3,7 +3,7 @@
 CREATE TABLE IF NOT EXISTS projects (
     archive boolean,
     created timestamp,
-    contributors int,
+    contributor_count int,
     image varchar,
     is_featured boolean,
     look_for varchar,
@@ -52,16 +52,19 @@ CREATE INDEX tasks_projectid ON public.tasks USING btree (project_id);
 CREATE TABLE IF NOT EXISTS users (
     user_id varchar,
     username varchar,
-    total_time_mapped interval,
+    created timestamp,
     PRIMARY KEY(user_id)
     );
 
+-- startTime & end Time
 CREATE TABLE IF NOT EXISTS results (
     project_id varchar,
     group_id int,
     user_id varchar,
     task_id varchar,
     "timestamp" timestamp,
+    startTime timestamp,
+    endTime timestamp,
     result int,
     PRIMARY KEY (project_id, group_id, task_id, user_id),
     FOREIGN KEY (project_id) REFERENCES projects (project_id),
@@ -73,12 +76,3 @@ CREATE TABLE IF NOT EXISTS results (
 CREATE INDEX results_taskid ON public.results USING btree (task_id);
 CREATE INDEX results_projectid ON public.results USING btree (project_id);
 CREATE INDEX results_userid ON public.results USING btree (user_id);
-
--- TODO: Is this table still in use?
-CREATE TABLE IF NOT EXISTS progress(
-    project_id int,
-    contributors int,
-    progress int,
-    timestamp timestamp,
-    PRIMARY KEY (project_id)
-    );
