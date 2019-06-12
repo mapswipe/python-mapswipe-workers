@@ -83,11 +83,11 @@ def update_user_data(userIds=None):
             FROM users
             ORDER BY created LIMIT 1
             '''
-        last_updated = retr_query(pg_query)
+        last_updated = pg_db.retr_query(pg_query)
 
         ref = fb_db.reference('users/')
-        fb_query = ref.order_by_child(f'{userId}/created').end_at(last_updated)
-        users = fb_query.get
+        fb_query = ref.order_by_child('{userId}/created').end_at(last_updated)
+        users = fb_query.get()
 
     for userId, user in users.items():
         query_update_user = '''
