@@ -24,9 +24,15 @@ def mock_user_contributions(
 
     results = dict()
     results['results'] = dict()
-    results['timestamp'] = time.time()
-    results['start'] = time.time()
-    results['end'] = time.time()
+    results['timestamp'] = int(time.time())
+    results['startTime'] = int(time.time())
+    results['endTime'] = int(time.time())
+
+    times = {
+            'timestamp': results['timestamp'],
+            'startTime': results['startTime'],
+            'endTime': results['endTime']
+            }
 
     for group_id, group in groups_data_before.items():
         tasks_ref = fb_db.reference(f'tasks/{project_id}/{group_id}/')
@@ -41,7 +47,7 @@ def mock_user_contributions(
         results_ref.update(results)
         print(f'Uploaded results for group: {group_id}')
 
-    return (project_data_before, groups_data_before, user_data_before)
+    return (project_data_before, groups_data_before, user_data_before, times)
 
 
 def test_project_counter_progress(
@@ -68,12 +74,15 @@ def test_project_counter_progress(
     result_count_after = project_data_after['resultCount']
     number_of_tasks = project_data_after['numberOfTasks']
     progress_after = project_data_after['progress']
-    contributors = project_data_after['contributors']
+    contributor_count = project_data_after['contributorCount']
     assert result_count_after == result_count, \
         f'project Id: {project_id}'
-    assert progress_after == round(result_count_after*100/number_of_tasks), \
+    if project_data_before['progress'] != 100:
+        assert progress_after == round(result_count_after*100/number_of_tasks), \
+            f'project Id: {project_id}'
+    assert progress_after > 100, \
         f'project Id: {project_id}'
-    assert contributors == 1, \
+    assert contributor_count == 1, \
         f'project Id: {project_id}'
 
 
@@ -145,7 +154,11 @@ def test_user_stats(
         for group_id, group in groups.items():
             total_number_of_tasks += group['numberOfTasks']
             total_number_of_groups += 1
-            contributions_group[group_id] = True
+            contributions_group[group_id] = {
+                    'endTime': times['endTime'],
+                    'startTime': times['startTime'],
+                    'timestamp': times['timestamp'],
+                    }
         contributions[project_id] = contributions_group
 
     # Construct json with all data of user
@@ -204,7 +217,7 @@ if __name__ == '__main__':
     print('Running tests for Firebase Functions.')
 
     for project_id in project_ids:
-        project_data_before, groups_data_before, user_data_before = \
+        project_data_before, groups_data_before, user_data_before, times = \
                 firebase_data_before[project_id]
         test_group_counter_progress(
                 fb_db,
@@ -221,7 +234,8 @@ if __name__ == '__main__':
                 fb_db,
                 user_id,
                 project_ids,
-                user_data_before
+                user_data_before,
+                times,
                 )
     print()
     print(

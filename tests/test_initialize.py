@@ -1,7 +1,8 @@
-import os
 import glob
-import pickle
 import json
+import os
+import pickle
+import time
 
 from mapswipe_workers import auth
 
@@ -13,8 +14,7 @@ def create_project_drafts_in_firebase(sample_project_draft, fb_db):
     project_id = ref.push(sample_project_draft).key
     print(
             f'Uploaded a new sample project draft with the id: '
-            f'{project_id} '
-            f''
+            f'{project_id} \n'
             )
     return project_id
 
@@ -22,15 +22,16 @@ def create_project_drafts_in_firebase(sample_project_draft, fb_db):
 def create_user(fb_db):
     ref = fb_db.reference('users/')
     user = {
-            "contributions": {},
-            "groupContributionCount": 0,
-            "projectContributionCount": 0,
-            "taskContributionCount": 0,
-            "username": 'test_user'
+            'contributions': {},
+            'created': int(time.time()),
+            'groupContributionCount': 0,
+            'projectContributionCount': 0,
+            'taskContributionCount': 0,
+            'timeSpentMapping': 0,
+            'username': 'test_user'
             }
     user_id = ref.push(user).key
-    print(f'Uploaded a sample user with the id: {user_id}')
-    print('')
+    print(f'Uploaded a sample user with the id: {user_id}\n')
     save_user_id(user_id)
 
 
