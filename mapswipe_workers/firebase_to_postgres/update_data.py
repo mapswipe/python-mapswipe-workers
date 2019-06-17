@@ -4,61 +4,47 @@ import io
 from mapswipe_workers import auth
 from mapswipe_workers.definitions import logger
 
-# TODO: Retrieve only data from firebase which recently changed
-# and therefor needs to be updated in postgres.
-# How can this be achived?
 
-# TODO: are all data repressented?
-
-
-def update_project_data(projectIds=None):
-    """
-    Gets all attributes (progress, contributorCount, status)
-    of projects, which are subject to changes,
-    from Firebase and updates them in Postgres.
-    Default behavior is to update all projects.
-    If called with a list of project ids as parameter
-    only those projects will be updated.
-
-    Parameters
-    ----------
-    projectIds: list
-    """
+def copy_new_users():
+    '''
+    Copies new users from Firebase to Postgres
+    '''
 
     fb_db = auth.firebaseDB()
     pg_db = auth.postgresDB()
 
-    if projectIds:
-        projects = list()
-        for projectId in projectIds:
-            project_ref = fb_db.reference(f'projects/{projectId}')
-            projects.append(project_ref.get())
-    else:
-        projects_ref = fb_db.reference('projects/')
-        projects = projects_ref.get()
-
-    for projectId, project in projects.items():
-        query_update_project = '''
-            UPDATE projects
-            SET contributor_count=%s, progress=%s, status=%s
-            WHERE project_id=%s; 
+    pg_query = '''
+        SELECT EXTRACT(EPOCH FROM created)
+        FROM users
+        ORDER BY created LIMIT 1
         '''
-        data_update_project = [
-                project['contributorCount'],
-                project['progress'],
-                project.get('status', ''),
-                projectId
+    last_updated = pg_db.retr_query(pg_query)
+    last_updated = int(last_updated[0][0])
+
+    ref = fb_db.reference('users/')
+    fb_query = ref.order_by_child('{user_id}/created').end_at(last_updated)
+    users = fb_query.get()
+
+    for user_id, user in users.items():
+        query_update_user = '''
+            INSERT INTO users (user_id, username, created)
+            VALUES(%s, %s, %s)
+        '''
+        data_update_user = [
+                user_id,
+                user['username'],
+                user['created'],
                 ]
-        pg_db.query(query_update_project, data_update_project)
+        pg_db.query(query_update_user, data_update_user)
 
     del(pg_db)
 
-    logger.info('Updated project data in Postgres')
+    logger.info('Updated user data in Postgres')
 
 
-def update_user_data(userIds=None):
-    """
-    Gets all attributes of users
+def update_user_data(user_ids=None):
+    '''
+    Gets username and created attributes of users
     from Firebase and updates them in Postgres.
     Default behavior is to update all users.
     If called with a list of user ids as parameter
@@ -66,30 +52,21 @@ def update_user_data(userIds=None):
 
     Parameters
     ----------
-    userIds: list
-    """
-
+    user_ids: list
+    '''
     fb_db = auth.firebaseDB()
     pg_db = auth.postgresDB()
 
-    if userIds:
-        users = list()
-        for userId in userIds:
-            ref = fb_db.reference(f'users/{userId}')
-            users.append(ref.get())
+    if user_ids:
+        users = dict()
+        for user_id in user_ids:
+            ref = fb_db.reference(f'users/{user_id}')
+            users[user_id] = ref.get()
     else:
-        pg_query = '''
-            SELECT created
-            FROM users
-            ORDER BY created LIMIT 1
-            '''
-        last_updated = pg_db.retr_query(pg_query)
+        ref = fb_db.reference(f'users/')
+        users = ref.get()
 
-        ref = fb_db.reference('users/')
-        fb_query = ref.order_by_child('{userId}/created').end_at(last_updated)
-        users = fb_query.get()
-
-    for userId, user in users.items():
+    for user_id, user in users.items():
         query_update_user = '''
             INSERT INTO users (user_id, username, created)
             VALUES(%s, %s, %s)
@@ -98,7 +75,7 @@ def update_user_data(userIds=None):
             created=%s;
         '''
         data_update_user = [
-                userId,
+                user_id,
                 user['username'],
                 user['created'],
                 user['username'],
@@ -111,5 +88,42 @@ def update_user_data(userIds=None):
     logger.info('Updated user data in Postgres')
 
 
-def update_group_data():
-    pass
+def update_project_data(project_ids=None):
+    """
+    Gets status of projects
+    from Firebase and updates them in Postgres.
+    Default behavior is to update all projects.
+    If called with a list of project ids as parameter
+    only those projects will be updated.
+
+    Parameters
+    ----------
+    project_ids: list
+    """
+
+    fb_db = auth.firebaseDB()
+    pg_db = auth.postgresDB()
+
+    if project_ids:
+        projects = dict()
+        for project_id in project_ids:
+            project_ref = fb_db.reference(f'projects/{project_id}')
+            projects[project_id] = project_ref.get()
+    else:
+        projects_ref = fb_db.reference('projects/')
+        projects = projects_ref.get()
+
+    for project_id, project in projects.items():
+        query_update_project = '''
+            UPDATE projects
+            SET status=%s
+            WHERE project_id=%s; 
+        '''
+        # TODO: Is there need for fallback to ''
+        # if project.status is not existent
+        data_update_project = [project.get('status', '')]
+        pg_db.query(query_update_project, data_update_project)
+
+    del(pg_db)
+
+    logger.info('Updated project data in Postgres')
