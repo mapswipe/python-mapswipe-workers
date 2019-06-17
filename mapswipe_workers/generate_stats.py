@@ -1,14 +1,9 @@
-import json
-import os
-
 from mapswipe_workers import auth
 from mapswipe_workers.definitions import DATA_PATH
 from mapswipe_workers.definitions import logger
 
-# TODO: user.counter
-# postgres views??
 
-
+# TODO: Should postgres views are defined instead of hardcoded sql queries?
 def get_general_stats():
 
     pg_db = auth.postgresDB()
@@ -157,4 +152,3 @@ def get_aggregated_results(projects):
     aggregated_results = pg_db.retr_query(query_select_aggregated_results)
     del pg_db
     return aggregated_results
-
