@@ -200,8 +200,7 @@ def _run_create_projects():
 
 
 def _run_transfer_results():
-    update_data.update_user_data()
-    update_data.update_project_data()
+    update_data.copy_new_users()
     transfer_results.transfer_results()
 
 
