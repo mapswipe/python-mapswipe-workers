@@ -1,5 +1,8 @@
 import csv
 import io
+import time
+
+import psycopg2
 
 from mapswipe_workers import auth
 from mapswipe_workers.definitions import logger
@@ -7,13 +10,11 @@ from mapswipe_workers.definitions import logger
 
 def transfer_results():
     '''
-
     Download results from firebase,
     saves them to postgres and then deletes the results in firebase.
     This is implemented as a transactional operation as described in
     the Firebase docs to avoid missing new generated results in
     Firebase during execution of this function.
-
     '''
 
     logger.info('Start transfering results')
@@ -43,7 +44,6 @@ def transfer_results():
 
 def results_to_file(results):
     '''
-
     Writes results to an in-memory file like object
     formatted as a csv using the buffer module (StringIO).
     This can be then used by the COPY statement of Postgres
@@ -59,9 +59,7 @@ def results_to_file(results):
     -------
     results_file: io.StingIO
         The results in an StringIO buffer.
-
     '''
-
     # If csv file is a file object, it should be opened with newline=''
     results_file = io.StringIO('')
 
@@ -70,14 +68,17 @@ def results_to_file(results):
             delimiter='\t',
             quotechar="'"
             )
-    # TODO: export Timestamp to valid postgres format
-    # Timestampformat: 1558439989663
-    # TODO: End and Start time
     for projectId, groups in results.items():
         for groupId, users in groups.items():
             for userId, results in users.items():
-                timestamp = results['timestamp']
-                results = results['results']
+                # TODO: Delete default dict.get()
+                # Timstampt should be existing, otherwise valueerror is desired
+                timestamp = results.get('timestamp', int(time.time()))
+                startTime = results.get('startTime', int(time.time()))
+                endTime = results.get('endTime', int(time.time()))
+                results = results.get('results', None)
+                if results is None:
+                    continue
                 if type(results) is dict:
                     for taskId, result in results.items():
                         w.writerow([
@@ -85,7 +86,9 @@ def results_to_file(results):
                             groupId,
                             userId,
                             taskId,
-                            0,
+                            psycopg2.TimestampFromTicks(timestamp),
+                            psycopg2.TimestampFromTicks(startTime),
+                            psycopg2.TimestampFromTicks(endTime),
                             result,
                             ])
                 elif type(results) is list:
@@ -95,16 +98,19 @@ def results_to_file(results):
                     # if first key (list index) is 5
                     # list indicies 0-4 will have value None
                     for taskId, result in enumerate(results):
-                        if result == None:
+                        if result is None:
                             continue
-                        w.writerow([
-                            projectId,
-                            groupId,
-                            userId,
-                            taskId,
-                            0,
-                            result,
-                            ])
+                        else:
+                            w.writerow([
+                                projectId,
+                                groupId,
+                                userId,
+                                taskId,
+                                psycopg2.TimestampFromTicks(timestamp),
+                                psycopg2.TimestampFromTicks(startTime),
+                                psycopg2.TimestampFromTicks(endTime),
+                                result,
+                                ])
                 else:
                     raise TypeError
     results_file.seek(0)
@@ -113,19 +119,12 @@ def results_to_file(results):
 
 def save_results_to_postgres(results_file):
     '''
-
     Saves results to postgres using the COPY Statement of Postgres
     for a more efficient import into the database.
 
     Parameters
     ----------
     results_file: io.StringIO
-
-    Returns
-    -------
-    boolean: boolean
-        True if successful. False otherwise.
-
     '''
 
     p_con = auth.postgresDB()
@@ -135,7 +134,9 @@ def save_results_to_postgres(results_file):
             'user_id',
             'task_id',
             'timestamp',
-            'result'
+            'start_time',
+            'end_time',
+            'result',
             ]
     p_con.copy_from(results_file, 'results', columns)
     results_file.close()
