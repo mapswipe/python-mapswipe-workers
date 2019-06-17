@@ -4,6 +4,8 @@ import csv
 import json
 import os
 
+import psycopg2
+
 from mapswipe_workers import auth
 from mapswipe_workers.definitions import DATA_PATH
 from mapswipe_workers.definitions import logger
@@ -54,11 +56,9 @@ class BaseProject(metaclass=ABCMeta):
             raise Exception(f"submission key is not valid: {submission_key}")
         logger.info(f'{submission_key} - __init__ - start init')
 
-        # TODO: datetime.now() -> espected value?
-        # Right now it works with postgres timestamp
         self.archived = False
         self.contributorCount = 0
-        self.created = datetime.now()
+        self.created = int(time.time())
         self.groups = list()
         self.groupMaxSize = project_draft.get('groupMaxSize', 0)
         self.resultCount = 0
@@ -185,7 +185,7 @@ class BaseProject(metaclass=ABCMeta):
 
         data_project = [
                 project['archived'],
-                project['created'],
+                psycopg2.TimestampFromTicks(project['created']),
                 project['contributorCount'],
                 project['image'],
                 project['isFeatured'],
