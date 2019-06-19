@@ -1,6 +1,5 @@
 import random
 import pickle
-import time
 import json
 
 
@@ -24,9 +23,9 @@ def mock_user_contributions(
 
     results = dict()
     results['results'] = dict()
-    results['timestamp'] = int(time.time())
-    results['startTime'] = int(time.time())
-    results['endTime'] = int(time.time())
+    results['timestamp'] = '2019-06-18T16:14:04.405Z'
+    results['startTime'] = '2019-06-18T16:09:04.405Z'
+    results['endTime'] = '2019-06-18T16:14:04.405Z'
 
     times = {
             'timestamp': results['timestamp'],
