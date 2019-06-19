@@ -1,5 +1,5 @@
 from abc import ABCMeta, abstractmethod
-from datetime import datetime
+import datetime as dt
 import csv
 import json
 import os
@@ -58,7 +58,7 @@ class BaseProject(metaclass=ABCMeta):
 
         self.archived = False
         self.contributorCount = 0
-        self.created = int(time.time())
+        self.created = dt.datetime.now(),
         self.groups = list()
         self.groupMaxSize = project_draft.get('groupMaxSize', 0)
         self.resultCount = 0
@@ -112,6 +112,10 @@ class BaseProject(metaclass=ABCMeta):
         project.pop('inputGeometries', None)
         project.pop('kml', None)
         project.pop('validInputGeometries', None)
+        project['created'] = dt.datetime.strftime(
+                self.created,
+                '%Y-%m-%dT%H:%M:%S.%f%z'
+                )
 
         # Make sure projects get saved in Postgres and Firebase successful
         try:
@@ -156,7 +160,6 @@ class BaseProject(metaclass=ABCMeta):
             return False
 
     def save_to_firebase(self, fb_db, project, groups, groupsOfTasks):
-        project['created'] = project['created'].timestamp()
         ref = fb_db.reference('')
         ref.update({
             f'projects/{self.projectId}': project,
