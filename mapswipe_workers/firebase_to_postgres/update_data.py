@@ -1,5 +1,4 @@
-import csv
-import io
+import datetime as dt
 
 from mapswipe_workers import auth
 from mapswipe_workers.definitions import logger
@@ -26,6 +25,11 @@ def copy_new_users():
     users = fb_query.get()
 
     for user_id, user in users.items():
+        # Convert timestamp (ISO 8601) from string to a datetime object
+        user['created'] = dt.datetime.strptime(
+                user['created'],
+                '%Y-%m-%dT%H:%M:%S.%f%z'
+                )
         query_update_user = '''
             INSERT INTO users (user_id, username, created)
             VALUES(%s, %s, %s)
@@ -67,6 +71,11 @@ def update_user_data(user_ids=None):
         users = ref.get()
 
     for user_id, user in users.items():
+        # Convert timestamp (ISO 8601) from string to a datetime object
+        user['created'] = dt.datetime.strptime(
+                user['created'],
+                '%Y-%m-%dT%H:%M:%S.%f%z'
+                )
         query_update_user = '''
             INSERT INTO users (user_id, username, created)
             VALUES(%s, %s, %s)
@@ -117,7 +126,7 @@ def update_project_data(project_ids=None):
         query_update_project = '''
             UPDATE projects
             SET status=%s
-            WHERE project_id=%s; 
+            WHERE project_id=%s;
         '''
         # TODO: Is there need for fallback to ''
         # if project.status is not existent
