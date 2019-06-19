@@ -1,6 +1,6 @@
 import csv
 import io
-import time
+import datetime as dt
 
 import psycopg2
 
@@ -73,12 +73,14 @@ def results_to_file(results):
             for userId, results in users.items():
                 # TODO: Delete default dict.get()
                 # Timstampt should be existing, otherwise valueerror is desired
-                timestamp = results.get('timestamp', int(time.time()))
-                startTime = results.get('startTime', int(time.time()))
-                endTime = results.get('endTime', int(time.time()))
-                results = results.get('results', None)
-                if results is None:
-                    continue
+                timestamp = results['timestamp']
+                start_time = results['startTime']
+                end_time = results['endTime']
+                # Convert timestamp (ISO 8601) from string to a datetime object
+                timestamp = dt.datetime.strptime(timestamp, '%Y-%m-%dT%H:%M:%S.%f%z')
+                start_time = dt.datetime.strptime(start_time, '%Y-%m-%dT%H:%M:%S.%f%z')
+                end_time = dt.datetime.strptime(end_time, '%Y-%m-%dT%H:%M:%S.%f%z')
+                results = results['results']
                 if type(results) is dict:
                     for taskId, result in results.items():
                         w.writerow([
@@ -86,9 +88,9 @@ def results_to_file(results):
                             groupId,
                             userId,
                             taskId,
-                            psycopg2.TimestampFromTicks(timestamp),
-                            psycopg2.TimestampFromTicks(startTime),
-                            psycopg2.TimestampFromTicks(endTime),
+                            timestamp,
+                            start_time,
+                            end_time,
                             result,
                             ])
                 elif type(results) is list:
@@ -106,9 +108,9 @@ def results_to_file(results):
                                 groupId,
                                 userId,
                                 taskId,
-                                psycopg2.TimestampFromTicks(timestamp),
-                                psycopg2.TimestampFromTicks(startTime),
-                                psycopg2.TimestampFromTicks(endTime),
+                                timestamp,
+                                start_time,
+                                end_time,
                                 result,
                                 ])
                 else:
