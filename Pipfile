@@ -1,0 +1,19 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+
+[packages]
+flask = {index = "https://jahnavi.bantupalli:AKCp5cd5NByJcvcTMoskJqq2JyRzmMV6DxqLJa1FvZ8ignq9iy6oUdgmvfS3iQXBDBry5tczt@optimizely.jfrog.io/optimizely/api/pypi/pypi/simple",version = "*"}
+flask-sqlalchemy = {index = "https://jahnavi.bantupalli:AKCp5cd5NByJcvcTMoskJqq2JyRzmMV6DxqLJa1FvZ8ignq9iy6oUdgmvfS3iQXBDBry5tczt@optimizely.jfrog.io/optimizely/api/pypi/pypi/simple",version = "*"}
+psycopg2 = {index = "https://jahnavi.bantupalli:AKCp5cd5NByJcvcTMoskJqq2JyRzmMV6DxqLJa1FvZ8ignq9iy6oUdgmvfS3iQXBDBry5tczt@optimizely.jfrog.io/optimizely/api/pypi/pypi/simple",version = "*"}
+flask-migrate = {index = "https://jahnavi.bantupalli:AKCp5cd5NByJcvcTMoskJqq2JyRzmMV6DxqLJa1FvZ8ignq9iy6oUdgmvfS3iQXBDBry5tczt@optimizely.jfrog.io/optimizely/api/pypi/pypi/simple",version = "*"}
+flask-script = {index = "https://jahnavi.bantupalli:AKCp5cd5NByJcvcTMoskJqq2JyRzmMV6DxqLJa1FvZ8ignq9iy6oUdgmvfS3iQXBDBry5tczt@optimizely.jfrog.io/optimizely/api/pypi/pypi/simple",version = "*"}
+marshmallow = {index = "https://jahnavi.bantupalli:AKCp5cd5NByJcvcTMoskJqq2JyRzmMV6DxqLJa1FvZ8ignq9iy6oUdgmvfS3iQXBDBry5tczt@optimizely.jfrog.io/optimizely/api/pypi/pypi/simple",version = "*"}
+flask-bcrypt = {index = "https://jahnavi.bantupalli:AKCp5cd5NByJcvcTMoskJqq2JyRzmMV6DxqLJa1FvZ8ignq9iy6oUdgmvfS3iQXBDBry5tczt@optimizely.jfrog.io/optimizely/api/pypi/pypi/simple",version = "*"}
+pyjwt = {index = "https://jahnavi.bantupalli:AKCp5cd5NByJcvcTMoskJqq2JyRzmMV6DxqLJa1FvZ8ignq9iy6oUdgmvfS3iQXBDBry5tczt@optimizely.jfrog.io/optimizely/api/pypi/pypi/simple",version = "*"}
+
+[requires]
+python_version = "3.7"
