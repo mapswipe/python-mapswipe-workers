@@ -1,8 +1,13 @@
 const functions = require('firebase-functions');
+const Analytics = require('analytics-node');
+const analytics = new Analytics(functions.config().segment.write_key);
 
-// // Create and Deploy Your First Cloud Functions
-// // https://firebase.google.com/docs/functions/write-firebase-functions
-//
-exports.helloWorld = functions.https.onRequest((request, response) => {
- response.send("Hello from Firebase!");
+exports.trackNewUser = functions.auth.user().onCreate((user) => {
+  analytics.identify({
+    userId: user.uid,
+    traits: {
+      name: user.displayName,
+      email: user.email,
+    }
+  });
 });
