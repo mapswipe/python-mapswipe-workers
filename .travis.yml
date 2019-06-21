@@ -1,0 +1,36 @@
+dist: xenial
+language: python
+python:
+  - "3.6"
+env:
+  CPLUS_INCLUDE_PATH=/usr/include/gdal
+  C_INCLUDE_PATH=/usr/include/gdal
+  MAPSWIPE_WORKER_LOG_DIR=/var/log/mapswipe_workers
+  MAPSWIPE_WORKER_DATA_DIR=/var/lib/mapswipe
+  MAPSWIPE_CONFIG_DIR=~/.config/mapswipe_workers
+  MAPSWIPE_DATA_DIR=/var/lib/mapswipe_workers/input_geometries
+before_install:
+# The version installed by default of libgdal is ancient
+# add the ubuntugis repo to update to a more recent version
+  - sudo add-apt-repository ppa:ubuntugis/ubuntugis-unstable -y
+  - sudo apt-get update -q
+  - sudo apt-get install libgdal-dev -y
+install:
+  - pip install -e .
+  - pip install gdal==`gdal-config --version`
+# command to run tests
+before_script:
+  - if [ ! -d "$MAPSWIPE_WORKER_DATA_DIR" ]; then sudo  mkdir -p $MAPSWIPE_WORKER_DATA_DIR; fi
+  - sudo chown $USER:$USER $MAPSWIPE_WORKER_DATA_DIR
+  - if [ ! -d "$MAPSWIPE_WORKER_LOG_DIR" ]; then sudo mkdir -p $MAPSWIPE_WORKER_LOG_DIR; fi
+  - if [ ! -f "$MAPSWIPE_WORKER_LOG_DIR/mapswipe_workers.log" ]; then sudo touch $MAPSWIPE_WORKER_LOG_DIR/mapswipe_workers.log; fi
+  - sudo chown $USER:$USER $MAPSWIPE_WORKER_LOG_DIR/mapswipe_workers.log
+  - if [ ! -d "$MAPSWIPE_CONFIG_DIR" ]; then sudo mkdir -p $MAPSWIPE_CONFIG_DIR; fi
+  - sudo cp config/ci-configuration.json $MAPSWIPE_CONFIG_DIR/configuration.json
+  - sudo chown $USER:$USER $MAPSWIPE_CONFIG_DIR/configuration.json
+  - if [ ! -d "$MAPSWIPE_DATA_DIR" ]; then sudo mkdir -p $MAPSWIPE_DATA_DIR; fi
+  - sudo chown $USER:$USER $MAPSWIPE_DATA_DIR
+  - npm install firebase-tools
+script:
+  - cd tests
+  - ./test_main.sh
