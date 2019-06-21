@@ -5,3 +5,4 @@ psycopg2-binary==2.8.2
 schedule==0.6.0
 slackclient==2.0.1
 xdg==4.0.0
+pytest==4.6.3

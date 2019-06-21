@@ -1,3 +1,5 @@
+import os
+
 import pickle
 import time
 import json
@@ -21,14 +23,14 @@ def test_update_user_data(user_ids, pg_db):
 def create_user(fb_db):
     ref = fb_db.reference('users/')
     user = {
-            'contributions': {},
-            'created': int(time.time()),
-            'groupContributionCount': 0,
-            'projectContributionCount': 0,
-            'taskContributionCount': 0,
-            'timeSpentMapping': 0,
-            'username': 'test_user_2'
-            }
+        'contributions': {},
+        'created': int(time.time()),
+        'groupContributionCount': 0,
+        'projectContributionCount': 0,
+        'taskContributionCount': 0,
+        'timeSpentMapping': 0,
+        'username': 'test_user_2'
+    }
     user_id = ref.push(user).key
     print(f'Uploaded a sample user with the id: {user_id}\n')
     save_user_id(user_id)

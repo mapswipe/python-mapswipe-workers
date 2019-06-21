@@ -4,7 +4,8 @@
 ####################################################################################################
 import json
 from mapswipe_workers import definitions
-from slackclient import SlackClient
+from slack import WebClient
+
 
 def get_slack_client():
     """
@@ -25,7 +26,7 @@ def get_slack_client():
             slack_token = data['slack']['token']
             channel = data['slack']['channel']
             username = data['slack']['username']
-            sc = SlackClient(slack_token)
+            sc = WebClient(slack_token)
             return sc, channel, username
     except:
         print('no slack token provided')
@@ -68,4 +69,3 @@ if __name__ == '__main__':
     head = 'Test slack api python integration:'
     message = 'Hello world!'
     send_slack_message(head + '\n' + message)
-

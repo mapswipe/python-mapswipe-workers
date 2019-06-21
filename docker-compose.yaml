@@ -22,10 +22,28 @@ services:
       context: .
       dockerfile: docker/nginx_Dockerfile
     volumes:
-      - /data/api-data:/usr/share/nginx/html:ro
+      - ./data/api-data:/usr/share/nginx/html:ro
     ports:
       - "80:80"
     restart: unless-stopped
+    networks:
+      - mapswipe_workers_network
+  # MapSwipe workers
+  workers:
+    container_name: workers
+    build:
+      context: .
+      dockerfile: docker/mapswipe_workers_Dockerfile
+    command: ["python", "mapswipe_workers/mapswipe_workers.py"]
+    volumes:
+      - ./cfg/:/root/.config/mapswipe_workers/:ro
+      - ./mapswipe_workers/:/python-mapswipe-workers/mapswipe_workers/:ro
+      - ./tests/:/python-mapswipe-workers/tests/:ro
+      - ./scripts:/python-mapswipe-workers/scripts/:rw
+      - ./mapswipe_workers:/usr/local/lib/python3.6/site-packages/mapswipe_workers:ro
+      - ./logs:/var/log/mapswipe_workers/:rw
+    depends_on:
+      - postgres
     networks:
       - mapswipe_workers_network
   # MapSwipe workers split into 4 processes: import, update, transfer_results, export
@@ -34,10 +52,18 @@ services:
     build:
       context: .
       dockerfile: docker/mapswipe_workers_Dockerfile
-    command: ["python", "run_mapswipe_worker.py", "--modus=development", "--process=import", "--sleep_time=3600", "--max_iterations=24"]
+    command:
+      [
+        "python",
+        "run_mapswipe_worker.py",
+        "--modus=development",
+        "--process=import",
+        "--sleep_time=3600",
+        "--max_iterations=24",
+      ]
     volumes:
       - ./cfg/:/python-mapswipe-workers/cfg/:z
-      - /data/api-data:/python-mapswipe-workers/data/:z
+      - ./data/api-data:/python-mapswipe-workers/data/:z
       - ./logs/:/python-mapswipe-workers/logs/:z
     restart: unless-stopped
     depends_on:
@@ -49,10 +75,19 @@ services:
     build:
       context: .
       dockerfile: docker/mapswipe_workers_Dockerfile
-    command: ["python", "run_mapswipe_worker.py", "--modus=development", "--process=update", "--filter=active", "--sleep_time=900", "--max_iterations=96"]
+    command:
+      [
+        "python",
+        "run_mapswipe_worker.py",
+        "--modus=development",
+        "--process=update",
+        "--filter=active",
+        "--sleep_time=900",
+        "--max_iterations=96",
+      ]
     volumes:
       - ./cfg/:/python-mapswipe-workers/cfg/:z
-      - /data/api-data:/python-mapswipe-workers/data/:z
+      - ./data/api-data:/python-mapswipe-workers/data/:z
       - ./logs/:/python-mapswipe-workers/logs/:z
     restart: unless-stopped
     depends_on:
@@ -64,10 +99,18 @@ services:
     build:
       context: .
       dockerfile: docker/mapswipe_workers_Dockerfile
-    command: ["python", "run_mapswipe_worker.py", "--modus=development", "--process=transfer_results", "--sleep_time=60", "--max_iterations=1440"]
+    command:
+      [
+        "python",
+        "run_mapswipe_worker.py",
+        "--modus=development",
+        "--process=transfer_results",
+        "--sleep_time=60",
+        "--max_iterations=1440",
+      ]
     volumes:
       - ./cfg/:/python-mapswipe-workers/cfg/:z
-      - /data/api-data:/python-mapswipe-workers/data/:z
+      - ./data/api-data:/python-mapswipe-workers/data/:z
       - ./logs/:/python-mapswipe-workers/logs/:z
     restart: unless-stopped
     depends_on:
@@ -79,10 +122,19 @@ services:
     build:
       context: .
       dockerfile: docker/mapswipe_workers_Dockerfile
-    command: ["python", "run_mapswipe_worker.py", "--modus=development", "--process=export", "--filter=active", "--sleep_time=900", "--max_iterations=96"]
+    command:
+      [
+        "python",
+        "run_mapswipe_worker.py",
+        "--modus=development",
+        "--process=export",
+        "--filter=active",
+        "--sleep_time=900",
+        "--max_iterations=96",
+      ]
     volumes:
       - ./cfg/:/python-mapswipe-workers/cfg/:z
-      - /data/api-data:/python-mapswipe-workers/data/:z
+      - ./data/api-data:/python-mapswipe-workers/data/:z
       - ./logs/:/python-mapswipe-workers/logs/:z
     restart: unless-stopped
     depends_on:
@@ -97,7 +149,7 @@ services:
     command: "bash"
     volumes:
       - ./cfg/:/python-mapswipe-workers/cfg/:z
-      - /data/api-data:/python-mapswipe-workers/data/:z
+      - ./data/api-data:/python-mapswipe-workers/data/:z
       - ./logs/:/python-mapswipe-workers/logs/:z
       - ./tests/:/python-mapswipe-workers/tests/:z
     restart: "no"
@@ -108,7 +160,6 @@ services:
 networks:
   mapswipe_workers_network:
     driver: bridge
-    ipam:
-     config:
-       - subnet: 172.20.0.0/16
-
+    # ipam:
+    #   config:
+    #     - subnet: 172.20.0.0/16

@@ -1,3 +1,4 @@
+#!/usr/local/bin/python3.6
 import json
 import time
 
@@ -14,11 +15,11 @@ from mapswipe_workers.firebase_to_postgres import update_data
 from mapswipe_workers.utils import slack
 
 from mapswipe_workers.project_types.build_area.build_area_project \
-        import BuildAreaProject
+    import BuildAreaProject
 from mapswipe_workers.project_types.footprint.footprint_project \
-        import FootprintProject
+    import FootprintProject
 from mapswipe_workers.project_types.change_detection.change_detection_project \
-        import ChangeDetectionProject
+    import ChangeDetectionProject
 
 
 @click.group()
@@ -28,14 +29,14 @@ def cli():
 
 @click.command('create-projects')
 @click.option(
-        '--schedule',
-        default=None,
-        help=(
-            f'Will create projects every '
-            f'10 minutes (m), every hour (h) or every day (d). '
-            ),
-        type=click.Choice(['m', 'h', 'd'])
-        )
+    '--schedule',
+    default=None,
+    help=(
+        f'Will create projects every '
+        f'10 minutes (m), every hour (h) or every day (d). '
+    ),
+    type=click.Choice(['m', 'h', 'd'])
+)
 def run_create_projects(schedule):
     if schedule:
         if schedule == 'm':
@@ -55,25 +56,25 @@ def run_create_projects(schedule):
                 time.sleep(1)
         else:
             click.echo(
-                    f'{schedule} is not a valid input '
-                    f'for the schedule argument. '
-                    f'Use m for every 10 minutes, '
-                    f'h for every hour and d for every day.'
-                    )
+                f'{schedule} is not a valid input '
+                f'for the schedule argument. '
+                f'Use m for every 10 minutes, '
+                f'h for every hour and d for every day.'
+            )
     else:
         _run_create_projects()
 
 
 @click.command('transfer-results')
 @click.option(
-        '--schedule',
-        default=None,
-        help=(
-            f'Will transfer results every '
-            f'10 minutes (m), every hour (h) or every day (d). '
-            ),
-        type=click.Choice(['m', 'h', 'd'])
-        )
+    '--schedule',
+    default=None,
+    help=(
+        f'Will transfer results every '
+        f'10 minutes (m), every hour (h) or every day (d). '
+    ),
+    type=click.Choice(['m', 'h', 'd'])
+)
 def run_transfer_results(schedule):
     if schedule:
         if schedule == 'm':
@@ -93,25 +94,25 @@ def run_transfer_results(schedule):
                 time.sleep(1)
         else:
             click.echo(
-                    f'{schedule} is not a valid input '
-                    f'for the schedule argument. '
-                    f'Use m for every 10 minutes, '
-                    f'h for every hour and d for every day.'
-                    )
+                f'{schedule} is not a valid input '
+                f'for the schedule argument. '
+                f'Use m for every 10 minutes, '
+                f'h for every hour and d for every day.'
+            )
     else:
         _run_transfer_results()
 
 
 @click.command('generate-stats')
 @click.option(
-        '--schedule',
-        default=None,
-        help=(
-            f'Will generate stats every '
-            f'10 minutes (m), every hour (h) or every day (d). '
-            ),
-        type=click.Choice(['m', 'h', 'd'])
-        )
+    '--schedule',
+    default=None,
+    help=(
+        f'Will generate stats every '
+        f'10 minutes (m), every hour (h) or every day (d). '
+    ),
+    type=click.Choice(['m', 'h', 'd'])
+)
 def run_generate_stats(schedule):
     if schedule:
         if schedule == 'm':
@@ -131,27 +132,27 @@ def run_generate_stats(schedule):
                 time.sleep(1)
         else:
             click.echo(
-                    f'{schedule} is not a valid input '
-                    f'for the schedule argument. '
-                    f'Use m for every 10 minutes, '
-                    f'h for every hour and d for every day.'
-                    )
+                f'{schedule} is not a valid input '
+                f'for the schedule argument. '
+                f'Use m for every 10 minutes, '
+                f'h for every hour and d for every day.'
+            )
     else:
         _run_generate_stats()
 
 
 def _run_create_projects():
     project_types = {
-            # Make sure to import all project types here
-            1: BuildAreaProject,
-            2: FootprintProject,
-            3: ChangeDetectionProject
-            }
+        # Make sure to import all project types here
+        1: BuildAreaProject,
+        2: FootprintProject,
+        3: ChangeDetectionProject
+    }
     project_type_names = {
-            1: 'Build Area',
-            2: 'Footprint',
-            3: 'Change Detection'
-            }
+        1: 'Build Area',
+        2: 'Footprint',
+        3: 'Change Detection'
+    }
 
     fb_db = auth.firebaseDB()
     ref = fb_db.reference('projectDrafts/')
@@ -178,22 +179,22 @@ def _run_create_projects():
                     created_project_ids.append(project.projectId)
                     newline = '\n'
                     message = (
-                            f'### PROJECT CREATION SUCCESSFUL ###{newline}'
-                            f'Project Name: {project.name}{newline}'
-                            f'Project Id: {project.projectId}{newline}'
-                            f'Project Type: {project_type_names[project_type]}'
-                            f'{newline}'
-                            f'Make sure to activate the project in firebase.'
-                            f'{newline}'
-                            f'Happy Swiping. :)'
-                            )
+                        f'### PROJECT CREATION SUCCESSFUL ###{newline}'
+                        f'Project Name: {project.name}{newline}'
+                        f'Project Id: {project.projectId}{newline}'
+                        f'Project Type: {project_type_names[project_type]}'
+                        f'{newline}'
+                        f'Make sure to activate the project in firebase.'
+                        f'{newline}'
+                        f'Happy Swiping. :)'
+                    )
                     slack.send_slack_message(message)
                     logger.info(message)
             except CustomError:
                 logger.exception(
                     f'{project_draft_id} '
                     f'- project creation failed'
-                    )
+                )
                 continue
     del(fb_db)
     return created_project_ids
@@ -205,7 +206,7 @@ def _run_transfer_results():
 
 
 def _run_generate_stats():
-    data = generate_stats.generate_stats()
+    data = generate_stats.get_general_stats()
     filename = f'{DATA_PATH}/stats.json'
     with open(filename, 'w') as outfile:
         json.dump(data, outfile)

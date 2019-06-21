@@ -44,7 +44,7 @@ def get_general_stats():
 
 # Attribute name changed
     query_select_user_contributions_total = '''
-        SELECT SUM(contribution_count)
+        SELECT SUM(finished_count)
         FROM users;
     '''
 
@@ -53,22 +53,22 @@ def get_general_stats():
     project_inactive = pg_db.retr_query(query_select_project_inactive)[0]
     project_active = pg_db.retr_query(query_select_project_active)[0]
     project_avg_progress = pg_db.retr_query(
-            query_select_project_avg_progress
-            )[0]
+        query_select_project_avg_progress
+    )[0]
     user_total = pg_db.retr_query(query_select_user_total)[0]
     user_contributions_total = pg_db.retr_query(
-            query_select_user_contributions_total
-            )[0]
+        query_select_user_contributions_total
+    )[0]
 
     stats = {
-            'project_total': project_total,
-            'project_finished': project_finished,
-            'project_inactive': project_inactive,
-            'project_active': project_active,
-            'project_avg_progress': project_avg_progress,
-            'user_total': user_total,
-            'user_contributions_total': user_contributions_total,
-            }
+        'project_total': project_total,
+        'project_finished': project_finished,
+        'project_inactive': project_inactive,
+        'project_active': project_active,
+        'project_avg_progress': project_avg_progress,
+        'user_total': user_total,
+        'user_contributions_total': user_contributions_total,
+    }
 
     del(pg_db)
     logger.info('generated stats')
@@ -90,7 +90,7 @@ def get_all_active_projects():
     return active_projects
 
 
-def get_aggregated_results(projects):
+def get_aggregated_results():
     """
     Returns
     -------

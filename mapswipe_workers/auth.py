@@ -24,6 +24,7 @@ def load_config():
     """
     with open(CONFIG_PATH) as f:
         CONFIG = json.load(f)
+        print(CONFIG)
     return CONFIG
 
 
@@ -36,9 +37,9 @@ def get_api_key(tileserver):
             return CONFIG['imagery'][tileserver]['api_key']
     except KeyError:
         print(
-                f'Could not find the API key for imagery tileserver '
-                f'{tileserver} in {CONFIG_PATH}.'
-                )
+            f'Could not find the API key for imagery tileserver '
+            f'{tileserver} in {CONFIG_PATH}.'
+        )
         raise
 
 
@@ -53,7 +54,7 @@ def get_tileserver_url(tileserver):
         print('Could not find the url for imagery tileserver {} in {}.'.format(
             tileserver,
             CONFIG_PATH
-            ))
+        ))
         raise
 
 
@@ -91,6 +92,7 @@ class tileServer():
     """
     The class for a tileserver object
     """
+
     def __init__(self, name, url, apiKeyRequired, apiKey=None, wmtsLayerName=None, caption=None, date=None):
         self.name = name
         self.url = url
@@ -117,12 +119,12 @@ class postgresDB(object):
             raise Exception('Could not load psql info from the config file')
 
         self._db_connection = psycopg2.connect(
-                database=dbname,
-                user=user,
-                password=password,
-                host=host,
-                port=port
-                )
+            database=dbname,
+            user=user,
+            password=password,
+            host=host,
+            port=port
+        )
 
     def query(self, query, data=None):
         self._db_cur = self._db_connection.cursor()
@@ -135,13 +137,13 @@ class postgresDB(object):
             f,
             table,
             columns
-            ):
+    ):
         self._db_cur = self._db_connection.cursor()
         self._db_cur.copy_from(
-                f,
-                table,
-                columns=columns
-                )
+            f,
+            table,
+            columns=columns
+        )
         self._db_connection.commit()
         self._db_cur.close()
 
