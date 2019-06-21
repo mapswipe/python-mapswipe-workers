@@ -1,4 +1,3 @@
-/* eslint-disable */
 const functions = require('firebase-functions');
 const Analytics = require('analytics-node');
 const analytics = new Analytics(functions.config().segment.write_key);
