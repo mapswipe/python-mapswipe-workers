@@ -34,47 +34,45 @@ Set **Database Rules**:
   "rules": {
     ".read": false,
     ".write": false,
-      "groups" : {
-        ".write": false,
-        ".read" : true,
-        "$project_id" : {
-          "$group_id" : {
-            ".indexOn": ["distributedCount", "completedCount"],
-            ".write": "auth != null",
-            "completedCount" : {
-              ".write": "auth != null",
-            }
-          },
-        ".indexOn": ["distributedCount", "completedCount"]
-        }
-      },
-      "imports" : {
+    "groups" : {
+      ".write": false,
+      ".read" : true,
+      ".indexOn": ["finishedCount", "requiredCount"]
+    },
+    "tasks" : {
+      ".write": false,
+      ".read" : true,
+    },
+    "projectDrafts" : {
         ".read" : false,
         ".write" : true,
         ".indexOn": ["complete"]
-      },
-     "projects" : {
+    },
+    "projects" : {
         ".write": false,
         ".read" : true,
-      },
-     "announcement": {
-       ".write": true,
-      ".read": true,
-     },
+    },
+    "announcement": {
+        ".write": false,
+        ".read": true,
+    },
     "results" : {
       ".write": false,
-      ".read" : true,
-        "$task_id" : {
-          "$user_id" : {
-          ".write": "auth != null && auth.uid == $user_id"
+      ".read" : false,
+      "$project_id" : {
+        "$group_id": {
+          "$uid" : {
+            ".write": "$uid === auth.uid"
           }
         }
-      },
-      "users": {
+      }
+    },
+    "users": {
       "$uid": {
         ".read": "auth != null && auth.uid == $uid",
         ".write": "auth != null && auth.uid == $uid",
-      }
+      },
+      ".indexOn": "{userId}/created"
     }
   }
 }
