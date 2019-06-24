@@ -185,7 +185,7 @@ class BaseProject(metaclass=ABCMeta):
 
         data_project = [
                 project['archived'],
-                psycopg2.TimestampFromTicks(project['created']),
+                self.created,
                 project['contributorCount'],
                 project['image'],
                 project['isFeatured'],
