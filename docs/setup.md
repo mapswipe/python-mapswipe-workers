@@ -1,6 +1,6 @@
 # Setup
 
-This document discribes how to run Mapwipe Workers using Docker. For development setup without Docker pleas refer to the [Contributing page](contributing.md).
+This document describes how to run Mapwipe Workers using Docker. For development setup without Docker please refer to the [Contributing page](contributing.md).
 
 To run Mapswipe Workers you need to:
 1. Clone the repository
@@ -75,7 +75,7 @@ Set **Database Rules**:
         ".read": "auth != null && auth.uid == $uid",
         ".write": "auth != null && auth.uid == $uid",
       }
-    }     
+    }
   }
 }
 ```
@@ -185,4 +185,3 @@ How to update a container (e.g. import):
 - `tail -100 ./logs/run_import.log`: show logs of container
 - `docker stats`: show memory usage, CPU consumption for all running containers
 - `docker system prune`: clean up any resources — images, containers, volumes, and networks — that are dangling (not associated with a container)
-

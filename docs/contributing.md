@@ -1,6 +1,6 @@
-# Development
+# Contributing
 
-In this document some tips and workflows for development and hosting are loosely collected. Those are independend of Docker (production setup).
+In this document some tips and workflows for development are loosely collected. Those are independend of the production setup and Docker.
 
 
 ## Development setup (without Docker)
@@ -17,6 +17,8 @@ In this document some tips and workflows for development and hosting are loosely
 - Setup a postgres instance
     - Use simply the Docker image of Mapwsipe Workers (`docker-compose up -d postgres`)
     - Or set up your own using the `postgres_create_tables.sql` file in the `docker/` folder
+- Run Mapswipe Workers using the command: `mapswipe_wokers`
+    - eg. `mapswipe_wokers --help`
 
 
 ## Configuration path and data path
@@ -34,18 +36,6 @@ Logs and data of Mapswipe Workers are stored at following locations:
 - data: `/var/lib/mapswipe/`
 
 Depending on user permissions you have to change ownership/permissions (chown) of those directories for the application to work.
-
-
-## Testing
-
-Test order:
-
-1. `test_initialize.py`
-2. `test_import.py`
-3. `test_mock_results.py`
-4. `test_transfer_results.py`
-5. `test_update.py`
-6. `test_export.py`
 
 
 ## Logging
@@ -71,15 +61,28 @@ Per default logging of third-party packages is disabled. To change this edit the
 
 ## Firebase Functions
 
-Firebase functions are used by Mapswipe Workers to calculate or increment attribute values wich are needed by the Mapswipe App. This includes at the moment:
+Firebase functions are used by Mapswipe Workers to increment/decrement or calculate various attribute values wich are used by the Mapswipe App. This includes at the moment:
 - project.progress
+- project.numberOfTasks
+- project.resultCount
+- project.contributorCount
 - group.progress
-- group.resultCounter
-- group.resultRequiredCounter
-- user.contributionCounter
-- user.distance
+- group.finishedCount
+- group.requiredCount
+- user.projectContributionCount
+- user.groupContribtionCount
+- user.taskContributionCount
+- user.timeSpentMapping
+- user.contibutions{.projectId.groupId.{timestamp, startTime, endTime}}
 
-To contribute changes to the Firebase Functions please refer to the official (Guide on Cloud Function for Firebase)[https://firebase.google.com/docs/functions/get-started] on how to setup development enviroment and on how to deploy functions to the Firebase instance. For more information refer to the official (Reference on Cloud Function for Firebase)[https://firebase.google.com/docs/reference/functions/]. For example function take a look at this (GitHub repository)[https://github.com/firebase/functions-samples].
+The functions will be triggert by incoming results from the Mapswipe App.
+
+By using firebase functions those attributes can be calculated in real-time and be accessed by users immediately. The use of those functions also reduces the data-transfer between the Firebase Realtime Database and Mapswipe Workers.
+
+The code of the Firebase Functions used by Mapswipe Workers are to be found in their own repository: [mapswipe-firebase-functions](https://github.com/mapswipe/mapswipe-firebase-functions)
+
+On how to setup development enviroment and how to deploy functions to the Firebase instance please refer to the official [Guide on Cloud Function for Firebase](https://firebase.google.com/docs/functions/get-started).
+For more information refer to the official [Reference on Cloud Function for Firebase](https://firebase.google.com/docs/reference/functions/). For example function take a look at this [GitHub repository](https://github.com/firebase/functions-samples).
 
 
 ## Database Backup
