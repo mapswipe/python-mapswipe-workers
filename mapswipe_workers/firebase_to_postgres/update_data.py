@@ -26,9 +26,11 @@ def copy_new_users():
 
     for user_id, user in users.items():
         # Convert timestamp (ISO 8601) from string to a datetime object
+        # TODO: Make sure strptime is wokring with timestamps written by the app.
+        # ('%Y-%m-%dT%H:%M:%S.%f%z')
         user['created'] = dt.datetime.strptime(
                 user['created'],
-                '%Y-%m-%dT%H:%M:%S.%f%z'
+                '%Y-%m-%dT%H:%M:%S.%f'
                 )
         query_update_user = '''
             INSERT INTO users (user_id, username, created)
@@ -43,7 +45,7 @@ def copy_new_users():
 
     del(pg_db)
 
-    logger.info('Updated user data in Postgres')
+    logger.info('Updated user data in Potgres')
 
 
 def update_user_data(user_ids=None):
