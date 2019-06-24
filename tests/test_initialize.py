@@ -1,3 +1,4 @@
+import datetime as dt
 import glob
 import json
 import os
@@ -23,7 +24,7 @@ def create_user(fb_db):
     ref = fb_db.reference('users/')
     user = {
             'contributions': {},
-            'created': int(time.time()),
+            'created': dt.datetime.now().strftime('%Y-%m-%dT%H:%M:%S.%f%z'),
             'groupContributionCount': 0,
             'projectContributionCount': 0,
             'taskContributionCount': 0,
