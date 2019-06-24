@@ -112,7 +112,7 @@ class BaseProject(metaclass=ABCMeta):
         project.pop('inputGeometries', None)
         project.pop('kml', None)
         project.pop('validInputGeometries', None)
-        project['created'] = dt.datetime.strftime(
+        project['created'] = dt.datetime.strptime(
                 self.created,
                 '%Y-%m-%dT%H:%M:%S.%f%z'
                 )
