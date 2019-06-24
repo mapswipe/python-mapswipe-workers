@@ -58,7 +58,7 @@ class BaseProject(metaclass=ABCMeta):
 
         self.archived = False
         self.contributorCount = 0
-        self.created = dt.datetime.now(),
+        self.created = dt.datetime.now()
         self.groups = list()
         self.groupMaxSize = project_draft.get('groupMaxSize', 0)
         self.resultCount = 0
@@ -112,10 +112,7 @@ class BaseProject(metaclass=ABCMeta):
         project.pop('inputGeometries', None)
         project.pop('kml', None)
         project.pop('validInputGeometries', None)
-        project['created'] = dt.datetime.strptime(
-                self.created,
-                '%Y-%m-%dT%H:%M:%S.%f%z'
-                )
+        project['created'] = self.created.strftime('%Y-%m-%dT%H:%M:%S.%f%z')
 
         # Make sure projects get saved in Postgres and Firebase successful
         try:
