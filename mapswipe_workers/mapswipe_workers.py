@@ -22,13 +22,21 @@ from mapswipe_workers.project_types.change_detection.change_detection_project \
 
 
 @click.group()
-def cli():
-    pass
+@click.option(
+        '--verbose',
+        '-v',
+        is_flag=True,
+        )
+@click.version_option()
+def cli(verbose):
+    if not verbose:
+        logger.disabled = True
 
 
 @click.command('create-projects')
 @click.option(
         '--schedule',
+        '-s',
         default=None,
         help=(
             f'Will create projects every '
@@ -67,6 +75,7 @@ def run_create_projects(schedule):
 @click.command('transfer-results')
 @click.option(
         '--schedule',
+        '-s',
         default=None,
         help=(
             f'Will transfer results every '
@@ -105,6 +114,7 @@ def run_transfer_results(schedule):
 @click.command('generate-stats')
 @click.option(
         '--schedule',
+        '-s',
         default=None,
         help=(
             f'Will generate stats every '
