@@ -71,8 +71,6 @@ def results_to_file(results):
     for projectId, groups in results.items():
         for groupId, users in groups.items():
             for userId, results in users.items():
-                # TODO: Delete default dict.get()
-                # Timstampt should be existing, otherwise valueerror is desired
                 timestamp = results['timestamp']
                 start_time = results['startTime']
                 end_time = results['endTime']
