@@ -13,15 +13,17 @@ def copy_new_users():
     pg_db = auth.postgresDB()
 
     pg_query = '''
-        SELECT EXTRACT(EPOCH FROM created)
+        SELECT created
         FROM users
-        ORDER BY created LIMIT 1
+        ORDER BY created DESC
+        LIMIT 1
         '''
     last_updated = pg_db.retr_query(pg_query)
-    last_updated = int(last_updated[0][0])
+    last_updated = last_updated[0][0]
+    last_updated = last_updated.strftime('%Y-%m-%dT%H:%M:%S.%f')
 
-    ref = fb_db.reference('users/')
-    fb_query = ref.order_by_child('{user_id}/created').end_at(last_updated)
+    ref = fb_db.reference('users')
+    fb_query = ref.order_by_child('created').start_at(last_updated)
     users = fb_query.get()
     # Delete first user in ordered dict.
     # This user is already in the database (user.created = last_updated).
