@@ -22,19 +22,16 @@ def mock_user_contributions(
     user_ref = fb_db.reference(f'users/{user_id}/')
     user_data_before = user_ref.get()
 
-    results = dict()
-    results['results'] = dict()
-    results['timestamp'] = '2019-06-18T16:14:04.405Z'
-    results['startTime'] = '2019-06-18T16:09:04.405Z'
-    results['endTime'] = '2019-06-18T16:14:04.405Z'
-
     times = {
-            'timestamp': results['timestamp'],
-            'startTime': results['startTime'],
-            'endTime': results['endTime']
+            'timestamp': '2019-06-18T16:14:04.405Z',
+            'startTime': '2019-06-18T16:09:04.405Z',
+            'endTime': '2019-06-18T16:14:04.405Z'
             }
 
     for group_id, group in groups_data_before.items():
+        results = dict()
+        results['results'] = dict()
+
         tasks_ref = fb_db.reference(f'tasks/{project_id}/{group_id}/')
         tasks = tasks_ref.get()
         for task in tasks:
@@ -43,8 +40,9 @@ def mock_user_contributions(
         results_ref = fb_db.reference(
                 f'results/{project_id}/{group_id}/{user_id}/'
                 )
-
+        results = {**results, **times}
         results_ref.update(results)
+
         print(f'Uploaded results for group: {group_id}')
 
     return (project_data_before, groups_data_before, user_data_before, times)
@@ -206,48 +204,48 @@ if __name__ == '__main__':
 
     print()
     print('Uploaded sample results to Firebase.')
-    print(
-            f'Sleep for a 60 seconds to wait till '
-            f'Firebase Functions are finished.'
-            )
+    # print(
+    #         f'Sleep for a 60 seconds to wait till '
+    #         f'Firebase Functions are finished.'
+    #         )
 
-    time.sleep(60)
+    # time.sleep(60)
 
-    print()
-    print('Running tests for Firebase Functions.')
+    # print()
+    # print('Running tests for Firebase Functions.')
 
-    for project_id in project_ids:
-        project_data_before, groups_data_before, user_data_before, times = \
-                firebase_data_before[project_id]
-        test_group_counter_progress(
-                fb_db,
-                project_id,
-                groups_data_before,
-                )
-        test_project_counter_progress(
-                fb_db,
-                project_id,
-                groups_data_before,
-                project_data_before,
-                )
-        test_user_stats(
-                fb_db,
-                user_id,
-                project_ids,
-                user_data_before,
-                times,
-                )
-    print()
-    print(
-            f'Firebase functions for inc/dec of counters and '
-            f'progress calculation terminated with expected results'
-            )
+    # for project_id in project_ids:
+    #     project_data_before, groups_data_before, user_data_before, times = \
+    #             firebase_data_before[project_id]
+    #     test_group_counter_progress(
+    #             fb_db,
+    #             project_id,
+    #             groups_data_before,
+    #             )
+    #     test_project_counter_progress(
+    #             fb_db,
+    #             project_id,
+    #             groups_data_before,
+    #             project_data_before,
+    #             )
+    #     test_user_stats(
+    #             fb_db,
+    #             user_id,
+    #             project_ids,
+    #             user_data_before,
+    #             times,
+    #             )
+    # print()
+    # print(
+    #         f'Firebase functions for inc/dec of counters and '
+    #         f'progress calculation terminated with expected results'
+    #         )
 
-    print()
-    print(
-            f'Firebase functions for keeping track of user contributions '
-            f'terminated with expected results'
-            )
+    # print()
+    # print(
+    #         f'Firebase functions for keeping track of user contributions '
+    #         f'terminated with expected results'
+    #         )
 
-    print()
-    print('Finished tests successful')
+    # print()
+    # print('Finished tests successful')
