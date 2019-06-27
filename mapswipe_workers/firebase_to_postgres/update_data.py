@@ -8,7 +8,7 @@ def copy_new_users():
     '''
     Copies new users from Firebase to Postgres
     '''
-
+    # TODO: On Conflict
     fb_db = auth.firebaseDB()
     pg_db = auth.postgresDB()
 
@@ -23,11 +23,14 @@ def copy_new_users():
     ref = fb_db.reference('users/')
     fb_query = ref.order_by_child('{user_id}/created').end_at(last_updated)
     users = fb_query.get()
+    # Delete first user in ordered dict.
+    # This user is already in the database (user.created = last_updated).
+    users.popitem(last=False)
 
     for user_id, user in users.items():
         # Convert timestamp (ISO 8601) from string to a datetime object
-        # TODO: Make sure strptime is wokring with timestamps written by the app.
-        # ('%Y-%m-%dT%H:%M:%S.%f%z')
+        # TODO: Make sure strptime is working with timestamps written by the app.
+        # ('%Y-%m-%dT%H:%M:%S.%f%z'
         user['created'] = dt.datetime.strptime(
                 user['created'],
                 '%Y-%m-%dT%H:%M:%S.%f'
