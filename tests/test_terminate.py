@@ -104,7 +104,7 @@ if __name__ == '__main__':
         with open(filename, 'rb') as f:
             user_ids = pickle.load(f)
         for user_id in user_ids:
-            ref = fb_db.reference(f'users/{user_ids}')
+            ref = fb_db.reference(f'users/{user_id}')
             ref.set({})
         os.remove('user_ids.pickle')
     else:
