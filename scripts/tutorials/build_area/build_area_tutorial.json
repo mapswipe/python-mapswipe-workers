@@ -8,7 +8,7 @@
   "projectDetails": "This is a tutorial",
   "progress": 0,
   "contributors": 0,
-  "examplesFile": "build_area_examples.csv",
+  "examplesFile": "scripts/tutorials/build_area/build_area_examples.csv",
   "tileServer":{
     "name": "bing"
   },

@@ -354,7 +354,7 @@ def get_vertical_slice(slice_infos, zoom, width_threshold=40):
     return raw_groups
 
 
-def extent_to_slices(infile, zoom):
+def extent_to_slices(infile, zoom, groupSize):
     """
     The function to polygon geometries of a given input file
     into horizontal slices and then vertical slices.
@@ -381,7 +381,7 @@ def extent_to_slices(infile, zoom):
     # save_geom_as_geojson(horizontal_slice_infos['slice_collection'], outfile)
 
     # then get vertical slices --> columns
-    raw_groups_dict = get_vertical_slice(horizontal_slice_infos, zoom)
+    raw_groups_dict = get_vertical_slice(horizontal_slice_infos, zoom, groupSize)
 
     assert groups_overlap(raw_groups_dict)
 

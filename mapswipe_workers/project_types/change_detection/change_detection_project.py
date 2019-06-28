@@ -23,7 +23,7 @@ class ChangeDetectionProject(BaseProject):
         super().__init__(project_draft)
 
         # set group size
-        self.groupSize = 50
+        self.groupSize = 10
         self.kml = project_draft['kml']
         self.zoomLevel = int(project_draft.get('zoomLevel', 18))
         self.validate_geometries()
@@ -128,7 +128,8 @@ class ChangeDetectionProject(BaseProject):
         # first step get properties of each group from extent
         raw_groups = grouping_functions.extent_to_slices(
                 self.validInputGeometries,
-                self.zoomLevel
+                self.zoomLevel,
+                self.groupSize
                 )
 
         for group_id, slice in raw_groups.items():
