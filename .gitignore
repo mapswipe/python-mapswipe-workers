@@ -124,5 +124,8 @@ cfg/test-mapswipe_serviceAccountKey.json
 # don´t upload data dir
 data/
 
+# don't upload app config
+app.js
+*/app.js
 
 .DS_Store
