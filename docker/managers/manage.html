@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<!-- This site was created in Webflow. http://www.webflow.com-->
+<!-- Last Published: Wed Jul 13 2016 22:45:08 GMT+0000 (UTC) -->
+<html data-wf-site="574807d20d1625555c1ee150" data-wf-page="577fcec769b57ef60a37539a">
+<head>
+    <meta charset="utf-8">
+    <title>Project Management | MapSwipe</title>
+    <meta name="description"
+          content="Humanitarian organisations can&#39;t help people if they can&#39;t find them. MapSwipe is a mobile app that lets you search satellite imagery to help put the world&#39;s most vulnerable people on the map.">
+    <meta property="og:title" content="Add Project | MapSwipe">
+    <meta property="og:description"
+          content="Humanitarian organisations can&#39;t help people if they can&#39;t find them. MapSwipe is a mobile app that lets you search satellite imagery to help put the world&#39;s most vulnerable people on the map.">
+    <meta property="og:image" content="http://mapswipe.org/images/og-img.jpg">
+    <meta name="twitter:card" content="summary">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <script src="https://cdn.firebase.com/libs/firebaseui/4.0.0/firebaseui.js"></script>
+    <link type="text/css" rel="stylesheet" href="https://cdn.firebase.com/libs/firebaseui/4.0.0/firebaseui.css" />
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+</head>
+<body>
+
+  <!-- Image and text -->
+  <nav class="navbar navbar-light bg-light">
+    <a class="navbar-brand" href="#">
+      <img src="/images/mapswipe_logo_only_256x256.png" width="40" height="40"  alt="">
+      MapSwipe for Project Managers
+    </a>
+    <form class="form-inline">
+      <button class="btn btn-outline-success" id="sign-out" type="button">Log out</button>
+    </form>
+  </nav>
+
+
+<div class="section" id="not-signed-in">
+  <div id="firebaseui-auth-container"></div>
+</div>
+
+
+<div class="section" id="signed-in" style="display: none">
+    <div class="container" >
+
+      <!-- other messages -->
+      <div class="row justify-content-center" id="alerts">
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+        Hello <b><span id="welcome-name">#</span></b>.
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        </div>
+        <div class="alert alert-primary alert-dismissible fade show" role="alert">
+        You've been logged out.
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        </div>
+        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        Activated project <b><span id="activated-project-name">#</span></b>! It should be already visible in the app.
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        </div>
+        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        Deactivated project <b><span id="deactivated-project-name">#</span></b>! Project is not visible any more.
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        </div>
+      </div>
+
+      <!-- manage existing projects -->
+      <div class="row justify-content-center" id="project-management" style="display: block">
+        <div class="col-md-12">
+          <h2>Active Projects</h2>
+          <div id="active-projects">
+            <div id="active-projects-table"></div>
+          </div>
+        </div>
+        <div class="col-md-12">
+          <h2>Inactive Projects</h2>
+          <div id="inactive-projects">
+
+            <div id="inactive-projects-table"></div>
+          </div>
+        </div>
+      </div>
+
+
+    </div>
+</div>
+
+  <footer class="footer">
+    <div class="container" align="center">
+      <span class="text-muted">Copyright © 201 MapSwipe</span>
+    </div>
+  </footer>
+
+
+
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/6.2.4/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/6.2.4/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/6.2.4/firebase-firestore.js"></script>
+<script src="https://www.gstatic.com/firebasejs/6.2.4/firebase-database.js"></script>
+<script src="js/dev-app.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/project-management.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<!-- This site was created in Webflow. http://www.webflow.com-->
+<!-- Last Published: Wed Jul 13 2016 22:45:08 GMT+0000 (UTC) -->
+<html data-wf-site="574807d20d1625555c1ee150" data-wf-page="577fcec769b57ef60a37539a">
+<head>
+    <meta charset="utf-8">
+    <title>Project Management | MapSwipe</title>
+    <meta name="description"
+          content="Humanitarian organisations can&#39;t help people if they can&#39;t find them. MapSwipe is a mobile app that lets you search satellite imagery to help put the world&#39;s most vulnerable people on the map.">
+    <meta property="og:title" content="Add Project | MapSwipe">
+    <meta property="og:description"
+          content="Humanitarian organisations can&#39;t help people if they can&#39;t find them. MapSwipe is a mobile app that lets you search satellite imagery to help put the world&#39;s most vulnerable people on the map.">
+    <meta property="og:image" content="http://mapswipe.org/images/og-img.jpg">
+    <meta name="twitter:card" content="summary">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" type="text/css" href="css/mapswipe.css">
+
+    <script src="https://cdn.firebase.com/libs/firebaseui/4.0.0/firebaseui.js"></script>
+    <link type="text/css" rel="stylesheet" href="https://cdn.firebase.com/libs/firebaseui/4.0.0/firebaseui.css" />
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+</head>
+<body>
+
+  <!-- Image and text -->
+  <nav class="navbar navbar-light bg-light">
+    <a class="navbar-brand" href="#">
+      <img src="/images/mapswipe_logo_only_256x256.png" width="40" height="40"  alt="">
+      MapSwipe for Project Managers
+    </a>
+    <form class="form-inline">
+      <button class="btn btn-outline-success" id="sign-out" type="button">Log out</button>
+    </form>
+  </nav>
+
+
+<div class="section" id="not-signed-in">
+  <div id="firebaseui-auth-container"></div>
+</div>
+
+
+<div class="section" id="signed-in" style="display: none">
+    <div class="container" >
+
+      <!-- other messages -->
+      <div class="row justify-content-center" id="alerts">
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+        Hello <b><span id="welcome-name">#</span></b>.
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        </div>
+        <div class="alert alert-primary alert-dismissible fade show" role="alert">
+        You've been logged out.
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        </div>
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+        Submitted project! It can take up to an hour for your project to appear.
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        </div>
+      </div>
+
+      <!-- import projects -->
+      <div class="row justify-content-center" id="project-import" style="display: block">
+        <div class="col-md-12" align="center" id="import-overview">
+          <h2>Import a new project.</h2>
+        </div>
+        <div class="container" id="import-formular">
+          <div class="row">
+            <div class="col-md-6">
+                <!--Let's start with collecting the basic information -->
+                <div class="container">
+                    <h3>Basic Project Information</h3>
+
+                    <form class="form-style-7">
+                        <ul>
+                        <li>
+                            <label for="name">Name</label>
+                            <input type="text" name="name" id="name" maxlength="25" required>
+                            <span>Enter the name of your project (25 chars max).</span>
+                        </li>
+                        <li>
+                            <label for="lookFor">Look For</label>
+                            <input type="text" name="lookFor" id="lookFor" maxlength="15" required>
+                            <span>What should the users look for (e.g. buildings, cars, trees)? (15 chars max).</span>
+                        </li>
+                        <li>
+                            <label for="projectType">Project Type</label>
+                            <select name="projectType" id="projectType" onchange="displayProjectTypeFormular(this.value)">
+                                <option value="1">Build Area</option>
+                                <option value="2">Footprint</option>
+                                <option value="3">Change Detection</option>
+                            </select>
+                            <span>Select the type of your project.</span>
+                        </li>
+                        <li>
+                            <label for="projectDetails">Project Details</label>
+                            <textarea name="projectDetails" id="projectDetails" onkeyup="adjust_textarea(this)"></textarea>
+                            <span>Enter the description for your project. (3-5 sentences). </span>
+                        </li>
+                        <li>
+                            <label for="image">Direct Image Link</label>
+                            <input type="text" name="image" id="image" required>
+                            <span>Make sure you have the rights to use this image. It should end with  .jpg or .png.</span>
+                        </li>
+                        <li>
+                            <label for="verificationNumber">Verification Number</label>
+                            <input type="number" name="verificationNumber" id="verificationNumber" value="3" min="3" max="10">
+                            <span>How many people do you want to see every tile before you consider it finished?
+                        (default is 3 - more is recommended for harder tasks, but this will also make project take longer)</span>
+                        </li>
+                        <li>
+                            <label for="groupSize">Group Size</label>
+                            <input type="number" name="groupSize" id="groupSize" value="50" min="10" max="200">
+                            <span>How big should a mapping session be? Group size refers to the number of tasks per mapping session.</span>
+                        </li>
+                        <li>
+                            <label for="submissionKey">Submission Key</label>
+                            <input type="text" name="submissionKey" id="submissionKey" required>
+                            <span>You should get yours from Jorieke Vyncke if you don't have one.</span>
+                        </li>
+                        <li></li>
+                        </ul>
+                    </form>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="container">
+                    <h3>Project Type Specific Information</h3>
+
+                    <form class="form-style-7" style="display:block" id="BuildAreaProjectFormular">
+                        <ul>
+                        <li>
+                            <label for="zoomLevel">Zoom Level</label>
+                            <input type="number" name="zoomLevel" id="zoomLevel" value="18" min="16" max="24">
+                            <span>We use the Tile Map Service zoom levels. Please check for your area which zoom level is available. For example, Bing imagery is available at zoomlevel 18 for most regions. If you use a custom tile server you may be able to use even higher zoom levels.</span>
+                        </li>
+                        <li>
+                            <label for="kml">KML File Content</label>
+                            <textarea name="kml" id="kml" onkeyup="adjust_textarea(this)"></textarea>
+                            <span>Right click your KML file, copy the contents, and paste it in here. Make sure that you provide a single polygon geometry.</span>
+                        </li>
+                        <li>
+                            <label for="tileServerBuildArea">Tile Server Name</label>
+                            <select name="tileServerBuildArea" id="tileServerBuildArea" onchange="displayTileServer(this, 'BuildArea', '')">
+                                <option value="bing">Bing</option>
+                                <option value="digital_globe">Digital Globe</option>
+                                <option value="sinergise">Sinergise</option>
+                                <option value="custom">Custom</option>
+                            </select>
+                            <span>Select the tile server providing satellite imagery tiles for your project. Make sure you have permission. Google hasn't given permission yet and won't work until a proper API key is given.</span>
+                        </li>
+                        <li style="display:None" id="tileServerUrlFieldBuildArea">
+                            <label for="tileServerUrlBuildArea">Custom Tile Server URL</label>
+                            <input type="text" name="tileServerUrlBuildArea" id="tileServerUrlBuildArea">
+                            <span>Make sure you have permission. Add a custom tile server URL that uses {z}, {x} and {y} as placeholders and that already includes the api key.</span>
+                        </li>
+                        <li style="display:None" id="tileServerLayerNameFieldBuildArea">
+                            <label for="tileServerLayerNameBuildArea">WMTS Layer Name</label>
+                            <input type="text" name="tileServerLayerNameBuildArea" id="tileServerLayerNameBuildArea">
+                            <span>Enter the name of the layer of the WMTS offered by Sinergise.</span>
+                        </li>
+                        <li style="display:None" id="apiKeyRequiredFieldBuildArea">
+                            <label for="apiKeyRequiredBuildArea">API Key required</label>
+                            <input type="bool" name="apiKeyRequiredBuildArea" id="apiKeyRequiredBuildArea">
+                            <span>Do you need an api key for the imagery?</span>
+                        </li>
+                        <li style="display:None" id="apiKeyFieldBuildArea">
+                            <label for="apiKeyBuildArea">API Key required</label>
+                            <input type="text" name="apiKeyBuildArea" id="apiKeyBuildArea">
+                            <span>Insert the api key if required.</span>
+                        </li>
+                        <li>
+                            <input type="button" style="" id="submit" value="Submit" onClick="submitInfo()">
+                        </li>
+                        </ul>
+                    </form>
+
+                    <form class="form-style-7" style="display:None" id="FootprintProjectFormular">
+                        <ul>
+                        <li>
+                            <label for="inputGeometries">Input Geometries File (Direct Link)</label>
+                            <input type="text" name="inputGeometries" id="inputGeometries">
+                            <span>Provide a direct link to a GeoJSON file containing your building footprint geometries.</span>
+                        </li>
+                        <li>
+                            <label for="tileServerFootprint">Tile Server Name</label>
+                            <select name="tileServerFootprint" id="tileServerFootprint" onchange="displayTileServer(this, 'Footprint', '')">
+                                <option value="bing">Bing</option>
+                                <option value="digital_globe">Digital Globe</option>
+                                <option value="sinergise">Sinergise</option>
+                                <option value="custom">Custom</option>
+                            </select>
+                            <span>Select the tile server providing satellite imagery tiles for your project. Make sure you have permission. Google hasn't given permission yet and won't work until a proper API key is given.</span>
+                        </li>
+                        <li style="display:None" id="tileServerUrlFieldFootprint">
+                            <label for="tileServerUrlFootprint">Custom Tile Server URL</label>
+                            <input type="text" name="tileServerUrlFootprint" id="tileServerUrlFootprint">
+                            <span>Make sure you have permission. Add a custom tile server URL that uses {z}, {x} and {y} as placeholders and that already includes the api key.</span>
+                        </li>
+                        <li style="display:None" id="tileServerLayerNameFieldFootprint">
+                            <label for="tileServerLayerNameFootprint">WMTS Layer Name</label>
+                            <input type="text" name="tileServerLayerNameFootprint" id="tileServerLayerNameFootprint">
+                            <span>Enter the name of the layer of the WMTS offered by Sinergise.</span>
+                        </li>
+                        <li style="display:None" id="apiKeyRequiredFieldFootprint">
+                            <label for="apiKeyRequiredFootprint">API Key required</label>
+                            <input type="bool" name="apiKeyRequiredFootprint" id="apiKeyRequiredFootprint">
+                            <span>Do you need an api key for the imagery?</span>
+                        </li>
+                        <li style="display:None" id="apiKeyFieldFootprint">
+                            <label for="apiKeyFootprint">API Key required</label>
+                            <input type="text" name="apiKeyFootprint" id="apiKeyFootprint">
+                            <span>Insert the api key if required.</span>
+                        </li>
+                        <li style="display:None" id="captionFieldFootprint">
+                            <label for="captionFootprint">Caption</label>
+                            <input type="text" name="captionFootprint" id="captionFootprint">
+                            <span>Which caption do you want to display?</span>
+                        </li>
+                        <li style="display:None" id="dateFieldFootprint">
+                            <label for="dateFootprint">Date</label>
+                            <input type="text" name="dateFootprint" id="dateFootprint">
+                            <span>Add the imagery capture date if available.</span>
+                        </li>
+                        <li>
+                            <input type="button" style="" id="submit" value="Submit" onClick="submitInfo()">
+                        </li>
+                        </ul>
+                    </form>
+
+                    <form class="form-style-7" style="display:None" id="ChangeDetectionProjectFormular">
+                        <ul>
+                        <li>
+                            <label for="zoomLevelChangeDetection">Zoom Level</label>
+                            <input type="number" name="zoomLevelChangeDetection" id="zoomLevelChangeDetection" value="18" min="16" max="24">
+                            <span>We use the Tile Map Service zoom levels. Please check for your area which zoom level is available. For example, Bing imagery is available at zoomlevel 18 for most regions. If you use a custom tile server you may be able to use even higher zoom levels.</span>
+                        </li>
+                        <li>
+                            <label for="kmlChangeDetection">KML File Content</label>
+                            <textarea name="kmlChangeDetection" id="kmlChangeDetection" onkeyup="adjust_textarea(this)"></textarea>
+                            <span>Right click your KML file, copy the contents, and paste it in here. Make sure that you provide a single polygon geometry.</span>
+                        </li>
+                        <h4>Tile Server A</h4>
+                        <li>
+                            <label for="tileServerChangeDetectionA">Tile Server Name</label>
+                            <select name="tileServerChangeDetectionA" id="tileServerChangeDetectionA" onchange="displayTileServer(this, 'ChangeDetection', 'A')">
+                                <option value="bing">Bing</option>
+                                <option value="digital_globe">Digital Globe</option>
+                                <option value="sinergise">Sinergise</option>
+                                <option value="custom">Custom</option>
+                            </select>
+                            <span>Select the tile server providing satellite imagery tiles for your project. Make sure you have permission. Google hasn't given permission yet and won't work until a proper API key is given.</span>
+                        </li>
+                        <li style="display:None" id="tileServerUrlFieldChangeDetectionA">
+                            <label for="tileServerUrlChangeDetectionA">Custom Tile Server URL</label>
+                            <input type="text" name="tileServerUrlChangeDetectionA" id="tileServerUrlChangeDetectionA">
+                            <span>Make sure you have permission. Add a custom tile server URL that uses {z}, {x} and {y} as placeholders and that already includes the api key.</span>
+                        </li>
+                        <li style="display:None" id="tileServerLayerNameFieldChangeDetectionA">
+                            <label for="tileServerLayerNameChangeDetectionA">WMTS Layer Name</label>
+                            <input type="text" name="tileServerLayerNameChangeDetectionA" id="tileServerLayerNameChangeDetectionA">
+                            <span>Enter the name of the layer of the WMTS offered by Sinergise.</span>
+                        </li>
+                        <li style="display:None" id="apiKeyRequiredFieldChangeDetectionA">
+                            <label for="apiKeyRequiredChangeDetectionA">API Key required</label>
+                            <input type="bool" name="apiKeyRequiredChangeDetectionA" id="apiKeyRequiredChangeDetectionA">
+                            <span>Do you need an api key for the imagery?</span>
+                        </li>
+                        <li style="display:None" id="apiKeyFieldChangeDetectionA">
+                            <label for="apiKeyChangeDetectionA">API Key required</label>
+                            <input type="text" name="apiKeyChangeDetectionA" id="apiKeyChangeDetectionA">
+                            <span>Insert the api key if required.</span>
+                        </li>
+                        <li style="display:None" id="captionFieldChangeDetectionA">
+                            <label for="captionChangeDetectionA">Caption</label>
+                            <input type="text" name="captionChangeDetectionA" id="captionChangeDetectionA">
+                            <span>Which caption do you want to display?</span>
+                        </li>
+                        <li style="display:None" id="dateFieldChangeDetectionA">
+                            <label for="dateChangeDetectionA">Date</label>
+                            <input type="text" name="dateChangeDetectionA" id="dateChangeDetectionA">
+                            <span>Add the imagery capture date if available.</span>
+                        </li>
+                        <h4>Tile Server B</h4>
+                        <li>
+                            <label for="tileServerChangeDetectionB">Tile Server Name</label>
+                            <select name="tileServerChangeDetectionB" id="tileServerChangeDetectionB" onchange="displayTileServer(this, 'ChangeDetection', 'B')">
+                                <option value="bing">Bing</option>
+                                <option value="digital_globe">Digital Globe</option>
+                                <option value="sinergise">Sinergise</option>
+                                <option value="custom">Custom</option>
+                            </select>
+                            <span>Select the tile server providing satellite imagery tiles for your project. Make sure you have permission. Google hasn't given permission yet and won't work until a proper API key is given.</span>
+                        </li>
+                        <li style="display:None" id="tileServerUrlFieldChangeDetectionB">
+                            <label for="tileServerUrlChangeDetectionB">Custom Tile Server URL</label>
+                            <input type="text" name="tileServerUrlChangeDetectionB" id="tileServerUrlChangeDetectionB">
+                            <span>Make sure you have permission. Add a custom tile server URL that uses {z}, {x} and {y} as placeholders and that already includes the api key.</span>
+                        </li>
+                        <li style="display:None" id="tileServerLayerNameFieldChangeDetectionB">
+                            <label for="tileServerLayerNameChangeDetectionB">WMTS Layer Name</label>
+                            <input type="text" name="tileServerLayerNameChangeDetectionB" id="tileServerLayerNameChangeDetectionB">
+                            <span>Enter the name of the layer of the WMTS offered by Sinergise.</span>
+                        </li>
+                        <li style="display:None" id="apiKeyRequiredFieldChangeDetectionB">
+                            <label for="apiKeyRequiredChangeDetectionB">API Key required</label>
+                            <input type="bool" name="apiKeyRequiredChangeDetectionB" id="apiKeyRequiredChangeDetectionB">
+                            <span>Do you need an api key for the imagery?</span>
+                        </li>
+                        <li style="display:None" id="apiKeyFieldChangeDetectionB">
+                            <label for="apiKeyChangeDetectionB">API Key required</label>
+                            <input type="text" name="apiKeyChangeDetectionB" id="apiKeyChangeDetectionB">
+                            <span>Insert the api key if required.</span>
+                        </li>
+                        <li style="display:None" id="captionFieldChangeDetectionB">
+                            <label for="captionChangeDetectionB">Caption</label>
+                            <input type="text" name="captionChangeDetectionB" id="captionChangeDetectionB">
+                            <span>Which caption do you want to display?</span>
+                        </li>
+                        <li style="display:None" id="dateFieldChangeDetectionB">
+                            <label for="dateChangeDetectionB">Date</label>
+                            <input type="text" name="dateChangeDetectionB" id="dateChangeDetectionB">
+                            <span>Add the imagery capture date if available.</span>
+                        </li>
+                        <li>
+                            <input type="button" style="" id="submit" value="Submit" onClick="submitInfo()">
+                        </li>
+                        </ul>
+                    </form>
+
+            </div>
+          </div>
+        </div>
+    </div>
+      </div>
+    </div>
+</div>
+
+  <footer class="footer">
+    <div class="container" align="center">
+      <span class="text-muted">Copyright © 2019 MapSwipe</span>
+    </div>
+  </footer>
+
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/6.2.4/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/6.2.4/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/6.2.4/firebase-firestore.js"></script>
+<script src="https://www.gstatic.com/firebasejs/6.2.4/firebase-database.js"></script>
+<script src="js/dev-app.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/uploadProjects.js"></script>
+<script src="js/forms.js"></script>
+
+</body>
+</html>
