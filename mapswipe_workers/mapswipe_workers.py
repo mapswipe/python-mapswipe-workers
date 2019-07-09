@@ -236,5 +236,5 @@ def _run_generate_stats():
 
 
 cli.add_command(run_create_projects)
-cli.add_command(run_transfer_results)
+cli.add_command(run_firebase_to_postgres)
 cli.add_command(run_generate_stats)
