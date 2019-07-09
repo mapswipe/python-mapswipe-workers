@@ -186,21 +186,36 @@ if __name__ == '__main__':
 
     filename = 'user_ids.pickle'
     with open(filename, 'rb') as f:
-        user_id = pickle.load(f)
+        user_ids = pickle.load(f)
 
     firebase_data_before = dict()
 
-    for project_id in project_ids:
-        print('')
-        print(
-                f'start generating results for project ({project_id}) '
-                f'and user ({user_id})'
-                )
-        firebase_data_before[project_id] = mock_user_contributions(
-                fb_db,
-                project_id,
-                user_id
-                )
+    if user_ids is type(list):
+        for user_id in user_ids:
+            for project_id in project_ids:
+                print('')
+                print(
+                        f'start generating results for project ({project_id}) '
+                        f'and user ({user_id})'
+                        )
+                firebase_data_before[project_id] = mock_user_contributions(
+                        fb_db,
+                        project_id,
+                        user_id
+                        )
+    else:
+        user_id = user_ids
+        for project_id in project_ids:
+            print('')
+            print(
+                    f'start generating results for project ({project_id}) '
+                    f'and user ({user_id})'
+                    )
+            firebase_data_before[project_id] = mock_user_contributions(
+                    fb_db,
+                    project_id,
+                    user_id
+                    )
 
     print()
     print('Uploaded sample results to Firebase.')

@@ -72,31 +72,32 @@ def run_create_projects(schedule):
         _run_create_projects()
 
 
-@click.command('transfer-results')
+@click.command('firebase-to-postgres')
 @click.option(
         '--schedule',
         '-s',
         default=None,
         help=(
-            f'Will transfer results every '
-            f'10 minutes (m), every hour (h) or every day (d). '
+            f'Will update and transfer relevant data (i.a. users and results) '
+            f'from Firebase into Postgres '
+            f'every 10 minutes (m), every hour (h) or every day (d). '
             ),
         type=click.Choice(['m', 'h', 'd'])
         )
-def run_transfer_results(schedule):
+def run_firebase_to_postgres(schedule):
     if schedule:
         if schedule == 'm':
-            sched.every(10).minutes.do(_run_transfer_results)
+            sched.every(10).minutes.do(_run_firebase_to_postgres)
             while True:
                 sched.run_pending()
                 time.sleep(1)
         elif schedule == 'h':
-            sched.every().hour.do(_run_transfer_results)
+            sched.every().hour.do(_run_firebase_to_postgres)
             while True:
                 sched.run_pending()
                 time.sleep(1)
         elif schedule == 'd':
-            sched.every().day.do(_run_transfer_results)
+            sched.every().day.do(_run_firebase_to_postgres)
             while True:
                 sched.run_pending()
                 time.sleep(1)
@@ -108,7 +109,7 @@ def run_transfer_results(schedule):
                     f'h for every hour and d for every day.'
                     )
     else:
-        _run_transfer_results()
+        _run_firebase_to_postgres()
 
 
 @click.command('generate-stats')
@@ -209,7 +210,7 @@ def _run_create_projects():
     return created_project_ids
 
 
-def _run_transfer_results():
+def _run_firebase_to_postgres():
     update_data.copy_new_users()
     transfer_results.transfer_results()
 
