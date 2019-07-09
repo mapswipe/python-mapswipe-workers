@@ -151,6 +151,53 @@ def run_generate_stats(schedule):
         _run_generate_stats()
 
 
+@click.command('run')
+@click.option(
+        '--schedule',
+        '-s',
+        default=None,
+        help=(
+            f'Will run Mapswipe Workers every '
+            f'10 minutes (m), every hour (h) or every day (d). '
+            ),
+        type=click.Choice(['m', 'h', 'd'])
+        )
+def run(schedule):
+    if schedule:
+        if schedule == 'm':
+            sched.every(10).minutes.do(_run_create_projects)
+            sched.every(10).minutes.do(_run_firebase_to_postgres)
+            sched.every(10).minutes.do(_run_generate_stats)
+            while True:
+                sched.run_pending()
+                time.sleep(1)
+        elif schedule == 'h':
+            sched.every().hour.do(_run_create_projects)
+            sched.every().hour.do(_run_firebase_to_postgres)
+            sched.every().hour.do(_run_generate_stats)
+            while True:
+                sched.run_pending()
+                time.sleep(1)
+        elif schedule == 'd':
+            sched.every().day.do(_run_create_projects)
+            sched.every().day.do(_run_firebase_to_postgres)
+            sched.every().day.do(_run_generate_stats)
+            while True:
+                sched.run_pending()
+                time.sleep(1)
+        else:
+            click.echo(
+                    f'{schedule} is not a valid input '
+                    f'for the schedule argument. '
+                    f'Use m for every 10 minutes, '
+                    f'h for every hour and d for every day.'
+                    )
+    else:
+        _run_create_projects
+        _run_firebase_to_postgres
+        _run_generate_stats
+
+
 def _run_create_projects():
     project_types = {
             # Make sure to import all project types here
