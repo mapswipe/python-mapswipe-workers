@@ -1,17 +1,22 @@
+# This image contains Python 3 and the latest pre-compiled version of GDAL
+# Based on Debian (Including apt-get update && upgrade)
 FROM thinkwhere/gdal-python
 
+# create directories for config, logs and data
+RUN mkdir -p $XDG_CONFIG_HOME/mapswipe_workers/
+RUN mkdir -p /var/log/
+RUN mkdir -p /var/lib/mapswipe_workers/
+RUN mkdir -p /usr/local/mapswipe-workers/
+
 # copy mapswipe workers repo from local repo
-WORKDIR /python-mapswipe-workers
+WORKDIR /usr/local/mapswipe-workers/
 COPY ./mapswipe_workers/ ./mapswipe_workers
 COPY ./requirements.txt ./requirements.txt
 COPY ./setup.py ./setup.py
-COPY ./run_mapswipe_worker.py ./run_mapswipe_worker.py
-
-# create directories for data and logs if they don't exist
-RUN mkdir -p  logs
-RUN mkdir -p data
+COPY ./config/ $XDG_CONFIG_HOME/mapswipe_workers/
 
 # Install dependencies and mapswipe-workers
-RUN python setup.py install
+# RUN python setup.py install
+RUN pip install .
 
 # we don't use a CMD here, this will be defined in docker-compose.yaml
