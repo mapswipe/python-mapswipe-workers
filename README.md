@@ -25,6 +25,7 @@ This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENS
 * **Marcel Reinmuth** - HeiGIT - [maze2point0](https://github.com/maze2point0)
 * **Matthias Schaub** - HeiGIT - [Matthias-Schaub](https://github.com/Matthias-Schaub)
 
+
 See also the list of [contributors](contributors.md) who participated in this project.
 
 ## Acknowledgements
