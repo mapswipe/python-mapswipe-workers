@@ -22,21 +22,20 @@ To run Mapswipe Workers you need to:
 * posgres host
 * postgres port
 
-### Nginx
-* server config file
-
-### Imagery
+### Python-Workers
 * bing maps url
 * bing maps api key
 * digital globe url
 * digital globe api key
 * sinergise url
 * sinergise api key
+* slack token (optional)
+* slack channel (optional)
+* slack username (optional)
 
-### Slack (optional)
-* slack token
-* slack channel
-* slack username
+### Api
+* server config file
+
 
 ## 1. Clone Repository
 
