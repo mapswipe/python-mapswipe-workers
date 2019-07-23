@@ -1,6 +1,6 @@
 version: '3'
 services:
-    # You need this only if you want to set up the psql database locally
+
     postgres:
         container_name: postgres
         build:
@@ -14,7 +14,8 @@ services:
             - '5432:5432'
         restart: unless-stopped
         networks:
-            - mapswipe_workers_network
+            - mapswipe_network
+
     nginx:
         container_name: nginx
         build:
@@ -22,61 +23,30 @@ services:
             dockerfile: docker/nginx_Dockerfile
         volumes:
             - '/var/lib/mapswipe_workers/api-data/:/usr/share/nginx/html:ro'
+            - /etc/letsencrypt/live/:/etc/letsencrypt/live/
         ports:
             - '80:80'
+            - '443:443'
         restart: unless-stopped
         networks:
-            - mapswipe_workers_network
-    project_creator:
-        container_name: project_creator
+            - mapswipe_network
+
+    mapswipe_workers:
+        container_name: mapwipe_workers
         build:
             context: .
             dockerfile: docker/mapswipe_workers_Dockerfile
-        command: mapswipe_workers create-projects --schedule h
+        command: mapswipe_workers run --schedule h
         volumes:
             - '/var/lib/mapswipe_workers/api-data/:/var/lib/mapswipe_workers/api-data/:rw'
         restart: unless-stopped
         depends_on:
             - postgres
         networks:
-            - mapswipe_workers_network
-    firebase_to_postgtres:
-        container_name: firebase_to_postgres
-        build:
-            context: .
-            dockerfile: docker/mapswipe_workers_Dockerfile
-        command: mapswipe_workers firebase-to-postgres --schedule h
-        volumes:
-            - '/var/lib/mapswipe_workers/api-data/:/var/lib/mapswipe_workers/api-data/:rw'
-            - '/var/log/mapswipe_workers/:/var/log/mapswipe_workers/:rw'
-        restart: unless-stopped
-        depends_on:
-            - postgres
-        networks:
-            - mapswipe_workers_network
-    stats_generator:
-        container_name: stats_generator
-        build:
-            context: .
-            dockerfile: docker/mapswipe_workers_Dockerfile
-        command: mapswipe_workers generate-stats --schedule h
-        volumes:
-            - '/var/lib/mapswipe_workers/api-data/:/var/lib/mapswipe_workers/api-data/:rw'
-            - '/var/log/mapswipe_workers/:/var/log/mapswipe_workers/:rw'
-        restart: unless-stopped
-        depends_on:
-            - postgres
-        networks:
-            - mapswipe_workers_network
-    certbot:
-        image: certbot/certbot:latest
-        command: certonly --webroot --webroot-path=/usr/share/nginx/html/letsencrypt --agree-tos --no-eff-email
-        volumes:
-            - ./certbot/conf/:/etc/letsencrypt
-            - ./certbot/logs/:/var/log/letsencrypt
-            - ./certbot/data:/usr/share/nginx/html/letsencrypt
+            - mapswipe_network
+
 networks:
-    mapswipe_workers_network:
+    mapswipe_network:
         driver: bridge
         ipam:
             config: [{subnet: 172.20.0.0/16}]
