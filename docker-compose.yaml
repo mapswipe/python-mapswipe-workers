@@ -22,8 +22,8 @@ services:
             context: .
             dockerfile: docker/nginx_Dockerfile
         volumes:
-            - '/var/lib/mapswipe_workers/api-data/:/usr/share/nginx/html:ro'
-            - /etc/letsencrypt/live/
+            - /var/lib/mapswipe_workers/api-data/:/usr/share/nginx/html:ro
+            - /etc/letsencrypt/:etc/letsencrypt/:ro
         ports:
             - '80:80'
             - '443:443'

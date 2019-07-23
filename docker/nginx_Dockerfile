@@ -1,4 +1,3 @@
 FROM nginx:stable
 COPY ./docker/nginx.conf /etc/nginx/conf.d/
-COPY ./docker/index.html /usr/share/nginx/html/
-COPY ./docker/managers/ /urs/share/nginx/html/managers/
+COPY ./docker/api-index.html /usr/share/nginx/html/mapswipe-api/
