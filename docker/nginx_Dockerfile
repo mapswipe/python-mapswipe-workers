@@ -1,10 +1,4 @@
-FROM nginx
-RUN rm /etc/nginx/conf.d/default.conf
-COPY ./docker/nginx.conf /etc/nginx/conf.d/nginx.conf
-COPY ./docker/index.html /usr/share/nginx/html/index.html
+FROM nginx:stable
+COPY ./docker/nginx.conf /etc/nginx/conf.d/
+COPY ./docker/index.html /usr/share/nginx/html/
 COPY ./docker/managers/ /urs/share/nginx/html/managers/
-RUN deb http://deb.debian.org/debian stretch-backports main
-RUN apt-get update
-RUN apt-get install certbot python-certbot-nginx -t stretch-backports
-RUN certbot --nginx
-RUN certbot renew --dry-run
