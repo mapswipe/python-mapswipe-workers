@@ -4,10 +4,10 @@
   "projectId": "build_area_tutorial",
   "zoomLevel": 18,
   "lookFor": "Buildings",
-  "status": "inactive",
+  "status": "build_area_tutorial",
   "projectDetails": "This is a tutorial",
   "progress": 0,
-  "contributors": 0,
+  "contributorCount": 0,
   "examplesFile": "scripts/tutorials/build_area/build_area_examples.csv",
   "tileServer":{
     "name": "bing"

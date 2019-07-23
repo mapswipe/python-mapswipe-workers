@@ -13,7 +13,7 @@ function submitInfo() {
     var image = document.getElementById("image").value;
     var verificationNumber = document.getElementById("verificationNumber").value;
     var submissionKey = document.getElementById("submissionKey").value;
-    var createdBy = document.getElementById("welcome-name").innerHTML;
+    var createdBy = document.getElementById("welcome-name-manager").innerHTML;
     var groupSize = document.getElementById("groupSize").value;
 
     if (projectType == 1) {

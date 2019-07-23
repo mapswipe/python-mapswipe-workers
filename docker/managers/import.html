@@ -29,7 +29,7 @@
   <!-- Image and text -->
   <nav class="navbar navbar-light bg-light">
     <a class="navbar-brand" href="#">
-      <img src="/images/mapswipe_logo_only_256x256.png" width="40" height="40"  alt="">
+      <img src="images/mapswipe_logo_only_256x256.png" width="40" height="40"  alt="">
       MapSwipe for Project Managers
     </a>
     <form class="form-inline">
@@ -38,35 +38,46 @@
   </nav>
 
 
+<div class="container">
+  <div class="row justify-content-center" id="alerts">
+    <div id="welcome-message-manager" class="alert alert-success alert-dismissible fade" role="alert">
+    Hello <b><span id="welcome-name-manager">#</span></b>. You are a project manager and can add new projects to MapSwipe. Yeah!
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+      <span aria-hidden="true">&times;</span>
+    </button>
+    </div>
+    <div id="log-out-message" class="alert alert-primary alert-dismissible fade" role="alert">
+    You've been logged out.
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+      <span aria-hidden="true">&times;</span>
+    </button>
+    </div>
+    <div id="success-message" class="alert alert-success alert-dismissible fade" role="alert">
+    Submitted project! It can take up to an hour for your project to appear.
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+      <span aria-hidden="true">&times;</span>
+    </button>
+    </div>
+    <!-- user signed in but no project manager -->
+    <div id="welcome-message-no-manager" class="alert alert-success alert-dismissible fade" role="alert">
+        Hello <b><span id="welcome-name">#</span></b>. You don't have the right permissions to add a new project to MapSwipe.
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+  </div>
+</div>
+
+
 <div class="section" id="not-signed-in">
   <div id="firebaseui-auth-container"></div>
 </div>
 
 
-<div class="section" id="signed-in" style="display: none">
+<div class="section" id="signed-in-manager" style="display: none">
     <div class="container" >
 
-      <!-- other messages -->
-      <div class="row justify-content-center" id="alerts">
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-        Hello <b><span id="welcome-name">#</span></b>.
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-        </div>
-        <div class="alert alert-primary alert-dismissible fade show" role="alert">
-        You've been logged out.
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-        </div>
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-        Submitted project! It can take up to an hour for your project to appear.
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-        </div>
-      </div>
+
 
       <!-- import projects -->
       <div class="row justify-content-center" id="project-import" style="display: block">

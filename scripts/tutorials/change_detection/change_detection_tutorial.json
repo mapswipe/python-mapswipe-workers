@@ -7,7 +7,7 @@
   "status": "change_detection_tutorial",
   "projectDetails": "This is a tutorial",
   "progress": 0,
-  "contributors": 0,
+  "contributorCount": 0,
   "tileServerA" : {
     "apiKey" : "",
     "apiKeyRequired" : false,

@@ -27,7 +27,7 @@
   <!-- Image and text -->
   <nav class="navbar navbar-light bg-light">
     <a class="navbar-brand" href="#">
-      <img src="/images/mapswipe_logo_only_256x256.png" width="40" height="40"  alt="">
+      <img src="images/mapswipe_logo_only_256x256.png" width="40" height="40"  alt="">
       MapSwipe for Project Managers
     </a>
     <form class="form-inline">
@@ -40,14 +40,30 @@
   <div id="firebaseui-auth-container"></div>
 </div>
 
-
 <div class="section" id="signed-in" style="display: none">
     <div class="container" >
 
       <!-- other messages -->
       <div class="row justify-content-center" id="alerts">
         <div class="alert alert-success alert-dismissible fade show" role="alert">
-        Hello <b><span id="welcome-name">#</span></b>.
+        Hello <b><span id="welcome-name">#</span></b>. You don't have the right permissions to add a new project to MapSwipe.
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        </div>
+      </div>
+
+    </div>
+</div>
+
+
+<div class="section" id="signed-in-manager" style="display: none">
+    <div class="container" >
+
+      <!-- other messages -->
+      <div class="row justify-content-center" id="alerts">
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+        Hello <b><span id="welcome-name-manager">#</span></b>. You are a project manager and can activate and deactivate MapSwipe projects. Yeah!
         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
@@ -95,7 +111,7 @@
 
   <footer class="footer">
     <div class="container" align="center">
-      <span class="text-muted">Copyright © 201 MapSwipe</span>
+      <span class="text-muted">Copyright © 2019 MapSwipe</span>
     </div>
   </footer>
 

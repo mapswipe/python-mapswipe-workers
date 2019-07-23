@@ -507,5 +507,5 @@ if __name__ == '__main__':
                 'something went wrong there.'
                 )
 
-    slices = extent_to_slices(args.input_file, args.zoomlevel)
+    slices = extent_to_slices(args.input_file, args.zoomlevel, 50)
     save_slices_as_geojson(slices, args.output_file)

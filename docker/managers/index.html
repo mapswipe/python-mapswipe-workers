@@ -27,7 +27,7 @@
   <!-- Image and text -->
   <nav class="navbar navbar-light bg-light">
     <a class="navbar-brand" href="#">
-      <img src="/images/mapswipe_logo_only_256x256.png" width="40" height="40"  alt="">
+      <img src="images/mapswipe_logo_only_256x256.png" width="40" height="40"  alt="">
       MapSwipe for Project Managers
     </a>
     <form class="form-inline">
@@ -48,6 +48,42 @@
       <div class="row justify-content-center" id="alerts">
         <div class="alert alert-success alert-dismissible fade show" role="alert">
         Hello <b><span id="welcome-name">#</span></b>.
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        </div>
+        <div class="alert alert-primary alert-dismissible fade show" role="alert">
+        You've been logged out.
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        </div>
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+        Submitted project! It can take up to an hour for your project to appear.
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        </div>
+      </div>
+
+      <!-- overview -->
+      <div class="row justify-content-center" id="project-overview">
+        <div class="col-md-6">
+          <a href="import.html"><button class="btn btn-lg btn-success col-md-12">Import Project</button></a>
+          <a href="manage.html"><button class="btn btn-lg btn-primary col-md-12">Manage Existing Projects</button></a>
+        </div>
+      </div>
+
+    </div>
+</div>
+
+<div class="section" id="signed-in-manager" style="display: none">
+    <div class="container" >
+
+      <!-- other messages -->
+      <div class="row justify-content-center" id="alerts">
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+        Hello <b><span id="welcome-name-manager">#</span></b>.
         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
