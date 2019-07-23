@@ -3,6 +3,7 @@
 This document describes how to run Mapwipe Workers using Docker. For development setup without Docker please refer to the [Contributing page](contributing.md).
 
 To run Mapswipe Workers you need to:
+
 1. Clone the repository
 2. Setup a [Firebase Project](https://firebase.google.com/)
 3. Provide custom configurations
@@ -97,28 +98,32 @@ Provide custom configuration and environment file.
 Edit following variables in the configuration file (`config/example-configuration.json`) and rename the file to `configuration.json`:
 
 **postgres**:
-- provide usename und password for postgres
+- provide username und password for postgres
 
 **firebase**:
 - provide configurations for your Firebase instance
 - for example:
-```cfg
-"dev_firebase":{
+
+```json
+"dev_firebase": {
   "api_key": "TBaSDnrFaJEWgVaslf-vpt5dg53fAjfdsV-1uaig",
   "auth_domain": "dev-mapswipe.firebaseapp.com",
   "database_url": "https://dev-mapswipe.firebaseio.com",
-  "storage_bucket": "dev-mapswipe.appspot.com",
+  "storage_bucket": "dev-mapswipe.appspot.com"
+}
 ```
 
 
 ### .env
 
 Create an **Environment file** (`.env`) at root of the project (`python-mapswipe-workers/`) with following variables:
+
 ```env
 POSTGRES_USER=mapswipe-workers
 POSTGRES_PASSWORD=postgres
 POSTGRES_DB=mapswipe
 ```
+
 Set custom user and password.
 
 
@@ -126,22 +131,31 @@ Set custom user and password.
 
 Start the **Docker Daemon**: `systemctl start docker`
 
-Run **Docker Compose**: `docker-compose up -d`
+Run **Docker Compose**: `docker-compose up -d mapswipe_workers postgres`
 
 Check if your Docker Containers are running: `docker ps`
 
-Interactive shell session for using e.g. utils: `docker-compose run utils`
+
+
+## Update Mapswipe Workers
+
+How to update Mapswipe Workers:
+
+1. `git pull`: get changes from github
+2. `docker-compose up --build -d mapswipe_workers`
 
 
 ## Debugging
 
 **Where can I find logs?**
+
 - Logs are written to directly to console and are written to `/var/log/mapswipe_workers.log`
     - take a look at those for logs of already running containers
 - To view logs using docker: `docker logs container_name` (eg. `docker logs import`): 
     - take a look at those if your container is not running
 
 **ERROR: for postgres during docker-compose:**
+
 - ERROR: for postgres  `Cannot start service postgres: driver failed programming external connectivity on endpoint postgres`
 - Probably a postgres instance is already running on Port 5432
 - SOLUTION: Change postgres port in your docker-compose file  (`docker-compose.yaml`)
@@ -149,37 +163,12 @@ Interactive shell session for using e.g. utils: `docker-compose run utils`
 
 **Docker containers are always restarting:** Take a look at the docker logs (eg. `docker logs import`). If you get an `Unable to load configuration file at ./cfg/config.cfg. Exiting.` due to `PermissionError: [Errno 13] Permission denied: './cfg/config.cfg'` error message, you probably have SELinux on your system enabled. If so you have to configure (change mount option of volumes) your docker-compose file. Please read the documentation provided by Docker regarding this configuration (https://docs.docker.com/storage/bind-mounts/ Chapter: "Configure the selinux label").
 
-**configuration.json - FileNotFoundError:** Until fixed the configuration path is hard coded in `mapswipe_workers/definitions.py`. This should work, if Mapswipe Workers is installed and running inside a Docker Container. For custom setup refer to the [contribution page](contribution.md).
-
-**FileNotFoundError: [Errno 2] No such file or directory: ...:**
-Mapsipe Workers needs access to three directories:
-- DATA_PATH (`/var/lib/mapswipe_workers/`)
-- CONFIG_PATH (`{XDG_CONFIG_HOME}/mapswipe_workers/`)
-- LOG_PATH (`/var/log/mapswipe_workers/`)
-Make sure those are existing and accessible.
-Use `mkdir DATA_PATH` to create the directory.
-Use `chown -R $USER:$USER DATA_PATH` to give write permission to current user.
-Alternatively you can change the PATH variables in `definitions.py` to your desired path. Except of the path for logs. This is defined in `logging.cfg`.
-
-
-## Tips
-
-### Update
-
-How to update a container (e.g. import):
-
-1. `git pull`: get changes from github
-2. `docker-compose build --no-cache import`: build a new docker image for the container you need to update
-3. `docker stop import`
-4. `docker-compose up -d import`
-
 
 ### Usefull Docker Commands
 
 - `docker ps -a`: list all containers and check status
 - `docker image ls`: list all docker images
-- `docker-compose build --no-cache import`: rebuild the image for a specific container (here: import), e.g. after changing some settings like `sleep_time`
-- `docker exec -it import bash `: open shell in a running container (here: import)
-- `tail -100 ./logs/run_import.log`: show logs of container
+- `docker exec -it mapswipe_workers bash `: open shell in a running container
+- `tail -100 ./logs/mapwipe_workers.log`: show logs of container
 - `docker stats`: show memory usage, CPU consumption for all running containers
 - `docker system prune`: clean up any resources — images, containers, volumes, and networks — that are dangling (not associated with a container)

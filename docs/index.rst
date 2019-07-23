@@ -44,6 +44,7 @@ Welcome to Mapswipe Workers's documentation!
    :caption: Miscellaneous:
 
    contributing
+   server_setup
    diagrams
    project_type-proposal
    project_type-enable
