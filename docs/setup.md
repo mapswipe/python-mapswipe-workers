@@ -66,12 +66,21 @@ You have to manually set up your firebase instance at very first. Start with cre
   * deploy cloud functions
 
 
-## 4. Setting up postgres and the python-workers
+## 4. Setting up postgres
 1. Create Postgresql database and create tables
 
-2. Set up mapswipe worker for creating projects
 
-3. Set up mapswipe worker for transfering data from firebase to postgres
+## 5. Setting up the python-workers
+1. Set up mapswipe worker for creating projects
+
+2. Set up mapswipe worker for transfering data from firebase to postgres
+
+## 6. Setting up the api
+1. Set up letsencrypt
+
+2. Set up nginx
+
+3. Set up api
 
 ## 3. Configuration
 
