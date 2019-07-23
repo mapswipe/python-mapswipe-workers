@@ -9,6 +9,34 @@ To run Mapswipe Workers you need to:
 3. Provide custom configurations
 4. Use [Docker](https://www.docker.com/) to run Mapswipe Workers
 
+## Credentials we need during that process:
+### Firebase
+* firebase project id
+* firebase web api key
+* firebase admin sdk service account file
+* firebase database rules json file
+
+### Postgres
+* postgres username
+* postgres password
+* posgres host
+* postgres port
+
+### Nginx
+* server config file
+
+### Imagery
+* bing maps url
+* bing maps api key
+* digital globe url
+* digital globe api key
+* sinergise url
+* sinergise api key
+
+### Slack (optional)
+* slack token
+* slack channel
+* slack username
 
 ## 1. Clone Repository
 
@@ -18,75 +46,32 @@ To run Mapswipe Workers you need to:
 
 
 ## 2. Setting up a Firebase Project
-
-Create [**Firebase Project**](https://firebase.google.com/):
+You have to manually set up your firebase instance at very first. Start with creating your [**Firebase Project**](https://firebase.google.com/) and follow these steps:
 1. Login
 2. Add project
+3. Create Database: `> Develop > Database > Create Database`
+4. Get **Web API Key**: `> Settings > Project settings > General`. Add the web api key to the `.env` file.
+5. Download **Service Account Key**: `> Settings > Project settings > Service accounts > Firebase Admin SDK > Generate new private key`. Rename the downloaded json file to `serviceAccountKey.json` and move it to `python_mapswipe_workers/config/`
 
-Set **Database Rules**:
-1. `> Develop > Database > Create Database`
-2. `> Database > Rules`
-    - Copy and paste database rules
-    - `> Publish`
-    - Make sure you are using 'Realtime Database' not 'Cloud Firestore' otherwise your will get an error message (e.g. `Error saving rules - Line 1: mismatched input '{' expecting {'function', 'service', 'rules_version'}`)
 
-```json
-{
-  "rules": {
-    ".read": false,
-    ".write": false,
-    "groups" : {
-      ".write": false,
-      ".read" : true,
-      ".indexOn": ["finishedCount", "requiredCount"]
-    },
-    "tasks" : {
-      ".write": false,
-      ".read" : true,
-    },
-    "projectDrafts" : {
-        ".read" : false,
-        ".write" : true,
-        ".indexOn": ["complete"]
-    },
-    "projects" : {
-        ".write": false,
-        ".read" : true,
-    },
-    "announcement": {
-        ".write": false,
-        ".read": true,
-    },
-    "results" : {
-      ".write": false,
-      ".read" : false,
-      "$project_id" : {
-        "$group_id": {
-          "$uid" : {
-            ".write": "$uid === auth.uid"
-          }
-        }
-      }
-    },
-    "users": {
-      "$uid": {
-        ".read": "auth != null && auth.uid == $uid",
-        ".write": "auth != null && auth.uid == $uid",
-      },
-      ".indexOn": "{userId}/created"
-    }
-  }
-}
-```
+## 3. Setting up Firebase database rules and Firebase functions
 
-Get **Web API Key**:
-- `> Settings > Project settings > General`
+1. Set **Database Rules**:
+  * `> Database > Rules`
+  * Copy and paste database rules from `python_mapswipe_workers/config/firebase-rules.json`
+  * `> Publish`
+  * Make sure you are using 'Realtime Database' not 'Cloud Firestore' otherwise your will get an error message (e.g `Error saving rules - Line 1: mismatched input '{' expecting {'function', 'service', 'rules_version'}`)
 
-Download **Service Account Key**:
-- `> Settings > Project settings > Service accounts > Firebase Admin SDK > Generate new private key`
+2. Set "Firebase Cloud Functions":
+  * deploy cloud functions
 
-Rename the downloaded json file to `serviceAccountKey.json` and move it to `python_mapswipe_workers/config/`
 
+## 4. Setting up postgres and the python-workers
+1. Create Postgresql database and create tables
+
+2. Set up mapswipe worker for creating projects
+
+3. Set up mapswipe worker for transfering data from firebase to postgres
 
 ## 3. Configuration
 
@@ -151,7 +136,7 @@ How to update Mapswipe Workers:
 
 - Logs are written to directly to console and are written to `/var/log/mapswipe_workers.log`
     - take a look at those for logs of already running containers
-- To view logs using docker: `docker logs container_name` (eg. `docker logs import`): 
+- To view logs using docker: `docker logs container_name` (eg. `docker logs import`):
     - take a look at those if your container is not running
 
 **ERROR: for postgres during docker-compose:**
