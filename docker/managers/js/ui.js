@@ -14,8 +14,9 @@ ui.start('#firebaseui-auth-container', uiConfig);
 
 document.getElementById('sign-out').addEventListener('click', function() {
   firebase.auth().signOut();
-  document.getElementById("signed-in").style.display = "none";
+  document.getElementById("signed-in-manager").style.display = "none";
   document.getElementById("not-signed-in").style.display = "block";
+  document.getElementById("log-out-message").classList.add('show')
   ui.reset();
   ui.start('#firebaseui-auth-container', uiConfig)
 
@@ -23,6 +24,10 @@ document.getElementById('sign-out').addEventListener('click', function() {
 
 // Track the UID of the current user.
 var currentUid = null;
+
+let callback = null;
+let metadataRef = null;
+
 firebase.auth().onAuthStateChanged(function(user) {
    // onAuthStateChanged listener triggers every time the user ID token changes.
    // This could happen when a new user signs in or signs out.
@@ -30,17 +35,41 @@ firebase.auth().onAuthStateChanged(function(user) {
    if (user && user.uid != currentUid) {
     // Update the UI when a new user signs in.
     // Otherwise ignore if this is a token refresh.
-  // Update the current user UID.
-  currentUid = user.uid;
-  //document.body.innerHTML = '<h1> Congrats ' + user.displayName + ', you are done! </h1> <h2> Now get back to what you love building. </h2> <h2> Need to verify your email address or reset your password? Firebase can handle all of that for you using the email you provided: ' + user.email + '. <h/2>';
-  document.getElementById("not-signed-in").style.display = "none";
-  document.getElementById("signed-in").style.display = "block";
-  document.getElementById("welcome-name").innerHTML = user.displayName;
+      // Update the current user UID.
+      console.log(user.displayName)
+      currentUid = user.uid;
 
-  console.log("user signed in")
+      document.getElementById("not-signed-in").style.display = "none";
+
+    firebase.auth().currentUser.getIdTokenResult()
+      .then((idTokenResult) => {
+         // Confirm the user is an Admin.
+         if (!!idTokenResult.claims.projectManager) {
+           // Show admin UI.
+           console.log('this user is a project manager')
+           document.getElementById("welcome-name-manager").innerHTML = user.displayName;
+           document.getElementById("signed-in-manager").style.display = "block";
+           document.getElementById("signed-in-manager").style.display = "block";
+           document.getElementById("welcome-message-manager").classList.add('show')
+         } else {
+           // Show regular user UI.
+           console.log('this user is not a project manager')
+           document.getElementById("welcome-name").innerHTML = user.displayName;
+           document.getElementById("welcome-message-no-manager").classList.add('show')
+         }
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+
+
+
+      console.log("user signed in")
  } else {
   // Sign out operation. Reset the current user UID.
   currentUid = null;
   console.log("no user signed in");
  }
 });
+
+
