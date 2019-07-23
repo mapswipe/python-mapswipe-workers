@@ -1,10 +1,13 @@
 #!/bin/python3
 # -*- coding: UTF-8 -*-
 # Author: M. Reinmuth, B. Herfort
-####################################################################################################
+
 import json
+
+import slack
+
 from mapswipe_workers import definitions
-from slackclient import SlackClient
+
 
 def get_slack_client():
     """
@@ -12,7 +15,7 @@ def get_slack_client():
 
     Returns
     -------
-    sc : SlackClient
+    sc : slack.WebClient
     channel: str
         name of slack channel
     username : str
@@ -25,7 +28,7 @@ def get_slack_client():
             slack_token = data['slack']['token']
             channel = data['slack']['channel']
             username = data['slack']['username']
-            sc = SlackClient(slack_token)
+            sc = slack.WebClient(token=slack_token)
             return sc, channel, username
     except:
         print('no slack token provided')
@@ -51,21 +54,11 @@ def send_slack_message(msg):
         return False
     else:
         sc, channel, username = get_slack_client()
-
-        sc.api_call(
-            "chat.postMessage",
+        response = sc.chat_postMessage(
+            as_user=True,
             channel=channel,
             text=msg,
-            username=username
-        )
-        print('sent slack message.')
+            username=username,
+            )
+        assert response["ok"]
         return True
-
-
-####################################################################################################
-if __name__ == '__main__':
-
-    head = 'Test slack api python integration:'
-    message = 'Hello world!'
-    send_slack_message(head + '\n' + message)
-
