@@ -1,6 +1,19 @@
 # Setup
 
-This document describes how to run Mapwipe Workers using Docker. For development setup without Docker please refer to the [Contributing page](contributing.md).
+This document describes how to setup all the parts of the MapSwipe back-end.
+
+1. Firebase Setup
+2. Postgres Setup
+3. MapSwipe Workers Setup
+
+
+For all those setups our main repository is requiered:
+
+```bash
+git clone https://github.com/mapswipe/python-mapswipe-workers.git
+cd python-mapswipe-workers
+```
+
 
 To run Mapswipe Workers you need to:
 
@@ -9,93 +22,105 @@ To run Mapswipe Workers you need to:
 3. Provide custom configurations
 4. Use [Docker](https://www.docker.com/) to run Mapswipe Workers
 
-## Credentials we need during that process:
-### Firebase
+
+## Firebase Setup
+
+### Credentials
+
 * firebase project id
 * firebase web api key
 * firebase admin sdk service account file
 * firebase database rules json file
 
-### Postgres
-* postgres username
-* postgres password
-* posgres host
-* postgres port
 
-### Python-Workers
-* bing maps url
-* bing maps api key
-* digital globe url
-* digital globe api key
-* sinergise url
-* sinergise api key
-* slack token (optional)
-* slack channel (optional)
-* slack username (optional)
+### 2. Setting up a Firebase Project
 
-### Api
-* server config file
-
-
-## 1. Clone Repository
-
-- `git clone https://github.com/mapswipe/python-mapswipe-workers.git`
-- `cd python-mapswipe-workers`
-- for current development branch: `git checkout dev`
-
-
-## 2. Setting up a Firebase Project
 You have to manually set up your firebase instance at very first. Start with creating your [**Firebase Project**](https://firebase.google.com/) and follow these steps:
 1. Login
 2. Add project
 3. Create Database: `> Develop > Database > Create Database`
 4. Get **Web API Key**: `> Settings > Project settings > General`. Add the web api key to the `.env` file.
-5. Download **Service Account Key**: `> Settings > Project settings > Service accounts > Firebase Admin SDK > Generate new private key`. Rename the downloaded json file to `serviceAccountKey.json` and move it to `python_mapswipe_workers/config/`
+5. Download **Service Account Key**: `> Settings > Project settings > Service accounts > Firebase Admin SDK > Generate new private key`. Rename the downloaded json file to `serviceAccountKey.json` and move it to `mapswipe_workers/config/`
 
 
-## 3. Setting up Firebase database rules and Firebase functions
 
-1. Set **Database Rules**:
-  * `> Database > Rules`
-  * Copy and paste database rules from `python_mapswipe_workers/config/firebase-rules.json`
-  * `> Publish`
-  * Make sure you are using 'Realtime Database' not 'Cloud Firestore' otherwise your will get an error message (e.g `Error saving rules - Line 1: mismatched input '{' expecting {'function', 'service', 'rules_version'}`)
+### Deployment of Database Rules and Fuctions
 
-2. Set "Firebase Cloud Functions":
-  * deploy cloud functions
+The Firebase setup consists of two parts:
 
+- Firebase Database Rules (`database.rules.json`)
+- Firebase Functions (`functions/`)
 
-## 4. Setting up postgres
-1. Create Postgresql database and create tables
+To deploy them to the Firebase instance the Firebase CLI is required. Please refer to the official docs on how to install the Firebase CLI ([https://firebase.google.com/docs/cli/](https://firebase.google.com/docs/cli/#install_the_firebase_cli))
 
+After installation of the Firebase CLI change working directory into the `firebase` directory and initialize a Firebase project:
 
-## 5. Setting up the python-workers
-1. Set up mapswipe worker for creating projects
+```
+cd firebase
+firebase init
+```
 
-2. Set up mapswipe worker for transfering data from firebase to postgres
+Select Database and Functions. Do not overwrite any existing files.
 
-## 6. Setting up the api
-1. Set up letsencrypt
+To deploy database rules and functions to your Firebase project run:
 
-2. Set up nginx
+```
+firebase deploy
+```
 
-3. Set up api
-
-## 3. Configuration
-
-Provide custom configuration and environment file.
+https://firebase.google.com/docs/cli/#install_the_firebase_cli
 
 
-### configuration.json
+## Postgres Setup
 
-Edit following variables in the configuration file (`config/example-configuration.json`) and rename the file to `configuration.json`:
+In the `postgres` directory is an `initdb.sql` file for initializing a Postgres database.
 
-**postgres**:
-- provide username und password for postgres
+When running Postgres using the provided Dockerfile it will setup a Postgres database during the build.
+Then a Postgres user, password and database name has to be defined in an environment file (`.env`) in the same directory as the `docker-compose.yaml` file (root):
 
-**firebase**:
-- provide configurations for your Firebase instance
-- for example:
+```env
+POSTGRES_USER=mapswipe
+POSTGRES_PASSWORD=mapswipe
+POSTGRES_DB=mapswipe
+```
+
+Set custom user and password.
+
+To run the Postgres Docker container:
+
+```
+docker-compose up -d postgres
+```
+
+The Postgres instance will be exposed to `localhost:5432`.
+
+
+## MapSwipe Workers Setup
+
+To run MapSwipe Workers a valid configuration (`config/configuration.json`) and the Firebase Service Account Key (`config/serviceAccountKey.json`) is required (See Firebase Setup section).
+
+Among other variables following are mandatory:
+
+- bing maps url
+- bing maps api key
+- digital globe url
+- digital globe api key
+- sinergise url
+- sinergise api key
+
+
+These variables are optional:
+
+- slack token
+- slack channel
+- slack username
+
+
+### Configuration
+
+Edit the configuration file (`config/example-configuration.json`) and rename it to `configuration.json`.
+
+Example configuration for the Firebase section:
 
 ```json
 "dev_firebase": {
@@ -107,38 +132,73 @@ Edit following variables in the configuration file (`config/example-configuratio
 ```
 
 
-### .env
+### Run MapSwipe Workers
 
-Create an **Environment file** (`.env`) at root of the project (`python-mapswipe-workers/`) with following variables:
-
-```env
-POSTGRES_USER=mapswipe-workers
-POSTGRES_PASSWORD=postgres
-POSTGRES_DB=mapswipe
+```bash
+docker-compose up -d mapswipe_workers
 ```
 
-Set custom user and password.
 
-
-## 4. Installing Mapswipe Workers using Docker
-
-Start the **Docker Daemon**: `systemctl start docker`
-
-Run **Docker Compose**: `docker-compose up -d mapswipe_workers postgres`
-
-Check if your Docker Containers are running: `docker ps`
-
-
-
-## Update Mapswipe Workers
+### Update Mapswipe Workers
 
 How to update Mapswipe Workers:
 
-1. `git pull`: get changes from github
-2. `docker-compose up --build -d mapswipe_workers`
+```
+git pull
+docker-compose up --build -d mapswipe_workers
+```
+
+
+## Project Manager Dashboard
+
+1. Set up letsencrypt
+2. Set up nginx
+    * server config file
+3. Set up api
+
+
+### Lets Encrypt
+
+Install certbot:
+
+```bash
+apt-get install certbot
+```
+
+
+Create certificates:
+
+```bash
+certbot certonly --standalone
+```
+
+
+Enable and start certbot systemd timer for renewal of certificates:
+
+```bash
+systemctl enable certbot.timer
+systemctl start certbot.timer
+# To check if certbot.timer is enabled run:
+systemctl list-units --type timer | grep certbot
+```
+
+
+Add renewal post hook to reload nginx after certificate renwal:
+
+```bash
+mkdir -p /etc/letsencrypt/renewal-hooks/deploy
+cat <<EOM >/etc/letsencrypt/renewal-hooks/deploy/nginx
+#!/usr/bin/env bash
+
+docker container restart nginx
+EOM
+chmod +x /etc/letsencrypt/renewal-hooks/deploy/nginx
+```
 
 
 ## Debugging
+
+Check if your Docker Containers are running: `docker ps`
 
 **Where can I find logs?**
 

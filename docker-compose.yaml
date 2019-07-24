@@ -1,26 +1,21 @@
 version: '3'
 services:
 
-    postgres:
-        container_name: postgres
+    mapswipe_workers:
+        container_name: mapwipe_workers
         build:
-            context: .
-            dockerfile: docker/postgres_Dockerfile
-        environment:
-            POSTGRES_PASSWORD: '${POSTGRES_PASSWORD}'
-            POSTGRES_USER: '${POSTGRES_USER}'
-            POSTGRES_DB: '${POSTGRES_DB}'
-        ports:
-            - '5432:5432'
+            context: mapswipe_workers/
+        command: mapswipe_workers run --schedule h
+        volumes:
+            - /var/lib/mapswipe_workers/api-data/:/var/lib/mapswipe_workers/api-data/:rw
         restart: unless-stopped
         networks:
             - mapswipe_network
 
-    nginx:
-        container_name: nginx
+    project_manager_dashboard:
+        container_name: project_manager_dashboard
         build:
-            context: .
-            dockerfile: docker/nginx_Dockerfile
+            context: project_manager_dashboard/
         volumes:
             - /var/lib/mapswipe_workers/api-data/:/usr/share/nginx/html/mapswipe-api/:ro
             - /etc/letsencrypt/:/etc/letsencrypt/:ro
@@ -31,17 +26,17 @@ services:
         networks:
             - mapswipe_network
 
-    mapswipe_workers:
-        container_name: mapwipe_workers
+    postgres:
+        container_name: postgres
         build:
-            context: .
-            dockerfile: docker/mapswipe_workers_Dockerfile
-        command: mapswipe_workers run --schedule h
-        volumes:
-            - '/var/lib/mapswipe_workers/api-data/:/var/lib/mapswipe_workers/api-data/:rw'
+            context: postgres/
+        environment:
+            POSTGRES_PASSWORD: '${POSTGRES_PASSWORD}'
+            POSTGRES_USER: '${POSTGRES_USER}'
+            POSTGRES_DB: '${POSTGRES_DB}'
+        ports:
+            - '5432:5432'
         restart: unless-stopped
-        depends_on:
-            - postgres
         networks:
             - mapswipe_network
 

@@ -10,10 +10,10 @@ RUN mkdir -p /usr/local/mapswipe-workers/
 
 # copy mapswipe workers repo from local repo
 WORKDIR /usr/local/mapswipe-workers/
-COPY ./mapswipe_workers/ ./mapswipe_workers
-COPY ./requirements.txt ./requirements.txt
-COPY ./setup.py ./setup.py
-COPY ./config/ $XDG_CONFIG_HOME/mapswipe_workers/
+COPY mapswipe_workers/ .
+COPY requirements.txt .
+COPY setup.py .
+COPY config/ $XDG_CONFIG_HOME/mapswipe_workers/
 
 # Install dependencies and mapswipe-workers
 # RUN python setup.py install
