@@ -1,0 +1,65 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "groups": {
+      ".write": false,
+      ".read": true,
+      ".indexOn": [
+        "finishedCount",
+        "requiredCount"
+      ]
+    },
+    "tasks": {
+      ".write": false,
+      ".read": true
+    },
+    "projectDrafts": {
+      ".read": false,
+      ".write": "auth.token.projectManager === true",
+      ".indexOn": [
+        "complete"
+      ]
+    },
+    "projects": {
+      ".write": false,
+      ".read": "auth != null",
+      "$project_id": {
+        "status": {
+          ".write": "auth.token.projectManager === true"
+        }
+      },
+      ".indexOn": [
+        "status"
+      ]
+    },
+    "announcement": {
+      ".write": false,
+      ".read": true
+    },
+    "results": {
+      ".write": false,
+      ".read": false,
+      "$project_id": {
+        "$group_id": {
+          "$uid": {
+            ".write": "$uid === auth.uid"
+          }
+        }
+      }
+    },
+    "users": {
+      "$uid": {
+        ".read": "auth != null && auth.uid == $uid",
+        ".write": "auth != null && auth.uid == $uid"
+      },
+      ".indexOn": [
+        "created"
+      ]
+    },
+    "imports": {
+      ".read": "auth.token.projectManager === true",
+      ".write": "auth.token.projectManager === true"
+    }
+  }
+}
