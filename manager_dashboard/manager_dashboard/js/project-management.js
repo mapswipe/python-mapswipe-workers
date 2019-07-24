@@ -113,10 +113,15 @@ function changeProjectStatus() {
     console.log("current status: active")
     console.log("new status: inactive")
     updateStatus(this.id, "inactive")
+    document.getElementById("deactivated-project-message").classList.add('show')
+    document.getElementById("deactivated-project-name").innerHTML = this.id
+
   } else if (this.classList.contains("status-inactive")) {
     console.log("current status: inactive")
     console.log("new status: active")
     updateStatus(this.id, "active")
+    document.getElementById("activated-project-message").classList.add('show')
+    document.getElementById("activated-project-name").innerHTML = this.id
   }
   updateTableView()
 }
