@@ -1,23 +1,20 @@
 version: '3'
-services:
-
+networks:
+    mapswipe_network:
+        driver: bridge
+        ipam:
+            config: [{subnet: 172.20.0.0/16}]
+    api:
+    manager_dashboard:
     mapswipe_workers:
-        container_name: mapwipe_workers
-        build:
-            context: mapswipe_workers/
-        command: mapswipe_workers run --schedule h
-        volumes:
-            - /var/lib/mapswipe_workers/api-data/:/var/lib/mapswipe_workers/api-data/:rw
-        restart: unless-stopped
-        networks:
-            - mapswipe_network
+    postgres:
 
-    project_manager_dashboard:
-        container_name: project_manager_dashboard
+services:
+    nginx:
+        container_name: nginx
         build:
-            context: project_manager_dashboard/
+            context: nginx/
         volumes:
-            - /var/lib/mapswipe_workers/api-data/:/usr/share/nginx/html/mapswipe-api/:ro
             - /etc/letsencrypt/:/etc/letsencrypt/:ro
         ports:
             - '80:80'
@@ -25,6 +22,39 @@ services:
         restart: unless-stopped
         networks:
             - mapswipe_network
+            - api
+            - mapswipe_workers
+            - manager_dashboard
+            - postgres
+
+    api:
+        container_name: api
+        build:
+            context: api/
+        volumes:
+            - api-data:/usr/share/nginx/html/api/:ro
+        restart: unless-stopped
+        networks:
+            - api
+
+    manager_dashboard:
+        container_name: manager_dashboard
+        build:
+            context: manager_dashboard/
+        restart: unless-stopped
+        networks:
+            - manager_dashboard
+
+    mapswipe_workers:
+        container_name: mapwipe_workers
+        build:
+            context: mapswipe_workers/
+        command: mapswipe_workers run --schedule h
+        volumes:
+            - api-data:/var/lib/mapswipe_workers/api-data/:rw
+        restart: unless-stopped
+        networks:
+            - mapswipe_workers
 
     postgres:
         container_name: postgres
@@ -34,14 +64,8 @@ services:
             POSTGRES_PASSWORD: '${POSTGRES_PASSWORD}'
             POSTGRES_USER: '${POSTGRES_USER}'
             POSTGRES_DB: '${POSTGRES_DB}'
-        ports:
-            - '5432:5432'
+        # ports:
+        #     - '5432:5432'
         restart: unless-stopped
         networks:
-            - mapswipe_network
-
-networks:
-    mapswipe_network:
-        driver: bridge
-        ipam:
-            config: [{subnet: 172.20.0.0/16}]
+            - postgres

@@ -51,6 +51,9 @@ The Firebase setup consists of two parts:
 - Firebase Database Rules (`database.rules.json`)
 - Firebase Functions (`functions/`)
 
+```bash
+docker run node --name node
+```
 To deploy them to the Firebase instance the Firebase CLI is required. Please refer to the official docs on how to install the Firebase CLI ([https://firebase.google.com/docs/cli/](https://firebase.google.com/docs/cli/#install_the_firebase_cli))
 
 After installation of the Firebase CLI change working directory into the `firebase` directory and initialize a Firebase project:
