@@ -9,6 +9,9 @@ networks:
     mapswipe_workers:
     postgres:
 
+volumes:
+  api-data:
+
 services:
     nginx:
         container_name: nginx
@@ -33,6 +36,8 @@ services:
             context: api/
         volumes:
             - api-data:/usr/share/nginx/html/api/:ro
+        expose:
+            - "80"
         restart: unless-stopped
         networks:
             - api
@@ -41,6 +46,8 @@ services:
         container_name: manager_dashboard
         build:
             context: manager_dashboard/
+        expose:
+            - "80"
         restart: unless-stopped
         networks:
             - manager_dashboard
