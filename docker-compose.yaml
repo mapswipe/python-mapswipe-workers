@@ -10,7 +10,8 @@ networks:
     postgres:
 
 volumes:
-  api-data:
+    api-data:
+    letsencrypt:
 
 services:
     nginx:
@@ -18,7 +19,7 @@ services:
         build:
             context: nginx/
         volumes:
-            - /etc/letsencrypt/:/etc/letsencrypt/:ro
+            - letsencrypt:/etc/letsencrypt:/etc/letsencrypt:ro
         ports:
             - '80:80'
             - '443:443'
@@ -29,7 +30,20 @@ services:
             - mapswipe_workers
             - manager_dashboard
             - postgres
-
+    certbot:
+        container_name: certbot
+        image: certbot
+        volumes:
+          - letsencrypt:/etc/letsencrypt:/etc/letsencrypt:rw
+          # - "/var/lib/letsencrypt:/var/lib/letsencrypt" \
+        command: [certbot/dns-google certonly
+        --dns-google \
+                    --domain *.mapswipe.org \
+                    --server https://acme-v02.api.letsencrypt.org/directory \
+                    --agree-tos \
+                    --email herfort@uni-heidelberg.de \
+                    --non-interactive
+                  "
     api:
         container_name: api
         build:
