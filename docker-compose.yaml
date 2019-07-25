@@ -52,7 +52,7 @@ services:
             - manager_dashboard
 
     mapswipe_workers:
-        container_name: mapwipe_workers
+        container_name: mapswipe_workers
         build:
             context: mapswipe_workers/
         command: mapswipe_workers run --schedule h
