@@ -272,4 +272,4 @@ Check if your Docker Containers are running: `docker ps`
 - `docker exec -it mapswipe_workers bash `: open shell in a running container
 - `tail -100 ./logs/mapwipe_workers.log`: show logs of container
 - `docker stats`: show memory usage, CPU consumption for all running containers
-- `docker system prune`: clean up any resources — images, containers, volumes, and networks — that are dangling (not associated with a container)
+- `docker system prune --all`: clean up any resources — images, containers, volumes, and networks — that are dangling (not associated with a container)
