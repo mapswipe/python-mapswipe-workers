@@ -24,98 +24,71 @@
 </head>
 <body>
 
-  <!-- Image and text -->
-  <nav class="navbar navbar-light bg-light">
-    <a class="navbar-brand" href="#">
-      <img src="images/mapswipe_logo_only_256x256.png" width="40" height="40"  alt="">
-      MapSwipe for Project Managers
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <a class="navbar-brand" href="index.html">
+      <img src="images/mapswipe-logo.svg" height="40"  alt="">
     </a>
-    <form class="form-inline">
-      <button class="btn btn-outline-success" id="sign-out" type="button">Log out</button>
-    </form>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav mr-auto">
+        <li class="nav-item active">
+          <a class="nav-link" href="create.html">CREATE PROJECTS</a>
+        </li>
+        <li class="nav-item active">
+          <a class="nav-link" href="manage.html">MANAGE PROJECTS</a>
+        </li>
+        <li class="nav-item active">
+          <a class="nav-link" href="index.html">LOGIN</a>
+        </li>
+      </ul>
+      <form class="form-inline my-2 my-lg-0">
+        <button id="sign-out" class="btn btn-primary" style="display: none">Log Out</button>
+      </form>
+    </div>
   </nav>
 
-
-<div class="section" id="not-signed-in">
-  <div id="firebaseui-auth-container"></div>
-</div>
-
-<div class="section" id="signed-in" style="display: none">
-    <div class="container" >
-
-      <!-- other messages -->
-      <div class="row justify-content-center" id="alerts">
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-        Hello <b><span id="welcome-name">#</span></b>. You don't have the right permissions to add a new project to MapSwipe.
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-        </div>
-      </div>
-
+  <div id="not-signed-in" class="container">
+    <div class="row justify-content-center">
+      <h3>Please <a href="index.html">log in</a> first.</h3>
     </div>
-</div>
+  </div>
 
+  <div class="section" id="not-signed-in">
+    <div id="firebaseui-auth-container"></div>
+  </div>
 
-<div class="section" id="signed-in-manager" style="display: none">
-    <div class="container" >
+  <div class="section" id="signed-in-manager" style="display: none">
+      <div class="container" >
 
-      <!-- other messages -->
-      <div class="row justify-content-center" id="alerts">
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-        Hello <b><span id="welcome-name-manager">#</span></b>. You are a project manager and can activate and deactivate MapSwipe projects. Yeah!
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-        </div>
-        <div class="alert alert-primary alert-dismissible fade show" role="alert">
-        You've been logged out.
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-        </div>
-        <div class="alert alert-warning alert-dismissible fade show" role="alert">
-        Activated project <b><span id="activated-project-name">#</span></b>! It should be already visible in the app.
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-        </div>
-        <div class="alert alert-warning alert-dismissible fade show" role="alert">
-        Deactivated project <b><span id="deactivated-project-name">#</span></b>! Project is not visible any more.
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-        </div>
-      </div>
+        <!-- manage existing projects -->
+        <div class="row justify-content-center" id="project-management" style="display: block">
+          <div class="col-md-12">
+            <h2>Active Projects</h2>
+            <div id="active-projects">
+              <div id="active-projects-table"></div>
+            </div>
+          </div>
+          <div class="col-md-12">
+            <h2>Inactive Projects</h2>
+            <div id="inactive-projects">
 
-      <!-- manage existing projects -->
-      <div class="row justify-content-center" id="project-management" style="display: block">
-        <div class="col-md-12">
-          <h2>Active Projects</h2>
-          <div id="active-projects">
-            <div id="active-projects-table"></div>
+              <div id="inactive-projects-table"></div>
+            </div>
           </div>
         </div>
-        <div class="col-md-12">
-          <h2>Inactive Projects</h2>
-          <div id="inactive-projects">
 
-            <div id="inactive-projects-table"></div>
-          </div>
-        </div>
+
       </div>
-
-
-    </div>
-</div>
+  </div>
 
   <footer class="footer">
     <div class="container" align="center">
       <span class="text-muted">Copyright © 2019 MapSwipe</span>
     </div>
   </footer>
-
-
 
 <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/6.2.4/firebase-app.js"></script>

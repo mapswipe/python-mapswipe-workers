@@ -58,7 +58,6 @@ function clear_all_fields() {
 
 function displaySuccessMessage() {
   document.getElementById("success-message").show();
-
   document.getElementById("import-formular").style.display = "None";
 }
 

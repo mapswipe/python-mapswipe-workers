@@ -24,15 +24,30 @@
 </head>
 <body>
 
-  <!-- Image and text -->
-  <nav class="navbar navbar-light bg-light">
-    <a class="navbar-brand" href="#">
-      <img src="images/mapswipe_logo_only_256x256.png" width="40" height="40"  alt="">
-      MapSwipe for Project Managers
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <a class="navbar-brand" href="index.html">
+      <img src="images/mapswipe-logo.svg" height="40"  alt="">
     </a>
-    <form class="form-inline">
-      <button class="btn btn-outline-success" id="sign-out" type="button">Log out</button>
-    </form>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav mr-auto">
+        <li class="nav-item active">
+          <a class="nav-link" href="create.html">CREATE PROJECTS</a>
+        </li>
+        <li class="nav-item active">
+          <a class="nav-link" href="manage.html">MANAGE PROJECTS</a>
+        </li>
+        <li class="nav-item active">
+          <a class="nav-link" href="index.html">LOGIN</a>
+        </li>
+      </ul>
+      <form class="form-inline my-2 my-lg-0">
+        <button id="sign-out" class="btn btn-primary" style="display: none">Log Out</button>
+      </form>
+    </div>
   </nav>
 
 
@@ -40,38 +55,11 @@
   <div id="firebaseui-auth-container"></div>
 </div>
 
-
 <div class="section" id="signed-in" style="display: none">
     <div class="container" >
-
-      <!-- other messages -->
-      <div class="row justify-content-center" id="alerts">
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-        Hello <b><span id="welcome-name">#</span></b>.
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-        </div>
-        <div class="alert alert-primary alert-dismissible fade show" role="alert">
-        You've been logged out.
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-        </div>
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-        Submitted project! It can take up to an hour for your project to appear.
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-        </div>
-      </div>
-
       <!-- overview -->
       <div class="row justify-content-center" id="project-overview">
-        <div class="col-md-6">
-          <a href="import.html"><button class="btn btn-lg btn-success col-md-12">Import Project</button></a>
-          <a href="manage.html"><button class="btn btn-lg btn-primary col-md-12">Manage Existing Projects</button></a>
-        </div>
+        <h2>You don't have the right credentials to create and manage MapSwipe projects.</h2>
       </div>
 
     </div>
@@ -79,35 +67,8 @@
 
 <div class="section" id="signed-in-manager" style="display: none">
     <div class="container" >
-
-      <!-- other messages -->
-      <div class="row justify-content-center" id="alerts">
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-        Hello <b><span id="welcome-name-manager">#</span></b>.
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-        </div>
-        <div class="alert alert-primary alert-dismissible fade show" role="alert">
-        You've been logged out.
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-        </div>
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-        Submitted project! It can take up to an hour for your project to appear.
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-        </div>
-      </div>
-
-      <!-- overview -->
       <div class="row justify-content-center" id="project-overview">
-        <div class="col-md-6">
-          <a href="import.html"><button class="btn btn-lg btn-success col-md-12">Import Project</button></a>
-          <a href="manage.html"><button class="btn btn-lg btn-primary col-md-12">Manage Existing Projects</button></a>
-        </div>
+        <h2>You can <a href="create.html" class="badge badge-light">create projects</a> or <a href="manage.html" class="badge badge-light">manage existing projects</a>.</h2>
       </div>
 
     </div>
@@ -126,6 +87,7 @@
 <script src="https://www.gstatic.com/firebasejs/6.2.4/firebase-firestore.js"></script>
 <script src="https://www.gstatic.com/firebasejs/6.2.4/firebase-database.js"></script>
 <script src="js/app.js"></script>
+<script src="js/uiConfig.js"></script>
 <script src="js/ui.js"></script>
 
 </body>
