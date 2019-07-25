@@ -4,7 +4,7 @@ FROM thinkwhere/gdal-python
 
 # create directories for config, logs and data
 RUN mkdir -p $XDG_CONFIG_HOME/mapswipe_workers/
-RUN mkdir -p /var/log/
+RUN mkdir -p /var/log/mapswipe_workers/
 RUN mkdir -p /var/lib/mapswipe_workers/
 RUN mkdir -p /usr/local/mapswipe-workers/
 

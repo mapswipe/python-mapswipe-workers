@@ -30,9 +30,7 @@ DATA_PATH = os.path.abspath(
 #         os.path.join(ROOT_DIR, './data/')
 #         )
 
-LOGGING_CONFIG_PATH = os.path.abspath(
-        os.path.join(ROOT_DIR, 'logging.cfg')
-        )
+LOGGING_CONFIG_PATH = os.path.join(ROOT_DIR, 'logging.cfg')
 logging.config.fileConfig(
         fname=LOGGING_CONFIG_PATH,
         disable_existing_loggers=True

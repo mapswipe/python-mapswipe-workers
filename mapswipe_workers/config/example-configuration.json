@@ -3,7 +3,7 @@
         "database": "your_mapswipe_database",
         "username": "your_mapswipe_db_username",
         "password": "your_mapswipe_db_password",
-        "host": "localhost",
+        "host": "postgres",
         "port": "5432"
     },
     "firebase": {
