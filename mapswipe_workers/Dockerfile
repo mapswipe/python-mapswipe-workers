@@ -13,7 +13,7 @@ WORKDIR /usr/local/mapswipe-workers/
 COPY mapswipe_workers/ .
 COPY requirements.txt .
 COPY setup.py .
-COPY config/ $XDG_CONFIG_HOME/mapswipe_workers/
+COPY config/* $XDG_CONFIG_HOME/mapswipe_workers/
 
 # Install dependencies and mapswipe-workers
 # RUN python setup.py install
