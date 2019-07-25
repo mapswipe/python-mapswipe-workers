@@ -152,15 +152,7 @@ docker-compose up --build -d mapswipe_workers
 ```
 
 
-## Project Manager Dashboard
-
-1. Set up letsencrypt
-2. Set up nginx
-    * server config file
-3. Set up api
-
-
-### Lets Encrypt
+## Lets Encrypt
 
 Install certbot:
 
@@ -172,7 +164,13 @@ apt-get install certbot
 Create certificates:
 
 ```bash
-certbot certonly --standalone
+certbot certonly \
+    --standalone \
+    --domain dev-api.mapswipe.org \
+    --domain dev-managers.mapswipe.org \
+    --agree-tos \
+    --email herfort@uni-heidelberg.de \
+    --non-interactive
 ```
 
 
@@ -196,6 +194,53 @@ cat <<EOM >/etc/letsencrypt/renewal-hooks/deploy/nginx
 docker container restart nginx
 EOM
 chmod +x /etc/letsencrypt/renewal-hooks/deploy/nginx
+```
+
+<!--
+Using the certbot plugin dnf-google:
+
+```bash
+sudo apt install python3-certbot-dns-google
+certbot certonly \
+    --dns-google \
+    --dns-google-credentials certbot.json \
+    --server https://acme-v02.api.letsencrypt.org/directory \
+    --domain *.mapswipe.org \
+    --agree-tos \
+    --email herfort@uni-heidelberg.de
+    --non-interactive
+```
+
+
+Dockerize it:
+
+```bash
+sudo docker run -it --rm --name certbot \
+            -v "/etc/letsencrypt:/etc/letsencrypt" \
+            -v "/var/lib/letsencrypt:/var/lib/letsencrypt" \
+            certbot/dns-google certonly \
+            --dns-google \
+            --dns-google-credentials ~/.secrets/certbot/google.json \
+            --domain *.mapswipe.org \
+            --server https://acme-v02.api.letsencrypt.org/directory \
+            --agree-tos \
+            --email herfort@uni-heidelberg.de \
+            --non-interactive
+```
+-->
+
+
+## Manager Dashboard
+
+```
+docker-compose up -d manager_dashboard
+```
+
+
+## API
+
+```
+docker-compose up -d api
 ```
 
 
