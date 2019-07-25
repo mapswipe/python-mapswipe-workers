@@ -19,7 +19,7 @@ services:
         build:
             context: nginx/
         volumes:
-            - /etc/letsencrypt:/etc/letsencrypt:ro
+            - /etc/letsencrypt/:/etc/letsencrypt/:ro
         ports:
             - '80:80'
             - '443:443'
