@@ -95,7 +95,7 @@ To run the Postgres Docker container:
 docker-compose up -d postgres
 ```
 
-The Postgres instance will be exposed to `localhost:5432`.
+The Postgres instance will be exposed to `postgres:5432` (postgres Docker network)
 
 
 ## MapSwipe Workers Setup
