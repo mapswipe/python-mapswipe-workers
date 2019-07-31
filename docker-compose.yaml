@@ -9,10 +9,6 @@ networks:
     mapswipe_workers:
     postgres:
 
-volumes:
-    api-data:
-    letsencrypt:
-
 services:
     nginx:
         container_name: nginx
@@ -20,10 +16,10 @@ services:
             context: nginx/
         volumes:
             - /etc/letsencrypt/:/etc/letsencrypt/:ro
+        restart: unless-stopped
         ports:
             - '80:80'
             - '443:443'
-        restart: unless-stopped
         networks:
             - mapswipe_network
             - api
@@ -34,10 +30,10 @@ services:
         build:
             context: api/
         volumes:
-            - api-data:/usr/share/nginx/html/api/:ro
+            - ./api-data:/usr/share/nginx/html/api/:ro
+        restart: unless-stopped
         expose:
             - "80"
-        restart: unless-stopped
         networks:
             - api
 
@@ -45,9 +41,9 @@ services:
         container_name: manager_dashboard
         build:
             context: manager_dashboard/
+        restart: unless-stopped
         expose:
             - "80"
-        restart: unless-stopped
         networks:
             - manager_dashboard
 
@@ -59,7 +55,7 @@ services:
             - postgres
         command: mapswipe_workers --verbose run --schedule h
         volumes:
-            - api-data:/var/lib/mapswipe_workers/api-data/:rw
+            - ./api-data:/var/lib/mapswipe_workers/api-data/:rw
         restart: unless-stopped
         networks:
             - mapswipe_workers
@@ -73,8 +69,10 @@ services:
             POSTGRES_PASSWORD: '${POSTGRES_PASSWORD}'
             POSTGRES_USER: '${POSTGRES_USER}'
             POSTGRES_DB: '${POSTGRES_DB}'
+        volumes:
+            - ./postgres-data:/var/lib/postgresql/data
+        restart: unless-stopped
         expose:
             - "5432"
-        restart: unless-stopped
         networks:
             - postgres
