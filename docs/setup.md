@@ -2,12 +2,14 @@
 
 This document describes how to setup all the parts of the MapSwipe back-end.
 
-1. Firebase Setup
-2. Postgres Setup
-3. MapSwipe Workers Setup
+1. Firebase
+[2](2.md). Postgres
+3. MapSwipe Workers
+4. API
+5. Manager Dashboar
 
 
-For all those setups our main repository is requiered:
+For all those setups our main repository is required:
 
 ```bash
 git clone https://github.com/mapswipe/python-mapswipe-workers.git
@@ -15,63 +17,53 @@ cd python-mapswipe-workers
 ```
 
 
-To run Mapswipe Workers you need to:
-
-1. Clone the repository
-2. Setup a [Firebase Project](https://firebase.google.com/)
-3. Provide custom configurations
-4. Use [Docker](https://www.docker.com/) to run Mapswipe Workers
-
-
 ## Firebase Setup
 
-### Credentials
-
+<!--
+Credentials
 * firebase project id
 * firebase web api key
 * firebase admin sdk service account file
 * firebase database rules json file
+-->
+
+First a Firebase Project and Database has to be created.
+
+1. Login to [Firebase](https://firebase.google.com/)
+2. Add a project
+3. Create a database: `> Develop > Database > Create Database`
 
 
-### 2. Setting up a Firebase Project
-
-You have to manually set up your firebase instance at very first. Start with creating your [**Firebase Project**](https://firebase.google.com/) and follow these steps:
-1. Login
-2. Add project
-3. Create Database: `> Develop > Database > Create Database`
-4. Get **Web API Key**: `> Settings > Project settings > General`. Add the web api key to the `.env` file.
-5. Download **Service Account Key**: `> Settings > Project settings > Service accounts > Firebase Admin SDK > Generate new private key`. Rename the downloaded json file to `serviceAccountKey.json` and move it to `mapswipe_workers/config/`
-
-
-
-### Deployment of Database Rules and Fuctions
+### Deploy Database Rules and Functions
 
 The Firebase setup consists of two parts:
 
-- Firebase Database Rules (`database.rules.json`)
-- Firebase Functions (`functions/`)
+- Firebase Database Rules (`firebase/database.rules.json`)
+- Firebase Functions (`firbase/functions/`)
 
-```bash
-docker run node --name node
-```
-To deploy them to the Firebase instance the Firebase CLI is required. Please refer to the official docs on how to install the Firebase CLI ([https://firebase.google.com/docs/cli/](https://firebase.google.com/docs/cli/#install_the_firebase_cli))
+To deploy them to the Firebase Project the Firebase Command Line Tools are requiered. They are preinstalled in the provided Docker image (`firebase/Dockerfile`). When running this image the database riles and the functions will be deployed. For this to work a Firebase Token is needed:
 
-After installation of the Firebase CLI change working directory into the `firebase` directory and initialize a Firebase project:
+1. On a PC with a browser install the Firebase Command Line Tools ([https://firebase.google.com/docs/cli/](https://firebase.google.com/docs/cli/#install_the_firebase_cli))
+2. Run `firebase login:ci` to generate a Firebase Token.
+3. Save the Firebase Token to `.env` at the root of the cloned MapSwipe Backend repository on the server: `echo "FIREBASE_TOKEN=your_token" >> .env`
 
-```
-cd firebase
-firebase init
-```
-
-Select Database and Functions. Do not overwrite any existing files.
-
-To deploy database rules and functions to your Firebase project run:
+Once the Firebase Token is set the database rules and functions will be deployed when running the `firebase_deploy` docker image using `docker-compose`:
 
 ```
-firebase deploy
+docker-compose up --build -d firebase_deploy
 ```
 
-https://firebase.google.com/docs/cli/#install_the_firebase_cli
+This container needs to run only as long until the `firebase deploy` command inside the Docker container terminates. Use `docker logs firebase_deploy` to find out if the command is still running.
+
+For more information about the Firebase Command Line Tools visit:[https://firebase.google.com/docs/cli/](https://firebase.google.com/docs/cli/#install_the_firebase_cli)
+
+
+### Update Database Rules and Functions
+
+```
+git pull
+docker-compose up --build -d firebase_deploy
+```
 
 
 ## Postgres Setup
@@ -79,15 +71,13 @@ https://firebase.google.com/docs/cli/#install_the_firebase_cli
 In the `postgres` directory is an `initdb.sql` file for initializing a Postgres database.
 
 When running Postgres using the provided Dockerfile it will setup a Postgres database during the build.
-Then a Postgres user, password and database name has to be defined in an environment file (`.env`) in the same directory as the `docker-compose.yaml` file (root):
+A Postgres user, password and database name has to be defined in an environment file (`.env`) in the same directory as the `docker-compose.yaml` file (root). E.g:
 
 ```env
 POSTGRES_USER=mapswipe
 POSTGRES_PASSWORD=mapswipe
 POSTGRES_DB=mapswipe
 ```
-
-Set custom user and password.
 
 To run the Postgres Docker container:
 
@@ -98,25 +88,16 @@ docker-compose up -d postgres
 The Postgres instance will be exposed to `postgres:5432` (postgres Docker network)
 
 
+### Backup
+
+To backup the Postgres MapSwipe database use the `backup.sh` script inside the `./postgres` directory. It will execute a command (`pgdump`) inside the Postgres Docker container and store the backup locally (outside the Docker container).
+
+To restore the backup use the `restore.sh` script inside the `./postgres` directory.
+
+
 ## MapSwipe Workers Setup
 
-To run MapSwipe Workers a valid configuration (`config/configuration.json`) and the Firebase Service Account Key (`config/serviceAccountKey.json`) is required (See Firebase Setup section).
-
-Among other variables following are mandatory:
-
-- bing maps url
-- bing maps api key
-- digital globe url
-- digital globe api key
-- sinergise url
-- sinergise api key
-
-
-These variables are optional:
-
-- slack token
-- slack channel
-- slack username
+To run MapSwipe Workers a valid configuration (`config/configuration.json`) and the Firebase Service Account Key (`config/serviceAccountKey.json`) is required.
 
 
 ### Configuration
@@ -127,12 +108,36 @@ Example configuration for the Firebase section:
 
 ```json
 "dev_firebase": {
-  "api_key": "TBaSDnrFaJEWgVaslf-vpt5dg53fAjfdsV-1uaig",
+  "api_key": "TAaasnrFaJEWgVas-vpt5dg43fAjfdsV-1uaig",
   "auth_domain": "dev-mapswipe.firebaseapp.com",
   "database_url": "https://dev-mapswipe.firebaseio.com",
   "storage_bucket": "dev-mapswipe.appspot.com"
 }
 ```
+
+Among other variables in the configuration file following are mandatory:
+
+- bing maps url
+- bing maps api key
+- digital globe url
+- digital globe api key
+- sinergise url
+- sinergise api key
+
+These variables are optional:
+
+- slack token
+- slack channel
+- slack username
+
+
+###  Firebase Service Account Key
+
+To authorize MapSwipe Workers to access Firebase services, you must generate a Firerbase Service Account Key in JSON format:
+
+1. In the Firebase console, open Settings > Service Accounts.
+2. Click Generate New Private Key
+3. Store the JSON file under `config/serviceAccountKey.json`
 
 
 ### Run MapSwipe Workers
@@ -154,6 +159,8 @@ docker-compose up --build -d mapswipe_workers
 
 ## Lets Encrypt
 
+To enable SSL for the API and MapSwipe Manager Dashboard use Certbot to issue standalone certificates.
+
 Install certbot:
 
 ```bash
@@ -169,12 +176,12 @@ certbot certonly \
     --domain dev-api.mapswipe.org \
     --domain dev-managers.mapswipe.org \
     --agree-tos \
-    --email herfort@uni-heidelberg.de \
+    --email e@mail.org \
     --non-interactive
 ```
 
 
-Enable and start certbot systemd timer for renewal of certificates:
+Enable and start Certbot systemd timer for renewal of certificates:
 
 ```bash
 systemctl enable certbot.timer
@@ -188,11 +195,13 @@ Add renewal post hook to reload nginx after certificate renwal:
 
 ```bash
 mkdir -p /etc/letsencrypt/renewal-hooks/deploy
+
 cat <<EOM >/etc/letsencrypt/renewal-hooks/deploy/nginx
 #!/usr/bin/env bash
 
 docker container restart nginx
 EOM
+
 chmod +x /etc/letsencrypt/renewal-hooks/deploy/nginx
 ```
 
@@ -232,12 +241,16 @@ sudo docker run -it --rm --name certbot \
 
 ## Manager Dashboard
 
+Get **Web API Key**: `> Settings > Project settings > General`. Add the web api key to the `.env` file.
+
 ```
 docker-compose up -d manager_dashboard
 ```
 
 
 ## API
+
+Currently the API is a simple Nginx server which serves static files. Those files are generated by MapSwipe Workers and shared over a Docker volume with the API Container.
 
 ```
 docker-compose up -d api
@@ -246,30 +259,26 @@ docker-compose up -d api
 
 ## Debugging
 
-Check if your Docker Containers are running: `docker ps`
+### Logs - MapSwipe Workers
 
-**Where can I find logs?**
+Where can I find logs?
 
-- Logs are written to directly to console and are written to `/var/log/mapswipe_workers.log`
-    - take a look at those for logs of already running containers
-- To view logs using docker: `docker logs container_name` (eg. `docker logs import`):
-    - take a look at those if your container is not running
+Logs are written to directly to console and also to `/var/log/mapswipe_workers.log`:
 
-**ERROR: for postgres during docker-compose:**
-
-- ERROR: for postgres  `Cannot start service postgres: driver failed programming external connectivity on endpoint postgres`
-- Probably a postgres instance is already running on Port 5432
-- SOLUTION: Change postgres port in your docker-compose file  (`docker-compose.yaml`)
-    - docker-compose.yaml: services > postgres > ports: Change `"5432:5432"` to `"5433:5432"`
-
-**Docker containers are always restarting:** Take a look at the docker logs (eg. `docker logs import`). If you get an `Unable to load configuration file at ./cfg/config.cfg. Exiting.` due to `PermissionError: [Errno 13] Permission denied: './cfg/config.cfg'` error message, you probably have SELinux on your system enabled. If so you have to configure (change mount option of volumes) your docker-compose file. Please read the documentation provided by Docker regarding this configuration (https://docs.docker.com/storage/bind-mounts/ Chapter: "Configure the selinux label").
+- `docker exec -t mapswipe_workers cat /var/log/mapswipe_workers/mapswipe_workers.log` (if container is running)
+- `docker logs container_name` (also if container is not running)
 
 
-### Usefull Docker Commands
+### Common Errors
+
+*Docker containers are always restarting:* Take a look at the docker logs (eg. `docker logs container_name`). If you get an `Unable to load configuration file at ./cfg/config.cfg. Exiting.` due to `PermissionError: [Errno 13] Permission denied: './config/configuration.cfg'` error message, you probably have SELinux on your system enabled. If so you have to configure (change mount option of volumes) your docker-compose file. Please read the documentation provided by Docker regarding this configuration (https://docs.docker.com/storage/bind-mounts/ Chapter: "Configure the selinux label").
+
+
+### Useful Docker Commands
 
 - `docker ps -a`: list all containers and check status
 - `docker image ls`: list all docker images
 - `docker exec -it mapswipe_workers bash `: open shell in a running container
-- `tail -100 ./logs/mapwipe_workers.log`: show logs of container
+- `docker exec -t mapswipe_workers tail -100 /var/log/mapswipe_workers/mapwipe_workers.log`: show last 100 lines of the log file
 - `docker stats`: show memory usage, CPU consumption for all running containers
 - `docker system prune --all`: clean up any resources — images, containers, volumes, and networks — that are dangling (not associated with a container)
