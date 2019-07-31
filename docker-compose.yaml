@@ -76,3 +76,12 @@ services:
             - "5432"
         networks:
             - postgres
+
+    firebase_deploy:
+        container_name: firebase_deploy
+        build:
+            context: firebase/
+        command: firebase deploy --only functions --only database:rules
+        volumes:
+            - ./firebase:/firebase
+        restart: unless-stopped
