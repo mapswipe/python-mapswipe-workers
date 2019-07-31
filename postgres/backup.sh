@@ -1,3 +1,3 @@
 #!/bin/bash
 
-pg_dump -U mapswipe -d mapswipe -h localhost -p 5432 | gzip | split -b 100m - mapswipe.pgsql.gz
+docker exec -t postgres pg_dump -U mapswipe-workers -d mapswipe | gzip | split -b 100m - mapswipe.sql.gz
