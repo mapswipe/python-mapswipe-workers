@@ -35,8 +35,8 @@
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Data Model" href="data_model.html" />
-    <link rel="prev" title="Introduction" href="introduction.html" /> 
+    <link rel="next" title="Debugging" href="debugging.html" />
+    <link rel="prev" title="Overview" href="readme_link.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -82,9 +82,8 @@
             
               <p class="caption"><span class="caption-text">Getting Started:</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="readme_link.html">Readme File</a></li>
-<li class="toctree-l1"><a class="reference internal" href="readme_link.html#python-mapswipe-workers-documentation">Python MapSwipe Workers Documentation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="readme_link.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="readme_link.html#mapswipe-back-end">MapSwipe Back-End</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Setup</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#firebase-setup">Firebase Setup</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#deploy-database-rules-and-functions">Deploy Database Rules and Functions</a></li>
@@ -105,21 +104,13 @@
 <li class="toctree-l2"><a class="reference internal" href="#lets-encrypt">Lets Encrypt</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#manager-dashboard">Manager Dashboard</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#api">API</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#debugging">Debugging</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#logs-mapswipe-workers">Logs - MapSwipe Workers</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#common-errors">Common Errors</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#useful-docker-commands">Useful Docker Commands</a></li>
 </ul>
 </li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="data_model.html">Data Model</a></li>
-<li class="toctree-l1"><a class="reference internal" href="use_cases.html">Use Cases</a></li>
+<li class="toctree-l1"><a class="reference internal" href="debugging.html">Debugging</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Using:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="processes.html">Processes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="api.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cli.html">MapSwipe Workers - Command Line Interface</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Project Types:</span></p>
 <ul>
@@ -130,8 +121,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="diagrams.html">Diagrams</a></li>
-<li class="toctree-l1"><a class="reference internal" href="project_type-proposal.html">Proposal for a new project type</a></li>
-<li class="toctree-l1"><a class="reference internal" href="project_type-enable.html">Enable new project types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="use_cases.html">Use Cases</a></li>
 </ul>
 
             
@@ -410,33 +400,6 @@ sudo docker run -it --rm --name certbot \
 </pre></div>
 </div>
 </div>
-<div class="section" id="debugging">
-<h2>Debugging<a class="headerlink" href="#debugging" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="logs-mapswipe-workers">
-<h3>Logs - MapSwipe Workers<a class="headerlink" href="#logs-mapswipe-workers" title="Permalink to this headline">¶</a></h3>
-<p>Where can I find logs?</p>
-<p>Logs are written to directly to console and also to <code class="docutils literal notranslate"><span class="pre">/var/log/mapswipe_workers.log</span></code>:</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">docker</span> <span class="pre">exec</span> <span class="pre">-t</span> <span class="pre">mapswipe_workers</span> <span class="pre">cat</span> <span class="pre">/var/log/mapswipe_workers/mapswipe_workers.log</span></code> (if container is running)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">docker</span> <span class="pre">logs</span> <span class="pre">container_name</span></code> (also if container is not running)</p></li>
-</ul>
-</div>
-<div class="section" id="common-errors">
-<h3>Common Errors<a class="headerlink" href="#common-errors" title="Permalink to this headline">¶</a></h3>
-<p><em>Docker containers are always restarting:</em> Take a look at the docker logs (eg. <code class="docutils literal notranslate"><span class="pre">docker</span> <span class="pre">logs</span> <span class="pre">container_name</span></code>). If you get an <code class="docutils literal notranslate"><span class="pre">Unable</span> <span class="pre">to</span> <span class="pre">load</span> <span class="pre">configuration</span> <span class="pre">file</span> <span class="pre">at</span> <span class="pre">./cfg/config.cfg.</span> <span class="pre">Exiting.</span></code> due to <code class="docutils literal notranslate"><span class="pre">PermissionError:</span> <span class="pre">[Errno</span> <span class="pre">13]</span> <span class="pre">Permission</span> <span class="pre">denied:</span> <span class="pre">'./config/configuration.cfg'</span></code> error message, you probably have SELinux on your system enabled. If so you have to configure (change mount option of volumes) your docker-compose file. Please read the documentation provided by Docker regarding this configuration (<a class="reference external" href="https://docs.docker.com/storage/bind-mounts/">https://docs.docker.com/storage/bind-mounts/</a> Chapter: “Configure the selinux label”).</p>
-</div>
-<div class="section" id="useful-docker-commands">
-<h3>Useful Docker Commands<a class="headerlink" href="#useful-docker-commands" title="Permalink to this headline">¶</a></h3>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">docker</span> <span class="pre">ps</span> <span class="pre">-a</span></code>: list all containers and check status</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">docker</span> <span class="pre">image</span> <span class="pre">ls</span></code>: list all docker images</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">docker</span> <span class="pre">exec</span> <span class="pre">-it</span> <span class="pre">mapswipe_workers</span> <span class="pre">bash</span></code>: open shell in a running container</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">docker</span> <span class="pre">exec</span> <span class="pre">-t</span> <span class="pre">mapswipe_workers</span> <span class="pre">tail</span> <span class="pre">-100</span> <span class="pre">/var/log/mapswipe_workers/mapwipe_workers.log</span></code>: show last 100 lines of the log file</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">docker</span> <span class="pre">stats</span></code>: show memory usage, CPU consumption for all running containers</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">docker</span> <span class="pre">system</span> <span class="pre">prune</span> <span class="pre">--all</span></code>: clean up any resources — images, containers, volumes, and networks — that are dangling (not associated with a container)</p></li>
-</ul>
-</div>
-</div>
 </div>
 
 
@@ -447,10 +410,10 @@ sudo docker run -it --rm --name certbot \
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="data_model.html" class="btn btn-neutral float-right" title="Data Model" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="debugging.html" class="btn btn-neutral float-right" title="Debugging" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="introduction.html" class="btn btn-neutral float-left" title="Introduction" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="readme_link.html" class="btn btn-neutral float-left" title="Overview" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

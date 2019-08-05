@@ -1,6 +1,9 @@
-## Use Cases
+# Use Cases
 
-### How to identify "good" mapping tasks for MapSwipe
+This document is based on the first version of MapSwipe and contains outdated information.
+
+
+## How to identify "good" mapping tasks for MapSwipe
 
 MapSwipe projects can cover large areas in comparison to other mapping approaches, e.g. using the HOT Tasking Manager. Nevertheless, the level of detail of the resulting information you can expect from the resulting data will be lower than using the data from OpenStreetMap.
 
@@ -12,7 +15,7 @@ Here is a list of characteristics that apply to many projects we have in MapSwip
 * the features you want to map cover only some parts of the whole area (e.g. the built-up area is often less than 10% of the whole project area)
 
 
-### Building Mapping
+## Building Mapping
 
 This has been the focus for most MapSwipe projects. Buildings are relatively easy to spot, since their shape is familiar to most MapSwipe users. However, not all buildings look the same. Some have a rectangular shape, but others are round or build of clay, which makes it difficult to distinguish buildings and the ground. Sometimes also trees may look like a building.
 
@@ -21,14 +24,14 @@ Building mapping can be done at zoom level 18 or higher.
 <img src="/_static/img/building_example1.JPG" alt="building_example1" width="250px"><img src="/_static/img/building_example2.JPG" alt="building_example2" width="250px"><img src="/_static/img/building_example3.JPG" alt="building_example3" width="250px">
 
 
-### Landcover Mapping - e.g. Mangroves
+## Landcover Mapping - e.g. Mangroves
 
 MapSwipe can be used to map other land cover classes or features besides buildings. We are currently exploring, how the MapSwipe approach could be used to map mangrove forests in southeas asia. The difficult aspect of this tasks is to differentiated mangrove forest and other vegetation types, such as grassland or land used for agriculture.
 
 Landcover mapping can be done at various zoom levels depending of the size of the features of interest. For forest mapping you may choose a lower zoom level, whereas more fine grained features also require a higher zoom level.
 
 
-### OpenStreetMap Data Validation
+## OpenStreetMap Data Validation
 
 In the initial phase data from MapSwipe can support the detailed mapping in OpenStreetMap. However, we can also turn MapSwipe into an OSM data validation tool. By combining satellite imagery and OSM data into one image we can check the completeness and quality of existing data in OSM.
 
