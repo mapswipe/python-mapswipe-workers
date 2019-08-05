@@ -3,7 +3,7 @@
 This document describes how to setup all the parts of the MapSwipe back-end.
 
 1. Firebase
-[2](2.md). Postgres
+2. Postgres
 3. MapSwipe Workers
 4. API
 5. Manager Dashboar
