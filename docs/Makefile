@@ -5,7 +5,7 @@
 SPHINXOPTS    =
 SPHINXBUILD   = sphinx-build
 SPHINXPROJ    = MapswipeWorkers
-SOURCEDIR     = .
+SOURCEDIR     = ../mapswipe_workers/
 BUILDDIR      = _build
 
 # Put it first so that "make" without argument is like "make help".
