@@ -26,7 +26,7 @@ In this document some tips and workflows for development are loosely collected. 
 
 Mapsipe Workers needs access to three directories:
 
-- CONFIG_PATH (`{XDG_CONFIG_HOME}/mapswipe_workers/`)
+- CONFIG_PATH (`/usr/share/config/mapswipe_workers/`)
 - DATA_PATH (`/var/lib/mapswipe_workers/`)
 - LOG_PATH (`/var/log/mapswipe_workers/`)
 

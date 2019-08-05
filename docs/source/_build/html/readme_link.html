@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Readme File &mdash; MapSwipe Back-End  documentation</title>
+  <title>Overview &mdash; MapSwipe Back-End  documentation</title>
   
 
   
@@ -35,7 +35,7 @@
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Introduction" href="introduction.html" />
+    <link rel="next" title="Setup" href="setup.html" />
     <link rel="prev" title="Welcome to MapSwipe Back-End’s documentation!" href="index.html" /> 
 </head>
 
@@ -82,24 +82,19 @@
             
               <p class="caption"><span class="caption-text">Getting Started:</span></p>
 <ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Readme File</a></li>
-<li class="toctree-l1"><a class="reference internal" href="#python-mapswipe-workers-documentation">Python MapSwipe Workers Documentation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#getting-started">Getting Started</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#project-types">Project Types</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#mapswipe-back-end">MapSwipe Back-End</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#license">License</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#authors">Authors</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#acknowledgements">Acknowledgements</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="setup.html">Setup</a></li>
-<li class="toctree-l1"><a class="reference internal" href="data_model.html">Data Model</a></li>
-<li class="toctree-l1"><a class="reference internal" href="use_cases.html">Use Cases</a></li>
+<li class="toctree-l1"><a class="reference internal" href="debugging.html">Debugging</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Using:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="processes.html">Processes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="api.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cli.html">MapSwipe Workers - Command Line Interface</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Project Types:</span></p>
 <ul>
@@ -110,8 +105,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
 <li class="toctree-l1"><a class="reference internal" href="diagrams.html">Diagrams</a></li>
-<li class="toctree-l1"><a class="reference internal" href="project_type-proposal.html">Proposal for a new project type</a></li>
-<li class="toctree-l1"><a class="reference internal" href="project_type-enable.html">Enable new project types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="use_cases.html">Use Cases</a></li>
 </ul>
 
             
@@ -157,7 +151,7 @@
     
       <li><a href="index.html">Docs</a> &raquo;</li>
         
-      <li>Readme File</li>
+      <li>Overview</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -176,50 +170,43 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="readme-file">
-<h1>Readme File<a class="headerlink" href="#readme-file" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="overview">
+<h1>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h1>
 </div>
-<div class="section" id="python-mapswipe-workers-documentation">
-<h1>Python MapSwipe Workers Documentation<a class="headerlink" href="#python-mapswipe-workers-documentation" title="Permalink to this headline">¶</a></h1>
-<p><a class="reference external" href="http://mapswipe.org/">MapSwipe</a> is a mobile app that lets you search satellite imagery to help put the world’s most vulnerable people on the map. This repository handles everything related to the backend processing of the app. If you are new to MapSwipe it might be good to have a look at the <a class="reference external" href="http://mapswipe.org/faq.html">FAQs</a> first.</p>
-<div class="section" id="getting-started">
-<h2>Getting Started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h2>
-<p>To get started you need access to a <strong>Firebase</strong> instance. You can create your own instance as described <a class="reference external" href="https://firebase.google.com/docs/database/">here</a>. To create your own running version of the MapSwipe backend you can use the <strong>Docker</strong> setup we provide. Currently the backend uses Firebase, Postgresql and Nginx.</p>
-<p>The MapSwipe Backend consists of several parts:</p>
+<div class="section" id="mapswipe-back-end">
+<h1>MapSwipe Back-End<a class="headerlink" href="#mapswipe-back-end" title="Permalink to this headline">¶</a></h1>
+<p><a class="reference external" href="http://mapswipe.org/">MapSwipe</a> is a mobile app that lets you search satellite imagery to help put the world’s most vulnerable people on the map. If you are new to MapSwipe it might be good to have a look at the <a class="reference external" href="http://mapswipe.org/faq.html">FAQs</a> first.</p>
+<p>The MapSwipe Back-End consists of a number of components:</p>
+<ol class="arabic simple">
+<li><p>Firebase Project</p>
 <ul class="simple">
-<li><p><strong>firebase</strong>: These functions perform updates in the firebase database once new results will be submitted by app users. For instance, user statistics get updated by firebase functions everytime a users uploads new results to firebase.</p></li>
-<li><p><strong>postgres</strong>: A database to store all mapswipe data and to provide an interface for the api.</p></li>
-<li><p><strong>python-workers</strong>: The python-workers have two tasks. They create new projects from the project drafts that have been submitted by project managers through a web interface. Secondly, they transfer data from firebase to a postgresql database for long term storage.</p></li>
-<li><p><strong>api</strong>: The api serves the data generated by mapswipe users and statistics. For instance, for each project individual contributions will be aggregated to provide the majority vote for each task.</p></li>
+<li><p>Firebase Realtime Database</p></li>
+<li><p>Firebase Functions: These functions perform updates on data such as the progress of projects in the Firebase Database once new results will be submitted by app users.</p></li>
 </ul>
-<p>We created a detailed documentation for this project and each sub-unit at <a class="reference external" href="https://mapswipe-workers.readthedocs.io/en/dev/">Read the Docs</a>. There you can also find instructions how to set things up yourself.</p>
-</div>
-<div class="section" id="project-types">
-<h2>Project Types<a class="headerlink" href="#project-types" title="Permalink to this headline">¶</a></h2>
-<p>The MapSwipe backend workers currently support the following project types:</p>
-<table class="docutils align-default">
-<colgroup>
-<col style="width: 25%" />
-<col style="width: 25%" />
-<col style="width: 25%" />
-<col style="width: 25%" />
-</colgroup>
-<thead>
-<tr class="row-odd"><th class="head"><p>Name</p></th>
-<th class="head"><p>ID</p></th>
-<th class="head"><p>Description</p></th>
-<th class="head"><p>Screenshot</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p>BuildArea</p></td>
-<td><p>1</p></td>
-<td><p>A 6 squares layout is used for this project type. By tapping you can classify a tile of satellite imagery as <em>yes</em>, <em>maybe</em> or <em>bad_imagery</em>. Project managers can define which objects to look for, e.g. “buildings”. Furthermore, they can specify the tile server of the background satellite imagery, e.g. “bing” or a custom tileserver.</p></td>
-<td><p><span class="raw-html-m2r"><img src="docs/_static/img/BuildArea_screenshot.png" width="250px"></span></p></td>
-</tr>
-</tbody>
-</table>
-</div>
+</li>
+<li><p>MapSwipe Workers</p>
+<ul class="simple">
+<li><p>The MapSwipe Workers create new projects from the project drafts submitted by project managers.</p></li>
+<li><p>The MapSwipe Workers transfer data from Firebase Database to a Postgres database for long term storage.</p></li>
+</ul>
+</li>
+<li><p>Postgres Database</p>
+<ul class="simple">
+<li><p>A database to store all data generated by MapSwipe. Used by the MapSwipe Workers.</p></li>
+</ul>
+</li>
+<li><p>Manager Dashboard</p></li>
+<li><p>API</p></li>
+</ol>
+<p>Pleas see also:</p>
+<ul class="simple">
+<li><p>Documentation of the MapSwipe Backe-End: <a class="reference external" href="https://mapswipe-workers.readthedocs.io">https://mapswipe-workers.readthedocs.io</a></p></li>
+<li><p>GitHub repository of the MapSwipe Back-End: <a class="reference external" href="https://github.com/mapswipe/python-mapswipe-workers">https://github.com/mapswipe/python-mapswipe-workers</a></p></li>
+<li><p>GitHub repository of the MapSwipe Website: <a class="reference external" href="https://github.com/mapswipe/mapswipe.github.io">https://github.com/mapswipe/mapswipe.github.io</a></p></li>
+<li><p>GitHub repository of the MapSwipe App <a class="reference external" href="https://github.com/mapswipe/mapswipe">https://github.com/mapswipe/mapswipe</a></p></li>
+<li><p>Website of MapSwipe: <a class="reference external" href="https://mapswipe.org">https://mapswipe.org</a></p></li>
+<li><p>OSM-Wiki page of MapSwipe: <a class="reference external" href="https://wiki.openstreetmap.org/wiki/MapSwipe">https://wiki.openstreetmap.org/wiki/MapSwipe</a></p></li>
+</ul>
 <div class="section" id="license">
 <h2>License<a class="headerlink" href="#license" title="Permalink to this headline">¶</a></h2>
 <p>This project is licensed under the Apache License 2.0 - see the <a class="reference external" href="LICENSE">LICENSE</a> file for details</p>
@@ -235,9 +222,9 @@
 </div>
 <div class="section" id="acknowledgements">
 <h2>Acknowledgements<a class="headerlink" href="#acknowledgements" title="Permalink to this headline">¶</a></h2>
-<ul class="simple">
-<li><p>Humanitarian organizations can’t help people if they can’t find them.</p></li>
-</ul>
+<blockquote>
+<div><p>Humanitarian organizations can’t help people if they can’t find them.</p>
+</div></blockquote>
 </div>
 </div>
 
@@ -249,7 +236,7 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="introduction.html" class="btn btn-neutral float-right" title="Introduction" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="setup.html" class="btn btn-neutral float-right" title="Setup" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="index.html" class="btn btn-neutral float-left" title="Welcome to MapSwipe Back-End’s documentation!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>

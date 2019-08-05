@@ -11,18 +11,16 @@ Welcome to MapSwipe Back-End's documentation!
    :maxdepth: 2
    :caption: Getting Started:
 
-   introduction
+   readme_link
    setup
-   data_model
-   use_cases
+   debugging
 
 
 .. toctree::
    :maxdepth: 2
    :caption: Using:
 
-   processes
-   api
+   cli
 
 
 .. toctree::
@@ -39,10 +37,7 @@ Welcome to MapSwipe Back-End's documentation!
 
    contributing
    diagrams
-   project_type-proposal
-   project_type-enable
-
-
+   use_cases
 
 
 Indices and tables
