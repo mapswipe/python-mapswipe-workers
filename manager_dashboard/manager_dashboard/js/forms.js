@@ -57,11 +57,10 @@ function clear_all_fields() {
   }
 
 function displaySuccessMessage() {
-  document.getElementById("success-message").show();
-  document.getElementById("import-formular").style.display = "None";
+  //document.getElementById("import-formular").style.display = "None";
+  alert('Your project has been uploaded. It can take up to one hour for the project to appear in the dashboard.')
 }
 
 function displayImportForm() {
-  document.getElementById("success-message").style.display = "None";
   document.getElementById("import-formular").style.display = "block";
 }

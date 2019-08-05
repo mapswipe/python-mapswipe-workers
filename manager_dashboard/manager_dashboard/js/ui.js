@@ -31,13 +31,11 @@ firebase.auth().onAuthStateChanged(function(user) {
            console.log('this user is a project manager')
            //document.getElementById("welcome-name-manager").innerHTML = user.displayName;
            document.getElementById("signed-in-manager").style.display = "block";
-           document.getElementById("welcome-message-manager").classList.add('show')
          } else {
            // Show regular user UI.
            console.log('this user is not a project manager')
            //document.getElementById("welcome-name").innerHTML = user.displayName;
            document.getElementById("signed-in").style.display = "block";
-           document.getElementById("welcome-message-no-manager").classList.add('show')
          }
       })
       .catch((error) => {
