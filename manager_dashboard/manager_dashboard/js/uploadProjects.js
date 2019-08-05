@@ -12,8 +12,7 @@ function submitInfo() {
     var projectType = document.getElementById("projectType").value;
     var image = document.getElementById("image").value;
     var verificationNumber = document.getElementById("verificationNumber").value;
-    var submissionKey = document.getElementById("submissionKey").value;
-    var createdBy = document.getElementById("welcome-name-manager").innerHTML;
+    var createdBy = currentUid;
     var groupSize = document.getElementById("groupSize").value;
 
     if (projectType == 1) {
@@ -36,16 +35,11 @@ function submitInfo() {
             image: image,
             verificationNumber: verificationNumber,
             groupSize: groupSize,
-            submissionKey: submissionKey,
             tileServer: tileServer,
             zoomLevel: zoomLevel,
             kml: kml,
             createdBy: createdBy
         }
-
-        firebase.database().ref('imports/').push().set(mapswipe_import)
-        clear_all_fields();
-        displaySuccessMessage();
 
     } else if (projectType == 2) {
 
@@ -66,16 +60,10 @@ function submitInfo() {
             image: image,
             groupSize: groupSize,
             verificationNumber: verificationNumber,
-            submissionKey: submissionKey,
             tileServer: tileServer,
             createdBy: createdBy,
             inputGeometries: inputGeometries
         }
-
-        firebase.database().ref('imports/').push().set(mapswipe_import)
-        alert("Submitted project! It can take up to an hour for your project to appear.");
-        clear_all_fields();
-        displaySuccessMessage();
 
     } else if (projectType == 3) {
 
@@ -112,14 +100,19 @@ function submitInfo() {
           tileServerB: tileServerB,
           zoomLevel: zoomLevel,
           kml: kml,
-          submissionKey: submissionKey,
           createdBy: createdBy
       }
 
-      firebase.database().ref('imports/').push().set(mapswipe_import);
-      clear_all_fields();
-      displaySuccessMessage();
-
     }
+
+    firebase.database().ref('v2/projectDrafts/').push().set(mapswipe_import)
+          .then(function() {
+            clear_all_fields();
+            displaySuccessMessage();
+          })
+          .catch(function(error) {
+            alert('could not upload data: ' + error);
+          });
+
   }
 }
