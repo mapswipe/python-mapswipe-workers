@@ -11,7 +11,6 @@ Welcome to MapSwipe Back-End's documentation!
    :maxdepth: 2
    :caption: Getting Started:
 
-   readme_link
    introduction
    setup
    data_model
