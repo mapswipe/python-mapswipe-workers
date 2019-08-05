@@ -31,11 +31,6 @@ The Diagrams are drawn using [draw.io](https://.wwww.draw.io). You can download 
 
 ---
 
-**Current Data Structure - Firebase:**
-![Data Structure - Firebase](/_static/img/data_structure-current-firebase.png)
-
----
-
 **Proposed Data Structure Project Type 1 - Firebase:**
 ![Data Structure - Firebase](/_static/img/data_structure-firebase-1.svg)
 
@@ -58,6 +53,4 @@ The Diagrams are drawn using [draw.io](https://.wwww.draw.io). You can download 
 
 **Database Schema - Analytics:**
 ![Database Schema - Analytics](/_static/img/database_schema-analytics.png)
-
----
 

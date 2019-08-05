@@ -1,10 +1,11 @@
-.. Mapswipe Workers documentation master file, created by
-   sphinx-quickstart on Mon Dec 17 17:41:30 2018.
+.. MapSwipe Back-End documentation master file, created by
+   sphinx-quickstart on Mon Aug  5 12:12:41 2019.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to Mapswipe Workers's documentation!
-============================================
+Welcome to MapSwipe Back-End's documentation!
+=============================================
+
 
 .. toctree::
    :maxdepth: 2
@@ -32,12 +33,6 @@ Welcome to Mapswipe Workers's documentation!
    project_type-footprint
 
 
-.. .. toctree::
-..    :maxdepth: 2
-..    :caption: Modules:
-..    modules
-
-
 .. toctree::
    :maxdepth: 2
    :caption: Miscellaneous:
@@ -48,12 +43,11 @@ Welcome to Mapswipe Workers's documentation!
    project_type-enable
 
 
-.. automodule:: mapswipe_workers
 
 
-.. Indices and tables
-.. ==================
+Indices and tables
+==================
 
-.. * :ref:`genindex`
-.. * :ref:`modindex`
-.. * :ref:`search`
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`
