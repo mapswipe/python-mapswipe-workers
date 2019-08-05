@@ -1,30 +1,48 @@
 # Build Area
 
-This document contains a lot of outdated informations.
-
 | Name | ID | Description | Screenshot |
 | ---- | -- | ----------- | ---------- |
-| BuildArea | 1 | A 6 squares layout is used for this project type. By tapping you can classify a tile of satellite imagery as *yes*, *maybe* or *bad_imagery*. Project managers can define which objects to look for, e.g. "buildings". Furthermore, they can specify the tile server of the background satellite imagery, e.g. "bing" or a custom tileserver. | <img src="_static/img/BuildArea_screenshot.png" width="250px"> |
+| BuildArea | 1 | A 6 squares layout is used for this project type. By tapping you can classify a tile of satellite imagery as *yes*, *maybe* or *bad_imagery*. Project managers can define which objects to look for, e.g. "buildings". Furthermore, they can specify the tile server of the background satellite imagery, e.g. "bing" or a custom tile server. | <img src="_static/img/BuildArea_screenshot.png" width="250px"> |
 
 
 ## Data Model
-The MapSwipe crowdsourcing workflow is designed following an approach already presented by [Albuquerque et al. (2016)](http://www.mdpi.com/2072-4292/8/10/859). Four concepts are important in the following: projects, groups, tasks and results.
+The MapSwipe crowdsourcing workflow is designed following an approach already presented by [Albuquerque et al. (2016)](http://www.mdpi.com/2072-4292/8/10/859). Five concepts are important in the following:
+* project drafts
+* projects
+* groups
+* tasks
+* results.
 
-![Mapswipe Data Model](/_static/img/mapswipe_data_model.png)
+| <img src="_static/img/mapswipe_data_model.png">
 
+As a project manager you have to care about the **Project Drafts** only. The information you provide through the **Manager Dashboard** will be used to set up your project. You should provide the following information.
 
-### Projects
-A project in MapSwipe is primarily characterized by an area of interest, a set of satellite imagery tiles and a feature type to look for. In addition, each project defines the number of users that are requested to classify each individual satellite imagery tile. Furthermore, background information on the context of the mapping request is provided. The information is uploaded through a web form by project managers.
+### Project Drafts
+The project drafts contain all information needed to set up your project. Only MapSwipe user accounts with dedicated project manager role can create projects. Make sure to get the rights before submitting project drafts.
 
 | Parameter | Description |
 | --- | --- |
-| **Id** |	Each project has a unique identifier. This Id will be generated automatically and cannot be chosen by the project manager. |
-| **Name** | Each project has a name, which will be shown in the app. Often project in the same region have similar names, e.g. “Madagascar 1” and “Madagascar 2”. |
-| **Geometry** | A project is characterized by its multi polygon geometry. Thus, projects can theoretically consist of several distinct regions. Nevertheless, most projects focus on a single area. |
-| **Redundancy** | Project managers can define how often each individual task will be classified by MapSwipe volunteers at minimum. For most projects this redundancy is set to three. |
-| **Imagery Provider** | This parameter refers to a provider of a tile map service. For projects of this study imagery is provided by Bing. Tiles of satellite imagery can be obtained from a tile map service endpoint. Each tile can be identified using a quad key representation of its x, y and z coordinates. Tiles are projected in WGS 84 Web Mercator (Auxiliary Sphere). This corresponds to the EPSG code 3857.
-| **Project Details** | The project details describe the goal and scope of the project. This is visualized in the app and is important to stir the volunteer’s motivations. In general, the project is described by five to ten sentences. |
-| **Look For** | The parameter defines which type of features are mapped in the project. This will be visualized in the mapping interface of the app. For this study, volunteers are always asked to look for buildings only. |
+| _Basic Project Information_ |
+| **Name** |  The name of your project (25 chars max) |
+| **Look For** | What should the users look for (e.g. buildings, cars, trees)? (15 chars max). |
+| **Project Type** | Is `1` for all Build Area projects. |
+| **Direct Image Link** | An url to an image. Make sure you have the rights to use this image. It should end with .jpg or .png. |
+| **Project Details** |  The description for your project. (3-5 sentences).  |
+| **Verification Number** | How many people do you want to see every tile before you consider it finished? (default is 3 - more is recommended for harder tasks, but this will also make project take longer) |
+| **Group Size** | How big should a mapping session be? Group size refers to the number of tasks per mapping session. |
+| _Project Type Specific Information_ |
+| **Zoom Level** | We use the Tile Map Service zoom levels. Please check for your area which zoom level is available. For example, Bing imagery is available at zoomlevel 18 for most regions. If you use a custom tile server you may be able to use even higher zoom levels. |
+| **KML file Content** | The content of a KML file. Make sure that you provide a single polygon geometry. |
+| **Tile Server Name** | Select the tile server providing satellite imagery tiles for your project. Make sure you have permission. You can choose: `Bing`, `Digital Globe`, `Sinergise`,  `Custom` |
+| **Custom Tile Server URL** (optional) | A custom tile server URL that uses {z}, {x} and {y} as placeholders and that already includes the api key. This is only needed if you choose `Custom` as the _Tile Server Name_ |
+| **WMTS Layer Name** (optional) | Enter the name of the layer of the Web Map Tile Service (WMTS). This is only needed if you choose `Sinergise` as the _Tile Server Name_. |
+| **API Key required** (optional) | Do you need an api key for the imagery? |
+| **API Key** (optional)| Insert the api key if required. |
+
+
+### Projects
+Projects get created from _Project Drafts_ by the Mapswipe workers. The workers extend the information by the following parameters.
+
 
 ### Tasks
 To create a new mapping task, the overall project extent is split up into many single tasks. Tasks are the smallest unit in the MapSwipe data model. They are derived from the area of interest by gridding it into many small equal-sized rectangular polygons. Each task corresponds to a specific tile coordinate from a tile map service (TMS) using a web Mercator projection as its geographical reference system. Therefore, each task is characterized by a geometry and its tile coordinates, which describe its x, y and z position. For the projects analysed in this project, the tiles for all tasks are generated at zoom level 18. Taking the latitude of each task location into account the satellite imagery has a maximum spatial resolution of ~ 0.6 meter at the equator.
@@ -60,83 +78,3 @@ Results contain information on the user classifications. However, only “Yes”
 | **User Id** | Each result is contributed by a specific user. Users can be identified by their Id. |
 | **Timestamp** | The timestamp (in milliseconds since 01-01-1970) provides information on the time the user completed the group and uploaded the result data. Results within the same group are assigned the same timestamp. |
 | **Result** | This parameter describes the given answer. 1 corresponds to “Yes”, 2 corresponds to “Maybe” and 3 corresponds to “Bad Imagery”. Each user can only submit one result per task. |
-
-
-
-## Import structure
-
-```json
-{
-  "inputGeometries" : "https://heibox.uni-heidelberg.de/f/7a61e549b6/?dl=1",
-  "project" : {
-    "image" : "http://www.fragosus.com/test/Javita.jpg",
-    "lookFor" : "Buildings",
-    "name" : "Mapping to end FGM in North Monduli",
-    "projectDetails" : "Swipe slowly through the satellite imagery and mark anything that looks like it could be a building or village. This area has high levels of girls being subjected to FGM and child marriage.",
-    "verificationCount" : "3"
-  },
-  "projectType" : 2,
-  "tileServer" : "bing"
-}
-```
-
-The `tileserver` attribute can have the following values: `bing`, `custom`. If a custom tileserver is chosen, you need to provide a `custom_tileserver_url` attribute which links to a TMS using x, y, z placeholders.
-
-Imports which have been imported successfully will have a `complete` attribute set to `true`.
-
-
-## Project structure
-
-```json
-{
-  "contributors" : 0,
-  "groupAverage" : 0,
-  "id" : 13564,
-  "image" : "http://www.fragosus.com/test/Javita.jpg",
-  "importKey" : "-LNOgRd0szBM2HJBX27B",
-  "info" : {
-    "api_key" : "your_bing_api_key",
-    "group_size" : 50,
-    "input_geometries_file" : "data/valid_geometries_13564.geojson",
-    "tileserver" : "bing"
-  },
-  "isFeatured" : false,
-  "lookFor" : "Buildings",
-  "name" : "Mapping to end FGM in North Monduli",
-  "progress" : 0,
-  "projectDetails" : "Swipe slowly through the satellite imagery and mark anything that looks like it could be a building or village. This area has high levels of girls being subjected to FGM and child marriage.",
-  "projectType" : 2,
-  "state" : 3,
-  "verificationCount" : 3
-}
-```
-
-
-## Group structure
-
-```
-{
-  "completedCount" : 0,
-  "count" : 50,
-  "id" : 100,
-  "neededCount" : 3,
-  "project_id" : 13564,
-  "tasks" : {...}
-}
-
-```
-
-
-## Task structure
-
-```json
-{
-  "feature_id" : 0,
-  "geojson" : {
-    "coordinates" : [ [ [ 5.15910196973, 13.48686869581 ], [ 5.15937974751, 13.48686869581 ], [ 5.15937974751, 13.48742425137 ], [ 5.15910196973, 13.48742425137 ], [ 5.15910196973, 13.48686869581 ] ] ],
-    "type" : "Polygon"
-  },
-  "id" : "13564_100_0",
-  "project_id" : 13564
-}
-```

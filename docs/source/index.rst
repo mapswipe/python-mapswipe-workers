@@ -29,6 +29,7 @@ Welcome to MapSwipe Back-End's documentation!
 
    project_type-buildArea
    project_type-footprint
+   project_type-changeDetection
 
 
 .. toctree::
