@@ -1,0 +1,491 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Setup &mdash; MapSwipe Back-End  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Data Model" href="data_model.html" />
+    <link rel="prev" title="Introduction" href="introduction.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> MapSwipe Back-End
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Getting Started:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="readme_link.html">Readme File</a></li>
+<li class="toctree-l1"><a class="reference internal" href="readme_link.html#python-mapswipe-workers-documentation">Python MapSwipe Workers Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Setup</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#firebase-setup">Firebase Setup</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#deploy-database-rules-and-functions">Deploy Database Rules and Functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#update-database-rules-and-functions">Update Database Rules and Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#postgres-setup">Postgres Setup</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#backup">Backup</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#mapswipe-workers-setup">MapSwipe Workers Setup</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#configuration">Configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#firebase-service-account-key">Firebase Service Account Key</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#run-mapswipe-workers">Run MapSwipe Workers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#update-mapswipe-workers">Update Mapswipe Workers</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#lets-encrypt">Lets Encrypt</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#manager-dashboard">Manager Dashboard</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#api">API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#debugging">Debugging</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#logs-mapswipe-workers">Logs - MapSwipe Workers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#common-errors">Common Errors</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#useful-docker-commands">Useful Docker Commands</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="data_model.html">Data Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="use_cases.html">Use Cases</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Using:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="processes.html">Processes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Project Types:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="project_type-buildArea.html">Build Area</a></li>
+<li class="toctree-l1"><a class="reference internal" href="project_type-footprint.html">Footprint</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Miscellaneous:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="diagrams.html">Diagrams</a></li>
+<li class="toctree-l1"><a class="reference internal" href="project_type-proposal.html">Proposal for a new project type</a></li>
+<li class="toctree-l1"><a class="reference internal" href="project_type-enable.html">Enable new project types</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">MapSwipe Back-End</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Setup</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/setup.md.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="setup">
+<h1>Setup<a class="headerlink" href="#setup" title="Permalink to this headline">¶</a></h1>
+<p>This document describes how to setup all the parts of the MapSwipe back-end.</p>
+<ol class="arabic simple">
+<li><p>Firebase</p></li>
+<li><p>Postgres</p></li>
+<li><p>MapSwipe Workers</p></li>
+<li><p>API</p></li>
+<li><p>Manager Dashboard</p></li>
+</ol>
+<p>For all those setups our main repository is required:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git clone https://github.com/mapswipe/python-mapswipe-workers.git
+<span class="nb">cd</span> python-mapswipe-workers
+</pre></div>
+</div>
+<div class="section" id="firebase-setup">
+<h2>Firebase Setup<a class="headerlink" href="#firebase-setup" title="Permalink to this headline">¶</a></h2>
+<!--
+Credentials
+* firebase project id
+* firebase web api key
+* firebase admin sdk service account file
+* firebase database rules json file
+--><p>First a Firebase Project and Database has to be created.</p>
+<ol class="arabic simple">
+<li><p>Login to <a class="reference external" href="https://firebase.google.com/">Firebase</a></p></li>
+<li><p>Add a project</p></li>
+<li><p>Create a database: <code class="docutils literal notranslate"><span class="pre">&gt;</span> <span class="pre">Develop</span> <span class="pre">&gt;</span> <span class="pre">Database</span> <span class="pre">&gt;</span> <span class="pre">Create</span> <span class="pre">Database</span></code></p></li>
+</ol>
+<div class="section" id="deploy-database-rules-and-functions">
+<h3>Deploy Database Rules and Functions<a class="headerlink" href="#deploy-database-rules-and-functions" title="Permalink to this headline">¶</a></h3>
+<p>The Firebase setup consists of two parts:</p>
+<ul class="simple">
+<li><p>Firebase Database Rules (<code class="docutils literal notranslate"><span class="pre">firebase/database.rules.json</span></code>)</p></li>
+<li><p>Firebase Functions (<code class="docutils literal notranslate"><span class="pre">firbase/functions/</span></code>)</p></li>
+</ul>
+<p>To deploy them to the Firebase Project the Firebase Command Line Tools are requiered. They are preinstalled in the provided Docker image (<code class="docutils literal notranslate"><span class="pre">firebase/Dockerfile</span></code>). When running this image the database riles and the functions will be deployed. For this to work a Firebase Token is needed:</p>
+<ol class="arabic simple">
+<li><p>On a PC with a browser install the Firebase Command Line Tools (<a class="reference external" href="https://firebase.google.com/docs/cli/#install_the_firebase_cli">https://firebase.google.com/docs/cli/</a>)</p></li>
+<li><p>Run <code class="docutils literal notranslate"><span class="pre">firebase</span> <span class="pre">login:ci</span></code> to generate a Firebase Token.</p></li>
+<li><p>Save the Firebase Token to <code class="docutils literal notranslate"><span class="pre">.env</span></code> at the root of the cloned MapSwipe Backend repository on the server: <code class="docutils literal notranslate"><span class="pre">echo</span> <span class="pre">&quot;FIREBASE_TOKEN=your_token&quot;</span> <span class="pre">&gt;&gt;</span> <span class="pre">.env</span></code></p></li>
+</ol>
+<p>Once the Firebase Token is set the database rules and functions will be deployed when running the <code class="docutils literal notranslate"><span class="pre">firebase_deploy</span></code> docker image using <code class="docutils literal notranslate"><span class="pre">docker-compose</span></code>:</p>
+<div class="highlight-guess notranslate"><div class="highlight"><pre><span></span><span class="n">docker</span><span class="o">-</span><span class="n">compose</span> <span class="n">up</span> <span class="c1">--build -d firebase_deploy</span>
+</pre></div>
+</div>
+<p>This container needs to run only as long until the <code class="docutils literal notranslate"><span class="pre">firebase</span> <span class="pre">deploy</span></code> command inside the Docker container terminates. Use <code class="docutils literal notranslate"><span class="pre">docker</span> <span class="pre">logs</span> <span class="pre">firebase_deploy</span></code> to find out if the command is still running.</p>
+<p>For more information about the Firebase Command Line Tools visit:<a class="reference external" href="https://firebase.google.com/docs/cli/#install_the_firebase_cli">https://firebase.google.com/docs/cli/</a></p>
+</div>
+<div class="section" id="update-database-rules-and-functions">
+<h3>Update Database Rules and Functions<a class="headerlink" href="#update-database-rules-and-functions" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-guess notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">pull</span>
+<span class="n">docker</span><span class="o">-</span><span class="n">compose</span> <span class="n">up</span> <span class="c1">--build -d firebase_deploy</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="postgres-setup">
+<h2>Postgres Setup<a class="headerlink" href="#postgres-setup" title="Permalink to this headline">¶</a></h2>
+<p>In the <code class="docutils literal notranslate"><span class="pre">postgres</span></code> directory is an <code class="docutils literal notranslate"><span class="pre">initdb.sql</span></code> file for initializing a Postgres database.</p>
+<p>When running Postgres using the provided Dockerfile it will setup a Postgres database during the build.
+A Postgres user, password and database name has to be defined in an environment file (<code class="docutils literal notranslate"><span class="pre">.env</span></code>) in the same directory as the <code class="docutils literal notranslate"><span class="pre">docker-compose.yaml</span></code> file (root). E.g:</p>
+<div class="highlight-env notranslate"><div class="highlight"><pre><span></span>POSTGRES_USER=mapswipe
+POSTGRES_PASSWORD=mapswipe
+POSTGRES_DB=mapswipe
+</pre></div>
+</div>
+<p>To run the Postgres Docker container:</p>
+<div class="highlight-guess notranslate"><div class="highlight"><pre><span></span><span class="n">docker</span><span class="o">-</span><span class="n">compose</span> <span class="n">up</span> <span class="o">-</span><span class="n">d</span> <span class="n">postgres</span>
+</pre></div>
+</div>
+<p>The Postgres instance will be exposed to <code class="docutils literal notranslate"><span class="pre">postgres:5432</span></code> (postgres Docker network)</p>
+<div class="section" id="backup">
+<h3>Backup<a class="headerlink" href="#backup" title="Permalink to this headline">¶</a></h3>
+<p>To backup the Postgres MapSwipe database use the <code class="docutils literal notranslate"><span class="pre">backup.sh</span></code> script inside the <code class="docutils literal notranslate"><span class="pre">./postgres</span></code> directory. It will execute a command (<code class="docutils literal notranslate"><span class="pre">pgdump</span></code>) inside the Postgres Docker container and store the backup locally (outside the Docker container).</p>
+<p>To restore the backup use the <code class="docutils literal notranslate"><span class="pre">restore.sh</span></code> script inside the <code class="docutils literal notranslate"><span class="pre">./postgres</span></code> directory.</p>
+</div>
+</div>
+<div class="section" id="mapswipe-workers-setup">
+<h2>MapSwipe Workers Setup<a class="headerlink" href="#mapswipe-workers-setup" title="Permalink to this headline">¶</a></h2>
+<p>To run MapSwipe Workers a valid configuration (<code class="docutils literal notranslate"><span class="pre">config/configuration.json</span></code>) and the Firebase Service Account Key (<code class="docutils literal notranslate"><span class="pre">config/serviceAccountKey.json</span></code>) is required.</p>
+<div class="section" id="configuration">
+<h3>Configuration<a class="headerlink" href="#configuration" title="Permalink to this headline">¶</a></h3>
+<p>Edit the configuration file (<code class="docutils literal notranslate"><span class="pre">config/example-configuration.json</span></code>) and rename it to <code class="docutils literal notranslate"><span class="pre">configuration.json</span></code>.</p>
+<p>Example configuration for the Firebase section:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span>&quot;dev_firebase&quot;: {
+  &quot;api_key&quot;: &quot;TAaasnrFaJEWgVas-vpt5dg43fAjfdsV-1uaig&quot;,
+  &quot;auth_domain&quot;: &quot;dev-mapswipe.firebaseapp.com&quot;,
+  &quot;database_url&quot;: &quot;https://dev-mapswipe.firebaseio.com&quot;,
+  &quot;storage_bucket&quot;: &quot;dev-mapswipe.appspot.com&quot;
+}
+</pre></div>
+</div>
+<p>Among other variables in the configuration file following are mandatory:</p>
+<ul class="simple">
+<li><p>bing maps url</p></li>
+<li><p>bing maps api key</p></li>
+<li><p>digital globe url</p></li>
+<li><p>digital globe api key</p></li>
+<li><p>sinergise url</p></li>
+<li><p>sinergise api key</p></li>
+</ul>
+<p>These variables are optional:</p>
+<ul class="simple">
+<li><p>slack token</p></li>
+<li><p>slack channel</p></li>
+<li><p>slack username</p></li>
+</ul>
+</div>
+<div class="section" id="firebase-service-account-key">
+<h3>Firebase Service Account Key<a class="headerlink" href="#firebase-service-account-key" title="Permalink to this headline">¶</a></h3>
+<p>To authorize MapSwipe Workers to access Firebase services, you must generate a Firerbase Service Account Key in JSON format:</p>
+<ol class="arabic simple">
+<li><p>In the Firebase console, open Settings &gt; Service Accounts.</p></li>
+<li><p>Click Generate New Private Key</p></li>
+<li><p>Store the JSON file under <code class="docutils literal notranslate"><span class="pre">config/serviceAccountKey.json</span></code></p></li>
+</ol>
+</div>
+<div class="section" id="run-mapswipe-workers">
+<h3>Run MapSwipe Workers<a class="headerlink" href="#run-mapswipe-workers" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>docker-compose up -d mapswipe_workers
+</pre></div>
+</div>
+</div>
+<div class="section" id="update-mapswipe-workers">
+<h3>Update Mapswipe Workers<a class="headerlink" href="#update-mapswipe-workers" title="Permalink to this headline">¶</a></h3>
+<p>How to update Mapswipe Workers:</p>
+<div class="highlight-guess notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">pull</span>
+<span class="n">docker</span><span class="o">-</span><span class="n">compose</span> <span class="n">up</span> <span class="c1">--build -d mapswipe_workers</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="lets-encrypt">
+<h2>Lets Encrypt<a class="headerlink" href="#lets-encrypt" title="Permalink to this headline">¶</a></h2>
+<p>To enable SSL for the API and MapSwipe Manager Dashboard use Certbot to issue standalone certificates.</p>
+<p>Install certbot:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>apt-get install certbot
+</pre></div>
+</div>
+<p>Create certificates:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>certbot certonly <span class="se">\</span>
+    --standalone <span class="se">\</span>
+    --domain dev-api.mapswipe.org <span class="se">\</span>
+    --domain dev-managers.mapswipe.org <span class="se">\</span>
+    --agree-tos <span class="se">\</span>
+    --email e@mail.org <span class="se">\</span>
+    --non-interactive
+</pre></div>
+</div>
+<p>Enable and start Certbot systemd timer for renewal of certificates:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>systemctl <span class="nb">enable</span> certbot.timer
+systemctl start certbot.timer
+<span class="c1"># To check if certbot.timer is enabled run:</span>
+systemctl list-units --type timer <span class="p">|</span> grep certbot
+</pre></div>
+</div>
+<p>Add renewal post hook to reload nginx after certificate renwal:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mkdir -p /etc/letsencrypt/renewal-hooks/deploy
+
+cat <span class="s">&lt;&lt;EOM &gt;/etc/letsencrypt/renewal-hooks/deploy/nginx</span>
+<span class="s">#!/usr/bin/env bash</span>
+
+<span class="s">docker container restart nginx</span>
+<span class="s">EOM</span>
+
+chmod +x /etc/letsencrypt/renewal-hooks/deploy/nginx
+</pre></div>
+</div>
+<!--
+Using the certbot plugin dnf-google:
+
+```bash
+sudo apt install python3-certbot-dns-google
+certbot certonly \
+    --dns-google \
+    --dns-google-credentials certbot.json \
+    --server https://acme-v02.api.letsencrypt.org/directory \
+    --domain *.mapswipe.org \
+    --agree-tos \
+    --email herfort@uni-heidelberg.de
+    --non-interactive
+```
+
+Dockerize it:
+
+```bash
+sudo docker run -it --rm --name certbot \
+            -v "/etc/letsencrypt:/etc/letsencrypt" \
+            -v "/var/lib/letsencrypt:/var/lib/letsencrypt" \
+            certbot/dns-google certonly \
+            --dns-google \
+            --dns-google-credentials ~/.secrets/certbot/google.json \
+            --domain *.mapswipe.org \
+            --server https://acme-v02.api.letsencrypt.org/directory \
+            --agree-tos \
+            --email herfort@uni-heidelberg.de \
+            --non-interactive
+```
+--></div>
+<div class="section" id="manager-dashboard">
+<h2>Manager Dashboard<a class="headerlink" href="#manager-dashboard" title="Permalink to this headline">¶</a></h2>
+<p>Get <strong>Web API Key</strong>: <code class="docutils literal notranslate"><span class="pre">&gt;</span> <span class="pre">Settings</span> <span class="pre">&gt;</span> <span class="pre">Project</span> <span class="pre">settings</span> <span class="pre">&gt;</span> <span class="pre">General</span></code>. Add the web api key to the <code class="docutils literal notranslate"><span class="pre">.env</span></code> file.</p>
+<div class="highlight-guess notranslate"><div class="highlight"><pre><span></span><span class="n">docker</span><span class="o">-</span><span class="n">compose</span> <span class="n">up</span> <span class="o">-</span><span class="n">d</span> <span class="n">manager_dashboard</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="api">
+<h2>API<a class="headerlink" href="#api" title="Permalink to this headline">¶</a></h2>
+<p>Currently the API is a simple Nginx server which serves static files. Those files are generated by MapSwipe Workers and shared over a Docker volume with the API Container.</p>
+<div class="highlight-guess notranslate"><div class="highlight"><pre><span></span><span class="n">docker</span><span class="o">-</span><span class="n">compose</span> <span class="n">up</span> <span class="o">-</span><span class="n">d</span> <span class="n">api</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="debugging">
+<h2>Debugging<a class="headerlink" href="#debugging" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="logs-mapswipe-workers">
+<h3>Logs - MapSwipe Workers<a class="headerlink" href="#logs-mapswipe-workers" title="Permalink to this headline">¶</a></h3>
+<p>Where can I find logs?</p>
+<p>Logs are written to directly to console and also to <code class="docutils literal notranslate"><span class="pre">/var/log/mapswipe_workers.log</span></code>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">docker</span> <span class="pre">exec</span> <span class="pre">-t</span> <span class="pre">mapswipe_workers</span> <span class="pre">cat</span> <span class="pre">/var/log/mapswipe_workers/mapswipe_workers.log</span></code> (if container is running)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">docker</span> <span class="pre">logs</span> <span class="pre">container_name</span></code> (also if container is not running)</p></li>
+</ul>
+</div>
+<div class="section" id="common-errors">
+<h3>Common Errors<a class="headerlink" href="#common-errors" title="Permalink to this headline">¶</a></h3>
+<p><em>Docker containers are always restarting:</em> Take a look at the docker logs (eg. <code class="docutils literal notranslate"><span class="pre">docker</span> <span class="pre">logs</span> <span class="pre">container_name</span></code>). If you get an <code class="docutils literal notranslate"><span class="pre">Unable</span> <span class="pre">to</span> <span class="pre">load</span> <span class="pre">configuration</span> <span class="pre">file</span> <span class="pre">at</span> <span class="pre">./cfg/config.cfg.</span> <span class="pre">Exiting.</span></code> due to <code class="docutils literal notranslate"><span class="pre">PermissionError:</span> <span class="pre">[Errno</span> <span class="pre">13]</span> <span class="pre">Permission</span> <span class="pre">denied:</span> <span class="pre">'./config/configuration.cfg'</span></code> error message, you probably have SELinux on your system enabled. If so you have to configure (change mount option of volumes) your docker-compose file. Please read the documentation provided by Docker regarding this configuration (<a class="reference external" href="https://docs.docker.com/storage/bind-mounts/">https://docs.docker.com/storage/bind-mounts/</a> Chapter: “Configure the selinux label”).</p>
+</div>
+<div class="section" id="useful-docker-commands">
+<h3>Useful Docker Commands<a class="headerlink" href="#useful-docker-commands" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">docker</span> <span class="pre">ps</span> <span class="pre">-a</span></code>: list all containers and check status</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">docker</span> <span class="pre">image</span> <span class="pre">ls</span></code>: list all docker images</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">docker</span> <span class="pre">exec</span> <span class="pre">-it</span> <span class="pre">mapswipe_workers</span> <span class="pre">bash</span></code>: open shell in a running container</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">docker</span> <span class="pre">exec</span> <span class="pre">-t</span> <span class="pre">mapswipe_workers</span> <span class="pre">tail</span> <span class="pre">-100</span> <span class="pre">/var/log/mapswipe_workers/mapwipe_workers.log</span></code>: show last 100 lines of the log file</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">docker</span> <span class="pre">stats</span></code>: show memory usage, CPU consumption for all running containers</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">docker</span> <span class="pre">system</span> <span class="pre">prune</span> <span class="pre">--all</span></code>: clean up any resources — images, containers, volumes, and networks — that are dangling (not associated with a container)</p></li>
+</ul>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="data_model.html" class="btn btn-neutral float-right" title="Data Model" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="introduction.html" class="btn btn-neutral float-left" title="Introduction" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, MapSwipe
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -27,6 +27,7 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.napoleon',
     'sphinx_markdown_tables',
+    'm2r',
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -34,9 +35,9 @@ templates_path = ['_templates']
 
 # For conversion from markdown to html
 # Add a source file parser for markdwon
-source_parsers = {
-    '.md': CommonMarkParser,
-}
+# source_parsers = {
+#     '.md': CommonMarkParser,
+# }
 
 
 # The suffix(es) of source filenames.

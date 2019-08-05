@@ -1,0 +1,310 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Processes &mdash; MapSwipe Back-End  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="API" href="api.html" />
+    <link rel="prev" title="Use Cases" href="use_cases.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> MapSwipe Back-End
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Getting Started:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="readme_link.html">Readme File</a></li>
+<li class="toctree-l1"><a class="reference internal" href="readme_link.html#python-mapswipe-workers-documentation">Python MapSwipe Workers Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="setup.html">Setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data_model.html">Data Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="use_cases.html">Use Cases</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Using:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Processes</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#import">Import</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#transfer-results">Transfer Results</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#update">Update</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#export">Export</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#archive">Archive</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#delete">Delete</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Project Types:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="project_type-buildArea.html">Build Area</a></li>
+<li class="toctree-l1"><a class="reference internal" href="project_type-footprint.html">Footprint</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Miscellaneous:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="diagrams.html">Diagrams</a></li>
+<li class="toctree-l1"><a class="reference internal" href="project_type-proposal.html">Proposal for a new project type</a></li>
+<li class="toctree-l1"><a class="reference internal" href="project_type-enable.html">Enable new project types</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">MapSwipe Back-End</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Processes</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/processes.md.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="processes">
+<h1>Processes<a class="headerlink" href="#processes" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
+<p>The MapSwipe workers fulfill several tasks, which we call <em>processes</em> from here on. All processes can be executed using the <code class="docutils literal notranslate"><span class="pre">run_mapswipe_worker.py</span></code> script.</p>
+<ul class="simple">
+<li><p><strong>Import</strong>: Get a new project into the MapSwipe App.</p></li>
+<li><p><strong>Transfer Results</strong>: Get results from Firebase and transfer to a postgresql database for long term storage.</p></li>
+<li><p><strong>Update</strong>: Update the number of contributors and the progress for MapSwipe projects.</p></li>
+<li><p><strong>Export</strong>: Export aggregated results and statistics in json Format.</p></li>
+<li><p><strong>Archive</strong>: Archive a finished MapSwipe project.</p></li>
+<li><p><strong>Delete</strong>: Delete a MapSwipe project and all corresponding results in Firebase and postgresql.</p></li>
+</ul>
+<p>You can easily run a process using the <code class="docutils literal notranslate"><span class="pre">run_mapswipe_worker.py</span></code> script using the following parameters:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">-p</span></code> or <cite>–process</cite>: choose the process you want to run (choices: ‘import’, ‘transfer_results’, ‘update’, ‘export’, ‘archive’, ‘delete’)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-mo</span></code> or <cite>–modus</cite>: choose which mapswipe instance to use. (choices: ‘development’ (default), ‘production’)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-f</span></code> or <cite>–filter</cite>: choose which projects to process (choices: ‘all’, ‘not_finished’, ‘active’, ‘list’)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-l</span></code> or <code class="docutils literal notranslate"><span class="pre">--list</span></code>: project id of the project(s) to process. You can add multiple project ids. will only be considered if <code class="docutils literal notranslate"><span class="pre">--filter=='list'</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-o</span></code> or <code class="docutils literal notranslate"><span class="pre">--output</span></code>: output path. Provide a location for storing files.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-s</span></code> or <code class="docutils literal notranslate"><span class="pre">--sleep_time</span></code>: the time in seconds for which the script will pause in between two runs</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">-m</span></code> or <code class="docutils literal notranslate"><span class="pre">--max_iterations</span></code>: the maximum number of runs that should be performed</p></li>
+</ul>
+</div>
+<div class="section" id="import">
+<h2>Import<a class="headerlink" href="#import" title="Permalink to this headline">¶</a></h2>
+<p>The import module uses data uploaded to the firebase imports table and creates the respective project information and information regarding groups and tasks.</p>
+<div class="highlight-guess notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">run_mapswipe_worker</span><span class="p">.</span><span class="n">py</span> <span class="c1">--process=import --modus=development</span>
+</pre></div>
+</div>
+<p>The import module gets data from firebase and creates the following tables/files:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">data/project_{id}.kml</span></code>: the geometry of the project as provided in the import</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">data/groups_{}.json</span></code>: the groups, containing information on tasks, that are uploaded to firebase</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">data/groups_{id}.geojson</span></code>: the groups, without further task information, and geometry and extent for each group</p></li>
+<li><p>insert a column for each new project in mysql <code class="docutils literal notranslate"><span class="pre">projects</span></code> table</p></li>
+</ul>
+</div>
+<div class="section" id="transfer-results">
+<h2>Transfer Results<a class="headerlink" href="#transfer-results" title="Permalink to this headline">¶</a></h2>
+<p>The transfer results module downloads results from firebase results table and inserts them into the postgresql results table. All results that have been inserted successfully will be removed from firebase. Results that have already been imported (<em>duplicates</em>) will be removed from firebase.</p>
+<div class="highlight-guess notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">run_mapswipe_worker</span><span class="p">.</span><span class="n">py</span> <span class="c1">--process=transfer_results --modus=development</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="update">
+<h2>Update<a class="headerlink" href="#update" title="Permalink to this headline">¶</a></h2>
+<p>The update module updates the progress and number of contributors for MapSwipe projects.</p>
+<div class="highlight-guess notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">run_mapswipe_worker</span><span class="p">.</span><span class="n">py</span> <span class="c1">--process=update --filter=active</span>
+<span class="n">python</span> <span class="n">run_mapswipe_worker</span><span class="p">.</span><span class="n">py</span> <span class="c1">--process=update --filter=list --list=13505 --list=13507</span>
+</pre></div>
+</div>
+<p>The number of contributors is generated by counting the unique users from all results per project. The progress is generated using <code class="docutils literal notranslate"><span class="pre">complementedCount</span></code> and <code class="docutils literal notranslate"><span class="pre">verificationCount</span></code> for all groups of a project.</p>
+</div>
+<div class="section" id="export">
+<h2>Export<a class="headerlink" href="#export" title="Permalink to this headline">¶</a></h2>
+<p>The export module gets data from the postgresql database and saves it as json files.</p>
+<div class="highlight-guess notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">run_mapswipe_worker</span><span class="p">.</span><span class="n">py</span> <span class="c1">--process=export --filter=active --output=data</span>
+<span class="n">python</span> <span class="n">run_mapswipe_worker</span><span class="p">.</span><span class="n">py</span> <span class="c1">--process=export --filter=list --list=13505 --list=13507 --output=data</span>
+</pre></div>
+</div>
+<p>In the given output directory, the following files will be created.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">{outdir}/projects.json</span></code>: contains information on all MapSwipe projects</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">{outdir}/stats.json</span></code>: contains information on total number of users, total distance mapped, total contributions for all projects</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">{outdir}/users.json</span></code>: contains information on name, mapped distance and number of contributions for all users</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">{outdir}/results/results_124.json</span></code>, <code class="docutils literal notranslate"><span class="pre">{outdir}/results/303.json</span></code>, …: contains aggregated project results</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">{outdir}/progress/progress_124.txt</span></code>, <code class="docutils literal notranslate"><span class="pre">{outdir}/progress/progress_303.txt</span></code>, …: contains information on number of contributors and progress (percent finished) per project</p></li>
+</ul>
+</div>
+<div class="section" id="archive">
+<h2>Archive<a class="headerlink" href="#archive" title="Permalink to this headline">¶</a></h2>
+<p>To be implemented and documented.</p>
+</div>
+<div class="section" id="delete">
+<h2>Delete<a class="headerlink" href="#delete" title="Permalink to this headline">¶</a></h2>
+<p>To be documented.</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="api.html" class="btn btn-neutral float-right" title="API" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="use_cases.html" class="btn btn-neutral float-left" title="Use Cases" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, MapSwipe
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

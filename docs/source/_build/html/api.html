@@ -1,0 +1,438 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>API &mdash; MapSwipe Back-End  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Build Area" href="project_type-buildArea.html" />
+    <link rel="prev" title="Processes" href="processes.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> MapSwipe Back-End
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Getting Started:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="readme_link.html">Readme File</a></li>
+<li class="toctree-l1"><a class="reference internal" href="readme_link.html#python-mapswipe-workers-documentation">Python MapSwipe Workers Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="setup.html">Setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="data_model.html">Data Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="use_cases.html">Use Cases</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Using:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="processes.html">Processes</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#intro">Intro</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#endpoints">Endpoints</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#list-all-projects">List all projects</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#individual-results">Individual results</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mapswipe-stats">Mapswipe stats</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#public-user-data">Public User Data</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption"><span class="caption-text">Project Types:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="project_type-buildArea.html">Build Area</a></li>
+<li class="toctree-l1"><a class="reference internal" href="project_type-footprint.html">Footprint</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Miscellaneous:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="diagrams.html">Diagrams</a></li>
+<li class="toctree-l1"><a class="reference internal" href="project_type-proposal.html">Proposal for a new project type</a></li>
+<li class="toctree-l1"><a class="reference internal" href="project_type-enable.html">Enable new project types</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">MapSwipe Back-End</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>API</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/api.md.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="api">
+<h1>API<a class="headerlink" href="#api" title="Permalink to this headline">¶</a></h1>
+<blockquote>
+<div><p>This is very much work in progress. I made this so that we could have something out sooner rather than later. If you are looking to add projects to Mapswipe, please email <a class="reference external" href="mailto:pete&#46;masters&#37;&#52;&#48;london&#46;msf&#46;org">pete<span>&#46;</span>masters<span>&#64;</span>london<span>&#46;</span>msf<span>&#46;</span>org</a></p>
+</div></blockquote>
+<div class="section" id="intro">
+<h2>Intro<a class="headerlink" href="#intro" title="Permalink to this headline">¶</a></h2>
+<p><strong>File size:</strong>
+Since Mapswipe results are fairly large, we recommend minimizing the amount of requests you make to our API to save bandwidth costs. If we notice that your IP is making excessive use of our resources we will block your IP address.</p>
+<p><strong>Untouched data:</strong>
+This is RAW, UNPROCESSED data, meaning that you have to decide what is valid and invalid data. We simply provide users with a way to contribute, it is up to you which users to filter out. We provide the user_id property in results so you can ban users if you find results unacceptable. The user id will not change for a user, ever. In the future we will try to catch cheaters more effectively.</p>
+<p><strong>Tiles:</strong>
+We do not publish the tile URLs to avoid abuse at the moment. This may change in the future. If you want, you can always calculate the tile url based on the task x, y, and z, which correspond to tile x, y, and z on Bing. Make sure you ask Bing for your own API key.</p>
+<p><strong>Large, complex applications:</strong>
+Please email <a class="reference external" href="mailto:pim&#37;&#52;&#48;whitespell&#46;com">pim<span>&#64;</span>whitespell<span>&#46;</span>com</a> for a read-only MySQL connection to public data.</p>
+</div>
+<div class="section" id="endpoints">
+<h2>Endpoints<a class="headerlink" href="#endpoints" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="list-all-projects">
+<h3>List all projects<a class="headerlink" href="#list-all-projects" title="Permalink to this headline">¶</a></h3>
+<p><a class="reference external" href="http://api.mapswipe.org/projects.json">http://api.mapswipe.org/projects.json</a></p>
+<p>Each project contains the following key properties:</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>key</th>
+<th>description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>Numeric id of the project</td>
+</tr>
+<tr>
+<td>lookFor</td>
+<td>The project objective (e.g. Houses and Roads)</td>
+</tr>
+<tr>
+<td>contributors</td>
+<td>The amount of people that contributed</td>
+</tr>
+<tr>
+<td>groupAverage</td>
+<td>Average group size in tiles (irrelevant here)</td>
+</tr>
+<tr>
+<td>image</td>
+<td>The image used for the project</td>
+</tr>
+<tr>
+<td>isFeatured</td>
+<td>Whether the project is featured in the app</td>
+</tr>
+<tr>
+<td>name</td>
+<td>Name of the project</td>
+</tr>
+<tr>
+<td>results</td>
+<td>Link to the results file (Note, this can be a very large response, up to 100MB each)</td>
+</tr>
+<tr>
+<td>progress</td>
+<td>Percentage amount of project completion</td>
+</tr>
+<tr>
+<td>projectDetails</td>
+<td>Details of the project</td>
+</tr>
+<tr>
+<td>state</td>
+<td>State of the project (0=not started, 1= on hold, 2=complete, 3=hidden)</td>
+</tr>
+</tbody>
+</table><div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">[</span>
+  <span class="kc">null</span><span class="p">,</span>
+  <span class="p">{</span>
+    <span class="nt">&quot;contributors&quot;</span><span class="p">:</span> <span class="mi">1517</span><span class="p">,</span>
+    <span class="nt">&quot;groupAverage&quot;</span><span class="p">:</span> <span class="mf">221.80340667139816</span><span class="p">,</span>
+    <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;1&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;image&quot;</span><span class="p">:</span> <span class="s2">&quot;http://wiki.openstreetmap.org/w/images/a/ac/MSF158153_Small.jpg&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;importKey&quot;</span><span class="p">:</span> <span class="s2">&quot;-KMdpOSLV7LttDu2IP-F&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;isFeatured&quot;</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+    <span class="nt">&quot;lookFor&quot;</span><span class="p">:</span> <span class="s2">&quot;Houses &amp; Roads&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Niger State, Nigeria (part 1)&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;progress&quot;</span><span class="p">:</span> <span class="mi">122</span><span class="p">,</span>
+    <span class="nt">&quot;projectDetails&quot;</span><span class="p">:</span> <span class="s2">&quot;Swipe slowly through the satellite imagery and mark anything that looks like it could be a house, village, hut, road or track.\n\nNiger State is an extremely vulnerable area of Nigeria and the data you contribute will help NGOs better deliver services to local people.\n&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;state&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+    <span class="nt">&quot;verificationCount&quot;</span><span class="p">:</span> <span class="s2">&quot;3&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;results&quot;</span><span class="p">:</span> <span class="s2">&quot;http://api.mapswipe.org/projects/1.json&quot;</span>
+  <span class="p">},</span>
+  <span class="p">{</span>
+    <span class="nt">&quot;contributors&quot;</span><span class="p">:</span> <span class="mi">940</span><span class="p">,</span>
+    <span class="nt">&quot;groupAverage&quot;</span><span class="p">:</span> <span class="mf">200.58151093439363</span><span class="p">,</span>
+    <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;14&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;image&quot;</span><span class="p">:</span> <span class="s2">&quot;http://wiki.openstreetmap.org/w/images/a/ac/MSF158153_Small.jpg&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;importKey&quot;</span><span class="p">:</span> <span class="s2">&quot;-KMfQvc8KnPV5SDjj82W&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;isFeatured&quot;</span><span class="p">:</span> <span class="kc">false</span><span class="p">,</span>
+    <span class="nt">&quot;lookFor&quot;</span><span class="p">:</span> <span class="s2">&quot;Houses &amp; Roads&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Map South Kivu (DRCongo) 1&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;progress&quot;</span><span class="p">:</span> <span class="mi">143</span><span class="p">,</span>
+    <span class="nt">&quot;projectDescription&quot;</span><span class="p">:</span> <span class="s2">&quot;Swipe slowly through the satellite imagery and mark anything that looks like it could be a house, village, hut, road, or track.\n\nThe people of South Kivu have been experiencing humanitarian crises for decades and the maps will help NGOs better deliver medical care and services in the province.&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;projectDetails&quot;</span><span class="p">:</span> <span class="s2">&quot;Swipe slowly through the satellite imagery and mark anything that looks like it could be a house, village, hut, road, or track.\n\nThe people of South Kivu have been experiencing humanitarian crises for decades and the maps will help NGOs better deliver medical care and services in the province.&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;state&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+    <span class="nt">&quot;verificationCount&quot;</span><span class="p">:</span> <span class="s2">&quot;3&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;results&quot;</span><span class="p">:</span> <span class="s2">&quot;http://api.mapswipe.org/projects/14.json&quot;</span>
+  <span class="p">}</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="individual-results">
+<h3>Individual results<a class="headerlink" href="#individual-results" title="Permalink to this headline">¶</a></h3>
+<p><a class="reference external" href="http://api.mapswipe.org/projects/14.json">http://api.mapswipe.org/projects/14.json</a></p>
+<p>Each result set contains the following key properties.</p>
+<table border="1" class="docutils">
+<thead>
+<tr>
+<th>key</th>
+<th>description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>task_id</td>
+<td>The task id (z-x-y)</td>
+</tr>
+<tr>
+<td>user_id</td>
+<td>The user id who submitted the contribution. This is useful if you want to filter out certain users. (e.g. if you notice their results are too inaccurate)</td>
+</tr>
+<tr>
+<td>project_id</td>
+<td>The project id of the result</td>
+</tr>
+<tr>
+<td>timestamp</td>
+<td>Timestamp of when the result was submitted</td>
+</tr>
+<tr>
+<td>wkt</td>
+<td>Well known text value of the result, NOTE: This can be null, in earlier versions of Mapswipe we did not log this value. We prefer you calculate the WKT yourself based on the task_x, task_y, and task_z. About 10% of all submissions do not have a wkt, and this will go to 0% on future projects.</td>
+</tr>
+<tr>
+<td>task_x</td>
+<td>X tile value at zoom level task_z</td>
+</tr>
+<tr>
+<td>task_y</td>
+<td>X tile value at zoom level task_z</td>
+</tr>
+<tr>
+<td>task_z</td>
+<td>Zoom level of the tile</td>
+</tr>
+<tr>
+<td>result</td>
+<td>1=yes,2=maybe,3=bad imagery</td>
+</tr>
+<tr>
+<td>duplicates</td>
+<td>Don't worry about this for now - internal use to see if users see tiles twice.</td>
+</tr>
+</tbody>
+</table><div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">[</span>
+  <span class="p">{</span>
+    <span class="nt">&quot;task_id&quot;</span><span class="p">:</span> <span class="s2">&quot;18-136172-124691&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;user_id&quot;</span><span class="p">:</span> <span class="s2">&quot;QOdGtguOjjhSDLiBdKOzFHqmPIv2&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;project_id&quot;</span><span class="p">:</span> <span class="mi">14</span><span class="p">,</span>
+    <span class="nt">&quot;timestamp&quot;</span><span class="p">:</span> <span class="mi">1468833898804</span><span class="p">,</span>
+    <span class="nt">&quot;result&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="nt">&quot;wkt&quot;</span><span class="p">:</span> <span class="s2">&quot;POLYGON ((7.0037841796875 8.729005290108972 0,7.005157470703125 8.729005290108972 0,7.005157470703125 8.727647903198871 0,7.0037841796875 8.727647903198871 0,7.0037841796875 8.729005290108972 0))&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;task_x&quot;</span><span class="p">:</span> <span class="s2">&quot;136172&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;task_y&quot;</span><span class="p">:</span> <span class="s2">&quot;124691&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;task_z&quot;</span><span class="p">:</span> <span class="s2">&quot;18&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;duplicates&quot;</span><span class="p">:</span> <span class="mi">0</span>
+  <span class="p">},</span>
+  <span class="p">{</span>
+    <span class="nt">&quot;task_id&quot;</span><span class="p">:</span> <span class="s2">&quot;18-136172-124692&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;user_id&quot;</span><span class="p">:</span> <span class="s2">&quot;QOdGtguOjjhSDLiBdKOzFHqmPIv2&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;project_id&quot;</span><span class="p">:</span> <span class="mi">14</span><span class="p">,</span>
+    <span class="nt">&quot;timestamp&quot;</span><span class="p">:</span> <span class="mi">1468833898805</span><span class="p">,</span>
+    <span class="nt">&quot;result&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="nt">&quot;wkt&quot;</span><span class="p">:</span> <span class="s2">&quot;POLYGON ((7.0037841796875 8.727647903198871 0,7.005157470703125 8.727647903198871 0,7.005157470703125 8.726290511352047 0,7.0037841796875 8.726290511352047 0,7.0037841796875 8.727647903198871 0))&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;task_x&quot;</span><span class="p">:</span> <span class="s2">&quot;136172&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;task_y&quot;</span><span class="p">:</span> <span class="s2">&quot;124692&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;task_z&quot;</span><span class="p">:</span> <span class="s2">&quot;18&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;duplicates&quot;</span><span class="p">:</span> <span class="mi">0</span>
+  <span class="p">}</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="mapswipe-stats">
+<h3>Mapswipe stats<a class="headerlink" href="#mapswipe-stats" title="Permalink to this headline">¶</a></h3>
+<p><a class="reference external" href="http://api.mapswipe.org/stats.json">http://api.mapswipe.org/stats.json</a></p>
+</div>
+<div class="section" id="public-user-data">
+<h3>Public User Data<a class="headerlink" href="#public-user-data" title="Permalink to this headline">¶</a></h3>
+<p><a class="reference external" href="http://api.mapswipe.org/users.json">http://api.mapswipe.org/users.json</a></p>
+<p>This can be useful if you want to filter out cheaters, which are detectable by comparing contributions to the distance - again, this is up to you, we just provide the raw data .</p>
+<p>Example user object: <code class="docutils literal notranslate"><span class="pre">{&quot;00Xo7fMQW4enlk41dVC1b2tEWZG2&quot;:{&quot;contributions&quot;:399,&quot;distance&quot;:10,&quot;username&quot;:&quot;ewar&quot;}</span></code></p>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="project_type-buildArea.html" class="btn btn-neutral float-right" title="Build Area" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="processes.html" class="btn btn-neutral float-left" title="Processes" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, MapSwipe
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
