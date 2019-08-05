@@ -212,7 +212,7 @@ def _run_create_projects():
             }
 
     fb_db = auth.firebaseDB()
-    ref = fb_db.reference('projectDrafts/')
+    ref = fb_db.reference('v2/projectDrafts/')
     project_drafts = ref.get()
 
     if project_drafts is None:

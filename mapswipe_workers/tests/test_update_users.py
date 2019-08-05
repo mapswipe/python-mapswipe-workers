@@ -19,7 +19,7 @@ def test_update_user_data(user_ids, pg_db):
 
 
 def create_user(fb_db):
-    ref = fb_db.reference('users/')
+    ref = fb_db.reference('v2/users/')
     user = {
             'contributions': {},
             'created': int(time.time()),

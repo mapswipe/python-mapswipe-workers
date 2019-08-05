@@ -20,7 +20,7 @@ def transfer_results():
     logger.info('Start transfering results')
 
     fb_db = auth.firebaseDB()
-    results_ref = fb_db.reference('results/')
+    results_ref = fb_db.reference('v2/results/')
 
     # Firebase transaction function
     def transfer(current_results):

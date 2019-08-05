@@ -22,7 +22,7 @@ def copy_new_users():
     last_updated = last_updated[0][0]
     last_updated = last_updated.strftime('%Y-%m-%dT%H:%M:%S.%f')
 
-    ref = fb_db.reference('users')
+    ref = fb_db.reference('v2/users')
     fb_query = ref.order_by_child('created').start_at(last_updated)
     users = fb_query.get()
     # Delete first user in ordered dict.
@@ -71,10 +71,10 @@ def update_user_data(user_ids=None):
     if user_ids:
         users = dict()
         for user_id in user_ids:
-            ref = fb_db.reference(f'users/{user_id}')
+            ref = fb_db.reference(f'v2/users/{user_id}')
             users[user_id] = ref.get()
     else:
-        ref = fb_db.reference(f'users/')
+        ref = fb_db.reference(f'v2/users/')
         users = ref.get()
 
     for user_id, user in users.items():
@@ -123,10 +123,10 @@ def update_project_data(project_ids=None):
     if project_ids:
         projects = dict()
         for project_id in project_ids:
-            project_ref = fb_db.reference(f'projects/{project_id}')
+            project_ref = fb_db.reference(f'v2/projects/{project_id}')
             projects[project_id] = project_ref.get()
     else:
-        projects_ref = fb_db.reference('projects/')
+        projects_ref = fb_db.reference('v2/projects/')
         projects = projects_ref.get()
 
     for project_id, project in projects.items():

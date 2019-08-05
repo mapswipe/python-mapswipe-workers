@@ -159,16 +159,16 @@ class BaseProject(metaclass=ABCMeta):
     def save_to_firebase(self, fb_db, project, groups, groupsOfTasks):
         ref = fb_db.reference('')
         ref.update({
-            f'projects/{self.projectId}': project,
-            f'groups/{self.projectId}': groups,
-            f'tasks/{self.projectId}': groupsOfTasks,
+            f'v2/projects/{self.projectId}': project,
+            f'v2/groups/{self.projectId}': groups,
+            f'v2/tasks/{self.projectId}': groupsOfTasks,
             })
         logger.info(
                 f'{self.projectId} -'
                 f' uploaded project, groups and'
                 f' tasks to firebase realtime database'
                 )
-        ref = fb_db.reference(f'projectDrafts/{self.projectId}')
+        ref = fb_db.reference(f'v2/projectDrafts/{self.projectId}')
         ref.set({})
 
     def save_to_postgres(self, project, groups, groupsOfTasks):

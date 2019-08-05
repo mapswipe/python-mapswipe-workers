@@ -13,13 +13,13 @@ def mock_user_contributions(
         user_id,
         ):
 
-    project_ref = fb_db.reference(f'projects/{project_id}/')
+    project_ref = fb_db.reference(f'v2/projects/{project_id}/')
     project_data_before = project_ref.get()
 
-    groups_ref = fb_db.reference(f'groups/{project_id}/')
+    groups_ref = fb_db.reference(f'v2/groups/{project_id}/')
     groups_data_before = groups_ref.order_by_key().limit_to_last(5).get()
 
-    user_ref = fb_db.reference(f'users/{user_id}/')
+    user_ref = fb_db.reference(f'v2/users/{user_id}/')
     user_data_before = user_ref.get()
 
     times = {
@@ -32,13 +32,13 @@ def mock_user_contributions(
         results = dict()
         results['results'] = dict()
 
-        tasks_ref = fb_db.reference(f'tasks/{project_id}/{group_id}/')
+        tasks_ref = fb_db.reference(f'v2/tasks/{project_id}/{group_id}/')
         tasks = tasks_ref.get()
         for task in tasks:
             results['results'][task['taskId']] = random.randint(1, 3)
 
         results_ref = fb_db.reference(
-                f'results/{project_id}/{group_id}/{user_id}/'
+                f'v2/results/{project_id}/{group_id}/{user_id}/'
                 )
         results = {**results, **times}
         results_ref.update(results)
@@ -58,7 +58,7 @@ def test_project_counter_progress(
     Test result count and progress of project
     when new results are written to the firebase.
     '''
-    project_ref = fb_db.reference(f'projects/{project_id}/')
+    project_ref = fb_db.reference(f'v2/projects/{project_id}/')
     project_data_after = project_ref.get()
 
     result_count = project_data_before['resultCount']
@@ -90,7 +90,7 @@ def test_group_counter_progress(
         groups_data_before
         ):
 
-    ref = fb_db.reference(f'groups/{project_id}/')
+    ref = fb_db.reference(f'v2/groups/{project_id}/')
     groups = ref.order_by_key().limit_to_last(5).get()
 
     for group_id, group_data_after in groups.items():
@@ -128,7 +128,7 @@ def test_user_stats(
         project_ids,
         user_data_before
         ):
-    user_ref = fb_db.reference(f'users/{user_id}/')
+    user_ref = fb_db.reference(f'v2/users/{user_id}/')
     user_data_after = user_ref.get()
 
     # Init counter with values befor sending results
@@ -146,7 +146,7 @@ def test_user_stats(
         for key in user_data_before['contributions'].keys():
             if project_id == key:
                 total_number_of_projects -= 1
-        groups_ref = fb_db.reference(f'groups/{project_id}/')
+        groups_ref = fb_db.reference(f'v2/groups/{project_id}/')
         groups = groups_ref.order_by_key().limit_to_last(5).get()
         contributions_group = dict()
         for group_id, group in groups.items():

@@ -6,15 +6,15 @@ from mapswipe_workers.definitions import DATA_PATH
 
 
 def delete_sample_data_from_firebase(fb_db, project_id):
-    ref = fb_db.reference(f'results/{project_id}')
+    ref = fb_db.reference(f'v2/results/{project_id}')
     ref.set({})
-    ref = fb_db.reference(f'tasks/{project_id}')
+    ref = fb_db.reference(f'v2/tasks/{project_id}')
     ref.set({})
-    ref = fb_db.reference(f'groups/{project_id}')
+    ref = fb_db.reference(f'v2/groups/{project_id}')
     ref.set({})
-    ref = fb_db.reference(f'projects/{project_id}')
+    ref = fb_db.reference(f'v2/projects/{project_id}')
     ref.set({})
-    ref = fb_db.reference(f'projectDrafts/{project_id}')
+    ref = fb_db.reference(f'v2/projectDrafts/{project_id}')
     ref.set({})
     print(
             f'Firebase: '
@@ -104,7 +104,7 @@ if __name__ == '__main__':
         with open(filename, 'rb') as f:
             user_ids = pickle.load(f)
         for user_id in user_ids:
-            ref = fb_db.reference(f'users/{user_id}')
+            ref = fb_db.reference(f'v2/users/{user_id}')
             ref.set({})
         os.remove('user_ids.pickle')
     else:

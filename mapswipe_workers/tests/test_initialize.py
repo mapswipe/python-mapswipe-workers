@@ -10,7 +10,7 @@ from mapswipe_workers import auth
 
 def create_project_drafts_in_firebase(sample_project_draft, fb_db):
 
-    ref = fb_db.reference('projectDrafts/')
+    ref = fb_db.reference('v2/projectDrafts/')
 
     project_id = ref.push(sample_project_draft).key
     print(
@@ -21,7 +21,7 @@ def create_project_drafts_in_firebase(sample_project_draft, fb_db):
 
 
 def create_user(fb_db):
-    ref = fb_db.reference('users/')
+    ref = fb_db.reference('v2/users/')
     user = {
             'contributions': {},
             'created': dt.datetime.now().strftime('%Y-%m-%dT%H:%M:%S.%f%z'),
