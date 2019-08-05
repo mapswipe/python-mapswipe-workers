@@ -16,8 +16,9 @@ from recommonmark.parser import CommonMarkParser
 #
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../'))
-sys.path.insert(0, os.path.abspath('../cfg/'))
+# sys.path.insert(0, os.path.abspath('../'))
+# sys.path.insert(0, os.path.abspath('../cfg/'))
+sys.path.insert(0, os.path.abspath('../mapswipe_workers/'))
 
 
 # -- Project information -----------------------------------------------------

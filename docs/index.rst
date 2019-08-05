@@ -10,6 +10,7 @@ Welcome to Mapswipe Workers's documentation!
    :maxdepth: 2
    :caption: Getting Started:
 
+   readme_link
    introduction
    setup
    data_model
