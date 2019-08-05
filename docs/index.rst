@@ -10,7 +10,6 @@ Welcome to Mapswipe Workers's documentation!
    :maxdepth: 2
    :caption: Getting Started:
 
-   readme_link
    introduction
    setup
    data_model
@@ -33,11 +32,10 @@ Welcome to Mapswipe Workers's documentation!
    project_type-footprint
 
 
-.. toctree::
-   :maxdepth: 2
-   :caption: Packages and Modules:
-
-   source/modules
+.. .. toctree::
+..    :maxdepth: 2
+..    :caption: Modules:
+..    modules
 
 
 .. toctree::
@@ -50,9 +48,12 @@ Welcome to Mapswipe Workers's documentation!
    project_type-enable
 
 
-Indices and tables
-==================
+.. automodule:: mapswipe_workers
 
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+
+.. Indices and tables
+.. ==================
+
+.. * :ref:`genindex`
+.. * :ref:`modindex`
+.. * :ref:`search`
