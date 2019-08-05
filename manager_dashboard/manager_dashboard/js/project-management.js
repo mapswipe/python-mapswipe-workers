@@ -1,5 +1,5 @@
 function getProjects(status) {
-  var ProjectsRef = firebase.database().ref("projects").orderByChild("status").equalTo(status);
+  var ProjectsRef = firebase.database().ref("v2/projects").orderByChild("status").equalTo(status);
   var table = document.createElement('table')
   table.classList.add("table")
   var tbody = document.createElement('tbody');
