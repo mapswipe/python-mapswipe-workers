@@ -1,4 +1,4 @@
-# MapSwipe Workers - Command Line Interface
+# Command Line Interface
 
 ```
 Usage: mapswipe_workers [OPTIONS] COMMAND [ARGS]...
