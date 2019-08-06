@@ -12,6 +12,7 @@ Welcome to MapSwipe Back-End's documentation!
    :caption: Getting Started:
 
    readme_link
+   overview
 
 
 .. toctree::
@@ -42,7 +43,7 @@ Welcome to MapSwipe Back-End's documentation!
    :maxdepth: 2
    :caption: Miscellaneous:
 
-   contributing
+   dev-setup
    diagrams
    use_cases
 
