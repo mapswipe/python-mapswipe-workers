@@ -57,15 +57,6 @@ def get_tileserver_url(tileserver):
         raise
 
 
-def get_submission_key():
-    CONFIG = load_config()
-    try:
-        return CONFIG['import']['submission_key']
-    except KeyError:
-        print("Couldn't find the submission key in {}".format(CONFIG_PATH))
-        raise
-
-
 def firebaseDB():
     try:
         # Is an App instance already initialized?

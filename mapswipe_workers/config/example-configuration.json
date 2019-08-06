@@ -31,8 +31,5 @@
         "token": "your_slack_token",
         "channel": "your_slack_channel",
         "username": "your_slack_username"
-    },
-    "import": {
-        "submission_key": "your_submission_key"
     }
 }

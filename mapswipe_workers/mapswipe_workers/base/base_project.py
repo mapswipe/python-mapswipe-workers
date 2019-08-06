@@ -50,12 +50,6 @@ class BaseProject(metaclass=ABCMeta):
            True if successful. False otherwise.
         """
 
-        # check if the submission key is correct
-        submission_key = project_draft['submissionKey']
-        if not submission_key == auth.get_submission_key():
-            raise Exception(f"submission key is not valid: {submission_key}")
-        logger.info(f'{submission_key} - __init__ - start init')
-
         self.archived = False
         self.contributorCount = 0
         self.created = dt.datetime.now()
