@@ -6,28 +6,10 @@ In the next MapSwipe version release (MapSwipe for Change Detection Analysis) th
 
 The Diagrams are drawn using [draw.io](https://.wwww.draw.io). You can download the `diagram.xml` file in the GitHub repository (docs/\_static/img/) and upload it to draw.io if you want to edit it. The JSON based data structure diagrams of the Firebase Realtime Database are drwan using sample_data.json, which also can be found in the GitHub repository (docs/\_static/img/) files and this tool: https://vanya.jp.net/vtree/
 
+---
+
 **Deployment Diagram:**
 ![Deployment Diagram](/_static/img/deployment_diagram.png)
-
-**Relations:**
-- Mapswipe Client (App) - Realtime Database
-    - Mapswipe Client is requesting some `projects`, data of a specific `users.userId`. In case of a project selection a `groups.projectId.groupId` and `tasks.projectId.groupsId` will be requested
-    - Mapswipe Client will only write to Firebase Realtime Database in case of result generation.
-        - Mapswipe Client is writing to `results.projectId.groupId.userId1.` timestamp  and resultCount when and how many results were generated.
-        - The result itself will be written to `results.projectId.groupId.userId1.taskId1.result`.
-        - Mapswipe Client is incrementing `users.userId.contributions`, `users.userId.distance` and `groups.projectId.groupId.completedCount`
-- Mapswipe Client (Webseite) - Realtime Database
-    - Using the HTML-Import-Formular new project drafts will be written to `project_drafts.projectDraftId` in the Realtime Database
-- import / projectCreation - Realtime Database
-    - requests `projectDrafts` from Realtime Database
-    - writes to `projects.projectId`, `groups.projectId` and `tasks.projectId`
-- import / projectCreation - Postgres
-    - writes projectDraft, project, groups and tasks to Postgres
-- tansfer_results - Realtime Database
-    - requests `results` from Realtime Database
-    - deletes `results` from Realtime Database
-- tansfer_results - Postgres
-    - writes results to Postgres
 
 ---
 
@@ -53,4 +35,3 @@ The Diagrams are drawn using [draw.io](https://.wwww.draw.io). You can download 
 
 **Database Schema - Analytics:**
 ![Database Schema - Analytics](/_static/img/database_schema-analytics.png)
-
