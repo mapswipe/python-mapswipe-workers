@@ -43,7 +43,7 @@ Welcome to MapSwipe Back-End's documentation!
    :maxdepth: 2
    :caption: Miscellaneous:
 
-   dev-setup
+   dev_setup
    diagrams
    use_cases
 

@@ -12,12 +12,12 @@ In this document some tips and workflows for development are loosely collected. 
     - `pip install -e .`
 5. Configure MapSwipe Workers as described in the section 'MapSwipe Workers Setup' in the [Setup](setup.md) chapter
     - Make sure configuration and data paths are created and permissions are set as described in the next section [Configuration and data path](#Configurationa_and_data_path).
-    - Move the configuration (`config/configuration.json`) and the Service Account Key (`config/serviceAccountKey.json`) to `/user/share/config/mapswipe_workers/`
+    - Move the configuration (`config/configuration.json`) and the Service Account Key (`config/serviceAccountKey.json`) to `/usr/share/config/mapswipe_workers/`
 6. Setup a postgres instance
-    - Use the Docker image of MapSwipe (`docker-compose up -d postgres`)
+    - Use the Docker image of MapSwipe
         - `cd postgres/`
         - `docker build -t mapswipe_postgres .`
-        - `docker run -d -p 5432:5432 --name mapswipe_postgres -e POSTGRES_USER=mapswipe -e POSTGRES_PASSWORD=your_password -e POSTGRES_DB=mapswipe mapswipe_postgres`
+        - `docker run -d -p 5432:5432 --name mapswipe_postgres -e POSTGRES_DB=mapswipe -e POSTGRES_USER=mapswipe_workers -e POSTGRES_PASSWORD=your_password mapswipe_postgres`
     - Or set up your own using the `initdb.sql` file in the `postgres/` folder
 7. Run Mapswipe Workers using the command: `mapswipe_wokers`
     - eg. `mapswipe_wokers --help`

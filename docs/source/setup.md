@@ -71,12 +71,10 @@ docker-compose up --build -d firebase_deploy
 In the `postgres` directory is an `initdb.sql` file for initializing a Postgres database.
 
 When running Postgres using the provided Dockerfile it will setup a Postgres database during the build.
-A Postgres user, password and database name has to be defined in an environment file (`.env`) in the same directory as the `docker-compose.yaml` file (root). E.g:
+A Postgres password has to be defined in an environment file (`.env`) in the same directory as the `docker-compose.yaml` file (root). E.g:
 
-```env
-POSTGRES_USER=mapswipe
+```
 POSTGRES_PASSWORD=mapswipe
-POSTGRES_DB=mapswipe
 ```
 
 To run the Postgres Docker container:
@@ -91,8 +89,6 @@ The Postgres instance will be exposed to `postgres:5432` (postgres Docker networ
 ### Backup
 
 To backup the Postgres MapSwipe database use the `backup.sh` script inside the `./postgres` directory. It will execute a command (`pgdump`) inside the Postgres Docker container and store the backup locally (outside the Docker container).
-
-To restore the backup use the `restore.sh` script inside the `./postgres` directory.
 
 
 ## MapSwipe Workers Setup
