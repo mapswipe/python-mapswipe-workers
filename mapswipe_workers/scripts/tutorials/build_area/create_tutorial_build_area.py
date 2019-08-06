@@ -5,7 +5,7 @@ from mapswipe_workers import auth
 
 # add basic information for tutorial like name, project type, tile server
 # load data from examples file
-input_file = 'scripts/tutorials/build_area/build_area_tutorial.json'
+input_file = 'build_area_tutorial.json'
 with open(input_file) as json_file:
     tutorial = json.load(json_file)
 
@@ -123,24 +123,17 @@ print(groups_dict)
 print(tasks_dict)
 
 # export as json files
-with open('scripts/tutorials/build_area/build_area_tutorial_groups.json', 'w') as outfile:
+with open('build_area_tutorial_groups.json', 'w') as outfile:
     json.dump(groups_dict, outfile)
 
-with open('scripts/tutorials/build_area/build_area_tutorial_tasks.json', 'w') as outfile:
+with open('build_area_tutorial_tasks.json', 'w') as outfile:
     json.dump(tasks_dict, outfile)
 
 # upload groups and tasks to firebase
 fb_db = auth.firebaseDB()
 ref = fb_db.reference('')
 ref.update({
-    'projects/{}'.format(tutorial_id): tutorial,
-    'groups/{}'.format(tutorial_id): groups_dict,
-    'tasks/{}'.format(tutorial_id): tasks_dict,
+    'v2/projects/{}'.format(tutorial_id): tutorial,
+    'v2/groups/{}'.format(tutorial_id): groups_dict,
+    'v2/tasks/{}'.format(tutorial_id): tasks_dict,
     })
-
-
-
-
-
-
-

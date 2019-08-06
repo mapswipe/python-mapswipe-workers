@@ -24,7 +24,7 @@
     "name" : "custom",
     "url" : "https://tiles.planet.com/basemaps/v1/planet-tiles/global_quarterly_2019q1_mosaic/gmap/{z}/{x}/{y}.png?api_key=8d4aee7b35a94aa68e1d9119f27e01aa"
   },
-  "examplesFile": "scripts/tutorials/change_detection/change_detection_examples.geojson",
+  "examplesFile": "change_detection_examples.geojson",
   "categories": {
     "changes": {
       "pre": "Swipe right to indicate changes.",
