@@ -12,6 +12,12 @@ Welcome to MapSwipe Back-End's documentation!
    :caption: Getting Started:
 
    readme_link
+
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Installing:
+
    setup
    debugging
 
