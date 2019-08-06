@@ -56,7 +56,6 @@ CREATE TABLE IF NOT EXISTS users (
     PRIMARY KEY(user_id)
     );
 
--- startTime & end Time
 CREATE TABLE IF NOT EXISTS results (
     project_id varchar,
     group_id int,
@@ -76,3 +75,9 @@ CREATE TABLE IF NOT EXISTS results (
 CREATE INDEX IF NOT EXISTS results_taskid ON public.results USING btree (task_id);
 CREATE INDEX IF NOT EXISTS results_projectid ON public.results USING btree (project_id);
 CREATE INDEX IF NOT EXISTS results_userid ON public.results USING btree (user_id);
+
+-- create a read-only user for backups
+CREATE IF NOT EXISTS USER backup WITH PASSWORD 'backupuserpassword';
+GRANT CONNECT ON DATABASE mapswipe TO backup;
+GRANT USAGE ON SCHEMA public TO backup;
+GRANT SELECT ON ALL TABLES IN SCHEMA public TO backup;
