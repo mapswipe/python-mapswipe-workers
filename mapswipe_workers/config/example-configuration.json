@@ -7,11 +7,7 @@
         "port": "5432"
     },
     "firebase": {
-        "api_key": "your_firebase_api_key",
-        "auth_domain": "your_firebase_auth_domain",
-        "database_url": "your_firebase_database_url",
-        "storage_bucket": "your_firebase_storage_bucket",
-        "service_account": "serviceAccountKey.json"
+        "database_url": "your_firebase_database_url"
     },
     "imagery":{
         "bing": {
