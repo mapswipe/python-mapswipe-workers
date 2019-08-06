@@ -24,6 +24,7 @@
     "projectDrafts": {
         "projectDraftId1": {
             "country": "name",
+            "createdBy": "user name",
             "exampleImage": "exampleImage",
             "exampleMessage": "exampleMessage",
             "groupMaxSize": 10,
@@ -34,7 +35,6 @@
             "projectDetails": "text",
             "projectType": 2,
             "purposeMessage": "brief message (140 chars)",
-            "submissionKey": "key",
             "thankYouMessage": "brief message (140 chars)",
             "tileServer": "name",
             "tileServerUrl": "url (optional",
@@ -50,6 +50,7 @@
             "contributorCount": 2,
             "country": "name",
             "created": "timestamp",
+            "createdBy": "user name",
             "exampleImage": "exampleImage",
             "exampleMessage": "exampleMessage",
             "groupMaxSize": 10,
