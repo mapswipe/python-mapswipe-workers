@@ -1,5 +1,7 @@
 # Build Area
 
+![Build Area](_static/img/data_structure-firebase-1.svg)
+
 | Name | ID | Description | Screenshot |
 | ---- | -- | ----------- | ---------- |
 | BuildArea | 1 | A 6 squares layout is used for this project type. By tapping you can classify a tile of satellite imagery as *yes*, *maybe* or *bad_imagery*. Project managers can define which objects to look for, e.g. "buildings". Furthermore, they can specify the tile server of the background satellite imagery, e.g. "bing" or a custom tile server. | <img src="_static/img/BuildArea_screenshot.png" width="250px"> |

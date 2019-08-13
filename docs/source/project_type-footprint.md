@@ -1,5 +1,8 @@
 # Footprint
 
+![Footprint](_static/img/data_structure-firebase-2.svg)
+
+
 ## Import structure
 
 ```json
