@@ -106,6 +106,7 @@ if __name__ == '__main__':
         for user_id in user_ids:
             ref = fb_db.reference(f'v2/users/{user_id}')
             ref.set({})
+            print(f'Firebase: deleted user with the user id: {user_id}')
         os.remove('user_ids.pickle')
     else:
         print('No user_ids.pickle file found')
