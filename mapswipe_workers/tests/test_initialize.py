@@ -3,7 +3,6 @@ import glob
 import json
 import os
 import pickle
-import time
 
 from mapswipe_workers import auth
 
@@ -52,10 +51,12 @@ def save_user_id(user_id):
     if os.path.isfile(filename):
         with open(filename, 'rb') as f:
             existing_user_ids = pickle.load(f)
-        user_id = existing_user_ids + user_id
+        user_ids = existing_user_ids.append(user_id)
+    else:
+        user_ids = [user_id]
 
     with open(filename, 'wb') as f:
-        pickle.dump(user_id, f)
+        pickle.dump(user_ids, f)
 
 
 if __name__ == '__main__':
