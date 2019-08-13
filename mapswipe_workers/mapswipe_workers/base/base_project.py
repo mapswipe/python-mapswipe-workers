@@ -106,6 +106,8 @@ class BaseProject(metaclass=ABCMeta):
         project.pop('inputGeometries', None)
         project.pop('kml', None)
         project.pop('validInputGeometries', None)
+        # Convert Date object to ISO Datetime:
+        # https://www.w3.org/TR/NOTE-datetime
         project['created'] = self.created.strftime('%Y-%m-%dT%H:%M:%S.%f%z')
 
         # Make sure projects get saved in Postgres and Firebase successful
