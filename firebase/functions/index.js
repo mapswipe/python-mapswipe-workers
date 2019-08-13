@@ -98,9 +98,9 @@ exports.counter = functions.database.ref('/v2/results/{projectId}/{groupId}/{use
                 return null
             }
             else {
-                var groupId = context.params.groupId
-                data = {
-                    groupId: {
+                const groupId = context.params.groupId
+                const data = {
+                    [groupId]: {
                         'timestamp': result['timestamp'],
                         'startTime': result['startTime'],
                         'endTime': result['endTime']
@@ -111,26 +111,25 @@ exports.counter = functions.database.ref('/v2/results/{projectId}/{groupId}/{use
         })
     promises.push(contributions)
 
-    // TODO: Review this function. Make sure it works
-    const timeSpentMapping = timeSpentMappingRef.transaction((currentCount) => {
-        time = startTimeRef.once('value')
-            .then((startTimePromise) => {
-                const startTime = startTimePromise.val()
-                return startTime
-            })
-            .then((startTime) => {
-                const endTime = endTimeRef.once('value')
-                    .then((endTimePromise) => {
-                        const endTime = endTimePromise.val()
-                        return endTime
-                    })
-                const time = endTime - startTime
-                return time
-            })
-        const totalTime = currentCount + time
-        return totalTime
-    })
-    promises.push(timeSpentMapping)
+    // // TODO: Does not work
+    // // Writes array of promises to firebase
+    // const timeSpentMapping = timeSpentMappingRef.transaction((currentTime) => {
+    //     const startTime = startTimeRef.once('value')
+    //         .then((startTimePromise) => {
+    //             const startTime = startTimePromise.val()
+    //             return startTime
+    //         })
+    //     const endTime = endTimeRef.once('value')
+    //         .then((endTimePromise) => {
+    //             const endTime = endTimePromise.val()
+    //             return endTime
+    //         })
+    //     const time = Promise.all([startTime, endTime]).then((times) => {
+    //         return Date.parse(times[1]) - Date.parse(times[0])
+    //     })
+    //     return currentTime + time
+    // })
+    // promises.push(timeSpentMapping)
 
     return Promise.all(promises)
 })
