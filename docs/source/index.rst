@@ -32,8 +32,9 @@ Welcome to MapSwipe Back-End's documentation!
 
 .. toctree::
    :maxdepth: 2
-   :caption: Project Types:
+   :caption: Project Types and Data Model:
 
+   project_type
    project_type-buildArea
    project_type-footprint
    project_type-changeDetection
