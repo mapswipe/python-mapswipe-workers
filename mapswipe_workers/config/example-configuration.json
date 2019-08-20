@@ -7,7 +7,7 @@
         "port": "5432"
     },
     "firebase": {
-        "database_url": "your_firebase_database_url"
+        "database_name": "your_firebase_database_name"
     },
     "imagery":{
         "bing": {

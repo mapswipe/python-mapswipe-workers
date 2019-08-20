@@ -60,21 +60,21 @@ def get_tileserver_url(tileserver):
 def firebaseDB():
     try:
         # Is an App instance already initialized?
-        # Then return the Firebase Realtime Database module
         firebase_admin.get_app()
+        # Return the imported Firebase Realtime Database module
         return db
     except ValueError:
-        # Fetch the service account key JSON file contents
         cred = credentials.Certificate(SERVICE_ACCOUNT_KEY_PATH)
         config = load_config()
-        databaseURL = config['firebase']['database_url']
+        databaseName = config['firebase']['database_name']
+        databaseURL = f'https://{databaseName}.firebaseio.com'
 
         # Initialize the app with a service account, granting admin privileges
         firebase_admin.initialize_app(cred, {
             'databaseURL': databaseURL
         })
 
-        # Return the Firebase Realtime Database module
+        # Return the imported Firebase Realtime Database module
         return db
 
 
