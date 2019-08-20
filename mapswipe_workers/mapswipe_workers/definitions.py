@@ -2,7 +2,6 @@ import os
 import json
 import logging
 import logging.config
-from xdg import XDG_CONFIG_HOME
 from logging.handlers import TimedRotatingFileHandler
 
 
