@@ -42,12 +42,6 @@ def get_general_stats():
         FROM users;
     '''
 
-# Attribute name changed
-    query_select_user_contributions_total = '''
-        SELECT SUM(contribution_count)
-        FROM users;
-    '''
-
     project_total = pg_db.retr_query(query_select_project_total)[0]
     project_finished = pg_db.retr_query(query_select_project_finished)[0]
     project_inactive = pg_db.retr_query(query_select_project_inactive)[0]
@@ -56,9 +50,6 @@ def get_general_stats():
             query_select_project_avg_progress
             )[0]
     user_total = pg_db.retr_query(query_select_user_total)[0]
-    user_contributions_total = pg_db.retr_query(
-            query_select_user_contributions_total
-            )[0]
 
     stats = {
             'project_total': project_total,
@@ -67,7 +58,6 @@ def get_general_stats():
             'project_active': project_active,
             'project_avg_progress': project_avg_progress,
             'user_total': user_total,
-            'user_contributions_total': user_contributions_total,
             }
 
     del(pg_db)
