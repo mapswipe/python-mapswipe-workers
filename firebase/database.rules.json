@@ -3,105 +3,103 @@
     ".read": false,
     ".write": false,
     "v2": {
-        "announcement": {
-          ".write": false,
-          ".read": true
-        },
-        "projects": {
-          ".write": false,
-          ".read": "auth != null",
-          "$project_id": {
-            "status": {
-              ".write": "auth.token.projectManager === true"
-            }
-          },
-          ".indexOn": [
-            "status"
-          ]
-        },
-        "projectDrafts": {
-          ".read": false,
-          ".write": "auth.token.projectManager === true",
-          ".indexOn": [
-            "complete"
-          ]
-        },
-        "groups": {
-          ".write": false,
-          ".read": true,
-          ".indexOn": [
-            "finishedCount",
-            "requiredCount"
-          ]
-        },
-        "tasks": {
-          ".write": false,
-          ".read": true
-        },
-        "results": {
-          ".write": false,
-          ".read": false,
-          "$project_id": {
-            "$group_id": {
-              "$uid": {
-                ".write": "$uid === auth.uid"
-              }
-            }
+      "announcement": {
+        ".write": false,
+        ".read": true
+      },
+      "projects": {
+        ".write": false,
+        ".read": "auth != null",
+        "$project_id": {
+          "status": {
+            ".write": "auth.token.projectManager === true"
           }
         },
-        "users": {
-          "$uid": {
-            ".read": "auth != null && auth.uid == $uid",
-            ".write": "auth != null && auth.uid == $uid"
-          },
-          ".indexOn": [
-            "created"
-          ]
+        ".indexOn": [
+          "status"
+        ]
+      },
+      "projectDrafts": {
+        ".read": false,
+        ".write": "auth.token.projectManager === true",
+        ".indexOn": [
+          "complete"
+        ]
+      },
+      "groups": {
+        ".write": false,
+        ".read": true,
+        ".indexOn": [
+          "finishedCount",
+          "requiredCount"
+        ]
+      },
+      "tasks": {
+        ".write": false,
+        ".read": true
+      },
+      "results": {
+        ".write": false,
+        ".read": false,
+        "$project_id": {
+          "$group_id": {
+            "$uid": {
+              ".write": "$uid === auth.uid"
+            }
+          }
         }
+      },
+      "users": {
+        "$uid": {
+          ".read": "auth != null && auth.uid == $uid",
+          ".write": "auth != null && auth.uid == $uid"
+        },
+        ".indexOn": [
+          "created"
+        ]
+      }
     },
     "groups": {
       ".write": false,
       ".read": true,
-      ".indexOn": [
-        "finishedCount",
-        "requiredCount"
-      ]
+      "$project_id": {
+        "$group_id": {
+          ".indexOn": [
+            "distributedCount",
+            "completedCount"
+          ],
+          ".write": "auth != null",
+          "completedCount": {
+            ".write": "auth != null"
+          }
+        },
+        ".indexOn": [
+          "distributedCount",
+          "completedCount"
+        ]
+      }
     },
-    "tasks": {
-      ".write": false,
-      ".read": true
-    },
-    "projectDrafts": {
+    "imports": {
       ".read": false,
-      ".write": "auth.token.projectManager === true",
+      ".write": true,
       ".indexOn": [
         "complete"
       ]
     },
     "projects": {
       ".write": false,
-      ".read": "auth != null",
-      "$project_id": {
-        "status": {
-          ".write": "auth.token.projectManager === true"
-        }
-      },
-      ".indexOn": [
-        "status"
-      ]
+      ".read": true
     },
     "announcement": {
-      ".write": false,
+      ".write": true,
       ".read": true
     },
     "results": {
       ".write": false,
-      ".read": false,
-      "$project_id": {
-        "$group_id": {
-          "$uid": {
-            ".write": "$uid === auth.uid"
-          }
+      ".read": true,
+      "$task_id": {
+        "$user_id": {
+          ".write": "auth != null && auth.uid == $user_id"
         }
       }
     },
@@ -109,14 +107,7 @@
       "$uid": {
         ".read": "auth != null && auth.uid == $uid",
         ".write": "auth != null && auth.uid == $uid"
-      },
-      ".indexOn": [
-        "created"
-      ]
-    },
-    "imports": {
-      ".read": "auth.token.projectManager === true",
-      ".write": "auth.token.projectManager === true"
+      }
     }
   }
 }
