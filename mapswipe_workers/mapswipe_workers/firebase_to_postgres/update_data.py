@@ -12,6 +12,8 @@ def copy_new_users():
     fb_db = auth.firebaseDB()
     pg_db = auth.postgresDB()
 
+    fb_ref = fb_db.reference('v2/users')
+
     pg_query = '''
         SELECT created
         FROM users
@@ -19,18 +21,22 @@ def copy_new_users():
         LIMIT 1
         '''
     last_updated = pg_db.retr_query(pg_query)
-    last_updated = last_updated[0][0]
-    last_updated = last_updated.strftime('%Y-%m-%dT%H:%M:%S.%f')
-
-    ref = fb_db.reference('v2/users')
-    fb_query = ref.order_by_child('created').start_at(last_updated)
-    users = fb_query.get()
-    # Delete first user in ordered dict.
-    # This user is already in the database (user.created = last_updated).
-    users.popitem(last=False)
+    if last_updated is None:
+        # No users in the Postgres database yet.
+        # Get all users from Firebase.
+        users = fb_ref.get()
+    else:
+        # Get only new users from Firebase.
+        last_updated = last_updated[0][0]
+        last_updated = last_updated.strftime('%Y-%m-%dT%H:%M:%S.%f')
+        fb_query = fb_ref.order_by_child('created').start_at(last_updated)
+        users = fb_query.get()
+        # Delete first user in ordered dict.
+        # This user is already in the database (user.created = last_updated).
+        users.popitem(last=False)
 
     for user_id, user in users.items():
-        # Convert timestamp (ISO 8601) from string to a datetime object
+        # Convert timestamp (ISO 8601) from string to a datetime object.
         # TODO: Make sure strptime is working with timestamps written by the app.
         # ('%Y-%m-%dT%H:%M:%S.%f%z'
         user['created'] = dt.datetime.strptime(
