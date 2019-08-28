@@ -83,7 +83,6 @@ services:
             context: firebase/
         environment:
             FIREBASE_TOKEN: '${FIREBASE_TOKEN}'
-        command: firebase deploy --only functions --only database:rules
+        command: firebase deploy --token $FIREBASE_TOKEN --only functions --only database:rules
         volumes:
             - ./firebase:/firebase
-        restart: unless-stopped
