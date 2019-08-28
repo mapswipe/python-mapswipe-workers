@@ -81,6 +81,8 @@ services:
         container_name: firebase_deploy
         build:
             context: firebase/
+        environment:
+            FIREBASE_TOKEN: '${FIREBASE_TOKEN}'
         command: firebase deploy --only functions --only database:rules
         volumes:
             - ./firebase:/firebase
