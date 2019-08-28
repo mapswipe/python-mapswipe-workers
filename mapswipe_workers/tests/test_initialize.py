@@ -51,7 +51,10 @@ def save_user_id(user_id):
     if os.path.isfile(filename):
         with open(filename, 'rb') as f:
             existing_user_ids = pickle.load(f)
-        user_ids = existing_user_ids.append(user_id)
+        if isinstance(existing_user_ids, list):
+            user_ids = existing_user_ids.append(user_id)
+        else:
+            user_ids = [existing_user_ids, user_id]
     else:
         user_ids = [user_id]
 
