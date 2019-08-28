@@ -53,7 +53,7 @@ services:
             context: mapswipe_workers/
         depends_on:
             - postgres
-        command: mapswipe_workers --verbose run --schedule h
+        command: mapswipe_workers --verbose run --schedule m
         volumes:
             - ./api-data:/var/lib/mapswipe_workers/api-data/:rw
         restart: unless-stopped
