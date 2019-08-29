@@ -193,9 +193,9 @@ def run(schedule):
                     f'h for every hour and d for every day.'
                     )
     else:
-        _run_create_projects
-        _run_firebase_to_postgres
-        _run_generate_stats
+        _run_create_projects()
+        _run_firebase_to_postgres()
+        _run_generate_stats()
 
 
 def _run_create_projects():
