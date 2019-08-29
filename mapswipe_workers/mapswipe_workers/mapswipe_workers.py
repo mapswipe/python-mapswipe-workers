@@ -263,7 +263,7 @@ def _run_firebase_to_postgres():
 
 
 def _run_generate_stats():
-    data = generate_stats.get_general_stats
+    data = generate_stats.get_general_stats()
     filename = f'{DATA_PATH}/stats.json'
     with open(filename, 'w') as outfile:
         json.dump(data, outfile)
