@@ -28,7 +28,7 @@ def copy_new_users():
     else:
         # Get only new users from Firebase.
         last_updated = last_updated[0][0]
-        last_updated = last_updated.strftime('%Y-%m-%dT%H:%M:%S.%f')
+        last_updated = last_updated.strftime('%Y-%m-%dT%H:%M:%S.%fZ')
         fb_query = fb_ref.order_by_child('created').start_at(last_updated)
         users = fb_query.get()
         # Delete first user in ordered dict.
@@ -38,9 +38,8 @@ def copy_new_users():
     for user_id, user in users.items():
         # Convert timestamp (ISO 8601) from string to a datetime object.
         # TODO: Make sure strptime is working with timestamps written by the app.
-        # ('%Y-%m-%dT%H:%M:%S.%f%z'
         user['created'] = dt.datetime.strptime(
-                user['created'],
+                user['created'].replace('Z', ''),
                 '%Y-%m-%dT%H:%M:%S.%f'
                 )
         query_update_user = '''
