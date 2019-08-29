@@ -1,5 +1,4 @@
 from mapswipe_workers import auth
-from mapswipe_workers.definitions import DATA_PATH
 from mapswipe_workers.definitions import logger
 
 
@@ -69,11 +68,15 @@ def get_all_active_projects():
 
     pg_db = auth.postgresDB()
     query_select_project_active = '''
-        SELECT *
+        SELECT project_id
         FROM projects
         WHERE status='active';
     '''
-    active_projects = pg_db.retr_query(query_select_project_active)[0]
+    active_projects = pg_db.retr_query(query_select_project_active)
+    try:
+        active_projects = active_projects[0]
+    except IndexError:
+        pass
 
     del(pg_db)
     logger.info('generated list of active projects')
