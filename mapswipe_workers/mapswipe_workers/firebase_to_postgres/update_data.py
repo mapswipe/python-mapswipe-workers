@@ -21,7 +21,7 @@ def copy_new_users():
         LIMIT 1
         '''
     last_updated = pg_db.retr_query(pg_query)
-    if last_updated is None:
+    if not last_updated:
         # No users in the Postgres database yet.
         # Get all users from Firebase.
         users = fb_ref.get()
