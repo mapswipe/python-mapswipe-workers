@@ -27,8 +27,6 @@ class FootprintProject(BaseProject):
         self.inputGeometries = project_draft['inputGeometries']
         self.tileServer = self.get_tile_server(project_draft['tileServer'])
 
-        self.validate_geometries()
-
     def validate_geometries(self):
         raw_input_file = (
                 f'{DATA_PATH}/'

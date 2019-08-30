@@ -25,7 +25,6 @@ class ChangeDetectionProject(BaseProject):
         self.groupSize = 10
         self.kml = project_draft['kml']
         self.zoomLevel = int(project_draft.get('zoomLevel', 18))
-        self.validate_geometries()
         self.tileServerA = self.get_tile_server(project_draft['tileServerA'])
         self.tileServerB = self.get_tile_server(project_draft['tileServerB'])
 
