@@ -8,7 +8,8 @@
         "projectDetails": "This project uses Bing as the tile server and zoom level 18. This is the setup most MapSwipe projects used so far.",
         "verificationNumber": 3,
         "tileServer": {
-          "name": "bing"
+          "name": "bing",
+          "credits": "© 2019 Microsoft Corporation, Earthstar Geographics SIO"
         },
         "projectType": 1
     },
@@ -23,6 +24,7 @@
         "projectType": 1,
         "tileServer": {
           "name": "sinergise",
+          "credits": "© Sentinel Hub",
           "wmtsLayerName": "FALSE_COLOR"
         },
         "zoomLevel": 14
