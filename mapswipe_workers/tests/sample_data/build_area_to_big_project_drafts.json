@@ -1,5 +1,5 @@
 {
-  "build_area_default_with_bing": {
+  "build_area_big": {
         "submissionKey": "5G9Ce2J7",
         "kml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?><kml xmlns=\"http://www.opengis.net/kml/2.2\"><Document><Placemark><ExtendedData></ExtendedData><Polygon><outerBoundaryIs><LinearRing><coordinates>124.554857121795,7.82765885458511 125.410392938872,7.99103833044483 125.280174484659,8.67292662172082 124.424638667582,8.5095471458611 124.554857121795,7.82765885458511</coordinates></LinearRing></outerBoundaryIs></Polygon></Placemark></Document></kml>",
         "image": "http://www.redcrosseth.org/media/k2/items/cache/5a05a447acfdf6fcc40548cc4c1cea8d_L.jpg",
@@ -11,5 +11,19 @@
           "name": "bing"
         },
         "projectType": 1
+    },
+    "build_area_huge": {
+        "submissionKey": "5G9Ce2J7",
+        "kml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?><kml xmlns=\"http://www.opengis.net/kml/2.2\"><Document><Placemark><ExtendedData></ExtendedData><Polygon><outerBoundaryIs><LinearRing><coordinates>124.889299494815,6.1012360847668 124.273670947653,8.8674603566833 125.997430879708,9.1711704399501 126.777227039447,6.59373892249674 124.889299494815,6.1012360847668</coordinates></LinearRing></outerBoundaryIs></Polygon></Placemark></Document></kml>",
+        "image": "http://www.redcrosseth.org/media/k2/items/cache/5a05a447acfdf6fcc40548cc4c1cea8d_L.jpg",
+        "lookFor": "BUILDINGS",
+        "name": "BuildArea Huge Project",
+        "projectDetails": "This project is big and caused and error with the old back end.",
+        "verificationNumber": 3,
+        "tileServer": {
+          "name": "bing"
+        },
+        "projectType": 1
     }
+
 }
