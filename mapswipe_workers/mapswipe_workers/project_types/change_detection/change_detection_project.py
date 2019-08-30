@@ -1,5 +1,6 @@
 import os
 import ogr
+import osr
 
 from mapswipe_workers.definitions import DATA_PATH
 from mapswipe_workers.definitions import logger
@@ -8,7 +9,7 @@ from mapswipe_workers.project_types.change_detection.change_detection_group \
         import ChangeDetectionGroup
 from mapswipe_workers.project_types.change_detection \
         import grouping_functions
-
+from mapswipe_workers.definitions import CustomError
 
 class ChangeDetectionProject(BaseProject):
     """
@@ -53,8 +54,9 @@ class ChangeDetectionProject(BaseProject):
                     f'Empty file. '
                     f'No geometry is provided.'
                     )
-            return False
-            # check if more than 1 geometry is provided
+            raise CustomError(f'Empty file. ')
+
+        # check if more than 1 geometry is provided
         elif layer.GetFeatureCount() > 1:
             logger.warning(
                     f'{self.projectId}'
@@ -62,7 +64,7 @@ class ChangeDetectionProject(BaseProject):
                     f'Input file contains more than one geometry. '
                     f'Make sure to provide exact one input geometry.'
                     )
-            return False
+            raise CustomError(f'Input file contains more than one geometry. ')
 
         # check if the input geometry is a valid polygon
         for feature in layer:
@@ -76,7 +78,7 @@ class ChangeDetectionProject(BaseProject):
                         f'Tested with IsValid() ogr method. '
                         f'Probably self-intersections.'
                         )
-                return False
+                raise CustomError(f'Geometry is not valid: {geom_name}. ')
 
             # we accept only POLYGON or MULTIPOLYGON geometries
             if geom_name != 'POLYGON' and geom_name != 'MULTIPOLYGON':
@@ -86,7 +88,7 @@ class ChangeDetectionProject(BaseProject):
                         f'Invalid geometry type: {geom_name}. '
                         f'Please provide "POLYGON" or "MULTIPOLYGON"'
                         )
-                return False
+                raise CustomError(f'Invalid geometry type: {geom_name}. ')
 
             # check size of project make sure its smaller than  5,000 sqkm
             # for doing this we transform the geometry into Mollweide projection (EPSG Code 54009)
@@ -105,7 +107,7 @@ class ChangeDetectionProject(BaseProject):
                     f'Project is to large: {project_area}. '
                     f'Please split your projects into smaller sub-projects and resubmit'
                 )
-                return False
+                raise CustomError(f'Project is to large: {project_area}. ')
 
         del datasource
         del layer

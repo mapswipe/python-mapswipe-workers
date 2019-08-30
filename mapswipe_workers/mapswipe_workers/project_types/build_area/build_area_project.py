@@ -9,7 +9,7 @@ from mapswipe_workers.project_types.build_area.build_area_group \
         import BuildAreaGroup
 from mapswipe_workers.project_types.build_area \
         import grouping_functions
-
+from mapswipe_workers.definitions import CustomError
 
 class BuildAreaProject(BaseProject):
     """
@@ -53,8 +53,9 @@ class BuildAreaProject(BaseProject):
                     f'Empty file. '
                     f'No geometry is provided.'
                     )
-            return False
-            # check if more than 1 geometry is provided
+            raise CustomError(f'Empty file. ')
+
+        # check if more than 1 geometry is provided
         elif layer.GetFeatureCount() > 1:
             logger.warning(
                     f'{self.projectId}'
@@ -62,7 +63,7 @@ class BuildAreaProject(BaseProject):
                     f'Input file contains more than one geometry. '
                     f'Make sure to provide exact one input geometry.'
                     )
-            return False
+            raise CustomError(f'Input file contains more than one geometry. ')
 
         # check if the input geometry is a valid polygon
         for feature in layer:
@@ -76,7 +77,7 @@ class BuildAreaProject(BaseProject):
                         f'Tested with IsValid() ogr method. '
                         f'Probably self-intersections.'
                         )
-                return False
+                raise CustomError(f'Geometry is not valid: {geom_name}. ')
 
             # we accept only POLYGON or MULTIPOLYGON geometries
             if geom_name != 'POLYGON' and geom_name != 'MULTIPOLYGON':
@@ -86,7 +87,7 @@ class BuildAreaProject(BaseProject):
                         f'Invalid geometry type: {geom_name}. '
                         f'Please provide "POLYGON" or "MULTIPOLYGON"'
                         )
-                return False
+                raise CustomError(f'Invalid geometry type: {geom_name}. ')
 
             # check size of project make sure its smaller than  5,000 sqkm
             # for doing this we transform the geometry into Mollweide projection (EPSG Code 54009)
@@ -102,10 +103,10 @@ class BuildAreaProject(BaseProject):
                 logger.warning(
                     f'{self.projectId}'
                     f' - validate geometry - '
-                    f'Project is to large: {project_area}. '
+                    f'Project is to large: {project_area} sqkm. '
                     f'Please split your projects into smaller sub-projects and resubmit'
                 )
-                return False
+                raise CustomError(f'Project is to large: {project_area} sqkm. ')
 
         del datasource
         del layer

@@ -8,7 +8,8 @@ from mapswipe_workers.project_types.footprint.footprint_project \
         import FootprintProject
 from mapswipe_workers.project_types.change_detection.change_detection_project \
         import ChangeDetectionProject
-
+from mapswipe_workers.definitions import CustomError
+from mapswipe_workers.definitions import logger
 
 def create_project_locally(sample_project_draft):
 
@@ -21,6 +22,7 @@ def create_project_locally(sample_project_draft):
 
     sample_project_type = sample_project_draft.get('projectType', 1)
     sample_project = project_types[sample_project_type](sample_project_draft)
+    sample_project.validate_geometries()
     sample_project.create_groups()
     sample_project.calc_number_of_tasks()
 
@@ -33,6 +35,13 @@ if __name__ == '__main__':
             ):
         with open(sample_project_drafts_json) as f:
             sample_project_drafts = json.load(f)
-            for key, sample_project_draft in sample_project_drafts.items():
-                sample_project_draft['projectDraftId'] = key
-                create_project_locally(sample_project_draft)
+            for project_draft_id, sample_project_draft in sample_project_drafts.items():
+                sample_project_draft['projectDraftId'] = project_draft_id
+                try:
+                    create_project_locally(sample_project_draft)
+                except CustomError:
+                    logger.exception(
+                        f'{project_draft_id} '
+                        f'- project creation failed'
+                    )
+                    continue
