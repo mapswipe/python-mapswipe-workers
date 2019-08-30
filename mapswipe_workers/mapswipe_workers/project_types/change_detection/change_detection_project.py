@@ -88,6 +88,25 @@ class ChangeDetectionProject(BaseProject):
                         )
                 return False
 
+            # check size of project make sure its smaller than  5,000 sqkm
+            # for doing this we transform the geometry into Mollweide projection (EPSG Code 54009)
+            source = feat_geom.GetSpatialReference()
+            target = osr.SpatialReference()
+            target.ImportFromProj4('+proj=moll +lon_0=0 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs')
+
+            transform = osr.CoordinateTransformation(source, target)
+            feat_geom.Transform(transform)
+            project_area = feat_geom.GetArea() / 1000000
+
+            if project_area > 5000:
+                logger.warning(
+                    f'{self.projectId}'
+                    f' - validate geometry - '
+                    f'Project is to large: {project_area}. '
+                    f'Please split your projects into smaller sub-projects and resubmit'
+                )
+                return False
+
         del datasource
         del layer
 
