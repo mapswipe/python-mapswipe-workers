@@ -34,7 +34,8 @@ class BuildAreaProject(BaseProject):
             project_draft['tileServer'].get('apiKeyRequired'),
             project_draft['tileServer'].get('apiKey',
                                              auth.get_api_key(project_draft['tileServer'].get('name', 'bing'))),
-            project_draft['tileServer'].get('wmtsLayerName', None)
+            project_draft['tileServer'].get('wmtsLayerName', None),
+            project_draft['tileServer'].get('credits', '')
         ))
 
         self.validate_geometries()

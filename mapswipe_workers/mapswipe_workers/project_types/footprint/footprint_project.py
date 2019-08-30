@@ -38,7 +38,8 @@ class FootprintProject(BaseProject):
                                              auth.get_api_key(project_draft['tileServer'].get('name', 'bing'))),
             project_draft['tileServer'].get('wmtsLayerName', None),
             project_draft['tileServer'].get('caption', None),
-            project_draft['tileServer'].get('date', None)
+            project_draft['tileServer'].get('date', None),
+            project_draft['tileServer'].get('credits', '')
         ))
 
     def validate_geometries(self):
