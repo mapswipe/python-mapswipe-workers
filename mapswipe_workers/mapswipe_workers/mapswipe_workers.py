@@ -231,8 +231,8 @@ def _run_create_projects():
             try:
                 # TODO: Document properly
                 project = project_types[project_type](project_draft)
-                project.create_groups()
                 project.validate_geometries()
+                project.create_groups()
                 project.calc_number_of_tasks()
                 if project.save_project(fb_db):
                     created_project_ids.append(project.projectId)
