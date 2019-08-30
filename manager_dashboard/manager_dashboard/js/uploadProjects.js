@@ -24,7 +24,8 @@ function submitInfo() {
           url: document.getElementById("tileServerUrlBuildArea").value,
           wmtsLayerName: document.getElementById("tileServerLayerNameBuildArea").value,
           apiKeyRequired: document.getElementById("apiKeyRequiredBuildArea").value,
-          apiKey: document.getElementById("apiKeyBuildArea").value
+          apiKey: document.getElementById("apiKeyBuildArea").value,
+          credits: document.getElementById("tileServerCreditsBuildArea").value
         };
 
         var mapswipe_import = {
@@ -49,7 +50,8 @@ function submitInfo() {
           url: document.getElementById("tileServerUrlFootprint").value,
           wmtsLayerName: document.getElementById("tileServerLayerNameFootprint").value,
           caption: document.getElementById("captionFootprint").value,
-          date: document.getElementById("dateFootprint").value
+          date: document.getElementById("dateFootprint").value,
+          credits: document.getElementById("tileServerCreditsFootprint").value
         };
 
         var mapswipe_import = {
@@ -76,7 +78,8 @@ function submitInfo() {
         apiKeyRequired: document.getElementById("apiKeyRequiredChangeDetectionA").value,
         apiKey: document.getElementById("apiKeyChangeDetectionA").value,
         caption: document.getElementById("captionChangeDetectionA").value,
-        date: document.getElementById("dateChangeDetectionA").value
+        date: document.getElementById("dateChangeDetectionA").value,
+        credits: document.getElementById("tileServerCreditsChangeDetectionA").value
       };
       var tileServerB = {
         name: document.getElementById("tileServerChangeDetectionB").value,
@@ -85,7 +88,8 @@ function submitInfo() {
         apiKeyRequired: document.getElementById("apiKeyRequiredChangeDetectionB").value,
         apiKey: document.getElementById("apiKeyChangeDetectionB").value,
         caption: document.getElementById("captionChangeDetectionB").value,
-        date: document.getElementById("dateChangeDetectionB").value
+        date: document.getElementById("dateChangeDetectionB").value,
+        credits: document.getElementById("tileServerCreditsChangeDetectionB").value
       };
 
       var mapswipe_import = {
