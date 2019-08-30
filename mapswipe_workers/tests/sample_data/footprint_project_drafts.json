@@ -9,7 +9,8 @@
     "verificationNumber": 3,
     "projectType": 2,
     "tileServer": {
-          "name": "bing"
+          "name": "bing",
+          "credits": "© 2019 Microsoft Corporation, Earthstar Geographics SIO"
         }
   }
 }

@@ -11,7 +11,8 @@
         "tileServerA": {
               "name": "bing",
               "apiKeyRequired": true,
-              "caption": "Before"
+              "caption": "Before",
+              "credits": "© 2019 Microsoft Corporation, Earthstar Geographics SIO"
         },
         "tileServerB": {
               "name": "custom",
@@ -19,7 +20,8 @@
               "apiKeyRequired": false,
               "apiKey": "",
               "caption": "After",
-              "date": "2018-02-21"
+              "date": "2018-02-21",
+              "credits": "© OpenAerialMap"
         }
     },
   "change_detection_uganda_planet_wms": {
@@ -38,7 +40,8 @@
               "apiKeyRequired": false,
               "apiKey": "",
               "caption": "Before",
-              "date": "2017-Q1"
+              "date": "2017-Q1",
+              "credits": "Imagery © 2019 Planet.com"
         },
         "tileServerB": {
               "name": "custom",
@@ -46,7 +49,8 @@
               "apiKeyRequired": false,
               "apiKey": "",
               "caption": "After",
-              "date": "2019-Q1"
+              "date": "2019-Q1",
+              "credits": "Imagery © 2019 Planet.com"
         }
     },
   "change_detection_uganda_planet_wms_2": {
@@ -65,7 +69,8 @@
               "apiKeyRequired": false,
               "apiKey": "",
               "caption": "Before",
-              "date": "2017-Q1"
+              "date": "2017-Q1",
+              "credits": "Imagery © 2019 Planet.com"
         },
         "tileServerB": {
               "name": "custom",
@@ -73,7 +78,8 @@
               "apiKeyRequired": false,
               "apiKey": "",
               "caption": "After",
-              "date": "2019-Q1"
+              "date": "2019-Q1",
+              "credits": "Imagery © 2019 Planet.com"
         }
     }
 }
