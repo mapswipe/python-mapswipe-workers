@@ -10,7 +10,7 @@ CREATE TEMP TABLE v1_projects(
     is_featured boolean,
     look_for varchar,
     name varchar,
-    number_of_tasks int DEFAULT NULL,
+    required_results int DEFAULT NULL,
     progress int,
     project_details varchar,
     project_id varchar,
