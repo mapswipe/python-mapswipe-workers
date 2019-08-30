@@ -1,6 +1,6 @@
 # Setup
 
-This document describes how to setup all the parts of the MapSwipe back-end.
+This document describes how to setup all the parts of the MapSwipe back-end for the first time.
 
 1. Firebase
 2. Postgres
@@ -56,14 +56,6 @@ docker-compose up --build -d firebase_deploy
 This container needs to run only as long until the `firebase deploy` command inside the Docker container terminates. Use `docker logs firebase_deploy` to find out if the command is still running.
 
 For more information about the Firebase Command Line Tools visit:[https://firebase.google.com/docs/cli/](https://firebase.google.com/docs/cli/#install_the_firebase_cli)
-
-
-### Update Database Rules and Functions
-
-```
-git pull
-docker-compose up --build -d firebase_deploy
-```
 
 
 ## Postgres Setup
@@ -137,16 +129,6 @@ To authorize MapSwipe Workers to access Firebase services, you must generate a F
 
 ```bash
 docker-compose up -d mapswipe_workers
-```
-
-
-### Update Mapswipe Workers
-
-How to update Mapswipe Workers:
-
-```
-git pull
-docker-compose up --build -d mapswipe_workers
 ```
 
 

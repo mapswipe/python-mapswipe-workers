@@ -23,7 +23,7 @@ def create_user(fb_db):
     ref = fb_db.reference('v2/users/')
     user = {
             'contributions': {},
-            'created': dt.datetime.now().strftime('%Y-%m-%dT%H:%M:%S.%f%z'),
+            'created': dt.datetime.now().strftime('%Y-%m-%dT%H:%M:%S.%fZ'),
             'groupContributionCount': 0,
             'projectContributionCount': 0,
             'taskContributionCount': 0,

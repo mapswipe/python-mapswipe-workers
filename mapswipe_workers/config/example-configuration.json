@@ -1,10 +1,10 @@
 {
     "postgres": {
+        "host": "postgres",
+        "port": "5432",
         "database": "mapswipe",
         "username": "mapswipe_workers",
-        "password": "your_mapswipe_db_password",
-        "host": "postgres",
-        "port": "5432"
+        "password": "your_mapswipe_db_password"
     },
     "firebase": {
         "database_name": "your_firebase_database_name"

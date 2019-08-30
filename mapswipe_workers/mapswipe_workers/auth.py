@@ -82,7 +82,16 @@ class tileServer():
     """
     The class for a tileserver object
     """
-    def __init__(self, name, url, apiKeyRequired, apiKey=None, wmtsLayerName=None, caption=None, date=None):
+    def __init__(
+            self,
+            name,
+            url,
+            apiKeyRequired,
+            apiKey=None,
+            wmtsLayerName=None,
+            caption=None,
+            date=None
+            ):
         self.name = name
         self.url = url
         self.apiKeyRequired = apiKeyRequired
@@ -99,13 +108,16 @@ class postgresDB(object):
     def __init__(self):
         CONFIG = load_config()
         try:
+            host = CONFIG['postgres']['host']
+            port = CONFIG['postgres']['port']
             dbname = CONFIG['postgres']['database']
             user = CONFIG['postgres']['username']
             password = CONFIG['postgres']['password']
-            host = CONFIG['postgres']['host']
-            port = CONFIG['postgres']['port']
         except KeyError:
-            raise Exception('Could not load psql info from the config file')
+            raise Exception(
+                    f'Could not load postgres credentials '
+                    f'from the configuration file'
+                    )
 
         self._db_connection = psycopg2.connect(
                 database=dbname,
