@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+<Document id="root_doc">
+<Schema name="build_area_too_big_region" id="build_area_too_big_region">
+	<SimpleField name="timestamp" type="string"></SimpleField>
+	<SimpleField name="begin" type="string"></SimpleField>
+	<SimpleField name="end" type="string"></SimpleField>
+	<SimpleField name="altitudeMode" type="string"></SimpleField>
+	<SimpleField name="tessellate" type="int"></SimpleField>
+	<SimpleField name="extrude" type="int"></SimpleField>
+	<SimpleField name="visibility" type="int"></SimpleField>
+	<SimpleField name="drawOrder" type="int"></SimpleField>
+	<SimpleField name="icon" type="string"></SimpleField>
+	<SimpleField name="type" type="string"></SimpleField>
+	<SimpleField name="color" type="string"></SimpleField>
+	<SimpleField name="width" type="float"></SimpleField>
+	<SimpleField name="height" type="float"></SimpleField>
+	<SimpleField name="angle" type="float"></SimpleField>
+	<SimpleField name="area" type="float"></SimpleField>
+	<SimpleField name="perimeter" type="float"></SimpleField>
+</Schema>
+<Folder><name>build_area_too_big_region</name>
+  <Placemark>
+	<Style><LineStyle><color>ff0000ff</color></LineStyle><PolyStyle><fill>0</fill></PolyStyle></Style>
+	<ExtendedData><SchemaData schemaUrl="#build_area_too_big_region">
+		<SimpleData name="tessellate">-1</SimpleData>
+		<SimpleData name="extrude">0</SimpleData>
+		<SimpleData name="visibility">-1</SimpleData>
+		<SimpleData name="type">multipolygon</SimpleData>
+		<SimpleData name="color">#ff0000</SimpleData>
+		<SimpleData name="width">0.870996</SimpleData>
+		<SimpleData name="height">0.694211</SimpleData>
+		<SimpleData name="angle">169.188544</SimpleData>
+		<SimpleData name="area">0.604655</SimpleData>
+		<SimpleData name="perimeter">3.130414</SimpleData>
+	</SchemaData></ExtendedData>
+      <Polygon><outerBoundaryIs><LinearRing><coordinates>124.554857121795,7.82765885458511 125.410392938872,7.99103833044483 125.280174484659,8.67292662172082 124.424638667582,8.5095471458611 124.554857121795,7.82765885458511</coordinates></LinearRing></outerBoundaryIs></Polygon>
+  </Placemark>
+</Folder>
+</Document></kml>
