@@ -72,12 +72,18 @@ if __name__ == '__main__':
     for sample_project_drafts_json in glob.glob(
             sample_data_dir + '*_drafts.json'
             ):
+        if sample_project_drafts_json = 'build_area_to_big_project_drafts.json':
+            continue
         with open(sample_project_drafts_json) as f:
             sample_project_drafts = json.load(f)
             for key, sample_project_draft in sample_project_drafts.items():
                 project_id = create_project_drafts_in_firebase(
                         sample_project_draft,
                         fb_db
+                        )
+                print(
+                        f'created {sample_project_draft["name"]} '
+                        f'with project id: {project_id}'
                         )
                 project_ids.append(project_id)
     save_project_ids_to_disk(project_ids)
