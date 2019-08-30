@@ -1,10 +1,9 @@
 from abc import ABCMeta, abstractmethod
-import datetime as dt
 import csv
+import datetime as dt
 import json
 import os
-
-import psycopg2
+import sys
 
 from mapswipe_workers import auth
 from mapswipe_workers.definitions import DATA_PATH
@@ -51,8 +50,8 @@ class BaseProject(metaclass=ABCMeta):
         """
 
         self.archived = False
-        self.contributorCount = 0
         self.created = dt.datetime.now()
+        self.createdBy = project_draft['createdBy']
         self.groups = list()
         self.groupMaxSize = project_draft.get('groupMaxSize', 0)
         self.resultCount = 0
@@ -109,7 +108,11 @@ class BaseProject(metaclass=ABCMeta):
         # Convert Date object to ISO Datetime:
         # https://www.w3.org/TR/NOTE-datetime
         project['created'] = self.created.strftime('%Y-%m-%dT%H:%M:%S.%fZ')
-
+        # logger.info(
+        #         f'{self.projectId}'
+        #         f' - size of all tasks: '
+        #         f'{sys.getsizeof(json.dumps(groupsOfTasks))/1024/1024} MB'
+        #         )
         # Make sure projects get saved in Postgres and Firebase successful
         try:
             self.save_to_postgres(
@@ -182,7 +185,7 @@ class BaseProject(metaclass=ABCMeta):
         data_project = [
                 project['archived'],
                 self.created,
-                project['contributorCount'],
+                self.createdBy,
                 project['image'],
                 project['isFeatured'],
                 project['lookFor'],
@@ -200,7 +203,7 @@ class BaseProject(metaclass=ABCMeta):
         project_attributes = [
                 'archived',
                 'created',
-                'contributorCount',
+                'createdBy'
                 'image',
                 'isFeatured',
                 'lookFor',
@@ -452,14 +455,14 @@ class BaseProject(metaclass=ABCMeta):
             DELETE FROM projects WHERE project_id = %s;
             '''
         data = [
-            self.project_id,
-            self.project_id,
-            self.project_id,
+            self.projectId,
+            self.projectId,
+            self.projectId,
         ]
         p_con.query(sql_query, data)
         del p_con
         logger.info(
-                f'{self.project_id} - '
+                f'{self.projectId} - '
                 f'deleted project, groups and tasks '
                 f'from postgres'
                 )
@@ -472,6 +475,28 @@ class BaseProject(metaclass=ABCMeta):
                     group.requiredCount *
                     group.numberOfTasks
                     )
+
+    def get_tile_server(self, tile_server):
+        '''
+        Creates a dictonary with informations of the tile server
+        with project draft values or default values.
+        '''
+        return {
+                'name': tile_server.get('name', 'bing'),
+                'url': tile_server.get(
+                    'url',
+                    auth.get_tileserver_url(tile_server.get('name', 'bing'))
+                    ),
+                'apiKeyReuired': tile_server.get('apiKeyRequired'),
+                'apiKey': tile_server.get(
+                    'apiKey',
+                    auth.get_api_key(tile_server.get('name', 'bing'))
+                    ),
+                'wmtsLayerName': tile_server.get('wmtsLayerName', None),
+                'captions': tile_server.get('caption', None),
+                'date': tile_server.get('date', None),
+                'credits': tile_server.get('credits', '')
+                }
 
     @abstractmethod
     def validate_geometries():

@@ -383,7 +383,7 @@ def extent_to_slices(infile, zoom, groupSize):
     # then get vertical slices --> columns
     raw_groups_dict = get_vertical_slice(horizontal_slice_infos, zoom, groupSize)
 
-    assert groups_overlap(raw_groups_dict)
+    # assert groups_overlap(raw_groups_dict)
 
     return raw_groups_dict
 

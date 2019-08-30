@@ -1,6 +1,6 @@
 {
   "footprint_polygon_geometries": {
-    "submissionKey": "5G9Ce2J7",
+    "createdBy": "Sample Admin",
     "inputGeometries": "https://firebasestorage.googleapis.com/v0/b/dev-mapswipe.appspot.com/o/buildings_heidelberg.geojson?alt=media&token=1631f7d4-5fb2-4e1b-a133-2e14582d116c",
     "image": "http://www.fragosus.com/test/Javita.jpg",
     "lookFor": "Buildings",

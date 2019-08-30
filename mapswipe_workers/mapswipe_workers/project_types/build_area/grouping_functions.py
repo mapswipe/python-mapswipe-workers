@@ -385,7 +385,7 @@ def extent_to_slices(infile, zoom):
 
     # test if there are overlaps
 
-    assert groups_overlap(raw_groups_dict)
+    # assert groups_overlap(raw_groups_dict)
 
     return raw_groups_dict
 

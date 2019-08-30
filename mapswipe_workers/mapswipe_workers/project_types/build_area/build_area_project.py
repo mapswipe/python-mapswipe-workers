@@ -4,7 +4,6 @@ import osr
 
 from mapswipe_workers.definitions import DATA_PATH
 from mapswipe_workers.definitions import logger
-from mapswipe_workers import auth
 from mapswipe_workers.base.base_project import BaseProject
 from mapswipe_workers.project_types.build_area.build_area_group \
         import BuildAreaGroup
@@ -27,17 +26,7 @@ class BuildAreaProject(BaseProject):
         self.groupSize = 50
         self.kml = project_draft['kml']
         self.zoomLevel = int(project_draft.get('zoomLevel', 18))
-
-        self.tileServer = vars(auth.tileServer(
-            project_draft['tileServer'].get('name', 'bing'),
-            project_draft['tileServer'].get('url',
-                                             auth.get_tileserver_url(project_draft['tileServer'].get('name', 'bing'))),
-            project_draft['tileServer'].get('apiKeyRequired'),
-            project_draft['tileServer'].get('apiKey',
-                                             auth.get_api_key(project_draft['tileServer'].get('name', 'bing'))),
-            project_draft['tileServer'].get('wmtsLayerName', None),
-            project_draft['tileServer'].get('credits', '')
-        ))
+        self.tileServer = self.get_tile_server(project_draft['tileServer'])
 
         self.validate_geometries()
 

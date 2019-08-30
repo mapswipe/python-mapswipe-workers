@@ -5,7 +5,6 @@ import ogr
 from mapswipe_workers.definitions import DATA_PATH
 from mapswipe_workers.definitions import CustomError
 from mapswipe_workers.definitions import logger
-from mapswipe_workers import auth
 from mapswipe_workers.base.base_project import BaseProject
 from mapswipe_workers.project_types.footprint import grouping_functions as g
 from mapswipe_workers.project_types.footprint.footprint_group \
@@ -26,21 +25,9 @@ class FootprintProject(BaseProject):
         # set group size
         self.groupSize = 50
         self.inputGeometries = project_draft['inputGeometries']
+        self.tileServer = self.get_tile_server(project_draft['tileServer'])
 
         self.validate_geometries()
-
-        self.tileServer = vars(auth.tileServer(
-            project_draft['tileServer'].get('name', 'bing'),
-            project_draft['tileServer'].get('url',
-                                             auth.get_tileserver_url(project_draft['tileServer'].get('name', 'bing'))),
-            project_draft['tileServer'].get('apiKeyRequired'),
-            project_draft['tileServer'].get('apiKey',
-                                             auth.get_api_key(project_draft['tileServer'].get('name', 'bing'))),
-            project_draft['tileServer'].get('wmtsLayerName', None),
-            project_draft['tileServer'].get('caption', None),
-            project_draft['tileServer'].get('date', None),
-            project_draft['tileServer'].get('credits', '')
-        ))
 
     def validate_geometries(self):
         raw_input_file = (
