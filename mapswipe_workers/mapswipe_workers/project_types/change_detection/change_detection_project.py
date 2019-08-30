@@ -3,7 +3,6 @@ import ogr
 
 from mapswipe_workers.definitions import DATA_PATH
 from mapswipe_workers.definitions import logger
-from mapswipe_workers import auth
 from mapswipe_workers.base.base_project import BaseProject
 from mapswipe_workers.project_types.change_detection.change_detection_group \
         import ChangeDetectionGroup
@@ -27,29 +26,8 @@ class ChangeDetectionProject(BaseProject):
         self.kml = project_draft['kml']
         self.zoomLevel = int(project_draft.get('zoomLevel', 18))
         self.validate_geometries()
-
-        # set configuration for tile servers
-        self.tileServerA = vars(auth.tileServer(
-            project_draft['tileServerA'].get('name', 'bing'),
-            project_draft['tileServerA'].get('url', auth.get_tileserver_url(project_draft['tileServerA'].get('name', 'bing'))),
-            project_draft['tileServerA'].get('apiKeyRequired'),
-            project_draft['tileServerA'].get('apiKey', auth.get_api_key(project_draft['tileServerA'].get('name', 'bing'))),
-            project_draft['tileServerA'].get('wmtsLayerName', None),
-            project_draft['tileServerA'].get('caption', None),
-            project_draft['tileServerA'].get('date', None),
-            project_draft['tileServerA'].get('credits', ''),
-        ))
-
-        self.tileServerB = vars(auth.tileServer(
-            project_draft['tileServerB'].get('name', 'bing'),
-            project_draft['tileServerB'].get('url', auth.get_tileserver_url(project_draft['tileServerB'].get('name', 'bing'))),
-            project_draft['tileServerB'].get('apiKeyRequired'),
-            project_draft['tileServerB'].get('apiKey', auth.get_api_key(project_draft['tileServerB'].get('name', 'bing'))),
-            project_draft['tileServerB'].get('wmtsLayerName', None),
-            project_draft['tileServerB'].get('caption', None),
-            project_draft['tileServerB'].get('date', None),
-            project_draft['tileServerB'].get('credits', ''),
-        ))
+        self.tileServerA = self.get_tile_server(project_draft['tileServerA'])
+        self.tileServerB = self.get_tile_server(project_draft['tileServerB'])
 
     def validate_geometries(self):
         raw_input_file = (
