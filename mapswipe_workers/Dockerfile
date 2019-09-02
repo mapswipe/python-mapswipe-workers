@@ -1,6 +1,6 @@
 # This image contains Python 3 and the latest pre-compiled version of GDAL
 # Based on Debian (Including apt-get update && upgrade)
-FROM thinkwhere/gdal-python
+FROM thinkwhere/gdal-python:3.7-shippable
 
 # create directories for config, logs and data
 RUN mkdir -p /usr/share/config/mapswipe_workers/
