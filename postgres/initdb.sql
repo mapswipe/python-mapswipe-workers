@@ -192,7 +192,7 @@ LEFT JOIN results ON
 	users.user_id = results.user_id
 GROUP BY users.user_id, users.username;
 
-CREATE or REPLACE VIEW aggregated_results_by_project_id AS
+CREATE or REPLACE VIEW aggregated_results_by_project_id_and_date AS
 SELECT
  project_id
  ,count(*) as total_results_count
