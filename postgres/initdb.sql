@@ -77,25 +77,33 @@ CREATE INDEX IF NOT EXISTS results_groupid ON public.results USING btree (group_
 CREATE INDEX IF NOT EXISTS results_taskid ON public.results USING btree (task_id);
 CREATE INDEX IF NOT EXISTS results_userid ON public.results USING btree (user_id);
 
-CREATE VIEW IF NOT EXISTS aggregated_results AS
+-- create a read-only user for backups
+CREATE USER backup WITH PASSWORD 'backupuserpassword';
+GRANT CONNECT ON DATABASE mapswipe TO backup;
+GRANT USAGE ON SCHEMA public TO backup;
+GRANT SELECT ON ALL TABLES IN SCHEMA public TO backup;
+
+-- create views for aggregated statistics
+
+CREATE or REPLACE VIEW aggregated_results AS
 select
     *
-    ,round("0_count"::numeric/total_count::numeric, 3) as "0_share"
-    ,round("1_count"::numeric/total_count::numeric, 3) as "1_share"
-    ,round("2_count"::numeric/total_count::numeric, 3) as "2_share"
-    ,round("3_count"::numeric/total_count::numeric, 3) as "3_share"
-    ,CASE WHEN total_count = 1 THEN 1.0	ELSE (
+    ,round("0_results_count"::numeric/total_results_count::numeric, 3) as "0_results_share"
+    ,round("1_results_count"::numeric/total_results_count::numeric, 3) as "1_results_share"
+    ,round("2_results_count"::numeric/total_results_count::numeric, 3) as "2_results_share"
+    ,round("3_results_count"::numeric/total_results_count::numeric, 3) as "3_results_share"
+    ,CASE WHEN total_results_count = 1 THEN 1.0	ELSE (
       round(
-          ((1.0 / (total_count::numeric * (total_count::numeric - 1.0)))
+          ((1.0 / (total_results_count::numeric * (total_results_count::numeric - 1.0)))
           *
           (
-          (("0_count"::numeric ^ 2.0) - "0_count"::numeric)
+          (("0_results_count"::numeric ^ 2.0) - "0_results_count"::numeric)
           +
-          (("1_count"::numeric ^ 2.0) - "1_count"::numeric)
+          (("1_results_count"::numeric ^ 2.0) - "1_results_count"::numeric)
           +
-          (("2_count"::numeric ^ 2.0) - "2_count"::numeric)
+          (("2_results_count"::numeric ^ 2.0) - "2_results_count"::numeric)
           +
-          (("3_count"::numeric ^ 2.0) - "3_count"::numeric)
+          (("3_results_count"::numeric ^ 2.0) - "3_results_count"::numeric)
           ))
       ,3)
     ) END as agreement
@@ -105,19 +113,94 @@ from
 		project_id
 		,group_id
 		,task_id
-		,count(*) as total_count
-		,sum(CASE WHEN result = 0 THEN 1 ELSE 0	END) AS "0_count"
-		,sum(CASE WHEN result = 1 THEN 1 ELSE 0	END) AS "1_count"
-		,sum(CASE WHEN result = 2 THEN 1 ELSE 0	END) AS "2_count"
-		,sum(CASE WHEN result = 3 THEN 1 ELSE 0	END) AS "3_count"
+		,count(*) as total_results_count
+		,sum(CASE WHEN result = 0 THEN 1 ELSE 0	END) AS "0_results_count"
+		,sum(CASE WHEN result = 1 THEN 1 ELSE 0	END) AS "1_results_count"
+		,sum(CASE WHEN result = 2 THEN 1 ELSE 0	END) AS "2_results_count"
+		,sum(CASE WHEN result = 3 THEN 1 ELSE 0	END) AS "3_results_count"
 	from
 		results
 	group by
 		project_id, group_id, task_id
-) as foo
+) as foo;
 
--- create a read-only user for backups
-CREATE USER backup WITH PASSWORD 'backupuserpassword';
-GRANT CONNECT ON DATABASE mapswipe TO backup;
-GRANT USAGE ON SCHEMA public TO backup;
-GRANT SELECT ON ALL TABLES IN SCHEMA public TO backup;
+CREATE or REPLACE VIEW aggregated_projects AS
+SELECT
+    count(*) as total_projects_count
+    ,Sum(CASE WHEN progress = 100  THEN 1 ELSE 0 END) as finished_projects_count
+    ,Sum(CASE WHEN status = 'active' THEN 1 ELSE 0 END) as active_projects_count
+    ,Sum(CASE WHEN status = 'inactive' THEN 1 ELSE 0 END) as inactive_projects_count
+    ,Round(Avg(contributor_count),3) as average_contributor_count
+    ,Round(Avg(progress),3) as average_progress
+    ,Round(Avg(number_of_tasks),0) as average_number_of_tasks
+FROM
+    projects;
+
+CREATE or REPLACE VIEW aggregated_projects_by_type AS
+SELECT
+    project_type
+    ,count(*) as total_projects_count
+    ,Sum(CASE WHEN progress = 100  THEN 1 ELSE 0 END) as finished_projects_count
+    ,Sum(CASE WHEN status = 'active' THEN 1 ELSE 0 END) as active_projects_count
+    ,Sum(CASE WHEN status = 'inactive' THEN 1 ELSE 0 END) as inactive_projects_count
+    ,Round(Avg(contributor_count),3) as average_contributor_count
+    ,Round(Avg(progress),3) as average_progress
+    ,Round(Avg(number_of_tasks),0) as average_number_of_tasks
+FROM
+    projects
+GROUP BY
+    project_type
+ORDER BY
+    project_type;
+
+CREATE or REPLACE VIEW aggregated_users AS
+SELECT
+  count(*) as total_users_count
+  ,Sum(CASE WHEN task_contribution_count > 0 THEN 1 ELSE 0 END) as active_users_count
+  ,Sum(CASE WHEN task_contribution_count = 0 THEN 1 ELSE 0 END) as inactive_users_count
+  ,round(avg(CASE WHEN task_contribution_count > 0 THEN project_contribution_count ELSE NULL END),1) as average_project_contribution_count
+  ,round(avg(CASE WHEN task_contribution_count > 0 THEN group_contribution_count ELSE NULL END),1) as average_group_contribution_count
+  ,round(avg(CASE WHEN task_contribution_count > 0 THEN task_contribution_count ELSE NULL END),1) as average_task_contribution_count
+FROM
+(
+  SELECT
+	distinct(users.user_id) as user_id
+	,count(distinct(results.project_id)) as project_contribution_count
+	,count(distinct(results.group_id)) as group_contribution_count
+	,count(distinct(results.task_id)) as task_contribution_count
+	,min(timestamp) as first_contribution_timestamp
+	,max(timestamp) as last_contribution_timestamp
+FROM
+users
+LEFT JOIN results ON
+	users.user_id = results.user_id
+GROUP BY users.user_id
+) as foo;
+
+CREATE or REPLACE VIEW aggregated_results_by_user_id AS
+SELECT
+	distinct(users.user_id) as user_id
+	,users.username as user_name
+	,count(distinct(results.project_id)) as project_contribution_count
+	,count(distinct(results.group_id)) as group_contribution_count
+	,count(distinct(results.task_id)) as task_contribution_count
+	,min(timestamp) as first_contribution_timestamp
+	,max(timestamp) as last_contribution_timestamp
+FROM
+users
+LEFT JOIN results ON
+	users.user_id = results.user_id
+GROUP BY users.user_id, users.username;
+
+CREATE or REPLACE VIEW aggregated_results_by_project_id AS
+SELECT
+ project_id
+ ,count(*) as total_results_count
+ ,count(distinct(user_id)) as total_users_count
+ ,extract(year from timestamp) as year
+ ,extract(month from timestamp) as month
+ ,extract(day from timestamp) as day
+FROM
+ results
+GROUP BY
+ project_id, year, month, day;
