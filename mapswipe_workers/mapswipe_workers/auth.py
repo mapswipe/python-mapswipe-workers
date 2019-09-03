@@ -125,6 +125,19 @@ class postgresDB(object):
         self._db_connection.commit()
         self._db_cur.close()
 
+    def copy_expert(
+            self,
+            sql,
+            file,
+            ):
+        self._db_cur = self._db_connection.cursor()
+        self._db_cur.copy_expert(
+                sql,
+                file,
+                )
+        self._db_connection.commit()
+        self._db_cur.close()
+
     def retr_query(self, query, data=None):
         self._db_cur = self._db_connection.cursor()
         self._db_cur.execute(query, data)

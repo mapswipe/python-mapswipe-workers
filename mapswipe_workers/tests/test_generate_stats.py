@@ -1,3 +1,3 @@
-from mapswipe_workers import run
+from mapswipe_workers import mapswipe_workers
 
-run._generate_stats()
+mapswipe_workers._run_generate_stats()

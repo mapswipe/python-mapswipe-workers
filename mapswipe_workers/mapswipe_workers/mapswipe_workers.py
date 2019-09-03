@@ -265,6 +265,12 @@ def _run_firebase_to_postgres():
 
 
 def _run_generate_stats():
+
+    generate_stats.get_aggregated_projects()
+
+
+    logger.info('exported stats')
+    '''
     data = generate_stats.get_general_stats()
     filename = f'{DATA_PATH}/stats.json'
     with open(filename, 'w') as outfile:
@@ -275,7 +281,8 @@ def _run_generate_stats():
     filename = f'{DATA_PATH}/active_projects.json'
     with open(filename, 'w') as outfile:
         json.dump(data, outfile)
-    logger.info('exported stats')
+    
+    '''
 
     # TODO:
     # data = generate_stats.get_aggregated_results()

@@ -1,5 +1,22 @@
+import sys
+
 from mapswipe_workers import auth
 from mapswipe_workers.definitions import logger
+
+
+def get_aggregated_projects():
+
+    pg_db = auth.postgresDB()
+
+    sql_query = "COPY (SELECT * FROM aggregated_projects) TO STDOUT WITH CSV HEADER"
+
+    pg_db.copy_expert(sql_query, sys.stdout)
+
+
+    del pg_db
+    logger.info('got aggregated projects')
+
+    return
 
 
 # TODO: Should postgres views are defined instead of hardcoded sql queries?
