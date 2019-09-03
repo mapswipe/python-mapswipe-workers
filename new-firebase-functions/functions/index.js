@@ -95,19 +95,19 @@ exports.counter = functions.database.ref('/v2/results/{projectId}/{groupId}/{use
 
     const contributions = contributionsRef.once('value')
         .then((dataSnapshot) => {
-            if (dataSnapshot.exists()) {
-                return null
-            }
-            else {
-                const groupId = context.params.groupId
-                const data = {
-                    [groupId]: {
-                        'timestamp': result['timestamp'],
-                        'startTime': result['startTime'],
-                        'endTime': result['endTime']
-                    }
+            //if (dataSnapshot.exists()) {
+            //    return null
+            //}
+            //else {
+            const groupId = context.params.groupId
+            const data = {
+                [groupId]: {
+                    'timestamp': result['timestamp'],
+                    'startTime': result['startTime'],
+                    'endTime': result['endTime']
                 }
-                return contributionsRef.set(data)
+              //  }
+             return contributionsRef.set(data)
             }
         })
     promises.push(contributions)
