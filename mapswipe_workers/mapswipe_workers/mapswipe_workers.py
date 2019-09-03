@@ -266,7 +266,17 @@ def _run_firebase_to_postgres():
 
 def _run_generate_stats():
 
-    generate_stats.get_aggregated_projects()
+    filename = 'aggregated_results.csv'
+    generate_stats.get_aggregated_results(filename)
+
+    project_id = '-Lmi5bJWP3T0xXthl1ET'
+    filename = f'aggregated_results_by_task_id_{project_id}.csv'
+    generate_stats.get_aggregated_results_by_task_id(filename, project_id)
+
+    filename = 'aggregated_results_by_user_id.csv'
+    generate_stats.get_aggregated_results_by_user_id(filename)
+
+
 
 
     logger.info('exported stats')

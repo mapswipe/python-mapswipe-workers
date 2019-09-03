@@ -1,22 +1,50 @@
 import sys
+from psycopg2 import sql
 
 from mapswipe_workers import auth
 from mapswipe_workers.definitions import logger
 
 
-def get_aggregated_projects():
+def get_aggregated_results(filename):
 
     pg_db = auth.postgresDB()
+    sql_query = "COPY (SELECT * FROM aggregated_results) TO STDOUT WITH CSV HEADER"
 
-    sql_query = "COPY (SELECT * FROM aggregated_projects) TO STDOUT WITH CSV HEADER"
-
-    pg_db.copy_expert(sql_query, sys.stdout)
-
+    with open(filename, 'w') as f:
+        pg_db.copy_expert(sql_query, f)
 
     del pg_db
-    logger.info('got aggregated projects')
 
-    return
+    logger.info('saved aggregated results to %s' % filename)
+
+
+def get_aggregated_results_by_task_id(filename, project_id):
+
+    pg_db = auth.postgresDB()
+    sql_query = sql.SQL(
+        "COPY (SELECT * FROM aggregated_results_by_task_id WHERE project_id = {}) TO STDOUT WITH CSV HEADER").format(
+        sql.Literal(project_id))
+
+    with open(filename, 'w') as f:
+        pg_db.copy_expert(sql_query, f)
+
+    del pg_db
+
+    logger.info('saved aggregated results by task_id for project %s to %s' % (project_id, filename))
+
+
+def get_aggregated_results_by_user_id(filename):
+
+    pg_db = auth.postgresDB()
+    sql_query = "COPY (SELECT * FROM aggregated_results_by_user_id) TO STDOUT WITH CSV HEADER"
+
+    with open(filename, 'w') as f:
+        pg_db.copy_expert(sql_query, f)
+
+    del pg_db
+
+    logger.info('saved aggregated results by user_id to %s' % filename)
+
 
 
 # TODO: Should postgres views are defined instead of hardcoded sql queries?
