@@ -77,6 +77,24 @@ CREATE INDEX IF NOT EXISTS results_groupid ON public.results USING btree (group_
 CREATE INDEX IF NOT EXISTS results_taskid ON public.results USING btree (task_id);
 CREATE INDEX IF NOT EXISTS results_userid ON public.results USING btree (user_id);
 
+-- create table for results import through csv
+CREATE TABLE IF NOT EXISTS results_temp (
+    project_id varchar,
+    group_id int,
+    user_id varchar,
+    task_id varchar,
+    "timestamp" timestamp,
+    start_time timestamp,
+    end_time timestamp,
+    result int,
+    PRIMARY KEY (project_id, group_id, task_id, user_id),
+    FOREIGN KEY (project_id) REFERENCES projects (project_id),
+    FOREIGN KEY (project_id, group_id) REFERENCES groups (project_id, group_id),
+    FOREIGN KEY (project_id, group_id, task_id) REFERENCES tasks (project_id, group_id, task_id),
+    FOREIGN KEY (user_id) REFERENCES users (user_id)
+    );
+
+
 -- create a read-only user for backups
 CREATE USER backup WITH PASSWORD 'backupuserpassword';
 GRANT CONNECT ON DATABASE mapswipe TO backup;
