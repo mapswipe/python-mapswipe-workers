@@ -105,7 +105,7 @@ exports.counter = functions.database.ref('/v2/results/{projectId}/{groupId}/{use
                 'startTime': result['startTime'],
                 'endTime': result['endTime']
              }
-             return contributionsRef.set(data)
+             return groupContributionsRef.set(data)
             }
         })
     promises.push(contributions)
