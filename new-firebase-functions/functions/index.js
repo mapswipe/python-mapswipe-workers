@@ -29,7 +29,7 @@ exports.counter = functions.database.ref('/v2/results/{projectId}/{groupId}/{use
     const taskContributionCountRef      = admin.database().ref('/v2/users/'+context.params.userId+'/taskContributionCount')
     const groupContributionCountRef     = admin.database().ref('/v2/users/'+context.params.userId+'/groupContributionCount')
     const projectContributionCountRef   = admin.database().ref('/v2/users/'+context.params.userId+'/projectContributionCount')
-    const contributionsRef              = admin.database().ref('/v2/users/'+context.params.userId+'/contributions/'+context.params.projectId)
+    const contributionsRef              = admin.database().ref('/v2/users/'+context.params.userId+'/contributions/'+context.params.projectId +'/'+context.params.groupId)
     const totalTimeSpentMappingRef      = admin.database().ref('/v2/users/'+context.params.userId+'/timeSpentMapping')
 
     const timestampRef          = admin.database().ref('/v2/results/'+context.params.projectId+'/'+context.params.groupId+'/'+context.params.userId+'/timestamp')
@@ -95,18 +95,15 @@ exports.counter = functions.database.ref('/v2/results/{projectId}/{groupId}/{use
 
     const contributions = contributionsRef.once('value')
         .then((dataSnapshot) => {
-            //if (dataSnapshot.exists()) {
-            //    return null
-            //}
-            //else {
-            const groupId = context.params.groupId
+            if (dataSnapshot.exists()) {
+                return null
+            }
+            else {
             const data = {
-                [groupId]: {
-                    'timestamp': result['timestamp'],
-                    'startTime': result['startTime'],
-                    'endTime': result['endTime']
-                }
-              //  }
+                'timestamp': result['timestamp'],
+                'startTime': result['startTime'],
+                'endTime': result['endTime']
+             }
              return contributionsRef.set(data)
             }
         })
