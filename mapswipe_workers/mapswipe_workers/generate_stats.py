@@ -72,24 +72,27 @@ def get_aggregated_results_by_user_id(filename):
     logger.info('saved aggregated results by user_id to %s' % filename)
 
 
-def get_aggregated_results_by_user_id_and_date(filename):
+def get_aggregated_results_by_user_id_and_date(filename, user_id):
     '''
     Export results aggregated on user_id and daily basis as csv file.
 
     Parameters
     ----------
     filename: str
+    user_id: str
     '''
 
     pg_db = auth.postgresDB()
-    sql_query = "COPY (SELECT * FROM aggregated_results_by_user_id_and_date) TO STDOUT WITH CSV HEADER"
+    sql_query = sql.SQL(
+        "COPY (SELECT * FROM aggregated_results_by_user_id_and_date WHERE user_id = {}) TO STDOUT WITH CSV HEADER").format(
+        sql.Literal(user_id))
 
     with open(filename, 'w') as f:
         pg_db.copy_expert(sql_query, f)
 
     del pg_db
 
-    logger.info('saved aggregated results by user_id and date to %s' % filename)
+    logger.info('saved aggregated results by user_id and date for user %s to %s' % (user_id, filename))
 
 
 def get_aggregated_results_by_project_id(filename):
@@ -112,24 +115,27 @@ def get_aggregated_results_by_project_id(filename):
     logger.info('saved aggregated results by project_id to %s' % filename)
 
 
-def get_aggregated_results_by_project_id_and_date(filename):
+def get_aggregated_results_by_project_id_and_date(filename, project_id):
     '''
     Export results aggregated on project_id and daily basis as csv file.
 
     Parameters
     ----------
     filename: str
+    project_id: str
     '''
 
     pg_db = auth.postgresDB()
-    sql_query = "COPY (SELECT * FROM aggregated_results_by_project_id_and_date) TO STDOUT WITH CSV HEADER"
+    sql_query = sql.SQL(
+        "COPY (SELECT * FROM aggregated_results_by_project_id_and_date WHERE project_id = {}) TO STDOUT WITH CSV HEADER").format(
+        sql.Literal(project_id))
 
     with open(filename, 'w') as f:
         pg_db.copy_expert(sql_query, f)
 
     del pg_db
 
-    logger.info('saved aggregated results by project_id and date to %s' % filename)
+    logger.info('saved aggregated results by project_id and date for project %s to %s' % (project_id, filename))
 
 
 def get_aggregated_projects(filename):
@@ -190,3 +196,46 @@ def get_aggregated_users(filename):
     del pg_db
 
     logger.info('saved aggregated users to %s' % filename)
+
+
+def get_aggregated_progress_by_project_id(filename):
+    '''
+    Export aggregated progress on a project_id basis as csv file.
+
+    Parameters
+    ----------
+    filename: str
+    '''
+
+    pg_db = auth.postgresDB()
+    sql_query = "COPY (SELECT * FROM aggregated_progress_by_project_id) TO STDOUT WITH CSV HEADER"
+
+    with open(filename, 'w') as f:
+        pg_db.copy_expert(sql_query, f)
+
+    del pg_db
+
+    logger.info('saved aggregated progress by project_id to %s' % filename)
+
+
+def get_aggregated_progress_by_project_id_and_date(filename, project_id):
+    '''
+    Export aggregated progress on a project_id and daily basis as csv file.
+
+    Parameters
+    ----------
+    filename: str
+    project_id: str
+    '''
+
+    pg_db = auth.postgresDB()
+    sql_query = sql.SQL(
+        "COPY (SELECT * FROM aggregated_progress_by_project_id_and_date WHERE project_id = {}) TO STDOUT WITH CSV HEADER").format(
+        sql.Literal(project_id))
+
+    with open(filename, 'w') as f:
+        pg_db.copy_expert(sql_query, f)
+
+    del pg_db
+
+    logger.info('saved aggregated progress by project_id and date for project %s to %s' % (project_id, filename))

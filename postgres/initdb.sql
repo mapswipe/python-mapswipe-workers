@@ -318,5 +318,90 @@ from
 GROUP BY
 	user_id, day;
 
+-- aggregated_progress_by_project_id
+CREATE or REPLACE VIEW aggregated_progress_by_project_id AS
+SELECT
+ projects.project_id
+ ,projects.number_of_tasks
+ ,SUM(group_progress.groups_finished_count) as groups_finished_count
+ ,SUM(group_progress.results_finished_count) as results_finished_count
+ ,SUM(group_progress.results_finished_count_for_progress) as results_finished_count_for_progress
+ ,ROUND(
+	 SUM(group_progress.results_finished_count_for_progress)
+	 /
+	 projects.number_of_tasks::numeric
+	 	,3) as progress
+FROM projects
+LEFT JOIN
+(
+SELECT
+  results.group_id
+  ,results.project_id
+  ,date_trunc('day', timestamp) as day
+  ,count(distinct(user_id)) as groups_finished_count
+  ,count(distinct(user_id)) * MAX(groups.number_of_tasks) as results_finished_count
+  ,CASE
+ 	WHEN count(distinct(user_id)) > MAX(groups.required_count) THEN MAX(groups.required_count) * MAX(groups.number_of_tasks)
+  	ELSE count(distinct(user_id)) * MAX(groups.number_of_tasks)
+  END as results_finished_count_for_progress
+  ,MAX(groups.required_count) * MAX(groups.number_of_tasks) as results_required_count
+FROM
+ results, groups
+WHERE
+ results.group_id = groups.group_id
+ AND
+ results.project_id = groups.project_id
+GROUP BY
+  results.group_id, results.project_id, day
+) as group_progress ON
+  group_progress.project_id = projects.project_id
+GROUP BY
+  projects.project_id
+ORDER BY
+  projects.project_id
 
-
+-- aggregated_progress_by_project_id_and_date
+CREATE VIEW aggregated_progress_by_project_id_and_date AS
+SELECT
+ projects.project_id
+ ,projects.number_of_tasks
+ ,group_progress.day
+ ,SUM(group_progress.groups_finished_count) as groups_finished_count
+ ,SUM(SUM(group_progress.groups_finished_count)) OVER (PARTITION BY projects.project_id ORDER BY day) as cumulative_groups_finished_count
+ ,SUM(group_progress.results_finished_count) as results_finished_count
+ ,SUM(SUM(group_progress.results_finished_count)) OVER (PARTITION BY projects.project_id ORDER BY day) as cumulative_results_finished_count
+ ,SUM(group_progress.results_finished_count_for_progress) as results_finished_count_for_progress
+ ,SUM(SUM(group_progress.results_finished_count_for_progress)) OVER (PARTITION BY projects.project_id ORDER BY day) as cumulative_results_finished_count_for_progress
+ ,ROUND(
+	 SUM(SUM(group_progress.results_finished_count_for_progress)) OVER (PARTITION BY projects.project_id ORDER BY day)
+	 /
+	 projects.number_of_tasks::numeric
+	 	,3) as progress
+FROM projects
+LEFT JOIN
+(
+SELECT
+  results.group_id
+  ,results.project_id
+  ,date_trunc('day', timestamp) as day
+  ,count(distinct(user_id)) as groups_finished_count
+  ,count(distinct(user_id)) * MAX(groups.number_of_tasks) as results_finished_count
+  ,CASE
+ 	WHEN count(distinct(user_id)) > MAX(groups.required_count) THEN MAX(groups.required_count) * MAX(groups.number_of_tasks)
+  	ELSE count(distinct(user_id)) * MAX(groups.number_of_tasks)
+  END as results_finished_count_for_progress
+  ,MAX(groups.required_count) * MAX(groups.number_of_tasks) as results_required_count
+FROM
+ results, groups
+WHERE
+ results.group_id = groups.group_id
+ AND
+ results.project_id = groups.project_id
+GROUP BY
+  results.group_id, results.project_id, day
+) as group_progress ON
+  group_progress.project_id = projects.project_id
+GROUP BY
+  projects.project_id, day
+ORDER BY
+  projects.project_id, day

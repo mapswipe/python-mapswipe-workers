@@ -265,9 +265,10 @@ def _run_firebase_to_postgres():
 
 
 def _run_generate_stats():
-    # TODO: Define which projects need an update
-    # We don't want to update all projects but just the ones for which we received new results
+    # TODO: Define which projects and users need an update
+    # We don't want to update all statistics for projects and users but just the ones for which we received new results
     project_id_list = ['-Lmi5bJWP3T0xXthl1ET']
+    user_id_list = ['HYPKRUDyYTbjStNcpuC86SwGanm1', 'X0zTSyvY0khDfRwc99aQfIjTEPK2']
 
     filename = f'{DATA_PATH}/aggregated_results.csv'
     generate_stats.get_aggregated_results(filename)
@@ -275,18 +276,8 @@ def _run_generate_stats():
     filename = f'{DATA_PATH}/aggregated_results_by_user_id.csv'
     generate_stats.get_aggregated_results_by_user_id(filename)
 
-    filename = f'{DATA_PATH}/aggregated_results_by_user_id_and_date.csv'
-    generate_stats.get_aggregated_results_by_user_id_and_date(filename)
-
     filename = f'{DATA_PATH}/aggregated_results_by_project_id.csv'
     generate_stats.get_aggregated_results_by_project_id(filename)
-
-    filename = f'{DATA_PATH}/aggregated_results_by_project_id_and_date.csv'
-    generate_stats.get_aggregated_results_by_project_id_and_date(filename)
-
-    for project_id in project_id_list:
-        filename = f'{DATA_PATH}/aggregated_results_by_task_id/aggregated_results_by_task_id_{project_id}.csv'
-        generate_stats.get_aggregated_results_by_task_id(filename, project_id)
 
     filename = f'{DATA_PATH}/aggregated_projects.csv'
     generate_stats.get_aggregated_projects(filename)
@@ -296,6 +287,25 @@ def _run_generate_stats():
 
     filename = f'{DATA_PATH}/aggregated_users.csv'
     generate_stats.get_aggregated_users(filename)
+
+    filename = f'{DATA_PATH}/aggregated_progress_by_project_id.csv'
+    generate_stats.get_aggregated_progress_by_project_id(filename)
+
+    logger.info('start to export csv file for individual projects based on given project_id_list')
+    for project_id in project_id_list:
+        filename = f'{DATA_PATH}/aggregated_results_by_task_id/aggregated_results_by_task_id_{project_id}.csv'
+        generate_stats.get_aggregated_results_by_task_id(filename, project_id)
+
+        filename = f'{DATA_PATH}/aggregated_results_by_project_id_and_date/aggregated_results_by_project_id_and_date_{project_id}.csv'
+        generate_stats.get_aggregated_results_by_project_id_and_date(filename, project_id)
+
+        filename = f'{DATA_PATH}/aggregated_progress_by_project_id_and_date/aggregated_progress_by_project_id_and_date_{project_id}.csv'
+        generate_stats.get_aggregated_progress_by_project_id_and_date(filename, project_id)
+
+    logger.info('start to export csv file for individual users based on given user_id_list')
+    for user_id in user_id_list:
+        filename = f'{DATA_PATH}/aggregated_results_by_user_id_and_date/aggregated_results_by_user_id_and_date_{user_id}.csv'
+        generate_stats.get_aggregated_results_by_user_id_and_date(filename, user_id)
 
     logger.info('exported statistics based on results, projects and users tables in postgres')
 
