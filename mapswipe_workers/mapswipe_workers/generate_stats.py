@@ -6,7 +6,15 @@ from mapswipe_workers.definitions import logger
 
 
 def get_aggregated_results(filename):
+    '''
+    Export the aggregated results statistics as csv file.
 
+    Parameters
+    ----------
+    filename: str
+    -------
+
+    '''
     pg_db = auth.postgresDB()
     sql_query = "COPY (SELECT * FROM aggregated_results) TO STDOUT WITH CSV HEADER"
 
@@ -19,6 +27,14 @@ def get_aggregated_results(filename):
 
 
 def get_aggregated_results_by_task_id(filename, project_id):
+    '''
+    Export aggregated results on a task_id basis per project.
+
+    Parameters
+    ----------
+    filename: str
+    project_id: str
+    '''
 
     pg_db = auth.postgresDB()
     sql_query = sql.SQL(
@@ -34,6 +50,16 @@ def get_aggregated_results_by_task_id(filename, project_id):
 
 
 def get_aggregated_results_by_user_id(filename):
+    '''
+    Export aggregated results on a user_id basis as csv file.
+    Parameters
+    ----------
+    filename: str
+
+    Returns
+    -------
+
+    '''
 
     pg_db = auth.postgresDB()
     sql_query = "COPY (SELECT * FROM aggregated_results_by_user_id) TO STDOUT WITH CSV HEADER"
@@ -46,147 +72,121 @@ def get_aggregated_results_by_user_id(filename):
     logger.info('saved aggregated results by user_id to %s' % filename)
 
 
+def get_aggregated_results_by_user_id_and_date(filename):
+    '''
+    Export results aggregated on user_id and daily basis as csv file.
 
-# TODO: Should postgres views are defined instead of hardcoded sql queries?
-def get_general_stats():
+    Parameters
+    ----------
+    filename: str
+    '''
 
     pg_db = auth.postgresDB()
+    sql_query = "COPY (SELECT * FROM aggregated_results_by_user_id_and_date) TO STDOUT WITH CSV HEADER"
 
-    query_select_project_total = '''
-        SELECT COUNT(*)
-        FROM projects;
-    '''
-    query_select_project_finished = '''
-        SELECT COUNT(*)
-        FROM projects
-        WHERE progress=100;
-    '''
+    with open(filename, 'w') as f:
+        pg_db.copy_expert(sql_query, f)
 
-    query_select_project_inactive = '''
-        SELECT COUNT(*)
-        FROM projects
-        WHERE status='inactive';
-    '''
-
-    query_select_project_active = '''
-        SELECT COUNT(*)
-        FROM projects
-        WHERE status='active';
-    '''
-
-    query_select_project_avg_progress = '''
-        SELECT AVG(progress)
-        FROM projects
-        WHERE progress <> 100
-        AND status='active';
-    '''
-
-    query_select_user_total = '''
-        SELECT COUNT(*)
-        FROM users;
-    '''
-
-    project_total = pg_db.retr_query(query_select_project_total)[0]
-    project_finished = pg_db.retr_query(query_select_project_finished)[0]
-    project_inactive = pg_db.retr_query(query_select_project_inactive)[0]
-    project_active = pg_db.retr_query(query_select_project_active)[0]
-    project_avg_progress = pg_db.retr_query(
-            query_select_project_avg_progress
-            )[0]
-    user_total = pg_db.retr_query(query_select_user_total)[0]
-
-    stats = {
-            'project_total': project_total,
-            'project_finished': project_finished,
-            'project_inactive': project_inactive,
-            'project_active': project_active,
-            'project_avg_progress': project_avg_progress,
-            'user_total': user_total,
-            }
-
-    del(pg_db)
-    logger.info('generated stats')
-    return stats
-
-
-def get_all_active_projects():
-
-    pg_db = auth.postgresDB()
-    query_select_project_active = '''
-        SELECT project_id
-        FROM projects
-        WHERE status='active';
-    '''
-    active_projects = pg_db.retr_query(query_select_project_active)
-    try:
-        active_projects = active_projects[0]
-    except IndexError:
-        pass
-
-    del(pg_db)
-    logger.info('generated list of active projects')
-    return active_projects
-
-
-def get_aggregated_results(projects):
-    """
-    Returns
-    -------
-    aggregated_results: dict
-    """
-
-    # TODO: rewrite this function to work with new data structure
-    # TODO: What is decision representing (avg(results))
-
-    pg_db = auth.postgresDB()
-
-    query_select_results = '''
-        SELECT
-          task_id AS id
-          ,project_id AS project
-          ,avg(cast(info ->> 'result' AS integer))AS decision
-          ,SUM(CASE
-            WHEN cast(info ->> 'result' AS integer) = 1 THEN 1
-            ELSE 0
-           END) AS yes_count
-           ,SUM(CASE
-            WHEN cast(info ->> 'result' AS integer) = 2 THEN 1
-            ELSE 0
-           END) AS maybe_count
-           ,SUM(CASE
-            WHEN cast(info ->> 'result' AS integer) = 3 THEN 1
-            ELSE 0
-           END) AS bad_imagery_count
-        FROM
-          results
-        WHERE
-          project_id = %s AND cast(info ->> 'result' as integer) > 0
-        GROUP BY
-          task_id
-          ,project_id
-        '''
-
-    query_select_aggregated_results = '''
-        SELECT project_id, COUNT(result) as yes_count
-        FROM results
-        AND result = 1
-        GROUP BY project_id
-
-        UNION
-
-        SELECT project_id, COUNT(result) as maybe_count
-        FROM results
-        AND result = 2
-        GROUP BY project_id
-
-        UNION
-
-        SELECT project_id, COUNT(result) as bad_imagery_count
-        FROM results
-        AND result = 3
-        GROUP BY project_id
-        '''
-
-    aggregated_results = pg_db.retr_query(query_select_aggregated_results)
     del pg_db
-    return aggregated_results
+
+    logger.info('saved aggregated results by user_id and date to %s' % filename)
+
+
+def get_aggregated_results_by_project_id(filename):
+    '''
+    Export results aggregated on project_id basis as csv file.
+
+    Parameters
+    ----------
+    filename: str
+    '''
+
+    pg_db = auth.postgresDB()
+    sql_query = "COPY (SELECT * FROM aggregated_results_by_project_id) TO STDOUT WITH CSV HEADER"
+
+    with open(filename, 'w') as f:
+        pg_db.copy_expert(sql_query, f)
+
+    del pg_db
+
+    logger.info('saved aggregated results by project_id to %s' % filename)
+
+
+def get_aggregated_results_by_project_id_and_date(filename):
+    '''
+    Export results aggregated on project_id and daily basis as csv file.
+
+    Parameters
+    ----------
+    filename: str
+    '''
+
+    pg_db = auth.postgresDB()
+    sql_query = "COPY (SELECT * FROM aggregated_results_by_project_id_and_date) TO STDOUT WITH CSV HEADER"
+
+    with open(filename, 'w') as f:
+        pg_db.copy_expert(sql_query, f)
+
+    del pg_db
+
+    logger.info('saved aggregated results by project_id and date to %s' % filename)
+
+
+def get_aggregated_projects(filename):
+    '''
+    Export aggregated projects as csv file.
+
+    Parameters
+    ----------
+    filename: str
+    '''
+
+    pg_db = auth.postgresDB()
+    sql_query = "COPY (SELECT * FROM aggregated_projects) TO STDOUT WITH CSV HEADER"
+
+    with open(filename, 'w') as f:
+        pg_db.copy_expert(sql_query, f)
+
+    del pg_db
+
+    logger.info('saved aggregated results by project_id and date to %s' % filename)
+
+
+def get_aggregated_projects_by_project_type(filename):
+    '''
+    Export projects aggregated on a project_type basis as csv file.
+
+    Parameters
+    ----------
+    filename: str
+    '''
+
+    pg_db = auth.postgresDB()
+    sql_query = "COPY (SELECT * FROM aggregated_projects_by_project_type) TO STDOUT WITH CSV HEADER"
+
+    with open(filename, 'w') as f:
+        pg_db.copy_expert(sql_query, f)
+
+    del pg_db
+
+    logger.info('saved aggregated projects by project_type to %s' % filename)
+
+
+def get_aggregated_users(filename):
+    '''
+    Export aggregated users as csv file.
+
+    Parameters
+    ----------
+    filename: str
+    '''
+
+    pg_db = auth.postgresDB()
+    sql_query = "COPY (SELECT * FROM aggregated_users) TO STDOUT WITH CSV HEADER"
+
+    with open(filename, 'w') as f:
+        pg_db.copy_expert(sql_query, f)
+
+    del pg_db
+
+    logger.info('saved aggregated users to %s' % filename)

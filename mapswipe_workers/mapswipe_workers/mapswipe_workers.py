@@ -265,41 +265,39 @@ def _run_firebase_to_postgres():
 
 
 def _run_generate_stats():
+    # TODO: Define which projects need an update
+    # We don't want to update all projects but just the ones for which we received new results
+    project_id_list = ['-Lmi5bJWP3T0xXthl1ET']
 
-    filename = 'aggregated_results.csv'
+    filename = f'{DATA_PATH}/aggregated_results.csv'
     generate_stats.get_aggregated_results(filename)
 
-    project_id = '-Lmi5bJWP3T0xXthl1ET'
-    filename = f'aggregated_results_by_task_id_{project_id}.csv'
-    generate_stats.get_aggregated_results_by_task_id(filename, project_id)
-
-    filename = 'aggregated_results_by_user_id.csv'
+    filename = f'{DATA_PATH}/aggregated_results_by_user_id.csv'
     generate_stats.get_aggregated_results_by_user_id(filename)
 
+    filename = f'{DATA_PATH}/aggregated_results_by_user_id_and_date.csv'
+    generate_stats.get_aggregated_results_by_user_id_and_date(filename)
 
+    filename = f'{DATA_PATH}/aggregated_results_by_project_id.csv'
+    generate_stats.get_aggregated_results_by_project_id(filename)
 
+    filename = f'{DATA_PATH}/aggregated_results_by_project_id_and_date.csv'
+    generate_stats.get_aggregated_results_by_project_id_and_date(filename)
 
-    logger.info('exported stats')
-    '''
-    data = generate_stats.get_general_stats()
-    filename = f'{DATA_PATH}/stats.json'
-    with open(filename, 'w') as outfile:
-        json.dump(data, outfile)
-    logger.info('exported stats')
+    for project_id in project_id_list:
+        filename = f'{DATA_PATH}/aggregated_results_by_task_id/aggregated_results_by_task_id_{project_id}.csv'
+        generate_stats.get_aggregated_results_by_task_id(filename, project_id)
 
-    data = generate_stats.get_all_active_projects()
-    filename = f'{DATA_PATH}/active_projects.json'
-    with open(filename, 'w') as outfile:
-        json.dump(data, outfile)
-    
-    '''
+    filename = f'{DATA_PATH}/aggregated_projects.csv'
+    generate_stats.get_aggregated_projects(filename)
 
-    # TODO:
-    # data = generate_stats.get_aggregated_results()
-    # filename = f'{DATA_PATH}/aggregated_results.json'
-    # with open(filename, 'w') as outfile:
-    #     json.dump(data, outfile)
-    # logger.info('exported aggregated results')
+    filename = f'{DATA_PATH}/aggregated_projects_by_project_type.csv'
+    generate_stats.get_aggregated_projects_by_project_type(filename)
+
+    filename = f'{DATA_PATH}/aggregated_users.csv'
+    generate_stats.get_aggregated_users(filename)
+
+    logger.info('exported statistics based on results, projects and users tables in postgres')
 
 
 cli.add_command(run_create_projects)
