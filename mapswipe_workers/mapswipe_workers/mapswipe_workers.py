@@ -1,26 +1,25 @@
-import json
-import sys
 import time
-
 import click
 import schedule as sched
 
-from mapswipe_workers import auth
-from mapswipe_workers import generate_stats
 from mapswipe_workers.definitions import CustomError
 from mapswipe_workers.definitions import DATA_PATH
 from mapswipe_workers.definitions import logger
+from mapswipe_workers.utils import slack
+from mapswipe_workers.utils import sentry
+# sentry will be initialized here already to get missing modules like ogr
+sentry.init_sentry()
+
+from mapswipe_workers import auth
+from mapswipe_workers import generate_stats
 from mapswipe_workers.firebase_to_postgres import transfer_results
 from mapswipe_workers.firebase_to_postgres import update_data
-from mapswipe_workers.utils import slack
-
 from mapswipe_workers.project_types.build_area.build_area_project \
         import BuildAreaProject
 from mapswipe_workers.project_types.footprint.footprint_project \
         import FootprintProject
 from mapswipe_workers.project_types.change_detection.change_detection_project \
         import ChangeDetectionProject
-
 
 @click.group()
 @click.option(
@@ -261,7 +260,7 @@ def _run_create_projects():
 
 def _run_firebase_to_postgres():
     update_data.copy_new_users()
-    transfer_results.transfer_results()
+    project_id_list, user_id_list = transfer_results.transfer_results()
 
 
 def _run_generate_stats():
