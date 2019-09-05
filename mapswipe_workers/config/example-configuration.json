@@ -29,6 +29,6 @@
         "username": "your_slack_username"
     },
     "sentry": {
-        "url": "your_sentry_dsn_value"
+        "dsn": "your_sentry_dsn_value"
     }
 }

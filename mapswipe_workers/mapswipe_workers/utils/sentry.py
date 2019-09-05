@@ -8,7 +8,7 @@ def init_sentry():
     try:
         with open(CONFIG_PATH) as json_data_file:
             data = json.load(json_data_file)
-            sentry_url = data['sentry']['url']
+            sentry_url = data['sentry']['dsn']
             sentry_sdk.init(sentry_url)
             return True
     except:
