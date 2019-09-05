@@ -11,7 +11,7 @@ from mapswipe_workers.utils import sentry
 sentry.init_sentry()
 
 from mapswipe_workers import auth
-from mapswipe_workers import generate_stats
+from mapswipe_workers.generate_stats import generate_stats
 from mapswipe_workers.firebase_to_postgres import transfer_results
 from mapswipe_workers.firebase_to_postgres import update_data
 from mapswipe_workers.project_types.build_area.build_area_project \
@@ -272,7 +272,7 @@ def _run_firebase_to_postgres():
 
 
 def _run_generate_stats(only_new_results):
-    generate_stats.generate_stats(only_new_results)
+    generate_stats(only_new_results)
 
 
 cli.add_command(run_create_projects)
