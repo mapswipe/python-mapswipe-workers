@@ -2,11 +2,11 @@
 # -*- coding: UTF-8 -*-
 # Author: M. Reinmuth, B. Herfort
 
+import sys
+import traceback
 import json
-
 import slack
-
-from mapswipe_workers import definitions
+from mapswipe_workers.definitions import CONFIG_PATH
 
 
 def get_slack_client():
@@ -23,7 +23,7 @@ def get_slack_client():
     """
 
     try:
-        with open(definitions.CONFIG_PATH) as json_data_file:
+        with open(CONFIG_PATH) as json_data_file:
             data = json.load(json_data_file)
             slack_token = data['slack']['token']
             channel = data['slack']['channel']
@@ -62,3 +62,42 @@ def send_slack_message(msg):
             )
         assert response["ok"]
         return True
+
+
+def _get_error_message_details(error):
+    """
+    The function to nicely extract error text and traceback."
+    Parameters
+    ----------
+    error : Exception
+        the python exception which caused the error
+    Returns
+    -------
+    error_msg_string : str
+    """
+
+    type_, value_, traceback_ = sys.exc_info()
+    error_msg = traceback.format_exception(type_, value_, traceback_)
+    error_msg_string = ''
+    for part in error_msg:
+        error_msg_string += part + '\n'
+    return error_msg_string
+
+
+def send_error(error):
+    """
+    The function to send an error message to Slack
+    Parameters
+    ----------
+    error : Exception
+        the python exception which caused the error
+    Returns
+    -------
+    bool
+        True if successful, false otherwise.
+    """
+
+    error_msg = _get_error_message_details(error)
+    head = 'python-mapswipe-workers: error occured'
+    send_slack_message(head + '\n' + error_msg)
+    return True
