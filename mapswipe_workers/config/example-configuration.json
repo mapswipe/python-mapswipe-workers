@@ -7,7 +7,8 @@
         "password": "your_mapswipe_db_password"
     },
     "firebase": {
-        "database_name": "your_firebase_database_name"
+        "database_name": "your_firebase_database_name",
+        "api_key": "your_firebase_api_key"
     },
     "imagery":{
         "bing": {
