@@ -3,6 +3,60 @@ from psycopg2 import sql
 
 from mapswipe_workers import auth
 from mapswipe_workers.definitions import logger
+from mapswipe_workers.definitions import DATA_PATH
+
+
+def generate_stats(only_new_results=None):
+
+    # get project_ids and user_ids of results in result_temp
+    # we will generate stats only for these if flag is set
+    if only_new_results:
+        logger.info('will generate stats only for projects and users with new results')
+        project_id_list = get_new_project_id_list()
+        user_id_list = get_new_user_id_list()
+    else:
+        logger.info('will generate stats for all projects and users')
+        project_id_list = get_project_id_list()
+        user_id_list = get_user_id_list()
+
+    filename = f'{DATA_PATH}/aggregated_results.csv'
+    get_aggregated_results(filename)
+
+    filename = f'{DATA_PATH}/aggregated_results_by_user_id.csv'
+    get_aggregated_results_by_user_id(filename)
+
+    filename = f'{DATA_PATH}/aggregated_results_by_project_id.csv'
+    get_aggregated_results_by_project_id(filename)
+
+    filename = f'{DATA_PATH}/aggregated_projects.csv'
+    get_aggregated_projects(filename)
+
+    filename = f'{DATA_PATH}/aggregated_projects_by_project_type.csv'
+    get_aggregated_projects_by_project_type(filename)
+
+    filename = f'{DATA_PATH}/aggregated_users.csv'
+    get_aggregated_users(filename)
+
+    filename = f'{DATA_PATH}/aggregated_progress_by_project_id.csv'
+    get_aggregated_progress_by_project_id(filename)
+
+    logger.info('start to export csv file for %s projects based on given project_id_list' % len(project_id_list))
+    for project_id in project_id_list:
+        filename = f'{DATA_PATH}/aggregated_results_by_task_id/aggregated_results_by_task_id_{project_id}.csv'
+        get_aggregated_results_by_task_id(filename, project_id)
+
+        filename = f'{DATA_PATH}/aggregated_results_by_project_id_and_date/aggregated_results_by_project_id_and_date_{project_id}.csv'
+        get_aggregated_results_by_project_id_and_date(filename, project_id)
+
+        filename = f'{DATA_PATH}/aggregated_progress_by_project_id_and_date/aggregated_progress_by_project_id_and_date_{project_id}.csv'
+        get_aggregated_progress_by_project_id_and_date(filename, project_id)
+
+    logger.info('start to export csv file for %s users based on given user_id_list' % len(user_id_list))
+    for user_id in user_id_list:
+        filename = f'{DATA_PATH}/aggregated_results_by_user_id_and_date/aggregated_results_by_user_id_and_date_{user_id}.csv'
+        get_aggregated_results_by_user_id_and_date(filename, user_id)
+
+    logger.info('exported statistics based on results, projects and users tables in postgres')
 
 
 def get_aggregated_results(filename):
@@ -239,3 +293,79 @@ def get_aggregated_progress_by_project_id_and_date(filename, project_id):
     del pg_db
 
     logger.info('saved aggregated progress by project_id and date for project %s to %s' % (project_id, filename))
+
+
+def get_new_project_id_list():
+    '''
+    Get the project_ids for all results which have been uploaded to result_temp
+    '''
+
+    p_con = auth.postgresDB()
+    query_get_project_ids = '''
+                SELECT distinct(project_id) FROM results_temp
+            '''
+    project_ids = p_con.retr_query(query_get_project_ids)
+    del p_con
+
+    project_id_list = set([])
+    for i in range(0, len(project_ids)):
+        project_id_list.add(project_ids[i][0])
+
+    return project_id_list
+
+
+def get_new_user_id_list():
+    '''
+    Get the user_ids for all results which have been uploaded to result_temp
+    '''
+
+    p_con = auth.postgresDB()
+    query_get_user_ids = '''
+                    SELECT distinct(user_id) FROM results_temp
+                '''
+    user_ids = p_con.retr_query(query_get_user_ids)
+    del p_con
+
+    user_id_list = set([])
+    for i in range(0, len(user_ids)):
+        user_id_list.add(user_ids[i][0])
+
+    return user_id_list
+
+
+def get_project_id_list():
+    '''
+    Get the project_ids for all results in results table
+    '''
+
+    p_con = auth.postgresDB()
+    query_get_project_ids = '''
+                SELECT distinct(project_id) FROM results
+            '''
+    project_ids = p_con.retr_query(query_get_project_ids)
+    del p_con
+
+    project_id_list = set([])
+    for i in range(0, len(project_ids)):
+        project_id_list.add(project_ids[i][0])
+
+    return project_id_list
+
+
+def get_user_id_list():
+    '''
+    Get the user_ids for all results in results table
+    '''
+
+    p_con = auth.postgresDB()
+    query_get_user_ids = '''
+                    SELECT distinct(user_id) FROM results
+                '''
+    user_ids = p_con.retr_query(query_get_user_ids)
+    del p_con
+
+    user_id_list = set([])
+    for i in range(0, len(user_ids)):
+        user_id_list.add(user_ids[i][0])
+
+    return user_id_list

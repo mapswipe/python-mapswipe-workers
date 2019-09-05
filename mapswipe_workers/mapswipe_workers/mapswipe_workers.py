@@ -1,9 +1,9 @@
 import time
 import click
 import schedule as sched
+import pickle
 
 from mapswipe_workers.definitions import CustomError
-from mapswipe_workers.definitions import DATA_PATH
 from mapswipe_workers.definitions import logger
 from mapswipe_workers.utils import slack
 from mapswipe_workers.utils import sentry
@@ -123,7 +123,15 @@ def run_firebase_to_postgres(schedule):
             ),
         type=click.Choice(['m', 'h', 'd'])
         )
-def run_generate_stats(schedule):
+@click.option(
+        '--only_new_results/--all',
+        default=False,
+        help=(
+            f'Will generate stats only for projects and users'
+            f'for which new results have been transfered.'
+            )
+        )
+def run_generate_stats(schedule, only_new_results):
     if schedule:
         if schedule == 'm':
             sched.every(10).minutes.do(_run_generate_stats)
@@ -148,7 +156,7 @@ def run_generate_stats(schedule):
                     f'h for every hour and d for every day.'
                     )
     else:
-        _run_generate_stats()
+        _run_generate_stats(only_new_results)
 
 
 @click.command('run')
@@ -260,53 +268,11 @@ def _run_create_projects():
 
 def _run_firebase_to_postgres():
     update_data.copy_new_users()
-    project_id_list, user_id_list = transfer_results.transfer_results()
+    transfer_results.transfer_results()
 
 
-def _run_generate_stats():
-    # TODO: Define which projects and users need an update
-    # We don't want to update all statistics for projects and users but just the ones for which we received new results
-    project_id_list = ['-Lmi5bJWP3T0xXthl1ET']
-    user_id_list = ['HYPKRUDyYTbjStNcpuC86SwGanm1', 'X0zTSyvY0khDfRwc99aQfIjTEPK2']
-
-    filename = f'{DATA_PATH}/aggregated_results.csv'
-    generate_stats.get_aggregated_results(filename)
-
-    filename = f'{DATA_PATH}/aggregated_results_by_user_id.csv'
-    generate_stats.get_aggregated_results_by_user_id(filename)
-
-    filename = f'{DATA_PATH}/aggregated_results_by_project_id.csv'
-    generate_stats.get_aggregated_results_by_project_id(filename)
-
-    filename = f'{DATA_PATH}/aggregated_projects.csv'
-    generate_stats.get_aggregated_projects(filename)
-
-    filename = f'{DATA_PATH}/aggregated_projects_by_project_type.csv'
-    generate_stats.get_aggregated_projects_by_project_type(filename)
-
-    filename = f'{DATA_PATH}/aggregated_users.csv'
-    generate_stats.get_aggregated_users(filename)
-
-    filename = f'{DATA_PATH}/aggregated_progress_by_project_id.csv'
-    generate_stats.get_aggregated_progress_by_project_id(filename)
-
-    logger.info('start to export csv file for individual projects based on given project_id_list')
-    for project_id in project_id_list:
-        filename = f'{DATA_PATH}/aggregated_results_by_task_id/aggregated_results_by_task_id_{project_id}.csv'
-        generate_stats.get_aggregated_results_by_task_id(filename, project_id)
-
-        filename = f'{DATA_PATH}/aggregated_results_by_project_id_and_date/aggregated_results_by_project_id_and_date_{project_id}.csv'
-        generate_stats.get_aggregated_results_by_project_id_and_date(filename, project_id)
-
-        filename = f'{DATA_PATH}/aggregated_progress_by_project_id_and_date/aggregated_progress_by_project_id_and_date_{project_id}.csv'
-        generate_stats.get_aggregated_progress_by_project_id_and_date(filename, project_id)
-
-    logger.info('start to export csv file for individual users based on given user_id_list')
-    for user_id in user_id_list:
-        filename = f'{DATA_PATH}/aggregated_results_by_user_id_and_date/aggregated_results_by_user_id_and_date_{user_id}.csv'
-        generate_stats.get_aggregated_results_by_user_id_and_date(filename, user_id)
-
-    logger.info('exported statistics based on results, projects and users tables in postgres')
+def _run_generate_stats(only_new_results):
+    generate_stats.generate_stats(only_new_results)
 
 
 cli.add_command(run_create_projects)
