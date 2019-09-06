@@ -28,7 +28,7 @@ def transfer_results():
             logger.info('No results in Firebase')
             return dict()
         else:
-            results_file= results_to_file(current_results)
+            results_file = results_to_file(current_results)
             save_results_to_postgres(results_file)
             return dict()
 

@@ -33,12 +33,19 @@ def delete_sample_results_from_postgres(pg_db, project_id):
             FROM results
             WHERE project_id = %s
             );
+        DELETE FROM results_temp
+        WHERE EXISTS (
+            SELECT project_id
+            FROM results_temp
+            WHERE project_id = %s
+            );
         DELETE FROM tasks WHERE project_id = %s;
         DELETE FROM groups WHERE project_id = %s;
         DELETE FROM projects WHERE project_id = %s;
         '''
 
     data = [
+        project_id,
         project_id,
         project_id,
         project_id,
@@ -78,21 +85,27 @@ def delete_local_files(project_id):
             )
 
 
-def delete_sample_users(fb_db):
-    filename = 'users.pickle'
-    if os.path.isfile(filename):
-        with open(filename, 'rb') as f:
-            users = pickle.load(f)
+def delete_sample_users(users):
+    for uid, user in users.items():
+        try:
+            user_management.delete_user(user['email'])
+        # TODO: just check if user has been deleted already
+        except Exception:
+            pass
 
-        for uid, user in users.items():
-            try:
-                user_management.delete_user(user['email'])
-            # TODO: just check if user has been deleted already
-            except Exception:
-                pass
-        os.remove('users.pickle')
-    else:
-        print('users.pickle file not found')
+
+def delete_sample_users_from_postgres(pg_db, users):
+    p_con = pg_db()
+    user_ids = list(users.keys())
+    sql_query = 'DELETE FROM users WHERE user_id = ANY(%s);'
+    data = [user_ids]
+
+    p_con.query(sql_query, data)
+    print(
+        f'Postgres: '
+        f'deleted users '
+        f'with user ids: {user_ids}'
+    )
 
 
 if __name__ == '__main__':
@@ -111,5 +124,14 @@ if __name__ == '__main__':
     else:
         print('No project_ids.pickle file found')
 
-    delete_sample_users(fb_db)
+    if os.path.isfile(filename):
+        with open(filename, 'rb') as f:
+            users = pickle.load(f)
+            user_ids = list(users.keys())
+        delete_sample_users(users)
+        delete_sample_users_from_postgres(pg_db, users)
+        os.remove('users.pickle')
+    else:
+        print('No users.pickle file found')
+
     print('Deleted all sample data in Firebase, Postgres and on disk')

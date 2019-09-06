@@ -1,5 +1,7 @@
-import sys
+import os
 from psycopg2 import sql
+import dateutil
+import dateutil.parser
 
 from mapswipe_workers import auth
 from mapswipe_workers.definitions import logger
@@ -7,17 +9,28 @@ from mapswipe_workers.definitions import DATA_PATH
 
 
 def generate_stats(only_new_results=None):
+    filename = f'{DATA_PATH}/last_update.txt'
+    if os.path.isfile(filename):
+        with open(filename, 'rb') as f:
+            timestamp = f.read()
+            last_update = dateutil.parser.parse(timestamp)
+            logger.info(f'got last_update timestamp {last_update} from file {filename}')
+    else:
+        last_update = None
 
-    # get project_ids and user_ids of results in result_temp
     # we will generate stats only for these if flag is set
     if only_new_results:
         logger.info('will generate stats only for projects and users with new results')
-        project_id_list = get_new_project_id_list()
-        user_id_list = get_new_user_id_list()
+        # get project_ids and user_ids for results created after last update
+        project_id_list = get_new_project_id_list(last_update)
+        user_id_list = get_new_user_id_list(last_update)
     else:
         logger.info('will generate stats for all projects and users')
         project_id_list = get_project_id_list()
         user_id_list = get_user_id_list()
+
+    # get new last_update timestamp
+    last_update = get_last_result()
 
     filename = f'{DATA_PATH}/aggregated_results.csv'
     get_aggregated_results(filename)
@@ -55,6 +68,13 @@ def generate_stats(only_new_results=None):
     for user_id in user_id_list:
         filename = f'{DATA_PATH}/aggregated_results_by_user_id_and_date/aggregated_results_by_user_id_and_date_{user_id}.csv'
         get_aggregated_results_by_user_id_and_date(filename, user_id)
+
+    # write new last_update file
+    filename = f'{DATA_PATH}/last_update.txt'
+    with open(filename, 'w') as f:
+        timestamp = last_update.strftime('%Y-%m-%dT%H:%M:%S.%f')
+        f.write(timestamp)
+        logger.info(f'wrote last_update timestamp {timestamp} to file {filename}')
 
     logger.info('exported statistics based on results, projects and users tables in postgres')
 
@@ -295,16 +315,17 @@ def get_aggregated_progress_by_project_id_and_date(filename, project_id):
     logger.info('saved aggregated progress by project_id and date for project %s to %s' % (project_id, filename))
 
 
-def get_new_project_id_list():
+def get_new_project_id_list(last_update):
     '''
     Get the project_ids for all results which have been uploaded to result_temp
     '''
 
     p_con = auth.postgresDB()
     query_get_project_ids = '''
-                SELECT distinct(project_id) FROM results_temp
+                SELECT distinct(project_id) FROM results WHERE timestamp > %s;
             '''
-    project_ids = p_con.retr_query(query_get_project_ids)
+    data = [last_update]
+    project_ids = p_con.retr_query(query_get_project_ids, data)
     del p_con
 
     project_id_list = set([])
@@ -314,16 +335,17 @@ def get_new_project_id_list():
     return project_id_list
 
 
-def get_new_user_id_list():
+def get_new_user_id_list(last_update):
     '''
     Get the user_ids for all results which have been uploaded to result_temp
     '''
 
     p_con = auth.postgresDB()
     query_get_user_ids = '''
-                    SELECT distinct(user_id) FROM results_temp
+                    SELECT distinct(user_id) FROM results WHERE timestamp > %s;
                 '''
-    user_ids = p_con.retr_query(query_get_user_ids)
+    data = [last_update]
+    user_ids = p_con.retr_query(query_get_user_ids, data)
     del p_con
 
     user_id_list = set([])
@@ -369,3 +391,23 @@ def get_user_id_list():
         user_id_list.add(user_ids[i][0])
 
     return user_id_list
+
+
+def get_last_result():
+    '''
+    Get the user_ids for all results in results table
+    '''
+
+    p_con = auth.postgresDB()
+    query_get_last_result = '''
+                    SELECT timestamp FROM results ORDER BY timestamp DESC LIMIT 1
+                '''
+    last_updates = p_con.retr_query(query_get_last_result)
+    del p_con
+
+    if last_updates:
+        last_update = last_updates[0][0]
+    else:
+        last_update = None
+
+    return last_update

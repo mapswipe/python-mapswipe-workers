@@ -9,6 +9,7 @@ from mapswipe_workers.auth import firebaseDB
 
 
 def do_mapping(uid, user, project_id):
+    # TODO: use shallow for groups and tasks to reduce data transfer
     print(f'user {uid} do some mapping for {project_id}')
 
     # sign in user through REST api
@@ -31,7 +32,6 @@ def do_mapping(uid, user, project_id):
             results[task_id] = random.randint(0, 3)
 
         end_time = datetime.datetime.utcnow().isoformat()[0:-3]+'Z'
-        # TODO: set results in firebase
         path = f'/v2/results/{project_id}/{group_id}/{uid}'
         data = {
             'results': results,
