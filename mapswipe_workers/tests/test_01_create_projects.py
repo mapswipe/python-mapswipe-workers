@@ -51,6 +51,7 @@ def test_initialize_project_drafts(email, password):
     project_drafts = load_sample_project_drafts()
 
     for key, project_draft in project_drafts.items():
+        # TODO: add some random characters to key and use this as a project_id instead
         project_ids.add(key)
         path = f'/v2/projectDrafts/{key}'  # make sure that path starts with '/'
         user_management.set_firebase_db(path, project_draft, project_manager['idToken'])
