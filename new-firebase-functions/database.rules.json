@@ -29,10 +29,12 @@
       "groups": {
         ".write": false,
         ".read": true,
-        ".indexOn": [
-          "finishedCount",
-          "requiredCount"
-        ]
+        "$project_id": {
+          ".indexOn": [
+            "finishedCount",
+            "requiredCount"
+          ]
+        }
       },
       "tasks": {
         ".write": false,
