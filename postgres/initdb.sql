@@ -104,15 +104,15 @@ GRANT SELECT ON ALL TABLES IN SCHEMA public TO backup;
 -- create views for statistics
 -- projects
 -- aggregated_projects
+-- aggregated_projects
 CREATE or REPLACE VIEW aggregated_projects AS
 SELECT
     count(*) as total_projects_count
     ,Sum(CASE WHEN progress = 100  THEN 1 ELSE 0 END) as finished_projects_count
     ,Sum(CASE WHEN status = 'active' THEN 1 ELSE 0 END) as active_projects_count
     ,Sum(CASE WHEN status = 'inactive' THEN 1 ELSE 0 END) as inactive_projects_count
-    ,Round(Avg(contributor_count),3) as average_contributor_count
     ,Round(Avg(progress),3) as average_progress
-    ,Round(Avg(number_of_tasks),0) as average_number_of_tasks
+    ,Round(Avg(required_results),0) as average_number_of_tasks
 FROM
     projects;
 
@@ -124,9 +124,8 @@ SELECT
     ,Sum(CASE WHEN progress = 100  THEN 1 ELSE 0 END) as finished_projects_count
     ,Sum(CASE WHEN status = 'active' THEN 1 ELSE 0 END) as active_projects_count
     ,Sum(CASE WHEN status = 'inactive' THEN 1 ELSE 0 END) as inactive_projects_count
-    ,Round(Avg(contributor_count),3) as average_contributor_count
     ,Round(Avg(progress),3) as average_progress
-    ,Round(Avg(number_of_tasks),0) as average_number_of_tasks
+    ,Round(Avg(required_results),0) as average_number_of_tasks
 FROM
     projects
 GROUP BY
@@ -322,14 +321,14 @@ GROUP BY
 CREATE or REPLACE VIEW aggregated_progress_by_project_id AS
 SELECT
  projects.project_id
- ,projects.number_of_tasks
+ ,projects.required_results
  ,SUM(group_progress.groups_finished_count) as groups_finished_count
  ,SUM(group_progress.results_finished_count) as results_finished_count
  ,SUM(group_progress.results_finished_count_for_progress) as results_finished_count_for_progress
  ,ROUND(
 	 SUM(group_progress.results_finished_count_for_progress)
 	 /
-	 projects.number_of_tasks::numeric
+	 projects.required_results::numeric
 	 	,3) as progress
 FROM projects
 LEFT JOIN
@@ -358,13 +357,13 @@ GROUP BY
 GROUP BY
   projects.project_id
 ORDER BY
-  projects.project_id
+  projects.project_id;
 
 -- aggregated_progress_by_project_id_and_date
 CREATE VIEW aggregated_progress_by_project_id_and_date AS
 SELECT
  projects.project_id
- ,projects.number_of_tasks
+ ,projects.required_results
  ,group_progress.day
  ,SUM(group_progress.groups_finished_count) as groups_finished_count
  ,SUM(SUM(group_progress.groups_finished_count)) OVER (PARTITION BY projects.project_id ORDER BY day) as cumulative_groups_finished_count
@@ -375,7 +374,7 @@ SELECT
  ,ROUND(
 	 SUM(SUM(group_progress.results_finished_count_for_progress)) OVER (PARTITION BY projects.project_id ORDER BY day)
 	 /
-	 projects.number_of_tasks::numeric
+	 projects.required_results::numeric
 	 	,3) as progress
 FROM projects
 LEFT JOIN
@@ -404,4 +403,4 @@ GROUP BY
 GROUP BY
   projects.project_id, day
 ORDER BY
-  projects.project_id, day
+  projects.project_id, day;
