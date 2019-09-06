@@ -2,7 +2,7 @@
   "build_area_default_with_bing": {
         "submissionKey": "5G9Ce2J7",
         "createdBy": "Sample Manager",
-        "kml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?><kml xmlns=\"http://www.opengis.net/kml/2.2\"><Document><Placemark><ExtendedData></ExtendedData><Polygon><outerBoundaryIs><LinearRing><coordinates>34.975833892822266,-15.899098066386088 35.089302062988274,-15.899098066386088 35.089302062988274,-15.820002241903946 34.975833892822266,-15.820002241903946 34.975833892822266,-15.899098066386088</coordinates></LinearRing></outerBoundaryIs></Polygon></Placemark></Document></kml>",
+        "kml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?><kml xmlns=\"http://www.opengis.net/kml/2.2\"><Document><Placemark><ExtendedData></ExtendedData><Polygon><outerBoundaryIs><LinearRing><coordinates>34.975833892822266,-16.100098066386088 35.089302062988274,-16.100098066386088 35.089302062988274,-15.820002241903946 34.975833892822266,-15.820002241903946 34.975833892822266,-16.100098066386088</coordinates></LinearRing></outerBoundaryIs></Polygon></Placemark></Document></kml>",
         "image": "http://www.redcrosseth.org/media/k2/items/cache/5a05a447acfdf6fcc40548cc4c1cea8d_L.jpg",
         "lookFor": "BUILDINGS",
         "name": "BuildArea Default with Bing Sample Project",
@@ -17,7 +17,7 @@
     "build_area_sentinel_wmts": {
         "submissionKey": "5G9Ce2J7",
         "createdBy": "Sample Manager",
-        "kml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?><kml xmlns=\"http://www.opengis.net/kml/2.2\"><Document><Placemark><ExtendedData></ExtendedData><Polygon><outerBoundaryIs><LinearRing><coordinates>34.975833892822266,-15.899098066386088 35.089302062988274,-15.899098066386088 35.089302062988274,-15.820002241903946 34.975833892822266,-15.820002241903946 34.975833892822266,-15.899098066386088</coordinates></LinearRing></outerBoundaryIs></Polygon></Placemark></Document></kml>",
+        "kml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?><kml xmlns=\"http://www.opengis.net/kml/2.2\"><Document><Placemark><ExtendedData></ExtendedData><Polygon><outerBoundaryIs><LinearRing><coordinates>34.975833892822266,-16.100098066386088 35.089302062988274,-16.100098066386088 35.089302062988274,-15.820002241903946 34.975833892822266,-15.820002241903946 34.975833892822266,-16.100098066386088</coordinates></LinearRing></outerBoundaryIs></Polygon></Placemark></Document></kml>",
         "image": "http://www.redcrosseth.org/media/k2/items/cache/5a05a447acfdf6fcc40548cc4c1cea8d_L.jpg",
         "lookFor": "VEGETATION",
         "name": "BuildArea Sentinel Sample Project",

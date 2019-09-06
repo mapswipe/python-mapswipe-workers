@@ -103,6 +103,24 @@ def sign_in_with_email_and_password(email, password):
     return current_user
 
 
+def get_firebase_db(path, custom_arguments=None, token=None):
+    config = load_config()
+    databaseName = config['firebase']['database_name']
+    database_url = f'https://{databaseName}.firebaseio.com'
+    request_ref = '{0}{1}.json?{3}auth={2}'.format(database_url, path, token, custom_arguments)
+    headers = {"content-type": "application/json; charset=UTF-8"}
+    request_object = requests.get(
+        request_ref,
+        headers=headers
+    )
+    if permission_denied(request_object):
+        logger.info(f'permission denied for {database_url}{path}.json')
+        return False
+    else:
+        logger.info(f'get data in firebase for {database_url}{path}.json?{custom_arguments}')
+        return request_object.json()
+
+
 def set_firebase_db(path, data, token=None):
     config = load_config()
     databaseName = config['firebase']['database_name']
