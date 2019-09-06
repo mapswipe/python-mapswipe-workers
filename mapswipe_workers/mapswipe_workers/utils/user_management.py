@@ -145,8 +145,6 @@ def permission_denied(request_object):
     try:
         request_object.raise_for_status()
     except HTTPError as e:
-        # raise detailed error message
-        # TODO: Check if we get a { "error" : "Permission denied." } and handle automatically
         if 'Permission denied' in request_object.text:
             return True
         else:
