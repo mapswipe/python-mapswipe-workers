@@ -124,6 +124,7 @@ if __name__ == '__main__':
     else:
         print('No project_ids.pickle file found')
 
+    filename = 'users.pickle'
     if os.path.isfile(filename):
         with open(filename, 'rb') as f:
             users = pickle.load(f)
