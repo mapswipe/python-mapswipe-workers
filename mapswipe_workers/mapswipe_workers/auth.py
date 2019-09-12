@@ -57,6 +57,16 @@ def get_tileserver_url(tileserver):
         raise
 
 
+def init_firebase():
+    try:
+        # Is an App instance already initialized?
+        firebase_admin.get_app()
+    except ValueError:
+        cred = credentials.Certificate(SERVICE_ACCOUNT_KEY_PATH)
+        # Initialize the app with a service account, granting admin privileges
+        firebase_admin.initialize_app(cred)
+
+
 def firebaseDB():
     try:
         # Is an App instance already initialized?
@@ -121,6 +131,19 @@ class postgresDB(object):
                 f,
                 table,
                 columns=columns
+                )
+        self._db_connection.commit()
+        self._db_cur.close()
+
+    def copy_expert(
+            self,
+            sql,
+            file,
+            ):
+        self._db_cur = self._db_connection.cursor()
+        self._db_cur.copy_expert(
+                sql,
+                file,
                 )
         self._db_connection.commit()
         self._db_cur.close()

@@ -1,26 +1,25 @@
-import json
-import sys
 import time
-
 import click
 import schedule as sched
+import pickle
+
+from mapswipe_workers.definitions import CustomError
+from mapswipe_workers.definitions import logger
+from mapswipe_workers.utils import slack
+from mapswipe_workers.utils import sentry
+# sentry will be initialized here already to get missing modules like ogr
+sentry.init_sentry()
 
 from mapswipe_workers import auth
-from mapswipe_workers import generate_stats
-from mapswipe_workers.definitions import CustomError
-from mapswipe_workers.definitions import DATA_PATH
-from mapswipe_workers.definitions import logger
+from mapswipe_workers.generate_stats import generate_stats
 from mapswipe_workers.firebase_to_postgres import transfer_results
 from mapswipe_workers.firebase_to_postgres import update_data
-from mapswipe_workers.utils import slack
-
 from mapswipe_workers.project_types.build_area.build_area_project \
         import BuildAreaProject
 from mapswipe_workers.project_types.footprint.footprint_project \
         import FootprintProject
 from mapswipe_workers.project_types.change_detection.change_detection_project \
         import ChangeDetectionProject
-
 
 @click.group()
 @click.option(
@@ -124,7 +123,15 @@ def run_firebase_to_postgres(schedule):
             ),
         type=click.Choice(['m', 'h', 'd'])
         )
-def run_generate_stats(schedule):
+@click.option(
+        '--only_new_results/--all',
+        default=False,
+        help=(
+            f'Will generate stats only for projects and users'
+            f'for which new results have been transfered.'
+            )
+        )
+def run_generate_stats(schedule, only_new_results):
     if schedule:
         if schedule == 'm':
             sched.every(10).minutes.do(_run_generate_stats)
@@ -149,7 +156,7 @@ def run_generate_stats(schedule):
                     f'h for every hour and d for every day.'
                     )
     else:
-        _run_generate_stats()
+        _run_generate_stats(only_new_results)
 
 
 @click.command('run')
@@ -264,25 +271,8 @@ def _run_firebase_to_postgres():
     transfer_results.transfer_results()
 
 
-def _run_generate_stats():
-    data = generate_stats.get_general_stats()
-    filename = f'{DATA_PATH}/stats.json'
-    with open(filename, 'w') as outfile:
-        json.dump(data, outfile)
-    logger.info('exported stats')
-
-    data = generate_stats.get_all_active_projects()
-    filename = f'{DATA_PATH}/active_projects.json'
-    with open(filename, 'w') as outfile:
-        json.dump(data, outfile)
-    logger.info('exported stats')
-
-    # TODO:
-    # data = generate_stats.get_aggregated_results()
-    # filename = f'{DATA_PATH}/aggregated_results.json'
-    # with open(filename, 'w') as outfile:
-    #     json.dump(data, outfile)
-    # logger.info('exported aggregated results')
+def _run_generate_stats(only_new_results):
+    generate_stats(only_new_results)
 
 
 cli.add_command(run_create_projects)

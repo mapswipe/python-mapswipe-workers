@@ -136,6 +136,10 @@ docker-compose up -d mapswipe_workers
 
 Get **Web API Key**: `> Settings > Project settings > General`. Add the web api key to the `.env` file.
 
+Make sure to set restrictions correctly:
+* https://cloud.google.com/docs/authentication/api-keys#api_key_restrictions
+* https://console.cloud.google.com/apis/credentials
+
 ```
 docker-compose up -d manager_dashboard
 ```

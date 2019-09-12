@@ -45,9 +45,14 @@ def copy_new_users():
         query_update_user = '''
             INSERT INTO users (user_id, username, created)
             VALUES(%s, %s, %s)
+            ON CONFLICT (user_id) DO UPDATE
+            SET username=%s,
+            created=%s;
         '''
         data_update_user = [
                 user_id,
+                user['username'],
+                user['created'],
                 user['username'],
                 user['created'],
                 ]

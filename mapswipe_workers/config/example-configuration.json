@@ -7,7 +7,8 @@
         "password": "your_mapswipe_db_password"
     },
     "firebase": {
-        "database_name": "your_firebase_database_name"
+        "database_name": "your_firebase_database_name",
+        "api_key": "your_firebase_api_key"
     },
     "imagery":{
         "bing": {
@@ -27,5 +28,8 @@
         "token": "your_slack_token",
         "channel": "your_slack_channel",
         "username": "your_slack_username"
+    },
+    "sentry": {
+        "dsn": "your_sentry_dsn_value"
     }
 }

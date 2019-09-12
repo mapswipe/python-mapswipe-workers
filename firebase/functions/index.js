@@ -30,6 +30,7 @@ exports.counter = functions.database.ref('/v2/results/{projectId}/{groupId}/{use
     const groupContributionCountRef     = admin.database().ref('/v2/users/'+context.params.userId+'/groupContributionCount')
     const projectContributionCountRef   = admin.database().ref('/v2/users/'+context.params.userId+'/projectContributionCount')
     const contributionsRef              = admin.database().ref('/v2/users/'+context.params.userId+'/contributions/'+context.params.projectId)
+    const groupContributionsRef         = admin.database().ref('/v2/users/'+context.params.userId+'/contributions/'+context.params.projectId +'/'+context.params.groupId)
     const totalTimeSpentMappingRef      = admin.database().ref('/v2/users/'+context.params.userId+'/timeSpentMapping')
 
     const timestampRef          = admin.database().ref('/v2/results/'+context.params.projectId+'/'+context.params.groupId+'/'+context.params.userId+'/timestamp')
@@ -93,21 +94,18 @@ exports.counter = functions.database.ref('/v2/results/{projectId}/{groupId}/{use
         })
     promises.push(taskContributionCount)
 
-    const contributions = contributionsRef.once('value')
+    const contributions = groupContributionsRef.once('value')
         .then((dataSnapshot) => {
             if (dataSnapshot.exists()) {
                 return null
             }
             else {
-                const groupId = context.params.groupId
-                const data = {
-                    [groupId]: {
-                        'timestamp': result['timestamp'],
-                        'startTime': result['startTime'],
-                        'endTime': result['endTime']
-                    }
-                }
-                return contributionsRef.set(data)
+            const data = {
+                'timestamp': result['timestamp'],
+                'startTime': result['startTime'],
+                'endTime': result['endTime']
+             }
+             return groupContributionsRef.set(data)
             }
         })
     promises.push(contributions)
