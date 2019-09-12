@@ -16,6 +16,8 @@ def transfer_results():
     the Firebase docs to avoid missing new generated results in
     Firebase during execution of this function.
     '''
+    # TODO: return true if results where transfered
+    # return fals if not
 
     logger.info('Start transfering results')
 
