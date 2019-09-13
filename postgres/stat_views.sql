@@ -257,7 +257,7 @@ ORDER BY
   projects.project_id;
 
 -- aggregated_progress_by_project_id_and_date
-CREATE VIEW aggregated_progress_by_project_id_and_date AS
+CREATE or REPLACE VIEW aggregated_progress_by_project_id_and_date AS
 SELECT
  projects.project_id
  ,projects.required_results

@@ -110,4 +110,4 @@ GRANT SELECT ON ALL TABLES IN SCHEMA public TO backup;
 -- VIEWS
 --
 -- create views for statistics
-\i stat_views.sql
+\i /docker-entrypoint-initdb.d/stat_views.sql
