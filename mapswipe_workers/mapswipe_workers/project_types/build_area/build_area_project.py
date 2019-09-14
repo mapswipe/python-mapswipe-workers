@@ -1,6 +1,7 @@
 import os
 import ogr
 import osr
+import json
 
 from mapswipe_workers.definitions import DATA_PATH
 from mapswipe_workers.definitions import logger
@@ -24,14 +25,14 @@ class BuildAreaProject(BaseProject):
 
         # set group size
         self.groupSize = 50
-        self.kml = project_draft['kml']
+        self.geometry = project_draft['geometry']
         self.zoomLevel = int(project_draft.get('zoomLevel', 18))
         self.tileServer = self.get_tile_server(project_draft['tileServer'])
 
     def validate_geometries(self):
         raw_input_file = (
                 f'{DATA_PATH}/input_geometries/'
-                f'raw_input_{self.projectId}.kml'
+                f'raw_input_{self.projectId}.geojson'
                 )
         # check if a 'data' folder exists and create one if not
         if not os.path.isdir('{}/input_geometries'.format(DATA_PATH)):
@@ -39,9 +40,9 @@ class BuildAreaProject(BaseProject):
 
         # write string to geom file
         with open(raw_input_file, 'w') as geom_file:
-            geom_file.write(self.kml)
+            json.dump(self.geometry, geom_file)
 
-        driver = ogr.GetDriverByName('KML')
+        driver = ogr.GetDriverByName('GeoJSON')
         datasource = driver.Open(raw_input_file, 0)
         layer = datasource.GetLayer()
 

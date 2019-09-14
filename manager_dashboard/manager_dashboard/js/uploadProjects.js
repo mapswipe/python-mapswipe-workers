@@ -18,7 +18,7 @@ function submitInfo() {
     if (projectType == 1) {
 
         var zoomLevel = document.getElementById("zoomLevel").value;
-        var kml = document.getElementById("kml").value;
+        var geometry = document.getElementById("geometryContent").innerHTML;
         var tileServer = {
           name: document.getElementById("tileServerBuildArea").value,
           url: document.getElementById("tileServerUrlBuildArea").value,
@@ -32,15 +32,16 @@ function submitInfo() {
             name: name,
             lookFor: lookFor,
             projectDetails: projectDetails,
-            projectType: projectType,
+            projectType: parseInt(projectType),
             image: image,
-            verificationNumber: verificationNumber,
-            groupSize: groupSize,
+            verificationNumber: parseInt(verificationNumber),
+            groupSize: parseInt(groupSize),
             tileServer: tileServer,
-            zoomLevel: zoomLevel,
-            kml: kml,
+            zoomLevel: parseInt(zoomLevel),
+            geometry: JSON.parse(geometry),
             createdBy: createdBy
         }
+        console.log(mapswipe_import)
 
     } else if (projectType == 2) {
 
@@ -58,10 +59,10 @@ function submitInfo() {
             name: name,
             lookFor: lookFor,
             projectDetails: projectDetails,
-            projectType: projectType,
+            projectType: parseInt(projectType),
             image: image,
-            groupSize: groupSize,
-            verificationNumber: verificationNumber,
+            groupSize: parseInt(groupSize),
+            verificationNumber: parseInt(verificationNumber),
             tileServer: tileServer,
             createdBy: createdBy,
             inputGeometries: inputGeometries
@@ -70,7 +71,7 @@ function submitInfo() {
     } else if (projectType == 3) {
 
       var zoomLevel = document.getElementById("zoomLevelChangeDetection").value;
-      var kml = document.getElementById("kmlChangeDetection").value;
+      var geometry = document.getElementById("geometryChangeDetectionContent").innerHTML;
       var tileServerA = {
         name: document.getElementById("tileServerChangeDetectionA").value,
         url: document.getElementById("tileServerUrlChangeDetectionA").value,
@@ -96,14 +97,14 @@ function submitInfo() {
           name: name,
           lookFor: lookFor,
           projectDetails: projectDetails,
-          projectType: projectType,
+          projectType: parseInt(projectType),
           image: image,
-          groupSize: groupSize,
-          verificationNumber: verificationNumber,
+          groupSize: parseInt(groupSize),
+          verificationNumber: parseInt(verificationNumber),
           tileServerA: tileServerA,
           tileServerB: tileServerB,
-          zoomLevel: zoomLevel,
-          kml: kml,
+          zoomLevel: parseInt(zoomLevel),
+          geometry: JSON.parse(geometry),
           createdBy: createdBy
       }
 

@@ -64,3 +64,16 @@ function displaySuccessMessage() {
 function displayImportForm() {
   document.getElementById("import-formular").style.display = "block";
 }
+
+function openFile(event) {
+    var input = event.target;
+    element_id = event.target.id + 'Content'
+
+    var reader = new FileReader();
+    reader.onload = function(){
+      var text = reader.result;
+      var output = document.getElementById(element_id);
+      output.innerHTML = text;
+    };
+    reader.readAsText(input.files[0]);
+  };
