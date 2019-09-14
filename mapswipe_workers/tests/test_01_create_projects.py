@@ -59,6 +59,22 @@ def test_initialize_project_drafts(email, password):
     return project_manager, project_ids
 
 
+def test_change_project_status(project_ids, email, password):
+
+    rest_user = user_management.sign_in_with_email_and_password(email, password)
+
+    for project_id in project_ids:
+        # set project status to active
+        path = f'/v2/projects/{project_id}/status'
+        data = 'active'
+        user_management.set_firebase_db(path, data, rest_user['idToken'])
+
+        # set project status to inactive
+        path = f'/v2/projects/{project_id}/status'
+        data = 'inactive'
+        user_management.set_firebase_db(path, data, rest_user['idToken'])
+
+
 if __name__ == '__main__':
     try:
         random_string = ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
@@ -75,6 +91,10 @@ if __name__ == '__main__':
 
         # create projects
         mapswipe_workers._run_create_projects()
+
+        # activate/deactivate project as project manager
+        test_change_project_status(project_ids, email, password)
+
         user_management.delete_user(email)
 
     except Exception:

@@ -319,8 +319,8 @@ def test_firebase_functions_results(
 
 if __name__ == '__main__':
 
-    number_of_users = 3
-    number_of_groups = 3  # now many groups should be mapped per user and project
+    number_of_users = 1  # how many users should be created
+    number_of_groups = 2  # how many groups should be mapped per user and project
 
     # create some test users
     users = create_normal_users(number_of_users)
