@@ -7,7 +7,7 @@ from mapswipe_workers import auth
 from mapswipe_workers.definitions import logger
 
 
-def transfer_results():
+def transfer_results(project_id_list=None):
     '''
     Download results from firebase,
     saves them to postgres and then deletes the results in firebase.
@@ -18,35 +18,42 @@ def transfer_results():
     # TODO: return true if results where transfered
     # return fals if not
 
-    logger.info('Start transfering results')
-
-    fb_db = auth.firebaseDB()
-    results_ref = fb_db.reference('v2/results/')
-    truncate_temp_results()
-
     # Firebase transaction function
     def transfer(current_results):
         if current_results is None:
             logger.info('No results in Firebase')
             return dict()
         else:
-            results_file = results_to_file(current_results)
+            results_file = results_to_file(current_results, project_id)
             save_results_to_postgres(results_file)
             return dict()
 
-    try:
-        results_ref.transaction(transfer)
-        logger.info('Transfered results')
-    except fb_db.TransactionError:
-        logger.exception(
-                'Firebase transaction for transfering results failed to commit'
-                )
-    del(fb_db)
+    fb_db = auth.firebaseDB()
 
+    if not project_id_list:
+        # get project_ids from existing results if no project ids specified
+        project_id_list = fb_db.reference('v2/results/').get(shallow=True)
+
+
+    for project_id in project_id_list:
+
+        logger.info(f'Start transfering results for project {project_id}')
+        results_ref = fb_db.reference(f'v2/results/{project_id}')
+        truncate_temp_results()
+
+        try:
+            results_ref.transaction(transfer)
+            logger.info(f'Transfered results for project {project_id}')
+        except fb_db.TransactionError:
+            logger.exception(
+                f'Firebase transaction for transfering results failed to commit for project {project_id}'
+            )
+
+    del fb_db
     return
 
 
-def results_to_file(results):
+def results_to_file(results, projectId):
     '''
     Writes results to an in-memory file like object
     formatted as a csv using the buffer module (StringIO).
@@ -74,26 +81,46 @@ def results_to_file(results):
             quotechar="'"
             )
 
-    for projectId, groups in results.items():
-        for groupId, users in groups.items():
-            for userId, results in users.items():
-                timestamp = results['timestamp']
-                start_time = results['startTime']
-                end_time = results['endTime']
+    logger.info(f'Got %s groups for project {projectId} to transfer' % len(results.items()))
+    for groupId, users in results.items():
+        for userId, results in users.items():
+            timestamp = results['timestamp']
+            start_time = results['startTime']
+            end_time = results['endTime']
 
-                # Convert timestamp (ISO 8601) from string to a datetime object
-                # this solution works only in python 3.7
-                # timestamp = dt.datetime.strptime(timestamp, '%Y-%m-%dT%H:%M:%S.%f%z')
-                # start_time = dt.datetime.strptime(start_time, '%Y-%m-%dT%H:%M:%S.%f%z')
-                # end_time = dt.datetime.strptime(end_time, '%Y-%m-%dT%H:%M:%S.%f%z')
+            # Convert timestamp (ISO 8601) from string to a datetime object
+            # this solution works only in python 3.7
+            # timestamp = dt.datetime.strptime(timestamp, '%Y-%m-%dT%H:%M:%S.%f%z')
+            # start_time = dt.datetime.strptime(start_time, '%Y-%m-%dT%H:%M:%S.%f%z')
+            # end_time = dt.datetime.strptime(end_time, '%Y-%m-%dT%H:%M:%S.%f%z')
 
-                timestamp = dateutil.parser.parse(timestamp)
-                start_time = dateutil.parser.parse(start_time)
-                end_time = dateutil.parser.parse(end_time)
+            timestamp = dateutil.parser.parse(timestamp)
+            start_time = dateutil.parser.parse(start_time)
+            end_time = dateutil.parser.parse(end_time)
 
-                results = results['results']
-                if type(results) is dict:
-                    for taskId, result in results.items():
+            results = results['results']
+            if type(results) is dict:
+                for taskId, result in results.items():
+                    w.writerow([
+                        projectId,
+                        groupId,
+                        userId,
+                        taskId,
+                        timestamp,
+                        start_time,
+                        end_time,
+                        result,
+                        ])
+            elif type(results) is list:
+                # TODO: optimize for performance
+                # (make sure data from firebase is always a dict)
+                # if key is a integer firebase will return a list
+                # if first key (list index) is 5
+                # list indicies 0-4 will have value None
+                for taskId, result in enumerate(results):
+                    if result is None:
+                        continue
+                    else:
                         w.writerow([
                             projectId,
                             groupId,
@@ -104,28 +131,9 @@ def results_to_file(results):
                             end_time,
                             result,
                             ])
-                elif type(results) is list:
-                    # TODO: optimize for performance
-                    # (make sure data from firebase is always a dict)
-                    # if key is a integer firebase will return a list
-                    # if first key (list index) is 5
-                    # list indicies 0-4 will have value None
-                    for taskId, result in enumerate(results):
-                        if result is None:
-                            continue
-                        else:
-                            w.writerow([
-                                projectId,
-                                groupId,
-                                userId,
-                                taskId,
-                                timestamp,
-                                start_time,
-                                end_time,
-                                result,
-                                ])
-                else:
-                    raise TypeError
+            else:
+                raise TypeError
+
     results_file.seek(0)
     return results_file
 
