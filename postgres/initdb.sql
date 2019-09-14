@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS projects (
 
 CREATE TABLE IF NOT EXISTS groups (
     project_id varchar,
-    group_id int,
+    group_id varchar,
     number_of_tasks int,
     finished_count int,
     required_count int,
@@ -40,7 +40,7 @@ CREATE INDEX IF NOT EXISTS groups_goupid ON public.groups USING btree (project_i
 
 CREATE TABLE IF NOT EXISTS tasks (
     project_id varchar,
-    group_id int,
+    group_id varchar,
     task_id varchar,
     project_type_specifics json,
     PRIMARY KEY(project_id, group_id, task_id),
@@ -61,7 +61,7 @@ CREATE TABLE IF NOT EXISTS users (
 
 CREATE TABLE IF NOT EXISTS results (
     project_id varchar,
-    group_id int,
+    group_id varchar,
     user_id varchar,
     task_id varchar,
     "timestamp" timestamp,
@@ -83,7 +83,7 @@ CREATE INDEX IF NOT EXISTS results_userid ON public.results USING btree (user_id
 -- create table for results import through csv
 CREATE TABLE IF NOT EXISTS results_temp (
     project_id varchar,
-    group_id int,
+    group_id varchar,
     user_id varchar,
     task_id varchar,
     "timestamp" timestamp,

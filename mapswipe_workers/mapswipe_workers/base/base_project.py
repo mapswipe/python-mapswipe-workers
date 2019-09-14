@@ -228,7 +228,7 @@ class BaseProject(metaclass=ABCMeta):
             DROP TABLE IF EXISTS raw_groups CASCADE;
             CREATE TABLE raw_groups (
               project_id varchar,
-              group_id int,
+              group_id varchar,
               number_of_tasks int,
               finished_count int,
               required_count int,
@@ -248,7 +248,7 @@ class BaseProject(metaclass=ABCMeta):
             DROP TABLE IF EXISTS raw_tasks CASCADE;
             CREATE TABLE raw_tasks (
                 project_id varchar,
-                group_id int,
+                group_id varchar,
                 task_id varchar,
                 project_type_specifics json
             );

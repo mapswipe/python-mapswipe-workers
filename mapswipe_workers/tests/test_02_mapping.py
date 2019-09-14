@@ -59,17 +59,7 @@ def get_firebase_data(project_ids, uid, filename):
         firebase_data['projects'][project_id] = project_ref.get()
 
         groups_ref = fb_db.reference(f'v2/groups/{project_id}/')
-        raw_groups = groups_ref.get()
-        # due to firebase reasons sometimes we get an array with many "None" instead of an dict
-        # we need to make sure to create a proper dict here
-        if isinstance(raw_groups, dict):
-            firebase_data['groups'][project_id] = raw_groups
-        else:
-            firebase_data['groups'][project_id] = {}
-            for group in raw_groups:
-                if group:
-                    group_id = str(group['groupId'])
-                    firebase_data['groups'][project_id][group_id] = group
+        firebase_data['groups'][project_id] = groups_ref.get()
 
         results_ref = fb_db.reference(f'v2/results/{project_id}/')
         firebase_data['results'][project_id] = results_ref.get()
@@ -86,7 +76,7 @@ def get_firebase_data(project_ids, uid, filename):
 def create_normal_users(number_of_users):
     users = {}
 
-    for i in range(0,number_of_users):
+    for i in range(0, number_of_users):
         random_string = ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
         email = f'test_{random_string}@mapswipe.org'
         username = f'test_{random_string}'
@@ -130,8 +120,6 @@ def save_users_to_disk(users):
 
 
 def test_firebase_functions_users(firebase_data_before, firebase_data_after):
-    # TODO: check 'contributions' attribute for user
-
 
     for user_id in firebase_data_after['users'].keys():
 
@@ -157,13 +145,32 @@ def test_firebase_functions_users(firebase_data_before, firebase_data_after):
         for project_id in firebase_data_before['projects'].keys():
             for group_id in firebase_data_after['results'][project_id].keys():
                 if user_id in firebase_data_after['results'][project_id][group_id].keys():
-                    if not firebase_data_before['results'].get(project_id, {}).get(group_id, {}).get(user_id, {}).get('results',
-                                                                                                           None):
+                    if not firebase_data_before['results'].get(project_id, {}).get(group_id, {}).get(user_id, {}).get('results', None):
                         results_project_ids.add(project_id)
-                        results_group_ids.add(f'{project_id}_{group_id}')
-                        results_task_count += len(firebase_data_after['results'][project_id][group_id][user_id]['results'])
-                        results_group_count = len(results_group_ids)
                         results_project_count = len(results_project_ids)
+
+                        results_group_ids.add(f'{project_id}_{group_id}')
+                        results_group_count = len(results_group_ids)
+
+                        result_count = len(
+                            firebase_data_after['results'][project_id][group_id][user_id]['results'])
+                        results_task_count += result_count
+
+                        group_number_of_tasks = firebase_data_after['groups'][project_id][group_id]['numberOfTasks']
+
+                        table = [
+                            ['result project count', '-', results_project_count],
+                            ['result group count', '-', results_group_count],
+                            ['result task count', '-', results_task_count],
+                            ['result count', '-', result_count],
+                            ['group number of tasks', '-', group_number_of_tasks]
+                        ]
+                        print(tabulate(table, headers=[group_id, 'before', 'after']))
+
+                        # check if there is something for the 'contributions' attribute
+                        user_group_contributions = firebase_data_after['users'][user_id]['contributions'].get(project_id, {}).get(str(group_id), None)
+                        assert isinstance(user_group_contributions, dict), \
+                            f'contributions not correct for user: {user_id}, project: {project_id}, group: {group_id}'
 
         # check user level values
         table = [
@@ -195,7 +202,7 @@ def test_firebase_functions_results(
         firebase_data_after
         ):
     '''
-    Test result count and progress of project
+    Test result count, contributor count and progress of project and groups
     when new results are written to the firebase.
     '''
 
@@ -229,6 +236,7 @@ def test_firebase_functions_results(
                     total_result_count += user_result_count
 
                     if firebase_data_after['groups'][project_id][group_id]['requiredCount'] >= 0:
+
                         group_result_count += firebase_data_after['groups'][project_id][group_id]['numberOfTasks']
                         true_result_count += user_result_count
 
@@ -238,6 +246,8 @@ def test_firebase_functions_results(
                             'requiredCount']
                         group_progress_before = firebase_data_before['groups'][project_id][group_id][
                             'progress']
+                        group_number_of_tasks_before = firebase_data_before['groups'][project_id][group_id][
+                            'numberOfTasks']
 
                         group_finished_count_after = firebase_data_after['groups'][project_id][group_id][
                             'finishedCount']
@@ -245,8 +255,11 @@ def test_firebase_functions_results(
                             'requiredCount']
                         group_progress_after = firebase_data_after['groups'][project_id][group_id][
                             'progress']
+                        group_number_of_tasks_after = firebase_data_after['groups'][project_id][group_id][
+                            'numberOfTasks']
 
                         table = [
+                            ['group number of tasks', group_number_of_tasks_before, group_number_of_tasks_after],
                             ['group finished count', group_finished_count_before, group_finished_count_after],
                             ['group required count', group_required_count_before, group_required_count_after],
                             ['group progress', group_progress_before, group_progress_after]
@@ -262,7 +275,7 @@ def test_firebase_functions_results(
                             f'group finished count not correct for project {project_id}, group {group_id}'
 
                         assert group_progress_after <= 100, \
-                            f'progress bigger than 100% for project Id: {project_id}, group {group_id}'
+                            f'group progress bigger than 100% for project Id: {project_id}, group {group_id}'
 
                         if group_required_count_after > 0:
                             assert group_progress_after == round(
@@ -270,9 +283,8 @@ def test_firebase_functions_results(
                                 f'wrong progress for project Id: {project_id}, group {group_id}'
                         else:
                             assert group_progress_after == 100, \
-                                f'progress must be 100 if required count is negative or zero \ ' \
+                                f'group progress must be 100 if required count is negative or zero \ ' \
                                 f'for project Id: {project_id}, group {group_id}'
-
 
         # check project level values
         table = [
@@ -307,13 +319,12 @@ def test_firebase_functions_results(
 
 if __name__ == '__main__':
 
-    number_of_users = 1
-    number_of_groups = 2  # now many groups should be mapped per user and project
+    number_of_users = 3
+    number_of_groups = 3  # now many groups should be mapped per user and project
 
     # create some test users
     users = create_normal_users(number_of_users)
     save_users_to_disk(users)
-
 
     # get project ids
     project_ids = load_project_ids_from_disk()
@@ -328,7 +339,7 @@ if __name__ == '__main__':
         for project_id in project_ids:
             do_mapping(uid, user, project_id, number_of_groups)
 
-        # wait 3s seconds and get firebase projects, groups and results after mapping
+        # wait some seconds and get firebase projects, groups, results and user after mapping
         time.sleep(3)
         filename_after = 'firebase_data_after.pickle'
         firebase_data_after = get_firebase_data(project_ids, uid, filename_after)

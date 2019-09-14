@@ -339,7 +339,8 @@ def get_vertical_slice(slice_infos, zoom, width_threshold=40):
 
             # add info to groups_dict
             group_id += 1
-            raw_groups[group_id] = {
+            group_id_string = f'g{group_id}'
+            raw_groups[group_id_string] = {
                 "xMin": str(TileX),
                 "xMax": str(TileX + step_size - 1),
                 "yMin": str(TileY_top),
@@ -474,7 +475,7 @@ def save_slices_as_geojson(raw_group_infos, outfile):
     outDataSource = outDriver.CreateDataSource(outfile)
     outLayer = outDataSource.CreateLayer(outfile, geom_type=ogr.wkbPolygon)
 
-    outLayer.CreateField(ogr.FieldDefn('group_id', ogr.OFTInteger))
+    outLayer.CreateField(ogr.FieldDefn('group_id', ogr.OFTString))
     outLayer.CreateField(ogr.FieldDefn('xmin', ogr.OFTInteger))
     outLayer.CreateField(ogr.FieldDefn('xmax', ogr.OFTInteger))
     outLayer.CreateField(ogr.FieldDefn('ymin', ogr.OFTInteger))

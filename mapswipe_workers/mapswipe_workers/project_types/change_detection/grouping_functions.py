@@ -339,7 +339,8 @@ def get_vertical_slice(slice_infos, zoom, width_threshold=40):
 
             # add info to groups_dict
             group_id += 1
-            raw_groups[group_id] = {
+            group_id_string = f'g{group_id}'
+            raw_groups[group_id_string] = {
                 "xMin": str(TileX),
                 "xMax": str(TileX + step_size - 1),
                 "yMin": str(TileY_top),

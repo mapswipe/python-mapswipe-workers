@@ -36,22 +36,24 @@ def group_input_geometries(input_geometries_file, group_size):
 
     # we will simply, we will start with min group id = 100
     group_id = 100
+    group_id_string = f'g{group_id}'
     feature_count = 0
     for feature in layer:
         feature_count += 1
         if feature_count % (group_size+1) == 0:
             group_id += 1
+            group_id_string = f'g{group_id_string}'
 
         try:
-            groups[group_id]
+            groups[group_id_string]
         except:
-            groups[group_id] = {
+            groups[group_id_string] = {
                 "feature_ids": [],
                 "feature_geometries": []
             }
 
-        groups[group_id]['feature_ids'].append(feature.GetFID())
-        groups[group_id]['feature_geometries'].append(json.loads(feature.GetGeometryRef().ExportToJson()))
+        groups[group_id_string]['feature_ids'].append(feature.GetFID())
+        groups[group_id_string]['feature_geometries'].append(json.loads(feature.GetGeometryRef().ExportToJson()))
 
     return groups
 

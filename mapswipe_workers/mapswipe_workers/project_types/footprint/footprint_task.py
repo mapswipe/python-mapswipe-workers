@@ -32,5 +32,6 @@ class FootprintTask(BaseTask):
             Every coordinate pair is a vertex, representing the footprint
             of an object.
         """
-        super().__init__(group, taskId=featureId)
+        task_id = f't{featureId}'
+        super().__init__(group, taskId=task_id)
         self.geojson = featureGeometry
