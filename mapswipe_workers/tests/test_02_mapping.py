@@ -145,7 +145,11 @@ def test_firebase_functions_users(firebase_data_before, firebase_data_after):
         for project_id in firebase_data_before['projects'].keys():
             for group_id in firebase_data_after['results'][project_id].keys():
                 if user_id in firebase_data_after['results'][project_id][group_id].keys():
-                    if not firebase_data_before['results'].get(project_id, {}).get(group_id, {}).get(user_id, {}).get('results', None):
+
+                    try:
+                        # check if results already existed
+                        firebase_data_before['results'][project_id][group_id][user_id]['results']
+                    except:
                         results_project_ids.add(project_id)
                         results_project_count = len(results_project_ids)
 
@@ -225,13 +229,18 @@ def test_firebase_functions_results(
         project_contributor_count_before = firebase_data_before['projects'][project_id].get('contributorCount', 0)
         project_contributor_count_after = firebase_data_after['projects'][project_id]['contributorCount']
 
-
         # go through all results and check counts for groups
         for group_id in firebase_data_after['results'][project_id].keys():
             for user_id in firebase_data_after['results'][project_id][group_id].keys():
 
                 # check if results have been uploaded already before
-                if not firebase_data_before['results'].get(project_id, {}).get(group_id, {}).get(user_id, {}).get('results', None):
+                print(firebase_data_before['results'])
+                print(project_id)
+
+                try:
+                    # check if results already existed
+                    firebase_data_before['results'][project_id][group_id][user_id]['results']
+                except:
                     user_result_count = len(firebase_data_after['results'][project_id][group_id][user_id]['results'])
                     total_result_count += user_result_count
 
