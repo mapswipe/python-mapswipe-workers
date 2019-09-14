@@ -37,11 +37,15 @@ def copy_new_users():
 
     for user_id, user in users.items():
         # Convert timestamp (ISO 8601) from string to a datetime object.
-        # TODO: Make sure strptime is working with timestamps written by the app.
-        user['created'] = dt.datetime.strptime(
-                user['created'].replace('Z', ''),
-                '%Y-%m-%dT%H:%M:%S.%f'
-                )
+        try:
+            user['created'] = dt.datetime.strptime(
+                    user['created'].replace('Z', ''),
+                    '%Y-%m-%dT%H:%M:%S.%f'
+                    )
+        except KeyError:
+            # if user has no "created" attribute, we set it to current time
+            user['created'] = dt.datetime.utcnow().isoformat()[0:-3]+'Z'
+
         query_update_user = '''
             INSERT INTO users (user_id, username, created)
             VALUES(%s, %s, %s)
