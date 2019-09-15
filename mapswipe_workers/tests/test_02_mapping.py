@@ -4,6 +4,7 @@ import string
 import pickle
 import datetime
 import time
+import math
 from tabulate import tabulate
 
 from mapswipe_workers.utils import user_management
@@ -287,8 +288,8 @@ def test_firebase_functions_results(
                             f'group progress bigger than 100% for project Id: {project_id}, group {group_id}'
 
                         if group_required_count_after > 0:
-                            assert group_progress_after == round(
-                                100 * float(group_finished_count_after) / (float(group_finished_count_after +  group_required_count_after))), \
+                            assert group_progress_after == math.floor(
+                                 float(group_finished_count_after) / (float(group_finished_count_after +  group_required_count_after)) * 100), \
                                 f'wrong progress for project Id: {project_id}, group {group_id}'
                         else:
                             assert group_progress_after == 100, \
@@ -313,8 +314,7 @@ def test_firebase_functions_results(
         assert group_result_count == (project_result_count_after - project_result_count_before), \
             f'wrong result count for project Id: {project_id}'
 
-        # TODO: double check this functions and how it's done in firebase functions
-        assert project_progress_after == round(100 * float(project_result_count_after) / float(project_required_results_after)), \
+        assert project_progress_after == math.floor(float(project_result_count_after)/float(project_required_results_after)*100), \
             f'wrong progress for project Id: {project_id}'
 
         assert project_progress_after <= 100, \

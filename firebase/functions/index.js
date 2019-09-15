@@ -201,7 +201,7 @@ exports.calcGroupProgress = functions.database.ref('/v2/groups/{projectId}/{grou
             })
             .then((groupFinishedCount) => {
                 return groupProgressRef.transaction(() => {
-                    return Math.round(groupFinishedCount/(groupFinishedCount+groupRequiredCount)*100)
+                    return Math.floor(groupFinishedCount/(groupFinishedCount+groupRequiredCount)*100)
                 })
             })
         return groupProgress
@@ -228,9 +228,9 @@ exports.incProjectProgress = functions.database.ref('/v2/projects/{projectId}/re
         .then((dataSnapshot) => {
             return dataSnapshot.val()
         })
-        .then((projectNumberOfTasks) => {
+        .then((projectRequiredResults) => {
             return projectProgressRef.transaction(() => {
-                return Math.round(projectResultCount/projectNumberOfTasks*100)
+                return Math.floor(parseFloat(projectResultCount)/parseFloat(projectRequiredResults)*100)
             })
          })
     return projectProgress
@@ -240,23 +240,23 @@ exports.incProjectProgress = functions.database.ref('/v2/projects/{projectId}/re
 // Almost the same function as the previous one
 //
 // Gets triggered when project.numberOfTasks gets changed.
-exports.decProjectProgress = functions.database.ref('/v2/projects/{projectId}/numberOfTasks/').onUpdate((projectNumberOfTasks, context) => {
+exports.decProjectProgress = functions.database.ref('/v2/projects/{projectId}/numberOfTasks/').onUpdate((projectRequiredResults, context) => {
 
     const projectResultCountRef = admin.database().ref('/v2/projects/'+context.params.projectId+'/resultCount')
     const projectProgressRef      = admin.database().ref('/v2/projects/'+context.params.projectId+'/progress')
 
     // if requiredCount ref does not contain any data do nothing
-    if (!projectNumberOfTasks.after.exists()) {
+    if (!projectRequiredResults.after.exists()) {
         return null
     }
-    projectNumberOfTasks = projectNumberOfTasks.after.val()
+    projectRequiredResults = projectRequiredResults.after.val()
     projectProgress = projectResultCountRef.once('value')
         .then((dataSnapshot) => {
             return dataSnapshot.val()
         })
         .then((projectResultCount) => {
             return projectProgressRef.transaction(() => {
-                return Math.round(projectResultCount/projectNumberOfTasks*100)
+                return Math.floor(parseFloat(projectResultCount)/parseFloat(projectRequiredResults)*100)
             })
          })
     return projectProgress
