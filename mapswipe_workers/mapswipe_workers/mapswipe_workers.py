@@ -73,7 +73,8 @@ def run_create_projects(schedule):
             _run_create_projects()
     except Exception as e:
         slack.send_error(e)
-        raise Exception
+        sentry.capture_exception_sentry(e)
+        logger.exception(e)
 
 
 @click.command('firebase-to-postgres')
@@ -118,7 +119,8 @@ def run_firebase_to_postgres(schedule):
             _run_firebase_to_postgres()
     except Exception as e:
         slack.send_error(e)
-        raise Exception
+        sentry.capture_exception_sentry(e)
+        logger.exception(e)
 
 
 @click.command('generate-stats')
@@ -170,7 +172,8 @@ def run_generate_stats(schedule, only_new_results):
             _run_generate_stats(only_new_results)
     except Exception as e:
         slack.send_error(e)
-        raise Exception
+        sentry.capture_exception_sentry(e)
+        logger.exception(e)
 
 @click.command('user-management')
 @click.option(
@@ -201,7 +204,8 @@ def run_user_management(email, manager):
             )
     except Exception as e:
         slack.send_error(e)
-        raise Exception
+        sentry.capture_exception_sentry(e)
+        logger.exception(e)
 
 
 @click.command('run')
@@ -253,7 +257,8 @@ def run(schedule):
             _run_generate_stats()
     except Exception as e:
         slack.send_error(e)
-        raise Exception
+        sentry.capture_exception_sentry(e)
+        logger.exception(e)
 
 
 def _run_create_projects():

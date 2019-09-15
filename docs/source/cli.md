@@ -51,3 +51,16 @@ Options:
                           (h) or every day (d).
   --help                  Show this message and exit.
 ```
+
+## User Management
+
+```
+Usage: mapswipe_workers user-management [OPTIONS]
+
+Options:
+  --email TEXT       The email of the MapSwipe user.  [required]
+  --manager BOOLEAN  Set option to grant or remove project manager
+                     credentials. Use true to grant credentials. Use false to
+                     remove credentials.
+  --help             Show this message and exit.
+```
