@@ -68,9 +68,17 @@ function openFile(event) {
 
     var reader = new FileReader();
     reader.onload = function(){
-      var text = reader.result;
-      var output = document.getElementById(element_id);
-      output.innerHTML = text;
+
+      try {
+          var text = reader.result;
+          var geometry = JSON.parse(text)
+          var output = document.getElementById(element_id);
+          output.innerHTML = text;
+        }
+        catch(err) {
+          var output = document.getElementById(element_id);
+          output.innerHTML = '<b>Error reading GeoJSON file</b><br>' + err;
+        }
     };
     reader.readAsText(input.files[0]);
   };

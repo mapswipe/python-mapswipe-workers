@@ -285,6 +285,16 @@ def _run_create_projects():
                     slack.send_slack_message(message)
                     logger.info(message)
             except CustomError:
+                newline = '\n'
+                message = (
+                    f'### PROJECT CREATION FAILED ###{newline}'
+                    f'Project Name: {project_draft["name"]}{newline}'
+                    f'Project Id: {project_draft_id}{newline}'
+                    f'{newline}'
+                    f'Please check what went wrong.'
+                )
+                slack.send_slack_message(message)
+                slack.send_error(CustomError)
                 logger.exception(
                     f'{project_draft_id} '
                     f'- project creation failed'
