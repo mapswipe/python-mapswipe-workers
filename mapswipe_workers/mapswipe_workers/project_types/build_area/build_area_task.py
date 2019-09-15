@@ -58,3 +58,5 @@ class BuildAreaTask(BaseTask):
             project.tileServer['url'],
             project.tileServer['wmtsLayerName'],
         )
+        self.geometry = t.geometry_from_tile_coords(TileX, TileY, project.zoomLevel)
+

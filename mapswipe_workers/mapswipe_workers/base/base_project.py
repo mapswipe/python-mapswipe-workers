@@ -103,7 +103,6 @@ class BaseProject(metaclass=ABCMeta):
             groups[group['groupId']] = group
         del(project['groups'])
         project.pop('inputGeometries', None)
-        project.pop('geometry', None)
         project.pop('validInputGeometries', None)
         # Convert Date object to ISO Datetime:
         # https://www.w3.org/TR/NOTE-datetime
@@ -156,6 +155,14 @@ class BaseProject(metaclass=ABCMeta):
             return False
 
     def save_to_firebase(self, fb_db, project, groups, groupsOfTasks):
+
+        # remove wkt geometry attribute of projects and tasks
+        project.pop('geometry', None)
+        for group_id in groupsOfTasks.keys():
+            for i in range(0, len(groupsOfTasks[group_id])):
+                groupsOfTasks[group_id][i].pop('geometry', None)
+
+
         ref = fb_db.reference('')
         ref.update({
             f'v2/projects/{self.projectId}': project,
@@ -179,43 +186,45 @@ class BaseProject(metaclass=ABCMeta):
 
         query_insert_project = '''
             INSERT INTO projects
-            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s);
+            VALUES (%s,%s,%s,ST_Force2D(ST_Multi(ST_GeomFromText(%s, 4326))),%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s);
             '''
 
         data_project = [
                 project['archived'],
                 self.created,
                 self.createdBy,
+                project['geometry'],
                 project['image'],
                 project['isFeatured'],
                 project['lookFor'],
                 project['name'],
-                project['requiredResults'],
                 project['progress'],
                 project['projectDetails'],
                 project['projectId'],
                 project['projectType'],
+                project['requiredResults'],
                 project['resultCount'],
                 project['status'],
-                project['verificationNumber'],
+                project['verificationNumber']
         ]
 
         project_attributes = [
                 'archived',
                 'created',
-                'createdBy'
+                'createdBy',
+                'geometry',
                 'image',
                 'isFeatured',
                 'lookFor',
                 'name',
-                'requiredResults',
                 'progress',
                 'projectDetails',
                 'projectId',
                 'projectType',
+                'requiredResults',
                 'resultCount',
                 'status',
-                'verificationNumber',
+                'verificationNumber'
                 ]
 
         project_type_specifics = dict()
@@ -239,7 +248,14 @@ class BaseProject(metaclass=ABCMeta):
 
         query_insert_raw_groups = '''
             INSERT INTO groups
-            SELECT *
+            SELECT
+              project_id,
+              group_id,
+              number_of_tasks,
+              finished_count,
+              required_count,
+              progress,
+              project_type_specifics
             FROM raw_groups;
             DROP TABLE IF EXISTS raw_groups CASCADE;
             '''
@@ -250,13 +266,19 @@ class BaseProject(metaclass=ABCMeta):
                 project_id varchar,
                 group_id varchar,
                 task_id varchar,
+                geom varchar,
                 project_type_specifics json
             );
             '''
 
         query_insert_raw_tasks = '''
             INSERT INTO tasks
-            SELECT *
+            SELECT
+              project_id,
+              group_id,
+              task_id,
+              ST_Force2D(ST_Multi(ST_GeomFromText(geom, 4326))),
+              project_type_specifics
             FROM raw_tasks;
             DROP TABLE IF EXISTS raw_tasks CASCADE;
             '''
@@ -278,6 +300,7 @@ class BaseProject(metaclass=ABCMeta):
                 'project_id',
                 'group_id',
                 'task_id',
+                'geom',
                 'project_type_specifics']
 
         # execution of all SQL-Statements as transaction
@@ -418,6 +441,7 @@ class BaseProject(metaclass=ABCMeta):
                 'project_id',
                 'group_id',
                 'task_id',
+                'geom',
                 'project_type_specifics'
                 )
         w = csv.DictWriter(
@@ -433,6 +457,7 @@ class BaseProject(metaclass=ABCMeta):
                         "project_id": self.projectId,
                         "group_id": groupId,
                         "task_id": task['taskId'],
+                        "geom": task['geometry'],
                         "project_type_specifics": dict()
                         }
                 for key in task.keys():

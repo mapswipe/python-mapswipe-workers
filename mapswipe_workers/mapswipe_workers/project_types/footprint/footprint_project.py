@@ -84,6 +84,20 @@ class FootprintProject(BaseProject):
                     )
             raise Exception(err)
 
+        # get geometry as wkt
+        # for footprint type project we get the bounding box / extent of the layer
+        extent = layer.GetExtent()
+        # Create a Polygon from the extent tuple
+        ring = ogr.Geometry(ogr.wkbLinearRing)
+        ring.AddPoint(extent[0], extent[2])
+        ring.AddPoint(extent[1], extent[2])
+        ring.AddPoint(extent[1], extent[3])
+        ring.AddPoint(extent[0], extent[3])
+        ring.AddPoint(extent[0], extent[2])
+        poly = ogr.Geometry(ogr.wkbPolygon)
+        poly.AddGeometry(ring)
+        wkt_geometry = poly.ExportToWkt()
+
         # check if the input geometry is a valid polygon
         for feature in layer:
             feat_geom = feature.GetGeometryRef()
@@ -137,7 +151,7 @@ class FootprintProject(BaseProject):
                 f'filtered correct input geometries and created file: '
                 f'{valid_input_file}'
                 )
-        return True
+        return wkt_geometry
 
     def create_groups(self):
         """

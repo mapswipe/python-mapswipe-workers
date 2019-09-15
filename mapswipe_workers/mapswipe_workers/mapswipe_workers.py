@@ -302,7 +302,7 @@ def _run_create_projects(project_draft_ids=None):
             try:
                 # TODO: Document properly
                 project = project_types[project_type](project_draft)
-                project.validate_geometries()
+                project.geometry = project.validate_geometries()
                 project.create_groups()
                 project.calc_required_results()
                 if project.save_project(fb_db):

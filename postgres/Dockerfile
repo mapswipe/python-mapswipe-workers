@@ -1,4 +1,5 @@
-FROM postgres
+FROM mdillon/postgis
+
 COPY initdb.sql docker-entrypoint-initdb.d/
 COPY stat_views.sql docker-entrypoint-initdb.d/
 COPY wal-g/make_basebackup.sh make_basebackup.sh

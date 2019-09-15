@@ -90,6 +90,9 @@ class BuildAreaProject(BaseProject):
                         )
                 raise CustomError(f'Invalid geometry type: {geom_name}. ')
 
+            # get geometry as wkt
+            wkt_geometry = feat_geom.ExportToWkt()
+
             # check size of project make sure its smaller than  5,000 sqkm
             # for doing this we transform the geometry into Mollweide projection (EPSG Code 54009)
             source = feat_geom.GetSpatialReference()
@@ -113,6 +116,7 @@ class BuildAreaProject(BaseProject):
                 )
                 raise CustomError(f'Project is to large: {project_area} sqkm. Max area for zoom level {self.zoomLevel} = {max_area} sqkm')
 
+
         del datasource
         del layer
 
@@ -123,7 +127,8 @@ class BuildAreaProject(BaseProject):
                 f' - validate geometry - '
                 f'input geometry is correct.'
                 )
-        return True
+
+        return wkt_geometry
 
     def create_groups(self):
         """
