@@ -10,9 +10,6 @@ This document describes how to setup all the parts of the MapSwipe back-end for 
 
 Moreover we will look into:
 6. Lets Encrypt
-7. Sentry
-8. Slack
-9. Google APIs & Services Credentials
 
 For all those setups our main repository is required:
 
@@ -23,19 +20,31 @@ cd python-mapswipe-workers
 
 ## Firebase Setup
 
-<!--
-Credentials
-* firebase project id
-* firebase web api key
-* firebase admin sdk service account file
-* firebase database rules json file
--->
-
 First a Firebase Project and Database has to be created.
 
 1. Login to [Firebase](https://firebase.google.com/)
 2. Add a project
 3. Create a database: `> Develop > Database > Create Database`
+
+Then, get a Service Account Key File.
+1. In the Firebase console, open Settings > Service Accounts.
+2. Click Generate New Private Key
+3. Store the JSON file under `mapswipe_workers/config/serviceAccountKey.json`
+
+Configure your API Keys in Google APIs & Services
+1. Open [Google APIs & Services > Credentials](https://console.cloud.google.com/apis/credentials)
+2. Create API key for MapSwipe workers:
+    * set name of api key to `mapswipe-workers`
+    * set Application restrictions > IP addresses > set IP addresse of mapswipe workers server`
+    * set API restrictions > Restrict Key > Identity Toolkit API
+3. Create API key for Manager Dashboard:
+    * set name of api key to `manager-dashboard`
+    * set Application restrictions > HTTP referrers > set HTTP referrer of managers dashboard
+    * set API restrictions > Restrict Key > Identity Toolkit API and Cloud Functions API
+4. Also make sure to configure the API keys for the App side here.
+
+
+
 
 
 ### Deploy Database Rules and Functions
@@ -91,11 +100,7 @@ To backup the Postgres MapSwipe database use the `backup.sh` script inside the `
 ### Configuration
 To run MapSwipe Workers a valid configuration (`config/configuration.json`) and the Firebase Service Account Key (`config/serviceAccountKey.json`) are required.
 
-To authorize MapSwipe Workers to access Firebase services, you must generate a Firebase Service Account Key in JSON format:
-
-1. In the Firebase console, open Settings > Service Accounts.
-2. Click Generate New Private Key
-3. Store the JSON file under `config/serviceAccountKey.json`
+To authorize MapSwipe Workers to access Firebase services, you must generate a Firebase Service Account Key in JSON format. (Check the *Firebase* section to get this key.)
 
 To run the MapSwipe workers you need a configuration file. Edit the provided configuration file template (`config/example-configuration.json`) and rename it to `configuration.json`.
 
