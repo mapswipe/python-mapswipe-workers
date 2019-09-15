@@ -90,7 +90,7 @@ if __name__ == '__main__':
         save_project_ids_to_disk(project_ids)
 
         # create projects
-        mapswipe_workers._run_create_projects()
+        mapswipe_workers._run_create_projects(project_ids)
 
         # activate/deactivate project as project manager
         test_change_project_status(project_ids, email, password)

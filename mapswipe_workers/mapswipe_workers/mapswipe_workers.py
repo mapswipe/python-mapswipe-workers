@@ -261,7 +261,7 @@ def run(schedule):
         logger.exception(e)
 
 
-def _run_create_projects():
+def _run_create_projects(project_draft_ids=None):
     project_types = {
             # Make sure to import all project types here
             1: BuildAreaProject,
@@ -287,6 +287,15 @@ def _run_create_projects():
 
         for project_draft_id, project_draft in project_drafts.items():
             project_draft['projectDraftId'] = project_draft_id
+
+            # filter out project which are not in project_ids list
+            # this is only done if a list is provided
+
+            if project_draft_ids:
+                if project_draft_id not in project_draft_ids:
+                    # pass projects that are not in provided list
+                    continue
+
             # Early projects have no projectType attribute.
             # If so it defaults to 1
             project_type = project_draft.get('projectType', 1)
