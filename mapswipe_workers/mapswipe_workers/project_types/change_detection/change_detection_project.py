@@ -101,7 +101,11 @@ class ChangeDetectionProject(BaseProject):
             feat_geom.Transform(transform)
             project_area = feat_geom.GetArea() / 1000000
 
-            if project_area > 5000:
+            # calculate max area based on zoom level
+            # for zoom level 18 this will be 5000 square kilometers
+            max_area = (20 - int(self.zoomLevel)) * (20 - int(self.zoomLevel)) * 1250
+
+            if project_area > max_area:
                 logger.warning(
                     f'{self.projectId}'
                     f' - validate geometry - '

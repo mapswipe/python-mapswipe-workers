@@ -103,7 +103,7 @@ class BaseProject(metaclass=ABCMeta):
             groups[group['groupId']] = group
         del(project['groups'])
         project.pop('inputGeometries', None)
-        project.pop('kml', None)
+        project.pop('geometry', None)
         project.pop('validInputGeometries', None)
         # Convert Date object to ISO Datetime:
         # https://www.w3.org/TR/NOTE-datetime

@@ -100,14 +100,18 @@ class BuildAreaProject(BaseProject):
             feat_geom.Transform(transform)
             project_area = feat_geom.GetArea() / 1000000
 
-            if project_area > 5000:
+            # calculate max area based on zoom level
+            # for zoom level 18 this will be 5000 square kilometers
+            max_area = (20 - int(self.zoomLevel)) * (20 - int(self.zoomLevel)) * 1250
+
+            if project_area > max_area:
                 logger.warning(
                     f'{self.projectId}'
                     f' - validate geometry - '
                     f'Project is to large: {project_area} sqkm. '
                     f'Please split your projects into smaller sub-projects and resubmit'
                 )
-                raise CustomError(f'Project is to large: {project_area} sqkm. ')
+                raise CustomError(f'Project is to large: {project_area} sqkm. Max area for zoom level {self.zoomLevel} = {max_area} sqkm')
 
         del datasource
         del layer
