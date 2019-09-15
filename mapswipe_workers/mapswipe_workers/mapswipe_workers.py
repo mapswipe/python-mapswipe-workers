@@ -20,6 +20,7 @@ from mapswipe_workers.project_types.footprint.footprint_project \
         import FootprintProject
 from mapswipe_workers.project_types.change_detection.change_detection_project \
         import ChangeDetectionProject
+from mapswipe_workers.utils import user_management
 
 @click.group()
 @click.option(
@@ -159,6 +160,33 @@ def run_generate_stats(schedule, only_new_results):
         _run_generate_stats(only_new_results)
 
 
+@click.command('user-management')
+@click.option(
+        '--email',
+        help=(
+            f'The email of the MapSwipe user.'
+            ),
+        required=True,
+        type=str
+        )
+@click.option(
+        '--manager',
+        help=(
+            f'Set option to grant or remove project manager credentials. '
+            f'Use true to grant credentials. '
+            f'Use false to remove credentials. '
+            ),
+        type=bool
+        )
+def run_user_management(email, manager):
+    if email:
+        _run_user_management(email, manager)
+    else:
+        click.echo(
+            f'Please provide all required input arguments.'
+        )
+
+
 @click.command('run')
 @click.option(
         '--schedule',
@@ -275,7 +303,16 @@ def _run_generate_stats(only_new_results):
     generate_stats(only_new_results)
 
 
+def _run_user_management(email, manager):
+    if manager is not None:
+        if manager:
+            user_management.set_project_manager_rights(email)
+        else:
+            user_management.remove_project_manager_rights(email)
+
+
 cli.add_command(run_create_projects)
 cli.add_command(run_firebase_to_postgres)
 cli.add_command(run_generate_stats)
+cli.add_command(run_user_management)
 cli.add_command(run)
