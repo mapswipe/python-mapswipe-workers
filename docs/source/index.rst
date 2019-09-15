@@ -27,6 +27,7 @@ Welcome to MapSwipe Back-End's documentation!
    :maxdepth: 2
    :caption: Using:
 
+   for_mapswipe_managers
    cli
 
 
