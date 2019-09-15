@@ -16,9 +16,8 @@ def load_project_ids_from_disk():
     return existing_project_ids
 
 if __name__ == '__main__':
-
+    # only perform transfer for specified project ids
     project_ids = load_project_ids_from_disk()
 
-    # TODO: review copy users, we often get: "results_temp" violates foreign key constraint "results_temp_user_id_fkey"
     update_data.copy_new_users()
     transfer_results.transfer_results(project_id_list=project_ids)
