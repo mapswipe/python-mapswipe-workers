@@ -8,6 +8,11 @@ This document describes how to setup all the parts of the MapSwipe back-end for 
 4. API
 5. Manager Dashboard
 
+Moreover we will look into:
+6. Lets Encrypt
+7. Sentry
+8. Slack
+9. Google APIs & Services Credentials
 
 For all those setups our main repository is required:
 
@@ -15,7 +20,6 @@ For all those setups our main repository is required:
 git clone https://github.com/mapswipe/python-mapswipe-workers.git
 cd python-mapswipe-workers
 ```
-
 
 ## Firebase Setup
 
@@ -83,47 +87,80 @@ The Postgres instance will be exposed to `postgres:5432` (postgres Docker networ
 To backup the Postgres MapSwipe database use the `backup.sh` script inside the `./postgres` directory. It will execute a command (`pgdump`) inside the Postgres Docker container and store the backup locally (outside the Docker container).
 
 
-## MapSwipe Workers Setup
-
-To run MapSwipe Workers a valid configuration (`config/configuration.json`) and the Firebase Service Account Key (`config/serviceAccountKey.json`) is required.
-
-
+## MapSwipe Workers
 ### Configuration
+To run MapSwipe Workers a valid configuration (`config/configuration.json`) and the Firebase Service Account Key (`config/serviceAccountKey.json`) are required.
 
-Edit the configuration file (`config/example-configuration.json`) and rename it to `configuration.json`.
-
-Example configuration for the Firebase section:
-
-```json
-"firebase": {
-  "database_name": "dev-mapswipe",
-}
-```
-
-Among other variables in the configuration file following are mandatory:
-
-- bing maps url
-- bing maps api key
-- digital globe url
-- digital globe api key
-- sinergise url
-- sinergise api key
-
-These variables are optional:
-
-- slack token
-- slack channel
-- slack username
-
-
-###  Firebase Service Account Key
-
-To authorize MapSwipe Workers to access Firebase services, you must generate a Firerbase Service Account Key in JSON format:
+To authorize MapSwipe Workers to access Firebase services, you must generate a Firebase Service Account Key in JSON format:
 
 1. In the Firebase console, open Settings > Service Accounts.
 2. Click Generate New Private Key
 3. Store the JSON file under `config/serviceAccountKey.json`
 
+To run the MapSwipe workers you need a configuration file. Edit the provided configuration file template (`config/example-configuration.json`) and rename it to `configuration.json`.
+
+#### Firebase
+The MapSwipe workers use the Firebase Python SDK **and** the Firebase REST api. The REST api is used for user management only to sign in as "normal" user or "project manager". Both require the `database_name` in your configuration file. The REST api requires an `api_key`. (Check the *Google APIs & Services Credentials* section to get this key.) You need to provide information on firebase in your `configuration.json`.:
+
+```json
+"firebase": {
+  "database_name": "your_database_name",
+  "api_key": "your_firebase_api_key"
+}
+```
+
+#### Postgres
+The MapSwipe workers write data to a postgres data base and generate files for the api based on views in postgres. You need to provide information on postgres in your `configuration.json`.:
+
+```json
+"postgres": {
+  "host": "postgres",
+  "port": "5432",
+  "database": "mapswipe",
+  "username": "mapswipe_workers",
+  "password": "your_mapswipe_db_password"
+  },
+```
+
+#### Sentry
+The MapSwipe workers use sentry to capture exceptions. You can find your project’s DSN in the “Client Keys” section of your “Project Settings” in Sentry. Check [Sentry's documentation](https://docs.sentry.io/error-reporting/configuration/?platform=python) for more information. You need to provide information on Sentry in your `configuration.json`.:
+
+```json
+"sentry": {
+  "dsn": "your_sentry_dsn_value"
+  }
+```
+
+#### Slack
+The MapSwipe workers send messages to slack when a project has been created successfully, the project creation failed or an exception during mapswipe_workers cli occurred. You need to add a slack token to use slack messaging. You can find out more from [Python slackclient's documentation](https://github.com/slackapi/python-slackclient) how to get it. You need to provide information on Slack in your `configuration.json`.:
+
+```json
+"slack": {
+  "token": "your_slack_token",
+  "channel": "your_slack_channel",
+  "username": "your_slack_username"
+  },
+```
+
+#### Imagery
+MapSwipe uses satellite imagery provided by Tile Map Services (TMS). If you are not familiar with the basic concept have a look at [Bing's documentation](https://docs.microsoft.com/en-us/bingmaps/articles/bing-maps-tile-system). Make sure to get api keys for the services you would like to use in your app. For each satellite imagery provider add an `api_key` and `url`. You need to provide information on Imagery in your `configuration.json`.:
+
+```json
+"imagery": {
+  "bing": {
+    "api_key": "your_bing_api_key",
+    "url": "http://t0.tiles.virtualearth.net/tiles/a{quad_key}.jpeg?g=854&mkt=en-US&token={key}"
+    },
+  "digital_globe": {
+    "api_key": "your_digital_globe_api_key",
+    "url": "https://api.mapbox.com/v4/digitalglobe.nal0g75k/{z}/{x}/{y}.png?access_token={key}"
+    },
+  "sinergise": {
+    "api_key": "your_sinergise_api_key",
+    "url": "https://services.sentinel-hub.com/ogc/wmts/{key}?request=getTile&tilematrixset=PopularWebMercator256&tilematrix={z}&tilecol={x}&tilerow={y}&layer={layer}"
+    }
+  }
+```
 
 ### Run MapSwipe Workers
 

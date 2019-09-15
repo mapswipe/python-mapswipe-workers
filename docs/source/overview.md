@@ -6,8 +6,8 @@
 3. Project managers "activate" their projects in the **manager dashboard**.
 4. The users of the MapSwipe app contribute to the newly generated projects and submit their results to firebase realtime database. The **firebase rules** ensure, that app users can only change pre-defined parts of the firebase realtime database.
 5. Once new results are submitted, the **firebase functions** generate real-time statistics and update the progress of groups, compute project level statistics and user statistics in the firebase realtime database.
-6. All results are transferred to the **postgres database** by the **mapswipe workers** on an hourly basis. The postgres database holds all MapSwipe results for long term storage. Once results are transferred to the postgres database, they will be deleted in firebase realtime database by the mapswipe workers.
-7. Based on the data in the postgres database the **mapswipe workers** generate aggregated data and statistics (e.g. as json files). This data is served by the **api**, which uses a simple nginx web server.
+6. All results are transferred to the **postgres database** by the **mapswipe workers** on defined basis (e.g. every 10 minutes). The postgres database holds all MapSwipe results for long term storage. Once results are transferred to the postgres database, they will be deleted in firebase realtime database by the mapswipe workers.
+7. Based on the data in the postgres database the **mapswipe workers** generate aggregated data and statistics (e.g. as csv files). This data is served by the **api**, which uses a simple nginx web server.
 
 ## Deployment Diagram
 
