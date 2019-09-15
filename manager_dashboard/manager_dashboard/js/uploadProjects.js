@@ -23,8 +23,6 @@ function submitInfo() {
           name: document.getElementById("tileServerBuildArea").value,
           url: document.getElementById("tileServerUrlBuildArea").value,
           wmtsLayerName: document.getElementById("tileServerLayerNameBuildArea").value,
-          apiKeyRequired: document.getElementById("apiKeyRequiredBuildArea").value,
-          apiKey: document.getElementById("apiKeyBuildArea").value,
           credits: document.getElementById("tileServerCreditsBuildArea").value
         };
 
@@ -76,8 +74,6 @@ function submitInfo() {
         name: document.getElementById("tileServerChangeDetectionA").value,
         url: document.getElementById("tileServerUrlChangeDetectionA").value,
         wmtsLayerName: document.getElementById("tileServerLayerNameChangeDetectionA").value,
-        apiKeyRequired: document.getElementById("apiKeyRequiredChangeDetectionA").value,
-        apiKey: document.getElementById("apiKeyChangeDetectionA").value,
         caption: document.getElementById("captionChangeDetectionA").value,
         date: document.getElementById("dateChangeDetectionA").value,
         credits: document.getElementById("tileServerCreditsChangeDetectionA").value
@@ -86,8 +82,6 @@ function submitInfo() {
         name: document.getElementById("tileServerChangeDetectionB").value,
         url: document.getElementById("tileServerUrlChangeDetectionB").value,
         wmtsLayerName: document.getElementById("tileServerLayerNameChangeDetectionB").value,
-        apiKeyRequired: document.getElementById("apiKeyRequiredChangeDetectionB").value,
-        apiKey: document.getElementById("apiKeyChangeDetectionB").value,
         caption: document.getElementById("captionChangeDetectionB").value,
         date: document.getElementById("dateChangeDetectionB").value,
         credits: document.getElementById("tileServerCreditsChangeDetectionB").value

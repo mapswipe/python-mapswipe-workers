@@ -33,18 +33,12 @@ function displayTileServer (t, projectType, which) {
     if (tileServer == "custom") {
         document.getElementById("tileServerUrlField"+projectType+which).style.display = "block"
         document.getElementById("tileServerLayerNameField"+projectType+which).style.display = "block";
-        document.getElementById("apiKeyRequiredField"+projectType+which).style.display = "block";
-        document.getElementById("apiKeyField"+projectType+which).style.display = "block";
     } else if (tileServer == "sinergise") {
         document.getElementById("tileServerUrlField"+projectType+which).style.display = "None";
         document.getElementById("tileServerLayerNameField"+projectType+which).style.display = "block";
-        document.getElementById("apiKeyRequiredField"+projectType+which).style.display = "None";
-        document.getElementById("apiKeyField"+projectType+which).style.display = "None";
     } else {
         document.getElementById("tileServerUrlField"+projectType+which).style.display = "None";
         document.getElementById("tileServerLayerNameField"+projectType+which).style.display = "None";
-        document.getElementById("apiKeyRequiredField"+projectType+which).style.display = "None";
-        document.getElementById("apiKeyField"+projectType+which).style.display = "None";
     }
 }
 
