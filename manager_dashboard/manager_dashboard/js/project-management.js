@@ -26,7 +26,15 @@ function getProjects(status) {
   tr.appendChild(th)
 
   th = document.createElement('th')
+  th.innerHTML = "IsFeatured"
+  tr.appendChild(th)
+
+  th = document.createElement('th')
   th.innerHTML = "Change Status"
+  tr.appendChild(th)
+
+  th = document.createElement('th')
+  th.innerHTML = "Change isFeatured"
   tr.appendChild(th)
 
   tr.appendChild(th)
@@ -58,6 +66,14 @@ function getProjects(status) {
             tr.appendChild(td)
 
             td = document.createElement('td')
+            if (data.val().isFeatured === true) {
+              td.innerHTML = "<b>"+data.val().isFeatured+"</b>"
+            } else if (data.val().isFeatured === false) {
+              td.innerHTML = data.val().isFeatured
+            }
+            tr.appendChild(td)
+
+            td = document.createElement('td')
             btn = document.createElement('button')
             btn.id = data.key
             btn.classList.add("btn")
@@ -69,6 +85,22 @@ function getProjects(status) {
               btn.innerHTML = "Activate"
             } else if (data.val().status == "active") {
               btn.innerHTML = "Deactivate"
+            }
+            td.appendChild(btn)
+            tr.appendChild(td)
+
+            td = document.createElement('td')
+            btn = document.createElement('button')
+            btn.id = data.key
+            btn.classList.add("btn")
+            btn.classList.add("btn-warning")
+            btn.classList.add("isFeatured-"+data.val().isFeatured)
+            btn.addEventListener("click", changeProjectIsFeatured)
+
+            if (data.val().isFeatured === true) {
+              btn.innerHTML = 'set to "false"'
+            } else if (data.val().isFeatured === false) {
+              btn.innerHTML = 'set to "true"'
             }
             td.appendChild(btn)
             tr.appendChild(td)
@@ -85,7 +117,15 @@ function getProjects(status) {
 function updateStatus(projectId, newStatus) {
   // Write the new post's data simultaneously in the posts list and the user's post list.
   var updates = {};
-  updates['/projects/' + projectId + '/status/'] = newStatus;
+  updates['/v2/projects/' + projectId + '/status/'] = newStatus;
+  return firebase.database().ref().update(updates);
+
+}
+
+function updateIsFeatured(projectId, newStatus) {
+  // Write the new post's data simultaneously in the posts list and the user's post list.
+  var updates = {};
+  updates['/v2/projects/' + projectId + '/isFeatured/'] = newStatus;
   return firebase.database().ref().update(updates);
 
 }
@@ -111,17 +151,27 @@ function changeProjectStatus() {
 
   if (this.classList.contains("status-active")){
     console.log("current status: active")
-    console.log("new status: inactive")
     updateStatus(this.id, "inactive")
-    document.getElementById("deactivated-project-message").classList.add('show')
-    document.getElementById("deactivated-project-name").innerHTML = this.id
-
+    console.log("new status: inactive")
   } else if (this.classList.contains("status-inactive")) {
     console.log("current status: inactive")
-    console.log("new status: active")
     updateStatus(this.id, "active")
-    document.getElementById("activated-project-message").classList.add('show')
-    document.getElementById("activated-project-name").innerHTML = this.id
+    console.log("new status: active")
+  }
+  updateTableView()
+}
+
+function changeProjectIsFeatured() {
+  console.log('project selected: ' + this.id)
+
+  if (this.classList.contains("isFeatured-true")){
+    console.log("current status: featured")
+    updateIsFeatured(this.id, false)
+    console.log("new status: not featured")
+  } else if (this.classList.contains("isFeatured-false")) {
+    console.log("current status: not featured")
+    updateIsFeatured(this.id, true)
+    console.log("new status: featured")
   }
   updateTableView()
 }

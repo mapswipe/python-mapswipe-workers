@@ -13,11 +13,14 @@
         "$project_id": {
           "status": {
             ".write": "auth.token.projectManager === true"
+          },
+          "isFeatured": {
+            ".write": "auth.token.projectManager === true"
           }
         },
         ".indexOn": [
-          "status"
-        ]
+            "status", "isFeatured"
+          ]
       },
       "projectDrafts": {
         ".read": false,
