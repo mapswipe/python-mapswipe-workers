@@ -142,7 +142,7 @@ exports.counter = functions.database.ref('/v2/results/{projectId}/{groupId}/{use
 exports.projectCounter = functions.database.ref('/v2/groups/{projectId}/{groupId}/requiredCount/').onUpdate((groupRequiredCount, context) => {
     const groupNumberOfTasksRef     = admin.database().ref('/v2/groups/'+context.params.projectId+'/'+context.params.groupId+'/numberOfTasks')
     const projectResultCountRef     = admin.database().ref('/v2/projects/'+context.params.projectId+'/resultCount')
-    const projectNumberOfTasksRef   = admin.database().ref('/v2/projects/'+context.params.projectId+'/numberOfTasks')
+    const projectRequiredResultsRef   = admin.database().ref('/v2/projects/'+context.params.projectId+'/numberOfTasks')
 
     // if requiredCount ref does not contain any data do nothing
     if (!groupRequiredCount.after.exists()) {
@@ -169,7 +169,7 @@ exports.projectCounter = functions.database.ref('/v2/groups/{projectId}/{groupId
                 return groupNumberOfTasks
             })
             .then((groupNumberOfTasks) => {
-                return projectNumberOfTasksRef.transaction((currentCount) => {
+                return projectRequiredResultsRef.transaction((currentCount) => {
                     return currentCount + groupNumberOfTasks
                 })
             })
@@ -216,7 +216,7 @@ exports.calcGroupProgress = functions.database.ref('/v2/groups/{projectId}/{grou
 //
 // Gets triggered when project.resultCount gets changed.
 exports.incProjectProgress = functions.database.ref('/v2/projects/{projectId}/resultCount/').onUpdate((projectResultCount, context) => {
-    const projectNumberOfTasksRef = admin.database().ref('/v2/projects/'+context.params.projectId+'/numberOfTasks')
+    const projectRequiredResultsRef = admin.database().ref('/v2/projects/'+context.params.projectId+'/requiredResults')
     const projectProgressRef      = admin.database().ref('/v2/projects/'+context.params.projectId+'/progress')
 
     // if requiredCount ref does not contain any data do nothing
@@ -224,7 +224,7 @@ exports.incProjectProgress = functions.database.ref('/v2/projects/{projectId}/re
         return null
     }
     projectResultCount = projectResultCount.after.val()
-    projectProgress = projectNumberOfTasksRef.once('value')
+    projectProgress = projectRequiredResultsRef.once('value')
         .then((dataSnapshot) => {
             return dataSnapshot.val()
         })
