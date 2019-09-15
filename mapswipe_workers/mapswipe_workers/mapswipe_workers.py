@@ -7,8 +7,6 @@ from mapswipe_workers.definitions import CustomError
 from mapswipe_workers.definitions import logger
 from mapswipe_workers.utils import slack
 from mapswipe_workers.utils import sentry
-# sentry will be initialized here already to get missing modules like ogr
-sentry.init_sentry()
 
 from mapswipe_workers import auth
 from mapswipe_workers.generate_stats import generate_stats
@@ -46,31 +44,36 @@ def cli(verbose):
         type=click.Choice(['m', 'h', 'd'])
         )
 def run_create_projects(schedule):
-    if schedule:
-        if schedule == 'm':
-            sched.every(10).minutes.do(_run_create_projects)
-            while True:
-                sched.run_pending()
-                time.sleep(1)
-        elif schedule == 'h':
-            sched.every().hour.do(_run_create_projects)
-            while True:
-                sched.run_pending()
-                time.sleep(1)
-        elif schedule == 'd':
-            sched.every().day.do(_run_create_projects)
-            while True:
-                sched.run_pending()
-                time.sleep(1)
+    sentry.init_sentry()
+    try:
+        if schedule:
+            if schedule == 'm':
+                sched.every(10).minutes.do(_run_create_projects)
+                while True:
+                    sched.run_pending()
+                    time.sleep(1)
+            elif schedule == 'h':
+                sched.every().hour.do(_run_create_projects)
+                while True:
+                    sched.run_pending()
+                    time.sleep(1)
+            elif schedule == 'd':
+                sched.every().day.do(_run_create_projects)
+                while True:
+                    sched.run_pending()
+                    time.sleep(1)
+            else:
+                click.echo(
+                        f'{schedule} is not a valid input '
+                        f'for the schedule argument. '
+                        f'Use m for every 10 minutes, '
+                        f'h for every hour and d for every day.'
+                        )
         else:
-            click.echo(
-                    f'{schedule} is not a valid input '
-                    f'for the schedule argument. '
-                    f'Use m for every 10 minutes, '
-                    f'h for every hour and d for every day.'
-                    )
-    else:
-        _run_create_projects()
+            _run_create_projects()
+    except Exception as e:
+        slack.send_error(e)
+        raise Exception
 
 
 @click.command('firebase-to-postgres')
@@ -86,31 +89,36 @@ def run_create_projects(schedule):
         type=click.Choice(['m', 'h', 'd'])
         )
 def run_firebase_to_postgres(schedule):
-    if schedule:
-        if schedule == 'm':
-            sched.every(10).minutes.do(_run_firebase_to_postgres)
-            while True:
-                sched.run_pending()
-                time.sleep(1)
-        elif schedule == 'h':
-            sched.every().hour.do(_run_firebase_to_postgres)
-            while True:
-                sched.run_pending()
-                time.sleep(1)
-        elif schedule == 'd':
-            sched.every().day.do(_run_firebase_to_postgres)
-            while True:
-                sched.run_pending()
-                time.sleep(1)
+    sentry.init_sentry()
+    try:
+        if schedule:
+            if schedule == 'm':
+                sched.every(10).minutes.do(_run_firebase_to_postgres)
+                while True:
+                    sched.run_pending()
+                    time.sleep(1)
+            elif schedule == 'h':
+                sched.every().hour.do(_run_firebase_to_postgres)
+                while True:
+                    sched.run_pending()
+                    time.sleep(1)
+            elif schedule == 'd':
+                sched.every().day.do(_run_firebase_to_postgres)
+                while True:
+                    sched.run_pending()
+                    time.sleep(1)
+            else:
+                click.echo(
+                        f'{schedule} is not a valid input '
+                        f'for the schedule argument. '
+                        f'Use m for every 10 minutes, '
+                        f'h for every hour and d for every day.'
+                        )
         else:
-            click.echo(
-                    f'{schedule} is not a valid input '
-                    f'for the schedule argument. '
-                    f'Use m for every 10 minutes, '
-                    f'h for every hour and d for every day.'
-                    )
-    else:
-        _run_firebase_to_postgres()
+            _run_firebase_to_postgres()
+    except Exception as e:
+        slack.send_error(e)
+        raise Exception
 
 
 @click.command('generate-stats')
@@ -133,32 +141,36 @@ def run_firebase_to_postgres(schedule):
             )
         )
 def run_generate_stats(schedule, only_new_results):
-    if schedule:
-        if schedule == 'm':
-            sched.every(10).minutes.do(_run_generate_stats)
-            while True:
-                sched.run_pending()
-                time.sleep(1)
-        elif schedule == 'h':
-            sched.every().hour.do(_run_generate_stats)
-            while True:
-                sched.run_pending()
-                time.sleep(1)
-        elif schedule == 'd':
-            sched.every().day.do(_run_generate_stats)
-            while True:
-                sched.run_pending()
-                time.sleep(1)
+    sentry.init_sentry()
+    try:
+        if schedule:
+            if schedule == 'm':
+                sched.every(10).minutes.do(_run_generate_stats)
+                while True:
+                    sched.run_pending()
+                    time.sleep(1)
+            elif schedule == 'h':
+                sched.every().hour.do(_run_generate_stats)
+                while True:
+                    sched.run_pending()
+                    time.sleep(1)
+            elif schedule == 'd':
+                sched.every().day.do(_run_generate_stats)
+                while True:
+                    sched.run_pending()
+                    time.sleep(1)
+            else:
+                click.echo(
+                        f'{schedule} is not a valid input '
+                        f'for the schedule argument. '
+                        f'Use m for every 10 minutes, '
+                        f'h for every hour and d for every day.'
+                        )
         else:
-            click.echo(
-                    f'{schedule} is not a valid input '
-                    f'for the schedule argument. '
-                    f'Use m for every 10 minutes, '
-                    f'h for every hour and d for every day.'
-                    )
-    else:
-        _run_generate_stats(only_new_results)
-
+            _run_generate_stats(only_new_results)
+    except Exception as e:
+        slack.send_error(e)
+        raise Exception
 
 @click.command('user-management')
 @click.option(
@@ -179,12 +191,17 @@ def run_generate_stats(schedule, only_new_results):
         type=bool
         )
 def run_user_management(email, manager):
-    if email:
-        _run_user_management(email, manager)
-    else:
-        click.echo(
-            f'Please provide all required input arguments.'
-        )
+    sentry.init_sentry()
+    try:
+        if email:
+            _run_user_management(email, manager)
+        else:
+            click.echo(
+                f'Please provide all required input arguments.'
+            )
+    except Exception as e:
+        slack.send_error(e)
+        raise Exception
 
 
 @click.command('run')
@@ -199,39 +216,44 @@ def run_user_management(email, manager):
         type=click.Choice(['m', 'h', 'd'])
         )
 def run(schedule):
-    if schedule:
-        if schedule == 'm':
-            sched.every(10).minutes.do(_run_create_projects)
-            sched.every(10).minutes.do(_run_firebase_to_postgres)
-            sched.every(10).minutes.do(_run_generate_stats)
-            while True:
-                sched.run_pending()
-                time.sleep(1)
-        elif schedule == 'h':
-            sched.every().hour.do(_run_create_projects)
-            sched.every().hour.do(_run_firebase_to_postgres)
-            sched.every().hour.do(_run_generate_stats)
-            while True:
-                sched.run_pending()
-                time.sleep(1)
-        elif schedule == 'd':
-            sched.every().day.do(_run_create_projects)
-            sched.every().day.do(_run_firebase_to_postgres)
-            sched.every().day.do(_run_generate_stats)
-            while True:
-                sched.run_pending()
-                time.sleep(1)
+    sentry.init_sentry()
+    try:
+        if schedule:
+            if schedule == 'm':
+                sched.every(10).minutes.do(_run_create_projects)
+                sched.every(10).minutes.do(_run_firebase_to_postgres)
+                sched.every(10).minutes.do(_run_generate_stats)
+                while True:
+                    sched.run_pending()
+                    time.sleep(1)
+            elif schedule == 'h':
+                sched.every().hour.do(_run_create_projects)
+                sched.every().hour.do(_run_firebase_to_postgres)
+                sched.every().hour.do(_run_generate_stats)
+                while True:
+                    sched.run_pending()
+                    time.sleep(1)
+            elif schedule == 'd':
+                sched.every().day.do(_run_create_projects)
+                sched.every().day.do(_run_firebase_to_postgres)
+                sched.every().day.do(_run_generate_stats)
+                while True:
+                    sched.run_pending()
+                    time.sleep(1)
+            else:
+                click.echo(
+                        f'{schedule} is not a valid input '
+                        f'for the schedule argument. '
+                        f'Use m for every 10 minutes, '
+                        f'h for every hour and d for every day.'
+                        )
         else:
-            click.echo(
-                    f'{schedule} is not a valid input '
-                    f'for the schedule argument. '
-                    f'Use m for every 10 minutes, '
-                    f'h for every hour and d for every day.'
-                    )
-    else:
-        _run_create_projects()
-        _run_firebase_to_postgres()
-        _run_generate_stats()
+            _run_create_projects()
+            _run_firebase_to_postgres()
+            _run_generate_stats()
+    except Exception as e:
+        slack.send_error(e)
+        raise Exception
 
 
 def _run_create_projects():
