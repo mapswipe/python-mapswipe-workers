@@ -24,7 +24,7 @@ class ChangeDetectionProject(BaseProject):
         super().__init__(project_draft)
 
         # set group size
-        self.groupSize = 10
+        self.groupSize = project_draft['groupSize']
         self.geometry = project_draft['geometry']
         self.zoomLevel = int(project_draft.get('zoomLevel', 18))
         self.tileServerA = self.get_tile_server(project_draft['tileServerA'])

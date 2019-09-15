@@ -8,6 +8,7 @@
         "name": "BuildArea Default with Bing Sample Project",
         "projectDetails": "This project uses Bing as the tile server and zoom level 18. This is the setup most MapSwipe projects used so far.",
         "verificationNumber": 3,
+        "groupSize": 50,
         "tileServer": {
           "name": "bing",
           "credits": "© 2019 Microsoft Corporation, Earthstar Geographics SIO"
@@ -23,6 +24,7 @@
         "name": "BuildArea Sentinel Sample Project",
         "projectDetails": "This project uses tiles based on Sentinel data provided by sinergise. We need to define a layer name for the WMTS, zoom level is set to 14",
         "verificationNumber": 3,
+        "groupSize": 40,
         "projectType": 1,
         "tileServer": {
           "name": "sinergise",

@@ -7,6 +7,7 @@
         "name": "Change Detection Sample Project",
         "projectDetails": "This project uses Bing as the tile server and zoom level 18 for the before image. For after we use imagery from open aerial map.",
         "verificationNumber": 3,
+        "groupSize": 15,
         "projectType": 3,
         "tileServerA": {
               "name": "bing",
@@ -32,6 +33,7 @@
         "name": "Change Detection Uganda 1",
         "projectDetails": "This project uses planet imagery provided as WMS.",
         "verificationNumber": 5,
+        "groupSize": 15,
         "projectType": 3,
         "zoomLevel": 16,
         "tileServerA": {
@@ -61,6 +63,7 @@
         "name": "Change Detection Uganda 2",
         "projectDetails": "This project uses planet imagery provided as WMS.",
         "verificationNumber": 5,
+        "groupSize": 15,
         "projectType": 3,
         "zoomLevel": 16,
         "tileServerA": {

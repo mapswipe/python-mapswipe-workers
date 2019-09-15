@@ -53,6 +53,9 @@ function clear_all_fields() {
     for (i = 0; i < forms.length; i++) {
       forms[i].reset()
     }
+    document.getElementById('geometryContent').innerHTML = ''
+    document.getElementById('geometryChangeDetectionContent').innerHTML = ''
+
     displayProjectTypeFormular(1)
   }
 

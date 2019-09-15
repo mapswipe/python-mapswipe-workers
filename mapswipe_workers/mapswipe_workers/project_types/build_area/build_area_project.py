@@ -24,7 +24,7 @@ class BuildAreaProject(BaseProject):
         super().__init__(project_draft)
 
         # set group size
-        self.groupSize = 50
+        self.groupSize = project_draft['groupSize']
         self.geometry = project_draft['geometry']
         self.zoomLevel = int(project_draft.get('zoomLevel', 18))
         self.tileServer = self.get_tile_server(project_draft['tileServer'])
