@@ -44,9 +44,6 @@ Configure your API Keys in Google APIs & Services
 4. Also make sure to configure the API keys for the App side here.
 
 
-
-
-
 ### Deploy Database Rules and Functions
 
 The Firebase setup consists of two parts:

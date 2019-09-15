@@ -59,7 +59,7 @@ class BaseProject(metaclass=ABCMeta):
         self.isFeatured = False
         self.lookFor = project_draft['lookFor']
         self.name = project_draft['name']
-        self.numberOfTasks = 0
+        self.requiredResults = 0
         self.progress = 0
         self.projectDetails = project_draft['projectDetails']
         self.projectId = project_draft['projectDraftId']
@@ -190,7 +190,7 @@ class BaseProject(metaclass=ABCMeta):
                 project['isFeatured'],
                 project['lookFor'],
                 project['name'],
-                project['numberOfTasks'],
+                project['requiredResults'],
                 project['progress'],
                 project['projectDetails'],
                 project['projectId'],
@@ -208,7 +208,7 @@ class BaseProject(metaclass=ABCMeta):
                 'isFeatured',
                 'lookFor',
                 'name',
-                'numberOfTasks',
+                'requiredResults',
                 'progress',
                 'projectDetails',
                 'projectId',
@@ -467,11 +467,11 @@ class BaseProject(metaclass=ABCMeta):
                 f'from postgres'
                 )
 
-    def calc_number_of_tasks(self):
+    def calc_required_results(self):
         for group in self.groups:
             group.requiredCount = self.verificationNumber
-            self.numberOfTasks = (
-                    self.numberOfTasks +
+            self.requiredResults = (
+                    self.requiredResults +
                     group.requiredCount *
                     group.numberOfTasks
                     )

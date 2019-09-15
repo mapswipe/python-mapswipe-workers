@@ -223,8 +223,8 @@ def test_firebase_functions_results(
         project_progress_before = firebase_data_before['projects'][project_id].get('progress', 0)
         project_progress_after = firebase_data_after['projects'][project_id]['progress']
 
-        project_required_results_before = firebase_data_before['projects'][project_id]['numberOfTasks']
-        project_required_results_after = firebase_data_after['projects'][project_id]['numberOfTasks']
+        project_required_results_before = firebase_data_before['projects'][project_id]['requiredResults']
+        project_required_results_after = firebase_data_after['projects'][project_id]['requiredResults']
 
         project_contributor_count_before = firebase_data_before['projects'][project_id].get('contributorCount', 0)
         project_contributor_count_after = firebase_data_after['projects'][project_id]['contributorCount']
