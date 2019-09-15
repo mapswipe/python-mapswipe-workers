@@ -23,7 +23,7 @@ class FootprintProject(BaseProject):
         super().__init__(project_draft)
 
         # set group size
-        self.groupSize = 50
+        self.groupSize = project_draft['groupSize']
         self.inputGeometries = project_draft['inputGeometries']
         self.tileServer = self.get_tile_server(project_draft['tileServer'])
 

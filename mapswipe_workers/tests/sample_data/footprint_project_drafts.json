@@ -7,6 +7,7 @@
     "name": "Footprint Sample Project",
     "projectDetails": "This is a template for a building by building project. We use Bing as the tile server.",
     "verificationNumber": 3,
+    "groupSize": 35,
     "projectType": 2,
     "tileServer": {
           "name": "bing",
