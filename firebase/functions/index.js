@@ -134,15 +134,15 @@ exports.counter = functions.database.ref('/v2/results/{projectId}/{groupId}/{use
 
 // Increment project.resultCount by group.numberOfTasks.
 // Or (Depending of increase or decrease of group.RequiredCount)
-// Increment project.numberOfTask by group.numberOfTasks
+// Increment project.resultCount by group.numberOfTasks
 //
-// project.numberOfTasks represents at init of a project: sum of all tasks * verificationNumber
+// project.resultCount represents at init of a project: sum of all tasks * verificationNumber
 //
 // Gets triggered when group.requiredCount gets changed
 exports.projectCounter = functions.database.ref('/v2/groups/{projectId}/{groupId}/requiredCount/').onUpdate((groupRequiredCount, context) => {
     const groupNumberOfTasksRef     = admin.database().ref('/v2/groups/'+context.params.projectId+'/'+context.params.groupId+'/numberOfTasks')
     const projectResultCountRef     = admin.database().ref('/v2/projects/'+context.params.projectId+'/resultCount')
-    const projectRequiredResultsRef   = admin.database().ref('/v2/projects/'+context.params.projectId+'/numberOfTasks')
+    const projectRequiredResultsRef   = admin.database().ref('/v2/projects/'+context.params.projectId+'/requiredResults')
 
     // if requiredCount ref does not contain any data do nothing
     if (!groupRequiredCount.after.exists()) {
@@ -239,8 +239,8 @@ exports.incProjectProgress = functions.database.ref('/v2/projects/{projectId}/re
 // Calculates project.progress
 // Almost the same function as the previous one
 //
-// Gets triggered when project.numberOfTasks gets changed.
-exports.decProjectProgress = functions.database.ref('/v2/projects/{projectId}/numberOfTasks/').onUpdate((projectRequiredResults, context) => {
+// Gets triggered when project.requiredResults gets changed.
+exports.decProjectProgress = functions.database.ref('/v2/projects/{projectId}/requiredResults/').onUpdate((projectRequiredResults, context) => {
 
     const projectResultCountRef = admin.database().ref('/v2/projects/'+context.params.projectId+'/resultCount')
     const projectProgressRef      = admin.database().ref('/v2/projects/'+context.params.projectId+'/progress')
