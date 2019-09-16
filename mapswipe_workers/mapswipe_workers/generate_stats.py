@@ -1,4 +1,5 @@
 import os
+import subprocess
 from psycopg2 import sql
 import dateutil
 import dateutil.parser
@@ -44,6 +45,7 @@ def generate_stats(only_new_results=None):
 
     filename = f'{DATA_PATH}/aggregated_results_by_project_id_geom.csv'
     get_aggregated_results_by_project_id_geom(filename)
+    csv_to_geojson(filename)
 
     filename = f'{DATA_PATH}/aggregated_projects.csv'
     get_aggregated_projects(filename)
@@ -59,6 +61,7 @@ def generate_stats(only_new_results=None):
 
     filename = f'{DATA_PATH}/aggregated_progress_by_project_id_geom.csv'
     get_aggregated_progress_by_project_id_geom(filename)
+    csv_to_geojson(filename)
 
     logger.info('start to export csv file for %s projects based on given project_id_list' % len(project_id_list))
     for project_id in project_id_list:
@@ -67,6 +70,7 @@ def generate_stats(only_new_results=None):
 
         filename = f'{DATA_PATH}/aggregated_results_by_task_id/aggregated_results_by_task_id_geom.csv'
         get_aggregated_results_by_task_id_geom(filename, project_id)
+        csv_to_geojson(filename)
 
         filename = f'{DATA_PATH}/aggregated_results_by_project_id_and_date/aggregated_results_by_project_id_and_date_{project_id}.csv'
         get_aggregated_results_by_project_id_and_date(filename, project_id)
@@ -79,12 +83,13 @@ def generate_stats(only_new_results=None):
         filename = f'{DATA_PATH}/aggregated_results_by_user_id_and_date/aggregated_results_by_user_id_and_date_{user_id}.csv'
         get_aggregated_results_by_user_id_and_date(filename, user_id)
 
-    # write new last_update file
-    filename = f'{DATA_PATH}/last_update.txt'
-    with open(filename, 'w') as f:
-        timestamp = last_update.strftime('%Y-%m-%dT%H:%M:%S.%f')
-        f.write(timestamp)
-        logger.info(f'wrote last_update timestamp {timestamp} to file {filename}')
+    # write new last_update file, if there are any results in postgres
+    if last_update:
+        filename = f'{DATA_PATH}/last_update.txt'
+        with open(filename, 'w') as f:
+            timestamp = last_update.strftime('%Y-%m-%dT%H:%M:%S.%f')
+            f.write(timestamp)
+            logger.info(f'wrote last_update timestamp {timestamp} to file {filename}')
 
     logger.info('exported statistics based on results, projects and users tables in postgres')
 
@@ -142,7 +147,6 @@ def get_aggregated_results_by_task_id_geom(filename, project_id):
     filename: str
     project_id: str
     '''
-    # TODO: Export aggregated_results_by_task_id_geom.csv as geojson
 
     pg_db = auth.postgresDB()
     sql_query = sql.SQL(
@@ -247,8 +251,6 @@ def get_aggregated_results_by_project_id_geom(filename):
     ----------
     filename: str
     '''
-
-    # TODO: Export aggregated_results_by_project_id_geom.csv as geojson
 
     pg_db = auth.postgresDB()
     sql_query = """COPY (
@@ -400,7 +402,6 @@ def get_aggregated_progress_by_project_id_geom(filename):
         pg_db.copy_expert(sql_query, f)
 
     del pg_db
-
     logger.info('saved aggregated progress by project_id to %s' % filename)
 
 
@@ -523,3 +524,26 @@ def get_last_result():
         last_update = None
 
     return last_update
+
+
+def csv_to_geojson(filename):
+    '''
+    Use ogr2ogr to convert csv file to GeoJSON
+    '''
+
+    outfile = filename.replace('csv', 'geojson')
+    # need to remove file here because ogr2ogr can't overwrite when choosing GeoJSON
+    if os.path.isfile(outfile):
+        os.remove(outfile)
+    filename_without_path = filename.strip('.csv').split('/')[-1]
+    # TODO: remove geom column from normal attributes in sql query
+    subprocess.run([
+        "ogr2ogr",
+        "-f",
+        "GeoJSON",
+        outfile,
+        filename,
+        "-sql",
+        f"SELECT *, CAST(geom as geometry) FROM {filename_without_path}"
+    ], check=True)
+    logger.info(f'converted {filename} to {outfile}.')
