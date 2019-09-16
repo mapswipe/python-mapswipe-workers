@@ -41,6 +41,10 @@ def generate_stats(only_new_results=None):
     filename = f'{DATA_PATH}/aggregated_results_by_project_id.csv'
     get_aggregated_results_by_project_id(filename)
 
+
+    filename = f'{DATA_PATH}/aggregated_results_by_project_id_geom.csv'
+    get_aggregated_results_by_project_id_geom(filename)
+
     filename = f'{DATA_PATH}/aggregated_projects.csv'
     get_aggregated_projects(filename)
 
@@ -53,10 +57,16 @@ def generate_stats(only_new_results=None):
     filename = f'{DATA_PATH}/aggregated_progress_by_project_id.csv'
     get_aggregated_progress_by_project_id(filename)
 
+    filename = f'{DATA_PATH}/aggregated_progress_by_project_id_geom.csv'
+    get_aggregated_progress_by_project_id_geom(filename)
+
     logger.info('start to export csv file for %s projects based on given project_id_list' % len(project_id_list))
     for project_id in project_id_list:
         filename = f'{DATA_PATH}/aggregated_results_by_task_id/aggregated_results_by_task_id_{project_id}.csv'
         get_aggregated_results_by_task_id(filename, project_id)
+
+        filename = f'{DATA_PATH}/aggregated_results_by_task_id/aggregated_results_by_task_id_geom.csv'
+        get_aggregated_results_by_task_id_geom(filename, project_id)
 
         filename = f'{DATA_PATH}/aggregated_results_by_project_id_and_date/aggregated_results_by_project_id_and_date_{project_id}.csv'
         get_aggregated_results_by_project_id_and_date(filename, project_id)
@@ -113,6 +123,46 @@ def get_aggregated_results_by_task_id(filename, project_id):
     pg_db = auth.postgresDB()
     sql_query = sql.SQL(
         "COPY (SELECT * FROM aggregated_results_by_task_id WHERE project_id = {}) TO STDOUT WITH CSV HEADER").format(
+        sql.Literal(project_id))
+
+    with open(filename, 'w') as f:
+        pg_db.copy_expert(sql_query, f)
+
+    del pg_db
+
+    logger.info('saved aggregated results by task_id for project %s to %s' % (project_id, filename))
+
+
+def get_aggregated_results_by_task_id_geom(filename, project_id):
+    '''
+    Export aggregated results on a task_id basis per project.
+
+    Parameters
+    ----------
+    filename: str
+    project_id: str
+    '''
+    # TODO: Export aggregated_results_by_task_id_geom.csv as geojson
+
+    pg_db = auth.postgresDB()
+    sql_query = sql.SQL(
+        """
+        COPY (
+            SELECT
+            r.*
+            ,ST_AsText(t.geom) as geom
+            FROM
+            aggregated_results_by_task_id as r, tasks as t
+            WHERE
+              r.project_id = {}
+              AND
+              t.project_id = r.project_id
+              AND
+              t.group_id = r.group_id
+              AND
+              t.task_id = r.task_id
+        ) TO STDOUT WITH CSV HEADER
+        """).format(
         sql.Literal(project_id))
 
     with open(filename, 'w') as f:
@@ -180,6 +230,36 @@ def get_aggregated_results_by_project_id(filename):
 
     pg_db = auth.postgresDB()
     sql_query = "COPY (SELECT * FROM aggregated_results_by_project_id) TO STDOUT WITH CSV HEADER"
+
+    with open(filename, 'w') as f:
+        pg_db.copy_expert(sql_query, f)
+
+    del pg_db
+
+    logger.info('saved aggregated results by project_id to %s' % filename)
+
+
+def get_aggregated_results_by_project_id_geom(filename):
+    '''
+    Export results aggregated on project_id basis as csv file.
+
+    Parameters
+    ----------
+    filename: str
+    '''
+
+    # TODO: Export aggregated_results_by_project_id_geom.csv as geojson
+
+    pg_db = auth.postgresDB()
+    sql_query = """COPY (
+        SELECT
+            r.*
+            ,ST_AsText(p.geom) as geom
+        FROM
+            aggregated_results_by_project_id as r , projects as p
+        WHERE
+            r.project_id = p.project_id
+        ) TO STDOUT WITH CSV HEADER"""
 
     with open(filename, 'w') as f:
         pg_db.copy_expert(sql_query, f)
@@ -283,6 +363,38 @@ def get_aggregated_progress_by_project_id(filename):
 
     pg_db = auth.postgresDB()
     sql_query = "COPY (SELECT * FROM aggregated_progress_by_project_id) TO STDOUT WITH CSV HEADER"
+
+    with open(filename, 'w') as f:
+        pg_db.copy_expert(sql_query, f)
+
+    del pg_db
+
+    logger.info('saved aggregated progress by project_id to %s' % filename)
+
+
+def get_aggregated_progress_by_project_id_geom(filename):
+    '''
+    Export aggregated progress on a project_id basis as csv file.
+
+    Parameters
+    ----------
+    filename: str
+    '''
+
+    # TODO: Export aggregated_progress_by_project_id_geom.csv as geojson
+
+    pg_db = auth.postgresDB()
+    sql_query = """
+    COPY (
+      SELECT
+        r.*
+        ,ST_AsText(p.geom) as geom
+      FROM
+        aggregated_progress_by_project_id as r,
+        projects as p
+      WHERE
+        p.project_id = r.project_id
+    ) TO STDOUT WITH CSV HEADER"""
 
     with open(filename, 'w') as f:
         pg_db.copy_expert(sql_query, f)
