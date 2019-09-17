@@ -17,9 +17,11 @@ Welcome to MapSwipe Back-End's documentation!
 
 .. toctree::
    :maxdepth: 2
-   :caption: Installing:
+   :caption: Deployment:
 
-   setup
+   configuration
+   installation
+   updating
    debugging
 
 
