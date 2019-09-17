@@ -1,4 +1,4 @@
-# Setup
+# Installation
 
 This document describes how to setup all the parts of the MapSwipe back-end for the first time.
 
@@ -17,6 +17,28 @@ For all those setups our main repository is required:
 git clone https://github.com/mapswipe/python-mapswipe-workers.git
 cd python-mapswipe-workers
 ```
+
+## Check List
+`.env file`
+* [ ] postgres password
+* [ ] firebase token
+
+`mapswipe_workers/config/configuration.json`
+* [ ] firebase api key, database name configuration
+* [ ] postgres password configuration
+* [ ] imagery urls and api keys
+* [ ] slack token, username and channel
+* [ ] sentry dsn value
+
+`mapswipe_workers/config/serviceAccountKey.json`
+* [ ] downloaded from Firebase
+
+`manager_dashboard/manager_dashboard/js/app.js`
+* [ ] firebase api key configuration
+
+`nginx/nginx.conf`
+* [ ] domain configuration
+* [ ] certbot and let's encrypt
 
 ## Firebase Setup
 
