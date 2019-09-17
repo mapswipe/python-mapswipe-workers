@@ -32,13 +32,13 @@ def test_firebase_config():
 
 def test_mapswipe_workers_service_account():
     # test serviceAccountKey
-    file_path = '/usr/share/config/mapswipe_workers/serviceAccountKey.json'
+    file_path = 'mapswipe_workers/config/serviceAccountKey.json'
     assert os.path.isfile(file_path), \
         f"you didn't set up config file: {file_path}"
 
 
 def test_mapswipe_workers_configuration():
-    file_path = '/usr/share/config/mapswipe_workers/configuration.json'
+    file_path = 'mapswipe_workers/config/configuration.json'
     assert os.path.isfile(file_path), \
         f"you didn't set up config file: {file_path}"
 
@@ -151,7 +151,6 @@ def test_nginx_config():
         f"you didn't set server_name in: {file_path}"
 
     # TODO: get server name from nginx config file
-    '''
     server_name = 'dev.mapswipe.org'
 
     file_path = f'/etc/letsencrypt/live/{server_name}/fullchain.pem'
@@ -161,7 +160,6 @@ def test_nginx_config():
     file_path = f'/etc/letsencrypt/live/{server_name}/privkey.pem'
     assert os.path.isfile(file_path), \
         f"you didn't set up ssl certificate key: {file_path}"
-    '''
 
 
 if __name__ == '__main__':

@@ -2,7 +2,7 @@
 This document describes all configuration details used by the python-mapswipe-workers. By the end of this document the following configuration files will be set up:
 
 * `.env`
-* `mapswipe_workers/config/configuration.json`
+* `mapswipe_workers/config/configuration.json`  
 * `mapswipe_workers/config/serviceAccountKey.json`
 * `manager_dashboard/manager_dashboard/js/app.js`
 * `nginx/nginx.conf`
