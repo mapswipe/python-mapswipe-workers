@@ -9,13 +9,13 @@ def test_postgres_config():
         f"you didn't set up an environment .env file: {file_path}"
 
     with open(file_path, 'r') as f:
-        env_variables = f.read() # .split('\n')
+        env_variables = f.read()
 
     assert 'POSTGRES_PASSWORD' in env_variables, \
         f"you didn't set a POSTGRES_PASSWORD in {file_path}"
 
-    #assert 'WALG_GS_PREFIX' in env_variables, \
-    #    f"you didn't set a WALG_GS_PREFIX in {file_path}"
+    assert 'WALG_GS_PREFIX' in env_variables, \
+        f"you didn't set a WALG_GS_PREFIX in {file_path}"
 
 
 def test_firebase_config():
@@ -169,3 +169,4 @@ if __name__ == '__main__':
     test_mapswipe_workers_configuration()
     test_manager_dashboard_config()
     test_nginx_config()
+    print("your configuration looks complete. However we didn't test if the values are set correct.")

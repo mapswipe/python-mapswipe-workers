@@ -19,26 +19,29 @@ cd python-mapswipe-workers
 ```
 
 ## Check List
+You can run the script `test_config.py` to check if you set all the needed variables and file. The script will test the following files:
+
 `.env file`
-* [ ] postgres password
-* [ ] firebase token
+* postgres password
+* firebase token
+* wal-g google storage prefix
 
 `mapswipe_workers/config/configuration.json`
-* [ ] firebase api key, database name configuration
-* [ ] postgres password configuration
-* [ ] imagery urls and api keys
-* [ ] slack token, username and channel
-* [ ] sentry dsn value
+* firebase api key, database name configuration
+* postgres host, port, database, username, password configuration
+* imagery urls and api keys
+* slack token, username and channel
+* sentry dsn value
 
 `mapswipe_workers/config/serviceAccountKey.json`
-* [ ] downloaded from Firebase
+* check if file exists
 
 `manager_dashboard/manager_dashboard/js/app.js`
-* [ ] firebase api key configuration
+* firebase authDomain, apiKey, databaseUrl, storageBucket
 
 `nginx/nginx.conf`
-* [ ] domain configuration
-* [ ] certbot and let's encrypt
+* server name
+* ssl certificates, ssl certificates key
 
 ## Firebase Setup
 
