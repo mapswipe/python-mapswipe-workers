@@ -20,7 +20,7 @@ def generate_stats(only_new_results=None):
         last_update = None
 
     # we will generate stats only for these if flag is set
-    if only_new_results:
+    if only_new_results and last_update:
         logger.info('will generate stats only for projects and users with new results')
         # get project_ids and user_ids for results created after last update
         project_id_list = get_new_project_id_list(last_update)
@@ -41,7 +41,6 @@ def generate_stats(only_new_results=None):
 
     filename = f'{DATA_PATH}/aggregated_results_by_project_id.csv'
     get_aggregated_results_by_project_id(filename)
-
 
     filename = f'{DATA_PATH}/aggregated_results_by_project_id_geom.csv'
     get_aggregated_results_by_project_id_geom(filename)
