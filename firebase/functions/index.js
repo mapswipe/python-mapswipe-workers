@@ -176,7 +176,7 @@ exports.projectCounter = functions.database.ref('/v2/groups/{projectId}/{groupId
         return projectResultCount
     }
     else {
-        console.log('/v2/groups/'+context.params.projectId+'/'+context.params.groupId+'/requiredCount/ > 0 or got updated but value did not change: Group progress will not be recalculated')
+        console.log('/v2/groups/'+context.params.projectId+'/'+context.params.groupId+'/requiredCount/ < 0 or got updated but value did not change: Group progress will not be recalculated')
         return null
     }
 })
