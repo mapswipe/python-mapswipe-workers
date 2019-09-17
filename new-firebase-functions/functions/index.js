@@ -207,7 +207,7 @@ exports.calcGroupProgress = functions.database.ref('/v2/groups/{projectId}/{grou
         return groupProgress
     }
     else {
-        console.log('/v2/groups/'+context.params.projectId+'/'+context.params.groupId+'/requiredCount/  > 0: Group progress will not be recalculated')
+        console.log('/v2/groups/'+context.params.projectId+'/'+context.params.groupId+'/requiredCount/  < 0: Group progress will not be recalculated')
         return null
     }
 })
