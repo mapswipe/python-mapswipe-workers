@@ -5,7 +5,7 @@ This document describes all configuration details used by the python-mapswipe-wo
 * `mapswipe_workers/config/configuration.json`
 * `mapswipe_workers/config/serviceAccountKey.json`
 * `manager_dashboard/manager_dashboard/js/app.js`
-* `firebase/.firebaserc`
+* `nginx/nginx.conf`
 
 ## Google APIs & Services Credentials
 The python-mapswipe workers use a bunch of services provided by Google Cloud Platform. It's best to start to configure all api keys we need later directly from the beginning in Google APIs & Services.
@@ -16,7 +16,7 @@ The python-mapswipe workers use a bunch of services provided by Google Cloud Pla
     * set API restrictions > Restrict Key > Identity Toolkit API
 3. Create API key for Manager Dashboard:
     * set name of api key to `manager_dashboard_api_key`
-    * set Application restrictions > HTTP referrers > set HTTP referrer of managers dashboard (e.g. `https://apps.mapswipe.org`)
+    * set Application restrictions > HTTP referrers > set HTTP referrer of managers dashboard (e.g. `https://dev.mapswipe.org`)
     * set API restrictions > Restrict Key > Identity Toolkit API and Cloud Functions API
 4. Also make sure to configure the API keys for the App side here.
 
@@ -100,6 +100,16 @@ GCS_Link_URL=https://console.cloud.google.com/storage/browser/your_project_id_po
 GCS_Link_for_gsutil=gs://your_project_id_postgres_backup
 ```
 
+## Nginx
+The `nginx` module serves the MapSwipe API and Manager Dashboard. If you want these point to a specific domain, make sure to set it up. In our setup we use Google domains. Other tools will work similar.
+
+Once you got your domain name add it to `nginx/nginx.conf`:
+
+```
+server_name your_domain.org;
+```
+
+To enable SSL for the API and MapSwipe Manager Dashboard we use [Certbot](https://certbot.eff.org/) to issue standalone certificates using [Let's Encrypt](https://letsencrypt.org/).
 
 ## Imagery
 MapSwipe uses satellite imagery provided by Tile Map Services (TMS). If you are not familiar with the basic concept have a look at [Bing's documentation](https://docs.microsoft.com/en-us/bingmaps/articles/bing-maps-tile-system). Make sure to get api keys for the services you would like to use in your app. For each satellite imagery provider add an `api_key` and `url`. You need to provide information on Imagery in your `mapswipe_workers/config/configuration.json`.:
@@ -122,7 +132,7 @@ MapSwipe uses satellite imagery provided by Tile Map Services (TMS). If you are 
 ```
 
 ## Sentry (optional)
-The MapSwipe workers use sentry to capture exceptions. You can find your project’s DSN in the “Client Keys” section of your “Project Settings” in Sentry. Check [Sentry's documentation](https://docs.sentry.io/error-reporting/configuration/?platform=python) for more information. You need to provide information on Sentry in your `mapswipe_workers/config/configuration.json`.:
+The `mapswipe_workers` module uses sentry to capture exceptions. You can find your project’s DSN in the “Client Keys” section of your “Project Settings” in Sentry. Check [Sentry's documentation](https://docs.sentry.io/error-reporting/configuration/?platform=python) for more information. You need to provide information on Sentry in your `mapswipe_workers/config/configuration.json`.:
 
 ```json
 "sentry": {
@@ -131,7 +141,7 @@ The MapSwipe workers use sentry to capture exceptions. You can find your project
 ```
 
 ## Slack (optional)
-The MapSwipe workers send messages to slack when a project has been created successfully, the project creation failed or an exception during mapswipe_workers cli occurred. You need to add a slack token to use slack messaging. You can find out more from [Python slackclient's documentation](https://github.com/slackapi/python-slackclient) how to get it. You need to provide information on Slack in your `mapswipe_workers/config/configuration.json`.:
+The `mapswipe_workers` module sends messages to slack when a project has been created successfully, the project creation failed or an exception during mapswipe_workers cli occurred. You need to add a slack token to use slack messaging. You can find out more from [Python slackclient's documentation](https://github.com/slackapi/python-slackclient) how to get it. You need to provide information on Slack in your `mapswipe_workers/config/configuration.json`.:
 
 ```json
 "slack": {
