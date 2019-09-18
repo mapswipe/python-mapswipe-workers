@@ -10,7 +10,7 @@ from mapswipe_workers.definitions import DATA_PATH
 
 
 def generate_stats(only_new_results=None):
-    filename = f'{DATA_PATH}/last_update.txt'
+    filename = f'{DATA_PATH}/api-data/last_update.txt'
     if os.path.isfile(filename):
         with open(filename, 'rb') as f:
             timestamp = f.read()
@@ -33,58 +33,58 @@ def generate_stats(only_new_results=None):
     # get new last_update timestamp
     last_update = get_last_result()
 
-    filename = f'{DATA_PATH}/agg_results.csv'
+    filename = f'{DATA_PATH}/api-data/agg_results.csv'
     get_aggregated_results(filename)
 
-    filename = f'{DATA_PATH}/agg_res_by_user_id.csv'
+    filename = f'{DATA_PATH}/api-data/agg_res_by_user_id.csv'
     get_aggregated_results_by_user_id(filename)
 
-    filename = f'{DATA_PATH}/agg_res_by_project_id.csv'
+    filename = f'{DATA_PATH}/api-data/agg_res_by_project_id.csv'
     get_aggregated_results_by_project_id(filename)
 
-    filename = f'{DATA_PATH}/agg_res_by_project_id_geom.csv'
+    filename = f'{DATA_PATH}/api-data/agg_res_by_project_id_geom.csv'
     get_aggregated_results_by_project_id_geom(filename)
     csv_to_geojson(filename)
 
-    filename = f'{DATA_PATH}/agg_projects.csv'
+    filename = f'{DATA_PATH}/api-data/agg_projects.csv'
     get_aggregated_projects(filename)
 
-    filename = f'{DATA_PATH}/agg_projects_by_project_type.csv'
+    filename = f'{DATA_PATH}/api-data/agg_projects_by_project_type.csv'
     get_aggregated_projects_by_project_type(filename)
 
-    filename = f'{DATA_PATH}/agg_users.csv'
+    filename = f'{DATA_PATH}/api-data/agg_users.csv'
     get_aggregated_users(filename)
 
-    filename = f'{DATA_PATH}/agg_progress_by_project_id.csv'
+    filename = f'{DATA_PATH}/api-data/agg_progress_by_project_id.csv'
     get_aggregated_progress_by_project_id(filename)
 
-    filename = f'{DATA_PATH}/agg_progress_by_project_id_geom.csv'
+    filename = f'{DATA_PATH}/api-data/agg_progress_by_project_id_geom.csv'
     get_aggregated_progress_by_project_id_geom(filename)
     csv_to_geojson(filename)
 
     logger.info('start to export csv file for %s projects based on given project_id_list' % len(project_id_list))
     for project_id in project_id_list:
-        filename = f'{DATA_PATH}/agg_res_by_task_id/agg_res_by_task_id_{project_id}.csv'
+        filename = f'{DATA_PATH}/api-data/agg_res_by_task_id/agg_res_by_task_id_{project_id}.csv'
         get_aggregated_results_by_task_id(filename, project_id)
 
-        filename = f'{DATA_PATH}/agg_res_by_task_id/agg_res_by_task_id_geom_{project_id}.csv'
+        filename = f'{DATA_PATH}/api-data/agg_res_by_task_id/agg_res_by_task_id_geom_{project_id}.csv'
         get_aggregated_results_by_task_id_geom(filename, project_id)
         csv_to_geojson(filename)
 
-        filename = f'{DATA_PATH}/agg_res_by_project_id_and_date/agg_res_by_project_id_and_date_{project_id}.csv'
+        filename = f'{DATA_PATH}/api-data/agg_res_by_project_id_and_date/agg_res_by_project_id_and_date_{project_id}.csv'
         get_aggregated_results_by_project_id_and_date(filename, project_id)
 
-        filename = f'{DATA_PATH}/agg_progress_by_project_id_and_date/agg_progress_by_project_id_and_date_{project_id}.csv'
+        filename = f'{DATA_PATH}/api-data/agg_progress_by_project_id_and_date/agg_progress_by_project_id_and_date_{project_id}.csv'
         get_aggregated_progress_by_project_id_and_date(filename, project_id)
 
     logger.info('start to export csv file for %s users based on given user_id_list' % len(user_id_list))
     for user_id in user_id_list:
-        filename = f'{DATA_PATH}/agg_res_by_user_id_and_date/agg_res_by_user_id_and_date_{user_id}.csv'
+        filename = f'{DATA_PATH}/api-data/agg_res_by_user_id_and_date/agg_res_by_user_id_and_date_{user_id}.csv'
         get_aggregated_results_by_user_id_and_date(filename, user_id)
 
     # write new last_update file, if there are any results in postgres
     if last_update:
-        filename = f'{DATA_PATH}/last_update.txt'
+        filename = f'{DATA_PATH}/api-data/last_update.txt'
         with open(filename, 'w') as f:
             timestamp = last_update.strftime('%Y-%m-%dT%H:%M:%S.%f')
             f.write(timestamp)
