@@ -2,7 +2,7 @@ import os
 import json
 
 
-def test_postgres_config():git
+def test_postgres_config():
     file_path = '.env'
     assert os.path.isfile(file_path), \
         f"you didn't set up an environment .env file: {file_path}"
