@@ -48,17 +48,17 @@ def run_create_projects(schedule):
     try:
         if schedule:
             if schedule == 'm':
-                sched.every(10).minutes.do(_run_create_projects)
+                sched.every(10).minutes.do(_run_create_projects).run()
                 while True:
                     sched.run_pending()
                     time.sleep(1)
             elif schedule == 'h':
-                sched.every().hour.do(_run_create_projects)
+                sched.every().hour.do(_run_create_projects).run()
                 while True:
                     sched.run_pending()
                     time.sleep(1)
             elif schedule == 'd':
-                sched.every().day.do(_run_create_projects)
+                sched.every().day.do(_run_create_projects).run()
                 while True:
                     sched.run_pending()
                     time.sleep(1)
@@ -94,17 +94,17 @@ def run_firebase_to_postgres(schedule):
     try:
         if schedule:
             if schedule == 'm':
-                sched.every(10).minutes.do(_run_firebase_to_postgres)
+                sched.every(10).minutes.do(_run_firebase_to_postgres).run()
                 while True:
                     sched.run_pending()
                     time.sleep(1)
             elif schedule == 'h':
-                sched.every().hour.do(_run_firebase_to_postgres)
+                sched.every().hour.do(_run_firebase_to_postgres).run()
                 while True:
                     sched.run_pending()
                     time.sleep(1)
             elif schedule == 'd':
-                sched.every().day.do(_run_firebase_to_postgres)
+                sched.every().day.do(_run_firebase_to_postgres).run()
                 while True:
                     sched.run_pending()
                     time.sleep(1)
@@ -146,17 +146,17 @@ def run_generate_stats(schedule, only_new_results):
     try:
         if schedule:
             if schedule == 'm':
-                sched.every(10).minutes.do(_run_generate_stats, only_new_results=only_new_results)
+                sched.every(10).minutes.do(_run_generate_stats, only_new_results=only_new_results).run()
                 while True:
                     sched.run_pending()
                     time.sleep(1)
             elif schedule == 'h':
-                sched.every().hour.do(_run_generate_stats, only_new_results=only_new_results)
+                sched.every().hour.do(_run_generate_stats, only_new_results=only_new_results).run()
                 while True:
                     sched.run_pending()
                     time.sleep(1)
             elif schedule == 'd':
-                sched.every().day.do(_run_generate_stats, only_new_results=only_new_results)
+                sched.every().day.do(_run_generate_stats, only_new_results=only_new_results).run()
                 while True:
                     sched.run_pending()
                     time.sleep(1)
@@ -231,23 +231,23 @@ def run(schedule, only_new_results):
     try:
         if schedule:
             if schedule == 'm':
-                sched.every(10).minutes.do(_run_create_projects)
-                sched.every(10).minutes.do(_run_firebase_to_postgres)
-                sched.every(10).minutes.do(_run_generate_stats, only_new_results)
+                sched.every(10).minutes.do(_run_create_projects).run()
+                sched.every(10).minutes.do(_run_firebase_to_postgres).run()
+                sched.every(10).minutes.do(_run_generate_stats, only_new_results).run()
                 while True:
                     sched.run_pending()
                     time.sleep(1)
             elif schedule == 'h':
-                sched.every().hour.do(_run_create_projects)
-                sched.every().hour.do(_run_firebase_to_postgres)
-                sched.every().hour.do(_run_generate_stats, only_new_results)
+                sched.every().hour.do(_run_create_projects).run()
+                sched.every().hour.do(_run_firebase_to_postgres).run()
+                sched.every().hour.do(_run_generate_stats, only_new_results).run()
                 while True:
                     sched.run_pending()
                     time.sleep(1)
             elif schedule == 'd':
-                sched.every().day.do(_run_create_projects)
-                sched.every().day.do(_run_firebase_to_postgres)
-                sched.every().day.do(_run_generate_stats, only_new_results)
+                sched.every().day.do(_run_create_projects).run()
+                sched.every().day.do(_run_firebase_to_postgres).run()
+                sched.every().day.do(_run_generate_stats, only_new_results).run()
                 while True:
                     sched.run_pending()
                     time.sleep(1)
