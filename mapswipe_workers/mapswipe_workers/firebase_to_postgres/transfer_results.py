@@ -37,6 +37,7 @@ def transfer_results(project_id_list=None):
         # get project_ids from existing results if no project ids specified
         project_id_list = fb_db.reference('v2/results/').get(shallow=True)
         if not project_id_list:
+            project_id_list = []
             logger.info(f'There are no results to transfer.')
 
 
