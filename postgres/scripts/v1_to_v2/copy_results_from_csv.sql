@@ -83,12 +83,8 @@ WHERE
 
 /* delete results of duplicated task */
 /* which could not be assigned to a group. */
-DELETE
-    *
-FROM
-    v1_results
-WHERE
-    group_id IS NULL;
+DELETE FROM v1_results
+WHERE group_id IS NULL;
 
 /* Insert or update data of temp table to the permant table. */
 /* Generate 0 results. */
@@ -137,5 +133,5 @@ SELECT
   timestamp,
   result
 FROM
-    user_results;
+    user_results
 ON CONFLICT (project_id, group_id, task_id, user_id) DO NOTHING;
