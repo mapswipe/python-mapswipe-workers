@@ -110,31 +110,17 @@ ENV/
 .envrc
 *.pickle
 .idea
-import_module/data
+
+# serviceAccountKey for Google Platform access
+*serviceAccountKey.json
 
 # don't upload config files and api keys etc. for python_workers
-mapswipe_workers/cfg/config.cfg
-mapswipe_workers/cfg/configuration.json
-mapswipe_workers/mapswipe_workers/configuration.json
-mapswipe_workers/cfg/serviceAccountKey.json
-mapswipe_workers/cfg/msf-mapswipe_serviceAccountKey.json
-mapswipe_workers/cfg/dev-mapswipe_serviceAccountKey.json
-mapswipe_workers/cfg/test-mapswipe_serviceAccountKey.json
-cfg/config.cfg
-cfg/configuration.json
-mapswipe_workers/configuration.json
-cfg/serviceAccountKey.json
-cfg/msf-mapswipe_serviceAccountKey.json
-cfg/dev-mapswipe_serviceAccountKey.json
-cfg/test-mapswipe_serviceAccountKey.json
+mapswipe_workers/config/configuration.json
 
 # don´t upload data dir
 data/
 
 # don't upload app config for project managers dashboard
 app.js
-*/app.js
-manager_dashboard/manager_dashboard/js/app.js
-
 
 .DS_Store
