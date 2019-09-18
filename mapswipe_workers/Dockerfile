@@ -2,6 +2,10 @@
 # Based on Debian (Including apt-get update && upgrade)
 FROM thinkwhere/gdal-python:3.7-shippable
 
+# Install gdal-bin to get ogr2ogr tool
+RUN apt-get update
+RUN apt-get install gdal-bin
+
 # create directories for config, logs and data
 RUN mkdir -p /usr/share/config/mapswipe_workers/
 RUN mkdir -p /usr/local/mapswipe_workers/

@@ -3,7 +3,6 @@ import json
 
 
 def test_postgres_config():
-    # TODO: Add test for Wal-G, and google cloud storage service account key
     file_path = '.env'
     assert os.path.isfile(file_path), \
         f"you didn't set up an environment .env file: {file_path}"
@@ -16,6 +15,10 @@ def test_postgres_config():
 
     assert 'WALG_GS_PREFIX' in env_variables, \
         f"you didn't set a WALG_GS_PREFIX in {file_path}"
+
+    file_path = 'postgres/serviceAccountKey.json'
+    assert os.path.isfile(file_path), \
+        f"you didn't set up an service account key for wal-g and postgrs: {file_path}"
 
 
 def test_firebase_config():
