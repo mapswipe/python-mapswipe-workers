@@ -543,6 +543,6 @@ def csv_to_geojson(filename):
         outfile,
         filename,
         "-sql",
-        f"SELECT *, CAST(geom as geometry) FROM {filename_without_path}"
+        f'SELECT *, CAST(geom as geometry) FROM "{filename_without_path}"'
     ], check=True)
     logger.info(f'converted {filename} to {outfile}.')
