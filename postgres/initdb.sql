@@ -18,11 +18,11 @@ CREATE TABLE IF NOT EXISTS projects (
     project_details varchar,
     project_id varchar,
     project_type int,
+    project_type_specifics json,
     required_results int,
     result_count int,
     status varchar,
     verification_number int,
-    project_type_specifics json,
     PRIMARY KEY(project_id)
     );
 
@@ -69,8 +69,8 @@ CREATE TABLE IF NOT EXISTS results (
     user_id varchar,
     task_id varchar,
     "timestamp" timestamp,
-    start_time timestamp,
-    end_time timestamp,
+    start_time timestamp DEFAULT NULL,
+    end_time timestamp DEFAULT NULL,
     result int,
     PRIMARY KEY (project_id, group_id, task_id, user_id),
     FOREIGN KEY (project_id) REFERENCES projects (project_id),
