@@ -4,7 +4,7 @@ from mapswipe_workers import auth
 from mapswipe_workers.definitions import logger
 
 
-def copy_new_users():
+def update_user_data(user_ids=None):
     '''
     Copies new users from Firebase to Postgres
     '''
@@ -25,6 +25,7 @@ def copy_new_users():
         # No users in the Postgres database yet.
         # Get all users from Firebase.
         users = fb_ref.get()
+        print(users)
     else:
         # Get only new users from Firebase.
         last_updated = last_updated[0][0]
@@ -33,18 +34,37 @@ def copy_new_users():
         users = fb_query.get()
         # Delete first user in ordered dict.
         # This user is already in the database (user.created = last_updated).
-        users.popitem(last=False)
+        if len(users) == 0:
+            logger.info(f"there are no new users in firebase based on created timestamp")
+        else:
+            users.popitem(last=False)
+
+    # update users specified in user_ids list
+    if user_ids:
+        logger.info(f"will add users to copy_new_users based on user_ids provided")
+        for user_id in user_ids:
+            user = fb_ref.child(user_id).get()
+            users[user_id] = user
+            logger.info(f"added user {user_id}")
 
     for user_id, user in users.items():
         # Convert timestamp (ISO 8601) from string to a datetime object.
         try:
-            user['created'] = dt.datetime.strptime(
+            created = dt.datetime.strptime(
                     user['created'].replace('Z', ''),
                     '%Y-%m-%dT%H:%M:%S.%f'
                     )
         except KeyError:
             # if user has no "created" attribute, we set it to current time
-            user['created'] = dt.datetime.utcnow().isoformat()[0:-3]+'Z'
+            created = dt.datetime.utcnow().isoformat()[0:-3]+'Z'
+            logger.info(f"user {user_id} didn't have a created attribute set it to {created}")
+
+        try:
+            username = user['username']
+        except KeyError:
+            # if user has no "username" attribute, we set it to None
+            username = None
+            logger.info(f"user {user_id} didn't have a created attribute set it to {username}")
 
         query_update_user = '''
             INSERT INTO users (user_id, username, created)
@@ -55,67 +75,16 @@ def copy_new_users():
         '''
         data_update_user = [
                 user_id,
-                user['username'],
-                user['created'],
-                user['username'],
-                user['created'],
+                username,
+                created,
+                username,
+                created,
                 ]
         pg_db.query(query_update_user, data_update_user)
 
     del(pg_db)
 
     logger.info('Updated user data in Potgres')
-
-
-def update_user_data(user_ids=None):
-    '''
-    Gets username and created attributes of users
-    from Firebase and updates them in Postgres.
-    Default behavior is to update all users.
-    If called with a list of user ids as parameter
-    only those user will be updated.
-
-    Parameters
-    ----------
-    user_ids: list
-    '''
-    fb_db = auth.firebaseDB()
-    pg_db = auth.postgresDB()
-
-    if user_ids:
-        users = dict()
-        for user_id in user_ids:
-            ref = fb_db.reference(f'v2/users/{user_id}')
-            users[user_id] = ref.get()
-    else:
-        ref = fb_db.reference(f'v2/users/')
-        users = ref.get()
-
-    for user_id, user in users.items():
-        # Convert timestamp (ISO 8601) from string to a datetime object
-        user['created'] = dt.datetime.strptime(
-                user['created'],
-                '%Y-%m-%dT%H:%M:%S.%f%z'
-                )
-        query_update_user = '''
-            INSERT INTO users (user_id, username, created)
-            VALUES(%s, %s, %s)
-            ON CONFLICT (user_id) DO UPDATE
-            SET username=%s,
-            created=%s;
-        '''
-        data_update_user = [
-                user_id,
-                user['username'],
-                user['created'],
-                user['username'],
-                user['created'],
-                ]
-        pg_db.query(query_update_user, data_update_user)
-
-    del(pg_db)
-
-    logger.info('Updated user data in Postgres')
 
 
 def update_project_data(project_ids=None):
@@ -135,11 +104,13 @@ def update_project_data(project_ids=None):
     pg_db = auth.postgresDB()
 
     if project_ids:
+        logger.info(f"update project data in postgres for selected projects")
         projects = dict()
         for project_id in project_ids:
             project_ref = fb_db.reference(f'v2/projects/{project_id}')
             projects[project_id] = project_ref.get()
     else:
+        logger.info(f"update project data in postgres for all firebase projects")
         projects_ref = fb_db.reference('v2/projects/')
         projects = projects_ref.get()
 
@@ -151,8 +122,9 @@ def update_project_data(project_ids=None):
         '''
         # TODO: Is there need for fallback to ''
         # if project.status is not existent
-        data_update_project = [project.get('status', '')]
+        data_update_project = [project.get('status', ''), project_id]
         pg_db.query(query_update_project, data_update_project)
+        logger.info(f"updated status for project {project_id} in postgres")
 
     del(pg_db)
 

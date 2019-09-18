@@ -72,7 +72,7 @@ if __name__ == '__main__':
     for sample_project_drafts_json in glob.glob(
             sample_data_dir + '*_drafts.json'
             ):
-        if sample_project_drafts_json == 'build_area_to_big_project_drafts.json':
+        if sample_project_drafts_json == 'build_area_to_big_project_drafts_test.json':
             continue
         with open(sample_project_drafts_json) as f:
             sample_project_drafts = json.load(f)

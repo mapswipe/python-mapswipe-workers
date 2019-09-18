@@ -7,10 +7,10 @@ RUN mkdir -p /usr/share/config/mapswipe_workers/
 RUN mkdir -p /usr/local/mapswipe_workers/
 RUN mkdir -p /var/log/mapswipe_workers/
 RUN mkdir -p /var/lib/mapswipe_workers/
-RUN mkdir -p /var/lib/mapswipe_workers/aggregated_results_by_task_id/
-RUN mkdir -p /var/lib/mapswipe_workers/aggregated_results_by_project_id_and_date/
-RUN mkdir -p /var/lib/mapswipe_workers/aggregated_progress_by_project_id_and_date/
-RUN mkdir -p /var/lib/mapswipe_workers/aggregated_results_by_user_id_and_date/
+RUN mkdir -p /var/lib/mapswipe_workers/agg_res_by_task_id/
+RUN mkdir -p /var/lib/mapswipe_workers/agg_res_by_project_id_and_date/
+RUN mkdir -p /var/lib/mapswipe_workers/agg_progress_by_project_id_and_date/
+RUN mkdir -p /var/lib/mapswipe_workers/agg_res_by_user_id_and_date/
 
 # copy mapswipe workers repo from local repo
 WORKDIR /usr/local/mapswipe_workers/

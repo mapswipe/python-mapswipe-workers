@@ -5,6 +5,7 @@ import dateutil.parser
 
 from mapswipe_workers import auth
 from mapswipe_workers.definitions import logger
+from mapswipe_workers.firebase_to_postgres import update_data
 
 
 def transfer_results(project_id_list=None):
@@ -21,9 +22,11 @@ def transfer_results(project_id_list=None):
     # Firebase transaction function
     def transfer(current_results):
         if current_results is None:
-            logger.info('No results in Firebase')
+            logger.info(f'{project_id}: No results in Firebase')
             return dict()
         else:
+            results_user_id_list = get_user_ids_from_results(current_results)
+            update_data.update_user_data(results_user_id_list)
             results_file = results_to_file(current_results, project_id)
             save_results_to_postgres(results_file)
             return dict()
@@ -33,20 +36,22 @@ def transfer_results(project_id_list=None):
     if not project_id_list:
         # get project_ids from existing results if no project ids specified
         project_id_list = fb_db.reference('v2/results/').get(shallow=True)
+        if not project_id_list:
+            project_id_list = []
+            logger.info(f'There are no results to transfer.')
 
 
     for project_id in project_id_list:
-
-        logger.info(f'Start transfering results for project {project_id}')
+        logger.info(f'{project_id}: Start transfering results')
         results_ref = fb_db.reference(f'v2/results/{project_id}')
         truncate_temp_results()
 
         try:
             results_ref.transaction(transfer)
-            logger.info(f'Transfered results for project {project_id}')
+            logger.info(f'{project_id}: Transfered results to postgres')
         except fb_db.TransactionError:
             logger.exception(
-                f'Firebase transaction for transfering results failed to commit for project {project_id}'
+                f'{project_id}: Firebase transaction for transfering results failed to commit'
             )
 
     del fb_db
@@ -182,3 +187,15 @@ def truncate_temp_results():
 
     return
 
+
+def get_user_ids_from_results(results):
+    '''
+    Get all users based on the ids provided in the results
+    '''
+
+    user_ids = set([])
+    for groupId, users in results.items():
+        for userId, results in users.items():
+            user_ids.add(userId)
+
+    return user_ids
