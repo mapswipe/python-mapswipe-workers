@@ -43,6 +43,14 @@ You can run the script `test_config.py` to check if you set all the needed varia
 * server name
 * ssl certificates, ssl certificates key
 
+## Deploy with Docker
+```
+python3 test_config.py
+sudo docker-compose build --no-cache
+sudo docker-compose up -d --force-recreate
+sudo docker ps -a
+```
+
 ## Firebase Setup
 
 First a Firebase Project and Database has to be created.

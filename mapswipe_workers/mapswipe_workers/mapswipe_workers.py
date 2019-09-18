@@ -341,7 +341,8 @@ def _run_create_projects(project_draft_ids=None):
 
 
 def _run_firebase_to_postgres():
-    update_data.copy_new_users()
+    update_data.update_user_data()
+    update_data.update_project_data()
     transfer_results.transfer_results()
 
 
