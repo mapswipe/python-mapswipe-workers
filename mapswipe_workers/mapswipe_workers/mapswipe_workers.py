@@ -122,7 +122,6 @@ def run_firebase_to_postgres(schedule):
         sentry.capture_exception_sentry(e)
         logger.exception(e)
 
-
 @click.command('generate-stats')
 @click.option(
         '--schedule',
@@ -147,17 +146,17 @@ def run_generate_stats(schedule, only_new_results):
     try:
         if schedule:
             if schedule == 'm':
-                sched.every(10).minutes.do(_run_generate_stats)
+                sched.every(10).minutes.do(_run_generate_stats, only_new_results=only_new_results)
                 while True:
                     sched.run_pending()
                     time.sleep(1)
             elif schedule == 'h':
-                sched.every().hour.do(_run_generate_stats)
+                sched.every().hour.do(_run_generate_stats, only_new_results=only_new_results)
                 while True:
                     sched.run_pending()
                     time.sleep(1)
             elif schedule == 'd':
-                sched.every().day.do(_run_generate_stats)
+                sched.every().day.do(_run_generate_stats, only_new_results=only_new_results)
                 while True:
                     sched.run_pending()
                     time.sleep(1)
@@ -219,28 +218,36 @@ def run_user_management(email, manager):
             ),
         type=click.Choice(['m', 'h', 'd'])
         )
-def run(schedule):
+@click.option(
+        '--only_new_results/--all',
+        default=False,
+        help=(
+            f'Will generate stats only for projects and users'
+            f'for which new results have been transfered.'
+            )
+        )
+def run(schedule, only_new_results):
     sentry.init_sentry()
     try:
         if schedule:
             if schedule == 'm':
                 sched.every(10).minutes.do(_run_create_projects)
                 sched.every(10).minutes.do(_run_firebase_to_postgres)
-                sched.every(10).minutes.do(_run_generate_stats)
+                sched.every(10).minutes.do(_run_generate_stats, only_new_results)
                 while True:
                     sched.run_pending()
                     time.sleep(1)
             elif schedule == 'h':
                 sched.every().hour.do(_run_create_projects)
                 sched.every().hour.do(_run_firebase_to_postgres)
-                sched.every().hour.do(_run_generate_stats)
+                sched.every().hour.do(_run_generate_stats, only_new_results)
                 while True:
                     sched.run_pending()
                     time.sleep(1)
             elif schedule == 'd':
                 sched.every().day.do(_run_create_projects)
                 sched.every().day.do(_run_firebase_to_postgres)
-                sched.every().day.do(_run_generate_stats)
+                sched.every().day.do(_run_generate_stats, only_new_results)
                 while True:
                     sched.run_pending()
                     time.sleep(1)
@@ -254,7 +261,7 @@ def run(schedule):
         else:
             _run_create_projects()
             _run_firebase_to_postgres()
-            _run_generate_stats()
+            _run_generate_stats(only_new_results)
     except Exception as e:
         slack.send_error(e)
         sentry.capture_exception_sentry(e)
