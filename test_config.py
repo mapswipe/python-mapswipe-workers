@@ -143,6 +143,14 @@ def test_manager_dashboard_config():
 
 
 def test_nginx_config():
+    file_path = '.env'
+
+    with open(file_path, 'r') as f:
+        env_variables = f.read()
+
+    assert 'SERVER_NAME' in env_variables, \
+        f"you didn't set a SERVER_NAME in {file_path}"
+
     file_path = 'nginx/nginx.conf'
     assert os.path.isfile(file_path), \
         f"you didn't set up config file: {file_path}"
@@ -153,7 +161,7 @@ def test_nginx_config():
     assert 'server_name' in nginx_config, \
         f"you didn't set server_name in: {file_path}"
 
-    # TODO: get server name from nginx config file
+    # TODO: get server name from nginx config file or .env
     server_name = 'dev.mapswipe.org'
 
     file_path = f'/etc/letsencrypt/live/{server_name}/fullchain.pem'
