@@ -23,6 +23,7 @@ Welcome to MapSwipe Back-End's documentation!
    installation
    updating
    debugging
+   backup
 
 
 .. toctree::
