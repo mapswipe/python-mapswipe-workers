@@ -1,4 +1,4 @@
-python test_02_create_projects.py
+python test_01_create_projects.py
 if [[ $? = 0 ]]; then
     echo "success"
 else
@@ -7,7 +7,7 @@ else
 fi
 
 
-python test_03_mapping.py
+python test_02_mapping.py
 if [[ $? = 0 ]]; then
     echo "success"
 else
@@ -16,7 +16,7 @@ else
 fi
 
 
-python test_04_firebase_to_postgres.py
+python test_03_firebase_to_postgres.py
 if [[ $? = 0 ]]; then
     echo "success"
 else
@@ -25,7 +25,7 @@ else
 fi
 
 
-python test_05_generate_stats.py
+python test_04_generate_stats.py
 if [[ $? = 0 ]]; then
     echo "success"
 else
@@ -34,7 +34,7 @@ else
 fi
 
 
-python test_06_clean_up.py
+python test_05_clean_up.py
 if [[ $? = 0 ]]; then
     echo "success"
 else
