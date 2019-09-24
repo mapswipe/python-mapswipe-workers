@@ -26,7 +26,7 @@ def get_query(project_ids):
 
 def get_result_query(project_ids):
     if project_ids is None:
-         clause = {}
+         clause = ''
     elif len(project_ids) == 1:
         clause = f'WHERE project_id = {project_ids[0]}'
     else:
