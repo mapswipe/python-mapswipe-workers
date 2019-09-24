@@ -32,5 +32,13 @@ Once you submit, the task should appear relatively quickly in the manager dashbo
 * If you encounter any error like *the % is not rising anymore in the app*, *the number of mappers is not rising anymore in the app* *firebase functions* might be the reason for this. Check firebase functions logs (Firebase > Functions > Logs) or reach out for help in Slack.
 
 
+## Becoming a project manager
 
+If you have access to the mapswipe backend server you can grant project manager rights like this:
+
+```bash
+docker run --name mapswipe_workers_local -it pythonmapswipeworkers_mapswipe_workers  bash`
+mapswipe_workers --verbose user-management --email=your_email@xyz.org --manager=true
+exit
+docker rm mapswipe_workers_local
 
