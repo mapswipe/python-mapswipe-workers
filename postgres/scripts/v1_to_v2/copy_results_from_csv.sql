@@ -32,7 +32,7 @@ SET timestamp = TO_TIMESTAMP(timeint/1000);
 /* Create duplicated flag for tasks*/
 ALTER TABLE
     tasks
-ADD IF NOT EXISTS
+ADD COLUMN
     duplicated boolean DEFAULT false;
 
 /* Set duplicated tasks */
