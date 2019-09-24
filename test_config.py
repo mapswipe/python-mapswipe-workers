@@ -149,7 +149,7 @@ def test_nginx_config():
         env_variables = f.read()
 
     assert 'SERVER_NAME' in env_variables, \
-        f"you didn't set a POSTGRES_PASSWORD in {file_path}"
+        f"you didn't set a SERVER_NAME in {file_path}"
 
     file_path = 'nginx/nginx.conf'
     assert os.path.isfile(file_path), \
