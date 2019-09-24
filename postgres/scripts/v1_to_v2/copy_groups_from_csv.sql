@@ -25,6 +25,16 @@ UPDATE v1_groups
 SET progress = 100
 WHERE required_count <= 0;
 
+UPDATE v1_groups
+SET group_id = cast(v1_group_id as varchar);
+
+UPDATE groups
+SET (finished_count, required_count, progress) =
+        (SELECT finished_count, required_count, progress
+        FROM v1_groups
+        WHERE groups.group_id = v1_groups.group_id
+        AND groups.project_id = v1_groups.project_id);
+
 -- Insert or update data of temp table to the permant table.
 -- Note that the special excluded table is used to
 -- reference values originally proposed for insertion
@@ -48,9 +58,4 @@ SELECT
   project_type_specifics
 FROM
   v1_groups
-ON CONFLICT (project_id, group_id) DO UPDATE
-SET
-  finished_count = excluded.finished_count,
-  required_count = excluded.required_count,
-  progress = excluded.progress
-;
+ON CONFLICT (project_id, group_id) DO NOTHING;

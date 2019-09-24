@@ -45,12 +45,9 @@ SET status = 'inactive'
 WHERE status = '3';
 
 -- Extract geometry (kml) from info attribute (json) of imports table.
-UPDATE v1_imports i1
-SET kml = (SELECT info->'info'->>'kml' as kml FROM v1_imports i2 WHERE i1.import_id = i2.import_id);
-
 -- Get only the geometry (Polygone or MultiPolygon) of the kml string.
 UPDATE v1_imports
-SET kml = substring(kml FROM '<Polygon>.*<\/Polygon>|<MultiPolygon>.*<\/MultiPolygon>');
+SET kml = substring(info->'info'->>'kml' FROM '<Polygon>.*<\/Polygon>|<MultiPolygon>.*<\/MultiPolygon>');
 
 UPDATE v1_projects
 SET kml = v1_imports.kml
