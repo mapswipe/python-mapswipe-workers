@@ -152,10 +152,11 @@ def test_nginx_config():
         f"you didn't set a SERVER_NAME in {file_path}"
 
     for line in env_variables.split('\n'):
-        variable_name = line.split('=')[0]
-        variable_value = line.split('=')[1].strip('"')
-        if variable_name == 'SERVER_NAME':
-            server_name = variable_value
+        if len(line) > 0:
+            variable_name = line.split('=')[0]
+            variable_value = line.split('=')[1].strip('"')
+            if variable_name == 'SERVER_NAME':
+                server_name = variable_value
 
     file_path = 'nginx/nginx.conf'
     assert os.path.isfile(file_path), \
