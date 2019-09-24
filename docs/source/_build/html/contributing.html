@@ -1,0 +1,362 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Contributing &mdash; MapSwipe Back-End  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Diagrams" href="diagrams.html" />
+    <link rel="prev" title="Footprint" href="project_type-footprint.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> MapSwipe Back-End
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Getting Started:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="readme_link.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="readme_link.html#mapswipe-back-end">MapSwipe Back-End</a></li>
+<li class="toctree-l1"><a class="reference internal" href="setup.html">Setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="debugging.html">Debugging</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Using:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="cli.html">MapSwipe Workers - Command Line Interface</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Project Types:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="project_type-buildArea.html">Build Area</a></li>
+<li class="toctree-l1"><a class="reference internal" href="project_type-footprint.html">Footprint</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Miscellaneous:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Contributing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#development-setup-without-docker">Development setup (without Docker)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id1">Configuration and data path</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#logging">Logging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#firebase-functions">Firebase Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#database-backup">Database Backup</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#firebase">Firebase</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#postgres">Postgres</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="diagrams.html">Diagrams</a></li>
+<li class="toctree-l1"><a class="reference internal" href="use_cases.html">Use Cases</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">MapSwipe Back-End</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Contributing</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/contributing.md.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="contributing">
+<h1>Contributing<a class="headerlink" href="#contributing" title="Permalink to this headline">¶</a></h1>
+<p>In this document some tips and workflows for development are loosely collected. Those are independend of the production setup and Docker.</p>
+<div class="section" id="development-setup-without-docker">
+<h2>Development setup (without Docker)<a class="headerlink" href="#development-setup-without-docker" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Install GDAL (python-gdal)</p></li>
+<li><p>Setup virtual environment with system-site-packages enabled (To get access to GDAL)</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">python3</span> <span class="pre">-m</span> <span class="pre">venv</span> <span class="pre">--system-site-packages</span> <span class="pre">venv</span></code></p></li>
+</ul>
+</li>
+<li><p>Activate virtual environment</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">source</span> <span class="pre">venv/bin/activate</span></code></p></li>
+</ul>
+</li>
+<li><p>Install mapswipe_workers</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-e</span> <span class="pre">.</span></code></p></li>
+</ul>
+</li>
+<li><p>Setup Mapswipe Workers as described in sections 1 to 3 in the <a class="reference external" href="setup.md">Setup</a> chapter</p>
+<ul>
+<li><p>Make sure configuration and data paths are created and permissions are set as described in the next section <a class="reference external" href="#Configurationa_and_data_path">Configuration and data path</a>.</p></li>
+<li><p>Move the configuration (<code class="docutils literal notranslate"><span class="pre">config/configuration.json</span></code>) and the Service Account Key (<code class="docutils literal notranslate"><span class="pre">config/serviceAccountKey.json</span></code>) to <code class="docutils literal notranslate"><span class="pre">{XDG_CONFIG_HOME}/mapswipe_workers/</span></code></p></li>
+</ul>
+</li>
+<li><p>Setup a postgres instance</p>
+<ul>
+<li><p>Use the Docker image of Mapwsipe Workers (<code class="docutils literal notranslate"><span class="pre">docker-compose</span> <span class="pre">up</span> <span class="pre">-d</span> <span class="pre">postgres</span></code>)</p></li>
+<li><p>Or set up your own using the <code class="docutils literal notranslate"><span class="pre">postgres_create_tables.sql</span></code> file in the <code class="docutils literal notranslate"><span class="pre">docker/</span></code> folder</p></li>
+</ul>
+</li>
+<li><p>Run Mapswipe Workers using the command: <code class="docutils literal notranslate"><span class="pre">mapswipe_wokers</span></code></p>
+<ul>
+<li><p>eg. <code class="docutils literal notranslate"><span class="pre">mapswipe_wokers</span> <span class="pre">--help</span></code></p></li>
+</ul>
+</li>
+</ul>
+<div class="section" id="id1">
+<h3>Configuration and data path<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<p>Mapsipe Workers needs access to three directories:</p>
+<ul class="simple">
+<li><p>CONFIG_PATH (<code class="docutils literal notranslate"><span class="pre">/usr/share/config/mapswipe_workers/</span></code>)</p></li>
+<li><p>DATA_PATH (<code class="docutils literal notranslate"><span class="pre">/var/lib/mapswipe_workers/</span></code>)</p></li>
+<li><p>LOG_PATH (<code class="docutils literal notranslate"><span class="pre">/var/log/mapswipe_workers/</span></code>)</p></li>
+</ul>
+<p>Make sure those are existing and accessible:</p>
+<ul class="simple">
+<li><p>Use <code class="docutils literal notranslate"><span class="pre">mkdir</span> <span class="pre">DATA_PATH</span></code> to create the directory.</p></li>
+<li><p>Use <code class="docutils literal notranslate"><span class="pre">chown</span> <span class="pre">-R</span> <span class="pre">$USER:$USER</span> <span class="pre">DATA_PATH</span></code> to give write permission to current user.</p></li>
+</ul>
+<p>Alternatively you can change the PATH variables in <code class="docutils literal notranslate"><span class="pre">definitions.py</span></code> to your desired path. Except of the path for logs. This is defined in <code class="docutils literal notranslate"><span class="pre">logging.cfg</span></code>.</p>
+</div>
+</div>
+<div class="section" id="logging">
+<h2>Logging<a class="headerlink" href="#logging" title="Permalink to this headline">¶</a></h2>
+<p>Mapswipe workers logs are generated using the Python logging module of the standard library (See <a class="reference external" href="https://docs.python.org/3/library/logging.html">Official docs</a> or this <a class="reference external" href="https://realpython.com/python-logging/#the-logging-module">Tutorial</a>. The configuration file of the logging module is located at <code class="docutils literal notranslate"><span class="pre">mapswipe_workers/logging.cfg</span></code>. With this configuration a logger object is generated in the <code class="docutils literal notranslate"><span class="pre">definitions</span></code> module (<code class="docutils literal notranslate"><span class="pre">mapswipe_workers.definitions.py</span></code>) and is imported in other modules to write logs.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">mapswipe_workers.definitions</span> <span class="kn">import</span> <span class="n">logger</span>
+<span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;information&#39;</span><span class="p">)</span>
+<span class="n">logger</span><span class="o">.</span><span class="n">waring</span><span class="p">(</span><span class="s1">&#39;warning&#39;</span><span class="p">)</span>
+
+<span class="c1"># Include stack trace in the log</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">something</span><span class="p">)</span>
+<span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s1">&#39;something&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Default logging level is Warning. To change the logging level edit the configuration (<code class="docutils literal notranslate"><span class="pre">mapswipe_workers/logging.cfg</span></code>).</p>
+<p>Per default logging of third-party packages is disabled. To change this edit the definition module (<code class="docutils literal notranslate"><span class="pre">mapswipe_workers/defintions.md</span></code>). Set the <code class="docutils literal notranslate"><span class="pre">disable_existing_loggers</span></code> parameter of the <code class="docutils literal notranslate"><span class="pre">logging.config.fileConfig()</span></code> function to False.</p>
+</div>
+<div class="section" id="firebase-functions">
+<h2>Firebase Functions<a class="headerlink" href="#firebase-functions" title="Permalink to this headline">¶</a></h2>
+<p>Firebase functions are used by Mapswipe Workers to increment/decrement or calculate various attribute values wich are used by the Mapswipe App. This includes at the moment:</p>
+<ul class="simple">
+<li><p>project.progress</p></li>
+<li><p>project.numberOfTasks</p></li>
+<li><p>project.resultCount</p></li>
+<li><p>project.contributorCount</p></li>
+<li><p>group.progress</p></li>
+<li><p>group.finishedCount</p></li>
+<li><p>group.requiredCount</p></li>
+<li><p>user.projectContributionCount</p></li>
+<li><p>user.groupContribtionCount</p></li>
+<li><p>user.taskContributionCount</p></li>
+<li><p>user.timeSpentMapping</p></li>
+<li><p>user.contibutions{.projectId.groupId.{timestamp, startTime, endTime}}</p></li>
+</ul>
+<p>The functions will be triggert by incoming results from the Mapswipe App.</p>
+<p>By using firebase functions those attributes can be calculated in real-time and be accessed by users immediately. The use of those functions also reduces the data-transfer between the Firebase Realtime Database and Mapswipe Workers.</p>
+<p>The code of the Firebase Functions used by Mapswipe Workers are to be found in their own repository: <a class="reference external" href="https://github.com/mapswipe/mapswipe-firebase-functions">mapswipe-firebase-functions</a></p>
+<p>On how to setup development enviroment and how to deploy functions to the Firebase instance please refer to the official <a class="reference external" href="https://firebase.google.com/docs/functions/get-started">Guide on Cloud Function for Firebase</a>.
+For more information refer to the official <a class="reference external" href="https://firebase.google.com/docs/reference/functions/">Reference on Cloud Function for Firebase</a>. For example function take a look at this <a class="reference external" href="https://github.com/firebase/functions-samples">GitHub repository</a>.</p>
+</div>
+<div class="section" id="database-backup">
+<h2>Database Backup<a class="headerlink" href="#database-backup" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="firebase">
+<h3>Firebase<a class="headerlink" href="#firebase" title="Permalink to this headline">¶</a></h3>
+<p><strong>Manual Backup</strong></p>
+<ul class="simple">
+<li><p>curl <a class="reference external" href="https://">https://</a><span class="raw-html-m2r"><instance></span>.firebaseio.com/.json?format=export</p></li>
+<li><p>ref: <a class="reference external" href="https://stackoverflow.com/questions/27910784/is-it-possible-to-backup-firebase-db">https://stackoverflow.com/questions/27910784/is-it-possible-to-backup-firebase-db</a></p></li>
+</ul>
+</div>
+<div class="section" id="postgres">
+<h3>Postgres<a class="headerlink" href="#postgres" title="Permalink to this headline">¶</a></h3>
+<p><strong>Manual Backup</strong></p>
+<ul class="simple">
+<li><p>Backup database in compressed splited files of specified size:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">pg_dump</span> <span class="pre">-U</span> <span class="pre">mapswipe</span> <span class="pre">-d</span> <span class="pre">mapswipe</span> <span class="pre">-h</span> <span class="pre">localhost</span> <span class="pre">-p</span> <span class="pre">5432</span> <span class="pre">|</span> <span class="pre">gzip</span> <span class="pre">|</span> <span class="pre">split</span> <span class="pre">-b</span> <span class="pre">100m</span> <span class="pre">-</span> <span class="pre">mapswipe.pgsql.gz</span></code></p></li>
+<li><p>ref: <a class="reference external" href="https://www.postgresql.org/docs/9.1/backup-dump.html">https://www.postgresql.org/docs/9.1/backup-dump.html</a></p></li>
+</ul>
+</li>
+<li><p>Copy the backup to your local machine when logged into your local machine:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">scp</span> <span class="pre">username&#64;ipadress:mapswipe.pgsql.gz*</span> <span class="pre">/path/to/destination</span></code></p></li>
+<li><p>ref: <a class="reference external" href="https://unix.stackexchange.com/questions/106480/how-to-copy-files-from-one-machine-to-another-using-ssh">https://unix.stackexchange.com/questions/106480/how-to-copy-files-from-one-machine-to-another-using-ssh</a></p></li>
+</ul>
+</li>
+<li><p>Restore database backup from multiple compressed files</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">cat</span> <span class="pre">mapswipe.pgsql.gz*</span> <span class="pre">|</span> <span class="pre">gunzip</span> <span class="pre">|</span> <span class="pre">psql</span> <span class="pre">-U</span> <span class="pre">mapswipe</span> <span class="pre">-d</span> <span class="pre">mapswipe</span> <span class="pre">-h</span> <span class="pre">localhost</span> <span class="pre">-p</span> <span class="pre">5432</span></code></p></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="diagrams.html" class="btn btn-neutral float-right" title="Diagrams" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="project_type-footprint.html" class="btn btn-neutral float-left" title="Footprint" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, MapSwipe
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

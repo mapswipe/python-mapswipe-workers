@@ -1,0 +1,120 @@
+{
+    "announcement": {
+        "announcementId": "announcement"
+    },
+    "users": {
+        "userId1": {
+            "created": "timestamp",
+            "projectContributionCount": 1,
+            "groupContributionCount": 1,
+            "taskContributionCount": 1,
+            "timeSpentMapping": 1,
+            "username": "name",
+            "contributions": {
+                "projectId1": {
+                    "groupId1": {
+                        "timestamp": "timestamp",
+                        "startTime": "timestamp",
+                        "endTime": "timestamp"
+                    }
+                }
+            }
+        }
+    },
+    "projectDrafts": {
+        "projectDraftId1": {
+            "country": "name",
+            "createdBy": "user name",
+            "exampleImage": "exampleImage",
+            "exampleMessage": "exampleMessage",
+            "groupMaxSize": 10,
+            "image": "image",
+            "kml": "kml",
+            "lookFor": "text",
+            "name": "name",
+            "projectDetails": "text",
+            "projectType": 1,
+            "purposeMessage": "brief message (140 chars)",
+            "thankYouMessage": "brief message (140 chars)",
+            "tileServer": "name",
+            "tileServerUrl": "url",
+            "verificationNumber": 3,
+            "wmtsLayerName": "layer (optional)",
+            "zoomLevel": 3
+        }
+    },
+    "projects": {
+        "projectId1": {
+            "archived": false,
+            "centroid": "wkt",
+            "contributorCount": 2,
+            "country": "name",
+            "created": "timestamp",
+            "createdBy": "user name",
+            "exampleImage": "exampleImage",
+            "exampleMessage": "exampleMessage",
+            "groupMaxSize": 10,
+            "image": "image",
+            "imageOfMap": "image",
+            "isFeatured": true,
+            "lookFor": "text",
+            "numberOfTasks": 100,
+            "progress": 44,
+            "projectDetails": "details",
+            "projectId": "id",
+            "projectType": 1,
+            "purposeMessage": "brief message (140 chars)",
+            "resultCount": 3,
+            "scale": "scale",
+            "status": "active/inactive",
+            "thankYouMessage": "brief message (140 chars)",
+            "verificationNumber": 1,
+            "zoomLevel": 18
+        }
+    },
+    "groups": {
+        "projectId1": {
+            "groupId1": {
+                "groupId": 1,
+                "numberOfTasks": 1,
+                "progress": 0.8,
+                "projectId": "id",
+                "finishedCount": 3,
+                "requiredCount": 125,
+                "xMax": 5,
+                "xMin": 6,
+                "yMax": 3,
+                "yMin": 4
+            }
+        }
+    },
+    "tasks": {
+        "projectId1": {
+            "groupId1": {
+                "taskId1": {
+                    "groupId": 1,
+                    "projectId": "id",
+                    "taskId": "id",
+                    "taskX": 1,
+                    "taskY": 2,
+                    "url": "url"
+                }
+            }
+        }
+    },
+    "results": {
+        "projectId1": {
+            "groupId1": {
+                "userId1": {
+                    "timestamp": "timestamp",
+                    "startTime": "timestamp",
+                    "endTime": "timestamp",
+                    "result": {
+                        "taskId01": 1,
+                        "taskId02": 2
+                    }
+                }
+            }
+        }
+    }
+}

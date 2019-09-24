@@ -1,0 +1,50 @@
+{
+  "name": "Change Detection Tutorial",
+  "projectType": 3,
+  "projectId": "change_detection_tutorial",
+  "zoomLevel": 16,
+  "lookFor": "NEW SETTLEMENTS",
+  "status": "change_detection_tutorial",
+  "projectDetails": "This is a tutorial",
+  "progress": 0,
+  "contributorCount": 0,
+  "tileServerA" : {
+    "apiKey" : "",
+    "apiKeyRequired" : false,
+    "caption" : "Before",
+    "date" : "2017-Q1",
+    "name" : "custom",
+    "url" : "https://tiles.planet.com/basemaps/v1/planet-tiles/global_quarterly_2017q1_mosaic/gmap/{z}/{x}/{y}.png?api_key=8d4aee7b35a94aa68e1d9119f27e01aa"
+  },
+  "tileServerB" : {
+    "apiKey" : "",
+    "apiKeyRequired" : false,
+    "caption" : "After",
+    "date" : "2019-Q1",
+    "name" : "custom",
+    "url" : "https://tiles.planet.com/basemaps/v1/planet-tiles/global_quarterly_2019q1_mosaic/gmap/{z}/{x}/{y}.png?api_key=8d4aee7b35a94aa68e1d9119f27e01aa"
+  },
+  "examplesFile": "change_detection_examples.geojson",
+  "categories": {
+    "changes": {
+      "pre": "Swipe right to indicate changes.",
+      "post_correct": "Perfect.",
+      "post_wrong": "Oh no. Make sure to spot all the new settlements."
+    },
+    "no_changes": {
+      "pre": "Swipe left to indicate no changes.",
+      "post_correct": "Cool. You got it!",
+      "post_wrong": "Oh no. Not all changes refer to new settlemenst, some are just related to vegetation."
+    },
+    "maybe": {
+      "pre": "Swipe down if you are not sure.",
+      "post_correct": "Great.",
+      "post_wrong": "Are you really sure? Sometimes it's better to mark the imagery as 'not sure'."
+    },
+    "bad_imagery": {
+      "pre": "Swipe up to indicate if there is no imagery or if there are clouds.",
+      "post_correct": "Nice.",
+      "post_wrong": "It there is no imagery or clouds, we cannot tell the right answer."
+    }
+  }
+}

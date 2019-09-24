@@ -1,0 +1,254 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Use Cases &mdash; MapSwipe Back-End  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Diagrams" href="diagrams.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> MapSwipe Back-End
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Getting Started:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="readme_link.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="readme_link.html#mapswipe-back-end">MapSwipe Back-End</a></li>
+<li class="toctree-l1"><a class="reference internal" href="setup.html">Setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="debugging.html">Debugging</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Using:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="cli.html">MapSwipe Workers - Command Line Interface</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Project Types:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="project_type-buildArea.html">Build Area</a></li>
+<li class="toctree-l1"><a class="reference internal" href="project_type-footprint.html">Footprint</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Miscellaneous:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="diagrams.html">Diagrams</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Use Cases</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#how-to-identify-good-mapping-tasks-for-mapswipe">How to identify “good” mapping tasks for MapSwipe</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#building-mapping">Building Mapping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#landcover-mapping-e-g-mangroves">Landcover Mapping - e.g. Mangroves</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#openstreetmap-data-validation">OpenStreetMap Data Validation</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">MapSwipe Back-End</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Use Cases</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/use_cases.md.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="use-cases">
+<h1>Use Cases<a class="headerlink" href="#use-cases" title="Permalink to this headline">¶</a></h1>
+<p>This document is based on the first version of MapSwipe and contains outdated information.</p>
+<div class="section" id="how-to-identify-good-mapping-tasks-for-mapswipe">
+<h2>How to identify “good” mapping tasks for MapSwipe<a class="headerlink" href="#how-to-identify-good-mapping-tasks-for-mapswipe" title="Permalink to this headline">¶</a></h2>
+<p>MapSwipe projects can cover large areas in comparison to other mapping approaches, e.g. using the HOT Tasking Manager. Nevertheless, the level of detail of the resulting information you can expect from the resulting data will be lower than using the data from OpenStreetMap.</p>
+<p>Here is a list of characteristics that apply to many projects we have in MapSwipe and that may also indicate how suitable your project is for MapSwipe:</p>
+<ul class="simple">
+<li><p>the features you want to map are relatively easy to spot and distinguish from other objects on satellite image with a resolution of around 0.3-0.5 meter.</p></li>
+<li><p>you are interest only in a limited number of object types, the ideal case would be 1 object type per project</p></li>
+<li><p>the area is large, larger than projects you usually see in the HOT Tasking Manager</p></li>
+<li><p>the features you want to map cover only some parts of the whole area (e.g. the built-up area is often less than 10% of the whole project area)</p></li>
+</ul>
+</div>
+<div class="section" id="building-mapping">
+<h2>Building Mapping<a class="headerlink" href="#building-mapping" title="Permalink to this headline">¶</a></h2>
+<p>This has been the focus for most MapSwipe projects. Buildings are relatively easy to spot, since their shape is familiar to most MapSwipe users. However, not all buildings look the same. Some have a rectangular shape, but others are round or build of clay, which makes it difficult to distinguish buildings and the ground. Sometimes also trees may look like a building.</p>
+<p>Building mapping can be done at zoom level 18 or higher.</p>
+<p><span class="raw-html-m2r"><img src="/_static/img/building_example1.JPG" alt="building_example1" width="250px"></span><span class="raw-html-m2r"><img src="/_static/img/building_example2.JPG" alt="building_example2" width="250px"></span><span class="raw-html-m2r"><img src="/_static/img/building_example3.JPG" alt="building_example3" width="250px"></span></p>
+</div>
+<div class="section" id="landcover-mapping-e-g-mangroves">
+<h2>Landcover Mapping - e.g. Mangroves<a class="headerlink" href="#landcover-mapping-e-g-mangroves" title="Permalink to this headline">¶</a></h2>
+<p>MapSwipe can be used to map other land cover classes or features besides buildings. We are currently exploring, how the MapSwipe approach could be used to map mangrove forests in southeas asia. The difficult aspect of this tasks is to differentiated mangrove forest and other vegetation types, such as grassland or land used for agriculture.</p>
+<p>Landcover mapping can be done at various zoom levels depending of the size of the features of interest. For forest mapping you may choose a lower zoom level, whereas more fine grained features also require a higher zoom level.</p>
+</div>
+<div class="section" id="openstreetmap-data-validation">
+<h2>OpenStreetMap Data Validation<a class="headerlink" href="#openstreetmap-data-validation" title="Permalink to this headline">¶</a></h2>
+<p>In the initial phase data from MapSwipe can support the detailed mapping in OpenStreetMap. However, we can also turn MapSwipe into an OSM data validation tool. By combining satellite imagery and OSM data into one image we can check the completeness and quality of existing data in OSM.</p>
+<p>This approach can be used to quickly assess area, where new satellite imagery became available and an updating of the already existing OSM data is needed.</p>
+<p>Custom tiles for these type of MapSwipe project can be generated using <a class="reference external" href="https://www.mapbox.com/mapbox-studio/">MapBox Studio</a>. There you can style the OSM data overlay and choose several base layers.</p>
+<p><span class="raw-html-m2r"><img src="/_static/img/osm_validation_example.png" alt="osm_validation_example" width="250px"></span></p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="diagrams.html" class="btn btn-neutral float-left" title="Diagrams" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, MapSwipe
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -1,0 +1,117 @@
+{
+    "announcement": {
+        "announcementId": "announcement"
+    },
+    "users": {
+        "userId1": {
+            "created": "timestamp",
+            "projectContributionCount": 1,
+            "groupContributionCount": 1,
+            "taskContributionCount": 1,
+            "timeSpentMapping": 1,
+            "username": "name",
+            "contributions": {
+                "projectId1": {
+                    "groupId1": {
+                        "timestamp": "timestamp",
+                        "startTime": "timestamp",
+                        "endTime": "timestamp"
+                    }
+                }
+            }
+        }
+    },
+    "projectDrafts": {
+        "projectDraftId1": {
+            "country": "name",
+            "createdBy": "user name",
+            "exampleImage": "exampleImage",
+            "exampleMessage": "exampleMessage",
+            "groupMaxSize": 10,
+            "image": "image",
+            "kml": "kml",
+            "lookFor": "text",
+            "name": "name",
+            "projectDetails": "text",
+            "projectType": 2,
+            "purposeMessage": "brief message (140 chars)",
+            "thankYouMessage": "brief message (140 chars)",
+            "tileServer": "name",
+            "tileServerUrl": "url (optional",
+            "verificationCount": 3,
+            "wmtsLayerName": "name (optional)"
+        }
+    },
+    "projects": {
+        "projectId1": {
+            "achived": false,
+            "apiKey": "Text string",
+            "centroid": "wkt",
+            "contributorCount": 2,
+            "country": "name",
+            "created": "timestamp",
+            "createdBy": "user name",
+            "exampleImage": "exampleImage",
+            "exampleMessage": "exampleMessage",
+            "groupMaxSize": 10,
+            "image": "image",
+            "imageOfMap": "image",
+            "inputGeometries": "Text string",
+            "isFeatured": true,
+            "numberOfTasks": 100,
+            "lookFor": "text",
+            "progress": 44,
+            "projectDetails": "details",
+            "projectType": 2,
+            "resultCount": 2,
+            "scale": "scale",
+            "status": "active/inactive",
+            "tileServer": "Text string",
+            "tileServerUrl": "url",
+            "validinputGeometries": "Text string",
+            "verificationNumber": 1
+        }
+    },
+    "groups": {
+        "projectId1": {
+            "groupId1": {
+                "groupId": 1,
+                "numberOfTask": 455,
+                "progress": 8,
+                "projectId": "id",
+                "finishedCount": 2,
+                "requiredCount": 142
+            }
+        }
+    },
+    "tasks": {
+        "projectId1": {
+            "groupId1": {
+                "taskId1": {
+                    "geojson": {
+                        "coordinates": 0,
+                        "type": "type"
+                    },
+                    "groupId": 1,
+                    "projectId": "id",
+                    "taskId": "id"
+                }
+            }
+        }
+    },
+    "results": {
+        "projectId1": {
+            "groupId1": {
+                "userId1": {
+                    "timestamp": "timestamp",
+                    "startTime": "timestamp",
+                    "endTime": "timestamp",
+                    "result": {
+                        "taskId01": 1,
+                        "taksId02": 1
+                    }
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,118 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "v2": {
+      "announcement": {
+        ".write": false,
+        ".read": true
+      },
+      "projects": {
+        ".write": false,
+        ".read": "auth != null",
+        "$project_id": {
+          "status": {
+            ".write": "auth.token.projectManager === true"
+          },
+          "isFeatured": {
+            ".write": "auth.token.projectManager === true"
+          }
+        },
+        ".indexOn": [
+            "status", "isFeatured"
+          ]
+      },
+      "projectDrafts": {
+        ".read": false,
+        ".write": "auth.token.projectManager === true",
+        ".indexOn": [
+          "complete"
+        ]
+      },
+      "groups": {
+        ".write": false,
+        ".read": true,
+        "$project_id": {
+          ".indexOn": [
+            "finishedCount",
+            "requiredCount"
+          ]
+        }
+      },
+      "tasks": {
+        ".write": false,
+        ".read": true
+      },
+      "results": {
+        ".write": false,
+        ".read": false,
+        "$project_id": {
+          "$group_id": {
+            "$uid": {
+              ".write": "$uid === auth.uid"
+            }
+          }
+        }
+      },
+      "users": {
+        "$uid": {
+          ".read": "auth != null && auth.uid == $uid",
+          ".write": "auth != null && auth.uid == $uid"
+        },
+        ".indexOn": [
+          "created"
+        ]
+      }
+    },
+    "groups": {
+      ".write": false,
+      ".read": true,
+      "$project_id": {
+        "$group_id": {
+          ".indexOn": [
+            "distributedCount",
+            "completedCount"
+          ],
+          ".write": "auth != null",
+          "completedCount": {
+            ".write": "auth != null"
+          }
+        },
+        ".indexOn": [
+          "distributedCount",
+          "completedCount"
+        ]
+      }
+    },
+    "imports": {
+      ".read": false,
+      ".write": true,
+      ".indexOn": [
+        "complete"
+      ]
+    },
+    "projects": {
+      ".write": false,
+      ".read": true
+    },
+    "announcement": {
+      ".write": true,
+      ".read": true
+    },
+    "results": {
+      ".write": false,
+      ".read": true,
+      "$task_id": {
+        "$user_id": {
+          ".write": "auth != null && auth.uid == $user_id"
+        }
+      }
+    },
+    "users": {
+      "$uid": {
+        ".read": "auth != null && auth.uid == $uid",
+        ".write": "auth != null && auth.uid == $uid"
+      }
+    }
+  }
+}

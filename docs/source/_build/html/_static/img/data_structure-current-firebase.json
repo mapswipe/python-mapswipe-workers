@@ -1,0 +1,92 @@
+{
+    "groups": {
+        "projectId1": {
+            "groupId1": {
+                "completedcount": 1,
+                "count": 1,
+                "id": 1,
+                "neededCount": 10,
+                "projectId": 2,
+                "tasks": {
+                    "taskid": {
+                        "id": 1,
+                        "taskX": 1,
+                        "taskY": 2,
+                        "taskZ": 3,
+                        "url": "url",
+                        "wkt": "wkt"
+                    }
+                },
+                "verificationCount": 1,
+                "xMax": 5,
+                "xMin": 6,
+                "yMax": 3,
+                "yMin": 4,
+                "zoomLevel": 1
+            }
+        }
+    },
+    "imports": {
+        "importId1": {
+            "complete": true,
+            "key": "key",
+            "kml": "kml",
+            "project": {
+                "image": "image",
+                "lookFor": "text",
+                "name": "name",
+                "projectDetails": "text",
+                "verificationCount": 3
+            },
+            "projectType": 1,
+            "tileServer": "url",
+            "wmtsLayerName": "layer",
+            "zoomLeve": 3
+        }
+    },
+    "projects": {
+        "projectId1": {
+            "contributors": 2,
+            "groupAverage": 2,
+            "image": "image",
+            "importKey": "importKey",
+            "info": {
+                "apiKey": "Text string",
+                "groupSize": "Text string",
+                "inputGeometries": "Text string",
+                "tileServer": "Text string",
+                "tileServerUrl": "Text string",
+                "validinputGeometries": "Text string"
+            },
+            "isFeatured": true,
+            "lookFor": "text",
+            "progress": 44,
+            "projectDetails": "details",
+            "projectType": 2,
+            "state": 1,
+            "verificationCount": 1
+        }
+    },
+    "results": {
+        "taskId1": {
+            "userId1": {
+                "data": {
+                    "id": 1,
+                    "item": 1,
+                    "porjectId": 1,
+                    "result": 1,
+                    "timestamp": 1,
+                    "user": "name",
+                    "wkt": "wkt"
+                }
+            }
+        }
+    },
+    "users": {
+        "userId1": {
+            "contributions": 1,
+            "distance": 1,
+            "username": "name"
+        }
+    }
+}
