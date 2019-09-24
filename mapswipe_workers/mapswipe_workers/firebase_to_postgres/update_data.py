@@ -47,40 +47,41 @@ def update_user_data(user_ids=None):
             users[user_id] = user
             logger.info(f"added user {user_id}")
 
-    for user_id, user in users.items():
-        # Convert timestamp (ISO 8601) from string to a datetime object.
-        try:
-            created = dt.datetime.strptime(
-                    user['created'].replace('Z', ''),
-                    '%Y-%m-%dT%H:%M:%S.%f'
-                    )
-        except KeyError:
-            # if user has no "created" attribute, we set it to current time
-            created = dt.datetime.utcnow().isoformat()[0:-3]+'Z'
-            logger.info(f"user {user_id} didn't have a created attribute set it to {created}")
+    if users:
+        for user_id, user in users.items():
+            # Convert timestamp (ISO 8601) from string to a datetime object.
+            try:
+                created = dt.datetime.strptime(
+                        user['created'].replace('Z', ''),
+                        '%Y-%m-%dT%H:%M:%S.%f'
+                        )
+            except KeyError:
+                # if user has no "created" attribute, we set it to current time
+                created = dt.datetime.utcnow().isoformat()[0:-3]+'Z'
+                logger.info(f"user {user_id} didn't have a created attribute set it to {created}")
 
-        try:
-            username = user['username']
-        except KeyError:
-            # if user has no "username" attribute, we set it to None
-            username = None
-            logger.info(f"user {user_id} didn't have a created attribute set it to {username}")
+            try:
+                username = user['username']
+            except KeyError:
+                # if user has no "username" attribute, we set it to None
+                username = None
+                logger.info(f"user {user_id} didn't have a created attribute set it to {username}")
 
-        query_update_user = '''
-            INSERT INTO users (user_id, username, created)
-            VALUES(%s, %s, %s)
-            ON CONFLICT (user_id) DO UPDATE
-            SET username=%s,
-            created=%s;
-        '''
-        data_update_user = [
-                user_id,
-                username,
-                created,
-                username,
-                created,
-                ]
-        pg_db.query(query_update_user, data_update_user)
+            query_update_user = '''
+                INSERT INTO users (user_id, username, created)
+                VALUES(%s, %s, %s)
+                ON CONFLICT (user_id) DO UPDATE
+                SET username=%s,
+                created=%s;
+            '''
+            data_update_user = [
+                    user_id,
+                    username,
+                    created,
+                    username,
+                    created,
+                    ]
+            pg_db.query(query_update_user, data_update_user)
 
     del(pg_db)
 
