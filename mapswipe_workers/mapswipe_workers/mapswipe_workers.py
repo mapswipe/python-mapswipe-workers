@@ -314,26 +314,29 @@ def _run_create_projects(project_draft_ids=None):
                 project.calc_required_results()
                 if project.save_project(fb_db):
                     created_project_ids.append(project.projectId)
-                    newline = '\n'
+                    newline = '\nnewline'
                     message = (
                             f'### PROJECT CREATION SUCCESSFUL ###{newline}'
                             f'Project Name: {project.name}{newline}'
                             f'Project Id: {project.projectId}{newline}'
                             f'Project Type: {project_type_names[project_type]}'
                             f'{newline}'
-                            f'Make sure to activate the project in firebase.'
+                            f'Make sure to activate the project using the manager dashboard.'
                             f'{newline}'
                             f'Happy Swiping. :)'
                             )
                     slack.send_slack_message(message)
                     logger.info(message)
             except CustomError:
+                ref = fb_db.reference(f'v2/projectDrafts/{project_draft_id}')
+                ref.set({})
                 newline = '\n'
                 message = (
                     f'### PROJECT CREATION FAILED ###{newline}'
                     f'Project Name: {project_draft["name"]}{newline}'
                     f'Project Id: {project_draft_id}{newline}'
                     f'{newline}'
+                    f'Project draft is deleted.{newline}'
                     f'Please check what went wrong.'
                 )
                 slack.send_slack_message(message)
