@@ -20,6 +20,14 @@ The python-mapswipe workers use a bunch of services provided by Google Cloud Pla
     * set API restrictions > Restrict Key > Identity Toolkit API and Cloud Functions API
 4. Also make sure to configure the API keys for the App side here.
 
+Then set up a Service Account Key file:
+1. Open [Google Cloud Service Accounts](https://console.cloud.google.com/iam-admin/serviceaccounts)
+2. Create a new Service Account Key file:
+    * set name (e.g. *dev-mapswipe-workers*)
+    * add roles, (e.g. `Storage Admin` and `Firebase Admin`) or use pre-defined role instead (e.g. `Custom Firebase Developer`)
+3. Download Key as file:
+    * select `.json` and save
+
 ## Firebase
 Firebase is a central part of MapSwipe. In our setup we use *Firebase Database*, *Firebase Database Rules* and *Firebase Functions*. In the documentation we will refer to two elements:
 1. `your_project_id`: This is the name of your Firebase project (e.g. *dev-mapswipe*)

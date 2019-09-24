@@ -85,6 +85,8 @@ function getProjects(status) {
               btn.innerHTML = "Activate"
             } else if (data.val().status == "active") {
               btn.innerHTML = "Deactivate"
+            } else if (data.val().status == "new") {
+              btn.innerHTML = "Activate"
             }
             td.appendChild(btn)
             tr.appendChild(td)
@@ -131,6 +133,11 @@ function updateIsFeatured(projectId, newStatus) {
 }
 
 function updateTableView() {
+  var newProjects = document.getElementById("new-projects")
+  while (newProjects.firstChild) {
+    newProjects.removeChild(newProjects.firstChild);
+  }
+
   var inactiveProjects = document.getElementById("inactive-projects")
   while (inactiveProjects.firstChild) {
     inactiveProjects.removeChild(inactiveProjects.firstChild);
@@ -141,6 +148,7 @@ function updateTableView() {
     activeProjects.removeChild(activeProjects.firstChild);
   }
 
+  getProjects("new")
   getProjects("active")
   getProjects("inactive")
 }
@@ -155,6 +163,10 @@ function changeProjectStatus() {
     console.log("new status: inactive")
   } else if (this.classList.contains("status-inactive")) {
     console.log("current status: inactive")
+    updateStatus(this.id, "active")
+    console.log("new status: active")
+  } else if (this.classList.contains("status-new")) {
+    console.log("current status: new")
     updateStatus(this.id, "active")
     console.log("new status: active")
   }
@@ -177,5 +189,6 @@ function changeProjectIsFeatured() {
 }
 
 
+getProjects("new")
 getProjects("active")
 getProjects("inactive")
