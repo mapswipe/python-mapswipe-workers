@@ -151,6 +151,12 @@ def test_nginx_config():
     assert 'SERVER_NAME' in env_variables, \
         f"you didn't set a SERVER_NAME in {file_path}"
 
+    for line in env_variables.split('\n'):
+        variable_name = line.split('=')[0]
+        variable_value = line.split('=')[1].strip('"')
+        if variable_name == 'SERVER_NAME':
+            server_name = variable_value
+
     file_path = 'nginx/nginx.conf'
     assert os.path.isfile(file_path), \
         f"you didn't set up config file: {file_path}"
@@ -160,9 +166,6 @@ def test_nginx_config():
 
     assert 'server_name' in nginx_config, \
         f"you didn't set server_name in: {file_path}"
-
-    # TODO: get server name from nginx config file or .env
-    server_name = 'dev.mapswipe.org'
 
     file_path = f'/etc/letsencrypt/live/{server_name}/fullchain.pem'
     assert os.path.isfile(file_path), \
