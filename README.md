@@ -10,7 +10,7 @@ The MapSwipe Back-End consists of a number of components:
 3. Manager Dashboard
 5. API
 
-Please refer to the documentation for more information: https://mapswipe-workers.readthedocs.io/en/dev/
+Please refer to the documentation for more information: https://mapswipe-workers.readthedocs.io/en/
 
 
 ## Ressources
@@ -26,7 +26,6 @@ Please refer to the documentation for more information: https://mapswipe-workers
 
 This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details
 
-
 ## Authors
 
 * **Benjamin Herfort** - HeiGIT - [Hagellach37](https://github.com/Hagellach37)
@@ -35,7 +34,6 @@ This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENS
 
 See also the list of [contributors](contributors.md) who participated in this project.
 
-
 ## Acknowledgements
 
-> Humanitarian organizations can't help people if they can't find them.
+* Humanitarian organizations can't help people if they can't find them.
