@@ -20,15 +20,16 @@ def update_user_data(user_ids=None):
         ORDER BY created DESC
         LIMIT 1
         '''
-    last_updated = pg_db.retr_query(pg_query)
-    if not last_updated:
+    last_updated = pg_db.retr_query(pg_query)[0][0]
+    logger.info(f'got last updated timestamp: {last_updated}')
+
+    if last_updated is None:
         # No users in the Postgres database yet.
         # Get all users from Firebase.
         users = fb_ref.get()
         print(users)
     else:
         # Get only new users from Firebase.
-        last_updated = last_updated[0][0]
         last_updated = last_updated.strftime('%Y-%m-%dT%H:%M:%S.%fZ')
         fb_query = fb_ref.order_by_child('created').start_at(last_updated)
         users = fb_query.get()

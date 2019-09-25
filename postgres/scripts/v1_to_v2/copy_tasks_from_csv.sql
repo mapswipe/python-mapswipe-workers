@@ -5,14 +5,18 @@
 
 CREATE TEMP TABLE v1_tasks (
     project_id varchar,
-    group_id int,
+    v1_group_id int,
+    group_id varchar DEFAULT NULL,
     task_id varchar,
     project_type_specifics json,
     geom geometry(MULTIPOLYGON,4326) DEFAULT NULL
 );
 
 -- Has to be in one line otherwise syntax error
-\copy v1_tasks(project_id, group_id, task_id, project_type_specifics) FROM tasks.csv WITH (FORMAT CSV, DELIMITER ',', HEADER TRUE);
+\copy v1_tasks(project_id, v1_group_id, task_id, project_type_specifics) FROM tasks.csv WITH (FORMAT CSV, DELIMITER ',', HEADER TRUE);
+
+UPDATE v1_tasks
+SET group_id = cast(v1_group_id as varchar);
 
 /* Compute geometry of tasks from x, y tile coordinates and z zoom level stored in task id*/
 /* More details on the coordinates: */
