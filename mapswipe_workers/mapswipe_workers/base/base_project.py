@@ -201,7 +201,6 @@ class BaseProject(metaclass=ABCMeta):
                 )
                 task_upload_dict = {}
 
-
         ref = fb_db.reference(f'v2/projectDrafts/{self.projectId}')
         ref.set({})
 
