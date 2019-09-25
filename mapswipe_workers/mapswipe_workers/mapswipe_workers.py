@@ -20,6 +20,7 @@ from mapswipe_workers.project_types.footprint.footprint_project \
         import FootprintProject
 from mapswipe_workers.project_types.change_detection.change_detection_project \
         import ChangeDetectionProject
+from mapswipe_workers.project_types.change_detection import change_detection_tutorial
 from mapswipe_workers.utils import user_management
 
 @click.group()
@@ -229,7 +230,8 @@ def run_create_tutorial(input_file):
 
         project_types_tutorial = {
             # Make sure to import all project types here
-            1: build_area_tutorial.create_tutorial
+            1: build_area_tutorial.create_tutorial,
+            3: change_detection_tutorial.create_tutorial
         }
 
         project_types_tutorial[project_type](tutorial)
