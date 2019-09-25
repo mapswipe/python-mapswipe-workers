@@ -123,4 +123,12 @@ data/
 # don't upload app config for project managers dashboard
 app.js
 
+# don't upload nginx conf
+nginx.conf
+*/nginx.conf
+
+# don't upload firebase conf
+.firebaserc
+*/.firebaserc
+
 .DS_Store

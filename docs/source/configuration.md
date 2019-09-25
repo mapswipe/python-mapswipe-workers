@@ -33,10 +33,7 @@ Firebase is a central part of MapSwipe. In our setup we use *Firebase Database*,
 1. `your_project_id`: This is the name of your Firebase project (e.g. *dev-mapswipe*)
 2. `your_database_name`: This is the name of your Firebase database. It is very likely that this will be the same as your Firebase project name as well.)
 
-The `mapswipe_workers` module uses the [Firebase Python SDK](https://firebase.google.com/docs/reference/admin/python) to access *Firebase Database* services as administrator, you must generate a Firebase Service Account Key in JSON format. You can get it from Firebase.
-1. In the Firebase console, open Settings > Service Accounts.
-2. Click Generate New Private Key
-3. Store the JSON file under `mapswipe_workers/config/serviceAccountKey.json`
+The `mapswipe_workers` module uses the [Firebase Python SDK](https://firebase.google.com/docs/reference/admin/python) to access *Firebase Database* services as administrator, you must generate a Service Account Key file in JSON format. For this we use the previously generated Service Account Key. (Check the *Google APIs and Services Credentials* section again if you don't have it.) Copy the file to `mapswipe_workers/config/serviceAccountKey.json`.
 
 The `mapswipe_workers` module further uses the [Firebase Database REST API](https://firebase.google.com/docs/reference/rest/database) to access *Firebase Database* either as a normal user or project manager.
 
@@ -98,10 +95,7 @@ First, create a new cloud storage bucket:
 3. Select storage location > `Multi-Region` > `eu`
 4. Select storage class > `Coldline`
 
-Then, generate a Google Cloud Service Account Key:
-1. Google Cloud Platform > IAM & Management > Service Accounts
-2. Create new Service Account > Select Name > e.g. `your_project_id_postgres_backup`
-3. Select Role > `Storage-Administrator`
+We need to access Google Cloud Storage. For this we use the previously generated Service Account Key. (Check the *Google APIs and Services Credentials* section again if you don't have it.) Copy the file to `postges/serviceAccountKey.json`.
 
 ```bash
 GCS_Link_URL=https://console.cloud.google.com/storage/browser/your_project_id_postgres_backup
