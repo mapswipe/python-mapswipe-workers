@@ -167,16 +167,41 @@ class BaseProject(metaclass=ABCMeta):
 
 
         ref = fb_db.reference('')
+        # save project
         ref.update({
-            f'v2/projects/{self.projectId}': project,
-            f'v2/groups/{self.projectId}': groups,
-            f'v2/tasks/{self.projectId}': groupsOfTasks,
+            f'v2/projects/{self.projectId}': project
             })
         logger.info(
                 f'{self.projectId} -'
-                f' uploaded project, groups and'
-                f' tasks to firebase realtime database'
+                f' uploaded project to firebase realtime database'
                 )
+        # save groups
+        ref.update({
+            f'v2/groups/{self.projectId}': groups
+        })
+        logger.info(
+            f'{self.projectId} -'
+            f' uploaded groups to firebase realtime database'
+        )
+        # save tasks, to avoid firebase write size limit we write chunks of task
+        # we write the tasks for 250 groups at once
+        task_upload_dict = {}
+
+        logger.info(f'there are {len(groupsOfTasks)} groups for this project')
+        for group_id, tasks_list in groupsOfTasks.items():
+            task_upload_dict[f'v2/projects/{self.projectId}/{group_id}'] = tasks_list
+
+            if len(task_upload_dict) % 150 == 0:
+                logger.info(task_upload_dict)
+
+                ref.update(task_upload_dict)
+                logger.info(
+                    f'{self.projectId} -'
+                    f' uploaded 150 groups with tasks to firebase realtime database'
+                )
+                task_upload_dict = {}
+
+
         ref = fb_db.reference(f'v2/projectDrafts/{self.projectId}')
         ref.set({})
 
