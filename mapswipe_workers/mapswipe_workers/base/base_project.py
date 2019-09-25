@@ -138,13 +138,12 @@ class BaseProject(metaclass=ABCMeta):
                         )
                 return True
             except Exception:
+                self.delete_from_postgres()
                 logger.exception(
                         f'{self.projectId}'
                         f' - the project could not be saved'
                         f' to firebase. '
                         )
-                self.delete_from_postgres()
-                logger.info(f'{self.projectId} deleted project data from postgres')
                 return False
         except Exception:
             logger.exception(
