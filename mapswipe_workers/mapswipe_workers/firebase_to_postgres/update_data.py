@@ -20,8 +20,13 @@ def update_user_data(user_ids=None):
         ORDER BY created DESC
         LIMIT 1
         '''
-    last_updated = pg_db.retr_query(pg_query)[0][0]
-    logger.info(f'got last updated timestamp: {last_updated}')
+    last_updated = pg_db.retr_query(pg_query)
+    try:
+        last_updated = last_updated[0][0]
+        logger.info(f'got last updated timestamp: {last_updated}')
+    except:
+        logger.info('could not get last timestamp')
+        last_updated = None
 
     if last_updated is None:
         # No users in the Postgres database yet.
