@@ -21,7 +21,7 @@ def update_user_data(user_ids=None):
         LIMIT 1
         '''
     last_updated = pg_db.retr_query(pg_query)
-    if not last_updated:
+    if last_updated is None:
         # No users in the Postgres database yet.
         # Get all users from Firebase.
         users = fb_ref.get()
