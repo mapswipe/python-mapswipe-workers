@@ -2,6 +2,7 @@ import time
 import click
 import schedule as sched
 import pickle
+import json
 
 from mapswipe_workers.definitions import CustomError
 from mapswipe_workers.definitions import logger
@@ -14,6 +15,7 @@ from mapswipe_workers.firebase_to_postgres import transfer_results
 from mapswipe_workers.firebase_to_postgres import update_data
 from mapswipe_workers.project_types.build_area.build_area_project \
         import BuildAreaProject
+from mapswipe_workers.project_types.build_area import build_area_tutorial
 from mapswipe_workers.project_types.footprint.footprint_project \
         import FootprintProject
 from mapswipe_workers.project_types.change_detection.change_detection_project \
@@ -207,6 +209,36 @@ def run_user_management(email, manager):
         logger.exception(e)
 
 
+@click.command('create-tutorial')
+@click.option(
+        '--input_file',
+        help=(
+            f'The json file with your tutorial information.'
+            ),
+        required=True,
+        type=str
+        )
+def run_create_tutorial(input_file):
+    sentry.init_sentry()
+    try:
+        logger.info(f'will generate tutorial based on {input_file}')
+        with open(input_file) as json_file:
+            tutorial = json.load(json_file)
+
+        project_type = tutorial['projectType']
+
+        project_types_tutorial = {
+            # Make sure to import all project types here
+            1: build_area_tutorial.create_tutorial
+        }
+
+        project_types_tutorial[project_type](tutorial)
+    except Exception as e:
+        slack.send_error(e)
+        sentry.capture_exception_sentry(e)
+        logger.exception(e)
+
+
 @click.command('run')
 @click.option(
         '--schedule',
@@ -372,4 +404,5 @@ cli.add_command(run_create_projects)
 cli.add_command(run_firebase_to_postgres)
 cli.add_command(run_generate_stats)
 cli.add_command(run_user_management)
+cli.add_command(run_create_tutorial)
 cli.add_command(run)

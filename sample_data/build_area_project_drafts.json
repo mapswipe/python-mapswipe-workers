@@ -1,0 +1,36 @@
+{
+  "build_area_default_with_bing": {
+        "submissionKey": "5G9Ce2J7",
+        "createdBy": "Sample Manager",
+        "geometry": {"type":"FeatureCollection","features":[{"type":"Feature","properties":{},"geometry":{"type":"Polygon","coordinates":[[[-0.5203700065612793,35.67040610359463],[-0.5256915092468262,35.66411294427119],[-0.5224943161010742,35.65654655034021],[-0.5126667022705078,35.65565736480835],[-0.4828834533691406,35.65520405072724],[-0.4825401306152343,35.679191291222374],[-0.4839134216308594,35.6949464269382],[-0.5041694641113281,35.700104511929894],[-0.5100059509277344,35.68909089912437],[-0.5203700065612793,35.67040610359463]]]}}]},
+        "image": "http://www.redcrosseth.org/media/k2/items/cache/5a05a447acfdf6fcc40548cc4c1cea8d_L.jpg",
+        "lookFor": "BUILDINGS",
+        "name": "BuildArea Default with Bing Sample Project",
+        "projectDetails": "This project uses Bing as the tile server and zoom level 18. This is the setup most MapSwipe projects used so far.",
+        "verificationNumber": 3,
+        "groupSize": 50,
+        "tileServer": {
+          "name": "bing",
+          "credits": "© 2019 Microsoft Corporation, Earthstar Geographics SIO"
+        },
+        "projectType": 1
+    },
+    "build_area_sentinel_wmts": {
+        "submissionKey": "5G9Ce2J7",
+        "createdBy": "Sample Manager",
+        "geometry": {"type":"FeatureCollection","features":[{"type":"Feature","properties":{},"geometry":{"type":"Polygon","coordinates":[[[-0.5203700065612793,35.67040610359463],[-0.5256915092468262,35.66411294427119],[-0.5224943161010742,35.65654655034021],[-0.5126667022705078,35.65565736480835],[-0.4828834533691406,35.65520405072724],[-0.4825401306152343,35.679191291222374],[-0.4839134216308594,35.6949464269382],[-0.5041694641113281,35.700104511929894],[-0.5100059509277344,35.68909089912437],[-0.5203700065612793,35.67040610359463]]]}}]},
+        "image": "http://www.redcrosseth.org/media/k2/items/cache/5a05a447acfdf6fcc40548cc4c1cea8d_L.jpg",
+        "lookFor": "VEGETATION",
+        "name": "BuildArea Sentinel Sample Project",
+        "projectDetails": "This project uses tiles based on Sentinel data provided by sinergise. We need to define a layer name for the WMTS, zoom level is set to 14",
+        "verificationNumber": 3,
+        "groupSize": 40,
+        "projectType": 1,
+        "tileServer": {
+          "name": "sinergise",
+          "credits": "© Sentinel Hub",
+          "wmtsLayerName": "FALSE_COLOR"
+        },
+        "zoomLevel": 14
+    }
+}

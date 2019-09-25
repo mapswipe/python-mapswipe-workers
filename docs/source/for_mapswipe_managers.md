@@ -41,4 +41,4 @@ docker run --name mapswipe_workers_local -it pythonmapswipeworkers_mapswipe_work
 mapswipe_workers --verbose user-management --email=your_email@xyz.org --manager=true
 exit
 docker rm mapswipe_workers_local
-
+```
