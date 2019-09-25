@@ -348,7 +348,7 @@ def _run_create_projects(project_draft_ids=None):
                 project.calc_required_results()
                 if project.save_project(fb_db):
                     created_project_ids.append(project.projectId)
-                    newline = '\nnewline'
+                    newline = '\n'
                     message = (
                             f'### PROJECT CREATION SUCCESSFUL ###{newline}'
                             f'Project Name: {project.name}{newline}'

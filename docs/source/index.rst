@@ -28,6 +28,7 @@ Welcome to MapSwipe Back-End's documentation!
 
    configuration
    installation
+   tutorials
    updating
    testing
    debugging
