@@ -5,7 +5,8 @@
 
 CREATE TEMP TABLE v1_groups (
     project_id varchar,
-    group_id int,
+    v1_group_id int,
+    group_id varchar DEFAULT NULL,
     number_of_tasks int,
     finished_count int,
     required_count int,
@@ -14,7 +15,7 @@ CREATE TEMP TABLE v1_groups (
 );
 
 -- Has to be in one line otherwise syntax error
-\copy v1_groups(project_id, group_id, number_of_tasks, finished_count, required_count, project_type_specifics) FROM groups.csv WITH (FORMAT CSV, DELIMITER ',', HEADER TRUE);
+\copy v1_groups(project_id, v1_group_id, number_of_tasks, finished_count, required_count, project_type_specifics) FROM groups.csv WITH (FORMAT CSV, DELIMITER ',', HEADER TRUE);
 
 -- (Convert old to new data structure).
 -- verification_count (old name for required_count) was static.
