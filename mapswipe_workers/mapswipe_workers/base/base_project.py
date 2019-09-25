@@ -144,6 +144,7 @@ class BaseProject(metaclass=ABCMeta):
                         f' to firebase. '
                         )
                 self.delete_from_postgres()
+                logger.info(f'{self.projectId} deleted project data from postgres')
                 return False
         except Exception:
             logger.exception(
