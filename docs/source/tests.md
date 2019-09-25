@@ -24,26 +24,16 @@ To run all tests you can simply run `bash test_00_main.sh`. There are still some
 * get firebase projects, groups and results before mapping and save to disk
 * for each user and project set random results for X groups in firebase through REST api, authenticated as normal user
 * get firebase projects, groups and results after mapping and save to disk
-
-**TODO**:
-* compare firebase before and after data, there are already some functions in `test_mock_results.py`
+* compare firebase before and after data
 
 ## Test Firebase to Postgres
 * `test_03_firebase_to_postgres.py`
 * copy new users from firebase to postgres
 * copy all results from firebase to postgres
 
-**TODO**:
-* how can we make sure that we only update users created during testing?
-* how can we make sure that we only transfer results for projects created during testing
-
 ## Generate Stats
 * `test_04_generate_stats.py`
 * generate csv files for all projects and users for which we got results since a timestamp defined in `last_update.txt`
-
-**TODO**:
-* check logic: what happens if `last_update.txt` is not there, but `--only_new_results` flag is set? --> stats for all projects and users should be created
-* how can we make sure that we only generate stats for projects and users created during testing
 
 ## Other
 * we don't have broader checks of firebase database rules

@@ -78,6 +78,7 @@ def delete_local_files(project_id):
     fn = f'{DATA_PATH}/input_geometries/valid_input_{project_id}.geojson'
     if os.path.isfile(fn):
         os.remove(fn)
+
     print(
             f'Local files: '
             f'deleted raw_input and valid_input files'
@@ -134,5 +135,17 @@ if __name__ == '__main__':
         os.remove('users.pickle')
     else:
         print('No users.pickle file found')
+
+    filename = 'firebase_data_after.pickle'
+    if os.path.isfile(filename):
+        os.remove(filename)
+    else:
+        print(f'No {filename} file found')
+
+    filename = 'firebase_data_before.pickle'
+    if os.path.isfile(filename):
+        os.remove(filename)
+    else:
+        print(f'No {filename} file found')
 
     print('Deleted all sample data in Firebase, Postgres and on disk')
