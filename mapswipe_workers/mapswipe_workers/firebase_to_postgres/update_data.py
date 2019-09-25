@@ -28,7 +28,9 @@ def update_user_data(user_ids=None):
         print(users)
     else:
         # Get only new users from Firebase.
+        print(last_updated)
         last_updated = last_updated[0][0]
+        print(last_updated)
         last_updated = last_updated.strftime('%Y-%m-%dT%H:%M:%S.%fZ')
         fb_query = fb_ref.order_by_child('created').start_at(last_updated)
         users = fb_query.get()
