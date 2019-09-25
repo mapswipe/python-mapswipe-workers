@@ -20,7 +20,7 @@ def update_user_data(user_ids=None):
         ORDER BY created DESC
         LIMIT 1
         '''
-    last_updated = pg_db.retr_query(pg_query)[][]
+    last_updated = pg_db.retr_query(pg_query)[0][0]
     logger.info(f'got last updated timestamp: {last_updated}')
 
     if last_updated is None:
