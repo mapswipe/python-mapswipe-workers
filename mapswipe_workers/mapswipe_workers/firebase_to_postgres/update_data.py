@@ -32,7 +32,6 @@ def update_user_data(user_ids=None):
         # No users in the Postgres database yet.
         # Get all users from Firebase.
         users = fb_ref.get()
-        print(users)
     else:
         # Get only new users from Firebase.
         last_updated = last_updated.strftime('%Y-%m-%dT%H:%M:%S.%fZ')
