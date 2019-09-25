@@ -361,17 +361,6 @@ def _run_create_projects(project_draft_ids=None):
                             )
                     slack.send_slack_message(message)
                     logger.info(message)
-                else:
-                    newline = '\n'
-                    message = (
-                        f'### PROJECT CREATION FAILED ###{newline}'
-                        f'Project Name: {project_draft["name"]}{newline}'
-                        f'Project Id: {project_draft_id}{newline}'
-                        f'{newline}'
-                        f'Project draft is deleted.{newline}'
-                        f'Please check what went wrong.'
-                    )
-                    slack.send_slack_message(message)
             except CustomError:
                 ref = fb_db.reference(f'v2/projectDrafts/{project_draft_id}')
                 ref.set({})

@@ -8,6 +8,7 @@ import sys
 from mapswipe_workers import auth
 from mapswipe_workers.definitions import DATA_PATH
 from mapswipe_workers.definitions import logger
+from mapswipe_workers.definitions import CustomError
 
 
 class BaseProject(metaclass=ABCMeta):
@@ -137,22 +138,24 @@ class BaseProject(metaclass=ABCMeta):
                         f' to firebase'
                         )
                 return True
-            except Exception:
+            except Exception as e:
                 self.delete_from_postgres()
                 logger.exception(
                         f'{self.projectId}'
                         f' - the project could not be saved'
                         f' to firebase. '
                         )
-                return False
-        except Exception:
+
+                logger.info(f'{self.projectId} deleted project data from postgres')
+                raise CustomError(e)
+        except Exception as e:
             logger.exception(
                     f'{self.projectId}'
                     f' - the project could not be saved'
                     f' to postgres and will therefor not be '
                     f' saved to firebase'
                     )
-            return False
+            raise CustomError
 
     def save_to_firebase(self, fb_db, project, groups, groupsOfTasks):
 
