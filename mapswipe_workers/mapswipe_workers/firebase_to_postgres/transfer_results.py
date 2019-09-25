@@ -43,6 +43,9 @@ def transfer_results(project_id_list=None):
 
     for project_id in project_id_list:
         logger.info(f'{project_id}: Start transfering results')
+        if 'tutorial' in project_id:
+            logger.info(f'{project_id}: these are results for a tutorial. we will not transfer these')
+            continue
         results_ref = fb_db.reference(f'v2/results/{project_id}')
         truncate_temp_results()
 

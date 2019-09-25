@@ -14,6 +14,13 @@ Welcome to MapSwipe Back-End's documentation!
    readme_link
    overview
 
+.. toctree::
+   :maxdepth: 2
+   :caption: Using:
+
+   for_mapswipe_managers
+   cli
+
 
 .. toctree::
    :maxdepth: 2
@@ -22,16 +29,9 @@ Welcome to MapSwipe Back-End's documentation!
    configuration
    installation
    updating
+   testing
    debugging
    backup
-
-
-.. toctree::
-   :maxdepth: 2
-   :caption: Using:
-
-   for_mapswipe_managers
-   cli
 
 
 .. toctree::

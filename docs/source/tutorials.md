@@ -28,4 +28,4 @@ Tutorials will **not**:
 Tutorials will:
 * show the expected results after your first swipe or interaction
 * show the next tasks after swiping again (after the expected results have been shown)
-* once all tasks have been displayed, there could be two options: 1. `show more examples`, 2. `finish tutorial and start mapping`
+* once all tasks have been displayed you start to map for real projects

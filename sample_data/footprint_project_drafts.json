@@ -11,6 +11,8 @@
     "projectType": 2,
     "tileServer": {
           "name": "bing",
+          "url": "",
+          "apiKey": "",
           "credits": "© 2019 Microsoft Corporation, Earthstar Geographics SIO"
         }
   }
