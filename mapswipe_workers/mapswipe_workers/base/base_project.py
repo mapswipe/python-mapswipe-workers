@@ -155,7 +155,7 @@ class BaseProject(metaclass=ABCMeta):
                     f' to postgres and will therefor not be '
                     f' saved to firebase'
                     )
-            raise CustomError
+            raise CustomError(e)
 
     def save_to_firebase(self, fb_db, project, groups, groupsOfTasks):
 
