@@ -20,6 +20,8 @@ RUN mkdir -p /var/lib/mapswipe_workers/api-data/agg_res_by_user_id_and_date/
 # copy mapswipe workers repo from local repo
 WORKDIR /usr/local/mapswipe_workers/
 COPY mapswipe_workers/ mapswipe_workers/
+COPY sample_data/ sample_data/
+COPY tests/ tests/
 COPY requirements.txt .
 COPY setup.py .
 COPY config /usr/share/config/mapswipe_workers
