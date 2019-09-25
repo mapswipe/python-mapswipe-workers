@@ -189,7 +189,7 @@ class BaseProject(metaclass=ABCMeta):
 
         logger.info(f'there are {len(groupsOfTasks)} groups for this project')
         for group_id, tasks_list in groupsOfTasks.items():
-            task_upload_dict[f'v2/projects/{self.projectId}/{group_id}'] = tasks_list
+            task_upload_dict[f'v2/tasks/{self.projectId}/{group_id}'] = tasks_list
 
             if len(task_upload_dict) % 150 == 0:
                 ref.update(task_upload_dict)
