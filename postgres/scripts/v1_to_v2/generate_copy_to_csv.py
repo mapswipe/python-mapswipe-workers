@@ -21,12 +21,12 @@ def get_query(project_ids):
             f'\copy (SELECT archive, image, importkey as "import_id", isfeatured AS "is_featured", lookfor AS "look_for", name, progress, projectdetails AS "project_details", project_id, project_type, state AS "status", info AS "project_type_specifics" FROM projects {clause}) TO projects.csv WITH (FORMAT CSV, DELIMITER ",", HEADER TRUE);\n' \
             f'\copy (SELECT i.import_id, i.info FROM imports i {clause_import}) TO imports.csv WITH (FORMAT CSV, DELIMITER ",", HEADER TRUE);\n' \
             f'\copy (SELECT project_id, group_id as "v1_group_id", count as "number_of_tasks", completedcount as "finished_count", verificationcount as "required_count", info as "project_type_specifics" FROM groups {clause} ) TO groups.csv WITH (FORMAT CSV, DELIMITER ",", HEADER TRUE);\n' \
-            f'\copy (SELECT project_id, group_id, task_id, info as "project_type_specifics" FROM tasks {clause}) TO tasks.csv WITH (FORMAT CSV, DELIMITER ",", HEADER TRUE);\n'
+            f'\copy (SELECT project_id, group_id as "v1_group_id", task_id, info as "project_type_specifics" FROM tasks {clause}) TO tasks.csv WITH (FORMAT CSV, DELIMITER ",", HEADER TRUE);\n'
     return query
 
 
 def get_result_query(project_ids):
-    clause = 'WHERE project_id in (SELECT project_id FROM projects GROUP BY project_id)'
+    clause = 'WHERE project_id in (SELECT project_id FROM projects GROUP BY project_id) AND user_id in (SELECT user_id FROM users)'
     if project_ids is None:
         pass
     elif len(project_ids) == 1:
