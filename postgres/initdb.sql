@@ -18,11 +18,11 @@ CREATE TABLE IF NOT EXISTS projects (
     project_details varchar,
     project_id varchar,
     project_type int,
-    project_type_specifics json,
     required_results int,
     result_count int,
     status varchar,
     verification_number int,
+    project_type_specifics json,
     PRIMARY KEY(project_id)
     );
 
