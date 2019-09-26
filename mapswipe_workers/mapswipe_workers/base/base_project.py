@@ -8,6 +8,7 @@ import sys
 from mapswipe_workers import auth
 from mapswipe_workers.definitions import DATA_PATH
 from mapswipe_workers.definitions import logger
+from mapswipe_workers.definitions import CustomError
 
 
 class BaseProject(metaclass=ABCMeta):
@@ -137,22 +138,24 @@ class BaseProject(metaclass=ABCMeta):
                         f' to firebase'
                         )
                 return True
-            except Exception:
+            except Exception as e:
+                self.delete_from_postgres()
                 logger.exception(
                         f'{self.projectId}'
                         f' - the project could not be saved'
                         f' to firebase. '
                         )
-                self.delete_from_postgres()
-                return False
-        except Exception:
+
+                logger.info(f'{self.projectId} deleted project data from postgres')
+                raise CustomError(e)
+        except Exception as e:
             logger.exception(
                     f'{self.projectId}'
                     f' - the project could not be saved'
                     f' to postgres and will therefor not be '
                     f' saved to firebase'
                     )
-            return False
+            raise CustomError(e)
 
     def save_to_firebase(self, fb_db, project, groups, groupsOfTasks):
 
@@ -164,16 +167,40 @@ class BaseProject(metaclass=ABCMeta):
 
 
         ref = fb_db.reference('')
+        # save project
         ref.update({
-            f'v2/projects/{self.projectId}': project,
-            f'v2/groups/{self.projectId}': groups,
-            f'v2/tasks/{self.projectId}': groupsOfTasks,
+            f'v2/projects/{self.projectId}': project
             })
         logger.info(
                 f'{self.projectId} -'
-                f' uploaded project, groups and'
-                f' tasks to firebase realtime database'
+                f' uploaded project to firebase realtime database'
                 )
+        # save groups
+        ref.update({
+            f'v2/groups/{self.projectId}': groups
+        })
+        logger.info(
+            f'{self.projectId} -'
+            f' uploaded groups to firebase realtime database'
+        )
+        # save tasks, to avoid firebase write size limit we write chunks of task
+        # we write the tasks for 250 groups at once
+        task_upload_dict = {}
+
+        logger.info(f'there are {len(groupsOfTasks)} groups for this project')
+        c = 0
+        for group_id, tasks_list in groupsOfTasks.items():
+            c += 1
+            task_upload_dict[f'v2/tasks/{self.projectId}/{group_id}'] = tasks_list
+
+            if len(task_upload_dict) % 150 == 0 or c == len(groupsOfTasks):
+                ref.update(task_upload_dict)
+                logger.info(
+                    f'{self.projectId} -'
+                    f' uploaded 150 groups with tasks to firebase realtime database'
+                )
+                task_upload_dict = {}
+
         ref = fb_db.reference(f'v2/projectDrafts/{self.projectId}')
         ref.set({})
 
@@ -506,22 +533,41 @@ class BaseProject(metaclass=ABCMeta):
         Creates a dictonary with informations of the tile server
         with project draft values or default values.
         '''
-        return {
-                'name': tile_server.get('name', 'bing'),
-                'url': tile_server.get(
-                    'url',
-                    auth.get_tileserver_url(tile_server.get('name', 'bing'))
-                    ),
-                'apiKeyReuired': tile_server.get('apiKeyRequired'),
-                'apiKey': tile_server.get(
-                    'apiKey',
-                    auth.get_api_key(tile_server.get('name', 'bing'))
-                    ),
-                'wmtsLayerName': tile_server.get('wmtsLayerName', None),
-                'captions': tile_server.get('caption', None),
-                'date': tile_server.get('date', None),
-                'credits': tile_server.get('credits', '')
-                }
+
+        name = tile_server.get('name', 'bing')
+
+        url = tile_server.get('url', auth.get_tileserver_url(tile_server.get('name', 'bing')))
+        if url == '':
+            url = auth.get_tileserver_url(tile_server.get('name', 'bing'))
+
+        apiKeyRequired = tile_server.get('apiKeyRequired')
+
+        apiKey = tile_server.get('apiKey', auth.get_api_key(tile_server.get('name', 'bing')))
+        if apiKey == '':
+            apiKey = auth.get_api_key(tile_server.get('name', 'bing'))
+
+        wmtsLayerName = tile_server.get('wmtsLayerName', None)
+        if wmtsLayerName == '':
+            wmtsLayerName = None
+
+        captions = tile_server.get('caption', None)
+
+        date = tile_server.get('date', None)
+
+        credits = tile_server.get('credits', '')
+
+        tile_server_dict = {
+            'name': name,
+            'url': url,
+            'apiKeyRequired': apiKeyRequired,
+            'apiKey': apiKey,
+            'wmtsLayerName': wmtsLayerName,
+            'captions': captions,
+            'date': date,
+            'credits': credits
+        }
+
+        return tile_server_dict
 
     @abstractmethod
     def validate_geometries():

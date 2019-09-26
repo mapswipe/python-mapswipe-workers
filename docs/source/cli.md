@@ -64,3 +64,15 @@ Options:
                      remove credentials.
   --help             Show this message and exit.
 ```
+
+
+## Create Tutorial from json file (e.g. provided in sample data)
+
+```
+Usage: mapswipe_workers create-tutorial [OPTIONS]
+
+Options:
+  --input_file TEXT  The json file with your tutorial information.  [required]
+  --help             Show this message and exit.
+
+```

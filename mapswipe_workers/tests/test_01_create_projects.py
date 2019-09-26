@@ -18,7 +18,7 @@ def create_project_manager(email, username, password):
 def load_sample_project_drafts():
     sample_data = {}
     test_dir = os.path.dirname(os.path.abspath(__file__))
-    sample_data_dir = os.path.join(test_dir, 'sample_data/')
+    sample_data_dir = os.path.join(test_dir, '../sample_data/')
     for sample_project_drafts_json in glob.glob(sample_data_dir + '*_drafts.json'):
         if sample_project_drafts_json == 'build_area_to_big_project_drafts_test.json':
             continue
