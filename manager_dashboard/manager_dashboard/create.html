@@ -99,9 +99,11 @@
                               <span>Enter the description for your project. (3-5 sentences). </span>
                           </li>
                           <li>
-                              <label for="image">Direct Image Link</label>
-                              <input type="text" name="image" id="image" required>
+                              <label for="image">Upload Project Image</label>
+                              <input type="file" accept="..gif,.jpg,.jpeg,.png" id="image" onchange='openImageFile(event)'>
                               <span>Make sure you have the rights to use this image. It should end with  .jpg or .png.</span>
+                              <p id="imageText"></p>
+                              <img id="imageFile" width="100%"> </img>
                           </li>
                           <li>
                               <label for="verificationNumber">Verification Number</label>
@@ -327,6 +329,7 @@
 <script src="https://www.gstatic.com/firebasejs/6.2.4/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/6.2.4/firebase-firestore.js"></script>
 <script src="https://www.gstatic.com/firebasejs/6.2.4/firebase-database.js"></script>
+<script src="https://www.gstatic.com/firebasejs/6.2.4/firebase-storage.js"></script>
 <script src="js/app.js"></script>
 <script src="js/ui.js"></script>
 <script src="js/uploadProjects.js"></script>
