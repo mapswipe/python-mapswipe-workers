@@ -56,7 +56,8 @@ WHERE v1_projects.import_id = v1_imports.import_id;
 
 -- Convert geometry to postgis geometry type.
 UPDATE v1_projects
-SET geom = ST_Force2D(ST_Multi(ST_GeomFromKML(kml)));
+SET geom = ST_Force2D(ST_Multi(ST_GeomFromKML(kml)))
+WHERE kml IS NOT NULL;
 
 -- Insert or update data of temp table to the permant table (projects)
 -- Note that the special excluded table is used to reference values originally proposed for insertion
