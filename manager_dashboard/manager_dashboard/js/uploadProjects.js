@@ -1,4 +1,42 @@
 var database = firebase.database();
+
+function upload_project_image() {
+    var file = document.getElementById('image').files[0]
+    console.log(file)
+    var filename = file.name
+    console.log(filename)
+    // Create a reference to the image
+    var storageRef = firebase.storage().ref();
+    var projectImageRef = storageRef.child('projectImages/'+filename);
+
+    var uploadImage = projectImageRef.put(file);
+    uploadImage.on('state_changed', function(snapshot){
+      // Observe state change events such as progress, pause, and resume
+      // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
+      var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+      console.log('Upload is ' + progress + '% done');
+      switch (snapshot.state) {
+        case firebase.storage.TaskState.PAUSED: // or 'paused'
+          console.log('Upload is paused');
+          break;
+        case firebase.storage.TaskState.RUNNING: // or 'running'
+          console.log('Upload is running');
+          break;
+      }
+    }, function(error) {
+      // Handle unsuccessful uploads
+    }, function() {
+      // Handle successful uploads on complete
+      // For instance, get the download URL: https://firebasestorage.googleapis.com/...
+      uploadImage.snapshot.ref.getDownloadURL().then(function(downloadURL) {
+        console.log('File available at', downloadURL);
+        return downloadURL
+      });
+    });
+
+}
+
+
 function submitInfo() {
 
     if (currentUid == null) {
@@ -10,7 +48,7 @@ function submitInfo() {
     var lookFor = document.getElementById("lookFor").value;
     var projectDetails = document.getElementById("projectDetails").value;
     var projectType = document.getElementById("projectType").value;
-    var image = document.getElementById("image").value;
+
     var verificationNumber = document.getElementById("verificationNumber").value;
     var createdBy = currentUid;
     var groupSize = document.getElementById("groupSize").value;
@@ -104,7 +142,41 @@ function submitInfo() {
 
     }
 
-    firebase.database().ref('v2/projectDrafts/').push().set(mapswipe_import)
+    var file = document.getElementById('image').files[0]
+    console.log(file)
+    var filename = file.name
+    console.log(filename)
+    // Create a reference to the image
+    var storageRef = firebase.storage().ref();
+    var projectImageRef = storageRef.child('projectImages/'+filename);
+
+    var uploadImage = projectImageRef.put(file);
+    uploadImage.on('state_changed', function(snapshot){
+      // Observe state change events such as progress, pause, and resume
+      // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
+      var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+      console.log('Upload is ' + progress + '% done');
+      switch (snapshot.state) {
+        case firebase.storage.TaskState.PAUSED: // or 'paused'
+          console.log('Upload is paused');
+          break;
+        case firebase.storage.TaskState.RUNNING: // or 'running'
+          console.log('Upload is running');
+          break;
+      }
+    }, function(error) {
+      // Handle unsuccessful uploads
+    }, function() {
+      // Handle successful uploads on complete
+      // For instance, get the download URL: https://firebasestorage.googleapis.com/...
+      uploadImage.snapshot.ref.getDownloadURL().then(function(downloadURL) {
+        console.log('File available at', downloadURL);
+        mapswipe_import.image = downloadURL
+        console.log(mapswipe_import)
+
+        // upload projectDraft to firebase once image has been uploaded
+
+        firebase.database().ref('v2/projectDrafts/').push().set(mapswipe_import)
           .then(function() {
             clear_all_fields();
             displaySuccessMessage();
@@ -113,5 +185,9 @@ function submitInfo() {
             alert('could not upload data: ' + error);
           });
 
+
+
+      });
+    });
   }
 }

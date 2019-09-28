@@ -49,6 +49,8 @@ function clear_all_fields() {
     }
     document.getElementById('geometryContent').innerHTML = ''
     document.getElementById('geometryChangeDetectionContent').innerHTML = ''
+    document.getElementById('imageText').innerHTML = ''
+    document.getElementById('imageFile').src = ''
 
     displayProjectTypeFormular(1)
   }
@@ -82,3 +84,24 @@ function openFile(event) {
     };
     reader.readAsText(input.files[0]);
   };
+
+function openImageFile(event) {
+    var input = event.target;
+    element_id = event.target.id + 'File'
+
+    var reader = new FileReader();
+    reader.onload = function(){
+      try {
+        var dataURL = reader.result;
+        var output = document.getElementById(element_id);
+        output.src = dataURL;
+      }
+      catch(err) {
+          element_id = event.target.id + 'Text'
+          var output = document.getElementById(element_id);
+          output.innerHTML = '<b>Error reading Image file</b><br>' + err;
+        }
+    };
+    reader.readAsDataURL(input.files[0]);
+  };
+
