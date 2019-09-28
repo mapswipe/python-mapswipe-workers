@@ -49,6 +49,8 @@ function clear_all_fields() {
     }
     document.getElementById('geometryContent').innerHTML = ''
     document.getElementById('geometryChangeDetectionContent').innerHTML = ''
+    document.getElementById('imageText').innerHTML = ''
+    document.getElementById('imageFile').src = ''
 
     displayProjectTypeFormular(1)
   }

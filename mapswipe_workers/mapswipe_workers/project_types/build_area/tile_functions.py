@@ -213,8 +213,7 @@ def quadKey_to_Bing_URL(quadKey, api_key):
         the url for the specific Bing tile image
     """
 
-    tile_url = ("http://t0.tiles.virtualearth.net/tiles/a{}.jpeg?"
-                "g=854&mkt=en-US&token={}".format(quadKey, api_key))
+    tile_url = ("https://ecn.t0.tiles.virtualearth.net/tiles/a{}.jpeg?g=7505&mkt=en-US&token={}".format(quadKey, api_key))
 
     return tile_url
 
