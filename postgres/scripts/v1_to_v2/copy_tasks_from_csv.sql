@@ -11,6 +11,9 @@ CREATE TEMP TABLE v1_tasks (
     project_type_specifics json,
     geom geometry(MULTIPOLYGON,4326) DEFAULT NULL
 );
+CREATE INDEX v1_tasks_task_id ON pg_temp_4.v1_tasks USING btree (task_id);
+CREATE INDEX v1_tasks_groupid ON pg_temp_4.v1_tasks USING btree (group_id);
+CREATE INDEX v1_tasks_projectid ON pg_temp_4.v1_tasks USING btree (project_id);
 
 -- Has to be in one line otherwise syntax error
 \copy v1_tasks(project_id, v1_group_id, task_id, project_type_specifics) FROM tasks.csv WITH (FORMAT CSV, DELIMITER ',', HEADER TRUE);
