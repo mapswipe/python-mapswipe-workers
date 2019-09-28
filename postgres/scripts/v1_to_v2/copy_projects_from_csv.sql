@@ -55,9 +55,27 @@ FROM v1_imports
 WHERE v1_projects.import_id = v1_imports.import_id;
 
 -- Convert geometry to postgis geometry type.
-UPDATE v1_projects
-SET geom = ST_Force2D(ST_Multi(ST_GeomFromKML(kml)))
-WHERE kml IS NOT NULL;
+-- If Geoemtry is invalid (Exception gets raised)
+-- Do Nothing. Continue with the next project.
+do $$
+DECLARE
+    r record;
+BEGIN
+    -- record is a structure that contains an element for each column in the select list
+    FOR r IN SELECT * from v1_projects
+    LOOP
+        BEGIN
+            UPDATE v1_projects
+            SET geom = ST_Force2D(ST_Multi(ST_GeomFromKML(kml)))
+            WHERE v1_projects.project_id = r.project_id;
+            -- note the where condition that uses the value from the record variable
+        EXCEPTION
+            WHEN OTHERS THEN
+            -- do nothing
+            END;
+    END LOOP;
+END
+$$ LANGUAGE plpgsql;
 
 -- Insert or update data of temp table to the permant table (projects)
 -- Note that the special excluded table is used to reference values originally proposed for insertion

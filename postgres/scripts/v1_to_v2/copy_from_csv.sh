@@ -5,7 +5,14 @@ NAME="mapswipe"
 
 for entity in projects groups tasks users results
 do
-    psql -h localhost -p 5432 -U ${USER} -d ${NAME} -a -f copy_${entity}_from_csv.sql
+    psql \
+        --host localhost \
+        --port 5432 \
+        --username ${USER} \
+        --dbname ${NAME} \
+        --echo-errors \
+        --log-file copy_from_csv.log \
+        --file copy_${entity}_from_csv.sql
 done
 
 # Commands if docker postgres port is not exposed:
