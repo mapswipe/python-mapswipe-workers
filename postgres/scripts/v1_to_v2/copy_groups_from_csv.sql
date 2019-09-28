@@ -6,7 +6,7 @@
 CREATE TEMP TABLE v1_groups (
     project_id varchar,
     v1_group_id int,
-    group_id varchar DEFAULT NULL,
+    group_id varchar,
     number_of_tasks int,
     finished_count int,
     required_count int,
@@ -29,12 +29,12 @@ WHERE required_count <= 0;
 UPDATE v1_groups
 SET group_id = cast(v1_group_id as varchar);
 
-UPDATE groups
-SET (finished_count, required_count, progress) =
-        (SELECT finished_count, required_count, progress
-        FROM v1_groups
-        WHERE groups.group_id = v1_groups.group_id
-        AND groups.project_id = v1_groups.project_id);
+/* UPDATE groups */
+/* SET (finished_count, required_count, progress) = */
+/*         (SELECT finished_count, required_count, progress */
+/*         FROM v1_groups */
+/*         WHERE groups.group_id = v1_groups.group_id */
+/*         AND groups.project_id = v1_groups.project_id); */
 
 -- Insert or update data of temp table to the permant table.
 -- Note that the special excluded table is used to
