@@ -25,7 +25,10 @@ def get_query(project_ids):
             f'\copy (SELECT archive, image, importkey as "import_id", isfeatured AS "is_featured", lookfor AS "look_for", name, progress, projectdetails AS "project_details", project_id, project_type, state AS "status", info AS "project_type_specifics" FROM projects {clause}) TO projects.csv WITH (FORMAT CSV, DELIMITER ",", HEADER TRUE);\n' \
             f'\copy (SELECT i.import_id, i.info FROM imports i {clause_import}) TO imports.csv WITH (FORMAT CSV, DELIMITER ",", HEADER TRUE);\n' \
             f'\copy (SELECT project_id, group_id as "v1_group_id", count as "number_of_tasks", completedcount as "finished_count", verificationcount as "required_count", info as "project_type_specifics" FROM groups {clause_group} ) TO groups.csv WITH (FORMAT CSV, DELIMITER ",", HEADER TRUE);\n' \
-            f'\copy (SELECT project_id, group_id as "v1_group_id", task_id, info as "project_type_specifics" FROM tasks {clause_group}) TO tasks.csv WITH (FORMAT CSV, DELIMITER ",", HEADER TRUE);\n'
+            f'\copy (SELECT project_id, group_id as "v1_group_id", task_id, info as "project_type_specifics" FROM tasks {clause_group} LIMIT 10000000) TO tasks1.csv WITH (FORMAT CSV, DELIMITER ",", HEADER TRUE);\n'
+            f'\copy (SELECT project_id, group_id as "v1_group_id", task_id, info as "project_type_specifics" FROM tasks {clause_group} OFFSET 10000000 LIMIT 20000000) TO tasks2.csv WITH (FORMAT CSV, DELIMITER ",", HEADER TRUE);\n'
+            f'\copy (SELECT project_id, group_id as "v1_group_id", task_id, info as "project_type_specifics" FROM tasks {clause_group} OFFSET 20000000 LIMIT 30000000) TO tasks3.csv WITH (FORMAT CSV, DELIMITER ",", HEADER TRUE);\n'
+            f'\copy (SELECT project_id, group_id as "v1_group_id", task_id, info as "project_type_specifics" FROM tasks {clause_group} OFFSET 30000000) TO tasks4.csv WITH (FORMAT CSV, DELIMITER ",", HEADER TRUE);\n'
     return query
 
 

@@ -16,7 +16,7 @@ CREATE INDEX v1_tasks_groupid ON pg_temp_4.v1_tasks USING btree (group_id);
 CREATE INDEX v1_tasks_projectid ON pg_temp_4.v1_tasks USING btree (project_id);
 
 -- Has to be in one line otherwise syntax error
-\copy v1_tasks(project_id, v1_group_id, task_id, project_type_specifics) FROM tasks.csv WITH (FORMAT CSV, DELIMITER ',', HEADER TRUE);
+\copy v1_tasks(project_id, v1_group_id, task_id, project_type_specifics) FROM tasks1.csv WITH (FORMAT CSV, DELIMITER ',', HEADER TRUE);
 
 UPDATE v1_tasks
 SET group_id = cast(v1_group_id as varchar);
