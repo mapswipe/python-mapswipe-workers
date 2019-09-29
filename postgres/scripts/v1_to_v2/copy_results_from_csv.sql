@@ -17,6 +17,10 @@ CREATE TEMP TABLE v1_results(
     result int DEFAULT NULL,
     info json
 );
+CREATE INDEX v1_results_projectid ON v1_results USING btree (project_id);
+CREATE INDEX v1_results_groupid ON v1_results USING btree (group_id);
+CREATE INDEX v1_results_taskid ON v1_results USING btree (task_id);
+CREATE INDEX v1_results_userid ON v1_results USING btree (user_id);
 
 -- Has to be in one line otherwise syntax error
 \copy v1_results(project_id, task_id, user_id, timeint, info) FROM results.csv WITH (FORMAT CSV, DELIMITER ',', HEADER TRUE);
