@@ -3,6 +3,7 @@ import subprocess
 from psycopg2 import sql
 import dateutil
 import dateutil.parser
+import json
 
 from mapswipe_workers import auth
 from mapswipe_workers.definitions import logger
@@ -546,3 +547,29 @@ def csv_to_geojson(filename):
         f'SELECT *, CAST(geom as geometry) FROM "{filename_without_path}"'
     ], check=True)
     logger.info(f'converted {filename} to {outfile}.')
+
+    cast_datatypes_for_geojson(outfile)
+
+
+def cast_datatypes_for_geojson(filename):
+    '''
+    Go through geojson file and try to cast all values as float, except project_id
+    '''
+    filename = filename.replace('csv', 'geojson')
+    with open(filename) as f:
+        geojson_data = json.load(f)
+
+    for i in range(0, len(geojson_data['features'])):
+        for property in geojson_data['features'][i]['properties'].keys():
+            if property in ['project_id']:
+                # don't try to cast project_id
+                pass
+            else:
+                try:
+                    geojson_data['features'][i]['properties'][property] = float(geojson_data['features'][i]['properties'][property])
+                except:
+                    pass
+
+    with open(filename, 'w') as f:
+        json.dump(geojson_data, f)
+    logger.info(f'converted datatypes for {filename}.')
