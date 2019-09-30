@@ -3,6 +3,7 @@ import subprocess
 from psycopg2 import sql
 import dateutil
 import dateutil.parser
+import json
 
 from mapswipe_workers import auth
 from mapswipe_workers.definitions import logger
@@ -46,6 +47,10 @@ def generate_stats(only_new_results):
     get_aggregated_results_by_project_id_geom(filename)
     csv_to_geojson(filename)
 
+    filename = f'{DATA_PATH}/api-data/agg_res_by_project_id_centroid.csv'
+    get_aggregated_results_by_project_id_centroid(filename)
+    csv_to_geojson(filename)
+
     filename = f'{DATA_PATH}/api-data/agg_projects.csv'
     get_aggregated_projects(filename)
 
@@ -60,6 +65,10 @@ def generate_stats(only_new_results):
 
     filename = f'{DATA_PATH}/api-data/agg_progress_by_project_id_geom.csv'
     get_aggregated_progress_by_project_id_geom(filename)
+    csv_to_geojson(filename)
+
+    filename = f'{DATA_PATH}/api-data/agg_progress_by_project_id_centroid.csv'
+    get_aggregated_progress_by_project_id_centroid(filename)
     csv_to_geojson(filename)
 
     logger.info('start to export csv file for %s projects based on given project_id_list' % len(project_id_list))
@@ -255,12 +264,44 @@ def get_aggregated_results_by_project_id_geom(filename):
     sql_query = """COPY (
         SELECT
             r.*
+            ,p.name
+            ,p.project_details
             ,ST_AsText(p.geom) as geom
         FROM
             aggregated_results_by_project_id as r , projects as p
         WHERE
             r.project_id = p.project_id
-        ) TO STDOUT WITH CSV HEADER"""
+        ) TO STDOUT WITH (FORMAT CSV, HEADER, FORCE_QUOTE(project_id, name, project_details))"""
+
+    with open(filename, 'w') as f:
+        pg_db.copy_expert(sql_query, f)
+
+    del pg_db
+
+    logger.info('saved aggregated results by project_id to %s' % filename)
+
+
+def get_aggregated_results_by_project_id_centroid(filename):
+    '''
+    Export results aggregated on project_id basis as csv file.
+
+    Parameters
+    ----------
+    filename: str
+    '''
+
+    pg_db = auth.postgresDB()
+    sql_query = """COPY (
+        SELECT
+            r.*
+            ,p.name
+            ,p.project_details
+            ,ST_AsText(ST_Centroid(p.geom)) as geom
+        FROM
+            aggregated_results_by_project_id as r , projects as p
+        WHERE
+            r.project_id = p.project_id
+        ) TO STDOUT WITH (FORMAT CSV, HEADER, FORCE_QUOTE(project_id, name, project_details))"""
 
     with open(filename, 'w') as f:
         pg_db.copy_expert(sql_query, f)
@@ -382,20 +423,51 @@ def get_aggregated_progress_by_project_id_geom(filename):
     filename: str
     '''
 
-    # TODO: Export aggregated_progress_by_project_id_geom.csv as geojson
-
     pg_db = auth.postgresDB()
     sql_query = """
     COPY (
       SELECT
         r.*
+        ,p.name
+        ,p.project_details
         ,ST_AsText(p.geom) as geom
       FROM
         aggregated_progress_by_project_id as r,
         projects as p
       WHERE
         p.project_id = r.project_id
-    ) TO STDOUT WITH CSV HEADER"""
+    ) TO STDOUT WITH (FORMAT CSV, HEADER, FORCE_QUOTE(project_id, name, project_details))"""
+
+    with open(filename, 'w') as f:
+        pg_db.copy_expert(sql_query, f)
+
+    del pg_db
+    logger.info('saved aggregated progress by project_id to %s' % filename)
+
+
+def get_aggregated_progress_by_project_id_centroid(filename):
+    '''
+    Export aggregated progress on a project_id basis as csv file.
+
+    Parameters
+    ----------
+    filename: str
+    '''
+
+    pg_db = auth.postgresDB()
+    sql_query = """
+    COPY (
+      SELECT
+        r.*
+        ,p.name
+        ,p.project_details
+        ,ST_AsText(ST_Centroid(p.geom)) as geom
+      FROM
+        aggregated_progress_by_project_id as r,
+        projects as p
+      WHERE
+        p.project_id = r.project_id
+    ) TO STDOUT WITH (FORMAT CSV, HEADER, FORCE_QUOTE(project_id, name, project_details))"""
 
     with open(filename, 'w') as f:
         pg_db.copy_expert(sql_query, f)
@@ -546,3 +618,61 @@ def csv_to_geojson(filename):
         f'SELECT *, CAST(geom as geometry) FROM "{filename_without_path}"'
     ], check=True)
     logger.info(f'converted {filename} to {outfile}.')
+
+    cast_datatypes_for_geojson(outfile)
+
+
+def csv_to_geojson_centroids(filename):
+    '''
+    Use ogr2ogr to convert csv file to GeoJSON
+    '''
+
+    outfile = filename.replace('.csv', '_centroids.geojson')
+
+    # need to remove file here because ogr2ogr can't overwrite when choosing GeoJSON
+    if os.path.isfile(outfile):
+        os.remove(outfile)
+    filename_without_path = filename.split('/')[-1].replace('.csv', '')
+    # TODO: remove geom column from normal attributes in sql query
+    subprocess.run([
+        "ogr2ogr",
+        "-f",
+        "GeoJSON",
+        outfile,
+        filename,
+        "-sql",
+        f'SELECT *, ST_Centroid(CAST(geom as geometry)) FROM "{filename_without_path}"'
+    ], check=True)
+    logger.info(f'converted {filename} to {outfile}.')
+
+    cast_datatypes_for_geojson(outfile)
+
+
+def cast_datatypes_for_geojson(filename):
+    '''
+    Go through geojson file and try to cast all values as float, except project_id
+    remove redundant geometry property
+    '''
+    filename = filename.replace('csv', 'geojson')
+    with open(filename) as f:
+        geojson_data = json.load(f)
+
+    properties = list(geojson_data['features'][0]['properties'].keys())
+
+    for i in range(0, len(geojson_data['features'])):
+        for property in properties:
+            if property in ['project_id', 'name', 'project_details', 'task_id', 'group_id']:
+                # don't try to cast project_id
+                pass
+            elif property in ['geom']:
+                # remove redundant geometry property
+                del geojson_data['features'][i]['properties'][property]
+            else:
+                try:
+                    geojson_data['features'][i]['properties'][property] = float(geojson_data['features'][i]['properties'][property])
+                except:
+                    pass
+
+    with open(filename, 'w') as f:
+        json.dump(geojson_data, f)
+    logger.info(f'converted datatypes for {filename}.')
