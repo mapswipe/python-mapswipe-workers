@@ -260,7 +260,7 @@ def get_aggregated_results_by_project_id_geom(filename):
             aggregated_results_by_project_id as r , projects as p
         WHERE
             r.project_id = p.project_id
-        ) TO STDOUT WITH CSV HEADER"""
+        ) TO STDOUT WITH (FORMAT CSV, HEADER, FORCE_QUOTE(project_id))"""
 
     with open(filename, 'w') as f:
         pg_db.copy_expert(sql_query, f)
