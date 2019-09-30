@@ -256,12 +256,14 @@ def get_aggregated_results_by_project_id_geom(filename):
     sql_query = """COPY (
         SELECT
             r.*
+            ,p.name
+            ,p.project_details
             ,ST_AsText(p.geom) as geom
         FROM
             aggregated_results_by_project_id as r , projects as p
         WHERE
             r.project_id = p.project_id
-        ) TO STDOUT WITH (FORMAT CSV, HEADER, FORCE_QUOTE(project_id))"""
+        ) TO STDOUT WITH (FORMAT CSV, HEADER, FORCE_QUOTE(project_id, name, project_details))"""
 
     with open(filename, 'w') as f:
         pg_db.copy_expert(sql_query, f)
@@ -390,13 +392,15 @@ def get_aggregated_progress_by_project_id_geom(filename):
     COPY (
       SELECT
         r.*
+        ,p.name
+        ,p.project_details
         ,ST_AsText(p.geom) as geom
       FROM
         aggregated_progress_by_project_id as r,
         projects as p
       WHERE
         p.project_id = r.project_id
-    ) TO STDOUT WITH CSV HEADER"""
+    ) TO STDOUT WITH (FORMAT CSV, HEADER, FORCE_QUOTE(project_id, name, project_details))"""
 
     with open(filename, 'w') as f:
         pg_db.copy_expert(sql_query, f)
@@ -561,7 +565,7 @@ def cast_datatypes_for_geojson(filename):
 
     for i in range(0, len(geojson_data['features'])):
         for property in geojson_data['features'][i]['properties'].keys():
-            if property in ['project_id']:
+            if property in ['project_id', 'name', 'project_details']:
                 # don't try to cast project_id
                 pass
             else:
