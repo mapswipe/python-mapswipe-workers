@@ -23,6 +23,11 @@
       "post_correct": "Perfect. Swipe left and let's have a look at examples without buildings.",
       "post_wrong": "Oh no. Make sure to map all buildings, also if only small pars of a building are visible in a tile."
     },
+    "maybe_1": {
+      "pre": "Sometimes, you might be sure whether a feature is a building or not. In those cases tap two times to indicate a maybe. Mark the bottom left tile as maybe.",
+      "post_correct": "Great.",
+      "post_wrong": "Even if you are absolutely sure, mark the bottom left tile as maybe to move on with this tutorial."
+    },
     "no_building_easy_1": {
       "pre": "In many cases there will be no buildings. Just swipe left to map further.",
       "post_correct": "Nice. Well done.",
@@ -37,11 +42,6 @@
       "pre": "If you see clouds and no buildings tap three times.",
       "post_correct": "Perfect. Let's move on.",
       "post_wrong": "Oh no. Make sure to indicate clouds as well."
-    },
-    "maybe_1": {
-      "pre": "Sometimes, you might be sure whether a feature is a building or not. In those cases tap two times to indicate a maybe. Mark the bottom left tile as maybe.",
-      "post_correct": "Great.",
-      "post_wrong": "Even if you are absolutely sure, mark the bottom left tile as maybe to move on with this tutorial."
     },
     "bad_no_imagery_1": {
       "pre": "If imagery is lacking also tap three times.",
