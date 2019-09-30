@@ -9,7 +9,7 @@ from mapswipe_workers.definitions import logger
 from mapswipe_workers.definitions import DATA_PATH
 
 
-def generate_stats(only_new_results=None):
+def generate_stats(only_new_results):
     filename = f'{DATA_PATH}/api-data/last_update.txt'
     if os.path.isfile(filename):
         with open(filename, 'rb') as f:

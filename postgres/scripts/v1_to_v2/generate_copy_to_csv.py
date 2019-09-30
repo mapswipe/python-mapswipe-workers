@@ -25,7 +25,10 @@ def get_query(project_ids):
             f'\copy (SELECT archive, image, importkey as "import_id", isfeatured AS "is_featured", lookfor AS "look_for", name, progress, projectdetails AS "project_details", project_id, project_type, state AS "status", info AS "project_type_specifics" FROM projects {clause}) TO projects.csv WITH (FORMAT CSV, DELIMITER ",", HEADER TRUE);\n' \
             f'\copy (SELECT i.import_id, i.info FROM imports i {clause_import}) TO imports.csv WITH (FORMAT CSV, DELIMITER ",", HEADER TRUE);\n' \
             f'\copy (SELECT project_id, group_id as "v1_group_id", count as "number_of_tasks", completedcount as "finished_count", verificationcount as "required_count", info as "project_type_specifics" FROM groups {clause_group} ) TO groups.csv WITH (FORMAT CSV, DELIMITER ",", HEADER TRUE);\n' \
-            f'\copy (SELECT project_id, group_id as "v1_group_id", task_id, info as "project_type_specifics" FROM tasks {clause_group}) TO tasks.csv WITH (FORMAT CSV, DELIMITER ",", HEADER TRUE);\n'
+            f'\copy (SELECT project_id, group_id as "v1_group_id", task_id, info as "project_type_specifics" FROM tasks {clause_group} LIMIT 10000000) TO tasks1.csv WITH (FORMAT CSV, DELIMITER ",", HEADER TRUE);\n' \
+            f'\copy (SELECT project_id, group_id as "v1_group_id", task_id, info as "project_type_specifics" FROM tasks {clause_group} OFFSET 10000000 LIMIT 10000000) TO tasks2.csv WITH (FORMAT CSV, DELIMITER ",", HEADER TRUE);\n' \
+            f'\copy (SELECT project_id, group_id as "v1_group_id", task_id, info as "project_type_specifics" FROM tasks {clause_group} OFFSET 20000000 LIMIT 10000000) TO tasks3.csv WITH (FORMAT CSV, DELIMITER ",", HEADER TRUE);\n' \
+            f'\copy (SELECT project_id, group_id as "v1_group_id", task_id, info as "project_type_specifics" FROM tasks {clause_group} OFFSET 30000000) TO tasks4.csv WITH (FORMAT CSV, DELIMITER ",", HEADER TRUE);\n'
     return query
 
 
@@ -43,7 +46,8 @@ def get_result_query(project_ids):
     query = f'-- Export v1 MapSwipe data to csv.\n' \
             f'-- Rename attributes to conform to v2.\n' \
             f'\copy (SELECT user_id, username FROM users) TO users.csv WITH (FORMAT CSV, DELIMITER ",", HEADER TRUE);\n' \
-            f'\copy (SELECT project_id, task_id, user_id, timestamp as "timeint", info FROM results {clause}) TO results.csv WITH (FORMAT CSV, DELIMITER ",", HEADER TRUE);'
+            f'\copy (SELECT project_id, task_id, user_id, timestamp as "timeint", info FROM results {clause} LIMIT 10000000) TO results1.csv WITH (FORMAT CSV, DELIMITER ",", HEADER TRUE);\n' \
+            f'\copy (SELECT project_id, task_id, user_id, timestamp as "timeint", info FROM results {clause} OFFSET 10000000) TO results2.csv WITH (FORMAT CSV, DELIMITER ",", HEADER TRUE);\n'
     return query
 
 

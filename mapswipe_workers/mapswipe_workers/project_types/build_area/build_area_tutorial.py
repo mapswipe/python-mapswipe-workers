@@ -18,10 +18,10 @@ def generate_tutorial_data(tutorial):
     grouped_tasks = {
         'building_easy_1': {},
         'building_easy_2': {},
+        'maybe_1': {},
         'no_building_easy_1': {},
         'no_building_easy_2': {},
         'bad_clouds_1': {},
-        'bad_clouds_2': {},
         'bad_no_imagery_1': {},
         'bad_no_imagery_2': {},
     }
