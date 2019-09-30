@@ -651,16 +651,22 @@ def csv_to_geojson_centroids(filename):
 def cast_datatypes_for_geojson(filename):
     '''
     Go through geojson file and try to cast all values as float, except project_id
+    remove redundant geometry property
     '''
     filename = filename.replace('csv', 'geojson')
     with open(filename) as f:
         geojson_data = json.load(f)
 
+    properties = list(geojson_data['features'][0]['properties'].keys())
+
     for i in range(0, len(geojson_data['features'])):
-        for property in geojson_data['features'][i]['properties'].keys():
+        for property in properties:
             if property in ['project_id', 'name', 'project_details']:
                 # don't try to cast project_id
                 pass
+            elif property in ['geom']:
+                # remove redundant geometry property
+                del geojson_data['features'][i]['properties'][property]
             else:
                 try:
                     geojson_data['features'][i]['properties'][property] = float(geojson_data['features'][i]['properties'][property])
