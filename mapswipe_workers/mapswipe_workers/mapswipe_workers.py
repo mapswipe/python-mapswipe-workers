@@ -1,7 +1,6 @@
 import time
 import click
 import schedule as sched
-import pickle
 import json
 
 from mapswipe_workers.definitions import CustomError
@@ -9,19 +8,27 @@ from mapswipe_workers.definitions import logger
 from mapswipe_workers.utils import slack
 from mapswipe_workers.utils import sentry
 
-from mapswipe_workers import auth
-from mapswipe_workers.generate_stats import generate_stats
-from mapswipe_workers.firebase_to_postgres import transfer_results
-from mapswipe_workers.firebase_to_postgres import update_data
+from mapswipe_workers \
+        import auth
+from mapswipe_workers.generate_stats \
+        import generate_stats
+from mapswipe_workers.firebase_to_postgres \
+        import transfer_results
+from mapswipe_workers.firebase_to_postgres \
+        import update_data
 from mapswipe_workers.project_types.build_area.build_area_project \
         import BuildAreaProject
-from mapswipe_workers.project_types.build_area import build_area_tutorial
+from mapswipe_workers.project_types.build_area \
+        import build_area_tutorial
 from mapswipe_workers.project_types.footprint.footprint_project \
         import FootprintProject
 from mapswipe_workers.project_types.change_detection.change_detection_project \
         import ChangeDetectionProject
-from mapswipe_workers.project_types.change_detection import change_detection_tutorial
-from mapswipe_workers.utils import user_management
+from mapswipe_workers.project_types.change_detection \
+        import change_detection_tutorial
+from mapswipe_workers.utils \
+        import user_management
+
 
 @click.group()
 @click.option(
@@ -125,23 +132,25 @@ def run_firebase_to_postgres(schedule):
         sentry.capture_exception_sentry(e)
         logger.exception(e)
 
+
 @click.command('generate-stats')
 @click.option(
         '--schedule',
         '-s',
         default=None,
         help=(
-            f'Will generate stats every '
+            f'Generate stats every '
             f'10 minutes (m), every hour (h) or every day (d). '
             ),
         type=click.Choice(['m', 'h', 'd'])
         )
 @click.option(
-        '--only_new_results/--all',
+        '--only_new_results',
         default=False,
+        is_flag=True,
         help=(
-            f'Will generate stats only for projects and users'
-            f'for which new results have been transfered.'
+            f'Generate stats for all projects '
+            f'or only for those updated or with new results.'
             )
         )
 def run_generate_stats(schedule, only_new_results):
@@ -149,17 +158,26 @@ def run_generate_stats(schedule, only_new_results):
     try:
         if schedule:
             if schedule == 'm':
-                sched.every(10).minutes.do(_run_generate_stats, only_new_results=only_new_results).run()
+                sched.every(10).minutes.do(
+                        _run_generate_stats,
+                        only_new_results=only_new_results
+                        ).run()
                 while True:
                     sched.run_pending()
                     time.sleep(1)
             elif schedule == 'h':
-                sched.every().hour.do(_run_generate_stats, only_new_results=only_new_results).run()
+                sched.every().hour.do(
+                        _run_generate_stats,
+                        only_new_results=only_new_results
+                        ).run()
                 while True:
                     sched.run_pending()
                     time.sleep(1)
             elif schedule == 'd':
-                sched.every().day.do(_run_generate_stats, only_new_results=only_new_results).run()
+                sched.every().day.do(
+                        _run_generate_stats,
+                        only_new_results=only_new_results
+                        ).run()
                 while True:
                     sched.run_pending()
                     time.sleep(1)
@@ -176,6 +194,7 @@ def run_generate_stats(schedule, only_new_results):
         slack.send_error(e)
         sentry.capture_exception_sentry(e)
         logger.exception(e)
+
 
 @click.command('user-management')
 @click.option(
@@ -253,8 +272,9 @@ def run_create_tutorial(input_file):
         type=click.Choice(['m', 'h', 'd'])
         )
 @click.option(
-        '--only_new_results/--all',
+        '--only_new_results',
         default=False,
+        is_flag=True,
         help=(
             f'Will generate stats only for projects and users'
             f'for which new results have been transfered.'
@@ -267,21 +287,30 @@ def run(schedule, only_new_results):
             if schedule == 'm':
                 sched.every(10).minutes.do(_run_create_projects).run()
                 sched.every(10).minutes.do(_run_firebase_to_postgres).run()
-                sched.every(10).minutes.do(_run_generate_stats, only_new_results).run()
+                sched.every(10).minutes.do(
+                        _run_generate_stats,
+                        only_new_results=only_new_results
+                        ).run()
                 while True:
                     sched.run_pending()
                     time.sleep(1)
             elif schedule == 'h':
                 sched.every().hour.do(_run_create_projects).run()
                 sched.every().hour.do(_run_firebase_to_postgres).run()
-                sched.every().hour.do(_run_generate_stats, only_new_results).run()
+                sched.every().hour.do(
+                        _run_generate_stats,
+                        only_new_results=only_new_results
+                        ).run()
                 while True:
                     sched.run_pending()
                     time.sleep(1)
             elif schedule == 'd':
                 sched.every().day.do(_run_create_projects).run()
                 sched.every().day.do(_run_firebase_to_postgres).run()
-                sched.every().day.do(_run_generate_stats, only_new_results).run()
+                sched.every().day.do(
+                        _run_generate_stats,
+                        only_new_results=only_new_results
+                        ).run()
                 while True:
                     sched.run_pending()
                     time.sleep(1)
@@ -355,7 +384,8 @@ def _run_create_projects(project_draft_ids=None):
                             f'Project Id: {project.projectId}{newline}'
                             f'Project Type: {project_type_names[project_type]}'
                             f'{newline}'
-                            f'Make sure to activate the project using the manager dashboard.'
+                            f'Make sure to activate the project '
+                            f'using the manager dashboard.'
                             f'{newline}'
                             f'Happy Swiping. :)'
                             )
