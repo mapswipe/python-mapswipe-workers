@@ -10,7 +10,7 @@ The MapSwipe Back-End consists of a number of components:
 3. Manager Dashboard
 5. API
 
-Please refer to the documentation for more information: https://mapswipe-workers.readthedocs.io/en/
+Please refer to the documentation for more information: https://mapswipe-workers.readthedocs.io/
 
 
 ## Ressources
