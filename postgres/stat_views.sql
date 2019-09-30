@@ -122,182 +122,196 @@ from
 
 -- aggregated_results_by_project_id
 CREATE or REPLACE VIEW aggregated_results_by_project_id AS
-select
-	project_id
-	,count(distinct(group_id, project_id)) as groups_count
-	,count(distinct(task_id,group_id,project_id)) as tasks_count
-	,count(distinct(user_id)) as users_count
-	,count(*) as total_results_count
-	,sum(CASE WHEN result = 0 THEN 1 ELSE 0	END) AS "0_results_count"
-	,sum(CASE WHEN result = 1 THEN 1 ELSE 0	END) AS "1_results_count"
-	,sum(CASE WHEN result = 2 THEN 1 ELSE 0	END) AS "2_results_count"
-	,sum(CASE WHEN result = 3 THEN 1 ELSE 0	END) AS "3_results_count"
-	,round(sum(CASE WHEN result = 0 THEN 1 ELSE 0	END)::numeric / count(*),3) AS "0_results_share"
-	,round(sum(CASE WHEN result = 1 THEN 1 ELSE 0	END)::numeric / count(*),3) AS "1_results_share"
-	,round(sum(CASE WHEN result = 2 THEN 1 ELSE 0	END)::numeric / count(*),3) AS "2_results_share"
-	,round(sum(CASE WHEN result = 3 THEN 1 ELSE 0	END)::numeric / count(*),3) AS "3_results_share"
-	,min(timestamp) as first_timestamp
-	,max(timestamp) as last_timestamp
-from
-	results
+SELECT
+    p.project_id,
+    p.name,
+    count(distinct(r.group_id, r.project_id)) as groups_count,
+    count(distinct(r.task_id, r.group_id, r.project_id)) as tasks_count,
+    count(distinct(ur.ser_id)) as users_count,
+    count(r.*) as total_results_count,
+    sum(CASE WHEN r.result = 0 THEN 1 ELSE 0	END) AS "0_results_count",
+    sum(CASE WHEN r.result = 1 THEN 1 ELSE 0	END) AS "1_results_count",
+    sum(CASE WHEN r.result = 2 THEN 1 ELSE 0	END) AS "2_results_count",
+    sum(CASE WHEN r.result = 3 THEN 1 ELSE 0	END) AS "3_results_count",
+    round(sum(CASE WHEN r.result = 0 THEN 1 ELSE 0	END)::numeric / count(r.*),3) AS "0_results_share",
+    round(sum(CASE WHEN r.result = 1 THEN 1 ELSE 0	END)::numeric / count(r.*),3) AS "1_results_share",
+    round(sum(CASE WHEN r.result = 2 THEN 1 ELSE 0	END)::numeric / count(r.*),3) AS "2_results_share",
+    round(sum(CASE WHEN r.result = 3 THEN 1 ELSE 0	END)::numeric / count(r.*),3) AS "3_results_share",
+    min(r.timestamp) as first_timestamp,
+    max(r.timestamp) as last_timestamp
+FROM
+    results r,
+    projects p
+WHERE
+    p.project_id = r.project_id
 GROUP BY
-	project_id;
+    p.project_id;
 
 -- aggregated_results_by_project_id_and_date
 CREATE or REPLACE VIEW aggregated_results_by_project_id_and_date AS
-select
-	project_id
-	,date_trunc('day'::text, results."timestamp") AS day
-	,count(distinct(group_id, project_id)) as groups_count
-	,count(distinct(task_id,group_id,project_id)) as tasks_count
-	,count(distinct(user_id)) as users_count
-	,count(*) as total_results_count
-	,sum(CASE WHEN result = 0 THEN 1 ELSE 0	END) AS "0_results_count"
-	,sum(CASE WHEN result = 1 THEN 1 ELSE 0	END) AS "1_results_count"
-	,sum(CASE WHEN result = 2 THEN 1 ELSE 0	END) AS "2_results_count"
-	,sum(CASE WHEN result = 3 THEN 1 ELSE 0	END) AS "3_results_count"
-	,round(sum(CASE WHEN result = 0 THEN 1 ELSE 0	END)::numeric / count(*),3) AS "0_results_share"
-	,round(sum(CASE WHEN result = 1 THEN 1 ELSE 0	END)::numeric / count(*),3) AS "1_results_share"
-	,round(sum(CASE WHEN result = 2 THEN 1 ELSE 0	END)::numeric / count(*),3) AS "2_results_share"
-	,round(sum(CASE WHEN result = 3 THEN 1 ELSE 0	END)::numeric / count(*),3) AS "3_results_share"
-	,min(timestamp) as first_timestamp
-	,max(timestamp) as last_timestamp
-from
-	results
+SELECT
+    r.project_id
+    p.project_id
+    r.date_trunc('day'::text, r."timestamp") AS day,
+    count(distinct(r.group_id, r.project_id)) as groups_count,
+    count(distinct(r.task_id, r.group_id, r.project_id)) as tasks_count,
+    count(distinct(r.user_id)) as users_count,
+    count(r.*) as total_results_count,
+    sum(CASE WHEN r.result = 0 THEN 1 ELSE 0	END) AS "0_results_count",
+    sum(CASE WHEN r.result = 1 THEN 1 ELSE 0	END) AS "1_results_count",
+    sum(CASE WHEN r.result = 2 THEN 1 ELSE 0	END) AS "2_results_count",
+    sum(CASE WHEN r.result = 3 THEN 1 ELSE 0	END) AS "3_results_count",
+    round(sum(CASE WHEN r.result = 0 THEN 1 ELSE 0	END)::numeric / count(r.*),3) AS "0_results_share",
+    round(sum(CASE WHEN r.result = 1 THEN 1 ELSE 0	END)::numeric / count(r.*),3) AS "1_results_share",
+    round(sum(CASE WHEN r.result = 2 THEN 1 ELSE 0	END)::numeric / count(r.*),3) AS "2_results_share",
+    round(sum(CASE WHEN r.result = 3 THEN 1 ELSE 0	END)::numeric / count(r.*),3) AS "3_results_share",
+    min(r.timestamp) as first_timestamp,
+    max(r.timestamp) as last_timestamp
+FROM
+    results r,
+    project p
+WHERE
+    p.project_id = r.project_id
 GROUP BY
-	project_id, day;
+    r.project_id, day;
 
 -- aggregated_results_by_user_id
 CREATE or REPLACE VIEW aggregated_results_by_user_id AS
-select
-	user_id
-	,count(distinct(project_id)) as projects_count
-	,count(distinct(group_id, project_id)) as groups_count
-	,count(distinct(task_id,group_id,project_id)) as tasks_count
-	,count(*) as total_results_count
-	,sum(CASE WHEN result = 0 THEN 1 ELSE 0	END) AS "0_results_count"
-	,sum(CASE WHEN result = 1 THEN 1 ELSE 0	END) AS "1_results_count"
-	,sum(CASE WHEN result = 2 THEN 1 ELSE 0	END) AS "2_results_count"
-	,sum(CASE WHEN result = 3 THEN 1 ELSE 0	END) AS "3_results_count"
-	,round(sum(CASE WHEN result = 0 THEN 1 ELSE 0	END)::numeric / count(*),3) AS "0_results_share"
-	,round(sum(CASE WHEN result = 1 THEN 1 ELSE 0	END)::numeric / count(*),3) AS "1_results_share"
-	,round(sum(CASE WHEN result = 2 THEN 1 ELSE 0	END)::numeric / count(*),3) AS "2_results_share"
-	,round(sum(CASE WHEN result = 3 THEN 1 ELSE 0	END)::numeric / count(*),3) AS "3_results_share"
-	,min(timestamp) as first_timestamp
-	,max(timestamp) as last_timestamp
-from
-	results
+SELECT
+      user_id,
+      count(distinct(project_id)) as projects_count,
+      count(distinct(group_id, project_id)) as groups_count,
+      count(distinct(task_id,group_id,project_id)) as tasks_count,
+      count(*) as total_results_count,
+      sum(CASE WHEN result = 0 THEN 1 ELSE 0	END) AS "0_results_count",
+      sum(CASE WHEN result = 1 THEN 1 ELSE 0	END) AS "1_results_count",
+      sum(CASE WHEN result = 2 THEN 1 ELSE 0	END) AS "2_results_count",
+      sum(CASE WHEN result = 3 THEN 1 ELSE 0	END) AS "3_results_count",
+      round(sum(CASE WHEN result = 0 THEN 1 ELSE 0	END)::numeric / count(*),3) AS "0_results_share",
+      round(sum(CASE WHEN result = 1 THEN 1 ELSE 0	END)::numeric / count(*),3) AS "1_results_share",
+      round(sum(CASE WHEN result = 2 THEN 1 ELSE 0	END)::numeric / count(*),3) AS "2_results_share",
+      round(sum(CASE WHEN result = 3 THEN 1 ELSE 0	END)::numeric / count(*),3) AS "3_results_share",
+      min(timestamp) as first_timestamp,
+      max(timestamp) as last_timestamp
+FROM
+    results
 GROUP BY
-	user_id;
+    user_id;
 
 -- aggregated_results_by_user_id_and_date
 CREATE or REPLACE VIEW aggregated_results_by_user_id_and_date AS
-select
-	user_id
-	,date_trunc('day'::text, results."timestamp") AS day
-	,count(distinct(project_id)) as projects_count
-	,count(distinct(group_id, project_id)) as groups_count
-	,count(distinct(task_id,group_id,project_id)) as tasks_count
-	,count(*) as total_results_count
-	,sum(CASE WHEN result = 0 THEN 1 ELSE 0	END) AS "0_results_count"
-	,sum(CASE WHEN result = 1 THEN 1 ELSE 0	END) AS "1_results_count"
-	,sum(CASE WHEN result = 2 THEN 1 ELSE 0	END) AS "2_results_count"
-	,sum(CASE WHEN result = 3 THEN 1 ELSE 0	END) AS "3_results_count"
-	,round(sum(CASE WHEN result = 0 THEN 1 ELSE 0	END)::numeric / count(*),3) AS "0_results_share"
-	,round(sum(CASE WHEN result = 1 THEN 1 ELSE 0	END)::numeric / count(*),3) AS "1_results_share"
-	,round(sum(CASE WHEN result = 2 THEN 1 ELSE 0	END)::numeric / count(*),3) AS "2_results_share"
-	,round(sum(CASE WHEN result = 3 THEN 1 ELSE 0	END)::numeric / count(*),3) AS "3_results_share"
-	,min(timestamp) as first_timestamp
-	,max(timestamp) as last_timestamp
-from
-	results
+SELECT
+    user_id,
+    date_trunc('day'::text, results."timestamp") AS day,
+    count(distinct(project_id)) as projects_count,
+    count(distinct(group_id, project_id)) as groups_count,
+    count(distinct(task_id,group_id,project_id)) as tasks_count,
+    count(*) as total_results_count,
+    sum(CASE WHEN result = 0 THEN 1 ELSE 0	END) AS "0_results_count",
+    sum(CASE WHEN result = 1 THEN 1 ELSE 0	END) AS "1_results_count",
+    sum(CASE WHEN result = 2 THEN 1 ELSE 0	END) AS "2_results_count",
+    sum(CASE WHEN result = 3 THEN 1 ELSE 0	END) AS "3_results_count",
+    round(sum(CASE WHEN result = 0 THEN 1 ELSE 0	END)::numeric / count(*),3) AS "0_results_share",
+    round(sum(CASE WHEN result = 1 THEN 1 ELSE 0	END)::numeric / count(*),3) AS "1_results_share",
+    round(sum(CASE WHEN result = 2 THEN 1 ELSE 0	END)::numeric / count(*),3) AS "2_results_share",
+    round(sum(CASE WHEN result = 3 THEN 1 ELSE 0	END)::numeric / count(*),3) AS "3_results_share",
+    min(timestamp) as first_timestamp,
+    max(timestamp) as last_timestamp
+FROM
+    results
 GROUP BY
-	user_id, day;
+    user_id, day;
 
 -- aggregated_progress_by_project_id
-CREATE or REPLACE VIEW aggregated_progress_by_project_id AS
+CREATE or REPLACE VIEW
+    aggregated_progress_by_project_id AS
 SELECT
- projects.project_id
- ,projects.required_results
- ,SUM(group_progress.groups_finished_count) as groups_finished_count
- ,SUM(group_progress.results_finished_count) as results_finished_count
- ,SUM(group_progress.results_finished_count_for_progress) as results_finished_count_for_progress
- ,ROUND(
-	 SUM(group_progress.results_finished_count_for_progress)
-	 /
-	 projects.required_results::numeric
-	 	,3) as progress
-FROM projects
-LEFT JOIN
-(
-SELECT
-  results.group_id
-  ,results.project_id
-  ,date_trunc('day', timestamp) as day
-  ,count(distinct(user_id)) as groups_finished_count
-  ,count(distinct(user_id)) * MAX(groups.number_of_tasks) as results_finished_count
-  ,CASE
- 	WHEN count(distinct(user_id)) > MAX(groups.required_count) THEN MAX(groups.required_count) * MAX(groups.number_of_tasks)
-  	ELSE count(distinct(user_id)) * MAX(groups.number_of_tasks)
-  END as results_finished_count_for_progress
-  ,MAX(groups.required_count) * MAX(groups.number_of_tasks) as results_required_count
+    projects.project_id,
+    projects.name,
+    projects.required_results,
+    sum(group_progress.groups_finished_count) as groups_finished_count,
+    sum(group_progress.results_finished_count) as results_finished_count,
+    sum(group_progress.results_finished_count_for_progress) as results_finished_count_for_progress,
+    round(sum(group_progress.results_finished_count_for_progress) / projects.required_results::numeric ,3) as progress
 FROM
- results, groups
-WHERE
- results.group_id = groups.group_id
- AND
- results.project_id = groups.project_id
+    projects
+LEFT JOIN
+    (SELECT
+        results.group_id,
+        results.project_id,
+        date_trunc('day', timestamp) as day,
+        count(distinct(user_id)) as groups_finished_count,
+        count(distinct(user_id)) * MAX(groups.number_of_tasks) as results_finished_count,
+        CASE
+            WHEN count(distinct(user_id)) > MAX(groups.required_count) THEN MAX(groups.required_count) * MAX(groups.number_of_tasks)
+            ELSE count(distinct(user_id)) * MAX(groups.number_of_tasks)
+        END as results_finished_count_for_progress,
+        MAX(groups.required_count) * MAX(groups.number_of_tasks) as results_required_count
+    FROM
+        results,
+        groups
+    WHERE
+        results.group_id = groups.group_id
+        AND
+        results.project_id = groups.project_id
+    GROUP BY
+        results.group_id,
+        results.project_id,
+        day
+    ) as group_progress
+ON
+    group_progress.project_id = projects.project_id
 GROUP BY
-  results.group_id, results.project_id, day
-) as group_progress ON
-  group_progress.project_id = projects.project_id
-GROUP BY
-  projects.project_id
+    projects.project_id
 ORDER BY
-  projects.project_id;
+    projects.project_id;
 
 -- aggregated_progress_by_project_id_and_date
 CREATE or REPLACE VIEW aggregated_progress_by_project_id_and_date AS
 SELECT
- projects.project_id
- ,projects.required_results
- ,group_progress.day
- ,SUM(group_progress.groups_finished_count) as groups_finished_count
- ,SUM(SUM(group_progress.groups_finished_count)) OVER (PARTITION BY projects.project_id ORDER BY day) as cumulative_groups_finished_count
- ,SUM(group_progress.results_finished_count) as results_finished_count
- ,SUM(SUM(group_progress.results_finished_count)) OVER (PARTITION BY projects.project_id ORDER BY day) as cumulative_results_finished_count
- ,SUM(group_progress.results_finished_count_for_progress) as results_finished_count_for_progress
- ,SUM(SUM(group_progress.results_finished_count_for_progress)) OVER (PARTITION BY projects.project_id ORDER BY day) as cumulative_results_finished_count_for_progress
- ,ROUND(
-	 SUM(SUM(group_progress.results_finished_count_for_progress)) OVER (PARTITION BY projects.project_id ORDER BY day)
-	 /
-	 projects.required_results::numeric
-	 	,3) as progress
-FROM projects
-LEFT JOIN
-(
-SELECT
-  results.group_id
-  ,results.project_id
-  ,date_trunc('day', timestamp) as day
-  ,count(distinct(user_id)) as groups_finished_count
-  ,count(distinct(user_id)) * MAX(groups.number_of_tasks) as results_finished_count
-  ,CASE
- 	WHEN count(distinct(user_id)) > MAX(groups.required_count) THEN MAX(groups.required_count) * MAX(groups.number_of_tasks)
-  	ELSE count(distinct(user_id)) * MAX(groups.number_of_tasks)
-  END as results_finished_count_for_progress
-  ,MAX(groups.required_count) * MAX(groups.number_of_tasks) as results_required_count
+    projects.project_id,
+    pojects.name,
+    projects.required_results,
+    group_progress.day,
+    SUM(group_progress.groups_finished_count) as groups_finished_count,
+    SUM(SUM(group_progress.groups_finished_count)) OVER (PARTITION BY projects.project_id ORDER BY day) as cumulative_groups_finished_count
+    SUM(group_progress.results_finished_count) as results_finished_count,
+    SUM(SUM(group_progress.results_finished_count)) OVER (PARTITION BY projects.project_id ORDER BY day) as cumulative_results_finished_count,
+    SUM(group_progress.results_finished_count_for_progress) as results_finished_count_for_progress,
+    SUM(SUM(group_progress.results_finished_count_for_progress)) OVER (PARTITION BY projects.project_id ORDER BY day) as cumulative_results_finished_count_for_progress,
+    ROUND(SUM(SUM(group_progress.results_finished_count_for_progress)) OVER (PARTITION BY projects.project_id ORDER BY day) / projects.required_results::numeric ,3) as progress
 FROM
- results, groups
-WHERE
- results.group_id = groups.group_id
- AND
- results.project_id = groups.project_id
+    projects
+LEFT JOIN
+    (SELECT
+        results.project_id,
+        results.group_id,
+        date_trunc('day', timestamp) as day,
+        count(distinct(user_id)) as groups_finished_count,
+        count(distinct(user_id)) * MAX(groups.number_of_tasks) as results_finished_count,
+        CASE
+            WHEN count(distinct(user_id)) > MAX(groups.required_count) THEN MAX(groups.required_count) * MAX(groups.number_of_tasks)
+            ELSE count(distinct(user_id)) * MAX(groups.number_of_tasks)
+        END as results_finished_count_for_progress,
+        MAX(groups.required_count) * MAX(groups.number_of_tasks) as results_required_count
+    FROM
+        projects,
+        results,
+        groups
+    WHERE
+        results.group_id = groups.group_id
+        AND results.project_id = groups.project_id
+        AND results.project_id = projects.project_id
+    GROUP BY
+        results.group_id,
+        results.project_id,
+        day
+    ) as group_progress
+ON
+    group_progress.project_id = projects.project_id
 GROUP BY
-  results.group_id, results.project_id, day
-) as group_progress ON
-  group_progress.project_id = projects.project_id
-GROUP BY
-  projects.project_id, day
+    projects.project_id,
+    day
 ORDER BY
-  projects.project_id, day;
+    projects.project_id,
+    day;
