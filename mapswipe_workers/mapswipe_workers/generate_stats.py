@@ -661,7 +661,7 @@ def cast_datatypes_for_geojson(filename):
 
     for i in range(0, len(geojson_data['features'])):
         for property in properties:
-            if property in ['project_id', 'name', 'project_details']:
+            if property in ['project_id', 'name', 'project_details', 'task_id', 'group_id']:
                 # don't try to cast project_id
                 pass
             elif property in ['geom']:
