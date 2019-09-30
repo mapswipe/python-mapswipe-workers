@@ -144,4 +144,4 @@ ON CONFLICT (project_id, group_id, task_id, user_id) DO NOTHING;
 ALTER TABLE
     tasks
 DROP COLUMN
-    duplicated boolean DEFAULT false;
+    duplicated;
