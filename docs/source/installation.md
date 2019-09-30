@@ -2,14 +2,14 @@
 
 This document describes how to setup all the parts of the MapSwipe back-end for the first time.
 
+Please take also a look at our [Configuration Reference](https://mapswipe-workers.readthedocs.io/en/dev/configuration.html) which is a summary of all configurations and keys needed for deployment.
+
 1. Firebase
 2. Postgres
 3. MapSwipe Workers
 4. API
 5. Manager Dashboard
-
-Moreover we will look into:
-6. Lets Encrypt
+6. Lets Encrypt and NEGIX as proxy
 
 For all those setups our main repository is required:
 
@@ -18,48 +18,11 @@ git clone https://github.com/mapswipe/python-mapswipe-workers.git
 cd python-mapswipe-workers
 ```
 
-## Check List
-You can run the script `test_config.py` to check if you set all the needed variables and file. The script will test the following files:
-
-`.env file`
-* postgres password
-* firebase token
-* wal-g google storage prefix
-
-`mapswipe_workers/config/configuration.json`
-* firebase api key, database name configuration
-* postgres host, port, database, username, password configuration
-* imagery urls and api keys
-* slack token, username and channel
-* sentry dsn value
-
-`mapswipe_workers/config/serviceAccountKey.json`
-* check if file exists
-
-`manager_dashboard/manager_dashboard/js/app.js`
-* firebase authDomain, apiKey, databaseUrl, storageBucket
-
-`nginx/nginx.conf`
-* server name
-* ssl certificates, ssl certificates key
-
-## Deploy with Docker
-```
-python3 test_config.py
-sudo docker-compose build --no-cache
-sudo docker-compose up -d --force-recreate
-sudo docker ps -a
-```
 
 ## Firebase Setup
 
-First a Firebase Project and Database has to be created.
+Download a Service Account Key File for MapSwipe Workers:
 
-1. Login to [Firebase](https://firebase.google.com/)
-2. Add a project
-3. Create a database: `> Develop > Database > Create Database`
-
-Then, get a Service Account Key File.
 1. In the Firebase console, open Settings > Service Accounts.
 2. Click Generate New Private Key
 3. Store the JSON file under `mapswipe_workers/config/serviceAccountKey.json`
@@ -68,7 +31,7 @@ Configure your API Keys in Google APIs & Services
 1. Open [Google APIs & Services > Credentials](https://console.cloud.google.com/apis/credentials)
 2. Create API key for MapSwipe workers:
     * set name of api key to `mapswipe-workers`
-    * set Application restrictions > IP addresses > set IP addresse of mapswipe workers server`
+    * set Application restrictions > IP addresses > set IP addresse of mapswipe workers server
     * set API restrictions > Restrict Key > Identity Toolkit API
 3. Create API key for Manager Dashboard:
     * set name of api key to `manager-dashboard`
@@ -82,9 +45,9 @@ Configure your API Keys in Google APIs & Services
 The Firebase setup consists of two parts:
 
 - Firebase Database Rules (`firebase/database.rules.json`)
-- Firebase Functions (`firbase/functions/`)
+- Firebase Functions (`firebase/functions/`)
 
-To deploy them to the Firebase Project the Firebase Command Line Tools are requiered. They are preinstalled in the provided Docker image (`firebase/Dockerfile`). When running this image the database riles and the functions will be deployed. For this to work a Firebase Token is needed:
+To deploy them to the Firebase Project the Firebase Command Line Tools are requiered. They are preinstalled in the provided Docker image (`firebase/Dockerfile`). When running this image the database rules and the functions will be deployed. For this to work a Firebase Token is needed:
 
 1. On a PC with a browser install the Firebase Command Line Tools ([https://firebase.google.com/docs/cli/](https://firebase.google.com/docs/cli/#install_the_firebase_cli))
 2. Run `firebase login:ci` to generate a Firebase Token.
@@ -105,8 +68,9 @@ For more information about the Firebase Command Line Tools visit:[https://fireba
 
 In the `postgres` directory is an `initdb.sql` file for initializing a Postgres database.
 
-When running Postgres using the provided Dockerfile it will setup a Postgres database during the build.
-A Postgres password has to be defined in an environment file (`.env`) in the same directory as the `docker-compose.yaml` file (root). E.g:
+When running Postgres using the provided Dockerfile it will setup a Postgres database using the `initdb.sql` file during the build.
+
+A Postgres password has to be defined in the environment file (`.env`). E.g:
 
 ```
 POSTGRES_PASSWORD=mapswipe
@@ -118,24 +82,23 @@ To run the Postgres Docker container:
 docker-compose up -d postgres
 ```
 
-The Postgres instance will be exposed to `postgres:5432` (postgres Docker network)
-
-
-### Backup
-
-To backup the Postgres MapSwipe database use the `backup.sh` script inside the `./postgres` directory. It will execute a command (`pgdump`) inside the Postgres Docker container and store the backup locally (outside the Docker container).
+The Postgres instance will be exposed to `localhost:5432`.
 
 
 ## MapSwipe Workers
+
 ### Configuration
+
 To run MapSwipe Workers a valid configuration (`config/configuration.json`) and the Firebase Service Account Key (`config/serviceAccountKey.json`) are required.
 
-To authorize MapSwipe Workers to access Firebase services, you must generate a Firebase Service Account Key in JSON format. (Check the *Firebase* section to get this key.)
+To authorize MapSwipe Workers to access Firebase database, generate a Firebase Service Account Key in JSON format and save it to `mapswipe_workers/config/serviceAccountKey.json` (See *Firebase Setup* section above for details).
 
-To run the MapSwipe workers you need a configuration file. Edit the provided configuration file template (`config/example-configuration.json`) and rename it to `configuration.json`.
+To run the MapSwipe workers you need a configuration file. Edit the provided configuration file template (`config/example-configuration.json`) and rename it to `configuration.json`. In following sections all required configuration will be descibed in detail.
 
-#### Firebase
-The MapSwipe workers use the Firebase Python SDK **and** the Firebase REST api. The REST api is used for user management only to sign in as "normal" user or "project manager". Both require the `database_name` in your configuration file. The REST api requires an `api_key`. (Check the *Google APIs & Services Credentials* section to get this key.) You need to provide information on firebase in your `configuration.json`.:
+
+#### Firebase Athentication
+
+The MapSwipe workers use the Firebase Python SDK and the Firebase REST API. The REST API is used for user management only to sign in as "normal" user or "project manager". Both require the `database_name` in your configuration file.
 
 ```json
 "firebase": {
@@ -145,7 +108,9 @@ The MapSwipe workers use the Firebase Python SDK **and** the Firebase REST api. 
 ```
 
 #### Postgres
-The MapSwipe workers write data to a postgres data base and generate files for the api based on views in postgres. You need to provide information on postgres in your `configuration.json`.:
+
+The MapSwipe Workers writes data to a Postgres database and generate files for the api based on views in postgres.
+Provide only password. Leave the rest at default.
 
 ```json
 "postgres": {
@@ -158,7 +123,8 @@ The MapSwipe workers write data to a postgres data base and generate files for t
 ```
 
 #### Sentry
-The MapSwipe workers use sentry to capture exceptions. You can find your project’s DSN in the “Client Keys” section of your “Project Settings” in Sentry. Check [Sentry's documentation](https://docs.sentry.io/error-reporting/configuration/?platform=python) for more information. You need to provide information on Sentry in your `configuration.json`.:
+
+The MapSwipe workers use sentry to capture exceptions. You can find your project’s DSN in the “Client Keys” section of your “Project Settings” in Sentry. Check [Sentry's documentation](https://docs.sentry.io/error-reporting/configuration/?platform=python) for more information.
 
 ```json
 "sentry": {
@@ -166,8 +132,12 @@ The MapSwipe workers use sentry to capture exceptions. You can find your project
   }
 ```
 
-#### Slack
-The MapSwipe workers send messages to slack when a project has been created successfully, the project creation failed or an exception during mapswipe_workers cli occurred. You need to add a slack token to use slack messaging. You can find out more from [Python slackclient's documentation](https://github.com/slackapi/python-slackclient) how to get it. You need to provide information on Slack in your `configuration.json`.:
+#### Slack (optional)
+
+The MapSwipe workers send messages to slack when a project has been created successfully, the project creation failed or an exception during mapswipe_workers cli occurred.
+You need to add a slack token to use slack messaging.
+You can find out more from [Python slackclient's documentation](https://github.com/slackapi/python-slackclient) how to get it.
+
 
 ```json
 "slack": {
@@ -177,8 +147,13 @@ The MapSwipe workers send messages to slack when a project has been created succ
   },
 ```
 
+
 #### Imagery
-MapSwipe uses satellite imagery provided by Tile Map Services (TMS). If you are not familiar with the basic concept have a look at [Bing's documentation](https://docs.microsoft.com/en-us/bingmaps/articles/bing-maps-tile-system). Make sure to get api keys for the services you would like to use in your app. For each satellite imagery provider add an `api_key` and `url`. You need to provide information on Imagery in your `configuration.json`.:
+
+MapSwipe uses satellite imagery provided by Tile Map Services (TMS).
+If you are not familiar with the basic concept have a look at [Bing's documentation](https://docs.microsoft.com/en-us/bingmaps/articles/bing-maps-tile-system).
+Make sure to get api keys for the services you would like to use in your app. 
+For each satellite imagery provider add an `api_key` and `url`. 
 
 ```json
 "imagery": {
@@ -197,6 +172,7 @@ MapSwipe uses satellite imagery provided by Tile Map Services (TMS). If you are 
   }
 ```
 
+
 ### Run MapSwipe Workers
 
 ```bash
@@ -205,6 +181,30 @@ docker-compose up -d mapswipe_workers
 
 
 ## Manager Dashboard
+
+The Manager Dashboard uses the [Firebase JavaScript client SDK](https://firebase.google.com/docs/database/web/start) to access *Firebase Database* service as authenticated as MapSwipe user with project manager credentials. 
+
+1. Open [Google APIs & Services > Credentials](https://console.cloud.google.com/apis/credentials)
+2. Create API key for MapSwipe workers:
+    * set name of api key to `mapswipe_workers_api_key`
+    * set Application restrictions > IP addresses > set IP addresse of mapswipe workers server
+    * set API restrictions > Restrict Key > Identity Toolkit API
+3. Create API key for Manager Dashboard:
+    * set name of api key to `manager_dashboard_api_key`
+    * set Application restrictions > HTTP referrers > set HTTP referrer of managers dashboard (e.g. `https://dev.mapswipe.org`)
+    * set API restrictions > Restrict Key > Identity Toolkit API and Cloud Functions API
+4. Also make sure to configure the API keys for the App side here.
+
+Project-id refers to the name of your Firebase project (e.g. dev-mapswipe). The firebaseConfig in `mapswipe_dashboard/js/app.js` should look like this now:
+
+```javascript
+var firebaseConfig = {
+    apiKey: "manager_dashboard_api_key",
+    authDomain: "your_project_id.firebaseapp.com",
+    databaseURL: "https://your_project_id.firebaseio.com",
+    storageBucket: "your_project_id.appspot.com"
+  };
+```
 
 Get **Web API Key**: `> Settings > Project settings > General`. Add the web api key to the `.env` file.
 
@@ -226,7 +226,7 @@ docker-compose up -d api
 ```
 
 
-## Lets Encrypt
+## Lets Encrypt and NGINX
 
 To enable SSL for the API and MapSwipe Manager Dashboard use Certbot to issue standalone certificates.
 
@@ -261,22 +261,27 @@ systemctl start certbot.timer
 systemctl list-units --type timer | grep certbot
 ```
 
-
 Add renewal post hook to reload nginx after certificate renwal:
 
-```bash
-mkdir -p /etc/letsencrypt/renewal-hooks/deploy
+- `mkdir -p /etc/letsencrypt/renewal-hooks/deploy`
+- `vim /etc/letsencrypt/renewal-hooks/deploy/nginx`
 
-cat <<EOM >/etc/letsencrypt/renewal-hooks/deploy/nginx
+```
 #!/usr/bin/env bash
 
 docker container restart nginx
-EOM
-
-chmod +x /etc/letsencrypt/renewal-hooks/deploy/nginx
 ```
 
-### Run Nginx
+- `chmod +x /etc/letsencrypt/renewal-hooks/deploy/nginx`
+
+
+### Nginx
+
+NGINX serves the MapSwipe API and Manager Dashboard. If you want these point to a specific domain, make sure to set it up.
+
+Once you got your domain name change `server_name`, `ssl_certificate` and `ssl_certificate_key` in the NGINX configuration file (`nginx/nginx.conf`)
+
+Run NGINX:
 
 ```bash
 docker-compose up -d nginx

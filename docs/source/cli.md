@@ -1,5 +1,10 @@
 # Command Line Interface
 
+This document describes how to use the command line interface of MapSwipe Worker.
+
+In our current deployment setup the commands of the MapSwipe Workers CLI are hard-coded in the Docker-Compose File.
+
+
 ```
 Usage: mapswipe_workers [OPTIONS] COMMAND [ARGS]...
 
@@ -10,9 +15,11 @@ Options:
 
 Commands:
   create-projects
+  create-tutorial
   firebase-to-postgres
   generate-stats
   run
+  user-management
 ```
 
 
@@ -47,8 +54,10 @@ Options:
 Usage: mapswipe_workers generate-stats [OPTIONS]
 
 Options:
-  -s, --schedule [m|h|d]  Will generate stats every 10 minutes (m), every hour
-                          (h) or every day (d).
+  -s, --schedule [m|h|d]  Generate stats every 10 minutes (m), every hour (h)
+                          or every day (d).
+  --only_new_results      Generate stats for all projects or only for those
+                          updated or with new results.
   --help                  Show this message and exit.
 ```
 

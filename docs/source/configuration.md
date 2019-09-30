@@ -1,24 +1,4 @@
-# Configuration Reference
-This document describes all configuration details used by the python-mapswipe-workers. By the end of this document the following configuration files will be set up:
-
-* `.env`
-* `mapswipe_workers/config/configuration.json`  
-* `mapswipe_workers/config/serviceAccountKey.json`
-* `manager_dashboard/manager_dashboard/js/app.js`
-* `nginx/nginx.conf`
-
-## Google APIs & Services Credentials
-The python-mapswipe workers use a bunch of services provided by Google Cloud Platform. It's best to start to configure all api keys we need later directly from the beginning in Google APIs & Services.
-1. Open [Google APIs & Services > Credentials](https://console.cloud.google.com/apis/credentials)
-2. Create API key for MapSwipe workers:
-    * set name of api key to `mapswipe_workers_api_key`
-    * set Application restrictions > IP addresses > set IP addresse of mapswipe workers server`
-    * set API restrictions > Restrict Key > Identity Toolkit API
-3. Create API key for Manager Dashboard:
-    * set name of api key to `manager_dashboard_api_key`
-    * set Application restrictions > HTTP referrers > set HTTP referrer of managers dashboard (e.g. `https://dev.mapswipe.org`)
-    * set API restrictions > Restrict Key > Identity Toolkit API and Cloud Functions API
-4. Also make sure to configure the API keys for the App side here.
+<!--
 
 Then set up a Service Account Key file:
 1. Open [Google Cloud Service Accounts](https://console.cloud.google.com/iam-admin/serviceaccounts)
@@ -28,7 +8,12 @@ Then set up a Service Account Key file:
 3. Download Key as file:
     * select `.json` and save
 
+
+
+
+
 ## Firebase
+
 Firebase is a central part of MapSwipe. In our setup we use *Firebase Database*, *Firebase Database Rules* and *Firebase Functions*. In the documentation we will refer to two elements:
 1. `your_project_id`: This is the name of your Firebase project (e.g. *dev-mapswipe*)
 2. `your_database_name`: This is the name of your Firebase database. It is very likely that this will be the same as your Firebase project name as well.)
@@ -67,23 +52,134 @@ The `firebase` module uses the [Firebase Command Line Interface (CLI) Tools](htt
 FIREBASE_TOKEN="your_token"
 ```
 
-## Postgres
-The `postgres` module initializes a Postgres database. When running Postgres using the provided Dockerfile it will setup the database during the build. A Postgres password has to be defined in an environment file in the same directory as the `docker-compose.yaml` file (root). Add the following line to your `.env` file:
+-->
 
-```bash
-POSTGRES_PASSWORD=your_mapswipe_db_password
+# Configuration Reference
+
+This document provides details on all required configuration files:
+
+- `.env file`
+    * postgres password
+    * firebase token
+    * wal-g google storage prefix
+- `mapswipe_workers/config/configuration.json`
+    * firebase: api-key, databaseName
+    * postgres: host, port, database, username, password
+    * imagery: urls, api keys
+    * slack: token, username, channel
+    * sentry: dsn value
+- `mapswipe_workers/config/serviceAccountKey.json`
+    * check if file exists
+- `manager_dashboard/manager_dashboard/js/app.js`
+    * firebase: authDomain, apiKey, databaseUrl, storageBucket
+- `nginx/nginx.conf`
+    * server name
+    * ssl certificates, ssl certificates key
+
+You can run the script `test_config.py` to check if you set all the needed variables and file. The script will test the following files:
+
+
+## .env
+
+The environment file (`.env`) contains all variables needed by services running in Docker container.
+
+```.env
+POSTGRES_PASSWORD=password
+
+# Google Cloud Storage path for backups of Postgres
+WALG_GS_PREFIX=gs://x4m-test-bucket/walg-folder
+
+# Token for deployment of Firebase Rules and Functions
+FIREBASE_TOKEN=firebase_token
+
+GOOGLE_APPLICATION_CREDENTIALS=google_application_credentials
 ```
 
-The `mapswipe_workers` module write data to the Postgres database and generate files for the `api` module based on views in Postgres. You need to provide information on Postgres in your `mapswipe_workers/config/configuration.json`.:
+
+## MapSwipe Workers - Configuration
+
+`mapswipe_workers/config/configuration.json`:
 
 ```json
-"postgres": {
-  "host": "postgres",
-  "port": "5432",
-  "database": "mapswipe",
-  "username": "mapswipe_workers",
-  "password": "your_mapswipe_db_password"
-  },
+{
+    "postgres": {
+        "host": "postgres",
+        "port": "5432",
+        "database": "mapswipe",
+        "username": "mapswipe_workers",
+        "password": "your_mapswipe_db_password"
+    },
+    "firebase": {
+        "database_name": "your_firebase_database_name",
+        "api_key": "your_firebase_api_key"
+    },
+    "imagery":{
+        "bing": {
+            "api_key": "your_bing_api_key",
+            "url": "http://t0.tiles.virtualearth.net/tiles/a{quad_key}.jpeg?g=854&mkt=en-US&token={key}"
+        },
+        "digital_globe": {
+            "api_key": "your_digital_globe_api_key",
+            "url": "https://api.mapbox.com/v4/digitalglobe.nal0g75k/{z}/{x}/{y}.png?access_token={key}"
+        },
+        "sinergise": {
+            "api_key": "your_sinergise_api_key",
+            "url": "https://services.sentinel-hub.com/ogc/wmts/{key}?request=getTile&tilematrixset=PopularWebMercator256&tilematrix={z}&tilecol={x}&tilerow={y}&layer={layer}"
+        }
+    },
+    "slack": {
+        "token": "your_slack_token",
+        "channel": "your_slack_channel",
+        "username": "your_slack_username"
+    },
+    "sentry": {
+        "dsn": "your_sentry_dsn_value"
+    }
+}
+```
+
+
+## NGINX
+
+```
+server {
+    listen 80;
+    server_name dev.mapswipe.org;
+
+    location / {
+        return 301 https://$host$request_uri;
+    }
+}
+
+
+server {
+    listen 443 ssl;
+
+    ssl_certificate /etc/letsencrypt/live/dev.mapswipe.org/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/dev.mapswipe.org/privkey.pem;
+
+    server_name dev.mapswipe.org;
+
+    location /api/ {
+        proxy_pass  http://api:80/;
+    }
+
+    location /api {
+        rewrite ^ /api/ permanent;
+    }
+
+    location /manager_dashboard/ {
+        proxy_pass  http://manager_dashboard:80/;
+    }
+
+    location /manager_dashboard {
+        rewrite ^ /manager_dashboard/ permanent;
+    }
+
+    location / {
+        rewrite ^ /manager_dashboard/ permanent;
+    }
+}
 ```
 
 ## Postgres Backup
@@ -101,55 +197,3 @@ We need to access Google Cloud Storage. For this we use the previously generated
 GCS_Link_URL=https://console.cloud.google.com/storage/browser/your_project_id_postgres_backup
 GCS_Link_for_gsutil=gs://your_project_id_postgres_backup
 ```
-
-## Nginx
-The `nginx` module serves the MapSwipe API and Manager Dashboard. If you want these point to a specific domain, make sure to set it up. In our setup we use Google domains. Other tools will work similar.
-
-Once you got your domain name add it to `nginx/nginx.conf`:
-
-```
-server_name your_domain.org;
-```
-
-To enable SSL for the API and MapSwipe Manager Dashboard we use [Certbot](https://certbot.eff.org/) to issue standalone certificates using [Let's Encrypt](https://letsencrypt.org/).
-
-## Imagery
-MapSwipe uses satellite imagery provided by Tile Map Services (TMS). If you are not familiar with the basic concept have a look at [Bing's documentation](https://docs.microsoft.com/en-us/bingmaps/articles/bing-maps-tile-system). Make sure to get api keys for the services you would like to use in your app. For each satellite imagery provider add an `api_key` and `url`. You need to provide information on Imagery in your `mapswipe_workers/config/configuration.json`.:
-
-```json
-"imagery": {
-  "bing": {
-    "api_key": "your_bing_api_key",
-    "url": "http://t0.tiles.virtualearth.net/tiles/a{quad_key}.jpeg?g=854&mkt=en-US&token={key}"
-    },
-  "digital_globe": {
-    "api_key": "your_digital_globe_api_key",
-    "url": "https://api.mapbox.com/v4/digitalglobe.nal0g75k/{z}/{x}/{y}.png?access_token={key}"
-    },
-  "sinergise": {
-    "api_key": "your_sinergise_api_key",
-    "url": "https://services.sentinel-hub.com/ogc/wmts/{key}?request=getTile&tilematrixset=PopularWebMercator256&tilematrix={z}&tilecol={x}&tilerow={y}&layer={layer}"
-    }
-  }
-```
-
-## Sentry (optional)
-The `mapswipe_workers` module uses sentry to capture exceptions. You can find your project’s DSN in the “Client Keys” section of your “Project Settings” in Sentry. Check [Sentry's documentation](https://docs.sentry.io/error-reporting/configuration/?platform=python) for more information. You need to provide information on Sentry in your `mapswipe_workers/config/configuration.json`.:
-
-```json
-"sentry": {
-  "dsn": "your_sentry_dsn_value"
-  }
-```
-
-## Slack (optional)
-The `mapswipe_workers` module sends messages to slack when a project has been created successfully, the project creation failed or an exception during mapswipe_workers cli occurred. You need to add a slack token to use slack messaging. You can find out more from [Python slackclient's documentation](https://github.com/slackapi/python-slackclient) how to get it. You need to provide information on Slack in your `mapswipe_workers/config/configuration.json`.:
-
-```json
-"slack": {
-  "token": "your_slack_token",
-  "channel": "your_slack_channel",
-  "username": "your_slack_username"
-  },
-```
-
