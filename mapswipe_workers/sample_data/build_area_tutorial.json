@@ -14,17 +14,17 @@
   },
   "categories": {
     "building_easy_1": {
-      "pre": "Tap once on all tiles with at least one building.",
+      "pre": "Tap once on all tiles with at least one building or parts of a building.",
       "post_correct": "Great. Swipe left and let's have a look a some more difficult examples.",
       "post_wrong": "... there are some buildings here. Please map all of them. "
     },
     "building_easy_2": {
       "pre": "Again tap the tiles that show buildings. Don't be distracted by roads and other features.",
       "post_correct": "Perfect. Swipe left and let's have a look at examples without buildings.",
-      "post_wrong": "Oh no. Make sure to map all buildings, also if only small pars of a building are visible in a tile."
+      "post_wrong": "Oh no. Make sure to map all buildings, also if only small parts of a building are visible in a tile."
     },
     "maybe_1": {
-      "pre": "Sometimes, you might be sure whether a feature is a building or not. In those cases tap two times to indicate a maybe. Mark the bottom left tile as maybe.",
+      "pre": "Sometimes, you might be unsure whether a feature is a building or not. In those cases tap two times to indicate a maybe. Mark the bottom left tile as maybe.",
       "post_correct": "Great.",
       "post_wrong": "Even if you are absolutely sure, mark the bottom left tile as maybe to move on with this tutorial."
     },
