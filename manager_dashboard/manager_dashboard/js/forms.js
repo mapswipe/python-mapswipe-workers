@@ -76,6 +76,7 @@ function openFile(event) {
           var geometry = JSON.parse(text)
           var output = document.getElementById(element_id);
           output.innerHTML = text
+          output.style.display = 'None'
 
           var inputFeaturesLayer = L.geoJSON().addTo(mymap);
           inputFeaturesLayer.addData(geometry);
@@ -87,6 +88,7 @@ function openFile(event) {
         catch(err) {
           var output = document.getElementById(element_id);
           output.innerHTML = '<b>Error reading GeoJSON file</b><br>' + err;
+          output.style.display = 'block'
         }
     };
     reader.readAsText(input.files[0]);
@@ -118,5 +120,6 @@ function initMap() {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
     subdomains: ['a','b','c']
   }).addTo( mymap );
-  console.log('added map')
+  console.log('added map');
+  setTimeout(function(){ mymap.invalidateSize()}, 400);
   }
