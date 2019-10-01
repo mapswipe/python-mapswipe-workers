@@ -75,6 +75,7 @@ function openFile(event) {
           var text = reader.result;
           var geometry = JSON.parse(text)
           var output = document.getElementById(element_id);
+          output.innerHTML = text
 
           var inputFeaturesLayer = L.geoJSON().addTo(mymap);
           inputFeaturesLayer.addData(geometry);
