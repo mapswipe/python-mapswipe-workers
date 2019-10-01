@@ -75,7 +75,13 @@ function openFile(event) {
           var text = reader.result;
           var geometry = JSON.parse(text)
           var output = document.getElementById(element_id);
-          output.innerHTML = text;
+
+          var inputFeaturesLayer = L.geoJSON().addTo(mymap);
+          inputFeaturesLayer.addData(geometry);
+          console.log('added input geojson feature')
+          console.log(inputFeaturesLayer.getBounds())
+          mymap.fitBounds(inputFeaturesLayer.getBounds());
+          console.log('fit to bounds of input features')
         }
         catch(err) {
           var output = document.getElementById(element_id);
@@ -105,3 +111,11 @@ function openImageFile(event) {
     reader.readAsDataURL(input.files[0]);
   };
 
+function initMap() {
+  mymap = L.map('map').setView([0.0, 0.0], 4);
+  L.tileLayer( 'https://maps.wikimedia.org/osm-intl/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    subdomains: ['a','b','c']
+  }).addTo( mymap );
+  console.log('added map')
+  }
