@@ -133,4 +133,5 @@
 	color:#fff;
 }
 
-#map { height: 300px; width: 100%}
+#geometryMap { height: 300px; width: 100%}
+#geometryChangeDetectionMap { height: 300px; width: 100%}

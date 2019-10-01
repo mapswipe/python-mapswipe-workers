@@ -29,6 +29,7 @@
  <script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js"
    integrity="sha512-GffPMF3RvMeYyc1LWMHtK8EbPv0iNZ8/oTtHPx9/cc2ILxQ+u905qIwdpULaqDkyBKgOaB57QTMg7ztg8Jm2Og=="
    crossorigin=""></script>
+    <script src='https://npmcdn.com/@turf/turf/turf.min.js'></script>
 </head>
 <body onload="initMap()">
 
@@ -143,7 +144,8 @@
                               <label for="geometry">GeoJSON File</label>
                               <!-- <textarea name="geometry" id="geometry" onkeyup="adjust_textarea(this)"></textarea> -->
                               <input type="file" accept=".GeoJSON" id="geometry" onchange='openFile(event)'>
-                              <div id="map"></div>
+                              <div id="geometryMap"></div>
+                              <p id="geometryInfo"></p>
                               <p id="geometryContent"></p>
                               <span>Upload your project area as GeoJSON File. Make sure that you provide a single polygon geometry.</span>
                           </li>
@@ -237,6 +239,8 @@
                               <label for="geometry">GeoJSON File</label>
                               <!-- <textarea name="geometry" id="geometry" onkeyup="adjust_textarea(this)"></textarea> -->
                               <input type="file" accept=".GeoJSON" id="geometryChangeDetection" onchange='openFile(event)'>
+                              <div id="geometryChangeDetectionMap"></div>
+                              <p id="geometryChangeDetectionInfo"></p>
                               <p id="geometryChangeDetectionContent"></p>
                               <span>Upload your project area as GeoJSON File. Make sure that you provide a single polygon geometry.</span>
                           </li>

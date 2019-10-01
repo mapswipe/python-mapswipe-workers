@@ -56,7 +56,7 @@ function submitInfo() {
     if (projectType == 1) {
 
         var zoomLevel = document.getElementById("zoomLevel").value;
-        var geometry = document.getElementById("geometryContent").innerHTML;
+        var geometry = BuildAreaGeometry;
         var tileServer = {
           name: document.getElementById("tileServerBuildArea").value,
           url: document.getElementById("tileServerUrlBuildArea").value,
@@ -107,7 +107,7 @@ function submitInfo() {
     } else if (projectType == 3) {
 
       var zoomLevel = document.getElementById("zoomLevelChangeDetection").value;
-      var geometry = document.getElementById("geometryChangeDetectionContent").innerHTML;
+      var geometry = ChangeDetectionGeometry;
       var tileServerA = {
         name: document.getElementById("tileServerChangeDetectionA").value,
         url: document.getElementById("tileServerUrlChangeDetectionA").value,
