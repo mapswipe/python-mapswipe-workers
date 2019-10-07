@@ -77,7 +77,6 @@ WHERE
 ```
 
 
-
 Tasks without project
 
 ```sql
@@ -121,36 +120,20 @@ WHERE
 (1 row)
 ```
 
-```
 
-INSERT INTO
-  groups(
-    project_id,
-    group_id,
-    number_of_tasks,
-    finished_count,
-    required_count,
-    progress,
-    project_type_specifics
-  )
-SELECT
-  project_id,
-  group_id,
-  number_of_tasks,
-  finished_count,
-  required_count,
-  progress,
-  project_type_specifics
-FROM
-  v1_groups
-ON CONFLICT (project_id, group_id) DO NOTHING;
-psql:copy_groups_from_csv.sql:62: ERROR:  insert or update on table "groups" violates foreign key constraint "groups_project_id_fkey"
+Anzahl an Results:
 
 ```
+select count(*) from results;
 
-
+  count
+----------
+ 20538723
+(1 row
+```
 
 ---
+
 
 ## New Database
 
@@ -168,3 +151,14 @@ WHERE
  Map Philippines 13        | 13631
  (4 rows)
 ```
+
+
+Anzahl an Tasks:
+37 286 140
+
+
+
+
+
+
+114 Results in der Produktion database

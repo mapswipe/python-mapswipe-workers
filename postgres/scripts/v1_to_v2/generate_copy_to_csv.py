@@ -28,7 +28,8 @@ def get_query(project_ids):
             f'\copy (SELECT project_id, group_id as "v1_group_id", task_id, info as "project_type_specifics" FROM tasks {clause_group} LIMIT 10000000) TO tasks1.csv WITH (FORMAT CSV, DELIMITER ",", HEADER TRUE);\n' \
             f'\copy (SELECT project_id, group_id as "v1_group_id", task_id, info as "project_type_specifics" FROM tasks {clause_group} OFFSET 10000000 LIMIT 10000000) TO tasks2.csv WITH (FORMAT CSV, DELIMITER ",", HEADER TRUE);\n' \
             f'\copy (SELECT project_id, group_id as "v1_group_id", task_id, info as "project_type_specifics" FROM tasks {clause_group} OFFSET 20000000 LIMIT 10000000) TO tasks3.csv WITH (FORMAT CSV, DELIMITER ",", HEADER TRUE);\n' \
-            f'\copy (SELECT project_id, group_id as "v1_group_id", task_id, info as "project_type_specifics" FROM tasks {clause_group} OFFSET 30000000) TO tasks4.csv WITH (FORMAT CSV, DELIMITER ",", HEADER TRUE);\n'
+            f'\copy (SELECT project_id, group_id as "v1_group_id", task_id, info as "project_type_specifics" FROM tasks {clause_group} OFFSET 30000000) TO tasks4.csv WITH (FORMAT CSV, DELIMITER ",", HEADER TRUE);\n' \
+            f'\copy (SELECT user_id, username FROM users) TO users.csv WITH (FORMAT CSV, DELIMITER ",", HEADER TRUE);\n'
     return query
 
 
@@ -45,14 +46,11 @@ def get_result_query(project_ids):
 
     query = f'-- Export v1 MapSwipe data to csv.\n' \
             f'-- Rename attributes to conform to v2.\n' \
-            f'\copy (SELECT user_id, username FROM users) TO users.csv WITH (FORMAT CSV, DELIMITER ",", HEADER TRUE);\n' \
-            f'\copy (SELECT project_id, task_id, user_id, timestamp as "timeint", info FROM results {clause} LIMIT 10000000) TO results1.csv WITH (FORMAT CSV, DELIMITER ",", HEADER TRUE);\n' \
-            f'\copy (SELECT project_id, task_id, user_id, timestamp as "timeint", info FROM results {clause} OFFSET 10000000) TO results2.csv WITH (FORMAT CSV, DELIMITER ",", HEADER TRUE);\n'
+            f'\copy (SELECT project_id, task_id, user_id, timestamp as "timeint", info FROM results {clause}) TO results.csv WITH (FORMAT CSV, DELIMITER ",", HEADER TRUE);\n'
     return query
 
 
 if __name__ == '__main__':
-
     if len(sys.argv) == 1:
         query = get_query(None)
         result_query = get_result_query(None)
