@@ -5,6 +5,27 @@
 /* Goal: assign results based on tasks to a group */
 /* Problem: there are tasks belonging to 2 different groups */
 
+/* Make sure to find out all duplicated tasks beforehand:
+/* Create duplicated flag for tasks*/
+/* ALTER TABLE*/
+/*     tasks*/
+/* ADD COLUMN*/
+/*     duplicated boolean DEFAULT false;*/
+
+/* Set duplicated tasks */
+/* (tasks with same ID and geometry occurring in two different groups) */
+/* UPDATE*/
+/*     tasks t1*/
+/* SET*/
+/*     duplicated = true*/
+/* FROM*/
+/*     tasks t2*/
+/* WHERE*/
+/*     t1.task_id = t2.task_id*/
+/*     AND t1.project_id = t2.project_id*/
+/*     AND t1.group_id != t2.group_id;*/
+
+
 CREATE TEMP TABLE v1_results(
     project_id varchar,
     group_id varchar DEFAULT NULL,
@@ -32,25 +53,6 @@ WHERE result IS NULL;
 
 UPDATE v1_results
 SET timestamp = TO_TIMESTAMP(timeint/1000);
-
-/* Create duplicated flag for tasks*/
-ALTER TABLE
-    tasks
-ADD COLUMN
-    duplicated boolean DEFAULT false;
-
-/* Set duplicated tasks */
-/* (tasks with same ID and geometry occurring in two different groups) */
-UPDATE
-    tasks t1
-SET
-    duplicated = true
-FROM
-    tasks t2
-WHERE
-    t1.task_id = t2.task_id
-    AND t1.project_id = t2.project_id
-    AND t1.group_id != t2.group_id;
 
 /* Set group_id of v1_results for non-duplicated tasks */
 UPDATE
@@ -139,9 +141,3 @@ SELECT
 FROM
     user_results
 ON CONFLICT (project_id, group_id, task_id, user_id) DO NOTHING;
-
-
-ALTER TABLE
-    tasks
-DROP COLUMN
-    duplicated;
