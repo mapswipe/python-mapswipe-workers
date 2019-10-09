@@ -53,7 +53,7 @@ services:
             context: mapswipe_workers/
         depends_on:
             - postgres
-        command: mapswipe_workers --verbose run --schedule m
+        command: mapswipe_workers --verbose run --schedule m --only_new_results
         volumes:
             - ./api-data:/var/lib/mapswipe_workers/api-data/:rw
             - ./api-data/agg_res_by_task_id:/var/lib/mapswipe_workers/api-data/agg_res_by_task_id:rw
