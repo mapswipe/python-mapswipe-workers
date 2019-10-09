@@ -42,14 +42,9 @@ def generate_stats(only_new_results):
 
     filename = f'{DATA_PATH}/api-data/agg_res_by_project_id.csv'
     get_aggregated_results_by_project_id(filename)
+    csv_to_geojson(filename, 'geom')
+    csv_to_geojson(filename, 'centroid')
 
-    filename = f'{DATA_PATH}/api-data/agg_res_by_project_id_geom.csv'
-    get_aggregated_results_by_project_id_geom(filename)
-    csv_to_geojson(filename)
-
-    filename = f'{DATA_PATH}/api-data/agg_res_by_project_id_centroid.csv'
-    get_aggregated_results_by_project_id_centroid(filename)
-    csv_to_geojson(filename)
 
     filename = f'{DATA_PATH}/api-data/agg_projects.csv'
     get_aggregated_projects(filename)
@@ -62,14 +57,8 @@ def generate_stats(only_new_results):
 
     filename = f'{DATA_PATH}/api-data/agg_progress_by_project_id.csv'
     get_aggregated_progress_by_project_id(filename)
-
-    filename = f'{DATA_PATH}/api-data/agg_progress_by_project_id_geom.csv'
-    get_aggregated_progress_by_project_id_geom(filename)
-    csv_to_geojson(filename)
-
-    filename = f'{DATA_PATH}/api-data/agg_progress_by_project_id_centroid.csv'
-    get_aggregated_progress_by_project_id_centroid(filename)
-    csv_to_geojson(filename)
+    csv_to_geojson(filename, 'geom')
+    csv_to_geojson(filename, 'centroid')
 
     logger.info('start to export csv file for %s projects based on given project_id_list' % len(project_id_list))
     for project_id in project_id_list:
@@ -241,62 +230,13 @@ def get_aggregated_results_by_project_id(filename):
     '''
 
     pg_db = auth.postgresDB()
-    sql_query = "COPY (SELECT * FROM aggregated_results_by_project_id) TO STDOUT WITH CSV HEADER"
-
-    with open(filename, 'w') as f:
-        pg_db.copy_expert(sql_query, f)
-
-    del pg_db
-
-    logger.info('saved aggregated results by project_id to %s' % filename)
-
-
-def get_aggregated_results_by_project_id_geom(filename):
-    '''
-    Export results aggregated on project_id basis as csv file.
-
-    Parameters
-    ----------
-    filename: str
-    '''
-
-    pg_db = auth.postgresDB()
     sql_query = """COPY (
         SELECT
             r.*
             ,p.name
             ,p.project_details
             ,ST_AsText(p.geom) as geom
-        FROM
-            aggregated_results_by_project_id as r , projects as p
-        WHERE
-            r.project_id = p.project_id
-        ) TO STDOUT WITH (FORMAT CSV, HEADER, FORCE_QUOTE(project_id, name, project_details))"""
-
-    with open(filename, 'w') as f:
-        pg_db.copy_expert(sql_query, f)
-
-    del pg_db
-
-    logger.info('saved aggregated results by project_id to %s' % filename)
-
-
-def get_aggregated_results_by_project_id_centroid(filename):
-    '''
-    Export results aggregated on project_id basis as csv file.
-
-    Parameters
-    ----------
-    filename: str
-    '''
-
-    pg_db = auth.postgresDB()
-    sql_query = """COPY (
-        SELECT
-            r.*
-            ,p.name
-            ,p.project_details
-            ,ST_AsText(ST_Centroid(p.geom)) as geom
+            ,ST_AsText(ST_Centroid(p.geom)) as centroid
         FROM
             aggregated_results_by_project_id as r , projects as p
         WHERE
@@ -404,26 +344,6 @@ def get_aggregated_progress_by_project_id(filename):
     '''
 
     pg_db = auth.postgresDB()
-    sql_query = "COPY (SELECT * FROM aggregated_progress_by_project_id) TO STDOUT WITH CSV HEADER"
-
-    with open(filename, 'w') as f:
-        pg_db.copy_expert(sql_query, f)
-
-    del pg_db
-
-    logger.info('saved aggregated progress by project_id to %s' % filename)
-
-
-def get_aggregated_progress_by_project_id_geom(filename):
-    '''
-    Export aggregated progress on a project_id basis as csv file.
-
-    Parameters
-    ----------
-    filename: str
-    '''
-
-    pg_db = auth.postgresDB()
     sql_query = """
     COPY (
       SELECT
@@ -431,37 +351,7 @@ def get_aggregated_progress_by_project_id_geom(filename):
         ,p.name
         ,p.project_details
         ,ST_AsText(p.geom) as geom
-      FROM
-        aggregated_progress_by_project_id as r,
-        projects as p
-      WHERE
-        p.project_id = r.project_id
-    ) TO STDOUT WITH (FORMAT CSV, HEADER, FORCE_QUOTE(project_id, name, project_details))"""
-
-    with open(filename, 'w') as f:
-        pg_db.copy_expert(sql_query, f)
-
-    del pg_db
-    logger.info('saved aggregated progress by project_id to %s' % filename)
-
-
-def get_aggregated_progress_by_project_id_centroid(filename):
-    '''
-    Export aggregated progress on a project_id basis as csv file.
-
-    Parameters
-    ----------
-    filename: str
-    '''
-
-    pg_db = auth.postgresDB()
-    sql_query = """
-    COPY (
-      SELECT
-        r.*
-        ,p.name
-        ,p.project_details
-        ,ST_AsText(ST_Centroid(p.geom)) as geom
+        ,ST_AsText(ST_Centroid(p.geom)) as centroid
       FROM
         aggregated_progress_by_project_id as r,
         projects as p
@@ -597,12 +487,12 @@ def get_last_result():
     return last_update
 
 
-def csv_to_geojson(filename):
+def csv_to_geojson(filename, geometry_field='geom'):
     '''
     Use ogr2ogr to convert csv file to GeoJSON
     '''
 
-    outfile = filename.replace('csv', 'geojson')
+    outfile = filename.replace('.csv', f'_{geometry_field}.geojson')
     # need to remove file here because ogr2ogr can't overwrite when choosing GeoJSON
     if os.path.isfile(outfile):
         os.remove(outfile)
@@ -615,33 +505,7 @@ def csv_to_geojson(filename):
         outfile,
         filename,
         "-sql",
-        f'SELECT *, CAST(geom as geometry) FROM "{filename_without_path}"'
-    ], check=True)
-    logger.info(f'converted {filename} to {outfile}.')
-
-    cast_datatypes_for_geojson(outfile)
-
-
-def csv_to_geojson_centroids(filename):
-    '''
-    Use ogr2ogr to convert csv file to GeoJSON
-    '''
-
-    outfile = filename.replace('.csv', '_centroids.geojson')
-
-    # need to remove file here because ogr2ogr can't overwrite when choosing GeoJSON
-    if os.path.isfile(outfile):
-        os.remove(outfile)
-    filename_without_path = filename.split('/')[-1].replace('.csv', '')
-    # TODO: remove geom column from normal attributes in sql query
-    subprocess.run([
-        "ogr2ogr",
-        "-f",
-        "GeoJSON",
-        outfile,
-        filename,
-        "-sql",
-        f'SELECT *, ST_Centroid(CAST(geom as geometry)) FROM "{filename_without_path}"'
+        f'SELECT *, CAST({geometry_field} as geometry) FROM "{filename_without_path}"'
     ], check=True)
     logger.info(f'converted {filename} to {outfile}.')
 
