@@ -67,6 +67,10 @@ class BaseProject(metaclass=ABCMeta):
         self.projectType = int(project_draft['projectType'])
         self.verificationNumber = project_draft['verificationNumber']
         self.status = 'new'
+        self.projectTopic = project_draft.get('projectTopic', None)
+        self.projectRegion = project_draft.get('projectRegion', None)
+        self.projectNumber = project_draft.get('projectNumber', None)
+        self.requestingOrganisation = project_draft.get('requestingOrganisation', None)
 
     # TODO: Implement resultRequiredCounter as property.
     # Does not work because for some reason project['group'] = vars()
