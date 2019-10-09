@@ -83,9 +83,29 @@
                       <form class="form-style-7">
                           <ul>
                           <li>
+                              <label for="projectTopic">Project Topic</label>
+                              <input type="text" name="projectTopic" id="projectTopic" maxlength="50" required>
+                              <span>Enter the topic of your project (50 chars max).</span>
+                          </li>
+                          <li>
+                              <label for="projectRegion">Project Region</label>
+                              <input type="text" name="projectRegion" id="projectRegion" maxlength="50" required>
+                              <span>Enter name of your project Region (50 chars max).</span>
+                          </li>
+                          <li>
+                              <label for="projectNumber">Project Number</label>
+                              <input type="number" name="projectNumber" id="projectNumber" min="1" value="1">
+                              <span>Is this project part of a bigger campaign with multiple projects?</span>
+                          </li>
+                          <li>
+                              <label for="requestingOrganisation">Requesting Organisation</label>
+                              <input type="text" name="requestingOrganisation" id="requestingOrganisation" maxlength="100" required>
+                              <span>Which group, institution or community is requesting this project.</span>
+                          </li>
+                          <li>
                               <label for="name">Name</label>
-                              <input type="text" name="name" id="name" maxlength="25" required>
-                              <span>Enter the name of your project (25 chars max).</span>
+                              <p id="name"></br>[projectTopic] - [projectRegion](taskNumber)<br>[requesting organisation]</p>
+                              <span>We will generate you project name based on your inputs above.</span>
                           </li>
                           <li>
                               <label for="lookFor">Look For</label>
@@ -121,7 +141,7 @@
                           </li>
                           <li>
                               <label for="groupSize">Group Size</label>
-                              <input type="number" name="groupSize" id="groupSize" value="50" min="10" max="200">
+                              <input type="number" name="groupSize" id="groupSize" value="120" min="10" max="200">
                               <span>How big should a mapping session be? Group size refers to the number of tasks per mapping session.</span>
                           </li>
                           <li></li>
@@ -171,7 +191,7 @@
                           </li>
                           <li id="tileServerCreditsFieldBuildArea">
                               <label for="tileServerCreditsFieldBuildArea">Imagery Credits</label>
-                              <input type="text" name="tileServerCreditsBuildArea" id="tileServerCreditsBuildArea">
+                              <input type="text" name="tileServerCreditsBuildArea" id="tileServerCreditsBuildArea" value="© 2019 Microsoft Corporation, Earthstar Geographics SIO">
                               <span>Insert appropriate imagery credits. E.g. for Bing: "© 2019 Microsoft Corporation, Earthstar Geographics SIO"</span>
                           </li>
                           <li>
@@ -219,7 +239,7 @@
                           </li>
                           <li id="tileServerCreditsFieldFootprint">
                               <label for="tileServerCreditsFieldFootprint">Imagery Credits</label>
-                              <input type="text" name="tileServerCreditsFootprint" id="tileServerCreditsFootprint">
+                              <input type="text" name="tileServerCreditsFootprint" id="tileServerCreditsFootprint" value="© 2019 Microsoft Corporation, Earthstar Geographics SIO">
                               <span>Insert appropriate imagery credits. E.g. for Bing: "© 2019 Microsoft Corporation, Earthstar Geographics SIO"</span>
                           </li>
                           <li>

@@ -44,7 +44,13 @@ function submitInfo() {
     } else {
 
     // get basic project information
-    var name = document.getElementById("name").value;
+    var projectTopic = document.getElementById("projectTopic").value;
+    var projectRegion = document.getElementById("projectRegion").value;
+    var projectNumber = document.getElementById("projectNumber").value;
+    var requestingOrganisation = document.getElementById("requestingOrganisation").value;
+    var name = projectTopic + ' - ' + projectRegion + ' (' + projectNumber + ')\n' + requestingOrganisation
+
+
     var lookFor = document.getElementById("lookFor").value;
     var projectDetails = document.getElementById("projectDetails").value;
     var projectType = document.getElementById("projectType").value;
@@ -66,6 +72,10 @@ function submitInfo() {
 
         var mapswipe_import = {
             name: name,
+            projectRegion: projectRegion,
+            projectTopic: projectTopic,
+            projectNumber: projectNumber,
+            requestingOrganisation: requestingOrganisation,
             lookFor: lookFor,
             projectDetails: projectDetails,
             projectType: parseInt(projectType),
