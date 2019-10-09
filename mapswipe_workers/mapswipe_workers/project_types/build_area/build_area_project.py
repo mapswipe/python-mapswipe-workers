@@ -44,7 +44,16 @@ class BuildAreaProject(BaseProject):
 
         driver = ogr.GetDriverByName('GeoJSON')
         datasource = driver.Open(raw_input_file, 0)
-        layer = datasource.GetLayer()
+
+        try:
+            layer = datasource.GetLayer()
+        except:
+            logger.warning(
+                f'{self.projectId}'
+                f' - validate geometry - '
+                f'Could not get layer for datasource'
+            )
+            raise CustomError(f'could not get layer for datasource')
 
         # check if layer is empty
         if layer.GetFeatureCount() < 1:
