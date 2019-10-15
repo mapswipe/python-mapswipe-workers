@@ -51,6 +51,7 @@ Welcome to MapSwipe Back-End's documentation!
    :caption: Miscellaneous:
 
    dev_setup
+   contributing
    diagrams
    use_cases
 
