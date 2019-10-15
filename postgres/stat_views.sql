@@ -2,59 +2,107 @@
 -- projects
 -- aggregated_projects
 -- aggregated_projects
-CREATE or REPLACE VIEW aggregated_projects AS
+-- CREATE or REPLACE VIEW stats AS
+CREATE or REPLACE MATERIALIZED VIEW
+    aggregated_projects
+AS
 SELECT
-    count(*) as total_projects_count
-    ,Sum(CASE WHEN progress = 100  THEN 1 ELSE 0 END) as finished_projects_count
-    ,Sum(CASE WHEN status = 'active' THEN 1 ELSE 0 END) as active_projects_count
-    ,Sum(CASE WHEN status = 'inactive' THEN 1 ELSE 0 END) as inactive_projects_count
-    ,Round(Avg(progress),3) as average_progress
-    ,Round(Avg(required_results),0) as average_number_of_tasks
+    count(p.*) as projects,
+    count(g.*) as groups,
+    count(t.*) as tasks,
+    count(u.*) as users,
+    count(r.*) as results,
+    sum(CASE WHEN p.progress = 100  THEN 1 ELSE 0 END) as finished_projects,
+    sum(CASE WHEN p.status = 'active' THEN 1 ELSE 0 END) as active_projects,
+    sum(CASE WHEN p.status = 'inactive' THEN 1 ELSE 0 END) as inactive_projects,
+    round(avg(p.progress),3) as average_progress,
+    round(avg(p.required_results),0) as average_number_of_tasks
 FROM
-    projects;
+    projects p
+    groups g
+    tasks t
+    users u
+    results r;
 
 -- aggregated_projects_by_project_type
-CREATE or REPLACE VIEW aggregated_projects_by_project_type AS
+CREATE or REPLACE MATERIALIZED VIEW
+    aggregated_projects_by_project_type
+AS
 SELECT
-    project_type
-    ,count(*) as total_projects_count
-    ,Sum(CASE WHEN progress = 100  THEN 1 ELSE 0 END) as finished_projects_count
-    ,Sum(CASE WHEN status = 'active' THEN 1 ELSE 0 END) as active_projects_count
-    ,Sum(CASE WHEN status = 'inactive' THEN 1 ELSE 0 END) as inactive_projects_count
-    ,Round(Avg(progress),3) as average_progress
-    ,Round(Avg(required_results),0) as average_number_of_tasks
+    count(p.*) as projects,
+    count(g.*) as groups,
+    count(t.*) as tasks,
+    count(u.*) as users,
+    count(r.*) as results,
+    sum(CASE WHEN p.progress = 100  THEN 1 ELSE 0 END) as finished_projects,
+    Sum(CASE WHEN p.status = 'active' THEN 1 ELSE 0 END) as active_projects,
+    Sum(CASE WHEN p.status = 'inactive' THEN 1 ELSE 0 END) as inactive_projects,
+    Round(Avg(p.progress),3) as average_progress,
+    Round(Avg(p.required_results),0) as average_number_of_tasks
 FROM
-    projects
+    projects p
+    groups g
+    tasks t
+    users u
+    results r
 GROUP BY
-    project_type
+    p.project_type
 ORDER BY
-    project_type;
+    p.project_type;
+
+-- aggregated_projects_by_project_type
+CREATE or REPLACE VIEW
+    aggregated_projects_by_project_status
+AS
+SELECT
+    count(p.*) as projects,
+    count(g.*) as groups,
+    count(t.*) as tasks,
+    count(u.*) as users,
+    count(r.*) as results,
+    sum(CASE WHEN p.progress = 100  THEN 1 ELSE 0 END) as finished_projects,
+    Sum(CASE WHEN p.status = 'active' THEN 1 ELSE 0 END) as active_projects,
+    Sum(CASE WHEN p.status = 'inactive' THEN 1 ELSE 0 END) as inactive_projects,
+    Round(Avg(p.progress),3) as average_progress,
+    Round(Avg(p.required_results),0) as average_number_of_tasks
+FROM
+    projects p
+    groups g
+    tasks t
+    users u
+    results r
+GROUP BY
+    p.project_status
+ORDER BY
+    p.project_status;
 
 -- users
 -- aggregated_users
-CREATE or REPLACE VIEW aggregated_users AS
+CREATE or REPLACE VIEW
+    aggregated_users
+AS
 SELECT
-  count(*) as total_users_count
-  ,Sum(CASE WHEN task_contribution_count > 0 THEN 1 ELSE 0 END) as active_users_count
-  ,Sum(CASE WHEN task_contribution_count = 0 THEN 1 ELSE 0 END) as inactive_users_count
-  ,round(avg(CASE WHEN task_contribution_count > 0 THEN project_contribution_count ELSE NULL END),1) as average_project_contribution_count
-  ,round(avg(CASE WHEN task_contribution_count > 0 THEN group_contribution_count ELSE NULL END),1) as average_group_contribution_count
-  ,round(avg(CASE WHEN task_contribution_count > 0 THEN task_contribution_count ELSE NULL END),1) as average_task_contribution_count
-FROM
-(
-  SELECT
-	distinct(users.user_id) as user_id
-	,count(distinct(results.project_id)) as project_contribution_count
-	,count(distinct(results.group_id)) as group_contribution_count
-	,count(distinct(results.task_id)) as task_contribution_count
-	,min(timestamp) as first_contribution_timestamp
-	,max(timestamp) as last_contribution_timestamp
-FROM
-users
-LEFT JOIN results ON
-	users.user_id = results.user_id
-GROUP BY users.user_id
-) as foo;
+    count(*) as users
+    sum(CASE WHEN task_contribution_count > 0 THEN 1 ELSE 0 END) as active_users,
+    sum(CASE WHEN task_contribution_count = 0 THEN 1 ELSE 0 END) as inactive_users,
+    round(avg(CASE WHEN task_contribution_count > 0 THEN project_contribution_count ELSE NULL END),1) as average_project_contribution_count,
+    round(avg(CASE WHEN task_contribution_count > 0 THEN group_contribution_count ELSE NULL END),1) as average_group_contribution_count,
+    round(avg(CASE WHEN task_contribution_count > 0 THEN task_contribution_count ELSE NULL END),1) as average_task_contribution_count
+FROM (
+    SELECT
+        distinct(users.user_id) as user_id,
+        count(distinct(results.project_id)) as project_contribution_count,
+        count(distinct(results.group_id)) as group_contribution_count,
+        count(distinct(results.task_id)) as task_contribution_count,
+        min(timestamp) as first_contribution_timestamp,
+        max(timestamp) as last_contribution_timestamp
+    FROM
+        users
+    LEFT JOIN
+        results ON users.user_id = results.user_id
+    GROUP BY
+        users.user_id
+    )
 
 -- results
 -- aggregated_results
