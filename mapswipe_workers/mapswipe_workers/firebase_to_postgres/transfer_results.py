@@ -6,6 +6,7 @@ import dateutil.parser
 from mapswipe_workers import auth
 from mapswipe_workers.definitions import logger
 from mapswipe_workers.firebase_to_postgres import update_data
+from mapswipe_workers.utils import sentry
 
 
 def transfer_results(project_id_list=None):
@@ -106,7 +107,14 @@ def results_to_file(results, projectId):
             start_time = dateutil.parser.parse(start_time)
             end_time = dateutil.parser.parse(end_time)
 
-            results = results['results']
+            try:
+                results = results['results']
+            except KeyError as e:
+                sentry.capture_exception_sentry(e)
+                logger.exception(e)
+                logger.warning(f'no results key for: {projectId}/{groupId}/{userId}, will skip this one')
+                continue
+
             if type(results) is dict:
                 for taskId, result in results.items():
                     w.writerow([
