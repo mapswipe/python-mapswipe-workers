@@ -93,9 +93,18 @@ def results_to_file(results, projectId):
     logger.info(f'Got %s groups for project {projectId} to transfer' % len(results.items()))
     for groupId, users in results.items():
         for userId, results in users.items():
-            timestamp = results['timestamp']
-            start_time = results['startTime']
-            end_time = results['endTime']
+
+            # check if all attributes are set, if not don't transfer the results for this group
+            try:
+                timestamp = results['timestamp']
+                start_time = results['startTime']
+                end_time = results['endTime']
+                results = results['results']
+            except KeyError as e:
+                sentry.capture_exception_sentry(e)
+                logger.exception(e)
+                logger.warning(f'at least one missing attribute for: {projectId}/{groupId}/{userId}, will skip this one')
+                continue
 
             # Convert timestamp (ISO 8601) from string to a datetime object
             # this solution works only in python 3.7
@@ -106,14 +115,6 @@ def results_to_file(results, projectId):
             timestamp = dateutil.parser.parse(timestamp)
             start_time = dateutil.parser.parse(start_time)
             end_time = dateutil.parser.parse(end_time)
-
-            try:
-                results = results['results']
-            except KeyError as e:
-                sentry.capture_exception_sentry(e)
-                logger.exception(e)
-                logger.warning(f'no results key for: {projectId}/{groupId}/{userId}, will skip this one')
-                continue
 
             if type(results) is dict:
                 for taskId, result in results.items():
