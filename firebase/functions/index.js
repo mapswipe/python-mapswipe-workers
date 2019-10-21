@@ -19,6 +19,27 @@ exports.counter = functions.database.ref('/v2/results/{projectId}/{groupId}/{use
     const promises = []
     const result = snapshot.after.val()
 
+    // if result ref does not contain all required attributes we don't updated counters
+    // e.g. due to some error when uploading from client
+    if (!result.hasOwnProperty('results')) {
+        console.log('no results attribute for /v2/results/'+context.params.projectId+'/'+context.params.groupId+'/'+context.params.userId )
+        console.log('will not update counters')
+        return null
+    } else if (!result.hasOwnProperty('timestamp')) {
+        console.log('no timestamp attribute for /v2/results/'+context.params.projectId+'/'+context.params.groupId+'/'+context.params.userId )
+        console.log('will not update counters')
+        return null
+    } else if (!result.hasOwnProperty('endTime')) {
+        console.log('no endTime attribute for /v2/results/'+context.params.projectId+'/'+context.params.groupId+'/'+context.params.userId )
+        console.log('will not update counters')
+        return null
+    } else if (!result.hasOwnProperty('startTime')) {
+        console.log('no startTime attribute for /v2/results/'+context.params.projectId+'/'+context.params.groupId+'/'+context.params.userId )
+        console.log('will not update counters')
+        return null
+    }
+
+
     // Firebase Realtime Database references
     const groupFinishedCountRef = admin.database().ref('/v2/groups/'+context.params.projectId+'/'+context.params.groupId+'/finishedCount')
     const groupRequiredCountRef = admin.database().ref('/v2/groups/'+context.params.projectId+'/'+context.params.groupId+'/requiredCount')

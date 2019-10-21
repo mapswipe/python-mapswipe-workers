@@ -6,6 +6,7 @@ import dateutil.parser
 from mapswipe_workers import auth
 from mapswipe_workers.definitions import logger
 from mapswipe_workers.firebase_to_postgres import update_data
+from mapswipe_workers.utils import sentry
 
 
 def transfer_results(project_id_list=None):
@@ -92,9 +93,19 @@ def results_to_file(results, projectId):
     logger.info(f'Got %s groups for project {projectId} to transfer' % len(results.items()))
     for groupId, users in results.items():
         for userId, results in users.items():
-            timestamp = results['timestamp']
-            start_time = results['startTime']
-            end_time = results['endTime']
+
+            # check if all attributes are set, if not don't transfer the results for this group
+            try:
+                timestamp = results['timestamp']
+                start_time = results['startTime']
+                end_time = results['endTime']
+                results = results['results']
+            except KeyError as e:
+                sentry.capture_exception_sentry(e)
+                sentry.capture_message_sentry(f'at least one missing attribute for: {projectId}/{groupId}/{userId}, will skip this one')
+                logger.exception(e)
+                logger.warning(f'at least one missing attribute for: {projectId}/{groupId}/{userId}, will skip this one')
+                continue
 
             # Convert timestamp (ISO 8601) from string to a datetime object
             # this solution works only in python 3.7
@@ -106,7 +117,6 @@ def results_to_file(results, projectId):
             start_time = dateutil.parser.parse(start_time)
             end_time = dateutil.parser.parse(end_time)
 
-            results = results['results']
             if type(results) is dict:
                 for taskId, result in results.items():
                     w.writerow([
