@@ -102,6 +102,7 @@ def results_to_file(results, projectId):
                 results = results['results']
             except KeyError as e:
                 sentry.capture_exception_sentry(e)
+                sentry.capture_message_sentry(f'at least one missing attribute for: {projectId}/{groupId}/{userId}, will skip this one')
                 logger.exception(e)
                 logger.warning(f'at least one missing attribute for: {projectId}/{groupId}/{userId}, will skip this one')
                 continue
