@@ -30,6 +30,14 @@
    integrity="sha512-GffPMF3RvMeYyc1LWMHtK8EbPv0iNZ8/oTtHPx9/cc2ILxQ+u905qIwdpULaqDkyBKgOaB57QTMg7ztg8Jm2Og=="
    crossorigin=""></script>
     <script src='https://npmcdn.com/@turf/turf/turf.min.js'></script>
+
+    <script
+      src="https://browser.sentry-cdn.com/5.7.1/bundle.min.js"
+      integrity="sha384-KMv6bBTABABhv0NI+rVWly6PIRvdippFEgjpKyxUcpEmDWZTkDOiueL5xW+cztZZ"
+      crossorigin="anonymous"></script>
+    <script>
+        Sentry.init({ dsn: 'https://30340378d1e5495ca7c4d7c8751f0cba@sentry.io/1788403' });
+    </script>
 </head>
 <body onload="initMap()">
 
