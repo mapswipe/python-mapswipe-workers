@@ -1,10 +1,25 @@
+import os
 from psycopg2 import sql
+import pandas as pd
+import datetime
 from mapswipe_workers import auth
 from mapswipe_workers.definitions import logger
+from mapswipe_workers.definitions import DATA_PATH
+from mapswipe_workers.utils import geojson_functions
 
-def get_results_by_task_id(filename, project_id):
+
+def id_to_string(x):
+    try:
+        x = str(int(x))
+    except:
+        x = str(x)
+
+    return x
+
+
+def get_results_by_project_id(filename, project_id):
     '''
-    Export aggregated results on a task_id basis per project.
+    Export raw results on project_id basis.
 
     Parameters
     ----------
@@ -14,107 +29,28 @@ def get_results_by_task_id(filename, project_id):
 
     pg_db = auth.postgresDB()
     sql_query = sql.SQL(
-        """
-        DROP TABLE IF EXISTS agg_results;
-        CREATE TEMP TABLE agg_results AS
-        select
-            project_id
-            ,group_id
-            ,task_id
-            ,count(*) as total_results_count
-            ,sum(CASE WHEN result = 0 THEN 1 ELSE 0	END) AS "0_results_count"
-            ,sum(CASE WHEN result = 1 THEN 1 ELSE 0	END) AS "1_results_count"
-            ,sum(CASE WHEN result = 2 THEN 1 ELSE 0	END) AS "2_results_count"
-            ,sum(CASE WHEN result = 3 THEN 1 ELSE 0	END) AS "3_results_count"
-            ,round(sum(CASE WHEN result = 0 THEN 1 ELSE 0	END)::numeric / count(*),3) AS "0_results_share"
-            ,round(sum(CASE WHEN result = 1 THEN 1 ELSE 0	END)::numeric / count(*),3) AS "1_results_share"
-            ,round(sum(CASE WHEN result = 2 THEN 1 ELSE 0	END)::numeric / count(*),3) AS "2_results_share"
-            ,round(sum(CASE WHEN result = 3 THEN 1 ELSE 0	END)::numeric / count(*),3) AS "3_results_share"
-            ,min(timestamp) as first_timestamp
-            ,max(timestamp) as last_timestamp
-        from
-            results
-        where
-            project_id = {}
-        group by
-            project_id, group_id, task_id;
-
-        DROP TABLE IF EXISTS agg_results_with_agreement;
-        CREATE TEMP TABLE agg_results_with_agreement AS
-        SELECT
-          a.*
-          ,CASE WHEN total_results_count = 1 THEN 1.0	ELSE (
-              round(
-                  ((1.0 / (total_results_count::numeric * (total_results_count::numeric - 1.0)))
-                  *
-                  (
-                  (("0_results_count"::numeric ^ 2.0) - "0_results_count"::numeric)
-                  +
-                  (("1_results_count"::numeric ^ 2.0) - "1_results_count"::numeric)
-                  +
-                  (("2_results_count"::numeric ^ 2.0) - "2_results_count"::numeric)
-                  +
-                  (("3_results_count"::numeric ^ 2.0) - "3_results_count"::numeric)
-                  ))
-              ,3)
-            ) END as agreement
-        FROM
-          agg_results as a;
-
-        DROP TABLE IF EXISTS project_tasks;
-        CREATE TEMP TABLE project_tasks AS
-        SELECT
-          t.task_id
-          ,t.group_id
-          ,t.project_id
-          ,ST_AsText(t.geom) as geom
-        FROM
-          tasks as t
-        WHERE
-          t.project_id = {};
-
-        COPY
-        (
-            SELECT
-              t.task_id
-              ,t.group_id
-              ,t.project_id
-              ,t.geom
-              ,a.total_results_count
-              ,a."0_results_count"
-              ,a."1_results_count"
-              ,a."2_results_count"
-              ,a."3_results_count"
-              ,a."0_results_share"
-              ,a."1_results_share"
-              ,a."2_results_share"
-              ,a."3_results_share"
-              ,a.agreement
-            FROM
-              project_tasks as t
-            LEFT JOIN
-              agg_results_with_agreement as a
-            ON
-              t.task_id = a.task_id
-              AND
-              t.group_id = a.group_id
-              AND
-              t.project_id = a.project_id
-        )  TO STDOUT WITH CSV HEADER
-
-        """).format(sql.Literal(project_id), sql.Literal(project_id))
+        'COPY (SELECT * FROM results WHERE project_id = {}) TO STDOUT WITH CSV HEADER'
+    ).format(sql.Literal(project_id))
 
     with open(filename, 'w') as f:
         pg_db.copy_expert(sql_query, f)
-
     del pg_db
+    logger.info(f'got results from postgres for {project_id}')
 
-    logger.info('saved aggregated results by task_id for project %s to %s' % (project_id, filename))
+    df = pd.read_csv(filename)
+    df['group_id'] = df.apply(lambda row: id_to_string(row['group_id']), axis=1)
+    df['group_id'] = df['group_id'].astype(str)
+    df['timestamp'] = pd.to_datetime(df['timestamp'])
+    df['day'] = df['timestamp'].apply(
+        lambda df: datetime.datetime(year=df.year, month=df.month, day=df.day))
+
+    logger.info(f'created pandas results df for {project_id}')
+    return df
 
 
-def get_progress_by_date(filename, project_id):
+def get_tasks_by_project_id(filename, project_id):
     '''
-    Export aggregated progress on a project_id and daily basis as csv file.
+    Export raw results on project_id basis.
 
     Parameters
     ----------
@@ -122,108 +58,32 @@ def get_progress_by_date(filename, project_id):
     project_id: str
     '''
 
-    pg_db = auth.postgresDB()
-    sql_query = sql.SQL(
-    """
-    DROP TABLE IF EXISTS v2_res_by_project_group_day;
-    CREATE TEMP TABLE v2_res_by_project_group_day AS
-    SELECT
-      r.project_id
-      ,r.group_id
-      ,Min(g.number_of_tasks) as number_of_tasks
-      ,Min(g.required_count + g.finished_count) as number_of_users_required
-      -- the following attributes are dynamic
-      -- could also set to hour if needed, of make this a as a parameter
-      ,date_trunc('day', timestamp) as day
-      ,count(distinct(user_id)) as number_of_users
-      ,count(distinct(user_id)) * Min(g.number_of_tasks) as number_of_results
-    FROM
-      results as r, groups as g
-    WHERE
-      r.project_id = g.project_id
-      AND
-      r.group_id = g.group_id
-      AND
-      -- use a single project id or a list of projects
-      r.project_id = {}
-    GROUP BY
-      r.project_id
-      ,r.group_id
-      ,day;
+    if os.path.isfile(filename):
+        logger.info(f'file {filename} already exists for {project_id}. skip download.')
+        pass
+    else:
+        pg_db = auth.postgresDB()
+        sql_query = sql.SQL(
+            'COPY (SELECT project_id, group_id, task_id, ST_AsText(geom) as geom FROM tasks WHERE project_id = {}) TO STDOUT WITH CSV HEADER'
+        ).format(sql.Literal(project_id))
 
-    DROP TABLE IF EXISTS v2_progress_by_project_group_day;
-    CREATE TEMP TABLE v2_progress_by_project_group_day AS
-    SELECT
-      project_id
-      ,group_id
-      ,number_of_tasks
-      ,number_of_users_required
-      ,day
-      ,number_of_users
-      ,number_of_results
-      ,SUM(number_of_users) OVER (PARTITION BY project_id, group_id ORDER BY day) as cum_number_of_users
-      ,SUM(number_of_results) OVER (PARTITION BY project_id, group_id ORDER BY day) as cum_number_of_results
-    FROM
-      v2_res_by_project_group_day
-    ORDER BY
-      project_id, group_id, day;
+        with open(filename, 'w') as f:
+            pg_db.copy_expert(sql_query, f)
 
-    DROP TABLE IF EXISTS v2_correct_by_project_group_day;
-    CREATE TEMP TABLE v2_correct_by_project_group_day AS
-    SELECT
-      r.*
-      ,CASE
-        WHEN cum_number_of_users <= number_of_users_required THEN cum_number_of_users
-        ELSE number_of_users_required
-      END as cum_number_of_users_progress
-      ,CASE
-        WHEN cum_number_of_users <= number_of_users_required THEN cum_number_of_results
-        ELSE cum_number_of_results - ((cum_number_of_users - number_of_users_required) * number_of_tasks)
-      END as cum_number_of_results_progress
-      ,CASE
-        WHEN cum_number_of_users <= number_of_users_required THEN number_of_results
-        WHEN (cum_number_of_users - number_of_users) < number_of_users_required THEN (number_of_users_required - (cum_number_of_users - number_of_users)) * number_of_tasks
-        ELSE 0
-      END as number_of_results_progress
-    FROM
-      v2_progress_by_project_group_day as r;
+        del pg_db
+        logger.info(f'got tasks from postgres for {project_id}')
 
-    COPY
-    (
-        SELECT
-          r.project_id
-          ,r.day
-          ,SUM(r.number_of_results) as number_of_results
-          ,SUM(r.number_of_results_progress) as number_of_results_progress
-          ,SUM(SUM(r.number_of_results)) OVER (PARTITION BY r.project_id ORDER BY day) as cum_number_of_results
-          ,SUM(SUM(r.number_of_results_progress)) OVER (PARTITION BY r.project_id ORDER BY day) as cum_number_of_results_progress
-          ,Min(p.required_results) as required_results
-          ,Round(SUM(SUM(r.number_of_results_progress)) OVER (PARTITION BY r.project_id ORDER BY day) / Min(p.required_results), 3) as progress
-        FROM
-          v2_correct_by_project_group_day as r
-          ,projects as p
-        WHERE
-          p.project_id = r.project_id
-        GROUP BY
-          r.project_id
-          ,r.day
-        ORDER BY
-          r.project_id,
-          r.day
-    ) TO STDOUT WITH CSV HEADER
-    """).format(sql.Literal(project_id))
+    df = pd.read_csv(filename)
+    df['group_id'] = df.apply(lambda row: id_to_string(row['group_id']), axis=1)
+    df['group_id'] = df['group_id'].astype(str)
 
-    with open(filename, 'w') as f:
-        pg_db.copy_expert(sql_query, f)
-
-    del pg_db
-
-    logger.info('saved aggregated progress by project_id and date for project %s to %s' % (project_id, filename))
+    logger.info(f'created pandas tasks df for {project_id}')
+    return df
 
 
-def get_contributors_by_date(filename, project_id):
+def get_groups_by_project_id(filename, project_id):
     '''
-    Export aggregated progress on a project_id and daily basis as csv file.
+    Export raw results on project_id basis.
 
     Parameters
     ----------
@@ -231,16 +91,189 @@ def get_contributors_by_date(filename, project_id):
     project_id: str
     '''
 
-    pg_db = auth.postgresDB()
-    sql_query = sql.SQL(
-    """
-    ---
-    """).format(sql.Literal(project_id))
+    if os.path.isfile(filename):
+        logger.info(f'file {filename} already exists for {project_id}. skip download.')
+        pass
+    else:
+        pg_db = auth.postgresDB()
+        sql_query = sql.SQL(
+            'COPY (SELECT * FROM groups WHERE project_id = {}) TO STDOUT WITH CSV HEADER'
+        ).format(sql.Literal(project_id))
 
-    with open(filename, 'w') as f:
-        pg_db.copy_expert(sql_query, f)
+        with open(filename, 'w') as f:
+            pg_db.copy_expert(sql_query, f)
 
-    del pg_db
+        del pg_db
+        logger.info(f'got groups from postgres for {project_id}')
 
-    logger.info('saved aggregated progress by project_id and date for project %s to %s' % (project_id, filename))
+    df = pd.read_csv(filename)
+    df['group_id'] = df.apply(lambda row: id_to_string(row['group_id']), axis=1)
+    df['group_id'] = df['group_id'].astype(str)
+    df['number_of_users_required'] = df['required_count'] + df['finished_count']
 
+    logger.info(f'created pandas groups df for {project_id}')
+    return df
+
+
+def calc_agreement(total, no, yes, maybe, bad):
+
+    if total == 1:
+        agreement = 1
+    else:
+        agreement = 1 / (total * (total - 1)) * (
+                        (no*(no - 1)) +
+                        (yes * (yes - 1)) +
+                        (maybe * (maybe - 1)) +
+                        (bad * (bad - 1)))
+
+    return agreement
+
+
+def calc_results_progress(number_of_users, number_of_users_required, cum_number_of_users, number_of_tasks, number_of_results):
+
+    if cum_number_of_users <= number_of_users_required:
+        number_of_results_progress = number_of_results
+    elif (cum_number_of_users - number_of_users) < number_of_users_required:
+        number_of_results_progress = (number_of_users_required - (cum_number_of_users - number_of_users)) * number_of_tasks
+    else:
+        number_of_results_progress = 0
+
+    return number_of_results_progress
+
+
+def agg_results_by_task_id(results_df, tasks_df):
+
+    results_by_task_id_df = results_df.groupby(['project_id', 'group_id', 'task_id', 'result']).size().unstack(fill_value=0)
+    results_by_task_id_df['total_count'] = results_by_task_id_df[0] + results_by_task_id_df[1] + results_by_task_id_df[2] + results_by_task_id_df[3]
+    results_by_task_id_df['0_share'] = results_by_task_id_df[0] / results_by_task_id_df['total_count']
+    results_by_task_id_df['1_share'] = results_by_task_id_df[1] / results_by_task_id_df['total_count']
+    results_by_task_id_df['2_share'] = results_by_task_id_df[2] / results_by_task_id_df['total_count']
+    results_by_task_id_df['3_share'] = results_by_task_id_df[3] / results_by_task_id_df['total_count']
+    results_by_task_id_df['agreement'] = results_by_task_id_df.apply(lambda row: calc_agreement(row['total_count'], row[0], row[1], row[2], row[3]), axis=1)
+    # rename columns, ogr2ogr will fail otherwise
+    results_by_task_id_df.rename(columns={
+        0: '0_count',
+        1: '1_count',
+        2: '2_count',
+        3: '3_count'
+
+    }, inplace=True)
+
+    logger.info(f'aggregated results by task id and computed agreement')
+
+    agg_results_df = results_by_task_id_df.merge(tasks_df[['geom', 'task_id']], left_on='task_id', right_on='task_id')
+    logger.info(f'added geometry to aggregated results')
+
+    return agg_results_df
+
+
+def get_progress_by_date(results_df, groups_df):
+
+    groups_df['required_results'] = groups_df['number_of_tasks'] * groups_df['number_of_users_required']
+    required_results = groups_df['required_results'].sum()
+    logger.info(f'calcuated required results: {required_results}')
+
+    results_with_groups_df = results_df.merge(groups_df, left_on='group_id', right_on='group_id')
+    results_by_group_id_df = results_with_groups_df.groupby(['project_id_x', 'group_id', 'day']).agg(
+        number_of_tasks=pd.NamedAgg(column='number_of_tasks', aggfunc='min'),
+        number_of_users_required=pd.NamedAgg(column='number_of_users_required', aggfunc='min'),
+        number_of_users=pd.NamedAgg(column='user_id', aggfunc=pd.Series.nunique)
+    )
+    results_by_group_id_df['number_of_results'] = results_by_group_id_df['number_of_users'] * results_by_group_id_df['number_of_tasks']
+    results_by_group_id_df['cum_number_of_users'] = results_by_group_id_df['number_of_users'].groupby(['project_id_x', 'group_id']).cumsum()
+    results_by_group_id_df['number_of_results_progress'] = results_by_group_id_df.apply(lambda row: calc_results_progress(
+        row['number_of_users'],
+        row['number_of_users_required'],
+        row['cum_number_of_users'],
+        row['number_of_tasks'],
+        row['number_of_results']
+    ), axis=1)
+
+    progress_by_date_df = results_by_group_id_df.reset_index().groupby(['day']).agg(
+        number_of_results=pd.NamedAgg(column='number_of_results', aggfunc='sum'),
+        number_of_results_progress=pd.NamedAgg(column='number_of_results_progress', aggfunc='sum')
+    )
+    progress_by_date_df['cum_number_of_results'] = progress_by_date_df['number_of_results'].cumsum()
+    progress_by_date_df['cum_number_of_results_progress'] = progress_by_date_df['number_of_results_progress'].cumsum()
+    progress_by_date_df['progress'] = progress_by_date_df['number_of_results_progress'] / required_results
+    progress_by_date_df['cum_progress'] = progress_by_date_df['cum_number_of_results_progress'] / required_results
+
+    logger.info('calculated progress by date')
+    return progress_by_date_df
+
+
+def get_new_user(day, first_day):
+    if day == first_day:
+        return 1
+    else:
+        return 0
+
+
+def get_contributors_by_date(results_df):
+
+    user_first_day_df = results_df.groupby(['user_id']).agg(
+        first_day=pd.NamedAgg(column='day', aggfunc='min')
+    )
+    logger.info('calculated first day per user')
+
+    results_by_user_id_df = results_df.groupby(['project_id', 'user_id', 'day']).agg(
+        number_of_results=pd.NamedAgg(column='user_id', aggfunc='count')
+    )
+    results_by_user_id_df = results_by_user_id_df.reset_index().merge(user_first_day_df, left_on='user_id', right_on='user_id')
+    results_by_user_id_df['new_user'] = results_by_user_id_df.apply(
+        lambda row: get_new_user(row['day'], row['first_day']),
+        axis=1
+    )
+
+    contributors_by_date_df = results_by_user_id_df.reset_index().groupby(['project_id', 'day']).agg(
+        number_of_users=pd.NamedAgg(column='user_id', aggfunc=pd.Series.nunique),
+        number_of_new_users=pd.NamedAgg(column='new_user', aggfunc='sum')
+    )
+    contributors_by_date_df['cum_number_of_users'] = contributors_by_date_df['number_of_new_users'].cumsum()
+
+    logger.info('calculated contributors by date')
+    return contributors_by_date_df
+
+
+def get_per_project_statistics(project_id):
+
+    # set filenames
+    results_filename = f'{DATA_PATH}/api-data/raw_results_{project_id}.csv'
+    tasks_filename = f'{DATA_PATH}/api-data/tasks_{project_id}.csv'
+    groups_filename = f'{DATA_PATH}/api-data/groups_{project_id}.csv'
+    agg_results_filename = f'{DATA_PATH}/api-data/agg_results_{project_id}.csv'
+    project_stats_by_date_filename = f'{DATA_PATH}/api-data/stats_by_date_{project_id}.csv'
+
+    # load data from postgres or local storage if already downloaded
+    results_df = get_results_by_project_id(results_filename, project_id)
+    groups_df = get_groups_by_project_id(groups_filename, project_id)
+    tasks_df = get_tasks_by_project_id(tasks_filename, project_id)
+
+    # aggregate results by task id
+    agg_results_df = agg_results_by_task_id(results_df, tasks_df)
+    agg_results_df.to_csv(agg_results_filename, index_label='idx')
+    logger.info(f'saved agg results for {project_id}: {agg_results_filename}')
+    geojson_functions.csv_to_geojson(agg_results_filename, 'geom')
+
+    # calculate progress by date
+    progress_by_date_df = get_progress_by_date(results_df, groups_df)
+
+    # calculate contributors by date
+    contributors_by_date_df = get_contributors_by_date(results_df)
+
+    # merge contributors and progress
+    project_stats_by_date_df = progress_by_date_df.merge(contributors_by_date_df, left_on='day', right_on='day')
+    project_stats_by_date_df['project_id'] = project_id
+    project_stats_by_date_df.to_csv(project_stats_by_date_filename)
+    logger.info(f'saved project stats by date for {project_id}: {project_stats_by_date_filename}')
+
+    project_stats = {
+        'id': project_id,
+        'progress': project_stats_by_date_df['cum_progress'].iloc[-1],
+        'number_of_users': project_stats_by_date_df['cum_number_of_users'].iloc[-1],
+        'number_of_results': project_stats_by_date_df['cum_number_of_results'].iloc[-1],
+        'number_of_results_progress': project_stats_by_date_df['cum_number_of_results_progress'].iloc[-1],
+        'day': project_stats_by_date_df.index[-1]
+    }
+
+    return project_stats
