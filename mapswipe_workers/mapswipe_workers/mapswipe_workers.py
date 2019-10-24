@@ -285,32 +285,17 @@ def run(schedule, only_new_results):
     try:
         if schedule:
             if schedule == 'm':
-                sched.every(10).minutes.do(_run_create_projects).run()
-                sched.every(10).minutes.do(_run_firebase_to_postgres).run()
-                sched.every(10).minutes.do(
-                        _run_generate_stats,
-                        only_new_results=only_new_results
-                        ).run()
+                sched.every(10).minutes.do(_run).run()
                 while True:
                     sched.run_pending()
                     time.sleep(1)
             elif schedule == 'h':
-                sched.every().hour.do(_run_create_projects).run()
-                sched.every().hour.do(_run_firebase_to_postgres).run()
-                sched.every().hour.do(
-                        _run_generate_stats,
-                        only_new_results=only_new_results
-                        ).run()
+                sched.every().hour.do(_run).run()
                 while True:
                     sched.run_pending()
                     time.sleep(1)
             elif schedule == 'd':
-                sched.every().day.do(_run_create_projects).run()
-                sched.every().day.do(_run_firebase_to_postgres).run()
-                sched.every().day.do(
-                        _run_generate_stats,
-                        only_new_results=only_new_results
-                        ).run()
+                sched.every().day.do(_run).run()
                 while True:
                     sched.run_pending()
                     time.sleep(1)
@@ -322,13 +307,17 @@ def run(schedule, only_new_results):
                         f'h for every hour and d for every day.'
                         )
         else:
-            _run_create_projects()
-            _run_firebase_to_postgres()
-            _run_generate_stats(only_new_results)
+            _run()
     except Exception as e:
         slack.send_error(e)
         sentry.capture_exception_sentry(e)
         logger.exception(e)
+
+
+def _run():
+    _run_create_projects()
+    project_id_list = _run_firebase_to_postgres()
+    _run_generate_stats(project_id_list)
 
 
 def _run_create_projects(project_draft_ids=None):
@@ -417,11 +406,13 @@ def _run_create_projects(project_draft_ids=None):
 def _run_firebase_to_postgres():
     update_data.update_user_data()
     update_data.update_project_data()
-    transfer_results.transfer_results()
+    project_id_list = transfer_results.transfer_results()
+
+    return project_id_list
 
 
-def _run_generate_stats(only_new_results):
-    generate_stats(only_new_results)
+def _run_generate_stats(project_id_list):
+    generate_stats.generate_stats(project_id_list)
 
 
 def _run_user_management(email, manager):

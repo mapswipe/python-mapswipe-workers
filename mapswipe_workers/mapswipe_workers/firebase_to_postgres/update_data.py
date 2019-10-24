@@ -70,7 +70,7 @@ def update_user_data(user_ids=None):
             except KeyError:
                 # if user has no "username" attribute, we set it to None
                 username = None
-                logger.info(f"user {user_id} didn't have a created attribute set it to {username}")
+                logger.info(f"user {user_id} didn't have a username attribute set it to {username}")
 
             query_update_user = '''
                 INSERT INTO users (user_id, username, created)
