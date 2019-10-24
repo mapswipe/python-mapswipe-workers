@@ -6,6 +6,7 @@ import dateutil.parser
 from mapswipe_workers import auth
 from mapswipe_workers.definitions import logger
 from mapswipe_workers.firebase_to_postgres import update_data
+from mapswipe_workers.utils import sentry
 
 
 def transfer_results(project_id_list=None):
@@ -38,12 +39,19 @@ def transfer_results(project_id_list=None):
             project_id_list = []
             logger.info(f'There are no results to transfer.')
 
+    # get all project ids from postgres, we will only transfer results for projects we have there
+    postgres_project_ids = get_projects_from_postgres()
 
     for project_id in project_id_list:
-        logger.info(f'{project_id}: Start transfering results')
-        if 'tutorial' in project_id:
+        if project_id not in postgres_project_ids:
+            logger.info(f'{project_id}: This project is not in postgres. We will not transfer results')
+            continue
+        elif 'tutorial' in project_id:
             logger.info(f'{project_id}: these are results for a tutorial. we will not transfer these')
             continue
+
+        logger.info(f'{project_id}: Start transfering results')
+
         results_ref = fb_db.reference(f'v2/results/{project_id}')
         truncate_temp_results()
 
@@ -201,3 +209,19 @@ def get_user_ids_from_results(results):
             user_ids.add(userId)
 
     return user_ids
+
+
+def get_projects_from_postgres():
+    '''
+    Get the id of all projects in postgres
+    '''
+
+    pg_db = auth.postgresDB()
+    sql_query = '''
+        SELECT project_id from projects;
+    '''
+    raw_ids = pg_db.retr_query(sql_query, None)
+    project_ids = [i[0] for i in raw_ids]
+
+    del pg_db
+    return project_ids
