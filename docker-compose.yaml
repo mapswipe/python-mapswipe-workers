@@ -56,10 +56,12 @@ services:
         command: mapswipe_workers --verbose run --schedule m --only_new_results
         volumes:
             - ./api-data:/var/lib/mapswipe_workers/api-data/:rw
-            - ./api-data/agg_res_by_task_id:/var/lib/mapswipe_workers/api-data/agg_res_by_task_id:rw
-            - ./api-data/agg_res_by_project_id_and_date:/var/lib/mapswipe_workers/api-data/agg_res_by_project_id_and_date:rw
-            - ./api-data/agg_progress_by_project_id_and_date:/var/lib/mapswipe_workers/api-data/agg_progress_by_project_id_and_date:rw
-            - ./api-data/agg_res_by_user_id_and_date:/var/lib/mapswipe_workers/api-data/agg_res_by_user_id_and_date:rw
+            - ./api-data/agg_res_by_task_id:/var/lib/mapswipe_workers/api-data/agg_results:rw
+            - ./api-data/agg_res_by_task_id:/var/lib/mapswipe_workers/api-data/groups:rw
+            - ./api-data/agg_res_by_task_id:/var/lib/mapswipe_workers/api-data/history:rw
+            - ./api-data/agg_res_by_task_id:/var/lib/mapswipe_workers/api-data/projects:rw
+            - ./api-data/agg_res_by_task_id:/var/lib/mapswipe_workers/api-data/results:rw
+            - ./api-data/agg_res_by_task_id:/var/lib/mapswipe_workers/api-data/tasks:rw
         restart: unless-stopped
         networks:
             - mapswipe_workers
