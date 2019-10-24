@@ -62,7 +62,7 @@ services:
             - ./api-data/agg_res_by_task_id:/var/lib/mapswipe_workers/api-data/projects:rw
             - ./api-data/agg_res_by_task_id:/var/lib/mapswipe_workers/api-data/results:rw
             - ./api-data/agg_res_by_task_id:/var/lib/mapswipe_workers/api-data/tasks:rw
-        restart: unless-stopped
+        restart: "no"
         networks:
             - mapswipe_workers
             - postgres
