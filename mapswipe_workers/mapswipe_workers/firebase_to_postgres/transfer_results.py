@@ -16,8 +16,6 @@ def transfer_results(project_id_list=None):
     the Firebase docs to avoid missing new generated results in
     Firebase during execution of this function.
     '''
-    # TODO: return true if results where transfered
-    # return fals if not
 
     # Firebase transaction function
     def transfer(current_results):
@@ -58,7 +56,7 @@ def transfer_results(project_id_list=None):
             )
 
     del fb_db
-    return
+    return project_id_list
 
 
 def results_to_file(results, projectId):
@@ -68,12 +66,10 @@ def results_to_file(results, projectId):
     This can be then used by the COPY statement of Postgres
     for a more efficient import of many results into the Postgres
     instance.
-
     Parameters
     ----------
     results: dict
         The results as retrived from the Firebase Realtime Database instance.
-
     Returns
     -------
     results_file: io.StingIO
@@ -92,21 +88,24 @@ def results_to_file(results, projectId):
     logger.info(f'Got %s groups for project {projectId} to transfer' % len(results.items()))
     for groupId, users in results.items():
         for userId, results in users.items():
-            timestamp = results['timestamp']
-            start_time = results['startTime']
-            end_time = results['endTime']
 
-            # Convert timestamp (ISO 8601) from string to a datetime object
-            # this solution works only in python 3.7
-            # timestamp = dt.datetime.strptime(timestamp, '%Y-%m-%dT%H:%M:%S.%f%z')
-            # start_time = dt.datetime.strptime(start_time, '%Y-%m-%dT%H:%M:%S.%f%z')
-            # end_time = dt.datetime.strptime(end_time, '%Y-%m-%dT%H:%M:%S.%f%z')
+            # check if all attributes are set, if not don't transfer the results for this group
+            try:
+                timestamp = results['timestamp']
+                start_time = results['startTime']
+                end_time = results['endTime']
+                results = results['results']
+            except KeyError as e:
+                sentry.capture_exception_sentry(e)
+                sentry.capture_message_sentry(f'at least one missing attribute for: {projectId}/{groupId}/{userId}, will skip this one')
+                logger.exception(e)
+                logger.warning(f'at least one missing attribute for: {projectId}/{groupId}/{userId}, will skip this one')
+                continue
 
             timestamp = dateutil.parser.parse(timestamp)
             start_time = dateutil.parser.parse(start_time)
             end_time = dateutil.parser.parse(end_time)
 
-            results = results['results']
             if type(results) is dict:
                 for taskId, result in results.items():
                     w.writerow([

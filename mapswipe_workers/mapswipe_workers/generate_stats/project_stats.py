@@ -238,11 +238,11 @@ def get_contributors_by_date(results_df):
 def get_per_project_statistics(project_id):
 
     # set filenames
-    results_filename = f'{DATA_PATH}/api-data/raw_results_{project_id}.csv'
-    tasks_filename = f'{DATA_PATH}/api-data/tasks_{project_id}.csv'
-    groups_filename = f'{DATA_PATH}/api-data/groups_{project_id}.csv'
-    agg_results_filename = f'{DATA_PATH}/api-data/agg_results_{project_id}.csv'
-    project_stats_by_date_filename = f'{DATA_PATH}/api-data/stats_by_date_{project_id}.csv'
+    results_filename = f'{DATA_PATH}/api-data/results/results_{project_id}.csv'
+    tasks_filename = f'{DATA_PATH}/api-data/tasks/tasks_{project_id}.csv'
+    groups_filename = f'{DATA_PATH}/api-data/groups/groups_{project_id}.csv'
+    agg_results_filename = f'{DATA_PATH}/api-data/agg_results/agg_results_{project_id}.csv'
+    project_stats_by_date_filename = f'{DATA_PATH}/api-data/history/history_{project_id}.csv'
 
     # load data from postgres or local storage if already downloaded
     results_df = get_results_by_project_id(results_filename, project_id)
@@ -267,8 +267,8 @@ def get_per_project_statistics(project_id):
     project_stats_by_date_df.to_csv(project_stats_by_date_filename)
     logger.info(f'saved project stats by date for {project_id}: {project_stats_by_date_filename}')
 
-    project_stats = {
-        'id': project_id,
+    project_stats_dict = {
+        'project_id': project_id,
         'progress': project_stats_by_date_df['cum_progress'].iloc[-1],
         'number_of_users': project_stats_by_date_df['cum_number_of_users'].iloc[-1],
         'number_of_results': project_stats_by_date_df['cum_number_of_results'].iloc[-1],
@@ -276,4 +276,4 @@ def get_per_project_statistics(project_id):
         'day': project_stats_by_date_df.index[-1]
     }
 
-    return project_stats
+    return project_stats_dict
