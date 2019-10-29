@@ -156,21 +156,30 @@ def run_firebase_to_postgres(schedule):
 @click.option(
         '--project_id_list',
         cls=PythonLiteralOption,
-        default=[],
+        default='[]',
         help=(
             f'provide project id strings as a list '
             f'stats will be generated only for this'
             f'''use it like '["project_a", "project_b"]' '''
             )
         )
-def run_generate_stats(schedule, project_id_list):
+@click.option(
+        '--all_projects',
+        default=False,
+        is_flag=True,
+        help=(
+            f'Generate stats for all projects in postgres'
+            )
+        )
+def run_generate_stats(schedule, project_id_list, all_projects):
     sentry.init_sentry()
     try:
         if schedule:
             if schedule == 'm':
                 sched.every(10).minutes.do(
                         _run_generate_stats,
-                        project_id_list=project_id_list
+                        project_id_list=project_id_list,
+                        all_projects=all_projects
                         ).run()
                 while True:
                     sched.run_pending()
@@ -178,7 +187,8 @@ def run_generate_stats(schedule, project_id_list):
             elif schedule == 'h':
                 sched.every().hour.do(
                         _run_generate_stats,
-                        project_id_list=project_id_list
+                        project_id_list=project_id_list,
+                        all_projects=all_projects
                         ).run()
                 while True:
                     sched.run_pending()
@@ -186,7 +196,8 @@ def run_generate_stats(schedule, project_id_list):
             elif schedule == 'd':
                 sched.every().day.do(
                         _run_generate_stats,
-                        project_id_list=project_id_list
+                        project_id_list=project_id_list,
+                        all_projects=all_projects
                         ).run()
                 while True:
                     sched.run_pending()
@@ -199,7 +210,7 @@ def run_generate_stats(schedule, project_id_list):
                         f'h for every hour and d for every day.'
                         )
         else:
-            _run_generate_stats(project_id_list)
+            _run_generate_stats(project_id_list, all_projects)
     except Exception as e:
         slack.send_error(e)
         sentry.capture_exception_sentry(e)
@@ -421,8 +432,8 @@ def _run_firebase_to_postgres():
     return project_id_list
 
 
-def _run_generate_stats(project_id_list):
-    generate_stats.generate_stats(project_id_list)
+def _run_generate_stats(project_id_list, all_projects):
+    generate_stats.generate_stats(project_id_list, all_projects)
 
 
 def _run_user_management(email, manager):

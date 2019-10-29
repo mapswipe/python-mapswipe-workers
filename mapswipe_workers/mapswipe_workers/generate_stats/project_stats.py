@@ -38,14 +38,18 @@ def get_results_by_project_id(filename, project_id):
     logger.info(f'got results from postgres for {project_id}')
 
     df = pd.read_csv(filename)
-    df['group_id'] = df.apply(lambda row: id_to_string(row['group_id']), axis=1)
-    df['group_id'] = df['group_id'].astype(str)
-    df['timestamp'] = pd.to_datetime(df['timestamp'])
-    df['day'] = df['timestamp'].apply(
-        lambda df: datetime.datetime(year=df.year, month=df.month, day=df.day))
 
-    logger.info(f'created pandas results df for {project_id}')
-    return df
+    if len(df) > 0:
+        df['group_id'] = df.apply(lambda row: id_to_string(row['group_id']), axis=1)
+        df['group_id'] = df['group_id'].astype(str)
+        df['timestamp'] = pd.to_datetime(df['timestamp'])
+        df['day'] = df['timestamp'].apply(
+            lambda df: datetime.datetime(year=df.year, month=df.month, day=df.day))
+        logger.info(f'created pandas results df for {project_id}')
+        return df
+    else:
+        logger.info(f'there are no results for this project {project_id}')
+        return None
 
 
 def get_tasks_by_project_id(filename, project_id):
@@ -246,34 +250,40 @@ def get_per_project_statistics(project_id):
 
     # load data from postgres or local storage if already downloaded
     results_df = get_results_by_project_id(results_filename, project_id)
-    groups_df = get_groups_by_project_id(groups_filename, project_id)
-    tasks_df = get_tasks_by_project_id(tasks_filename, project_id)
 
-    # aggregate results by task id
-    agg_results_df = agg_results_by_task_id(results_df, tasks_df)
-    agg_results_df.to_csv(agg_results_filename, index_label='idx')
-    logger.info(f'saved agg results for {project_id}: {agg_results_filename}')
-    geojson_functions.csv_to_geojson(agg_results_filename, 'geom')
+    if results_df is None:
+        logger.info(f'no results: skipping per project stats for {project_id}')
+        return None
+    else:
+        groups_df = get_groups_by_project_id(groups_filename, project_id)
+        tasks_df = get_tasks_by_project_id(tasks_filename, project_id)
 
-    # calculate progress by date
-    progress_by_date_df = get_progress_by_date(results_df, groups_df)
+        # aggregate results by task id
+        agg_results_df = agg_results_by_task_id(results_df, tasks_df)
+        agg_results_df.to_csv(agg_results_filename, index_label='idx')
+        logger.info(f'saved agg results for {project_id}: {agg_results_filename}')
+        geojson_functions.csv_to_geojson(agg_results_filename, 'geom')
 
-    # calculate contributors by date
-    contributors_by_date_df = get_contributors_by_date(results_df)
+        # calculate progress by date
+        progress_by_date_df = get_progress_by_date(results_df, groups_df)
 
-    # merge contributors and progress
-    project_stats_by_date_df = progress_by_date_df.merge(contributors_by_date_df, left_on='day', right_on='day')
-    project_stats_by_date_df['project_id'] = project_id
-    project_stats_by_date_df.to_csv(project_stats_by_date_filename)
-    logger.info(f'saved project stats by date for {project_id}: {project_stats_by_date_filename}')
+        # calculate contributors by date
+        contributors_by_date_df = get_contributors_by_date(results_df)
 
-    project_stats_dict = {
-        'project_id': project_id,
-        'progress': project_stats_by_date_df['cum_progress'].iloc[-1],
-        'number_of_users': project_stats_by_date_df['cum_number_of_users'].iloc[-1],
-        'number_of_results': project_stats_by_date_df['cum_number_of_results'].iloc[-1],
-        'number_of_results_progress': project_stats_by_date_df['cum_number_of_results_progress'].iloc[-1],
-        'day': project_stats_by_date_df.index[-1]
-    }
+        # merge contributors and progress
+        project_stats_by_date_df = progress_by_date_df.merge(contributors_by_date_df, left_on='day', right_on='day')
+        project_stats_by_date_df['project_id'] = project_id
+        project_stats_by_date_df.to_csv(project_stats_by_date_filename)
+        logger.info(f'saved project stats by date for {project_id}: {project_stats_by_date_filename}')
 
-    return project_stats_dict
+        project_stats_dict = {
+            'project_id': project_id,
+            'progress': project_stats_by_date_df['cum_progress'].iloc[-1],
+            'number_of_users': project_stats_by_date_df['cum_number_of_users'].iloc[-1],
+            'number_of_results': project_stats_by_date_df['cum_number_of_results'].iloc[-1],
+            'number_of_results_progress': project_stats_by_date_df['cum_number_of_results_progress'].iloc[-1],
+            'day': project_stats_by_date_df.index[-1]
+        }
+
+        return project_stats_dict
+
