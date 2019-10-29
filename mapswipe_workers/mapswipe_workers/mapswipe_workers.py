@@ -2,6 +2,7 @@ import time
 import click
 import schedule as sched
 import json
+import ast
 
 from mapswipe_workers.definitions import CustomError
 from mapswipe_workers.definitions import logger
@@ -28,6 +29,14 @@ from mapswipe_workers.project_types.change_detection \
         import change_detection_tutorial
 from mapswipe_workers.utils \
         import user_management
+
+
+class PythonLiteralOption(click.Option):
+    def type_cast_value(self, ctx, value):
+        try:
+            return ast.literal_eval(value)
+        except:
+            raise click.BadParameter(value)
 
 
 @click.group()
@@ -145,22 +154,23 @@ def run_firebase_to_postgres(schedule):
         type=click.Choice(['m', 'h', 'd'])
         )
 @click.option(
-        '--only_new_results',
-        default=False,
-        is_flag=True,
+        '--project_id_list',
+        cls=PythonLiteralOption,
+        default=[],
         help=(
-            f'Generate stats for all projects '
-            f'or only for those updated or with new results.'
+            f'provide project id strings as a list '
+            f'stats will be generated only for this'
+            f'''use it like '["project_a", "project_b"]' '''
             )
         )
-def run_generate_stats(schedule, only_new_results):
+def run_generate_stats(schedule, project_id_list):
     sentry.init_sentry()
     try:
         if schedule:
             if schedule == 'm':
                 sched.every(10).minutes.do(
                         _run_generate_stats,
-                        only_new_results=only_new_results
+                        project_id_list=project_id_list
                         ).run()
                 while True:
                     sched.run_pending()
@@ -168,7 +178,7 @@ def run_generate_stats(schedule, only_new_results):
             elif schedule == 'h':
                 sched.every().hour.do(
                         _run_generate_stats,
-                        only_new_results=only_new_results
+                        project_id_list=project_id_list
                         ).run()
                 while True:
                     sched.run_pending()
@@ -176,7 +186,7 @@ def run_generate_stats(schedule, only_new_results):
             elif schedule == 'd':
                 sched.every().day.do(
                         _run_generate_stats,
-                        only_new_results=only_new_results
+                        project_id_list=project_id_list
                         ).run()
                 while True:
                     sched.run_pending()
@@ -189,7 +199,7 @@ def run_generate_stats(schedule, only_new_results):
                         f'h for every hour and d for every day.'
                         )
         else:
-            _run_generate_stats(only_new_results)
+            _run_generate_stats(project_id_list)
     except Exception as e:
         slack.send_error(e)
         sentry.capture_exception_sentry(e)
