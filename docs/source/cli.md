@@ -4,6 +4,11 @@ This document describes how to use the command line interface of MapSwipe Worker
 
 In our current deployment setup the commands of the MapSwipe Workers CLI are hard-coded in the Docker-Compose File.
 
+You can run these commands also using docker-compose:
+```
+docker-compose run mapswipe_workers mapswipe_workers --help
+```
+
 
 ```
 Usage: mapswipe_workers [OPTIONS] COMMAND [ARGS]...

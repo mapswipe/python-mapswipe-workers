@@ -338,7 +338,7 @@ def run(schedule, only_new_results):
 def _run():
     _run_create_projects()
     project_id_list = _run_firebase_to_postgres()
-    _run_generate_stats(project_id_list)
+    _run_generate_stats(project_id_list, None)
 
 
 def _run_create_projects(project_draft_ids=None):
