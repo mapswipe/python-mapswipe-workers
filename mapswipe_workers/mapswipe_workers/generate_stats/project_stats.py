@@ -19,7 +19,7 @@ def id_to_string(x):
 
 def get_results_by_project_id(filename, project_id):
     '''
-    Export raw results on project_id basis.
+    Export results for the given project id.
 
     Parameters
     ----------
@@ -54,7 +54,7 @@ def get_results_by_project_id(filename, project_id):
 
 def get_tasks_by_project_id(filename, project_id):
     '''
-    Export raw results on project_id basis.
+    Export tasks for the given project id.  Only export if not already downloaded before.
 
     Parameters
     ----------
@@ -87,7 +87,7 @@ def get_tasks_by_project_id(filename, project_id):
 
 def get_groups_by_project_id(filename, project_id):
     '''
-    Export raw results on project_id basis.
+    Export groups based on given project id. Only export if not already downloaded before.
 
     Parameters
     ----------
@@ -120,6 +120,10 @@ def get_groups_by_project_id(filename, project_id):
 
 
 def calc_agreement(total, no, yes, maybe, bad):
+    '''
+    for each task the "agreement" is computed as defined by Scott's Pi to give a measure for inter-rater reliability
+    https://en.wikipedia.org/wiki/Scott%27s_Pi
+    '''
 
     if total == 1:
         agreement = 1
@@ -134,18 +138,39 @@ def calc_agreement(total, no, yes, maybe, bad):
 
 
 def calc_results_progress(number_of_users, number_of_users_required, cum_number_of_users, number_of_tasks, number_of_results):
+    '''
+    for each project the progress is calculated
+    not all results are considered when calculating the progress
+    if the required number of users has been reached for a task
+    all further results will not contribute to increase the progress
+    '''
 
     if cum_number_of_users <= number_of_users_required:
+        # this is the simplest case, the number of users is less than the required number of users
+        # all results contribute to progress
         number_of_results_progress = number_of_results
     elif (cum_number_of_users - number_of_users) < number_of_users_required:
+        # the number of users is bigger than the number of users required
+        # but the previous number of users was below the required number
+        # some results contribute to progress
         number_of_results_progress = (number_of_users_required - (cum_number_of_users - number_of_users)) * number_of_tasks
     else:
+        # for all other cases: already more users than required
+        # all results do not contribute to progress
         number_of_results_progress = 0
 
     return number_of_results_progress
 
 
 def agg_results_by_task_id(results_df, tasks_df):
+    '''
+    for each task several users contribute results
+    this functions aggregates using task id
+    the following values are calculated:
+    total_count, 0_count, 1_count, 2_count, 3_count
+    0_share, 1_share, 2_share, 3_share, agreement
+    '''
+
 
     results_by_task_id_df = results_df.groupby(['project_id', 'group_id', 'task_id', 'result']).size().unstack(fill_value=0)
 
@@ -185,6 +210,11 @@ def agg_results_by_task_id(results_df, tasks_df):
 
 
 def get_progress_by_date(results_df, groups_df):
+    '''
+    for each project we retrospectively generate the following attributes for a given date utilizing the results:
+    number_of_results, cum_number_of_results, progress, cum_progress
+    '''
+
 
     groups_df['required_results'] = groups_df['number_of_tasks'] * groups_df['number_of_users_required']
     required_results = groups_df['required_results'].sum()
@@ -220,6 +250,10 @@ def get_progress_by_date(results_df, groups_df):
 
 
 def get_new_user(day, first_day):
+    '''
+    Check if user has contributed results to this project before
+    '''
+
     if day == first_day:
         return 1
     else:
@@ -227,6 +261,10 @@ def get_new_user(day, first_day):
 
 
 def get_contributors_by_date(results_df):
+    '''
+    for each project we retrospectively generate the following attributes for a given date utilizing the results:
+    number_of_users, number_of_new_users, cum_number_of_users
+    '''
 
     user_first_day_df = results_df.groupby(['user_id']).agg(
         first_day=pd.NamedAgg(column='day', aggfunc='min')
@@ -253,6 +291,11 @@ def get_contributors_by_date(results_df):
 
 
 def get_per_project_statistics(project_id):
+    '''
+    the function to calculate all project related statistics
+    will derive:
+    results, groups, tasks, agg_results, history
+    '''
 
     # set filenames
     results_filename = f'{DATA_PATH}/api-data/results/results_{project_id}.csv'
