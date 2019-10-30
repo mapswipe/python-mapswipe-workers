@@ -34,6 +34,7 @@ def cast_datatypes_for_geojson(filename):
     Go through geojson file and try to cast all values as float, except project_id
     remove redundant geometry property
     '''
+
     filename = filename.replace('csv', 'geojson')
     with open(filename) as f:
         geojson_data = json.load(f)
@@ -47,6 +48,8 @@ def cast_datatypes_for_geojson(filename):
                     pass
                 elif property in ['geom']:
                     # remove redundant geometry property
+                    del geojson_data['features'][i]['properties'][property]
+                elif geojson_data['features'][i]['properties'][property] == '':
                     del geojson_data['features'][i]['properties'][property]
                 else:
                     try:

@@ -148,6 +148,19 @@ def calc_results_progress(number_of_users, number_of_users_required, cum_number_
 def agg_results_by_task_id(results_df, tasks_df):
 
     results_by_task_id_df = results_df.groupby(['project_id', 'group_id', 'task_id', 'result']).size().unstack(fill_value=0)
+
+    if 0 not in results_by_task_id_df.columns:
+        results_by_task_id_df[0] = 0
+
+    if 1 not in results_by_task_id_df.columns:
+        results_by_task_id_df[1] = 0
+
+    if 2 not in results_by_task_id_df.columns:
+        results_by_task_id_df[2] = 0
+
+    if 3 not in results_by_task_id_df.columns:
+        results_by_task_id_df[3] = 0
+
     results_by_task_id_df['total_count'] = results_by_task_id_df[0] + results_by_task_id_df[1] + results_by_task_id_df[2] + results_by_task_id_df[3]
     results_by_task_id_df['0_share'] = results_by_task_id_df[0] / results_by_task_id_df['total_count']
     results_by_task_id_df['1_share'] = results_by_task_id_df[1] / results_by_task_id_df['total_count']
