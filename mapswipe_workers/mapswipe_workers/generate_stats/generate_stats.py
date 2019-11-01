@@ -65,6 +65,8 @@ def generate_stats(project_id_list: list):
         projects_filename = f"{DATA_PATH}/api-data/projects/projects.csv"
         overall_stats.save_projects(projects_filename, projects_df, projects_dynamic_df)
 
+    logger.info(f"finished generate stats for: {project_id_list}")
+
 
 def generate_stats_all_projects():
     """
