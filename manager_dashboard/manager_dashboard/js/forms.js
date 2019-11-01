@@ -71,6 +71,7 @@ function displayImportForm() {
 
 function openFile(event) {
     var input = event.target;
+
     var info_element_id = event.target.id + 'Info'
     var content_element_id = event.target.id + 'Content'
     var map_element_id = event.target.id + 'Map'
@@ -91,67 +92,77 @@ function openFile(event) {
       var zoomLevel = parseInt(document.getElementById('zoomLevelChangeDetection').value)
     }
 
-    var reader = new FileReader();
-    reader.onload = function(){
+    // Check file size before loading
+    var filesize = input.files[0].size;
+    if (filesize > 2.5 * 1024 * 1024) {
+      var err='filesize is too big (max 2.5MB): ' + filesize/(1000*1000)
+      info_output.innerHTML = '<b>Error reading GeoJSON file</b><br>' + err;
+      info_output.style.display = 'block'
+    } else {
+      info_output.innerHTML += 'File Size is valid <br>';
+      info_output.style.display = 'block'
 
-      try {
-          var text = reader.result;
-          var geojsonData = JSON.parse(text)
+      var reader = new FileReader();
+      reader.onload = function(){
 
-          // check number of features
-          numberOfFeatures = geojsonData['features'].length
-          console.log('number of features: ' + numberOfFeatures)
-          if (numberOfFeatures > 1) {
-            throw 'too many features: ' + numberOfFeatures
-          }
-          info_output.innerHTML += 'Number of Features: ' + numberOfFeatures + '<br>';
-          info_output.style.display = 'block'
+          try {
+              var text = reader.result;
+              var geojsonData = JSON.parse(text)
 
-          // check input geometry type
-          feature = geojsonData['features'][0]
-          type = turf.getType(feature)
-          console.log('geometry type: ' + type)
-          if (type !== 'Polygon' & type !== 'MultiPolygon') {
-            throw 'wrong geometry type: ' + type
-          }
-          info_output.innerHTML += 'Feature Type: ' + type + '<br>';
-          info_output.style.display = 'block'
+              // check number of features
+              numberOfFeatures = geojsonData['features'].length
+              console.log('number of features: ' + numberOfFeatures)
+              if (numberOfFeatures > 1) {
+                throw 'too many features: ' + numberOfFeatures
+              }
+              info_output.innerHTML += 'Number of Features: ' + numberOfFeatures + '<br>';
+              info_output.style.display = 'block'
 
-          // check project size
+              // check input geometry type
+              feature = geojsonData['features'][0]
+              type = turf.getType(feature)
+              console.log('geometry type: ' + type)
+              if (type !== 'Polygon' & type !== 'MultiPolygon') {
+                throw 'wrong geometry type: ' + type
+              }
+              info_output.innerHTML += 'Feature Type: ' + type + '<br>';
+              info_output.style.display = 'block'
 
-          area = turf.area(feature)/1000000 // area in square kilometers
-          maxArea = (20 - zoomLevel) * (20 - zoomLevel) * 1250
-          console.log('project size: ' + area + ' sqkm')
-          if (area > 5000) {
-            throw 'project is to large: ' + area + ' sqkm; ' + 'max allowed size for this zoom level: ' + maxArea + ' sqkm'
-          }
-          info_output.innerHTML += 'Project Size: ' + area + ' sqkm<br>';
-          info_output.style.display = 'block'
+              // check project size
 
-          // add feature to map
-          layer.clearLayers()
-          layer.addData(geojsonData);
-          map.fitBounds(layer.getBounds());
-          console.log('added input geojson feature')
+              area = turf.area(feature)/1000000 // area in square kilometers
+              maxArea = (20 - zoomLevel) * (20 - zoomLevel) * 1250
+              console.log('project size: ' + area + ' sqkm')
+              if (area > 5000) {
+                throw 'project is to large: ' + area + ' sqkm; ' + 'max allowed size for this zoom level: ' + maxArea + ' sqkm'
+              }
+              info_output.innerHTML += 'Project Size: ' + area + ' sqkm<br>';
+              info_output.style.display = 'block'
 
-          // add text to html object
-          info_output.innerHTML += 'Project seems to be valid :)';
-          info_output.style.display = 'block'
+              // add feature to map
+              layer.clearLayers()
+              layer.addData(geojsonData);
+              map.fitBounds(layer.getBounds());
+              console.log('added input geojson feature')
 
-          if (event.target.id === 'geometry') {
-            BuildAreaGeometry = text
-          } else {
-            ChangeDetectionGeometry = text
-          }
+              // add text to html object
+              info_output.innerHTML += 'Project seems to be valid :)';
+              info_output.style.display = 'block'
 
+              if (event.target.id === 'geometry') {
+                BuildAreaGeometry = text
+              } else {
+                ChangeDetectionGeometry = text
+              }
 
-        }
-        catch(err) {
-          info_output.innerHTML = '<b>Error reading GeoJSON file</b><br>' + err;
-          info_output.style.display = 'block'
-        }
-    };
+            }
+            catch(err) {
+              info_output.innerHTML = '<b>Error reading GeoJSON file</b><br>' + err;
+              info_output.style.display = 'block'
+            }
+        };
     reader.readAsText(input.files[0]);
+    }
   };
 
 function openImageFile(event) {
