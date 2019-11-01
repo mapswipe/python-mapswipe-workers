@@ -7,26 +7,31 @@ RUN apt-get update
 RUN apt-get install gdal-bin
 
 # create directories for config, logs and data
-RUN mkdir -p /usr/share/config/mapswipe_workers/
-RUN mkdir -p /usr/local/mapswipe_workers/
-RUN mkdir -p /var/log/mapswipe_workers/
-RUN mkdir -p /var/lib/mapswipe_workers/
-RUN mkdir -p /var/lib/mapswipe_workers/api-data
-RUN mkdir -p /var/lib/mapswipe_workers/api-data/agg_results/
-RUN mkdir -p /var/lib/mapswipe_workers/api-data/groups/
-RUN mkdir -p /var/lib/mapswipe_workers/api-data/history/
-RUN mkdir -p /var/lib/mapswipe_workers/api-data/projects/
-RUN mkdir -p /var/lib/mapswipe_workers/api-data/results/
-RUN mkdir -p /var/lib/mapswipe_workers/api-data/tasks/
+ARG config_dir=/usr/share/config/mapswipe_workers/
+ARG repo_dir=/usr/local/mapswipe_workers/
+ARG data_dir=/var/lib/mapswipe_workers/
+ARG logs_dir=/var/log/mapswipe_workers/
+
+RUN mkdir -p $config_dir
+RUN mkdir -p $repo_dir
+RUN mkdir -p $logs_dir
+RUN mkdir -p $data_dir
+RUN mkdir -p $data_dir"api-data"
+RUN mkdir -p $data_dir"api-data/agg_results/"
+RUN mkdir -p $data_dir"api-data/groups/"
+RUN mkdir -p $data_dir"api-data/history/"
+RUN mkdir -p $data_dir"api-data/projects/"
+RUN mkdir -p $data_dir"api-data/results/"
+RUN mkdir -p $data_dir"api-data/tasks/"
 
 # copy mapswipe workers repo from local repo
-WORKDIR /usr/local/mapswipe_workers/
+WORKDIR $repo_dir
 COPY mapswipe_workers/ mapswipe_workers/
 COPY sample_data/ sample_data/
 COPY tests/ tests/
 COPY requirements.txt .
 COPY setup.py .
-COPY config /usr/share/config/mapswipe_workers
+COPY config $config_dir
 
 # Install dependencies and mapswipe-workers
 # RUN python setup.py install
