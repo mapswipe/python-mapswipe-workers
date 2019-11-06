@@ -5,8 +5,8 @@ COPY serviceAccountKey.json serviceAccountKey.json
 COPY stat_views.sql docker-entrypoint-initdb.d/
 
 # Copy backup scripts and make them executable
-COPY wal-g/make_basebackup.sh make_basebackup.sh
-COPY wal-g/archive_command.sh archive_command.sh
+COPY backup/make_basebackup.sh make_basebackup.sh
+COPY backup/archive_command.sh archive_command.sh
 RUN chmod +x make_basebackup.sh
 RUN chmod +x archive_command.sh
 
