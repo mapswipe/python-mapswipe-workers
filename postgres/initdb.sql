@@ -102,10 +102,7 @@ CREATE TABLE IF NOT EXISTS results_temp (
     );
 
 --
--- USERS
+-- VIEWS
 --
--- create a read-only user for backups
-CREATE USER backup WITH PASSWORD 'backupuserpassword';
-GRANT CONNECT ON DATABASE mapswipe TO backup;
-GRANT USAGE ON SCHEMA public TO backup;
-GRANT SELECT ON ALL TABLES IN SCHEMA public TO backup;
+-- create views for statistics
+\i /docker-entrypoint-initdb.d/stat_views.sql

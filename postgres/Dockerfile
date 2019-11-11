@@ -4,12 +4,12 @@ COPY initdb.sql docker-entrypoint-initdb.d/
 COPY serviceAccountKey.json serviceAccountKey.json
 
 # Copy backup scripts and make them executable
-COPY wal-g/make_basebackup.sh make_basebackup.sh
-COPY wal-g/archive_command.sh archive_command.sh
+COPY backup/make_basebackup.sh make_basebackup.sh
+COPY backup/archive_command.sh archive_command.sh
 RUN chmod +x make_basebackup.sh
 RUN chmod +x archive_command.sh
 
-# Install wal-g (used by backup scripts)
+# Install wal-g (used by backup/recovery scripts)
 RUN apt-get update && apt-get install -y wget
 RUN wget https://github.com/wal-g/wal-g/releases/download/v0.2.9/wal-g.linux-amd64.tar.gz
 RUN tar -zxvf wal-g.linux-amd64.tar.gz
