@@ -20,8 +20,8 @@ def generate_tutorial_data(tutorial):
 
     with open(tutorial['examplesFile']) as json_file:
         tutorial_tasks = json.load(json_file)
-        print(len(tutorial_tasks))
-        print(tutorial_tasks)
+        print(len(tutorial_tasks['features']))
+        #print(tutorial_tasks['features'])
 
         for feature in tutorial_tasks['features']:
 

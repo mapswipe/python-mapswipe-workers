@@ -1,0 +1,9 @@
+{
+  "fake_user_id": {
+    "endTime" : "2019-10-16T23:15:47.877Z",
+    "startTime" : "2019-10-16T23:15:47.352Z",
+    "timestamp" : "2019-10-16T23:15:47.877Z"
+  },
+  "comment": "this is for testing if the workers correctly manage invalid results"
+}
+

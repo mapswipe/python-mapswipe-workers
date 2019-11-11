@@ -6,6 +6,7 @@ import dateutil.parser
 from mapswipe_workers import auth
 from mapswipe_workers.definitions import logger
 from mapswipe_workers.firebase_to_postgres import update_data
+from mapswipe_workers.utils import sentry
 
 
 def transfer_results(project_id_list=None):
@@ -16,8 +17,6 @@ def transfer_results(project_id_list=None):
     the Firebase docs to avoid missing new generated results in
     Firebase during execution of this function.
     '''
-    # TODO: return true if results where transfered
-    # return fals if not
 
     # Firebase transaction function
     def transfer(current_results):
@@ -40,12 +39,19 @@ def transfer_results(project_id_list=None):
             project_id_list = []
             logger.info(f'There are no results to transfer.')
 
+    # get all project ids from postgres, we will only transfer results for projects we have there
+    postgres_project_ids = get_projects_from_postgres()
 
     for project_id in project_id_list:
-        logger.info(f'{project_id}: Start transfering results')
-        if 'tutorial' in project_id:
+        if project_id not in postgres_project_ids:
+            logger.info(f'{project_id}: This project is not in postgres. We will not transfer results')
+            continue
+        elif 'tutorial' in project_id:
             logger.info(f'{project_id}: these are results for a tutorial. we will not transfer these')
             continue
+
+        logger.info(f'{project_id}: Start transfering results')
+
         results_ref = fb_db.reference(f'v2/results/{project_id}')
         truncate_temp_results()
 
@@ -58,7 +64,7 @@ def transfer_results(project_id_list=None):
             )
 
     del fb_db
-    return
+    return project_id_list
 
 
 def results_to_file(results, projectId):
@@ -68,12 +74,10 @@ def results_to_file(results, projectId):
     This can be then used by the COPY statement of Postgres
     for a more efficient import of many results into the Postgres
     instance.
-
     Parameters
     ----------
     results: dict
         The results as retrived from the Firebase Realtime Database instance.
-
     Returns
     -------
     results_file: io.StingIO
@@ -92,21 +96,24 @@ def results_to_file(results, projectId):
     logger.info(f'Got %s groups for project {projectId} to transfer' % len(results.items()))
     for groupId, users in results.items():
         for userId, results in users.items():
-            timestamp = results['timestamp']
-            start_time = results['startTime']
-            end_time = results['endTime']
 
-            # Convert timestamp (ISO 8601) from string to a datetime object
-            # this solution works only in python 3.7
-            # timestamp = dt.datetime.strptime(timestamp, '%Y-%m-%dT%H:%M:%S.%f%z')
-            # start_time = dt.datetime.strptime(start_time, '%Y-%m-%dT%H:%M:%S.%f%z')
-            # end_time = dt.datetime.strptime(end_time, '%Y-%m-%dT%H:%M:%S.%f%z')
+            # check if all attributes are set, if not don't transfer the results for this group
+            try:
+                timestamp = results['timestamp']
+                start_time = results['startTime']
+                end_time = results['endTime']
+                results = results['results']
+            except KeyError as e:
+                sentry.capture_exception_sentry(e)
+                sentry.capture_message_sentry(f'at least one missing attribute for: {projectId}/{groupId}/{userId}, will skip this one')
+                logger.exception(e)
+                logger.warning(f'at least one missing attribute for: {projectId}/{groupId}/{userId}, will skip this one')
+                continue
 
             timestamp = dateutil.parser.parse(timestamp)
             start_time = dateutil.parser.parse(start_time)
             end_time = dateutil.parser.parse(end_time)
 
-            results = results['results']
             if type(results) is dict:
                 for taskId, result in results.items():
                     w.writerow([
@@ -202,3 +209,19 @@ def get_user_ids_from_results(results):
             user_ids.add(userId)
 
     return user_ids
+
+
+def get_projects_from_postgres():
+    '''
+    Get the id of all projects in postgres
+    '''
+
+    pg_db = auth.postgresDB()
+    sql_query = '''
+        SELECT project_id from projects;
+    '''
+    raw_ids = pg_db.retr_query(sql_query, None)
+    project_ids = [i[0] for i in raw_ids]
+
+    del pg_db
+    return project_ids

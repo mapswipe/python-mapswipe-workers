@@ -2,7 +2,6 @@ FROM mdillon/postgis
 
 COPY initdb.sql docker-entrypoint-initdb.d/
 COPY serviceAccountKey.json serviceAccountKey.json
-COPY stat_views.sql docker-entrypoint-initdb.d/
 
 # Copy backup scripts and make them executable
 COPY backup/make_basebackup.sh make_basebackup.sh
