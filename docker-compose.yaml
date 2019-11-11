@@ -73,12 +73,13 @@ services:
             POSTGERS_PASSWORD: '${POSTGRES_PASSWORD}'
             POSTGRES_USER: 'mapswipe_workers'
             POSTGRES_DB: 'mapswipe'
+            PGDATA: '/var/lib/postgresql/mapswipe'
             WALG_GS_PREFIX: '${WALG_GS_PREFIX}'
             GOOGLE_APPLICATION_CREDENTIALS: '/serviceAccountKey.json'
         # Set options for WAL-G (backup tool)
         command: postgres -c archive_mode=on -c archive_timeout=60 -c archive_command="/archive_command.sh %p"
         volumes:
-            - ./postgres-data:/var/lib/postgresql/data
+            - ./postgres-data:/var/lib/postgresql/mapswipe
         restart: unless-stopped
         ports:
           - "5432:5432"
