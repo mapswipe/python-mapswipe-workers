@@ -10,5 +10,5 @@ mv /recovery.conf /var/lib/postgresql/mapswipe/
 chown -R postgres:postgres /var/lib/postgresql/mapswipe
 chmod 700 /var/lib/postgresql/mapswipe
 
-# execute command given in Dockerfile: CMD ["docker-entrypoint.sh", "postgres"]
+# Execute command given in Dockerfile ("docker-entrypoint.sh", "postgres").
 exec "$@"

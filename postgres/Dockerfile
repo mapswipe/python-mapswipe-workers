@@ -10,7 +10,7 @@ COPY backup/archive_command.sh archive_command.sh
 RUN chmod +x make_basebackup.sh
 RUN chmod +x archive_command.sh
 
-# Install wal-g (used by backup scripts)
+# Install wal-g (used by backup/recovery scripts)
 RUN apt-get update && apt-get install -y wget
 RUN wget https://github.com/wal-g/wal-g/releases/download/v0.2.9/wal-g.linux-amd64.tar.gz
 RUN tar -zxvf wal-g.linux-amd64.tar.gz
