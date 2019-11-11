@@ -1,5 +1,5 @@
 /* http://www.varlena.com/GeneralBits/120.php */
-CREATE TABLE row_counts (
+CREATE IF NOT EXISTS TABLE row_counts (
     relname text PRIMARY KEY,
     reltuples numeric
 );
@@ -76,6 +76,8 @@ LANGUAGE 'plpgsql';
 
 VACUUM;
 
+
+/* Stop server activity if possible. */
 BEGIN;
 SELECT
     add_count_trigs ();
