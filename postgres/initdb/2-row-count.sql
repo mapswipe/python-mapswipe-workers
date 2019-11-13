@@ -74,10 +74,10 @@ END;
 $$
 LANGUAGE 'plpgsql';
 
-VACUUM;
-
 
 /* Stop server activity if possible. */
+VACUUM;
+
 BEGIN;
 SELECT
     add_count_trigs ();
