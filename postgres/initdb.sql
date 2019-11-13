@@ -102,15 +102,6 @@ CREATE TABLE IF NOT EXISTS results_temp (
     );
 
 --
--- USERS
---
--- create a read-only user for backups
-CREATE USER backup WITH PASSWORD 'backupuserpassword';
-GRANT CONNECT ON DATABASE mapswipe TO backup;
-GRANT USAGE ON SCHEMA public TO backup;
-GRANT SELECT ON ALL TABLES IN SCHEMA public TO backup;
-
---
 -- VIEWS
 --
 -- create views for statistics
