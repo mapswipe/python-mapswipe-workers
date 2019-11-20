@@ -12,18 +12,11 @@ function getProjects(status) {
             row_array.push(data.val().name)
             row_array.push(data.val().projectType)
             row_array.push(data.val().progress + "%")
-            row_array.push(data.val().status)
-            if (data.val().isFeatured === true) {
-              row_array.push("<b>"+data.val().isFeatured+"</b>")
-            } else if (data.val().isFeatured === false) {
-              row_array.push(data.val().isFeatured)
-            }
 
             if (data.val().status == "inactive") {
-              btn = addButton(data.key, data.val().status, "active")
-              row_array.push(btn.outerHTML)
-              btn = addButton(data.key, data.val().status, "finished")
-              row_array.push(btn.outerHTML)
+              btn1 = addButton(data.key, data.val().status, "active")
+              btn2 = addButton(data.key, data.val().status, "finished")
+              row_array.push(btn1.outerHTML + btn2.outerHTML)
             } else if (data.val().status == "active") {
               btn1 = addButton(data.key, data.val().status, "inactive")
               btn2 = addButton(data.key, data.val().status, "finished")
@@ -37,19 +30,26 @@ function getProjects(status) {
             }
 
             if (data.val().status == "active"){
+
                 btn = document.createElement('button')
                 btn.id = data.key
                 btn.classList.add("btn")
                 btn.classList.add("btn-warning")
+                btn.classList.add("isFeatured")
                 btn.classList.add("isFeatured-"+data.val().isFeatured)
                 btn.addEventListener("click", changeProjectIsFeatured)
 
                 if (data.val().isFeatured === true) {
                   btn.innerHTML = 'set to "false"'
+                  row_val = "<b>"+data.val().isFeatured+"</b>"
+                  row_array.push(row_val + "<br>" + btn.outerHTML)
                 } else if (data.val().isFeatured === false) {
                   btn.innerHTML = 'set to "true"'
+                  row_val = data.val().isFeatured
+                  row_array.push(row_val + "<br>" + btn.outerHTML)
                 }
-                row_array.push(btn.outerHTML)
+
+                row_array.push(row_val + btn.outerHTML)
             }
 
             rows.push(row_array)
@@ -116,6 +116,7 @@ function updateTableView() {
     getProjects("active")
     getProjects("inactive")
     getProjects("finished")
+    getProjects("archived")
 }
 
 
@@ -155,3 +156,4 @@ getProjects("new")
 getProjects("active")
 getProjects("inactive")
 getProjects("finished")
+getProjects("archived")
