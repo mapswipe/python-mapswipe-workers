@@ -14,14 +14,19 @@ The WAL-G backup setup is integrated into the Postgres Docker image. It will do 
 WAL-G is installed alongside Postgres. See the Dockerfile of Postgres (`postgres/Dockerfile`) for details. In the docker-compose postgres command (`docker-compose.yml`) archive parameter of postgres are set needed to make archives.
 
 
-## Restore setup
+### Configuration
 
-The WAL-G restore setup is realized in a dedicated Docker image (`postgres/Dockerfile-restore_backup`). It will create a new Postgres database cluster, fetch latest backup using `wal-g backup-fetch` and create a `recovery.conf` file in the new cluster during Docker build. `recovery.conf` is used by Postgres during first start to get the `restore_command`. Again the exact commands are to be found in `postgres/wal-g/restore_command.sh`. During first start Postgres will get WALs from backup server and restore the database.
-
-
-## Configuration
-
-To store backups in Google Cloud Storage, WAL-G requires that this variable be set: `WALG_GS_PREFIX` to specify where to store backups (eg. `gs://x4m-test-bucket/walg-folder`).
-Please add this to your `.env` file at the root of MapSwipe Back-end (See `.example-env` for environment variables wich needs to be set)
+To store backups in Google Cloud Storage, WAL-G requires that this variable is set: `WALG_GS_PREFIX` to specify where to store backups (eg. `gs://x4m-test-bucket/walg-folder`).
+Please add this to the `.env` file at the root of MapSwipe Back-end (See `.example-env` for environment variables which have to be set)
 
 WAL-G determines Google Cloud credentials using application-default credentials like other GCP tools. Get a Service Account Key file (`serviceAccountKey.json`) for your Google Cloud Storage (See [Google Cloud Docs](https://cloud.google.com/iam/docs/creating-managing-service-account-keys)) and save it to `postgres/serviceAccountKey.json`.
+
+
+## Restore setup
+
+The WAL-G restore setup is realized in a dedicated Docker image (`postgres/recovery/Dockerfile`). The entrypoint is the `ini_recovery.sh` srcipt. This script will create a new Postgres database cluster, fetch latest backup using `wal-g backup-fetch` and create a `recovery.conf` file in the new cluster. `recovery.conf` is used by Postgres during first start to get the `restore_command`. Again the exact commands are to be found in `postgres/recovery/restore_command.sh`. During first start Postgres will get WALs from backup server and restore the database.
+
+
+### Configuration
+
+> The same configuration as for the backup setup is requiered. Except the Service Account Key has to be stored at `postgres/recovery/serviceAccountKey`.
