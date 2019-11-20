@@ -62,7 +62,10 @@ services:
             - ./api-data/projects:/var/lib/mapswipe_workers/api-data/projects:rw
             - ./api-data/results:/var/lib/mapswipe_workers/api-data/results:rw
             - ./api-data/tasks:/var/lib/mapswipe_workers/api-data/tasks:rw
-        restart: "no"
+        restart_policy:
+          condition: on-failure
+          delay: 5s
+          max_attempts: 5
         networks:
             - mapswipe_workers
             - postgres
