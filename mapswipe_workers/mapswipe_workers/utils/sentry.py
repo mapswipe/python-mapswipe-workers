@@ -1,6 +1,7 @@
 import json
 import sentry_sdk
 from sentry_sdk import capture_exception
+from sentry_sdk import capture_message
 from mapswipe_workers.definitions import CONFIG_PATH
 
 def init_sentry():
@@ -18,3 +19,7 @@ def init_sentry():
 
 def capture_exception_sentry(error):
     capture_exception(error)
+
+
+def capture_message_sentry(message):
+    capture_message(message)

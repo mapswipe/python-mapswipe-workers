@@ -4,6 +4,11 @@ This document describes how to use the command line interface of MapSwipe Worker
 
 In our current deployment setup the commands of the MapSwipe Workers CLI are hard-coded in the Docker-Compose File.
 
+You can run these commands also using docker-compose:
+```
+docker-compose run mapswipe_workers mapswipe_workers --help
+```
+
 
 ```
 Usage: mapswipe_workers [OPTIONS] COMMAND [ARGS]...
@@ -56,8 +61,26 @@ Usage: mapswipe_workers generate-stats [OPTIONS]
 Options:
   -s, --schedule [m|h|d]  Generate stats every 10 minutes (m), every hour (h)
                           or every day (d).
-  --only_new_results      Generate stats for all projects or only for those
-                          updated or with new results.
+  --project_id_list TEXT  provide project id strings as a list stats will be
+                          generated only for these projects.
+                          Use it like '["project_a", "project_b"]'
+  --help                  Show this message and exit.
+```
+
+## Generate Statistics for all projects
+
+Ideally you run this using a separate docker container. e.g. like this:
+
+```
+docker-compose run mapswipe_workers mapswipe_workers generate-stats-all-projects
+```
+
+```
+Usage: mapswipe_workers generate-stats-all-projects [OPTIONS]
+
+Options:
+  -s, --schedule [m|h|d]  Generate stats every 10 minutes (m), every hour (h)
+                          or every day (d).
   --help                  Show this message and exit.
 ```
 

@@ -22,8 +22,24 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
     <link type="text/css" rel="stylesheet" href="css/mapswipe.css" />
+     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css"
+   integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
+   crossorigin=""/>
+    <!-- Make sure you put this AFTER Leaflet's CSS -->
+ <script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js"
+   integrity="sha512-GffPMF3RvMeYyc1LWMHtK8EbPv0iNZ8/oTtHPx9/cc2ILxQ+u905qIwdpULaqDkyBKgOaB57QTMg7ztg8Jm2Og=="
+   crossorigin=""></script>
+    <script src='https://npmcdn.com/@turf/turf/turf.min.js'></script>
+
+    <script
+      src="https://browser.sentry-cdn.com/5.7.1/bundle.min.js"
+      integrity="sha384-KMv6bBTABABhv0NI+rVWly6PIRvdippFEgjpKyxUcpEmDWZTkDOiueL5xW+cztZZ"
+      crossorigin="anonymous"></script>
+    <script>
+        Sentry.init({ dsn: 'https://30340378d1e5495ca7c4d7c8751f0cba@sentry.io/1788403' });
+    </script>
 </head>
-<body>
+<body onload="initMap()">
 
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <a class="navbar-brand" href="index.html">
@@ -75,9 +91,29 @@
                       <form class="form-style-7">
                           <ul>
                           <li>
+                              <label for="projectTopic">Project Topic</label>
+                              <input type="text" name="projectTopic" id="projectTopic" maxlength="50" required>
+                              <span>Enter the topic of your project (50 chars max).</span>
+                          </li>
+                          <li>
+                              <label for="projectRegion">Project Region</label>
+                              <input type="text" name="projectRegion" id="projectRegion" maxlength="50" required>
+                              <span>Enter name of your project Region (50 chars max).</span>
+                          </li>
+                          <li>
+                              <label for="projectNumber">Project Number</label>
+                              <input type="number" name="projectNumber" id="projectNumber" min="1" value="1">
+                              <span>Is this project part of a bigger campaign with multiple projects?</span>
+                          </li>
+                          <li>
+                              <label for="requestingOrganisation">Requesting Organisation</label>
+                              <input type="text" name="requestingOrganisation" id="requestingOrganisation" maxlength="100" required>
+                              <span>Which group, institution or community is requesting this project.</span>
+                          </li>
+                          <li>
                               <label for="name">Name</label>
-                              <input type="text" name="name" id="name" maxlength="25" required>
-                              <span>Enter the name of your project (25 chars max).</span>
+                              <p id="name"></br>[projectTopic] - [projectRegion](taskNumber)<br>[requesting organisation]</p>
+                              <span>We will generate you project name based on your inputs above.</span>
                           </li>
                           <li>
                               <label for="lookFor">Look For</label>
@@ -113,7 +149,7 @@
                           </li>
                           <li>
                               <label for="groupSize">Group Size</label>
-                              <input type="number" name="groupSize" id="groupSize" value="50" min="10" max="200">
+                              <input type="number" name="groupSize" id="groupSize" value="120" min="10" max="200">
                               <span>How big should a mapping session be? Group size refers to the number of tasks per mapping session.</span>
                           </li>
                           <li></li>
@@ -136,8 +172,10 @@
                               <label for="geometry">GeoJSON File</label>
                               <!-- <textarea name="geometry" id="geometry" onkeyup="adjust_textarea(this)"></textarea> -->
                               <input type="file" accept=".GeoJSON" id="geometry" onchange='openFile(event)'>
+                              <div id="geometryMap"></div>
+                              <p id="geometryInfo"></p>
                               <p id="geometryContent"></p>
-                              <span>Upload your project area as GeoJSON File. Make sure that you provide a single polygon geometry.</span>
+                              <span>Upload your project area as GeoJSON File (max. 2.5MB). Make sure that you provide a single polygon geometry.</span>
                           </li>
                           <li>
                               <label for="tileServerBuildArea">Tile Server Name</label>
@@ -161,7 +199,7 @@
                           </li>
                           <li id="tileServerCreditsFieldBuildArea">
                               <label for="tileServerCreditsFieldBuildArea">Imagery Credits</label>
-                              <input type="text" name="tileServerCreditsBuildArea" id="tileServerCreditsBuildArea">
+                              <input type="text" name="tileServerCreditsBuildArea" id="tileServerCreditsBuildArea" value="© 2019 Microsoft Corporation, Earthstar Geographics SIO">
                               <span>Insert appropriate imagery credits. E.g. for Bing: "© 2019 Microsoft Corporation, Earthstar Geographics SIO"</span>
                           </li>
                           <li>
@@ -209,7 +247,7 @@
                           </li>
                           <li id="tileServerCreditsFieldFootprint">
                               <label for="tileServerCreditsFieldFootprint">Imagery Credits</label>
-                              <input type="text" name="tileServerCreditsFootprint" id="tileServerCreditsFootprint">
+                              <input type="text" name="tileServerCreditsFootprint" id="tileServerCreditsFootprint" value="© 2019 Microsoft Corporation, Earthstar Geographics SIO">
                               <span>Insert appropriate imagery credits. E.g. for Bing: "© 2019 Microsoft Corporation, Earthstar Geographics SIO"</span>
                           </li>
                           <li>
@@ -229,8 +267,10 @@
                               <label for="geometry">GeoJSON File</label>
                               <!-- <textarea name="geometry" id="geometry" onkeyup="adjust_textarea(this)"></textarea> -->
                               <input type="file" accept=".GeoJSON" id="geometryChangeDetection" onchange='openFile(event)'>
+                              <div id="geometryChangeDetectionMap"></div>
+                              <p id="geometryChangeDetectionInfo"></p>
                               <p id="geometryChangeDetectionContent"></p>
-                              <span>Upload your project area as GeoJSON File. Make sure that you provide a single polygon geometry.</span>
+                              <span>Upload your project area as GeoJSON File (max. 2.5MB). Make sure that you provide a single polygon geometry.</span>
                           </li>
                           <h4>Tile Server A</h4>
                           <li>

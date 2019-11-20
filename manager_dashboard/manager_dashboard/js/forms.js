@@ -11,6 +11,7 @@ function displayProjectTypeFormular(projectType) {
         document.getElementById("ChangeDetectionProjectFormular").style.display = "None";
         document.getElementById("tileServerBuildArea").value = "bing";
         displayTileServer ("bing", "BuildArea", "");
+        setTimeout(function(){ BuildAreaMap.invalidateSize()}, 400);
     } else if (projectType == 2) {
         document.getElementById("FootprintProjectFormular").style.display = "block";
         document.getElementById("BuildAreaProjectFormular").style.display = "None";
@@ -25,6 +26,7 @@ function displayProjectTypeFormular(projectType) {
       document.getElementById("tileServerChangeDetectionB").value = "bing";
       displayTileServer ("bing", "ChangeDetectionA", "");
       displayTileServer ("bing", "ChangeDetectionB", "");
+      setTimeout(function(){ ChangeDetectionMap.invalidateSize()}, 400);
   }
 }
 
@@ -47,11 +49,14 @@ function clear_all_fields() {
     for (i = 0; i < forms.length; i++) {
       forms[i].reset()
     }
+    document.getElementById('geometryInfo').innerHTML = ''
     document.getElementById('geometryContent').innerHTML = ''
+    BuildAreaLayer.clearLayers()
+    document.getElementById('geometryChangeDetectionInfo').innerHTML = ''
     document.getElementById('geometryChangeDetectionContent').innerHTML = ''
+    ChangeDetectionLayer.clearLayers()
     document.getElementById('imageText').innerHTML = ''
     document.getElementById('imageFile').src = ''
-
     displayProjectTypeFormular(1)
   }
 
@@ -66,23 +71,98 @@ function displayImportForm() {
 
 function openFile(event) {
     var input = event.target;
-    element_id = event.target.id + 'Content'
 
-    var reader = new FileReader();
-    reader.onload = function(){
+    var info_element_id = event.target.id + 'Info'
+    var content_element_id = event.target.id + 'Content'
+    var map_element_id = event.target.id + 'Map'
 
-      try {
-          var text = reader.result;
-          var geometry = JSON.parse(text)
-          var output = document.getElementById(element_id);
-          output.innerHTML = text;
-        }
-        catch(err) {
-          var output = document.getElementById(element_id);
-          output.innerHTML = '<b>Error reading GeoJSON file</b><br>' + err;
-        }
-    };
+    var info_output = document.getElementById(info_element_id);
+    info_output.innerHTML = '';
+    info_output.style.display = 'block'
+
+    var content_output = document.getElementById(content_element_id);
+
+    if (event.target.id === 'geometry') {
+      var map = BuildAreaMap
+      var layer = BuildAreaLayer
+      var zoomLevel = parseInt(document.getElementById('zoomLevel').value)
+    } else {
+      var map = ChangeDetectionMap
+      var layer = ChangeDetectionLayer
+      var zoomLevel = parseInt(document.getElementById('zoomLevelChangeDetection').value)
+    }
+
+    // Check file size before loading
+    var filesize = input.files[0].size;
+    if (filesize > 2.5 * 1024 * 1024) {
+      var err='filesize is too big (max 2.5MB): ' + filesize/(1000*1000)
+      info_output.innerHTML = '<b>Error reading GeoJSON file</b><br>' + err;
+      info_output.style.display = 'block'
+    } else {
+      info_output.innerHTML += 'File Size is valid <br>';
+      info_output.style.display = 'block'
+
+      var reader = new FileReader();
+      reader.onload = function(){
+
+          try {
+              var text = reader.result;
+              var geojsonData = JSON.parse(text)
+
+              // check number of features
+              numberOfFeatures = geojsonData['features'].length
+              console.log('number of features: ' + numberOfFeatures)
+              if (numberOfFeatures > 1) {
+                throw 'too many features: ' + numberOfFeatures
+              }
+              info_output.innerHTML += 'Number of Features: ' + numberOfFeatures + '<br>';
+              info_output.style.display = 'block'
+
+              // check input geometry type
+              feature = geojsonData['features'][0]
+              type = turf.getType(feature)
+              console.log('geometry type: ' + type)
+              if (type !== 'Polygon' & type !== 'MultiPolygon') {
+                throw 'wrong geometry type: ' + type
+              }
+              info_output.innerHTML += 'Feature Type: ' + type + '<br>';
+              info_output.style.display = 'block'
+
+              // check project size
+
+              area = turf.area(feature)/1000000 // area in square kilometers
+              maxArea = (20 - zoomLevel) * (20 - zoomLevel) * 1250
+              console.log('project size: ' + area + ' sqkm')
+              if (area > 5000) {
+                throw 'project is to large: ' + area + ' sqkm; ' + 'max allowed size for this zoom level: ' + maxArea + ' sqkm'
+              }
+              info_output.innerHTML += 'Project Size: ' + area + ' sqkm<br>';
+              info_output.style.display = 'block'
+
+              // add feature to map
+              layer.clearLayers()
+              layer.addData(geojsonData);
+              map.fitBounds(layer.getBounds());
+              console.log('added input geojson feature')
+
+              // add text to html object
+              info_output.innerHTML += 'Project seems to be valid :)';
+              info_output.style.display = 'block'
+
+              if (event.target.id === 'geometry') {
+                BuildAreaGeometry = text
+              } else {
+                ChangeDetectionGeometry = text
+              }
+
+            }
+            catch(err) {
+              info_output.innerHTML = '<b>Error reading GeoJSON file</b><br>' + err;
+              info_output.style.display = 'block'
+            }
+        };
     reader.readAsText(input.files[0]);
+    }
   };
 
 function openImageFile(event) {
@@ -105,3 +185,22 @@ function openImageFile(event) {
     reader.readAsDataURL(input.files[0]);
   };
 
+function initMap() {
+  BuildAreaMap = L.map('geometryMap').setView([0.0, 0.0], 4);
+  L.tileLayer( 'https://maps.wikimedia.org/osm-intl/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    subdomains: ['a','b','c']
+  }).addTo( BuildAreaMap );
+  console.log('added map');
+  BuildAreaLayer = L.geoJSON().addTo(BuildAreaMap);
+  setTimeout(function(){ BuildAreaMap.invalidateSize()}, 400);
+
+  ChangeDetectionMap = L.map('geometryChangeDetectionMap').setView([0.0, 0.0], 4);
+  L.tileLayer( 'https://maps.wikimedia.org/osm-intl/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    subdomains: ['a','b','c']
+  }).addTo( ChangeDetectionMap );
+  console.log('added map');
+  ChangeDetectionLayer = L.geoJSON().addTo(ChangeDetectionMap);
+  setTimeout(function(){ ChangeDetectionMap.invalidateSize()}, 400);
+  }

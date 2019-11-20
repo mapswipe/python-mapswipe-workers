@@ -44,7 +44,13 @@ function submitInfo() {
     } else {
 
     // get basic project information
-    var name = document.getElementById("name").value;
+    var projectTopic = document.getElementById("projectTopic").value;
+    var projectRegion = document.getElementById("projectRegion").value;
+    var projectNumber = document.getElementById("projectNumber").value;
+    var requestingOrganisation = document.getElementById("requestingOrganisation").value;
+    var name = projectTopic + ' - ' + projectRegion + ' (' + projectNumber + ')\n' + requestingOrganisation
+
+
     var lookFor = document.getElementById("lookFor").value;
     var projectDetails = document.getElementById("projectDetails").value;
     var projectType = document.getElementById("projectType").value;
@@ -56,7 +62,7 @@ function submitInfo() {
     if (projectType == 1) {
 
         var zoomLevel = document.getElementById("zoomLevel").value;
-        var geometry = document.getElementById("geometryContent").innerHTML;
+        var geometry = BuildAreaGeometry;
         var tileServer = {
           name: document.getElementById("tileServerBuildArea").value,
           url: document.getElementById("tileServerUrlBuildArea").value,
@@ -66,6 +72,10 @@ function submitInfo() {
 
         var mapswipe_import = {
             name: name,
+            projectRegion: projectRegion,
+            projectTopic: projectTopic,
+            projectNumber: projectNumber,
+            requestingOrganisation: requestingOrganisation,
             lookFor: lookFor,
             projectDetails: projectDetails,
             projectType: parseInt(projectType),
@@ -107,7 +117,7 @@ function submitInfo() {
     } else if (projectType == 3) {
 
       var zoomLevel = document.getElementById("zoomLevelChangeDetection").value;
-      var geometry = document.getElementById("geometryChangeDetectionContent").innerHTML;
+      var geometry = ChangeDetectionGeometry;
       var tileServerA = {
         name: document.getElementById("tileServerChangeDetectionA").value,
         url: document.getElementById("tileServerUrlChangeDetectionA").value,
