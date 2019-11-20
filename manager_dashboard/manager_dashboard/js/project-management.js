@@ -1,65 +1,42 @@
 function getProjects(status) {
   var ProjectsRef = firebase.database().ref("v2/projects").orderByChild("status").equalTo(status);
 
-  var tableRef = document.getElementById('projectsTable-'+status).getElementsByTagName('tbody')[0];
-
+  var tableRef = $("#projectsTable-"+status).DataTable();
+  var rows = []
   ProjectsRef.once('value', function(snapshot){
     if(snapshot.exists()){
         snapshot.forEach(function(data){
 
-            tr = tableRef.insertRow();
-            td = document.createElement('td')
-            td.innerHTML = data.key
-            tr.appendChild(td)
-
-            td = document.createElement('td')
-            td.innerHTML = data.val().name
-            tr.appendChild(td)
-
-            td = document.createElement('td')
-            td.innerHTML = data.val().projectType
-            tr.appendChild(td)
-
-            td = document.createElement('td')
-            td.innerHTML = data.val().progress + "%"
-            tr.appendChild(td)
-
-            td = document.createElement('td')
-            td.innerHTML = data.val().status
-            tr.appendChild(td)
-
-            td = document.createElement('td')
+            row_array = []
+            row_array.push(data.key)
+            row_array.push(data.val().name)
+            row_array.push(data.val().projectType)
+            row_array.push(data.val().progress + "%")
+            row_array.push(data.val().status)
             if (data.val().isFeatured === true) {
-              td.innerHTML = "<b>"+data.val().isFeatured+"</b>"
+              row_array.push("<b>"+data.val().isFeatured+"</b>")
             } else if (data.val().isFeatured === false) {
-              td.innerHTML = data.val().isFeatured
+              row_array.push(data.val().isFeatured)
             }
-            tr.appendChild(td)
-
-
-            td = document.createElement('td')
 
             if (data.val().status == "inactive") {
               btn = addButton(data.key, data.val().status, "active")
-              td.appendChild(btn)
+              row_array.push(btn.outerHTML)
               btn = addButton(data.key, data.val().status, "finished")
-              td.appendChild(btn)
+              row_array.push(btn.outerHTML)
             } else if (data.val().status == "active") {
-              btn = addButton(data.key, data.val().status, "inactive")
-              td.appendChild(btn)
-              btn = addButton(data.key, data.val().status, "finished")
-              td.appendChild(btn)
+              btn1 = addButton(data.key, data.val().status, "inactive")
+              btn2 = addButton(data.key, data.val().status, "finished")
+              row_array.push(btn1.outerHTML + btn2.outerHTML)
             } else if (data.val().status == "new") {
               btn = addButton(data.key, data.val().status, "active")
-              td.appendChild(btn)
+              row_array.push(btn.outerHTML)
             } else if (data.val().status == "finished") {
               btn = addButton(data.key, data.val().status, "inactive")
-              td.appendChild(btn)
+              row_array.push(btn.outerHTML)
             }
-            tr.appendChild(td)
 
             if (data.val().status == "active"){
-                td = document.createElement('td')
                 btn = document.createElement('button')
                 btn.id = data.key
                 btn.classList.add("btn")
@@ -72,13 +49,23 @@ function getProjects(status) {
                 } else if (data.val().isFeatured === false) {
                   btn.innerHTML = 'set to "true"'
                 }
-                td.appendChild(btn)
-                tr.appendChild(td)
+                row_array.push(btn.outerHTML)
             }
+
+            rows.push(row_array)
+            tableRef.row.add(row_array).draw( false )
         });
     };
-    $("#projectsTable-"+status).DataTable();
+
     $('.dataTables_length').addClass('bs-select');
+    console.log('added data table styles')
+
+    var btns = document.getElementsByClassName('change-status')
+    for (let item of btns) {
+        item.addEventListener("click", changeProjectStatus)
+    }
+
+
   });
 
 }
@@ -88,8 +75,8 @@ function addButton(id, oldStatus, newStatus){
   btn.id = id
   btn.classList.add("btn")
   btn.classList.add("btn-warning")
+  btn.classList.add("change-status")
   btn.classList.add("new-status-"+newStatus)
-  btn.addEventListener("click", changeProjectStatus)
   btn.innerHTML = "set to '"+newStatus+"'"
 
   return btn
@@ -112,30 +99,23 @@ function updateIsFeatured(projectId, newStatus) {
 }
 
 function updateTableView() {
-  var newProjects = document.getElementById("projectsTable-new").getElementsByTagName('tbody')[0]
-  while (newProjects.firstChild) {
-    newProjects.removeChild(newProjects.firstChild);
-  }
+  console.log('hello update table view')
+  status_array = ["new", "active", "inactive", "finished"]
 
-  var inactiveProjects = document.getElementById("projectsTable-inactive").getElementsByTagName('tbody')[0]
-  while (inactiveProjects.firstChild) {
-    inactiveProjects.removeChild(inactiveProjects.firstChild);
-  }
+  for (var i = 0; i < status_array.length; i++) {
+    status = status_array[i]
 
-  var activeProjects = document.getElementById("projectsTable-active").getElementsByTagName('tbody')[0]
-  while (activeProjects.firstChild) {
-    activeProjects.removeChild(activeProjects.firstChild);
-  }
+    var tableRef = $("#projectsTable-"+status).DataTable();
+    var rows = tableRef
+        .rows()
+        .remove()
+        .draw();
+    }
 
-  var finishedProjects = document.getElementById("projectsTable-finished").getElementsByTagName('tbody')[0]
-  while (finishedProjects.firstChild) {
-    finishedProjects.removeChild(finishedProjects.firstChild);
-  }
-
-  getProjects("new")
-  getProjects("active")
-  getProjects("inactive")
-  getProjects("finished")
+    getProjects("new")
+    getProjects("active")
+    getProjects("inactive")
+    getProjects("finished")
 }
 
 
