@@ -20,8 +20,12 @@ def generate_stats(project_id_list: list):
     ----------
     project_id_list: list
     """
-    logger.info(f"will generate stats for: {project_id_list}")
 
+    logger.info('will generate overall stats')
+    overall_stats_filename = f"{DATA_PATH}/api-data/overall_stats.csv"
+    overall_stats.get_overall_stats(overall_stats_filename)
+
+    logger.info(f"will generate stats for: {project_id_list}")
     projects_info_filename = f"{DATA_PATH}/api-data/projects/projects_static.csv"
     projects_df = overall_stats.get_project_static_info(projects_info_filename)
     project_id_list_postgres = projects_df["project_id"].to_list()
