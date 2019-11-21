@@ -22,7 +22,7 @@ def generate_stats(project_id_list: list):
     """
 
     logger.info('will generate overall stats')
-    overall_stats_filename = f"{DATA_PATH}/api-data/overall_stats.csv"
+    overall_stats_filename = f"{DATA_PATH}/api-data/stats.csv"
     overall_stats.get_overall_stats(overall_stats_filename)
 
     logger.info(f"will generate stats for: {project_id_list}")
