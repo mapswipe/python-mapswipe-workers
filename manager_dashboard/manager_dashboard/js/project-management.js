@@ -1,4 +1,10 @@
+function addEventListeners(status) {
+  $("#projectsTable-"+status).on('click', '.change-status', changeProjectStatus);
+  $("#projectsTable-"+status).on('click', '.change-isFeatured', changeProjectIsFeatured);
+}
+
 function getProjects(status) {
+  console.log('start get project status')
   var ProjectsRef = firebase.database().ref("v2/projects").orderByChild("status").equalTo(status);
 
   var tableRef = $("#projectsTable-"+status).DataTable();
@@ -55,21 +61,10 @@ function getProjects(status) {
             tableRef.row.add(row_array).draw( false )
         });
     };
-
     $('.dataTables_length').addClass('bs-select');
     console.log('added data table styles')
-
-    var btns = document.getElementsByClassName('change-status')
-    for (let item of btns) {
-        item.addEventListener("click", changeProjectStatus)
-    }
-
-    var btns = document.getElementsByClassName('change-isFeatured')
-    for (let item of btns) {
-        item.addEventListener("click", changeProjectIsFeatured)
-    }
-
   });
+
 
 }
 
@@ -119,6 +114,8 @@ function updateTableView() {
     getProjects("inactive")
     getProjects("finished")
     getProjects("archived")
+
+  console.log('updated table view')
 }
 
 
@@ -154,8 +151,10 @@ function changeProjectIsFeatured() {
 }
 
 
-getProjects("new")
-getProjects("active")
-getProjects("inactive")
-getProjects("finished")
-getProjects("archived")
+status_array = ["new", "active", "inactive", "finished"]
+
+  for (var i = 0; i < status_array.length; i++) {
+    status = status_array[i]
+    getProjects(status)
+    addEventListeners(status)
+  }
