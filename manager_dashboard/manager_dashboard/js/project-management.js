@@ -35,9 +35,8 @@ function getProjects(status) {
                 btn.id = data.key
                 btn.classList.add("btn")
                 btn.classList.add("btn-warning")
-                btn.classList.add("isFeatured")
+                btn.classList.add("change-isFeatured")
                 btn.classList.add("isFeatured-"+data.val().isFeatured)
-                btn.addEventListener("click", changeProjectIsFeatured)
 
                 if (data.val().isFeatured === true) {
                   btn.innerHTML = 'set to "false"'
@@ -65,6 +64,10 @@ function getProjects(status) {
         item.addEventListener("click", changeProjectStatus)
     }
 
+    var btns = document.getElementsByClassName('change-isFeatured')
+    for (let item of btns) {
+        item.addEventListener("click", changeProjectIsFeatured)
+    }
 
   });
 
@@ -99,7 +102,6 @@ function updateIsFeatured(projectId, newStatus) {
 }
 
 function updateTableView() {
-  console.log('hello update table view')
   status_array = ["new", "active", "inactive", "finished"]
 
   for (var i = 0; i < status_array.length; i++) {
