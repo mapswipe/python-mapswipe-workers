@@ -8,16 +8,9 @@ admin.initializeApp()
 // Increments or Decrements various counter
 //
 // Gets triggered when new results of the group are written to the database.
-exports.counter = functions.database.ref('/v2/results/{projectId}/{groupId}/{userId}/').onWrite((snapshot, context) => {
-    // if result ref does not contain any data 
-    // (e.g. when deletion during transfer_results() occured)
-    // do nothing
-    if (!snapshot.after.exists()) {
-        return null
-    }
-
+exports.counter = functions.database.ref('/v2/results/{projectId}/{groupId}/{userId}/').onCreate((snapshot, context) => {
     const promises = []
-    const result = snapshot.after.val()
+    const result = snapshot.val()
 
     // if result ref does not contain all required attributes we don't updated counters
     // e.g. due to some error when uploading from client
