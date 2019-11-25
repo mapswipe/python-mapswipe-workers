@@ -45,15 +45,17 @@ def get_project_static_info(filename: str) -> pd.DataFrame:
     """
 
     pg_db = auth.postgresDB()
+
+    # make sure to replace newline characters here
     sql_query = """
         COPY (
             SELECT 
                 project_id
-                ,name
-                ,project_details
-                ,look_for
+                ,regexp_replace(name, E'[\\n\\r]+', ' ', 'g' ) as name
+                ,regexp_replace(project_details, E'[\\n\\r]+', ' ', 'g' ) as project_details
+                ,regexp_replace(look_for, E'[\\n\\r]+', ' ', 'g' ) as look_for
                 ,project_type
-                ,status
+                ,regexp_replace(status, E'[\\n\\r]+', ' ', 'g' ) as status
                 ,ST_Area(geom::geography)/1000000 as area_sqkm
                 ,ST_AsText(geom) as geom
                 ,ST_AsText(ST_Centroid(geom)) as centroid
@@ -67,6 +69,7 @@ def get_project_static_info(filename: str) -> pd.DataFrame:
     logger.info("got projects from postgres.")
 
     df = pd.read_csv(filename)
+
     return df
 
 
@@ -116,7 +119,7 @@ def save_projects(filename: str, df: pd.DataFrame, df_dynamic: pd.DataFrame) -> 
     projects_df = df.merge(
         df_dynamic, left_on="project_id", right_on="project_id", how="left"
     )
-    projects_df.to_csv(filename, index_label="idx")
+    projects_df.to_csv(filename, index_label="idx", line_terminator='\n')
     logger.info(f"saved projects: {filename}")
     geojson_functions.csv_to_geojson(filename, "geom")
     geojson_functions.csv_to_geojson(filename, "centroid")
