@@ -5,54 +5,31 @@ from mapswipe_workers.definitions import logger
 from mapswipe_workers.utils import geojson_functions
 
 
-def get_overall_stats(filename: str) -> pd.DataFrame:
+def get_overall_stats(projects_df: pd.DataFrame, filename: str) -> pd.DataFrame:
     """
-    The function queries the projects table and row_counts table in postgres.
-    The query results are stored in the specified csv file.
-    And also returned as a pandas DataFrame.
+    The function aggregates the statistics per project using the status attribute.
+    We derive aggregated statistics for active, inactive and finished projects.
+    The number of users should not be summed up here, since this would generate wrong results.
+    A single user can contribute to multiple projects, we need to consider this.
 
     Parameters
     ----------
+    projects_df: pd.DataFrame
     filename: str
     """
 
-    pg_db = auth.postgresDB()
-    sql_query = """
-            COPY (
-                SELECT
-                  'all' as status
-                  ,count(*) as count_projects
-                  ,round(SUM(ST_Area(geom::geography)/(1000*1000))::numeric, 1) as area_projects_sqkm
-                  ,(SELECT reltuples FROM row_counts WHERE relname = 'groups') as count_groups
-                  ,(SELECT reltuples FROM row_counts WHERE relname = 'tasks') as count_tasks
-                  ,(SELECT reltuples FROM row_counts WHERE relname = 'results') as count_results
-                  ,(SELECT count(*) FROM users) as count_users
-                  ,clock_timestamp()
-                FROM projects
-                UNION
-                SELECT
-                  status
-                  ,count(*) as count_projects
-                  ,round(SUM(ST_Area(geom::geography)/(1000*1000))::numeric, 1) as area_sqkm
-                  ,NULL
-                  ,NULL
-                  ,NULL
-                  ,NULL
-                  ,clock_timestamp()
-                FROM projects
-                GROUP BY
-                  status
-                ORDER BY count_tasks
-            ) TO STDOUT WITH CSV HEADER"""
+    overall_stats_df = projects_df.groupby(['status']).agg(
+        count_projects=pd.NamedAgg(column='project_id', aggfunc='count'),
+        area_sqkm=pd.NamedAgg(column='area_sqkm', aggfunc='sum'),
+        number_of_results=pd.NamedAgg(column='number_of_results', aggfunc='sum'),
+        number_of_results_progress=pd.NamedAgg(column='number_of_results_progress', aggfunc='sum'),
+        average_number_of_users_per_project=pd.NamedAgg(column='number_of_users', aggfunc='mean')
+    )
 
-    with open(filename, "w") as f:
-        pg_db.copy_expert(sql_query, f)
+    overall_stats_df.to_csv(filename, index_label="status")
+    logger.info(f'saved overall stats to {filename}')
 
-    del pg_db
-    logger.info("got overall stats from postgres.")
-
-    df = pd.read_csv(filename)
-    return df
+    return overall_stats_df
 
 
 def get_project_static_info(filename: str) -> pd.DataFrame:
@@ -121,7 +98,7 @@ def load_project_info_dynamic(filename: str) -> pd.DataFrame:
     return df
 
 
-def save_projects(filename: str, df: pd.DataFrame, df_dynamic: pd.DataFrame) -> None:
+def save_projects(filename: str, df: pd.DataFrame, df_dynamic: pd.DataFrame) -> pd.DataFrame:
     """
     The function merges the dataframes for static and dynamic project information
     and then save the result as csv file.
@@ -143,3 +120,5 @@ def save_projects(filename: str, df: pd.DataFrame, df_dynamic: pd.DataFrame) -> 
     logger.info(f"saved projects: {filename}")
     geojson_functions.csv_to_geojson(filename, "geom")
     geojson_functions.csv_to_geojson(filename, "centroid")
+
+    return projects_df
