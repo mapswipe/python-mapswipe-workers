@@ -105,10 +105,5 @@ CREATE TABLE IF NOT EXISTS results_temp (
     start_time timestamp,
     end_time timestamp,
     result int,
-    PRIMARY KEY (project_id, group_id, task_id, user_id),
-    FOREIGN KEY (project_id) REFERENCES projects (project_id),
-    FOREIGN KEY (project_id, group_id) REFERENCES GROUPS (project_id, group_id),
-    FOREIGN KEY (project_id, group_id, task_id) REFERENCES tasks (project_id, group_id, task_id),
-    FOREIGN KEY (user_id) REFERENCES users (user_id)
 );
 
