@@ -27,9 +27,6 @@ function getProjects(status) {
               btn1 = addButton(data.key, data.val().status, "inactive")
               btn2 = addButton(data.key, data.val().status, "finished")
               row_array.push(btn1.outerHTML + btn2.outerHTML)
-            } else if (data.val().status == "new") {
-              btn = addButton(data.key, data.val().status, "active")
-              row_array.push(btn.outerHTML)
             } else if (data.val().status == "finished") {
               btn = addButton(data.key, data.val().status, "inactive")
               row_array.push(btn.outerHTML)
@@ -109,7 +106,6 @@ function updateTableView() {
         .draw();
     }
 
-//    getProjects("new")
     getProjects("active")
     getProjects("inactive")
     getProjects("finished")
@@ -151,7 +147,6 @@ function changeProjectIsFeatured() {
 }
 
 
-//status_array = ["new", "active", "inactive", "finished"]
 status_array = ["active", "inactive", "finished", "archived"]
 
   for (var i = 0; i < status_array.length; i++) {
