@@ -1,4 +1,10 @@
+function addEventListeners(status) {
+  $("#projectsTable-"+status).on('click', '.change-status', changeProjectStatus);
+  $("#projectsTable-"+status).on('click', '.change-isFeatured', changeProjectIsFeatured);
+}
+
 function getProjects(status) {
+  console.log('start get project status')
   var ProjectsRef = firebase.database().ref("v2/projects").orderByChild("status").equalTo(status);
 
   var tableRef = $("#projectsTable-"+status).DataTable();
@@ -21,9 +27,6 @@ function getProjects(status) {
               btn1 = addButton(data.key, data.val().status, "inactive")
               btn2 = addButton(data.key, data.val().status, "finished")
               row_array.push(btn1.outerHTML + btn2.outerHTML)
-            } else if (data.val().status == "new") {
-              btn = addButton(data.key, data.val().status, "active")
-              row_array.push(btn.outerHTML)
             } else if (data.val().status == "finished") {
               btn = addButton(data.key, data.val().status, "inactive")
               row_array.push(btn.outerHTML)
@@ -55,21 +58,10 @@ function getProjects(status) {
             tableRef.row.add(row_array).draw( false )
         });
     };
-
     $('.dataTables_length').addClass('bs-select');
     console.log('added data table styles')
-
-    var btns = document.getElementsByClassName('change-status')
-    for (let item of btns) {
-        item.addEventListener("click", changeProjectStatus)
-    }
-
-    var btns = document.getElementsByClassName('change-isFeatured')
-    for (let item of btns) {
-        item.addEventListener("click", changeProjectIsFeatured)
-    }
-
   });
+
 
 }
 
@@ -114,11 +106,12 @@ function updateTableView() {
         .draw();
     }
 
-    getProjects("new")
     getProjects("active")
     getProjects("inactive")
     getProjects("finished")
     getProjects("archived")
+
+  console.log('updated table view')
 }
 
 
@@ -154,8 +147,10 @@ function changeProjectIsFeatured() {
 }
 
 
-getProjects("new")
-getProjects("active")
-getProjects("inactive")
-getProjects("finished")
-getProjects("archived")
+status_array = ["active", "inactive", "finished", "archived"]
+
+  for (var i = 0; i < status_array.length; i++) {
+    status = status_array[i]
+    getProjects(status)
+    addEventListeners(status)
+  }
