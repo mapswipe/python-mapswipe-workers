@@ -23,14 +23,17 @@ pip install --editable .
 
 ## Feature Branch
 
-To contribute to the MapSwipe back-end please create dedicated feature branches:
+To contribute to the MapSwipe back-end please create dedicated feature branches from dev:
 
 ```bash
+git checkout dev
 git checkout -b featureA
 git commit -am 'add new project type'
 git push -u origin featureA
-git request-pull origin/master featureA
+git request-pull origin/dev featureA
 ```
+
+> Note: If a bug in production (master branch) needs fixing before a new versions of MapSwipe Workers gets released (merging dev into master branch), a hotfix branch should be created. In the hotfix branch the bug should be fixed and then merged back with master and also dev.
 
 
 ## Style Guide
