@@ -69,6 +69,7 @@ def generate_tutorial_data(tutorial):
 
     for i in range(0, 1):
         group_id = 101 + i
+        # the yMin represents a tile located at the equator at zoom level 18
         groups_dict[group_id] = {
             "xMax": "115",
             "xMin": "100",
@@ -86,6 +87,7 @@ def generate_tutorial_data(tutorial):
         # select 6 tasks for each category and add to group
         counter = -1
         task_x = 100
+        # the task_y represents a tile located at the equator at zoom level 18
         task_y = 131072
         for category in categories:
             # print(category)
