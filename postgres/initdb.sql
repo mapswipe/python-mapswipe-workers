@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS projects (
     PRIMARY KEY (project_id)
 );
 
-CREATE TABLE IF NOT EXISTS GROUPS (
+CREATE TABLE IF NOT EXISTS groups (
     project_id varchar,
     group_id varchar,
     number_of_tasks int,
