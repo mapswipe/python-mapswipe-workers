@@ -155,7 +155,7 @@ def tile_coords_zoom_and_tileserver_to_url(
     elif "maxar" in tile_server["name"]:
         # maxar uses not the standard TMS tile y coordinate, but the Google tile y coordinate
         # more information here: https://www.maptiler.com/google-maps-coordinates-tile-bounds-projection/
-        tile_y = int(math.pow(2, tile_z) - tile_y)
+        tile_y = int(math.pow(2, tile_z) - tile_y) - 1
         url = tile_server["url"].format(
             key=tile_server["apiKey"], x=tile_x, y=tile_y, z=tile_z,
         )
