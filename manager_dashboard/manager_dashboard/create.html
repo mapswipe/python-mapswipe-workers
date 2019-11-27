@@ -189,11 +189,15 @@
                               <label for="tileServerBuildArea">Tile Server Name</label>
                               <select name="tileServerBuildArea" id="tileServerBuildArea" onchange="displayTileServer(this, 'BuildArea', '')">
                                   <option value="bing">Bing</option>
-                                  <option value="digital_globe">Digital Globe</option>
+                                  <option value="mapbox">MapBox</option>
+                                  <option value="maxar_standard">Maxar Standard</option>
+                                  <option value="maxar_premium">Maxar Premium</option>
+                                  <option value="esri">Esri World Imagery</option>
+                                  <option value="esri_beta">Esri World Imagery (Clarity) Beta</option>
                                   <option value="sinergise">Sinergise</option>
                                   <option value="custom">Custom</option>
                               </select>
-                              <span>Select the tile server providing satellite imagery tiles for your project. Make sure you have permission. Google hasn't given permission yet and won't work until a proper API key is given.</span>
+                              <span>Select the tile server providing satellite imagery tiles for your project. Make sure you have permission.</span>
                           </li>
                           <li style="display:None" id="tileServerUrlFieldBuildArea">
                               <label for="tileServerUrlBuildArea">Custom Tile Server URL</label>
@@ -207,8 +211,8 @@
                           </li>
                           <li id="tileServerCreditsFieldBuildArea">
                               <label for="tileServerCreditsFieldBuildArea">Imagery Credits</label>
-                              <input type="text" name="tileServerCreditsBuildArea" id="tileServerCreditsBuildArea" value="© 2019 Microsoft Corporation, Earthstar Geographics SIO">
-                              <span>Insert appropriate imagery credits. E.g. for Bing: "© 2019 Microsoft Corporation, Earthstar Geographics SIO"</span>
+                              <input type="text" name="tileServerCreditsBuildArea" id="tileServerCreditsBuildArea" value="Please add imagery credits here.">
+                              <span>Insert appropriate imagery credits if you are using a custom tile server. For other tile server use the default credits.</span>
                           </li>
                           <li>
                               <input type="button" style="" id="submit" value="Submit" onClick="submitInfo()">
@@ -227,11 +231,15 @@
                               <label for="tileServerFootprint">Tile Server Name</label>
                               <select name="tileServerFootprint" id="tileServerFootprint" onchange="displayTileServer(this, 'Footprint', '')">
                                   <option value="bing">Bing</option>
-                                  <option value="digital_globe">Digital Globe</option>
+                                  <option value="mapbox">MapBox</option>
+                                  <option value="maxar_standard">Maxar Standard</option>
+                                  <option value="maxar_premium">Maxar Premium</option>
+                                  <option value="esri">Esri World Imagery</option>
+                                  <option value="esri_beta">Esri World Imagery (Clarity) Beta</option>
                                   <option value="sinergise">Sinergise</option>
                                   <option value="custom">Custom</option>
                               </select>
-                              <span>Select the tile server providing satellite imagery tiles for your project. Make sure you have permission. Google hasn't given permission yet and won't work until a proper API key is given.</span>
+                              <span>Select the tile server providing satellite imagery tiles for your project. Make sure you have permission.</span>
                           </li>
                           <li style="display:None" id="tileServerUrlFieldFootprint">
                               <label for="tileServerUrlFootprint">Custom Tile Server URL</label>
@@ -255,8 +263,8 @@
                           </li>
                           <li id="tileServerCreditsFieldFootprint">
                               <label for="tileServerCreditsFieldFootprint">Imagery Credits</label>
-                              <input type="text" name="tileServerCreditsFootprint" id="tileServerCreditsFootprint" value="© 2019 Microsoft Corporation, Earthstar Geographics SIO">
-                              <span>Insert appropriate imagery credits. E.g. for Bing: "© 2019 Microsoft Corporation, Earthstar Geographics SIO"</span>
+                              <input type="text" name="tileServerCreditsFootprint" id="tileServerCreditsFootprint" value="Please add imagery credits here.">
+                              <span>Insert appropriate imagery credits if you are using a custom tile server. For other tile server use the default credits.</span>
                           </li>
                           <li>
                               <input type="button" style="" id="submit" value="Submit" onClick="submitInfo()">
@@ -285,11 +293,15 @@
                               <label for="tileServerChangeDetectionA">Tile Server Name</label>
                               <select name="tileServerChangeDetectionA" id="tileServerChangeDetectionA" onchange="displayTileServer(this, 'ChangeDetection', 'A')">
                                   <option value="bing">Bing</option>
-                                  <option value="digital_globe">Digital Globe</option>
+                                  <option value="mapbox">MapBox</option>
+                                  <option value="maxar_standard">Maxar Standard</option>
+                                  <option value="maxar_premium">Maxar Premium</option>
+                                  <option value="esri">Esri World Imagery</option>
+                                  <option value="esri_beta">Esri World Imagery (Clarity) Beta</option>
                                   <option value="sinergise">Sinergise</option>
                                   <option value="custom">Custom</option>
                               </select>
-                              <span>Select the tile server providing satellite imagery tiles for your project. Make sure you have permission. Google hasn't given permission yet and won't work until a proper API key is given.</span>
+                              <span>Select the tile server providing satellite imagery tiles for your project. Make sure you have permission.</span>
                           </li>
                           <li style="display:None" id="tileServerUrlFieldChangeDetectionA">
                               <label for="tileServerUrlChangeDetectionA">Custom Tile Server URL</label>
@@ -313,19 +325,23 @@
                           </li>
                           <li id="tileServerCreditsFieldChangeDetectionA">
                               <label for="tileServerCreditsFieldChangeDetectionA">Imagery Credits</label>
-                              <input type="text" name="tileServerCreditsChangeDetectionA" id="tileServerCreditsChangeDetectionA">
-                              <span>Insert appropriate imagery credits. E.g. for Bing: "© 2019 Microsoft Corporation, Earthstar Geographics SIO"</span>
+                              <input type="text" name="tileServerCreditsChangeDetectionA" id="tileServerCreditsChangeDetectionA" value="Please add imagery credits here.">
+                              <span>Insert appropriate imagery credits if you are using a custom tile server. For other tile server use the default credits.</span>
                           </li>
                           <h4>Tile Server B</h4>
                           <li>
                               <label for="tileServerChangeDetectionB">Tile Server Name</label>
                               <select name="tileServerChangeDetectionB" id="tileServerChangeDetectionB" onchange="displayTileServer(this, 'ChangeDetection', 'B')">
                                   <option value="bing">Bing</option>
-                                  <option value="digital_globe">Digital Globe</option>
+                                  <option value="mapbox">MapBox</option>
+                                  <option value="maxar_standard">Maxar Standard</option>
+                                  <option value="maxar_premium">Maxar Premium</option>
+                                  <option value="esri">Esri World Imagery</option>
+                                  <option value="esri_beta">Esri World Imagery (Clarity) Beta</option>
                                   <option value="sinergise">Sinergise</option>
                                   <option value="custom">Custom</option>
                               </select>
-                              <span>Select the tile server providing satellite imagery tiles for your project. Make sure you have permission. Google hasn't given permission yet and won't work until a proper API key is given.</span>
+                              <span>Select the tile server providing satellite imagery tiles for your project. Make sure you have permission.</span>
                           </li>
                           <li style="display:None" id="tileServerUrlFieldChangeDetectionB">
                               <label for="tileServerUrlChangeDetectionB">Custom Tile Server URL</label>
@@ -349,8 +365,8 @@
                           </li>
                           <li id="tileServerCreditsFieldChangeDetectionB">
                               <label for="tileServerCreditsFieldChangeDetectionB">Imagery Credits</label>
-                              <input type="text" name="tileServerCreditsChangeDetectionB" id="tileServerCreditsChangeDetectionB">
-                              <span>Insert appropriate imagery credits. E.g. for Bing: "© 2019 Microsoft Corporation, Earthstar Geographics SIO"</span>
+                              <input type="text" name="tileServerCreditsChangeDetectionB" id="tileServerCreditsChangeDetectionB" value="Please add imagery credits here.">
+                              <span>Insert appropriate imagery credits if you are using a custom tile server. For other tile server use the default credits.</span>
                           </li>
                           <li>
                               <input type="button" style="" id="submit" value="Submit" onClick="submitInfo()">
