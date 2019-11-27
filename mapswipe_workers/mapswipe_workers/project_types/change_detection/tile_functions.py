@@ -5,7 +5,6 @@ import ogr
 class Point:
     """
     The basic class point representing a Pixel
-
     Attributes
     ----------
     x : int
@@ -57,8 +56,11 @@ def lat_long_zoom_to_pixel_coords(lat, lon, zoom):
     p = Point()
     sinLat = math.sin(lat * math.pi / 180.0)
     x = ((lon + 180) / 360) * 256 * math.pow(2, zoom)
-    y = (0.5 - math.log((1 + sinLat) / (1 - sinLat)) /
-         (4 * math.pi)) * 256 * math.pow(2, zoom)
+    y = (
+        (0.5 - math.log((1 + sinLat) / (1 - sinLat)) / (4 * math.pi))
+        * 256
+        * math.pow(2, zoom)
+    )
     p.x = int(math.floor(x))
     p.y = int(math.floor(y))
     return p
@@ -84,7 +86,6 @@ def pixel_coords_zoom_to_lat_lon(PixelX, PixelY, zoom):
     lat : float
         the latitude in degree
     """
-
 
     MapSize = 256 * math.pow(2, zoom)
     x = (PixelX / MapSize) - 0.5
@@ -117,27 +118,22 @@ def pixel_coords_to_tile_address(PixelX, PixelY):
     return t
 
 
-def tile_coords_zoom_and_tileserver_to_URL(TileX, TileY, zoom, tileserver,
-                                           api_key, custom_tileserver_url, wmts_layer):
+def tile_coords_zoom_and_tileserver_to_url(
+    tile_x: int, tile_y: int, tile_z: int, tile_server: dict
+) -> str:
     """
-    The function to Create a URL for a tile based on tile coordinates and zoom
+    The function to Create a URL for a tile based on tile coordinates, zoom and given tile server
 
     Parameters
     ----------
-    TileX : int
+    tile_x : int
         x coordinate of tile
-    TileY : int
+    tile_y : int
         y coordinate of tile
-    zoom :  int
+    tile_z :  int
         tile map service zoom level
-    tileserver :  string
-        the name of the tile server, can bei either `digital_globe`, `google`, `sinergise` or `custom`
-    api_key : string
-        the api key to access the given tile server
-    custom_tileserver_url : string
-        the url for a custom tile server with {x}, {y}, {z} place holders
-    wmts_layer : sting
-        the name of the layer for a given wmts service url, e.g. when using sinergise
+    tile_server :  dict
+        the tile server dictionary containing name and url
 
     Returns
     -------
@@ -145,25 +141,30 @@ def tile_coords_zoom_and_tileserver_to_URL(TileX, TileY, zoom, tileserver,
         the url for the specific tile image
     """
 
-    URL = ''
-    if tileserver == 'bing':
-        quadKey = tile_coords_and_zoom_to_quadKey(
-            int(TileX), int(TileY), int(zoom))
-        URL = quadKey_to_Bing_URL(quadKey, api_key)
-    elif tileserver == 'digital_globe':
-        URL = ("https://api.mapbox.com/v4/digitalglobe.nal0g75k/"
-               "{}/{}/{}.png?access_token={}"
-               .format(zoom, TileX, TileY, api_key))
-    elif tileserver == 'google':
-        URL = ("https://mt0.google.com/vt/lyrs=s&hl=en&x={}&y={}&z={}"
-               .format(TileX, TileY, zoom))
-    elif tileserver == 'sinergise':
-        URL = ("https://services.sentinel-hub.com/ogc/wmts/{}?request=getTile&tilematrixset=PopularWebMercator256&tilematrix={}&tilecol={}&tilerow={}&layer={}".format(
-            api_key, zoom, TileX, TileY, wmts_layer))
+    if tile_server["name"] == "bing":
+        quadKey = tile_coords_and_zoom_to_quadKey(tile_x, tile_y, tile_z)
+        url = quadKey_to_Bing_URL(quadKey, tile_server["apiKey"])
+    elif tile_server["name"] == "sinergise":
+        url = tile_server["url"].format(
+            key=tile_server["apiKey"],
+            x=tile_x,
+            y=tile_y,
+            z=tile_z,
+            layer=tile_server["wmtsLayerName"],
+        )
+    elif "maxar" in tile_server["name"]:
+        # maxar uses not the standard TMS tile y coordinate, but the Google tile y coordinate
+        # more information here: https://www.maptiler.com/google-maps-coordinates-tile-bounds-projection/
+        tile_y = int(math.pow(2, tile_z) - tile_y)
+        url = tile_server["url"].format(
+            key=tile_server["apiKey"], x=tile_x, y=tile_y, z=tile_z,
+        )
+    else:
+        url = tile_server["url"].format(
+            key=tile_server["apiKey"], x=tile_x, y=tile_y, z=tile_z,
+        )
 
-    elif tileserver == 'custom':
-        URL = custom_tileserver_url.format(z=zoom, x=TileX, y=TileY)
-    return URL
+    return url
 
 
 def tile_coords_and_zoom_to_quadKey(TileX, TileY, zoom):
@@ -184,7 +185,7 @@ def tile_coords_and_zoom_to_quadKey(TileX, TileY, zoom):
     quadKey : str
     """
 
-    quadKey = ''
+    quadKey = ""
     for i in range(zoom, 0, -1):
         digit = 0
         mask = 1 << (i - 1)
@@ -213,7 +214,9 @@ def quadKey_to_Bing_URL(quadKey, api_key):
         the url for the specific Bing tile image
     """
 
-    tile_url = ("https://ecn.t0.tiles.virtualearth.net/tiles/a{}.jpeg?g=7505&mkt=en-US&token={}".format(quadKey, api_key))
+    tile_url = "https://ecn.t0.tiles.virtualearth.net/tiles/a{}.jpeg?g=7505&mkt=en-US&token={}".format(
+        quadKey, api_key
+    )
 
     return tile_url
 

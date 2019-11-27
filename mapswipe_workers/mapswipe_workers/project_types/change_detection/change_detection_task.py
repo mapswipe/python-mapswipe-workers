@@ -41,31 +41,14 @@ class ChangeDetectionTask(BaseTask):
             Y coordinate of the imagery tile
         """
         # the task id is composed of TileZ-TileX-TileY
-        taskId = '{}-{}-{}'.format(
-            project.zoomLevel,
-            TileX,
-            TileY
-        )
+        taskId = "{}-{}-{}".format(project.zoomLevel, TileX, TileY)
         super().__init__(group, taskId)
         self.taskX = str(TileX)
         self.taskY = str(TileY)
-        self.urlA = t.tile_coords_zoom_and_tileserver_to_URL(
-            TileX,
-            TileY,
-            project.zoomLevel,
-            project.tileServerA['name'],
-            project.tileServerA['apiKey'],
-            project.tileServerA['url'],
-            project.tileServerA['wmtsLayerName'],
+        self.urlA = t.tile_coords_zoom_and_tileserver_to_url(
+            TileX, TileY, project.zoomLevel, project.tileServerA
         )
-        self.urlB = t.tile_coords_zoom_and_tileserver_to_URL(
-            TileX,
-            TileY,
-            project.zoomLevel,
-            project.tileServerB['name'],
-            project.tileServerB['apiKey'],
-            project.tileServerB['url'],
-            project.tileServerB['wmtsLayerName'],
+        self.urlB = t.tile_coords_zoom_and_tileserver_to_url(
+            TileX, TileY, project.zoomLevel, project.tileServerB
         )
         self.geometry = t.geometry_from_tile_coords(TileX, TileY, project.zoomLevel)
-
