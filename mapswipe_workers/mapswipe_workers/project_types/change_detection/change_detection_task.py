@@ -1,5 +1,5 @@
 from mapswipe_workers.base.base_task import BaseTask
-from mapswipe_workers.project_types.change_detection import tile_functions as t
+from mapswipe_workers.utils import tile_functions as t
 
 
 class ChangeDetectionTask(BaseTask):
