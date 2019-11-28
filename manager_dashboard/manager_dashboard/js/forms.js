@@ -31,19 +31,18 @@ function displayProjectTypeFormular(projectType) {
 }
 
 function addTileServerCredits (tileServer, projectType, which) {
-    if (tileServer == 'bing') {
-        document.getElementById("tileServerCredits"+projectType+which).value = "© 2019 Microsoft Corporation, Earthstar Geographics SIO"
-    } else if (tileServer == 'maxar_premium' | tileServer == 'maxar_standard') {
-        document.getElementById("tileServerCredits"+projectType+which).value = "© 2019 Maxar"
-    } else if (tileServer == 'esri' | tileServer == 'esri_world') {
-        document.getElementById("tileServerCredits"+projectType+which).value = "© 2019 ESRI"
-    } else if (tileServer == 'mapbox') {
-        document.getElementById("tileServerCredits"+projectType+which).value = "© 2019 MapBox"
-    } else if (tileServer == 'sinergise') {
-        document.getElementById("tileServerCredits"+projectType+which).value = "© 2019 Sinergise"
-    } else if (tileServer == 'custom') {
-        document.getElementById("tileServerCredits"+projectType+which).value = "Please add imagery credits here."
+    var credits = {
+        "bing": "© 2019 Microsoft Corporation, Earthstar Geographics SIO",
+        "maxar_premium": "© 2019 Maxar",
+        "maxar_standard": "© 2019 Maxar",
+        "esri": "© 2019 ESRI",
+        "esri_beta": "© 2019 ESRI",
+        "mapbox": "© 2019 MapBox",
+        "sinergise": "© 2019 Sinergise",
+        "custom": "Please add imagery credits here."
     }
+
+    document.getElementById("tileServerCredits"+projectType+which).value = credits[tileServer]
 }
 
 
