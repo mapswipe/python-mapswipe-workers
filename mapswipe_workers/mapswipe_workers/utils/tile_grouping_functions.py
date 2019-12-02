@@ -2,7 +2,7 @@ import math
 import ogr
 
 from mapswipe_workers.definitions import logger
-from mapswipe_workers.project_types.build_area import tile_functions as t
+from mapswipe_workers.utils import tile_functions as t
 
 
 def get_geometry_from_file(infile: str):
