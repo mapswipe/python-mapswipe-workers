@@ -68,7 +68,7 @@ def cast_datatypes_for_geojson(filename: str):
                         geojson_data["features"][i]["properties"][property] = float(
                             geojson_data["features"][i]["properties"][property]
                         )
-                    except KeyError:
+                    except ValueError:
                         pass
 
         with open(filename, "w") as f:
