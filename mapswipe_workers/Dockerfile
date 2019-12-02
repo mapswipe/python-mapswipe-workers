@@ -4,7 +4,7 @@ FROM thinkwhere/gdal-python:3.7-shippable
 
 # Install gdal-bin to get ogr2ogr tool
 RUN apt-get update
-RUN apt-get install gdal-bin
+RUN apt-get --yes install gdal-bin
 
 # create directories for config, logs and data
 ARG config_dir=/usr/share/config/mapswipe_workers/
