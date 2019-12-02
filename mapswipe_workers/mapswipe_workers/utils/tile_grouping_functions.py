@@ -1,47 +1,11 @@
-import sys
-import os
 import math
 import ogr
-import osr
-import argparse
 
 from mapswipe_workers.definitions import logger
 from mapswipe_workers.project_types.build_area import tile_functions as t
-from mapswipe_workers.project_types.change_detection.test_grouping_functions import groups_overlap
 
 
-parser = argparse.ArgumentParser(
-        description='Process some integers.'
-        )
-parser.add_argument(
-        '-i', '--input_file',
-        required=False,
-        default=None,
-        type=str,
-        help='the input file containning the geometry as kml, shp or geojson'
-        )
-parser.add_argument(
-        '-o',
-        '--output_file',
-        required=False,
-        default=None,
-        type=str,
-        help=(
-            'the output file containning the processed ' +
-            'groups geometries as kml, shp or geojson'
-        )
-        )
-parser.add_argument(
-        '-z',
-        '--zoomlevel',
-        required=False,
-        default=18,
-        type=int,
-        help='the zoom level.'
-        )
-
-
-def get_geometry_from_file(infile):
+def get_geometry_from_file(infile: str):
     """
     The function to load input geometries from an .shp, .kml or .geojson file
 
@@ -59,32 +23,20 @@ def get_geometry_from_file(infile):
         a geometry collection of all feature geometries for the given file
     """
 
-    try:
-        infile_extension = infile.split('.')[-1]
-    except:
-        print("check input file")
-        sys.exit()
+    infile_extension = infile.split(".")[-1]
 
     # Get the driver --> supported formats: Shapefiles, GeoJSON, kml
-    if infile_extension == 'shp':
-        driver = ogr.GetDriverByName('ESRI Shapefile')
-    elif infile_extension == 'geojson':
-        driver = ogr.GetDriverByName('GeoJSON')
-    elif infile_extension == 'kml':
-        driver = ogr.GetDriverByName('KML')
-    else:
-        print('Check input file format for ' + infile)
-        print('Supported formats .shp .geojson .kml')
-        sys.exit()
+    if infile_extension == "shp":
+        driver = ogr.GetDriverByName("ESRI Shapefile")
+    elif infile_extension == "geojson":
+        driver = ogr.GetDriverByName("GeoJSON")
+    elif infile_extension == "kml":
+        driver = ogr.GetDriverByName("KML")
 
     datasource = driver.Open(infile, 0)
-    try:
-        # Get the data layer
-        layer = datasource.GetLayer()
-    except:
-        print('Error, please check input file!')
-        print('## ' + infile)
-        sys.exit()
+
+    # Get the data layer
+    layer = datasource.GetLayer()
 
     # get feature geometry of all features of the input file
     geomcol = ogr.Geometry(ogr.wkbGeometryCollection)
@@ -92,7 +44,7 @@ def get_geometry_from_file(infile):
         geomcol.AddGeometry(feature.GetGeometryRef())
 
     extent = layer.GetExtent()
-    logger.info('got geometry and extent from file')
+    logger.info("got geometry and extent from file")
     return extent, geomcol
 
 
@@ -123,9 +75,9 @@ def get_horizontal_slice(extent, geomcol, zoom):
     """
 
     slice_infos = {
-        'tile_y_top': [],
-        'tile_y_bottom': [],
-        'slice_collection': ogr.Geometry(ogr.wkbGeometryCollection)
+        "tile_y_top": [],
+        "tile_y_bottom": [],
+        "slice_collection": ogr.Geometry(ogr.wkbGeometryCollection),
     }
 
     xmin = extent[0]
@@ -150,40 +102,23 @@ def get_horizontal_slice(extent, geomcol, zoom):
     TileX_right = tile.x
     TileY_bottom = tile.y
 
-    # TODO: local variable 'TileWidth' is assigned to but never used
-    # TileWidth = abs(TileX_right - TileX_left)
     TileHeight = abs(TileY_top - TileY_bottom)
-
     TileY = TileY_top
-    # TODO: local variable 'TileX' is assigned to but never used
-    # TileX = TileX_left
 
     # get rows
     rows = int(math.ceil(TileHeight / 3))
-    # get columns
-
-    # TODO: local variable 'cols' is assigned to but never used
-    # cols = int(math.ceil(TileWidth / 3))
 
     ############################################################
 
-    for i in range(0, rows+1):
+    for i in range(0, rows + 1):
         # Calculate lat, lon of upper left corner of tile
         PixelX = TileX_left * 256
         PixelY = TileY * 256
-        lon_left, lat_top = t.pixel_coords_zoom_to_lat_lon(
-                PixelX,
-                PixelY,
-                zoom
-                )
+        lon_left, lat_top = t.pixel_coords_zoom_to_lat_lon(PixelX, PixelY, zoom)
 
-        PixelX = (TileX_right) * 256
-        PixelY = (TileY+3) * 256
-        lon_right, lat_bottom = t.pixel_coords_zoom_to_lat_lon(
-                PixelX,
-                PixelY,
-                zoom
-                )
+        PixelX = TileX_right * 256
+        PixelY = (TileY + 3) * 256
+        lon_right, lat_bottom = t.pixel_coords_zoom_to_lat_lon(PixelX, PixelY, zoom)
 
         # Create Geometry
         ring = ogr.Geometry(ogr.wkbLinearRing)
@@ -198,15 +133,15 @@ def get_horizontal_slice(extent, geomcol, zoom):
         sliced_poly = poly.Intersection(polygon_to_slice)
 
         if sliced_poly:
-            if sliced_poly.GetGeometryName() == 'POLYGON':
-                slice_infos['tile_y_top'].append(TileY)
-                slice_infos['tile_y_bottom'].append(TileY+3)
-                slice_infos['slice_collection'].AddGeometry(sliced_poly)
-            elif sliced_poly.GetGeometryName() == 'MULTIPOLYGON':
+            if sliced_poly.GetGeometryName() == "POLYGON":
+                slice_infos["tile_y_top"].append(TileY)
+                slice_infos["tile_y_bottom"].append(TileY + 3)
+                slice_infos["slice_collection"].AddGeometry(sliced_poly)
+            elif sliced_poly.GetGeometryName() == "MULTIPOLYGON":
                 for geom_part in sliced_poly:
-                    slice_infos['tile_y_top'].append(TileY)
-                    slice_infos['tile_y_bottom'].append(TileY + 3)
-                    slice_infos['slice_collection'].AddGeometry(geom_part)
+                    slice_infos["tile_y_top"].append(TileY)
+                    slice_infos["tile_y_bottom"].append(TileY + 3)
+                    slice_infos["slice_collection"].AddGeometry(geom_part)
             else:
                 pass
         else:
@@ -252,7 +187,7 @@ def get_vertical_slice(slice_infos, zoom, width_threshold=40):
     # add these variables to test, if groups are created correctly
     TileY_top = -1
 
-    geomcol = slice_infos['slice_collection']
+    geomcol = slice_infos["slice_collection"]
 
     # process each polygon individually
     for p in range(0, geomcol.GetGeometryCount()):
@@ -261,8 +196,8 @@ def get_vertical_slice(slice_infos, zoom, width_threshold=40):
         # sometimes we get really really small polygones, skip these
         if horizontal_slice.GetArea() < 0.0000001:
             continue
-            logger.info('polygon area: %s' % horizontal_slice.GetArea())
-            logger.info('skipped this polygon')
+            logger.info("polygon area: %s" % horizontal_slice.GetArea())
+            logger.info("skipped this polygon")
 
         extent = horizontal_slice.GetEnvelope()
         xmin = extent[0]
@@ -284,16 +219,11 @@ def get_vertical_slice(slice_infos, zoom, width_threshold=40):
         # but get the ones from the list
         # doing so we can avoid problems due to rounding errors
         # and resulting in wrong tile coordinates
-        TileY_top = slice_infos['tile_y_top'][p]
-        TileY_bottom = slice_infos['tile_y_bottom'][p]
+        TileY_top = slice_infos["tile_y_top"][p]
+        TileY_bottom = slice_infos["tile_y_bottom"][p]
 
         TileWidth = abs(TileX_right - TileX_left)
-        # TODO: local variable 'TileHeight' is assigned to but never used
-        # TileHeight = abs(TileY_top - TileY_bottom)
         TileX = TileX_left
-
-        # TODO: local variable 'rows' is assigned to but never used
-        # rows = int(math.ceil(TileHeight / 3))
 
         # get columns
         cols = int(math.ceil(TileWidth / width_threshold))
@@ -302,30 +232,22 @@ def get_vertical_slice(slice_infos, zoom, width_threshold=40):
             continue
         # how wide should the group be, calculate from total width
         # and do equally for all slices
-        step_size = math.ceil(TileWidth/cols)
+        step_size = math.ceil(TileWidth / cols)
 
         for i in range(0, cols):
             # we need to make sure that geometries are not clipped at the edge
-            if i == (cols-1):
+            if i == (cols - 1):
                 step_size = TileX_right - TileX + 1
 
             # Calculate lat, lon of upper left corner of tile
             PixelX = TileX * 256
             PixelY = TileY_top * 256
-            lon_left, lat_top = t.pixel_coords_zoom_to_lat_lon(
-                    PixelX,
-                    PixelY,
-                    zoom
-                    )
+            lon_left, lat_top = t.pixel_coords_zoom_to_lat_lon(PixelX, PixelY, zoom)
             # logging.info('lon_left: %s, lat_top: %s' % (lon_left, lat_top))
 
             PixelX = (TileX + step_size) * 256
             PixelY = TileY_bottom * 256
-            lon_right, lat_bottom = t.pixel_coords_zoom_to_lat_lon(
-                    PixelX,
-                    PixelY,
-                    zoom
-                    )
+            lon_right, lat_bottom = t.pixel_coords_zoom_to_lat_lon(PixelX, PixelY, zoom)
 
             # Create Geometry
             ring = ogr.Geometry(ogr.wkbLinearRing)
@@ -339,19 +261,19 @@ def get_vertical_slice(slice_infos, zoom, width_threshold=40):
 
             # add info to groups_dict
             group_id += 1
-            group_id_string = f'g{group_id}'
+            group_id_string = f"g{group_id}"
             raw_groups[group_id_string] = {
                 "xMin": str(TileX),
                 "xMax": str(TileX + step_size - 1),
                 "yMin": str(TileY_top),
                 "yMax": str(TileY_bottom - 1),
-                "group_polygon": group_poly
+                "group_polygon": group_poly,
             }
 
             #####################
             TileX = TileX + step_size
 
-    logger.info('created vertical_slice')
+    logger.info("created vertical_slice")
     return raw_groups
 
 
@@ -379,73 +301,11 @@ def extent_to_slices(infile, zoom, groupSize):
 
     # get horizontal slices --> rows
     horizontal_slice_infos = get_horizontal_slice(extent, geomcol, zoom)
-    # save_geom_as_geojson(horizontal_slice_infos['slice_collection'], outfile)
 
     # then get vertical slices --> columns
     raw_groups_dict = get_vertical_slice(horizontal_slice_infos, zoom, groupSize)
 
-    # assert groups_overlap(raw_groups_dict)
-
     return raw_groups_dict
-
-
-def save_geom_as_geojson(geomcol, outfile):
-    """
-    The function to create a geojson file from a ogr geometry collection
-
-    Parameters
-    ----------
-    geomcol : ogr.Geometry(ogr.wkbGeometryCollection)
-        a geometry collection of all feature geometries for the given file
-    outfile : str
-        the path to the .shp, .kml or .geojson file
-        containing the input geometries
-
-    Returns
-    -------
-    bool
-        True if successful, False otherwise.
-    """
-
-    wgs = osr.SpatialReference()
-    wgs.ImportFromEPSG(4326)
-
-    driver = ogr.GetDriverByName('GeoJSON')
-    if os.path.exists(outfile):
-        driver.DeleteDataSource(outfile)
-    data_final = driver.CreateDataSource(outfile)
-    layer_final = data_final.CreateLayer(
-            outfile,
-            wgs,
-            geom_type=ogr.wkbPolygon
-            )
-    fdef_final = layer_final.GetLayerDefn()
-
-    # save each polygon as feature in layer
-    for p in range(0, geomcol.GetGeometryCount()):
-        da = geomcol.GetGeometryRef(p)
-        da.FlattenTo2D()
-        if da.GetGeometryName() == 'POLYGON':
-            feature_final = ogr.Feature(fdef_final)
-            feature_final.SetGeometry(da)
-            layer_final.CreateFeature(feature_final)
-            feature_final.Destroy
-
-        elif da.GetGeometryName() == 'MULTIPOLYGON':
-            for geom_part in da:
-                feature_final = ogr.Feature(fdef_final)
-                feature_final.SetGeometry(geom_part)
-                layer_final.CreateFeature(feature_final)
-                feature_final.Destroy
-        else:
-            print('other geometry type: %s' % da.GetGeometryName())
-            print(da)
-            continue
-
-    geomcol = None
-    data_final.Destroy()
-
-    return True
 
 
 def save_slices_as_geojson(raw_group_infos, outfile):
@@ -468,45 +328,31 @@ def save_slices_as_geojson(raw_group_infos, outfile):
     """
 
     # Create the output Driver
-    outDriver = ogr.GetDriverByName('GeoJSON')
+    outDriver = ogr.GetDriverByName("GeoJSON")
     # Create the output GeoJSON
     outDataSource = outDriver.CreateDataSource(outfile)
     outLayer = outDataSource.CreateLayer(outfile, geom_type=ogr.wkbPolygon)
 
-    outLayer.CreateField(ogr.FieldDefn('group_id', ogr.OFTInteger))
-    outLayer.CreateField(ogr.FieldDefn('xmin', ogr.OFTInteger))
-    outLayer.CreateField(ogr.FieldDefn('xmax', ogr.OFTInteger))
-    outLayer.CreateField(ogr.FieldDefn('ymin', ogr.OFTInteger))
-    outLayer.CreateField(ogr.FieldDefn('ymax', ogr.OFTInteger))
+    outLayer.CreateField(ogr.FieldDefn("group_id", ogr.OFTInteger))
+    outLayer.CreateField(ogr.FieldDefn("xmin", ogr.OFTInteger))
+    outLayer.CreateField(ogr.FieldDefn("xmax", ogr.OFTInteger))
+    outLayer.CreateField(ogr.FieldDefn("ymin", ogr.OFTInteger))
+    outLayer.CreateField(ogr.FieldDefn("ymax", ogr.OFTInteger))
 
     for group_id, group in raw_group_infos.items():
         # write to geojson file
         featureDefn = outLayer.GetLayerDefn()
         outFeature = ogr.Feature(featureDefn)
-        outFeature.SetGeometry(group['group_polygon'])
-        outFeature.SetField('group_id', group_id)
-        outFeature.SetField('xmin', group['xMin'])
-        outFeature.SetField('xmax', group['xMax'])
-        outFeature.SetField('ymin', group['yMin'])
-        outFeature.SetField('ymax', group['yMax'])
+        outFeature.SetGeometry(group["group_polygon"])
+        outFeature.SetField("group_id", group_id)
+        outFeature.SetField("xmin", group["xMin"])
+        outFeature.SetField("xmax", group["xMax"])
+        outFeature.SetField("ymin", group["yMin"])
+        outFeature.SetField("ymax", group["yMax"])
         outLayer.CreateFeature(outFeature)
         outFeature = None
 
     outDataSource = None
-    logger.info('created all %s.' % outfile)
+    logger.info("created all %s." % outfile)
 
     return True
-
-
-if __name__ == '__main__':
-
-    try:
-        args = parser.parse_args()
-    except:
-        print(
-                'have a look at the input arguments, ' +
-                'something went wrong there.'
-                )
-
-    slices = extent_to_slices(args.input_file, args.zoomlevel, 50)
-    save_slices_as_geojson(slices, args.output_file)

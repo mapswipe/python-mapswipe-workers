@@ -18,16 +18,20 @@ def get_overall_stats(projects_df: pd.DataFrame, filename: str) -> pd.DataFrame:
     filename: str
     """
 
-    overall_stats_df = projects_df.groupby(['status']).agg(
-        count_projects=pd.NamedAgg(column='project_id', aggfunc='count'),
-        area_sqkm=pd.NamedAgg(column='area_sqkm', aggfunc='sum'),
-        number_of_results=pd.NamedAgg(column='number_of_results', aggfunc='sum'),
-        number_of_results_progress=pd.NamedAgg(column='number_of_results_progress', aggfunc='sum'),
-        average_number_of_users_per_project=pd.NamedAgg(column='number_of_users', aggfunc='mean')
+    overall_stats_df = projects_df.groupby(["status"]).agg(
+        count_projects=pd.NamedAgg(column="project_id", aggfunc="count"),
+        area_sqkm=pd.NamedAgg(column="area_sqkm", aggfunc="sum"),
+        number_of_results=pd.NamedAgg(column="number_of_results", aggfunc="sum"),
+        number_of_results_progress=pd.NamedAgg(
+            column="number_of_results_progress", aggfunc="sum"
+        ),
+        average_number_of_users_per_project=pd.NamedAgg(
+            column="number_of_users", aggfunc="mean"
+        ),
     )
 
     overall_stats_df.to_csv(filename, index_label="status")
-    logger.info(f'saved overall stats to {filename}')
+    logger.info(f"saved overall stats to {filename}")
 
     return overall_stats_df
 
@@ -49,12 +53,17 @@ def get_project_static_info(filename: str) -> pd.DataFrame:
     # make sure to replace newline characters here
     sql_query = """
         COPY (
-            SELECT 
+            SELECT
                 project_id
                 ,regexp_replace(name, E'[\\n\\r]+', ' ', 'g' ) as name
                 ,regexp_replace(project_details, E'[\\n\\r]+', ' ', 'g' ) as project_details
                 ,regexp_replace(look_for, E'[\\n\\r]+', ' ', 'g' ) as look_for
                 ,project_type
+                -- add an array of the tile server names
+                ,CASE
+                  WHEN project_type_specifics->'tileServer'->'name' IS NOT NULL THEN Array[project_type_specifics->'tileServer'->>'name']
+                  ELSE Array[project_type_specifics->'tileServerA'->>'name', project_type_specifics->'tileServerB'->>'name']
+                END as tile_server_names
                 ,regexp_replace(status, E'[\\n\\r]+', ' ', 'g' ) as status
                 ,ST_Area(geom::geography)/1000000 as area_sqkm
                 ,ST_AsText(geom) as geom
@@ -101,7 +110,9 @@ def load_project_info_dynamic(filename: str) -> pd.DataFrame:
     return df
 
 
-def save_projects(filename: str, df: pd.DataFrame, df_dynamic: pd.DataFrame) -> pd.DataFrame:
+def save_projects(
+    filename: str, df: pd.DataFrame, df_dynamic: pd.DataFrame
+) -> pd.DataFrame:
     """
     The function merges the dataframes for static and dynamic project information
     and then save the result as csv file.
@@ -119,7 +130,7 @@ def save_projects(filename: str, df: pd.DataFrame, df_dynamic: pd.DataFrame) -> 
     projects_df = df.merge(
         df_dynamic, left_on="project_id", right_on="project_id", how="left"
     )
-    projects_df.to_csv(filename, index_label="idx", line_terminator='\n')
+    projects_df.to_csv(filename, index_label="idx", line_terminator="\n")
     logger.info(f"saved projects: {filename}")
     geojson_functions.csv_to_geojson(filename, "geom")
     geojson_functions.csv_to_geojson(filename, "centroid")

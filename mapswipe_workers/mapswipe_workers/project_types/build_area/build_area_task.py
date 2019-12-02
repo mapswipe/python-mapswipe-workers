@@ -1,5 +1,5 @@
 from mapswipe_workers.base.base_task import BaseTask
-from mapswipe_workers.project_types.build_area import tile_functions as t
+from mapswipe_workers.utils import tile_functions as t
 
 
 class BuildAreaTask(BaseTask):
@@ -41,22 +41,11 @@ class BuildAreaTask(BaseTask):
             Y coordinate of the imagery tile
         """
         # the task id is composed of TileZ-TileX-TileY
-        taskId = '{}-{}-{}'.format(
-            project.zoomLevel,
-            TileX,
-            TileY
-        )
+        taskId = "{}-{}-{}".format(project.zoomLevel, TileX, TileY)
         super().__init__(group, taskId)
         self.taskX = str(TileX)
         self.taskY = str(TileY)
-        self.url = t.tile_coords_zoom_and_tileserver_to_URL(
-            TileX,
-            TileY,
-            project.zoomLevel,
-            project.tileServer['name'],
-            project.tileServer['apiKey'],
-            project.tileServer['url'],
-            project.tileServer['wmtsLayerName'],
+        self.url = t.tile_coords_zoom_and_tileserver_to_url(
+            TileX, TileY, project.zoomLevel, project.tileServer
         )
         self.geometry = t.geometry_from_tile_coords(TileX, TileY, project.zoomLevel)
-

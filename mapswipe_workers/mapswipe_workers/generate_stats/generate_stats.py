@@ -41,6 +41,8 @@ def generate_stats(project_id_list: list):
             logger.info(f"project {project_id} does not exist. skip this one.")
             continue
 
+        project_info = projects_df.loc[projects_df["project_id"] == project_id]
+
         logger.info(f"start generate stats for project: {project_id}")
         idx = projects_dynamic_df.index[
             projects_dynamic_df["project_id"] == project_id
@@ -49,7 +51,9 @@ def generate_stats(project_id_list: list):
             projects_dynamic_df.drop([idx[0]], inplace=True)
 
         # aggregate results and get per project statistics
-        project_stats_dict = project_stats.get_per_project_statistics(project_id)
+        project_stats_dict = project_stats.get_per_project_statistics(
+            project_id, project_info
+        )
         if project_stats_dict:
             projects_dynamic_df = projects_dynamic_df.append(
                 project_stats_dict, ignore_index=True
@@ -63,7 +67,9 @@ def generate_stats(project_id_list: list):
     if len(project_id_list) > 0:
         # merge static info and dynamic info and save
         projects_filename = f"{DATA_PATH}/api-data/projects/projects.csv"
-        projects_df = overall_stats.save_projects(projects_filename, projects_df, projects_dynamic_df)
+        projects_df = overall_stats.save_projects(
+            projects_filename, projects_df, projects_dynamic_df
+        )
 
         # generate overall stats for active, inactive, finished projects
         overall_stats_filename = f"{DATA_PATH}/api-data/stats.csv"
