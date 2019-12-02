@@ -1,7 +1,7 @@
 import json
 from mapswipe_workers.definitions import logger
 from mapswipe_workers import auth
-from mapswipe_workers.project_types.change_detection import tile_functions as t
+from mapswipe_workers.utils import tile_functions as t
 
 
 def create_tutorial(tutorial):
