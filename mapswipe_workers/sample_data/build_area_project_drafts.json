@@ -15,6 +15,70 @@
         },
         "projectType": 1
     },
+  "build_area_with_maxar_premium": {
+        "submissionKey": "5G9Ce2J7",
+        "createdBy": "Sample Manager",
+        "geometry": {"type":"FeatureCollection","features":[{"type":"Feature","properties":{},"geometry":{"type":"Polygon","coordinates":[[[-0.5203700065612793,35.67040610359463],[-0.5256915092468262,35.66411294427119],[-0.5224943161010742,35.65654655034021],[-0.5126667022705078,35.65565736480835],[-0.4828834533691406,35.65520405072724],[-0.4825401306152343,35.679191291222374],[-0.4839134216308594,35.6949464269382],[-0.5041694641113281,35.700104511929894],[-0.5100059509277344,35.68909089912437],[-0.5203700065612793,35.67040610359463]]]}}]},
+        "image": "http://www.redcrosseth.org/media/k2/items/cache/5a05a447acfdf6fcc40548cc4c1cea8d_L.jpg",
+        "lookFor": "BUILDINGS",
+        "name": "BuildArea project using maxar premium imagery",
+        "projectDetails": "This project uses Maxar Premium Imagery as the tile server and zoom level 18.",
+        "verificationNumber": 3,
+        "groupSize": 50,
+        "tileServer": {
+          "name": "maxar_premium",
+          "credits": "© 2019 Maxar"
+        },
+        "projectType": 1
+    },
+  "build_area_with_maxar_standard": {
+        "submissionKey": "5G9Ce2J7",
+        "createdBy": "Sample Manager",
+        "geometry": {"type":"FeatureCollection","features":[{"type":"Feature","properties":{},"geometry":{"type":"Polygon","coordinates":[[[-0.5203700065612793,35.67040610359463],[-0.5256915092468262,35.66411294427119],[-0.5224943161010742,35.65654655034021],[-0.5126667022705078,35.65565736480835],[-0.4828834533691406,35.65520405072724],[-0.4825401306152343,35.679191291222374],[-0.4839134216308594,35.6949464269382],[-0.5041694641113281,35.700104511929894],[-0.5100059509277344,35.68909089912437],[-0.5203700065612793,35.67040610359463]]]}}]},
+        "image": "http://www.redcrosseth.org/media/k2/items/cache/5a05a447acfdf6fcc40548cc4c1cea8d_L.jpg",
+        "lookFor": "BUILDINGS",
+        "name": "BuildArea project using maxar standard imagery",
+        "projectDetails": "This project uses Maxar Standard Imagery as the tile server and zoom level 18.",
+        "verificationNumber": 3,
+        "groupSize": 50,
+        "tileServer": {
+          "name": "maxar_standard",
+          "credits": "© 2019 Maxar"
+        },
+        "projectType": 1
+    },
+  "build_area_with_mapbox": {
+        "submissionKey": "5G9Ce2J7",
+        "createdBy": "Sample Manager",
+        "geometry": {"type":"FeatureCollection","features":[{"type":"Feature","properties":{},"geometry":{"type":"Polygon","coordinates":[[[-0.5203700065612793,35.67040610359463],[-0.5256915092468262,35.66411294427119],[-0.5224943161010742,35.65654655034021],[-0.5126667022705078,35.65565736480835],[-0.4828834533691406,35.65520405072724],[-0.4825401306152343,35.679191291222374],[-0.4839134216308594,35.6949464269382],[-0.5041694641113281,35.700104511929894],[-0.5100059509277344,35.68909089912437],[-0.5203700065612793,35.67040610359463]]]}}]},
+        "image": "http://www.redcrosseth.org/media/k2/items/cache/5a05a447acfdf6fcc40548cc4c1cea8d_L.jpg",
+        "lookFor": "BUILDINGS",
+        "name": "BuildArea project using mapbox imagery",
+        "projectDetails": "This project uses MapBox Imagery as the tile server and zoom level 18.",
+        "verificationNumber": 3,
+        "groupSize": 50,
+        "tileServer": {
+          "name": "mapbox",
+          "credits": "© 2019 MapBox"
+        },
+        "projectType": 1
+    },
+    "build_area_with_esri": {
+        "submissionKey": "5G9Ce2J7",
+        "createdBy": "Sample Manager",
+        "geometry": {"type":"FeatureCollection","features":[{"type":"Feature","properties":{},"geometry":{"type":"Polygon","coordinates":[[[-0.5203700065612793,35.67040610359463],[-0.5256915092468262,35.66411294427119],[-0.5224943161010742,35.65654655034021],[-0.5126667022705078,35.65565736480835],[-0.4828834533691406,35.65520405072724],[-0.4825401306152343,35.679191291222374],[-0.4839134216308594,35.6949464269382],[-0.5041694641113281,35.700104511929894],[-0.5100059509277344,35.68909089912437],[-0.5203700065612793,35.67040610359463]]]}}]},
+        "image": "http://www.redcrosseth.org/media/k2/items/cache/5a05a447acfdf6fcc40548cc4c1cea8d_L.jpg",
+        "lookFor": "BUILDINGS",
+        "name": "BuildArea project using esri world imagery",
+        "projectDetails": "This project uses esri world Imagery as the tile server and zoom level 18.",
+        "verificationNumber": 3,
+        "groupSize": 50,
+        "tileServer": {
+          "name": "esri",
+          "credits": "© 2019 esri"
+        },
+        "projectType": 1
+    },
     "build_area_sentinel_wmts": {
         "submissionKey": "5G9Ce2J7",
         "createdBy": "Sample Manager",

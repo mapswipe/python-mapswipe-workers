@@ -30,6 +30,22 @@ function displayProjectTypeFormular(projectType) {
   }
 }
 
+function addTileServerCredits (tileServer, projectType, which) {
+    var credits = {
+        "bing": "© 2019 Microsoft Corporation, Earthstar Geographics SIO",
+        "maxar_premium": "© 2019 Maxar",
+        "maxar_standard": "© 2019 Maxar",
+        "esri": "© 2019 ESRI",
+        "esri_beta": "© 2019 ESRI",
+        "mapbox": "© 2019 MapBox",
+        "sinergise": "© 2019 Sinergise",
+        "custom": "Please add imagery credits here."
+    }
+
+    document.getElementById("tileServerCredits"+projectType+which).value = credits[tileServer]
+}
+
+
 function displayTileServer (t, projectType, which) {
     tileServer = t.value
     if (tileServer == "custom") {
@@ -42,6 +58,7 @@ function displayTileServer (t, projectType, which) {
         document.getElementById("tileServerUrlField"+projectType+which).style.display = "None";
         document.getElementById("tileServerLayerNameField"+projectType+which).style.display = "None";
     }
+    addTileServerCredits(tileServer, projectType, which)
 }
 
 function clear_all_fields() {

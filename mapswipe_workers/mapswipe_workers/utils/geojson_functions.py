@@ -4,7 +4,7 @@ import subprocess
 from mapswipe_workers.definitions import logger
 
 
-def csv_to_geojson(filename, geometry_field="geom"):
+def csv_to_geojson(filename: str, geometry_field: str = "geom"):
     """
     Use ogr2ogr to convert csv file to GeoJSON
     """
@@ -32,7 +32,7 @@ def csv_to_geojson(filename, geometry_field="geom"):
     cast_datatypes_for_geojson(outfile)
 
 
-def cast_datatypes_for_geojson(filename):
+def cast_datatypes_for_geojson(filename: str):
     """
     Go through geojson file and try to cast all values as float, except project_id
     remove redundant geometry property
@@ -68,9 +68,30 @@ def cast_datatypes_for_geojson(filename):
                         geojson_data["features"][i]["properties"][property] = float(
                             geojson_data["features"][i]["properties"][property]
                         )
-                    except:
+                    except ValueError:
                         pass
 
         with open(filename, "w") as f:
             json.dump(geojson_data, f)
         logger.info(f"converted datatypes for {filename}.")
+
+
+def add_metadata_to_geojson(filename: str, geometry_field: str = "geom"):
+    """
+    Add a metadata attribute to the geojson file about intended data usage.
+    """
+
+    filename = filename.replace(".csv", f"_{geometry_field}.geojson")
+    with open(filename) as f:
+        geojson_data = json.load(f)
+
+    if len(geojson_data["features"]) < 1:
+        logger.info(f"there are no features for this file: {filename}")
+
+    geojson_data["metadata"] = {
+        "usage": "This data can only be used for editing in OpenStreetMap."
+    }
+
+    with open(filename, "w") as f:
+        json.dump(geojson_data, f)
+    logger.info(f"added metadata to {filename}.")
