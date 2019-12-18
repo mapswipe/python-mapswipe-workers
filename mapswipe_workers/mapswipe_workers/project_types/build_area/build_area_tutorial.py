@@ -52,14 +52,8 @@ def generate_tutorial_data(tutorial):
                 task_y = int(row[0].split("-")[2])
                 grouped_tasks[category][row[3]]["task_x_list"].append(task_x)
                 grouped_tasks[category][row[3]]["task_y_list"].append(task_y)
-                url = t.tile_coords_zoom_and_tileserver_to_URL(
-                    task_x,
-                    task_y,
-                    zoom,
-                    tutorial["tileServer"]["name"],
-                    auth.get_api_key(tutorial["tileServer"]["name"]),
-                    None,
-                    None,
+                url = t.tile_coords_zoom_and_tileserver_to_url(
+                    task_x, task_y, zoom, tutorial["tileServer"]
                 )
                 grouped_tasks[category][row[3]]["url_list"].append(url)
                 grouped_tasks[category][row[3]]["reference_answer_list"].append(row[1])

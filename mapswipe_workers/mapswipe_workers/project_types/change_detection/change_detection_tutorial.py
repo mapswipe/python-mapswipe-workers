@@ -45,23 +45,11 @@ def generate_tutorial_data(tutorial):
             task_y = feature["properties"]["TileY"]
             task_id_real = "{}-{}-{}".format(zoom, task_x, task_y)
 
-            urlA = t.tile_coords_zoom_and_tileserver_to_URL(
-                task_x,
-                task_y,
-                zoom,
-                tutorial["tileServerA"]["name"],
-                tutorial["tileServerA"]["apiKey"],
-                tutorial["tileServerA"]["url"],
-                None,
+            urlA = t.tile_coords_zoom_and_tileserver_to_url(
+                task_x, task_y, zoom, tutorial["tileServerA"]
             )
-            urlB = t.tile_coords_zoom_and_tileserver_to_URL(
-                task_x,
-                task_y,
-                zoom,
-                tutorial["tileServerB"]["name"],
-                tutorial["tileServerB"]["apiKey"],
-                tutorial["tileServerB"]["url"],
-                None,
+            urlB = t.tile_coords_zoom_and_tileserver_to_url(
+                task_x, task_y, zoom, tutorial["tileServerB"]
             )
 
             if group_id not in tasks_dict.keys():
