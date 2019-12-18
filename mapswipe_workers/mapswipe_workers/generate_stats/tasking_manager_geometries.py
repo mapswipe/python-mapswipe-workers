@@ -9,6 +9,10 @@ from mapswipe_workers.utils import tile_functions, geojson_functions
 
 
 def load_data(project_id: str, csv_file: str) -> list:
+    """
+    This will load the aggregated results csv file into a list of dictionaries.
+    For further steps we currently rely on task_x, task_y, task_z and yes_share and maybe_share and wkt
+    """
 
     project_data = []
     with open(csv_file, "r") as f:
@@ -37,6 +41,10 @@ def load_data(project_id: str, csv_file: str) -> list:
                     "yes_count": int(row[3]),
                     "maybe_count": int(row[4]),
                     "bad_imagery_count": int(row[5]),
+                    "no_share": float(row[7]),
+                    "yes_share": float(row[8]),
+                    "maybe_share": float(row[9]),
+                    "bad_imagery_share": float(row[10]),
                     "wkt": tile_functions.geometry_from_tile_coords(
                         task_x, task_y, task_z
                     ),
@@ -47,27 +55,24 @@ def load_data(project_id: str, csv_file: str) -> list:
 
 
 def yes_maybe_condition_true(x: dict) -> bool:
-    # TODO: use no count here as well
+    """
+    The yes maybe condition is true if 35% or
+    2 (or more) out of 3 users
+    2 (or more) out of 4 users
+    2 (or more) out of 5 users
+    have classified as 'yes' or 'maybe'
+    """
 
-    # TODO: set this to a good number
-    # if x["yes_count"] > 1:
-    if x["yes_count"] > 0:
-        return True
-    elif x["yes_count"] > 1 and x["yes_count"] >= x["bad_imagery_count"]:
-        return True
-    elif x["maybe_count"] > 1 and x["maybe_count"] >= x["bad_imagery_count"]:
-        return True
-    elif (
-        x["yes_count"] >= 1
-        and x["maybe_count"] >= 1
-        and ((x["yes_count"] + x["maybe_count"]) >= x["bad_imagery_count"])
-    ):
+    if x["yes_share"] + x["maybe_share"] > 0.35:
         return True
     else:
         return False
 
 
-def filter_data(project_id: str, project_data: list) -> list:
+def filter_data(project_data: list) -> list:
+    """
+    Filter results that fulfil the yes_maybe_condition.
+    """
 
     # filter yes and maybe
     filtered_project_data = [x for x in project_data if yes_maybe_condition_true(x)]
@@ -75,6 +80,10 @@ def filter_data(project_id: str, project_data: list) -> list:
 
 
 def check_list_sum(x, range_val):
+    """
+    This checks if a give tile belongs to the defined "star"-shaped neighbourhood
+    """
+
     item_sum = abs(x[0]) + abs(x[1])
     if item_sum <= range_val:
         return True
@@ -83,6 +92,10 @@ def check_list_sum(x, range_val):
 
 
 def get_neighbour_list(neighbourhood_shape: str, neighbourhood_size: int) -> list:
+    """
+    Filters tiles that are neighbours.
+    This is based on a given search radius (neighbourhood size) and search window shape (neighbourhood shape=.
+    """
 
     neighbour_list = []
     range_val = int(neighbourhood_size / 2)
@@ -99,37 +112,38 @@ def get_neighbour_list(neighbourhood_shape: str, neighbourhood_size: int) -> lis
     return neighbour_list
 
 
-def check_neighbours(task_x: int, task_y: int, group_id: int):
-    # TODO: use zoom level from task
+def add_group_id_to_neighbours(task_x: int, task_y: int, task_z: int, group_id: int):
+    """
+    Add a group id to all other tiles that are in the neighbourhood of the given tile,
+    which is defined by task_x, task_y and task_z.
+    """
 
     # look for neighbours
-    neighbours = []
     for i, j in neighbour_list:
         new_task_x = int(task_x) + i
         new_task_y = int(task_y) + j
-        new_task_id = f"18-{task_x}-{task_y}".format(
-            task_x=new_task_x, task_y=new_task_y
-        )
+        new_task_id = f"{task_z}-{new_task_x}-{new_task_y}"
 
         if new_task_id in yes_results_dict:
             yes_results_dict[new_task_id]["my_group_id"] = group_id
-            neighbours.append(new_task_id)
 
 
-def create_duplicates_dict():
+def create_duplicates_dict() -> dict:
+    """
+    Check which tasks belong to multiple groups.
+    This will be used as a later stage to put tasks into distinct groups.
+    """
+
     duplicated_groups = {}
     for task_id in yes_results_dict.keys():
         my_group_id = yes_results_dict[task_id]["my_group_id"]
         # check for other results in the neighbourhood
-        task_x = yes_results_dict[task_id]["task_x"]
-        task_y = yes_results_dict[task_id]["task_y"]
-
         # look for neighbours
         for i, j in neighbour_list:
-            new_task_x = int(task_x) + i
-            new_task_y = int(task_y) + j
-            new_task_id = "18-{task_x}-{task_y}".format(
-                task_x=new_task_x, task_y=new_task_y
+            new_task_x = int(yes_results_dict[task_id]["task_x"]) + i
+            new_task_y = int(yes_results_dict[task_id]["task_y"]) + j
+            new_task_id = (
+                f"{yes_results_dict[task_id]['task_z']}-{new_task_x}-{new_task_y}"
             )
 
             if new_task_id in yes_results_dict:
@@ -149,11 +163,16 @@ def create_duplicates_dict():
     return duplicated_groups
 
 
-def remove_duplicates(duplicated_groups):
+def remove_duplicates(duplicated_groups: dict):
+    """
+    Remove groups ids for tasks which have more than one.
+    This is to make sure that every task belongs to a single group only.
+    This distinct group id will be the basis for further geometric processing.
+    """
+
     for duplicated_group_id in sorted(duplicated_groups.keys(), reverse=True):
         logger.debug(
-            "%s: %s"
-            % (duplicated_group_id, list(duplicated_groups[duplicated_group_id]))
+            f"{duplicated_group_id}: {list(duplicated_groups[duplicated_group_id])}"
         )
         my_duplicated_group_id = duplicated_group_id
         for other_group_id in duplicated_groups[duplicated_group_id]:
@@ -166,9 +185,20 @@ def remove_duplicates(duplicated_groups):
 
 
 def split_groups(q):
+    """
+    This function will be executed using threading.
+    First it checks if there are still processes pending in the queue.
+    We are using a clustering algorithm to put tasks together in groups.
+    Since it is computationally expensive to check which tiles are neighbours,
+    we split our results into chunks (called groups here).
+    When we reach a group size below the defined group size we will stop.
+    Otherwise, the group will be split into two parts and
+    both will be added as new groups to our queue.
+    """
+
     while not q.empty():
         group_id, group_data, group_size = q.get()
-        logger.debug("the group (%s) has %s members" % (group_id, len(group_data)))
+        logger.debug(f"the group ({group_id}) has {len(group_data)} members")
 
         # find min x, and min y
         x_list = []
@@ -244,7 +274,16 @@ def create_hot_tm_tasks(
     neighbourhood_shape: str = "rectangle",
     neighbourhood_size: int = 5,
 ) -> dict:
-    # TODO: check input dict structure
+    """
+    This functions creates a dictionary of tiles which will be forming a task in the HOT Tasking Manager.
+    It will create a neighbourhood list, which will function as a mask to filter tiles that are close to each other.
+    The functions assigns group ids to each tile.
+    For tiles that got several group ids, this will be resolved in the next step.
+    Once each task has a unique group id, the function checks the size (number of tiles) for each group.
+    Groups that hold too many tiles (too big to map in the Tasking Manager) will be split into smaller groups.
+    Finally, a dictionary is returned which holds each group as an item.
+    Each group consists of a limited number of tiles.
+    """
 
     # final groups dict will store the groups that are exported
     final_groups_dict = {}
@@ -286,11 +325,13 @@ def create_hot_tm_tasks(
             logger.debug("created new group id")
         logger.debug("group id: %s" % group_id)
 
-        # check for other results in the neighbourhood
-        task_x = yes_results_dict[task_id]["task_x"]
-        task_y = yes_results_dict[task_id]["task_y"]
-
-        check_neighbours(task_x, task_y, group_id)
+        # check for other results in the neighbourhood and add the group id to them
+        add_group_id_to_neighbours(
+            yes_results_dict[task_id]["task_x"],
+            yes_results_dict[task_id]["task_y"],
+            yes_results_dict[task_id]["task_z"],
+            group_id,
+        )
 
     logger.info("added group ids to yes maybe results dict")
 
@@ -352,6 +393,11 @@ def create_hot_tm_tasks(
 
 
 def dissolve_project_data(project_data):
+    """
+    This functions uses the unionCascaded function to return a dissolved MultiPolygon geometry
+    from several Single Part Polygon geometries.
+    """
+
     multipolygon_geometry = ogr.Geometry(ogr.wkbMultiPolygon)
     for item in project_data:
         polygon = ogr.CreateGeometryFromWkt(item["wkt"])
@@ -362,6 +408,13 @@ def dissolve_project_data(project_data):
 
 
 def generate_tasking_manager_geometries(project_id: str):
+    """
+    This functions runs the workflow to create a GeoJSON file ready to be used in the HOT Tasking Manager.
+    First, data is loaded from the aggregated results csv file.
+    Then it filers results for which a defined threshold of yes and maybe classifications has been reached.
+    We then derive the Tasking Manager geometries, and a dissolved geometry of all filtered results.
+    Finally, both data sets are saved into GeoJSON files.
+    """
 
     raw_data_filename = f"{DATA_PATH}/api-data/agg_results/agg_results_{project_id}.csv"
     filtered_data_filename = (
@@ -375,18 +428,19 @@ def generate_tasking_manager_geometries(project_id: str):
     results = load_data(project_id, raw_data_filename)
 
     # filter yes and maybe results
-    filtered_results = filter_data(project_id, results)
+    filtered_results = filter_data(results)
 
-    # dissolve filtered results
-    dissolved_filtered_results = dissolve_project_data(filtered_results)
+    if len(filtered_results) > 0:
+        # dissolve filtered results
+        dissolved_filtered_results = dissolve_project_data(filtered_results)
 
-    # create tasking manager geometries
-    tasking_manager_results = create_hot_tm_tasks(project_id, filtered_results)
+        # create tasking manager geometries
+        tasking_manager_results = create_hot_tm_tasks(project_id, filtered_results)
 
-    # save data as geojson
-    geojson_functions.create_geojson_file(
-        dissolved_filtered_results, filtered_data_filename
-    )
-    geojson_functions.create_geojson_file_from_dict(
-        tasking_manager_results, tasking_manager_data_filename
-    )
+        # save data as geojson
+        geojson_functions.create_geojson_file(
+            dissolved_filtered_results, filtered_data_filename
+        )
+        geojson_functions.create_geojson_file_from_dict(
+            tasking_manager_results, tasking_manager_data_filename
+        )
