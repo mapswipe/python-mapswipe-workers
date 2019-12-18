@@ -19,9 +19,12 @@ def load_data(project_id: str, csv_file: str) -> list:
         reader = csv.reader(f, delimiter=",")
 
         for i, row in enumerate(reader):
-
             if i == 0:
                 # skip header
+                continue
+
+            # the last row of the csv might contain a comment about data use
+            if row[0].startswith("#"):
                 continue
 
             task_id = row[1]
