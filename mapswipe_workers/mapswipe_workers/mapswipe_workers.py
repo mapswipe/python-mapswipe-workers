@@ -305,15 +305,6 @@ def run_create_tutorial(input_file):
     ),
     type=click.Choice(["m", "h", "d"]),
 )
-@click.option(
-    "--only_new_results",
-    default=False,
-    is_flag=True,
-    help=(
-        f"Will generate stats only for projects and users"
-        f"for which new results have been transfered."
-    ),
-)
 def run(schedule):
     sentry.init_sentry()
     try:
