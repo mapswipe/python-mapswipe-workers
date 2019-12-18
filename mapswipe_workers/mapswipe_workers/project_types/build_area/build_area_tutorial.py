@@ -47,7 +47,7 @@ def generate_tutorial_data(tutorial):
                     }
 
                 grouped_tasks[category][row[3]]["task_id_list"].append(row[0])
-                zoom = row[0].split("-")[0]
+                zoom = int(row[0].split("-")[0])
                 task_x = int(row[0].split("-")[1])
                 task_y = int(row[0].split("-")[2])
                 grouped_tasks[category][row[3]]["task_x_list"].append(task_x)
