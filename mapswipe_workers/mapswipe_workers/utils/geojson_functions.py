@@ -178,24 +178,23 @@ def create_geojson_file(geometries, outfile):
     layer = dataSource.CreateLayer(outfile, srs, geom_type=ogr.wkbPolygon)
 
     # create fields
-    field_id = ogr.FieldDefn("id", ogr.OFTString)
+    field_id = ogr.FieldDefn("id", ogr.OFTInteger)
     layer.CreateField(field_id)
 
-    counter = 0
     if not geometries:
         logger.info("there are no geometries to save")
     else:
-        for geom in geometries:
-            counter += 1
+        for counter, geom in enumerate(geometries):
             # init feature
             featureDefn = layer.GetLayerDefn()
             feature = ogr.Feature(featureDefn)
             # create polygon from wkt and set geometry
             feature.SetGeometry(geom)
             # set other attributes
-            feature.SetField("id", counter)
+            # set first id to 1 instead of 0
+            feature.SetField("id", counter + 1)
             # add feature to layer
             layer.CreateFeature(feature)
 
     layer = None
-    logger.info("created outifle: %s." % outfile)
+    logger.info("created outfile: %s." % outfile)
