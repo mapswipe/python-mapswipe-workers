@@ -2,7 +2,7 @@
   "name": "Change Detection Tutorial",
   "projectType": 3,
   "projectId": "change_detection_tutorial",
-  "zoomLevel": 16,
+  "zoomLevel": 18,
   "lookFor": "CHANGES IN BUILDINGS",
   "status": "change_detection_tutorial",
   "projectDetails": "This is a tutorial",
@@ -27,7 +27,7 @@
   "examplesFile": "sample_data/change_detection_tutorial_tasks_bing.geojson",
   "categories": {
     "changes_1": {
-      "pre": "For this project we are looking for new settlements. Compare the upper (before) and lower (after) image and *SWIPE RIGHT* (not tap) to indicate that new settlements have been built.",
+      "pre": "For this project we are looking for changes regarding settlements. Compare the upper (before) and lower (after) image and *SWIPE RIGHT* (not tap) to indicate that new settlements have been built.",
       "post_correct": "Yes, that looks like a new settlement being developed. Plenty of new houses and huts have been built in this area. Swipe left to continue the tutorial.",
       "post_wrong": "Oh no. Make sure to spot all the new settlements and swipe right. New roads can also function as an indicator sometimes."
     },
@@ -36,8 +36,13 @@
       "post_correct": "Correct. We can spot new settlements in the upper right part of the satellite image. Swipe left to go on with some more examples.",
       "post_wrong": "Take a closer look. There are new settlements here in the upper right part of the satellite image."
     },
+    "changes_3": {
+      "pre": "Sometimes settlement might also disappear because they have been pulled down or destroyed. Also for this case *SWIPE RIGHT* to indicate that the situation changed.",
+      "post_correct": "Correct. We some settlements have been demolished here.",
+      "post_wrong": "Take a closer look. There are settlements in the upper image that are not there in lower one."
+    },
     "no_changes_1": {
-      "pre": "In this example, there are many buildings but *NO NEW SETTLEMENTS* emerged. *SWIPE* left to indicate no changes.",
+      "pre": "In this example, there are many buildings but *NO CHANGES* in settlements can be observed. *SWIPE* left to indicate no changes.",
       "post_correct": "Nice. Just watch out for changes referring to settlements. Swipe left to continue.",
       "post_wrong": "Oh no. Not all changes refer to new settlements, some are just related to agriculture or vegetation."
     },
