@@ -148,9 +148,9 @@ function openFile(event) {
               // check project size
 
               area = turf.area(feature)/1000000 // area in square kilometers
-              maxArea = (20 - zoomLevel) * (20 - zoomLevel) * 1250
+              maxArea = (23 - zoomLevel) * (23 - zoomLevel) * 200
               console.log('project size: ' + area + ' sqkm')
-              if (area > 5000) {
+              if (area > maxArea) {
                 throw 'project is to large: ' + area + ' sqkm; ' + 'max allowed size for this zoom level: ' + maxArea + ' sqkm'
               }
               info_output.innerHTML += 'Project Size: ' + area + ' sqkm<br>';
