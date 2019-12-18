@@ -23,6 +23,8 @@ RUN mkdir -p $data_dir"api-data/history/"
 RUN mkdir -p $data_dir"api-data/projects/"
 RUN mkdir -p $data_dir"api-data/results/"
 RUN mkdir -p $data_dir"api-data/tasks/"
+RUN mkdir -p $data_dir"api-data/yes_maybe/"
+RUN mkdir -p $data_dir"api-data/hot_tm/"
 
 # copy mapswipe workers repo from local repo
 WORKDIR $repo_dir

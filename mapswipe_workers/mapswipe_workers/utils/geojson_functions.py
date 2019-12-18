@@ -1,6 +1,8 @@
 import json
 import os
 import subprocess
+import osr
+import ogr
 from mapswipe_workers.definitions import logger
 
 
@@ -95,3 +97,104 @@ def add_metadata_to_geojson(filename: str, geometry_field: str = "geom"):
     with open(filename, "w") as f:
         json.dump(geojson_data, f)
     logger.info(f"added metadata to {filename}.")
+
+
+def create_group_geom(group_data):
+    result_geom_collection = ogr.Geometry(ogr.wkbMultiPolygon)
+    for result, data in group_data.items():
+        result_geom = ogr.CreateGeometryFromWkt(data["wkt"])
+        result_geom_collection.AddGeometry(result_geom)
+
+    group_geom = result_geom_collection.ConvexHull()
+    return group_geom
+
+
+def create_geojson_file_from_dict(final_groups_dict, outfile):
+    # TODO: adapt input name
+
+    driver = ogr.GetDriverByName("GeoJSON")
+    # define spatial Reference
+    srs = osr.SpatialReference()
+    srs.ImportFromEPSG(4326)
+    if os.path.exists(outfile):
+        driver.DeleteDataSource(outfile)
+    dataSource = driver.CreateDataSource(outfile)
+    # create layer
+    layer = dataSource.CreateLayer(outfile, srs, geom_type=ogr.wkbPolygon)
+
+    # create fields
+    field_id = ogr.FieldDefn("group_id", ogr.OFTInteger)
+    layer.CreateField(field_id)
+
+    if len(final_groups_dict) < 1:
+        logger.info("there are no geometries to save")
+    else:
+        for group_id in final_groups_dict.keys():
+            group_data = final_groups_dict[group_id]
+            group_geom = create_group_geom(group_data)
+            final_groups_dict[group_id]["group_geom"] = group_geom
+            # init feature
+
+            if group_geom.GetGeometryName() == "POLYGON":
+                featureDefn = layer.GetLayerDefn()
+                feature = ogr.Feature(featureDefn)
+                # create polygon from wkt and set geometry
+                feature.SetGeometry(group_geom)
+                # set other attributes
+                feature.SetField("group_id", group_id)
+                # add feature to layer
+                layer.CreateFeature(feature)
+                feature.Destroy
+            elif group_geom.GetGeometryName() == "MULTIPOLYGON":
+                for geom_part in group_geom:
+                    featureDefn = layer.GetLayerDefn()
+                    feature = ogr.Feature(featureDefn)
+                    # create polygon from wkt and set geometry
+                    feature.SetGeometry(group_geom)
+                    # set other attributes
+                    feature.SetField("group_id", group_id)
+                    # add feature to layer
+                    layer.CreateFeature(feature)
+                    feature.Destroy
+            else:
+                print("other geometry type: %s" % group_geom.GetGeometryName())
+                print(group_geom)
+                continue
+
+    layer = None
+    logger.info("created outfile: %s." % outfile)
+
+
+def create_geojson_file(geometries, outfile):
+
+    driver = ogr.GetDriverByName("GeoJSON")
+    # define spatial Reference
+    srs = osr.SpatialReference()
+    srs.ImportFromEPSG(4326)
+    if os.path.exists(outfile):
+        driver.DeleteDataSource(outfile)
+    dataSource = driver.CreateDataSource(outfile)
+    # create layer
+    layer = dataSource.CreateLayer(outfile, srs, geom_type=ogr.wkbPolygon)
+
+    # create fields
+    field_id = ogr.FieldDefn("id", ogr.OFTInteger)
+    layer.CreateField(field_id)
+
+    if not geometries:
+        logger.info("there are no geometries to save")
+    else:
+        for counter, geom in enumerate(geometries):
+            # init feature
+            featureDefn = layer.GetLayerDefn()
+            feature = ogr.Feature(featureDefn)
+            # create polygon from wkt and set geometry
+            feature.SetGeometry(geom)
+            # set other attributes
+            # set first id to 1 instead of 0
+            feature.SetField("id", counter + 1)
+            # add feature to layer
+            layer.CreateFeature(feature)
+
+    layer = None
+    logger.info("created outfile: %s." % outfile)
