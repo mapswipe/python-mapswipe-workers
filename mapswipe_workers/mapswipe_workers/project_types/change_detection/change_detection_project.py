@@ -117,7 +117,13 @@ class ChangeDetectionProject(BaseProject):
 
             # calculate max area based on zoom level
             # for zoom level 18 this will be 5000 square kilometers
-            max_area = (20 - int(self.zoomLevel)) * (20 - int(self.zoomLevel)) * 1250
+            # max zoom level is 22
+            if self.zoomLevel > 22:
+                raise CustomError(
+                    f"zoom level is to large (max: 22): {self.zoomLevel}."
+                )
+
+            max_area = (23 - int(self.zoomLevel)) * (23 - int(self.zoomLevel)) * 200
 
             if project_area > max_area:
                 logger.warning(

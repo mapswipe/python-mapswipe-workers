@@ -62,8 +62,6 @@ def generate_stats(project_id_list: list):
                 projects_info_dynamic_filename, index_label="idx"
             )
 
-            # TODO: for build area projects generate tasking manager geometries
-
     if len(project_id_list) > 0:
         # merge static info and dynamic info and save
         projects_filename = f"{DATA_PATH}/api-data/projects/projects.csv"
