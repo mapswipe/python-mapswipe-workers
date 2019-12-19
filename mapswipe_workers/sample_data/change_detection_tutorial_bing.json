@@ -38,7 +38,7 @@
     },
     "changes_3": {
       "pre": "Sometimes settlement might also disappear because they have been pulled down or destroyed. Also for this case *SWIPE RIGHT* to indicate that the situation changed.",
-      "post_correct": "Correct. We some settlements have been demolished here.",
+      "post_correct": "Correct. We can detect some settlements that have been demolished here.",
       "post_wrong": "Take a closer look. There are settlements in the upper image that are not there in lower one."
     },
     "no_changes_1": {
