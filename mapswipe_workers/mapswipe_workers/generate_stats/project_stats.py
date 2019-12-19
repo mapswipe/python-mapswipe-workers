@@ -241,7 +241,7 @@ def calc_count(row) -> List[int]:
     total_count = no_count + yes_count + maybe_count + bad_count
     assert total_count > 0, "Total count for result must be bigger than zero."
 
-    return [total_count, no_count, yes_count, maybe_count, no_count]
+    return [total_count, no_count, yes_count, maybe_count, bad_count]
 
 
 def get_agg_results_by_task_id(
