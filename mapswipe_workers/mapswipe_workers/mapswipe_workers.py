@@ -1,28 +1,28 @@
+import ast
+import json
 import time
+
 import click
 import schedule as sched
-import json
-import ast
-
-from mapswipe_workers.definitions import CustomError
-from mapswipe_workers.definitions import logger
-from mapswipe_workers.utils import slack
-from mapswipe_workers.utils import sentry
 
 from mapswipe_workers import auth
+from mapswipe_workers.definitions import CustomError, logger
+from mapswipe_workers.firebase_to_postgres import (
+    archive_project,
+    transfer_results,
+    update_data,
+)
 from mapswipe_workers.generate_stats import generate_stats
-from mapswipe_workers.firebase_to_postgres import transfer_results
-from mapswipe_workers.firebase_to_postgres import update_data
+from mapswipe_workers.project_types.build_area import build_area_tutorial
 from mapswipe_workers.project_types.build_area.build_area_project import (
     BuildAreaProject,
 )
-from mapswipe_workers.project_types.build_area import build_area_tutorial
-from mapswipe_workers.project_types.footprint.footprint_project import FootprintProject
+from mapswipe_workers.project_types.change_detection import change_detection_tutorial
 from mapswipe_workers.project_types.change_detection.change_detection_project import (
     ChangeDetectionProject,
 )
-from mapswipe_workers.project_types.change_detection import change_detection_tutorial
-from mapswipe_workers.utils import user_management
+from mapswipe_workers.project_types.footprint.footprint_project import FootprintProject
+from mapswipe_workers.utils import sentry, slack, user_management
 
 
 class PythonLiteralOption(click.Option):
@@ -294,6 +294,22 @@ def run_create_tutorial(input_file):
         logger.exception(e)
 
 
+@click.command("archive")
+@click.option(
+    "--project-id",
+    "-i",
+    help=(
+        "Archive project in Postgres. "
+        + "Delete groups, tasks and results from Firebase."
+    ),
+    type=str,
+)
+def run_archive_project(project_id):
+    update_data.update_project_data([project_id])
+    transfer_results.transfer_results([project_id])
+    archive_project.archive_project(project_id)
+
+
 @click.command("run")
 @click.option(
     "--schedule",
@@ -445,10 +461,11 @@ def _run_user_management(email, manager):
             user_management.remove_project_manager_rights(email)
 
 
+cli.add_command(run)
+cli.add_command(run_archive_project)
 cli.add_command(run_create_projects)
+cli.add_command(run_create_tutorial)
 cli.add_command(run_firebase_to_postgres)
 cli.add_command(run_generate_stats)
 cli.add_command(run_generate_stats_all_projects)
 cli.add_command(run_user_management)
-cli.add_command(run_create_tutorial)
-cli.add_command(run)
