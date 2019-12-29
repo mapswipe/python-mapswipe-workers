@@ -19,6 +19,7 @@ class ChangeDetectionProject(BaseProject):
     """
 
     projectType = 1
+    projectTypeName = "Change Detection"
 
     def __init__(self, project_draft):
         # this will create the basis attributes

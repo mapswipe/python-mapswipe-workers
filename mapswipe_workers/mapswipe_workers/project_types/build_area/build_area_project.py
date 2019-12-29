@@ -17,6 +17,7 @@ class BuildAreaProject(BaseProject):
     """
 
     projectType = 1
+    projectTypeName = "Build Area"
 
     def __init__(self, project_draft):
         # this will create the basis attributes

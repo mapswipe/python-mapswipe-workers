@@ -17,6 +17,7 @@ class FootprintProject(BaseProject):
     """
 
     projectType = 2
+    projectTypeName = "Footprint"
 
     def __init__(self, project_draft):
         # this will create the basis attributes
