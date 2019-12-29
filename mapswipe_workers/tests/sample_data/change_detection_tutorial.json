@@ -1,0 +1,60 @@
+{
+  "name": "Change Detection Tutorial",
+  "projectType": 3,
+  "projectId": "change_detection_tutorial",
+  "zoomLevel": 16,
+  "lookFor": "NEW SETTLEMENTS",
+  "status": "change_detection_tutorial",
+  "projectDetails": "This is a tutorial",
+  "progress": 0,
+  "contributorCount": 0,
+  "tileServerA" : {
+    "apiKey" : "",
+    "apiKeyRequired" : false,
+    "caption" : "Before",
+    "date" : "2017-Q1",
+    "name" : "custom",
+    "url" : "https://tiles.planet.com/basemaps/v1/planet-tiles/global_quarterly_2017q1_mosaic/gmap/{z}/{x}/{y}.png?api_key=8d4aee7b35a94aa68e1d9119f27e01aa"
+  },
+  "tileServerB" : {
+    "apiKey" : "",
+    "apiKeyRequired" : false,
+    "caption" : "After",
+    "date" : "2019-Q1",
+    "name" : "custom",
+    "url" : "https://tiles.planet.com/basemaps/v1/planet-tiles/global_quarterly_2019q1_mosaic/gmap/{z}/{x}/{y}.png?api_key=8d4aee7b35a94aa68e1d9119f27e01aa"
+  },
+  "examplesFile": "sample_data/change_detection_tutorial_tasks_new.geojson",
+  "categories": {
+    "changes_1": {
+      "pre": "For this project we are looking for new settlements. Compare the upper (before) and lower (after) image and swipe right to indicate that new settlements have been built.",
+      "post_correct": "Yes, that looks like a new settlement being developed, as also suggested by new roads visible in the more recent image. Swipe left to continue the tutorial.",
+      "post_wrong": "Oh no. Make sure to spot all the new settlements and swipe right. New roads can also function as an indicator sometimes."
+    },
+    "changes_2": {
+      "pre": "And again: If new settlements have been built, swipe to the right side.",
+      "post_correct": "Correct. We can spot new settlements in the upper right part of the satellite image. Swipe left to go on with some more examples.",
+      "post_wrong": "Take a closer look. There new settlements here in the upper right part of the satellite image."
+    },
+    "no_changes_1": {
+      "pre": "In this example, no settlements emerged. Swipe left to indicate no changes.",
+      "post_correct": "Nice. Just watch out for changes referring to settlements. Swipe left to continue.",
+      "post_wrong": "Oh no. Not all changes refer to new settlements, some are just related to vegetation."
+    },
+    "no_changes_2": {
+      "pre": "We can spot changes in the vegetation for this imagery pair, but no changes related to settlements. Again, swipe left.",
+      "post_correct": "Cool. You got it. Just look out for changes concerning settlements.",
+      "post_wrong": "Sorry, try again. Don't be distracted by changes in vegetation, just look out for settlements."
+    },
+    "maybe_1": {
+      "pre": "Sometimes it might be unclear if settlements emerged. Swipe down if you are not sure.",
+      "post_correct": "Great. We cannot really tell if the bright spot in the middle is a new settlement. This is a 'maybe'.",
+      "post_wrong": "Are you really sure? Sometimes it's better to mark the imagery as 'not sure'."
+    },
+    "bad_imagery_1": {
+      "pre": "Swipe up to indicate if there is no imagery or if there are clouds.",
+      "post_correct": "That's right, that image was way too cloudy to make a good assessment! You managed to pass through this tutorial, now it's time for some real mapping.",
+      "post_wrong": "It there is no imagery or clouds, we cannot tell the right answer. Make sure to mark this as well by swiping up."
+    }
+  }
+}
