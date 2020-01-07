@@ -1,0 +1,1 @@
+TODO: Create a test project. Project type should not matter. This will be pushed to Firebase before running tests like archive. This way it is not necassary to create project drafts and run mappswipe workers create_project() function to create projects
