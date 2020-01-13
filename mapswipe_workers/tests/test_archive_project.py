@@ -11,13 +11,13 @@ class TestArchiveProject(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         """Set up before tests are run."""
-        cls.project_id = set_up.create_test_data("project", "build_area")
+        cls.project_id, cls.user_id = set_up.create_test_data("build_area")
         archive_project.archive_project(cls.project_id)
 
     @classmethod
     def tearDownClass(cls):
         """Tear down after tests are run."""
-        tear_down.delete_test_data(cls.project_id)
+        tear_down.delete_test_data(cls.project_id, cls.user_id)
 
     def test_firebase_changes(self):
         """Test if groups, tasks and results are deleted from Firebase."""
