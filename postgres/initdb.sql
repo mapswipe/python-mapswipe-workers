@@ -2,7 +2,6 @@
 CREATE EXTENSION postgis;
 
 CREATE TABLE IF NOT EXISTS projects (
-    archive boolean,
     created timestamp,
     created_by varchar,
     geom geometry(MULTIPOLYGON, 4326),
@@ -22,7 +21,7 @@ CREATE TABLE IF NOT EXISTS projects (
     PRIMARY KEY (project_id)
 );
 
-CREATE TABLE IF NOT EXISTS groups (
+CREATE TABLE IF NOT EXISTS GROUPS (
     project_id varchar,
     group_id varchar,
     number_of_tasks int,
