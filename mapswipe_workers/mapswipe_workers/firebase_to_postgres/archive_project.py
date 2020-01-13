@@ -19,8 +19,12 @@ def archive_project(project_id: str) -> None:
     logger.info("Archive project with the id {0}".format(project_id))
     delete_project_from_firebase(project_id)
 
+    fb_db = auth.firebaseDB()
+    ref = fb_db.reference("v2/projects/{0}/status".format(project_id))
+    ref.set({"archived"})
+
     pg_db = auth.postgresDB()
-    sql_query = "UPDATE projects SET archived = true WHERE project_id = {0}".format(
+    sql_query = "UPDATE projects SET status = 'archived' WHERE project_id = {0}".format(
         project_id
     )
     pg_db.query(sql_query)
