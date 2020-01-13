@@ -6,7 +6,12 @@ import click
 import schedule as sched
 
 from mapswipe_workers import auth
-from mapswipe_workers.definitions import CustomError, logger
+from mapswipe_workers.definitions import (
+    PROJECT_TYPE_CLASSES,
+    PROJECT_TYPE_NAMES,
+    CustomError,
+    logger,
+)
 from mapswipe_workers.firebase_to_postgres import (
     archive_project,
     transfer_results,
@@ -14,14 +19,9 @@ from mapswipe_workers.firebase_to_postgres import (
 )
 from mapswipe_workers.generate_stats import generate_stats
 from mapswipe_workers.project_types.build_area import build_area_tutorial
-from mapswipe_workers.project_types.build_area.build_area_project import (
-    BuildAreaProject,
+from mapswipe_workers.project_types.change_detection import (
+    change_detection_tutorial,
 )
-from mapswipe_workers.project_types.change_detection import change_detection_tutorial
-from mapswipe_workers.project_types.change_detection.change_detection_project import (
-    ChangeDetectionProject,
-)
-from mapswipe_workers.project_types.footprint.footprint_project import FootprintProject
 from mapswipe_workers.utils import sentry, slack, user_management
 
 
@@ -299,8 +299,7 @@ def run_create_tutorial(input_file):
     "--project-id",
     "-i",
     help=(
-        "Archive project in Postgres. "
-        + "Delete groups, tasks and results from Firebase."
+        "Archive project in Postgres. Delete groups, tasks and results from Firebase."
     ),
     type=str,
 )
@@ -362,14 +361,6 @@ def _run():
 
 
 def _run_create_projects(project_draft_ids=None):
-    project_types = {
-        # Make sure to import all project types here
-        1: BuildAreaProject,
-        2: FootprintProject,
-        3: ChangeDetectionProject,
-    }
-    project_type_names = {1: "Build Area", 2: "Footprint", 3: "Change Detection"}
-
     fb_db = auth.firebaseDB()
     ref = fb_db.reference("v2/projectDrafts/")
     project_drafts = ref.get()
@@ -397,7 +388,7 @@ def _run_create_projects(project_draft_ids=None):
             project_type = project_draft.get("projectType", 1)
             try:
                 # TODO: Document properly
-                project = project_types[project_type](project_draft)
+                project = PROJECT_TYPE_CLASSES[project_type](project_draft)
                 project.geometry = project.validate_geometries()
                 project.create_groups()
                 project.calc_required_results()
@@ -408,7 +399,7 @@ def _run_create_projects(project_draft_ids=None):
                         f"### PROJECT CREATION SUCCESSFUL ###{newline}"
                         f"Project Name: {project.name}{newline}"
                         f"Project Id: {project.projectId}{newline}"
-                        f"Project Type: {project_type_names[project_type]}"
+                        f"Project Type: {PROJECT_TYPE_NAMES[project_type]}"
                         f"{newline}"
                         f"Make sure to activate the project "
                         f"using the manager dashboard."
