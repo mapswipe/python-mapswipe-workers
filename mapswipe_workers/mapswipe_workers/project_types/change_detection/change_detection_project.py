@@ -18,8 +18,8 @@ class ChangeDetectionProject(BaseProject):
     The subclass for an import of the type Footprint
     """
 
-    projectType = 1
-    projectTypeName = "Change Detection"
+    project_type = 3
+    project_type_name = "Change Detection"
 
     def __init__(self, project_draft):
         # this will create the basis attributes

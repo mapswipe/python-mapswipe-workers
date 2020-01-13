@@ -29,9 +29,9 @@ PROJECT_TYPE_CLASSES = {
 }
 
 PROJECT_TYPE_NAMES = {
-    1: BuildAreaProject.name,
-    2: FootprintProject.name,
-    3: ChangeDetectionProject.name,
+    1: BuildAreaProject.project_type_name,
+    2: FootprintProject.project_type_name,
+    3: ChangeDetectionProject.project_type_name,
 }
 
 logging.config.fileConfig(fname=LOGGING_CONFIG_PATH, disable_existing_loggers=True)
