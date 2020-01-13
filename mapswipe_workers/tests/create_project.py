@@ -2,28 +2,31 @@ import os
 import json
 
 from mapswipe_workers import auth
+from mapswipe_workers.definitions import PROJECT_TYPE_NAMES
 
 
-def load_sample_project(project_type: int) -> dict:
+def load_test_project(project_type: int) -> dict:
     """Load example project from sample_data directory."""
-    # TODO: Differentiate between project_types.
+    project_type_name = PROJECT_TYPE_NAMES[project_type]
+    project_type_name = project_type_name.lower().replace(" ", "_")
+
     test_dir = os.path.abspath(__file__)
-    sample_data_dir = os.path.join(test_dir, "/sample_data/")
-    sample_file_name = "test_project.json"
-    sample_file_path = os.path.join(sample_data_dir, sample_file_name)
+    data_dir = os.path.join(test_dir, "/data/")
+    file_name = project_type_name + "_projects.json"
+    file_path = os.path.join(data_dir, file_name)
 
-    with open(sample_file_path) as sample_project_drafts_file:
-        sample_project_drafts = json.load(sample_project_drafts_file)
-    return sample_project_drafts
+    with open(file_path) as project_drafts_file:
+        project = json.load(project_drafts_file)
+    return project
 
 
-def create_project(project_type: int = 0) -> str:
+def create_test_project(project_type: int) -> str:
     """Create a sample project drafts in Firebase and return project ids."""
-    project_draft = load_sample_project(project_type)
+    project = load_test_project(project_type)
 
     fb_db = auth.firebaseDB()
     ref = fb_db.reference(f"/v2/projects/")
 
-    project_id = ref.push(project_draft)
+    project_id = ref.push(project)
 
     return project_id

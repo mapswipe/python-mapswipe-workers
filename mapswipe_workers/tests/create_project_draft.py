@@ -2,24 +2,22 @@ import os
 import json
 
 from mapswipe_workers import auth
+from mapswipe_workers.definitions import PROJECT_TYPE_NAMES
 
 
 def load_sample_project_drafts(project_type: int) -> dict:
-    """Load example project drafts of given project type from test/sample_data directory."""
-    project_types = {
-        1: "build_area",
-        2: "footprint",
-        3: "change_detection",
-    }
+    """Load example project drafts of given project type from template."""
+    project_type_name = PROJECT_TYPE_NAMES[project_type]
+    project_type_name = project_type_name.lower().replace(" ", "_")
 
     test_dir = os.path.abspath(__file__)
-    sample_data_dir = os.path.join(test_dir, "/sample_data/")
-    sample_file_name = project_types[project_type] + "_drafts.json"
-    sample_file_path = os.path.join(sample_data_dir, sample_file_name)
+    data_dir = os.path.join(test_dir, "/data/")
+    file_name = project_type_name + "_drafts.json"
+    file_path = os.path.join(data_dir, file_name)
 
-    with open(sample_file_path) as sample_project_drafts_file:
-        sample_project_drafts = json.load(sample_project_drafts_file)
-    return sample_project_drafts
+    with open(file_path) as project_drafts_file:
+        project_drafts = json.load(project_drafts_file)
+    return project_drafts
 
 
 def create_project_draft(project_type: int = 0) -> list:
