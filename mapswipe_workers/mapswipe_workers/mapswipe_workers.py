@@ -298,15 +298,25 @@ def run_create_tutorial(input_file):
 @click.option(
     "--project-id",
     "-i",
-    help=(
-        "Archive project in Postgres. Delete groups, tasks and results from Firebase."
-    ),
+    help=("Archive project with giving project id"),
     type=str,
 )
-def run_archive_project(project_id):
-    update_data.update_project_data([project_id])
-    transfer_results.transfer_results([project_id])
-    archive_project.archive_project(project_id)
+@click.option(
+    "--project-ids",
+    cls=PythonLiteralOption,
+    help=(
+        f"Archive multiple projects. "
+        f"Provide project id strings as a list: "
+        f"""["project_a", "project_b"]"""
+    ),
+)
+def run_archive_project(project_id, project_ids):
+    """Archive projects in Postgres. Delete groups, tasks and results from Firebase."""
+    if not project_ids:
+        project_ids = [project_id]
+    update_data.update_project_data(project_ids)
+    transfer_results.transfer_results(project_ids)
+    archive_project.archive_project(project_ids)
 
 
 @click.command("run")
