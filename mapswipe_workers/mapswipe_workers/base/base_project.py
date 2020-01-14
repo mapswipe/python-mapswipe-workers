@@ -79,7 +79,7 @@ class BaseProject(metaclass=ABCMeta):
     # def resultRequiredCounter(self):
     #     return self.resultRequiredCounter
 
-    def save_project(self, fb_db):
+    def save_project(self):
         """
         Creates a projects with groups and tasks
         and saves it in firebase and postgres
@@ -131,7 +131,6 @@ class BaseProject(metaclass=ABCMeta):
                     )
             try:
                 self.save_to_firebase(
-                        fb_db,
                         project,
                         groups,
                         groupsOfTasks,
@@ -161,7 +160,7 @@ class BaseProject(metaclass=ABCMeta):
                     )
             raise CustomError(e)
 
-    def save_to_firebase(self, fb_db, project, groups, groupsOfTasks):
+    def save_to_firebase(self, project, groups, groupsOfTasks):
 
         # remove wkt geometry attribute of projects and tasks
         project.pop('geometry', None)
@@ -170,6 +169,7 @@ class BaseProject(metaclass=ABCMeta):
                 groupsOfTasks[group_id][i].pop('geometry', None)
 
 
+        fb_db = auth.firebaseDB()
         ref = fb_db.reference('')
         # save project
         ref.update({
