@@ -134,22 +134,20 @@ def run_generate_stats_all_projects() -> None:
 )
 @click.option(
     "--manager",
-    help=(
-        f"Set option to grant or remove project manager credentials. "
-        f"Use true to grant credentials. "
-        f"Use false to remove credentials. "
-    ),
+    help=("Use true to grant credentials. Use false to remove credentials."),
     type=bool,
 )
 def run_user_management(email, manager) -> None:
+    """
+    Manage project manager credentials
+
+    Grant or remove credentials.
+    """
     try:
-        if email and manager:
-            if manager:
-                user_management.set_project_manager_rights(email)
-            else:
-                user_management.remove_project_manager_rights(email)
-        else:
-            click.echo(f"Please provide all required input arguments.")
+        if manager:
+            user_management.set_project_manager_rights(email)
+        elif not manager:
+            user_management.remove_project_manager_rights(email)
     except Exception as e:
         slack.send_error(e)
         sentry.capture_exception_sentry(e)
@@ -158,12 +156,13 @@ def run_user_management(email, manager) -> None:
 
 @cli.command("create-tutorial")
 @click.option(
-    "--input_file",
-    help=(f"The json file with your tutorial information."),
+    "--input-file",
+    help=(f"A JSON file of the tutorial."),
     required=True,
-    type=str,
+    type=click.Path,
 )
 def run_create_tutorial(input_file) -> None:
+    """Create a tutorial project from provided JSON file."""
     try:
         logger.info(f"will generate tutorial based on {input_file}")
         with open(input_file) as json_file:
