@@ -12,10 +12,16 @@ from mapswipe_workers.definitions import (
     CustomError,
     logger,
 )
-from mapswipe_workers.firebase_to_postgres import transfer_results, update_data
+from mapswipe_workers.firebase_to_postgres import (
+    archive_project,
+    transfer_results,
+    update_data,
+)
 from mapswipe_workers.generate_stats import generate_stats
 from mapswipe_workers.project_types.build_area import build_area_tutorial
-from mapswipe_workers.project_types.change_detection import change_detection_tutorial
+from mapswipe_workers.project_types.change_detection import (
+    change_detection_tutorial,
+)
 from mapswipe_workers.utils import sentry, slack, user_management
 
 
@@ -288,6 +294,31 @@ def run_create_tutorial(input_file):
         logger.exception(e)
 
 
+@click.command("archive")
+@click.option(
+    "--project-id",
+    "-i",
+    help=("Archive project with giving project id"),
+    type=str,
+)
+@click.option(
+    "--project-ids",
+    cls=PythonLiteralOption,
+    help=(
+        f"Archive multiple projects. "
+        f"Provide project id strings as a list: "
+        f"""["project_a", "project_b"]"""
+    ),
+)
+def run_archive_project(project_id, project_ids):
+    """Archive projects in Postgres. Delete groups, tasks and results from Firebase."""
+    if not project_ids:
+        project_ids = [project_id]
+    update_data.update_project_data(project_ids)
+    transfer_results.transfer_results(project_ids)
+    archive_project.archive_project(project_ids)
+
+
 @click.command("run")
 @click.option(
     "--schedule",
@@ -431,10 +462,11 @@ def _run_user_management(email, manager):
             user_management.remove_project_manager_rights(email)
 
 
+cli.add_command(run)
+cli.add_command(run_archive_project)
 cli.add_command(run_create_projects)
+cli.add_command(run_create_tutorial)
 cli.add_command(run_firebase_to_postgres)
 cli.add_command(run_generate_stats)
 cli.add_command(run_generate_stats_all_projects)
 cli.add_command(run_user_management)
-cli.add_command(run_create_tutorial)
-cli.add_command(run)
