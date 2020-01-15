@@ -12,9 +12,7 @@ python:
 before_install:
  - pip install --upgrade pip setuptools
  - pip install flake8 black
- - echo "Using flake8 to check Python code."
  - flake8 mapswipe_workers/mapswipe_workers/*.py
- - echo "Using black to check Python code."
  - black --check mapswipe_workers/mapswipe_workers/*.py
 
 install:
