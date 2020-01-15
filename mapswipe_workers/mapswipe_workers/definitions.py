@@ -1,6 +1,9 @@
+import json
 import logging
 import logging.config
 import os
+
+import sentry_sdk
 
 from mapswipe_workers.project_types.build_area.build_area_project import (
     BuildAreaProject,
@@ -36,6 +39,12 @@ PROJECT_TYPE_NAMES = {
 
 logging.config.fileConfig(fname=LOGGING_CONFIG_PATH, disable_existing_loggers=True)
 logger = logging.getLogger("Mapswipe Workers")
+
+with open(CONFIG_PATH) as config_file:
+    config = json.load(config_file)
+    sentry_url = config["sentry"]["dsn"]
+    sentry_sdk.init(sentry_url)
+sentry = sentry_sdk
 
 
 class CustomError(Exception):
