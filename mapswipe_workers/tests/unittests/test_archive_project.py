@@ -1,10 +1,9 @@
 import unittest
 
-from mapswipe_workers import auth
-from mapswipe_workers.firebase_to_postgres import archive_project
-
 import set_up
 import tear_down
+from mapswipe_workers import auth
+from mapswipe_workers.firebase_to_postgres import archive_project
 
 
 class TestArchiveProject(unittest.TestCase):
@@ -35,8 +34,7 @@ class TestArchiveProject(unittest.TestCase):
     def test_postgres_changes(self):
         """Test if postgres project is archived."""
         pg_db = auth.postgresDB()
-        # TODO archived is boolean or check status?
-        sql_query = "SELECT archived FROM projects WHERE project_id = {}".format(
+        sql_query = "SELECT status FROM projects WHERE project_id = {}".format(
             self.project_id
         )
         result = pg_db.retr_query(sql_query)
