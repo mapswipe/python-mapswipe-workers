@@ -12,7 +12,7 @@ python:
 before_install:
  - pip install --upgrade pip setuptools
  - pip install flake8 black
- - flake8 mapswipe_workers/mapswipe_workers/*.py
+ - flake8 --config=mapswipe_workers/setup.cfg mapswipe_workers/mapswipe_workers/*.py
  - black --check mapswipe_workers/mapswipe_workers/*.py
 
 install:
