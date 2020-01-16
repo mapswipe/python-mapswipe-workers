@@ -11,9 +11,8 @@ class TestArchiveProject(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         """Set up before tests are run."""
-        cls.project_id, cls.user_id = set_up.create_test_data("build_area")
+        cls.user_id = set_up.create_test_user()
         update_data.update_user_data([cls.user_id])
-        update_data.update_project_data([cls.project_id])
         transfer_results.transfer_results(project_id_list=[cls.project_id])
 
     @classmethod
