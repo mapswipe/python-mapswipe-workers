@@ -1,7 +1,7 @@
 import unittest
 
 from mapswipe_workers import auth
-from mapswipe_workers.firebase_to_postgres import transfer_results, update_data
+from mapswipe_workers.firebase_to_postgres import transfer_results
 
 import set_up
 import tear_down
