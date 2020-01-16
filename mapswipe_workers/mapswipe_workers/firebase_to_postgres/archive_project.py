@@ -14,13 +14,18 @@ def archive_project(project_ids: list) -> None:
     Set status = archived for project in Firebase and Postgres.
     """
     for project_id in project_ids:
+
+        if not project_id:
+            # Empty string or None would delete all results, groups and tasks.
+            logger.warning("Project id is an empty string or None.")
+            continue
+
         logger.info("Archive project with the id {0}".format(project_id))
         logger.info(
             "Delete results, groups and tasks of project with the id {0}".format(
                 project_id
             )
         )
-
         fb_db = auth.firebaseDB()
         fb_db.reference("v2/results/{0}".format(project_id)).set({})
         fb_db.reference("v2/groups/{0}".format(project_id)).set({})
