@@ -50,7 +50,6 @@ class BaseProject(metaclass=ABCMeta):
            True if successful. False otherwise.
         """
 
-        self.archived = False
         self.created = dt.datetime.now()
         self.createdBy = project_draft['createdBy']
         self.groups = list()
@@ -221,7 +220,6 @@ class BaseProject(metaclass=ABCMeta):
             '''
 
         data_project = [
-                project['archived'],
                 self.created,
                 self.createdBy,
                 project['geometry'],
@@ -240,7 +238,6 @@ class BaseProject(metaclass=ABCMeta):
         ]
 
         project_attributes = [
-                'archived',
                 'created',
                 'createdBy',
                 'geometry',
