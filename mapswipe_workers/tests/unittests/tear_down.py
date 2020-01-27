@@ -2,8 +2,12 @@
 
 from mapswipe_workers import auth
 
-# ref = fb_db.reference("v2/projectDrafts/{0}".format(project_id))
-# ref.set({})
+
+def delete_test_project_draft(project_draft_id: str) -> None:
+    """Delete test project draft from Firebase"""
+    fb_db = auth.firebaseDB()
+    ref = fb_db.reference("v2/projectDrafts/{0}".format(project_draft_id))
+    ref.set({})
 
 
 def delete_test_project(project_id: str) -> None:
