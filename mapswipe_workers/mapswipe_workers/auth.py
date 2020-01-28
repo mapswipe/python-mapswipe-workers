@@ -1,34 +1,14 @@
-#!/usr/bin/python3
-#
-# Author: B. Herfort, M. Reinmuth, 2017
-############################################
-
-import json
-
 import psycopg2
 import firebase_admin
 from firebase_admin import credentials
 from firebase_admin import db
 
 from mapswipe_workers.definitions import CONFIG_PATH
+from mapswipe_workers.definitions import CONFIG
 from mapswipe_workers.definitions import SERVICE_ACCOUNT_KEY_PATH
 
 
-def load_config():
-    """
-    Loads the user configuration values.
-
-    Returns
-    -------
-    dictonary
-    """
-    with open(CONFIG_PATH) as f:
-        CONFIG = json.load(f)
-    return CONFIG
-
-
 def get_api_key(tileserver):
-    CONFIG = load_config()
     try:
         if tileserver == "custom":
             return None
@@ -43,7 +23,6 @@ def get_api_key(tileserver):
 
 
 def get_tileserver_url(tileserver):
-    CONFIG = load_config()
     try:
         if tileserver == "custom":
             return None
@@ -66,8 +45,7 @@ def firebaseDB():
         return db
     except ValueError:
         cred = credentials.Certificate(SERVICE_ACCOUNT_KEY_PATH)
-        config = load_config()
-        databaseName = config["firebase"]["database_name"]
+        databaseName = CONFIG["firebase"]["database_name"]
         databaseURL = f"https://{databaseName}.firebaseio.com"
 
         # Initialize the app with a service account, granting admin privileges
@@ -82,7 +60,6 @@ class postgresDB(object):
     _db_cur = None
 
     def __init__(self):
-        CONFIG = load_config()
         try:
             host = CONFIG["postgres"]["host"]
             port = CONFIG["postgres"]["port"]

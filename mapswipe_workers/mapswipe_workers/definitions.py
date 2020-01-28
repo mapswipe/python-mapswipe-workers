@@ -1,3 +1,4 @@
+import json
 import logging
 import logging.config
 import os
@@ -10,11 +11,24 @@ from mapswipe_workers.project_types.change_detection.change_detection_project im
 )
 from mapswipe_workers.project_types.footprint.footprint_project import FootprintProject
 
+
+class CustomError(Exception):
+    pass
+
+
+def load_config(CONFIG_PATH) -> dict:
+    """Read the configuration file."""
+    with open(CONFIG_PATH) as f:
+        return json.load(f)
+
+
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 CONFIG_DIR = os.path.abspath("/usr/share/config/mapswipe_workers/")
 
 CONFIG_PATH = os.path.join(CONFIG_DIR, "configuration.json")
+
+CONFIG = load_config(CONFIG_PATH)
 
 SERVICE_ACCOUNT_KEY_PATH = os.path.join(CONFIG_DIR, "serviceAccountKey.json")
 
@@ -36,7 +50,3 @@ PROJECT_TYPE_NAMES = {
 
 logging.config.fileConfig(fname=LOGGING_CONFIG_PATH, disable_existing_loggers=True)
 logger = logging.getLogger("Mapswipe Workers")
-
-
-class CustomError(Exception):
-    pass
