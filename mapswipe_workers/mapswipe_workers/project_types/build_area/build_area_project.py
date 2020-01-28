@@ -1,6 +1,6 @@
 import os
-import ogr
-import osr
+from osgeo import ogr
+from osgeo import osr
 import json
 
 from mapswipe_workers.definitions import DATA_PATH

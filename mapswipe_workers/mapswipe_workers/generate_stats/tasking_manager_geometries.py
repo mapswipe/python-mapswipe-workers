@@ -1,7 +1,7 @@
 import csv
 from queue import Queue
 import threading
-import ogr
+from osgeo import ogr
 
 from mapswipe_workers.definitions import logger
 from mapswipe_workers.definitions import DATA_PATH
