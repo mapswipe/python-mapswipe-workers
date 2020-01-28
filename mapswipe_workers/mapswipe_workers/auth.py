@@ -30,30 +30,31 @@ def load_config():
 def get_api_key(tileserver):
     CONFIG = load_config()
     try:
-        if tileserver == 'custom':
+        if tileserver == "custom":
             return None
         else:
-            return CONFIG['imagery'][tileserver]['api_key']
+            return CONFIG["imagery"][tileserver]["api_key"]
     except KeyError:
         print(
-                f'Could not find the API key for imagery tileserver '
-                f'{tileserver} in {CONFIG_PATH}.'
-                )
+            f"Could not find the API key for imagery tileserver "
+            f"{tileserver} in {CONFIG_PATH}."
+        )
         raise
 
 
 def get_tileserver_url(tileserver):
     CONFIG = load_config()
     try:
-        if tileserver == 'custom':
+        if tileserver == "custom":
             return None
         else:
-            return CONFIG['imagery'][tileserver]['url']
+            return CONFIG["imagery"][tileserver]["url"]
     except KeyError:
-        print('Could not find the url for imagery tileserver {} in {}.'.format(
-            tileserver,
-            CONFIG_PATH
-            ))
+        print(
+            "Could not find the url for imagery tileserver {} in {}.".format(
+                tileserver, CONFIG_PATH
+            )
+        )
         raise
 
 
@@ -76,13 +77,11 @@ def firebaseDB():
     except ValueError:
         cred = credentials.Certificate(SERVICE_ACCOUNT_KEY_PATH)
         config = load_config()
-        databaseName = config['firebase']['database_name']
-        databaseURL = f'https://{databaseName}.firebaseio.com'
+        databaseName = config["firebase"]["database_name"]
+        databaseURL = f"https://{databaseName}.firebaseio.com"
 
         # Initialize the app with a service account, granting admin privileges
-        firebase_admin.initialize_app(cred, {
-            'databaseURL': databaseURL
-        })
+        firebase_admin.initialize_app(cred, {"databaseURL": databaseURL})
 
         # Return the imported Firebase Realtime Database module
         return db
@@ -95,24 +94,19 @@ class postgresDB(object):
     def __init__(self):
         CONFIG = load_config()
         try:
-            host = CONFIG['postgres']['host']
-            port = CONFIG['postgres']['port']
-            dbname = CONFIG['postgres']['database']
-            user = CONFIG['postgres']['username']
-            password = CONFIG['postgres']['password']
+            host = CONFIG["postgres"]["host"]
+            port = CONFIG["postgres"]["port"]
+            dbname = CONFIG["postgres"]["database"]
+            user = CONFIG["postgres"]["username"]
+            password = CONFIG["postgres"]["password"]
         except KeyError:
             raise Exception(
-                    f'Could not load postgres credentials '
-                    f'from the configuration file'
-                    )
+                f"Could not load postgres credentials " f"from the configuration file"
+            )
 
         self._db_connection = psycopg2.connect(
-                database=dbname,
-                user=user,
-                password=password,
-                host=host,
-                port=port
-                )
+            database=dbname, user=user, password=password, host=host, port=port
+        )
 
     def query(self, query, data=None):
         self._db_cur = self._db_connection.cursor()
@@ -120,31 +114,19 @@ class postgresDB(object):
         self._db_connection.commit()
         self._db_cur.close()
 
-    def copy_from(
-            self,
-            f,
-            table,
-            columns
-            ):
+    def copy_from(self, f, table, columns):
         self._db_cur = self._db_connection.cursor()
-        self._db_cur.copy_from(
-                f,
-                table,
-                columns=columns
-                )
+        self._db_cur.copy_from(f, table, columns=columns)
         self._db_connection.commit()
         self._db_cur.close()
 
     def copy_expert(
-            self,
-            sql,
-            file,
-            ):
+        self, sql, file,
+    ):
         self._db_cur = self._db_connection.cursor()
         self._db_cur.copy_expert(
-                sql,
-                file,
-                )
+            sql, file,
+        )
         self._db_connection.commit()
         self._db_cur.close()
 
