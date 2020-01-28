@@ -3,6 +3,8 @@ import logging
 import logging.config
 import os
 
+import sentry_sdk
+
 from mapswipe_workers.project_types.build_area.build_area_project import (
     BuildAreaProject,
 )
@@ -50,3 +52,6 @@ PROJECT_TYPE_NAMES = {
 
 logging.config.fileConfig(fname=LOGGING_CONFIG_PATH, disable_existing_loggers=True)
 logger = logging.getLogger("Mapswipe Workers")
+
+sentry_sdk.init(CONFIG["sentry"]["dsn"])
+sentry = sentry_sdk
