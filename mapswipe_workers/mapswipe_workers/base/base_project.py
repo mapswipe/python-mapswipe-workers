@@ -216,7 +216,7 @@ class BaseProject(metaclass=ABCMeta):
 
         query_insert_project = '''
             INSERT INTO projects
-            VALUES (%s,%s,%s,ST_Force2D(ST_Multi(ST_GeomFromText(%s, 4326))),%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s);
+            VALUES (%s,%s,%s,ST_Force2D(ST_Multi(ST_GeomFromText(%s, 4326))),%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s);
             '''
 
         data_project = [
