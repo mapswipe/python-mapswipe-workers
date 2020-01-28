@@ -1,5 +1,5 @@
 import math
-import ogr
+from osgeo import ogr
 
 from mapswipe_workers.definitions import logger
 from mapswipe_workers.utils import tile_functions as t

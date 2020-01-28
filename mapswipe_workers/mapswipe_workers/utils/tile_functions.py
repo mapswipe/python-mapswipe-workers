@@ -1,5 +1,5 @@
 import math
-import ogr
+from osgeo import ogr
 
 
 class Point:
