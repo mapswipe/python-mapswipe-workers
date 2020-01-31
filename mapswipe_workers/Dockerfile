@@ -2,6 +2,9 @@
 # Image includes python3.6, gdal-python, gdal-bin
 FROM osgeo/gdal:ubuntu-small-latest
 
+ENV LC_ALL=C.UTF-8
+ENV LANG=C.UTF-8
+
 # Install pip
 RUN apt-get update
 RUN apt-get --yes install python3-pip
