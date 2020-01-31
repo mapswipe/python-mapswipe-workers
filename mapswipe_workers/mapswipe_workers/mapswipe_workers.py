@@ -173,7 +173,7 @@ def run_create_tutorial(input_file) -> None:
         sentry.capture_exception()
 
 
-@click.command("archive")
+@cli.command("archive")
 @click.option(
     "--project-id", "-i", help=("Archive project with giving project id"), type=str,
 )
@@ -195,7 +195,7 @@ def run_archive_project(project_id, project_ids):
     archive_project.archive_project(project_ids)
 
 
-@click.command("run")
+@cli.command("run")
 @click.option(
     "--schedule", is_flag=True, help=("Schedule jobs to run every 10 minutes.")
 )
