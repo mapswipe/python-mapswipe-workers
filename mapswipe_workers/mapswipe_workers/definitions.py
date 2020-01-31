@@ -33,5 +33,10 @@ DATA_PATH = os.path.abspath("/var/lib/mapswipe_workers/")
 logging.config.fileConfig(fname=LOGGING_CONFIG_PATH, disable_existing_loggers=True)
 logger = logging.getLogger("Mapswipe Workers")
 
-sentry_sdk.init(CONFIG["sentry"]["dsn"])
+try:
+    sentry_sdk.init(CONFIG["sentry"]["dsn"])
+except KeyError:
+    logger.info(
+        "No configuration for Sentry was found. Continue without Sentry integration."
+    )
 sentry = sentry_sdk
