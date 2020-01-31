@@ -151,7 +151,7 @@ def run_user_management(email, manager) -> None:
     "--input-file",
     help=(f"A JSON file of the tutorial."),
     required=True,
-    type=click.Path,
+    type=str,
 )
 def run_create_tutorial(input_file) -> None:
     """Create a tutorial project from provided JSON file."""
