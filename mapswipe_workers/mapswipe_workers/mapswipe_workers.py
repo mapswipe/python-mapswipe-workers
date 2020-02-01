@@ -4,16 +4,10 @@ import ast
 import json
 import time
 
-import schedule as sched
-
 import click
+import schedule as sched
 from mapswipe_workers import auth
-from mapswipe_workers.definitions import (
-    PROJECT_TYPE_CLASSES,
-    CustomError,
-    logger,
-    sentry,
-)
+from mapswipe_workers.definitions import CustomError, logger, sentry
 from mapswipe_workers.firebase_to_postgres import (
     archive_project,
     transfer_results,
@@ -21,7 +15,14 @@ from mapswipe_workers.firebase_to_postgres import (
 )
 from mapswipe_workers.generate_stats import generate_stats
 from mapswipe_workers.project_types.build_area import build_area_tutorial
+from mapswipe_workers.project_types.build_area.build_area_project import (
+    BuildAreaProject,
+)
 from mapswipe_workers.project_types.change_detection import change_detection_tutorial
+from mapswipe_workers.project_types.change_detection.change_detection_project import (
+    ChangeDetectionProject,
+)
+from mapswipe_workers.project_types.footprint.footprint_project import FootprintProject
 from mapswipe_workers.utils import user_management
 from mapswipe_workers.utils.slack_helper import send_slack_message
 
@@ -53,6 +54,13 @@ def run_create_projects():
     Create projects with groups and tasks.
     Save created projects, groups and tasks to Firebase and Postgres.
     """
+
+    project_type_classes = {
+        1: BuildAreaProject,
+        2: FootprintProject,
+        3: ChangeDetectionProject,
+    }
+
     fb_db = auth.firebaseDB()
     ref = fb_db.reference("v2/projectDrafts/")
     project_drafts = ref.get()
@@ -66,7 +74,7 @@ def run_create_projects():
         project_name = project_draft["name"]
         try:
             # Create a project object using appropriate class (project type).
-            project = PROJECT_TYPE_CLASSES[project_type](project_draft)
+            project = project_type_classes[project_type](project_draft)
             project.geometry = project.validate_geometries()
             project.create_groups()
             project.calc_required_results()
@@ -143,7 +151,7 @@ def run_user_management(email, manager) -> None:
     "--input-file",
     help=(f"A JSON file of the tutorial."),
     required=True,
-    type=click.Path,
+    type=str,
 )
 def run_create_tutorial(input_file) -> None:
     """Create a tutorial project from provided JSON file."""
@@ -165,7 +173,7 @@ def run_create_tutorial(input_file) -> None:
         sentry.capture_exception()
 
 
-@click.command("archive")
+@cli.command("archive")
 @click.option(
     "--project-id", "-i", help=("Archive project with giving project id"), type=str,
 )
@@ -187,7 +195,7 @@ def run_archive_project(project_id, project_ids):
     archive_project.archive_project(project_ids)
 
 
-@click.command("run")
+@cli.command("run")
 @click.option(
     "--schedule", is_flag=True, help=("Schedule jobs to run every 10 minutes.")
 )
