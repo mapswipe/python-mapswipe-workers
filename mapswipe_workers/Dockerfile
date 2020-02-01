@@ -1,12 +1,15 @@
-# This image contains Python 3 and the latest pre-compiled version of GDAL
-# Based on Debian (Including apt-get update && upgrade)
-FROM thinkwhere/gdal-python:3.7-shippable
+# https://github.com/OSGeo/gdal/tree/master/gdal/docker
+# Image includes python3.6, gdal-python, gdal-bin
+FROM osgeo/gdal:ubuntu-small-latest
 
-# Install gdal-bin to get ogr2ogr tool
+ENV LC_ALL=C.UTF-8
+ENV LANG=C.UTF-8
+
+# Install pip
 RUN apt-get update
-RUN apt-get --yes install gdal-bin
+RUN apt-get --yes install python3-pip
 
-# create directories for config, logs and data
+# Create directories for config, logs and data
 ARG config_dir=/usr/share/config/mapswipe_workers/
 ARG repo_dir=/usr/local/mapswipe_workers/
 ARG data_dir=/var/lib/mapswipe_workers/
@@ -26,7 +29,7 @@ RUN mkdir -p $data_dir"api-data/tasks/"
 RUN mkdir -p $data_dir"api-data/yes_maybe/"
 RUN mkdir -p $data_dir"api-data/hot_tm/"
 
-# copy mapswipe workers repo from local repo
+# Copy mapswipe workers repo from local repo
 WORKDIR $repo_dir
 COPY mapswipe_workers/ mapswipe_workers/
 COPY sample_data/ sample_data/
@@ -35,8 +38,8 @@ COPY requirements.txt .
 COPY setup.py .
 COPY config $config_dir
 
-# Install dependencies and mapswipe-workers
-# RUN python setup.py install
-RUN pip install .
+# Update setuptools and install mapswipe-workers with dependencies (requirements.txt)
+RUN pip3 install --upgrade setuptools
+RUN pip3 install .
 
-# we don't use a CMD here, this will be defined in docker-compose.yaml
+# Don't use a CMD here, this will be defined in docker-compose.yaml

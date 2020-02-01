@@ -1,4 +1,4 @@
-import ogr
+from osgeo import ogr
 import argparse
 import json
 
