@@ -37,8 +37,8 @@ class PythonLiteralOption(click.Option):
 
 
 @click.group()
-@click.option("--verbose", "-v", is_flag=True, help="Enable logging.")
 @click.version_option()
+@click.option("--verbose", "-v", is_flag=True, help="Enable logging.")
 def cli(verbose):
     """Enable logging."""
     if not verbose:
@@ -47,6 +47,16 @@ def cli(verbose):
 
 @cli.command("create-projects")
 def run_create_projects():
+    """
+    This is the wrapper function to create projects from submitted projects drafts.
+    We do it this way, to be able to use --verbose flag
+    for the _run_create_projects function.
+    Otherwise we can't use --verbose during run function.
+    """
+    _run_create_projects()
+
+
+def _run_create_projects():
     """
     Create projects from submitted project drafts.
 
@@ -66,6 +76,7 @@ def run_create_projects():
     project_drafts = ref.get()
 
     if project_drafts is None:
+        logger.info("There are no project drafts in firebase.")
         return None
 
     for project_draft_id, project_draft in project_drafts.items():
@@ -93,6 +104,17 @@ def run_create_projects():
 
 @cli.command("firebase-to-postgres")
 def run_firebase_to_postgres() -> list:
+    """
+    This is the wrapper function to update users and
+    transfer results from Firebase to Postgres.
+    We do it this way, to be able to use --verbose flag
+    for the _run_firebase_to_postgres function.
+    Otherwise we can't use --verbose during run function.
+    """
+    return _run_firebase_to_postgres()
+
+
+def _run_firebase_to_postgres() -> list:
     """Update users and transfer results from Firebase to Postgres."""
     update_data.update_user_data()
     update_data.update_project_data()
@@ -107,10 +129,20 @@ def run_firebase_to_postgres() -> list:
     default="[]",
     help=(
         "Project ids for which to generate stats as a list of strings: "
-        + """["project_a", "project_b"]"""
+        """ '["project_a", "project_b"]' """
     ),
 )
 def run_generate_stats(project_ids: list) -> None:
+    """
+    This is the wrapper function to generate statistics for given project ids.
+    We do it this way, to be able to use --verbose flag
+    for the _run_generate_stats function.
+    Otherwise we can't use --verbose during run function.
+    """
+    _run_generate_stats(project_ids)
+
+
+def _run_generate_stats(project_ids: list) -> None:
     """Generate statistics for given project ids."""
     generate_stats.generate_stats(project_ids)
 
@@ -148,10 +180,7 @@ def run_user_management(email, manager) -> None:
 
 @cli.command("create-tutorial")
 @click.option(
-    "--input-file",
-    help=(f"A JSON file of the tutorial."),
-    required=True,
-    type=str,
+    "--input-file", help=(f"A JSON file of the tutorial."), required=True, type=str,
 )
 def run_create_tutorial(input_file) -> None:
     """Create a tutorial project from provided JSON file."""
@@ -196,10 +225,8 @@ def run_archive_project(project_id, project_ids):
 
 
 @cli.command("run")
-@click.option(
-    "--schedule", is_flag=True, help=("Schedule jobs to run every 10 minutes.")
-)
-def run(schedule: bool) -> None:
+@click.option("--schedule", is_flag=True, help="Schedule jobs to run every 10 minutes.")
+def run(schedule):
     """
     Run all commands.
 
@@ -208,9 +235,10 @@ def run(schedule: bool) -> None:
     """
 
     def _run():
-        run_create_projects()
-        project_ids = run_firebase_to_postgres()
-        run_generate_stats(project_ids)
+        logger.info("start mapswipe backend workflow.")
+        _run_create_projects()
+        project_ids = _run_firebase_to_postgres()
+        _run_generate_stats(project_ids)
 
     if schedule:
         sched.every(10).minutes.do(_run)
