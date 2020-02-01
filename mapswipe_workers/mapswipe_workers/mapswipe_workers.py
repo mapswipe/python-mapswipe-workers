@@ -241,7 +241,7 @@ def run(schedule):
         _run_generate_stats(project_ids)
 
     if schedule:
-        sched.every(10).minutes.do(_run)
+        sched.every(10).minutes.do(_run).run()
         while True:
             sched.run_pending()
             time.sleep(1)
