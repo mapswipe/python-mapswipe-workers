@@ -14,16 +14,32 @@ def get_old_projects():
     return projects
 
 
-def move_project_data_to_v2(project_id, project_data):
+def move_project_data_to_v2(project_id):
     """
     Copy project information from old path to v2/projects in Firebase.
     Add status=archived attribute.
+    Use Firebase transaction function for this.
     """
-    project_data["status"] = "archived"
+
+    # Firebase transaction function
+    def transfer(current_data):
+        current_data["status"] = "archived"
+        current_data["projectType"] = 1
+        fb_db.reference("v2/projects/{0}".format(project_id)).set(current_data)
+        return dict()
+
     fb_db = auth.firebaseDB()
-    fb_db.reference("v2/projects/{0}".format(project_id)).set(project_data)
-    fb_db.reference("projects/{0}".format(project_id)).set({})
-    logger.info(f"moved old project to v2: {project_id}")
+    projects_ref = fb_db.reference(f"projects/{project_id}")
+    try:
+        projects_ref.transaction(transfer)
+        logger.info(f"{project_id}: Transfered project to v2 and delete in old path")
+        return True
+    except fb_db.TransactionAbortedError:
+        logger.exception(
+            f"{project_id}: Firebase transaction"
+            f"for transferring project failed to commit"
+        )
+        return False
 
 
 def delete_old_groups(project_id):
@@ -59,9 +75,10 @@ def archive_old_projects():
 
     projects = get_old_projects()
     for project_id in projects.keys():
-        project_data = projects[project_id]
-        move_project_data_to_v2(project_id, project_data)
-        delete_old_groups(project_id)
+        if move_project_data_to_v2(project_id):
+            delete_old_groups(project_id)
+        else:
+            logger.info(f"didn't delete project and groups for project: {project_id}")
 
     delete_other_old_data()
 
