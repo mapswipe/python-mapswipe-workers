@@ -23,8 +23,13 @@ def move_project_data_to_v2(project_id):
 
     # Firebase transaction function
     def transfer(current_data):
+        # we need to add these attributes
+        # since they are expected for version 2
         current_data["status"] = "archived"
         current_data["projectType"] = 1
+        current_data["projectId"] = str(project_id)
+        current_data["progress"] = current_data.get("progress", 0)
+        current_data["name"] = current_data.get("name", "unknown")
         fb_db.reference("v2/projects/{0}".format(project_id)).set(current_data)
         return dict()
 
