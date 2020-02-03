@@ -6,10 +6,9 @@ import os
 from mapswipe_workers import auth
 
 DATA_TYPES = {
-    "draft": "projectDrafts",
     "group": "groups",
     "task": "tasks",
-    "result": "results",
+    # "result": "results",
 }
 
 
@@ -35,7 +34,7 @@ def create_test_project(project_type: str) -> str:
 
     for data_type in DATA_TYPES.keys():
         data = load_test_data(data_type, project_type)
-        ref = fb_db.reference(f"/v2/{0}/{1}".format(DATA_TYPES[data_type], project_id))
+        ref = fb_db.reference(f"/v2/{0}/{1}".format(data_type, project_id))
         ref.set(data)
 
     # TODO: Create test project also in Postgres
@@ -53,16 +52,12 @@ def create_test_user() -> str:
     return user_id
 
 
-# TODO:
-# def create_project_draft(project_type: int = 0) -> list:
-#     """Create test project drafts in Firebase and return project ids."""
-#     project_draft_ids = []
-#     project_drafts = load_test_data("drafts", project_type)
+def create_project_draft(project_type: str) -> list:
+    """Create test project drafts in Firebase and return project ids."""
+    project_draft = load_test_data("project_draft", project_type)
 
-#     fb_db = auth.firebaseDB()
-#     ref = fb_db.reference(f"/v2/projectDrafts/")
+    fb_db = auth.firebaseDB()
+    ref = fb_db.reference(f"/v2/projectDrafts/")
+    project_id = ref.push(project_draft)
 
-#     for key, project_draft in project_drafts.items():
-#         project_draft_ids.append(ref.push(project_draft))
-
-#     return project_draft_ids
+    return project_id
