@@ -50,7 +50,6 @@ class BaseProject(metaclass=ABCMeta):
            True if successful. False otherwise.
         """
 
-        self.archived = False
         self.created = dt.datetime.now()
         self.createdBy = project_draft['createdBy']
         self.groups = list()
@@ -217,11 +216,10 @@ class BaseProject(metaclass=ABCMeta):
 
         query_insert_project = '''
             INSERT INTO projects
-            VALUES (%s,%s,%s,ST_Force2D(ST_Multi(ST_GeomFromText(%s, 4326))),%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s);
+            VALUES (%s,%s,ST_Force2D(ST_Multi(ST_GeomFromText(%s, 4326))),%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s);
             '''
 
         data_project = [
-                project['archived'],
                 self.created,
                 self.createdBy,
                 project['geometry'],
@@ -240,7 +238,6 @@ class BaseProject(metaclass=ABCMeta):
         ]
 
         project_attributes = [
-                'archived',
                 'created',
                 'createdBy',
                 'geometry',
