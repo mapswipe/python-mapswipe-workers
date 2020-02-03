@@ -24,6 +24,7 @@ from mapswipe_workers.project_types.change_detection.change_detection_project im
 )
 from mapswipe_workers.project_types.footprint.footprint_project import FootprintProject
 from mapswipe_workers.utils import user_management
+from mapswipe_workers.utils.create_directories import create_directories
 from mapswipe_workers.utils.slack_helper import send_slack_message
 
 
@@ -41,6 +42,7 @@ class PythonLiteralOption(click.Option):
 @click.version_option()
 def cli(verbose):
     """Enable logging."""
+    create_directories()
     if not verbose:
         logger.disabled = True
 
