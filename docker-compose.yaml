@@ -55,15 +55,8 @@ services:
             - postgres
         command: mapswipe_workers --verbose run --schedule
         volumes:
-            - ./api-data:/var/lib/mapswipe_workers/api-data/:rw
-            - ./api-data/agg_results:/var/lib/mapswipe_workers/api-data/agg_results:rw
-            - ./api-data/groups:/var/lib/mapswipe_workers/api-data/groups:rw
-            - ./api-data/history:/var/lib/mapswipe_workers/api-data/history:rw
-            - ./api-data/projects:/var/lib/mapswipe_workers/api-data/projects:rw
-            - ./api-data/results:/var/lib/mapswipe_workers/api-data/results:rw
-            - ./api-data/tasks:/var/lib/mapswipe_workers/api-data/tasks:rw
-            - ./api-data/yes_maybe:/var/lib/mapswipe_workers/api-data/yes_maybe:rw
-            - ./api-data/hot_tm:/var/lib/mapswipe_workers/api-data/hot_tm:rw
+            - ./log:/var/lib/mapswipe_workers/:rw
+            - ./api-data:/home/mapswipe/.local/share/api-data/:rw
         restart: "no"
         networks:
             - mapswipe_workers
