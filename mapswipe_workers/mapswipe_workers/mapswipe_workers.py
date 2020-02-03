@@ -91,14 +91,14 @@ def _run_create_projects():
             project.calc_required_results()
             # Save project and its groups and tasks to Firebase and Postgres.
             project.save_project()
+            send_slack_message("success", project_name, project.projectId)
+            logger.info("Success: Project Creation ({0})".format(project_name))
         except CustomError:
             ref = fb_db.reference(f"v2/projectDrafts/{project_draft_id}")
             ref.set({})
             send_slack_message("fail", project_name, project.projectId)
             logger.exception("Failed: Project Creation ({0}))".format(project_name))
             sentry.capture_exception()
-        send_slack_message("success", project_name, project.projectId)
-        logger.info("Success: Project Creation ({0})".format(project_name))
         continue
 
 
