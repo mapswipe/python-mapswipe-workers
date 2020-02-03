@@ -4,14 +4,15 @@ import ast
 import json
 import time
 
-import click
 import schedule as sched
+
+import click
 from mapswipe_workers import auth
 from mapswipe_workers.definitions import (
     PROJECT_TYPE_CLASSES,
-    PROJECT_TYPE_NAMES,
     CustomError,
     logger,
+    sentry,
 )
 from mapswipe_workers.firebase_to_postgres import (
     archive_project,
@@ -20,10 +21,9 @@ from mapswipe_workers.firebase_to_postgres import (
 )
 from mapswipe_workers.generate_stats import generate_stats
 from mapswipe_workers.project_types.build_area import build_area_tutorial
-from mapswipe_workers.project_types.change_detection import (
-    change_detection_tutorial,
-)
-from mapswipe_workers.utils import sentry, slack, user_management
+from mapswipe_workers.project_types.change_detection import change_detection_tutorial
+from mapswipe_workers.utils import user_management
+from mapswipe_workers.utils.slack_helper import send_slack_message
 
 
 class PythonLiteralOption(click.Option):
@@ -63,6 +63,7 @@ def run_create_projects():
     for project_draft_id, project_draft in project_drafts.items():
         project_draft["projectDraftId"] = project_draft_id
         project_type = project_draft["projectType"]
+        project_name = project_draft["name"]
         try:
             # Create a project object using appropriate class (project type).
             project = PROJECT_TYPE_CLASSES[project_type](project_draft)
@@ -71,37 +72,15 @@ def run_create_projects():
             project.calc_required_results()
             # Save project and its groups and tasks to Firebase and Postgres.
             project.save_project()
-            newline = "\n"
-            message = (
-                f"### PROJECT CREATION SUCCESSFUL ###{newline}"
-                f"Project Name: {project.name}{newline}"
-                f"Project Id: {project.projectId}{newline}"
-                f"Project Type: {PROJECT_TYPE_NAMES[project_type]}"
-                f"{newline}"
-                f"Make sure to activate the project "
-                f"using the manager dashboard."
-                f"{newline}"
-                f"Happy Swiping. :)"
-            )
-            slack.send_slack_message(message)
-            logger.info(message)
         except CustomError:
             ref = fb_db.reference(f"v2/projectDrafts/{project_draft_id}")
             ref.set({})
-            newline = "\n"
-            message = (
-                f"### PROJECT CREATION FAILED ###{newline}"
-                f'Project Name: {project_draft["name"]}{newline}'
-                f"Project Id: {project_draft_id}{newline}"
-                f"{newline}"
-                f"Project draft is deleted.{newline}"
-                f"Please check what went wrong."
-            )
-            slack.send_slack_message(message)
-            slack.send_error(CustomError)
-            logger.exception(f"{project_draft_id} " f"- project creation failed")
+            send_slack_message("fail", project_name, project.projectId)
+            logger.exception("Failed: Project Creation ({0}))".format(project_name))
             sentry.capture_exception()
-            continue
+        send_slack_message("success", project_name, project.projectId)
+        logger.info("Success: Project Creation ({0})".format(project_name))
+        continue
 
 
 @cli.command("firebase-to-postgres")
@@ -154,10 +133,9 @@ def run_user_management(email, manager) -> None:
             user_management.set_project_manager_rights(email)
         elif not manager:
             user_management.remove_project_manager_rights(email)
-    except Exception as e:
-        slack.send_error(e)
-        sentry.capture_exception_sentry(e)
-        logger.exception(e)
+    except Exception:
+        logger.exception()
+        sentry.capture_exception()
 
 
 @cli.command("create-tutorial")
@@ -181,20 +159,15 @@ def run_create_tutorial(input_file) -> None:
             1: build_area_tutorial.create_tutorial,
             3: change_detection_tutorial.create_tutorial,
         }
-
         project_types_tutorial[project_type](tutorial)
-    except Exception as e:
-        slack.send_error(e)
-        sentry.capture_exception_sentry(e)
-        logger.exception(e)
+    except Exception:
+        logger.exception()
+        sentry.capture_exception()
 
 
 @click.command("archive")
 @click.option(
-    "--project-id",
-    "-i",
-    help=("Archive project with giving project id"),
-    type=str,
+    "--project-id", "-i", help=("Archive project with giving project id"), type=str,
 )
 @click.option(
     "--project-ids",
