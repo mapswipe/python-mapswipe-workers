@@ -4,9 +4,8 @@ import datetime as dt
 import dateutil.parser
 
 from mapswipe_workers import auth
-from mapswipe_workers.definitions import logger
+from mapswipe_workers.definitions import logger, sentry
 from mapswipe_workers.firebase_to_postgres import update_data
-from mapswipe_workers.utils import sentry
 
 
 def transfer_results(project_id_list=None):

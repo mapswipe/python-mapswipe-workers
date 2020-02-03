@@ -1,6 +1,6 @@
 import os
 import urllib.request
-import ogr
+from osgeo import ogr
 
 from mapswipe_workers.definitions import DATA_PATH
 from mapswipe_workers.definitions import CustomError

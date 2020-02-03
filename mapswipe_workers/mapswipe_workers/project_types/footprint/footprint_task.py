@@ -1,4 +1,4 @@
-import ogr
+from osgeo import ogr
 
 from mapswipe_workers.base.base_task import BaseTask
 

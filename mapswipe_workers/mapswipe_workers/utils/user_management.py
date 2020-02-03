@@ -5,9 +5,11 @@ import requests
 from requests.exceptions import HTTPError
 
 from mapswipe_workers.auth import firebaseDB
-from mapswipe_workers.definitions import CustomError
-from mapswipe_workers.definitions import logger
-from mapswipe_workers.auth import load_config
+from mapswipe_workers.definitions import (
+        CustomError,
+        logger,
+        CONFIG
+        )
 
 
 def set_project_manager_rights(email):
@@ -92,8 +94,7 @@ def delete_user(email):
 
 
 def sign_in_with_email_and_password(email, password):
-    config = load_config()
-    api_key = config['firebase']['api_key']
+    api_key = CONFIG['firebase']['api_key']
     request_ref = "https://www.googleapis.com/identitytoolkit/v3/relyingparty/verifyPassword?key={0}".format(api_key)
     headers = {"content-type": "application/json; charset=UTF-8"}
     data = json.dumps({"email": email, "password": password, "returnSecureToken": True})
@@ -104,8 +105,7 @@ def sign_in_with_email_and_password(email, password):
 
 
 def get_firebase_db(path, custom_arguments=None, token=None):
-    config = load_config()
-    databaseName = config['firebase']['database_name']
+    databaseName = CONFIG['firebase']['database_name']
     database_url = f'https://{databaseName}.firebaseio.com'
     request_ref = '{0}{1}.json?{3}auth={2}'.format(database_url, path, token, custom_arguments)
     headers = {"content-type": "application/json; charset=UTF-8"}
@@ -122,8 +122,7 @@ def get_firebase_db(path, custom_arguments=None, token=None):
 
 
 def set_firebase_db(path, data, token=None):
-    config = load_config()
-    databaseName = config['firebase']['database_name']
+    databaseName = CONFIG['firebase']['database_name']
     database_url = f'https://{databaseName}.firebaseio.com'
     request_ref = '{0}{1}.json?auth={2}'.format(database_url, path, token)
     headers = {"content-type": "application/json; charset=UTF-8"}
@@ -141,8 +140,7 @@ def set_firebase_db(path, data, token=None):
 
 
 def update_firebase_db(path, data, token=None):
-    config = load_config()
-    databaseName = config['firebase']['database_name']
+    databaseName = CONFIG['firebase']['database_name']
     database_url = f'https://{databaseName}.firebaseio.com'
     request_ref = '{0}{1}.json?auth={2}'.format(database_url, path, token)
     headers = {"content-type": "application/json; charset=UTF-8"}
