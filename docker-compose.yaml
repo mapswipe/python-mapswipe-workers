@@ -55,7 +55,7 @@ services:
             - postgres
         command: mapswipe_workers --verbose run --schedule
         volumes:
-            - ./log:/var/lib/mapswipe_workers/:rw
+            - ./log:/var/log/mapswipe_workers/:rw
             - ./api-data:/home/mapswipe/.local/share/api-data/:rw
         restart: "no"
         networks:
