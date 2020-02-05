@@ -22,12 +22,12 @@ def generate_stats(project_id_list: list):
     """
 
     logger.info(f"will generate stats for: {project_id_list}")
-    projects_info_filename = f"{DATA_PATH}/api-data/projects/projects_static.csv"
+    projects_info_filename = f"{DATA_PATH}/api/projects/projects_static.csv"
     projects_df = overall_stats.get_project_static_info(projects_info_filename)
     project_id_list_postgres = projects_df["project_id"].to_list()
 
     projects_info_dynamic_filename = (
-        f"{DATA_PATH}/api-data/projects/projects_dynamic.csv"
+        f"{DATA_PATH}/api/projects/projects_dynamic.csv"
     )
     projects_dynamic_df = overall_stats.load_project_info_dynamic(
         projects_info_dynamic_filename
@@ -64,13 +64,13 @@ def generate_stats(project_id_list: list):
 
     if len(project_id_list) > 0:
         # merge static info and dynamic info and save
-        projects_filename = f"{DATA_PATH}/api-data/projects/projects.csv"
+        projects_filename = f"{DATA_PATH}/api/projects/projects.csv"
         projects_df = overall_stats.save_projects(
             projects_filename, projects_df, projects_dynamic_df
         )
 
         # generate overall stats for active, inactive, finished projects
-        overall_stats_filename = f"{DATA_PATH}/api-data/stats.csv"
+        overall_stats_filename = f"{DATA_PATH}/api/stats.csv"
         overall_stats.get_overall_stats(projects_df, overall_stats_filename)
 
     logger.info(f"finished generate stats for: {project_id_list}")
@@ -86,7 +86,7 @@ def generate_stats_all_projects():
     logger.info(f"will generate stats for all projects.")
 
     # get all project ids from postgres database
-    projects_info_filename = f"{DATA_PATH}/api-data/projects/projects_static.csv"
+    projects_info_filename = f"{DATA_PATH}/api/projects/projects_static.csv"
     projects_df = overall_stats.get_project_static_info(projects_info_filename)
     project_id_list = projects_df["project_id"].to_list()
 
