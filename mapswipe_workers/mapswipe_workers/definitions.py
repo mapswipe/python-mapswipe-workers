@@ -17,7 +17,7 @@ def load_config(CONFIG_PATH) -> dict:
         return json.load(f)
 
 
-CONFIG_DIR = os.path.join(XDG_CONFIG_HOME, "mapswipe_workers/")
+CONFIG_DIR = os.path.join(XDG_CONFIG_HOME, "mapswipe_workers")
 
 CONFIG_PATH = os.path.join(CONFIG_DIR, "configuration.json")
 
@@ -25,7 +25,7 @@ CONFIG = load_config(CONFIG_PATH)
 
 SERVICE_ACCOUNT_KEY_PATH = os.path.join(CONFIG_DIR, "serviceAccountKey.json")
 
-DATA_PATH = os.path.join(XDG_DATA_HOME, "mapswipe_workers/")
+DATA_PATH = os.path.join(XDG_DATA_HOME, "mapswipe_workers")
 
 LOGGING_CONFIG_PATH = os.path.join(CONFIG_DIR, "logging.cfg")
 
