@@ -40,23 +40,12 @@ class PythonLiteralOption(click.Option):
 @click.version_option()
 @click.option("--verbose", "-v", is_flag=True, help="Enable logging.")
 def cli(verbose):
-    """Enable logging."""
     if not verbose:
         logger.disabled = True
 
 
 @cli.command("create-projects")
 def run_create_projects():
-    """
-    This is the wrapper function to create projects from submitted projects drafts.
-    We do it this way, to be able to use --verbose flag
-    for the _run_create_projects function.
-    Otherwise we can't use --verbose during run function.
-    """
-    _run_create_projects()
-
-
-def _run_create_projects():
     """
     Create projects from submitted project drafts.
 
@@ -104,17 +93,6 @@ def _run_create_projects():
 
 @cli.command("firebase-to-postgres")
 def run_firebase_to_postgres() -> list:
-    """
-    This is the wrapper function to update users and
-    transfer results from Firebase to Postgres.
-    We do it this way, to be able to use --verbose flag
-    for the _run_firebase_to_postgres function.
-    Otherwise we can't use --verbose during run function.
-    """
-    return _run_firebase_to_postgres()
-
-
-def _run_firebase_to_postgres() -> list:
     """Update users and transfer results from Firebase to Postgres."""
     update_data.update_user_data()
     update_data.update_project_data()
@@ -209,6 +187,7 @@ def run_create_tutorial(input_file) -> None:
 @click.option(
     "--project-ids",
     cls=PythonLiteralOption,
+    default="[]",
     help=(
         f"Archive multiple projects. "
         f"Provide project id strings as a list: "
@@ -226,7 +205,8 @@ def run_archive_project(project_id, project_ids):
 
 @cli.command("run")
 @click.option("--schedule", is_flag=True, help="Schedule jobs to run every 10 minutes.")
-def run(schedule):
+@click.pass_context
+def run(context, schedule):
     """
     Run all commands.
 
@@ -236,9 +216,9 @@ def run(schedule):
 
     def _run():
         logger.info("start mapswipe backend workflow.")
-        _run_create_projects()
-        project_ids = _run_firebase_to_postgres()
-        _run_generate_stats(project_ids)
+        context.invoke(run_create_projects())
+        project_ids = context.invoke(run_firebase_to_postgres())
+        context.invoke(run_generate_stats(project_ids))
 
     if schedule:
         sched.every(10).minutes.do(_run).run()
