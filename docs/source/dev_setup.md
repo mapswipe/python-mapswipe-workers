@@ -1,18 +1,50 @@
 # Development Setup
 
-In this document some tips and workflows for development are loosely collected. Those are independend of the production setup and Docker. A working Firebase Project (including Firebase Functions and Database Rules) is presupposed.
+In this document some tips and workflows for development are loosely collected. Those are independend of the production setup using Docker. A working Firebase Project (including Firebase Functions and Database Rules) is presupposed.
 
 
-1. Install GDAL (python-gdal)
-2. Setup virtual environment with system-site-packages enabled (To get access to GDAL)
-    - `python3 -m venv --system-site-packages venv`
-3. Activate virtual environment
-    - `source venv/bin/activate`
-4. Install mapswipe_workers
-    - `pip install -e .`
-5. Configure MapSwipe Workers as described in the section 'MapSwipe Workers Setup' in the [Setup](setup.md) chapter
-    - Make sure configuration and data paths are created and permissions are set as described in the next section [Configuration and data path](#Configurationa_and_data_path).
-    - Move the configuration (`config/configuration.json`) and the Service Account Key (`config/serviceAccountKey.json`) to `/usr/share/config/mapswipe_workers/`
+## Installation
+
+### Requirements
+
+MapSwipe Workers requires GDAL/OGR (`gdal-bin`) and GDAL for Python (`libgdal-dev`, `python-gdal`) to be installed.
+
+
+### Clone from GitHub
+
+```bash
+git clone https://github.com/mapswipe/python-mapswipe-workers.git
+cd python-mapswipe-workers
+git checkout dev
+```
+
+
+### Configuration
+
+MapSwipe Workers looks for configuration in `~/.config/mapswipe_workers`. (XDG Base Directory Specification is respected). It expects two files:
+
+- `configuration.json`
+- `serviceAccountKey.json`
+
+Please refer to the [configuration](configuration.md) and [setup](setup.md) documentation for further details.
+
+In addition the data directory for MapSwipe Workers needs to be created:
+`mkdir --parents .local/share/mapswipe_workers`
+
+
+### Install MapSwipe Workers Python Package
+
+1. Create a Python virtual environment with `system-site-packages` option enabled to get access to GDAL/OGR Python packages
+2. Activate the vitrual environment.
+3. Install MapSwipe Workers using pip.
+
+```bash
+python -m venv --system-site-packages venv
+source venv/bin/activate
+pip install --editable .
+```
+
+TODO
 6. Setup a postgres instance
     - Use the Docker image of MapSwipe
         - `cd postgres/`
@@ -21,22 +53,6 @@ In this document some tips and workflows for development are loosely collected. 
     - Or set up your own using the `initdb.sql` file in the `postgres/` folder
 7. Run Mapswipe Workers using the command: `mapswipe_wokers`
     - eg. `mapswipe_wokers --help`
-
-
-## Configuration and data path
-
-Mapsipe Workers needs access to three directories:
-
-- CONFIG_PATH (`/usr/share/config/mapswipe_workers/`)
-- DATA_PATH (`/var/lib/mapswipe_workers/`)
-- LOG_PATH (`/var/log/mapswipe_workers/`)
-
-Make sure those are existing and accessible:
-
-- Use `mkdir DATA_PATH` to create the directory.
-- Use `chown -R $USER:$USER PATH` (eg. `chown -R $USER:$USER /user/share/config/mapswipe_workers/`) to give write permission to current user.
-
-Alternatively you can change the PATH variables in `definitions.py` to your desired path. Except of the path for logs. This is defined in `logging.cfg`.
 
 
 ## Logging
