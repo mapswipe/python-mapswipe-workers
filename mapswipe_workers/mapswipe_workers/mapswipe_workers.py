@@ -216,9 +216,9 @@ def run(context, schedule):
 
     def _run():
         logger.info("start mapswipe backend workflow.")
-        context.invoke(run_create_projects())
-        project_ids = context.invoke(run_firebase_to_postgres())
-        context.invoke(run_generate_stats(project_ids))
+        context.invoke(run_create_projects)
+        project_ids = context.invoke(run_firebase_to_postgres)
+        context.invoke(run_generate_stats, project_ids=project_ids)
 
     if schedule:
         sched.every(10).minutes.do(_run).run()
