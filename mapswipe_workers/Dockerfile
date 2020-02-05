@@ -14,10 +14,6 @@ RUN apt-get --yes install python3-pip
 RUN groupadd --system mapswipe
 RUN useradd --create-home --no-log-init --system --gid mapswipe mapswipe
 
-# Create directory for logs and make it accessable for the user mapswipe
-RUN mkdir --parents /var/log/mapswipe_workers
-RUN chown mapswipe /var/log/mapswipe_workers
-
 # Change user to mapswipe
 USER mapswipe
 WORKDIR /home/mapswipe
