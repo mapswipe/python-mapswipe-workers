@@ -27,11 +27,17 @@ CONFIG = load_config(CONFIG_PATH)
 
 SERVICE_ACCOUNT_KEY_PATH = os.path.join(CONFIG_DIR, "serviceAccountKey.json")
 
-LOGGING_CONFIG_PATH = os.path.join(ROOT_DIR, "logging.cfg")
-
 DATA_PATH = os.path.join(XDG_DATA_HOME, "mapswipe_workers/")
 
-logging.config.fileConfig(fname=LOGGING_CONFIG_PATH, disable_existing_loggers=True)
+LOGGING_CONFIG_PATH = os.path.join(ROOT_DIR, "logging.cfg")
+
+LOGGING_FILE_PATH = os.path.join(DATA_PATH, "mapswipe_workers.log")
+
+logging.config.fileConfig(
+    fname=LOGGING_CONFIG_PATH,
+    defaults={"logfilename": LOGGING_FILE_PATH},
+    disable_existing_loggers=True,
+)
 logger = logging.getLogger("Mapswipe Workers")
 
 try:
