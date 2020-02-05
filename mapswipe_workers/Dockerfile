@@ -14,9 +14,9 @@ RUN apt-get --yes install python3-pip
 RUN groupadd --system mapswipe
 RUN useradd --create-home --no-log-init --system --gid mapswipe mapswipe
 
-# Create directory for logs and make it accsesably for the mapswipe user
+# Create directory for logs and make it accessable for the user mapswipe
 RUN mkdir --parents /var/log/mapswipe_workers
-RUN chown mapswipe /var/log/mapswipe_workers/
+RUN chown mapswipe /var/log/mapswipe_workers
 
 # Change user to mapswipe
 USER mapswipe
@@ -24,6 +24,7 @@ WORKDIR /home/mapswipe
 
 # Create directories for config, data and logs
 RUN mkdir --parents .config/mapswipe_workers
+RUN mkdir --parents .local/share/api-data
 
 # Copy mapswipe workers repo from local repo
 COPY mapswipe_workers/ mapswipe_workers/
@@ -36,5 +37,7 @@ COPY config/ .config/mapswipe_workers/
 # Update setuptools and install mapswipe-workers with dependencies (requirements.txt)
 RUN pip3 install --upgrade setuptools
 RUN pip3 install .
+# Add platform-specific user install directory of Python to $PATH
+RUN python3 -m site &> /dev/null && PATH="$PATH:`python3 -m site --user-base`/bin"
 
 # Don't use a CMD here, this will be defined in docker-compose.yaml
