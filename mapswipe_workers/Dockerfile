@@ -24,7 +24,7 @@ WORKDIR /home/mapswipe
 
 # Create directories for config, data and logs
 RUN mkdir --parents .config/mapswipe_workers
-RUN mkdir --parents .local/share/api-data
+RUN mkdir --parents .local/share/mapswipe_workers/api
 
 # Copy mapswipe workers repo from local repo
 COPY mapswipe_workers/ mapswipe_workers/
