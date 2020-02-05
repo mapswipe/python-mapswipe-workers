@@ -37,7 +37,8 @@ COPY config/ .config/mapswipe_workers/
 # Update setuptools and install mapswipe-workers with dependencies (requirements.txt)
 RUN pip3 install --upgrade setuptools
 RUN pip3 install .
-# Add platform-specific user install directory of Python to $PATH
-RUN python3 -m site &> /dev/null && PATH="$PATH:`python3 -m site --user-base`/bin"
+
+# Add platform-specific user binary directory for Python applications to $PATH
+ENV PATH="$PATH:/home/mapswipe/.local/bin"
 
 # Don't use a CMD here, this will be defined in docker-compose.yaml
