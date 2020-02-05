@@ -6,15 +6,15 @@ from mapswipe_workers.definitions import DATA_PATH, logger, sentry
 def create_directories() -> None:
     """Create directories for statistics"""
     dirs = (
-        DATA_PATH + "api",
-        DATA_PATH + "api/agg_results",
-        DATA_PATH + "api/groups",
-        DATA_PATH + "api/history",
-        DATA_PATH + "api/hot_tm",
-        DATA_PATH + "api/projects",
-        DATA_PATH + "api/results",
-        DATA_PATH + "api/tasks",
-        DATA_PATH + "api/yes_maybe",
+        DATA_PATH + "/api",
+        DATA_PATH + "/api/agg_results",
+        DATA_PATH + "/api/groups",
+        DATA_PATH + "/api/history",
+        DATA_PATH + "/api/hot_tm",
+        DATA_PATH + "/api/projects",
+        DATA_PATH + "/api/results",
+        DATA_PATH + "/api/tasks",
+        DATA_PATH + "/api/yes_maybe",
     )
 
     for path in dirs:
