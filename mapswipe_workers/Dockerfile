@@ -16,7 +16,7 @@ RUN useradd --create-home --no-log-init --system --gid mapswipe mapswipe
 
 # Create directory for logs and make it accsesably for the mapswipe user
 RUN mkdir --parents /var/log/mapswipe_workers
-RUN chown mapswipe_workers: /var/log/mapswipe_workers/
+RUN chown mapswipe /var/log/mapswipe_workers/
 
 # Change user to mapswipe
 USER mapswipe
