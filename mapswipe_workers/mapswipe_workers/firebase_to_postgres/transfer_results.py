@@ -1,47 +1,39 @@
 import csv
 import io
-import datetime as dt
-import dateutil.parser
 
+import dateutil.parser
 from mapswipe_workers import auth
 from mapswipe_workers.definitions import logger, sentry
 from mapswipe_workers.firebase_to_postgres import update_data
 
 
-def transfer_results(project_id_list=None):
-    '''
-    Download results from firebase,
-    saves them to postgres and then deletes the results in firebase.
-    This is implemented as a transactional operation as described in
-    the Firebase docs to avoid missing new generated results in
-    Firebase during execution of this function.
-    '''
+def transfer_results(project_ids: list = None) -> list:
+    """Download results from firebase, save them to postgres and delete them in firebase."""
 
     # Firebase transaction function
     def transfer(current_results):
         if current_results is None:
             logger.info(f'{project_id}: No results in Firebase')
-            return dict()
         else:
             results_user_id_list = get_user_ids_from_results(current_results)
             update_data.update_user_data(results_user_id_list)
             results_file = results_to_file(current_results, project_id)
             save_results_to_postgres(results_file)
-            return dict()
 
     fb_db = auth.firebaseDB()
 
-    if not project_id_list:
+    if not project_ids:
         # get project_ids from existing results if no project ids specified
-        project_id_list = fb_db.reference('v2/results/').get(shallow=True)
-        if not project_id_list:
-            project_id_list = []
-            logger.info(f'There are no results to transfer.')
+        project_ids = list(fb_db.reference('v2/results/').get(shallow=True))
+
+    if not project_ids:
+        logger.info(f'There are no results to transfer.')
+        return []
 
     # get all project ids from postgres, we will only transfer results for projects we have there
     postgres_project_ids = get_projects_from_postgres()
 
-    for project_id in project_id_list:
+    for project_id in project_ids:
         if project_id not in postgres_project_ids:
             logger.info(f'{project_id}: This project is not in postgres. We will not transfer results')
             continue
@@ -56,14 +48,16 @@ def transfer_results(project_id_list=None):
 
         try:
             results_ref.transaction(transfer)
-            logger.info(f'{project_id}: Transfered results to postgres')
         except fb_db.TransactionError:
             logger.exception(
                 f'{project_id}: Firebase transaction for transfering results failed to commit'
             )
+            sentry.capture_exception()
+            return []
 
-    del fb_db
-    return project_id_list
+        logger.info(f'{project_id}: Transfered results to postgres')
+
+    return project_ids
 
 
 def results_to_file(results, projectId):
