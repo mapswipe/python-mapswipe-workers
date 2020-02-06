@@ -10,13 +10,19 @@ ENV LANG=C.UTF-8
 RUN apt-get update
 RUN apt-get --yes install python3-pip
 
-# Create user mapswipe
-RUN groupadd --system mapswipe
-RUN useradd --create-home --no-log-init --system --gid mapswipe mapswipe
+####
+# Due to unresolved permission error of shared volume
+# fall back to root user.
+#
+## Create user mapswipe
+# RUN groupadd --system mapswipe
+# RUN useradd --create-home --no-log-init --system --gid mapswipe mapswipe
+## Change user to mapswipe
+# USER mapswipe
+# WORKDIR /home/mapswipe
+####
 
-# Change user to mapswipe
-USER mapswipe
-WORKDIR /home/mapswipe
+WORKDIR /root
 
 # Create directories for config, data and logs
 RUN mkdir --parents .config/mapswipe_workers
@@ -35,6 +41,6 @@ RUN pip3 install --upgrade setuptools
 RUN pip3 install .
 
 # Add platform-specific user binary directory for Python applications to $PATH
-ENV PATH="$PATH:/home/mapswipe/.local/bin"
+# ENV PATH="$PATH:/home/mapswipe/.local/bin"
 
 # Don't use a CMD here, this will be defined in docker-compose.yaml
