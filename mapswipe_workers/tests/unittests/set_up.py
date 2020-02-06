@@ -14,8 +14,8 @@ DATA_TYPES = {
 
 def load_test_data(data_type: str, project_type: str = None) -> dict:
     """Load test data of given data type and project type from data directory."""
-    test_dir = os.path.abspath(__file__)
-    data_dir = os.path.join(test_dir, "/data/", project_type)
+    test_dir = os.path.dirname(__file__)
+    data_dir = os.path.join(test_dir, "data", project_type)
     file_name = data_type + ".json"
     file_path = os.path.join(data_dir, file_name)
 
@@ -52,7 +52,7 @@ def create_test_user() -> str:
     return user_id
 
 
-def create_project_draft(project_type: str) -> list:
+def create_test_project_draft(project_type: str) -> list:
     """Create test project drafts in Firebase and return project ids."""
     project_draft = load_test_data("project_draft", project_type)
 
