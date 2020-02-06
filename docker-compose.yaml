@@ -30,7 +30,7 @@ services:
         build:
             context: api/
         volumes:
-            - ./api-data:/usr/share/nginx/html/api/:ro
+            - ./mapswipe-data/api:/usr/share/nginx/html/api/:ro
         restart: unless-stopped
         expose:
             - "80"
@@ -55,8 +55,7 @@ services:
             - postgres
         command: mapswipe_workers --verbose run --schedule
         volumes:
-            - ./log:/var/log/mapswipe_workers
-            - ./api-data:/root/.local/share/mapswipe_workers/api
+            - ./mapswipe-data:/root/.local/share/mapswipe_workers
         restart: "no"
         networks:
             - mapswipe_workers
