@@ -251,28 +251,16 @@ certbot certonly \
     --non-interactive
 ```
 
+> Note: Certbot systemd timer for renewal of certificate will not work for standalone certificates because the service (docker nginx) which occupies port 80 has to be stopped before renewal.
 
-Enable and start Certbot systemd timer for renewal of certificates:
+For certificate renewal a cronjob is used:
 
 ```bash
-systemctl enable certbot.timer
-systemctl start certbot.timer
-# To check if certbot.timer is enabled run:
-systemctl list-units --type timer | grep certbot
+SHELL=/bin/sh
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+
+0 */12 * * * certbot -q renew --pre-hook "docker stop nginx" --post-hook "docker start nginx"
 ```
-
-Add renewal post hook to reload nginx after certificate renwal:
-
-- `mkdir -p /etc/letsencrypt/renewal-hooks/deploy`
-- `vim /etc/letsencrypt/renewal-hooks/deploy/nginx`
-
-```
-#!/usr/bin/env bash
-
-docker container restart nginx
-```
-
-- `chmod +x /etc/letsencrypt/renewal-hooks/deploy/nginx`
 
 
 ### Nginx
