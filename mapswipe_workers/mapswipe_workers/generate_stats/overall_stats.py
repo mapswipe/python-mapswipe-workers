@@ -17,7 +17,7 @@ def get_overall_stats(projects_df: pd.DataFrame, filename: str) -> pd.DataFrame:
     projects_df: pd.DataFrame
     filename: str
     """
-
+    projects_df["number_of_users"].fillna(0, inplace=True)
     overall_stats_df = projects_df.groupby(["status"]).agg(
         count_projects=pd.NamedAgg(column="project_id", aggfunc="count"),
         area_sqkm=pd.NamedAgg(column="area_sqkm", aggfunc="sum"),
