@@ -4,6 +4,7 @@ import logging.config
 import os
 
 import sentry_sdk
+from xdg import XDG_CONFIG_HOME, XDG_DATA_HOME
 
 
 class CustomError(Exception):
@@ -16,9 +17,7 @@ def load_config(CONFIG_PATH) -> dict:
         return json.load(f)
 
 
-ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
-
-CONFIG_DIR = os.path.abspath("/usr/share/config/mapswipe_workers/")
+CONFIG_DIR = os.path.join(XDG_CONFIG_HOME, "mapswipe_workers")
 
 CONFIG_PATH = os.path.join(CONFIG_DIR, "configuration.json")
 
@@ -26,12 +25,23 @@ CONFIG = load_config(CONFIG_PATH)
 
 SERVICE_ACCOUNT_KEY_PATH = os.path.join(CONFIG_DIR, "serviceAccountKey.json")
 
+DATA_PATH = os.path.join(XDG_DATA_HOME, "mapswipe_workers")
+
 LOGGING_CONFIG_PATH = os.path.join(CONFIG_DIR, "logging.cfg")
 
-DATA_PATH = os.path.abspath("/var/lib/mapswipe_workers/")
+LOGGING_FILE_PATH = os.path.join(DATA_PATH, "mapswipe_workers.log")
 
-logging.config.fileConfig(fname=LOGGING_CONFIG_PATH, disable_existing_loggers=True)
+logging.config.fileConfig(
+    fname=LOGGING_CONFIG_PATH,
+    defaults={"logfilename": LOGGING_FILE_PATH},
+    disable_existing_loggers=True,
+)
 logger = logging.getLogger("Mapswipe Workers")
 
-sentry_sdk.init(CONFIG["sentry"]["dsn"])
+try:
+    sentry_sdk.init(CONFIG["sentry"]["dsn"])
+except KeyError:
+    logger.info(
+        "No configuration for Sentry was found. Continue without Sentry integration."
+    )
 sentry = sentry_sdk

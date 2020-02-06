@@ -1,39 +1,22 @@
 # Contributing
 
-
-## Clone from GitHub
-
-```bash
-git clone https://github.com/mapswipe/python-mapswipe-workers.git
-cd python-mapswipe-workers
-git checkout dev
-```
-
-
-## Install MapSwipe Workers
-
-Create a Python virtual environment and activate it. Install MapSwipe Workers using pip:
-
-```bash
-python -m venv venv
-source venv/bin/activate
-pip install --editable .
-```
+This document describes how to setup Python MapSwipe Workers locally without using the provided Dockerfile for development purposes.
 
 
 ## Feature Branch
 
-To contribute to the MapSwipe back-end please create dedicated feature branches from dev:
+To contribute to the MapSwipe back-end please create dedicated feature branches based on the `dev` branch:
 
 ```bash
 git checkout dev
 git checkout -b featureA
-git commit -am 'add new project type'
+# Hack away ...
+git commit -am 'Describe changes.'
 git push -u origin featureA
-git request-pull origin/dev featureA
+# Create a Pull Request from feature branch into the dev branch on GitHub.
 ```
 
-> Note: If a bug in production (master branch) needs fixing before a new versions of MapSwipe Workers gets released (merging dev into master branch), a hotfix branch should be created. In the hotfix branch the bug should be fixed and then merged back with master and also dev.
+> Note: If a bug in production (master branch) needs fixing before a new versions of MapSwipe Workers gets released (merging dev into master branch), a hotfix branch should be created. In the hotfix branch the bug should be fixed and then merged with the master branch (and also dev).
 
 
 ## Style Guide
