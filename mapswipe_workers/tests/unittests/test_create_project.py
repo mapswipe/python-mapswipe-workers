@@ -15,3 +15,7 @@ class TestArchiveProject(unittest.TestCase):
 
     def test_test(self):
         print(self.project_id)
+
+
+if __name__ == "__main__":
+    unittest.main()
