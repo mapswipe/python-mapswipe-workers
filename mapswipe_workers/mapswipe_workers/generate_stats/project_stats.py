@@ -317,14 +317,14 @@ def get_per_project_statistics(project_id: str, project_info: pd.Series) -> dict
     """
 
     # set filenames
-    results_filename = f"{DATA_PATH}/api-data/results/results_{project_id}.csv"
-    tasks_filename = f"{DATA_PATH}/api-data/tasks/tasks_{project_id}.csv"
-    groups_filename = f"{DATA_PATH}/api-data/groups/groups_{project_id}.csv"
+    results_filename = f"{DATA_PATH}/api/results/results_{project_id}.csv"
+    tasks_filename = f"{DATA_PATH}/api/tasks/tasks_{project_id}.csv"
+    groups_filename = f"{DATA_PATH}/api/groups/groups_{project_id}.csv"
     agg_results_filename = (
-        f"{DATA_PATH}/api-data/agg_results/agg_results_{project_id}.csv"
+        f"{DATA_PATH}/api/agg_results/agg_results_{project_id}.csv"
     )
     project_stats_by_date_filename = (
-        f"{DATA_PATH}/api-data/history/history_{project_id}.csv"
+        f"{DATA_PATH}/api/history/history_{project_id}.csv"
     )
 
     # load data from postgres or local storage if already downloaded
