@@ -21,8 +21,12 @@ git checkout dev
 
 ### Configuration
 
-MapSwipe Workers looks for configuration in `~/.config/mapswipe_workers`. (XDG Base Directory Specification is respected). It expects three files:
+MapSwipe Workers looks for configuration in `~/.config/mapswipe_workers`. (XDG Base Directory Specification is respected):
 
+Create the configuration directory:
+`mkdir --parents ~/.config/mapswipe_workers`
+
+MapSwipe Workers expects three files in the configuration directory:
 - `configuration.json`
 - `serviceAccountKey.json`
 - `logging.cfg`
@@ -30,7 +34,7 @@ MapSwipe Workers looks for configuration in `~/.config/mapswipe_workers`. (XDG B
 Please refer to the [configuration](configuration.md) and [setup](setup.md) documentation for further details.
 
 In addition the data directory for MapSwipe Workers needs to be created:
-`mkdir --parents .local/share/mapswipe_workers`
+`mkdir --parents ~/.local/share/mapswipe_workers`
 
 
 ### Install MapSwipe Workers Python Package
