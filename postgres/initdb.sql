@@ -2,7 +2,6 @@
 CREATE EXTENSION postgis;
 
 CREATE TABLE IF NOT EXISTS projects (
-    archive boolean,
     created timestamp,
     created_by varchar,
     geom geometry(MULTIPOLYGON, 4326),
@@ -48,7 +47,7 @@ CREATE TABLE IF NOT EXISTS tasks (
     project_type_specifics json,
     PRIMARY KEY (project_id, group_id, task_id),
     FOREIGN KEY (project_id) REFERENCES projects (project_id),
-    FOREIGN KEY (project_id, group_id) REFERENCES GROUPS (project_id, group_id)
+    FOREIGN KEY (project_id, group_id) REFERENCES groups (project_id, group_id)
 );
 
 CREATE INDEX IF NOT EXISTS tasks_task_id ON public.tasks
@@ -78,7 +77,7 @@ CREATE TABLE IF NOT EXISTS results (
     result int,
     PRIMARY KEY (project_id, group_id, task_id, user_id),
     FOREIGN KEY (project_id) REFERENCES projects (project_id),
-    FOREIGN KEY (project_id, group_id) REFERENCES GROUPS (project_id, group_id),
+    FOREIGN KEY (project_id, group_id) REFERENCES groups (project_id, group_id),
     FOREIGN KEY (project_id, group_id, task_id) REFERENCES tasks (project_id, group_id, task_id),
     FOREIGN KEY (user_id) REFERENCES users (user_id)
 );

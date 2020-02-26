@@ -1,7 +1,7 @@
 import csv
 from queue import Queue
 import threading
-import ogr
+from osgeo import ogr
 
 from mapswipe_workers.definitions import logger
 from mapswipe_workers.definitions import DATA_PATH
@@ -419,12 +419,12 @@ def generate_tasking_manager_geometries(project_id: str):
     Finally, both data sets are saved into GeoJSON files.
     """
 
-    raw_data_filename = f"{DATA_PATH}/api-data/agg_results/agg_results_{project_id}.csv"
+    raw_data_filename = f"{DATA_PATH}/api/agg_results/agg_results_{project_id}.csv"
     filtered_data_filename = (
-        f"{DATA_PATH}/api-data/yes_maybe/yes_maybe_{project_id}.geojson"
+        f"{DATA_PATH}/api/yes_maybe/yes_maybe_{project_id}.geojson"
     )
     tasking_manager_data_filename = (
-        f"{DATA_PATH}/api-data/hot_tm/hot_tm_{project_id}.geojson"
+        f"{DATA_PATH}/api/hot_tm/hot_tm_{project_id}.geojson"
     )
 
     # load project data from existing files

@@ -30,7 +30,7 @@ services:
         build:
             context: api/
         volumes:
-            - ./api-data:/usr/share/nginx/html/api/:ro
+            - ./mapswipe-data/api:/usr/share/nginx/html/api/:ro
         restart: unless-stopped
         expose:
             - "80"
@@ -53,17 +53,9 @@ services:
             context: mapswipe_workers/
         depends_on:
             - postgres
-        command: mapswipe_workers --verbose run --schedule m
+        command: mapswipe_workers --verbose run --schedule
         volumes:
-            - ./api-data:/var/lib/mapswipe_workers/api-data/:rw
-            - ./api-data/agg_results:/var/lib/mapswipe_workers/api-data/agg_results:rw
-            - ./api-data/groups:/var/lib/mapswipe_workers/api-data/groups:rw
-            - ./api-data/history:/var/lib/mapswipe_workers/api-data/history:rw
-            - ./api-data/projects:/var/lib/mapswipe_workers/api-data/projects:rw
-            - ./api-data/results:/var/lib/mapswipe_workers/api-data/results:rw
-            - ./api-data/tasks:/var/lib/mapswipe_workers/api-data/tasks:rw
-            - ./api-data/yes_maybe:/var/lib/mapswipe_workers/api-data/yes_maybe:rw
-            - ./api-data/hot_tm:/var/lib/mapswipe_workers/api-data/hot_tm:rw
+            - ./mapswipe-data:/root/.local/share/mapswipe_workers
         restart: "no"
         networks:
             - mapswipe_workers

@@ -94,7 +94,7 @@ function updateIsFeatured(projectId, newStatus) {
 }
 
 function updateTableView() {
-  status_array = ["new", "active", "inactive", "finished"]
+  status_array = ["active", "inactive", "finished", "archived"]
 
   for (var i = 0; i < status_array.length; i++) {
     status = status_array[i]

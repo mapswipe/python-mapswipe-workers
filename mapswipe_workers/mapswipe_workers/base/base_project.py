@@ -50,7 +50,6 @@ class BaseProject(metaclass=ABCMeta):
            True if successful. False otherwise.
         """
 
-        self.archived = False
         self.created = dt.datetime.now()
         self.createdBy = project_draft['createdBy']
         self.groups = list()
@@ -79,7 +78,7 @@ class BaseProject(metaclass=ABCMeta):
     # def resultRequiredCounter(self):
     #     return self.resultRequiredCounter
 
-    def save_project(self, fb_db):
+    def save_project(self):
         """
         Creates a projects with groups and tasks
         and saves it in firebase and postgres
@@ -131,7 +130,6 @@ class BaseProject(metaclass=ABCMeta):
                     )
             try:
                 self.save_to_firebase(
-                        fb_db,
                         project,
                         groups,
                         groupsOfTasks,
@@ -161,7 +159,7 @@ class BaseProject(metaclass=ABCMeta):
                     )
             raise CustomError(e)
 
-    def save_to_firebase(self, fb_db, project, groups, groupsOfTasks):
+    def save_to_firebase(self, project, groups, groupsOfTasks):
 
         # remove wkt geometry attribute of projects and tasks
         project.pop('geometry', None)
@@ -170,6 +168,7 @@ class BaseProject(metaclass=ABCMeta):
                 groupsOfTasks[group_id][i].pop('geometry', None)
 
 
+        fb_db = auth.firebaseDB()
         ref = fb_db.reference('')
         # save project
         ref.update({
@@ -217,11 +216,10 @@ class BaseProject(metaclass=ABCMeta):
 
         query_insert_project = '''
             INSERT INTO projects
-            VALUES (%s,%s,%s,ST_Force2D(ST_Multi(ST_GeomFromText(%s, 4326))),%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s);
+            VALUES (%s,%s,ST_Force2D(ST_Multi(ST_GeomFromText(%s, 4326))),%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s);
             '''
 
         data_project = [
-                project['archived'],
                 self.created,
                 self.createdBy,
                 project['geometry'],
@@ -240,7 +238,6 @@ class BaseProject(metaclass=ABCMeta):
         ]
 
         project_attributes = [
-                'archived',
                 'created',
                 'createdBy',
                 'geometry',

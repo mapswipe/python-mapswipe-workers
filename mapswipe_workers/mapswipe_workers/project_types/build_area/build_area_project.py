@@ -1,6 +1,6 @@
 import os
-import ogr
-import osr
+from osgeo import ogr
+from osgeo import osr
 import json
 
 from mapswipe_workers.definitions import DATA_PATH
@@ -16,7 +16,8 @@ class BuildAreaProject(BaseProject):
     The subclass for an import of the type Footprint
     """
 
-    projectType = 1
+    project_type = 1
+    project_type_name = "Build Area"
 
     def __init__(self, project_draft):
         # this will create the basis attributes

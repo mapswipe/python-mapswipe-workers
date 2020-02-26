@@ -1,0 +1,19 @@
+# This is a special configuration file to run tests on Travis-CI via
+# GitHub notifications when changes are committed.
+#
+# For technical details, see http://travis-ci.org/
+
+language: python
+python:
+  - "3.6"
+  - "3.7"
+  - "3.8"
+
+before_install:
+ - pip install --upgrade pip setuptools
+ - pip install flake8 black
+ - flake8 --config=mapswipe_workers/setup.cfg mapswipe_workers/mapswipe_workers/*.py
+ - black --check mapswipe_workers/mapswipe_workers/*.py
+
+install:
+ - pip install mapswipe_workers/
