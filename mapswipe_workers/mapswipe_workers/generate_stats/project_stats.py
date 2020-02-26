@@ -6,7 +6,21 @@ from typing import List
 from mapswipe_workers import auth
 from mapswipe_workers.definitions import logger, DATA_PATH
 from mapswipe_workers.utils import geojson_functions
-from mapswipe_workers.generate_stats import project_stats_by_date
+from mapswipe_workers.generate_stats import (
+    project_stats_by_date,
+    tasking_manager_geometries,
+)
+
+
+def add_metadata_to_csv(filename: str):
+    """
+    Append a metadata line to the csv file about intended data usage.
+    """
+
+    with open(filename, "a") as fd:
+        fd.write("# This data can only be used for editing in OpenStreetMap.")
+
+    logger.info(f"added metadata to {filename}.")
 
 
 def write_sql_to_csv(filename: str, sql_query: sql.SQL):
@@ -227,7 +241,7 @@ def calc_count(row) -> List[int]:
     total_count = no_count + yes_count + maybe_count + bad_count
     assert total_count > 0, "Total count for result must be bigger than zero."
 
-    return [total_count, no_count, yes_count, maybe_count, no_count]
+    return [total_count, no_count, yes_count, maybe_count, bad_count]
 
 
 def get_agg_results_by_task_id(
@@ -290,7 +304,7 @@ def get_agg_results_by_task_id(
     return agg_results_df
 
 
-def get_per_project_statistics(project_id: str) -> dict:
+def get_per_project_statistics(project_id: str, project_info: pd.Series) -> dict:
     """
     The function calculates all project related statistics.
     Always save results to csv file.
@@ -329,6 +343,10 @@ def get_per_project_statistics(project_id: str) -> dict:
         logger.info(f"saved agg results for {project_id}: {agg_results_filename}")
         geojson_functions.csv_to_geojson(agg_results_filename, "geom")
 
+        if any("maxar" in s for s in project_info["tile_server_names"]):
+            add_metadata_to_csv(agg_results_filename)
+            geojson_functions.add_metadata_to_geojson(agg_results_filename)
+
         project_stats_by_date_df = project_stats_by_date.get_project_history(
             results_df, groups_df
         )
@@ -338,6 +356,10 @@ def get_per_project_statistics(project_id: str) -> dict:
             f"saved project stats by date for {project_id}: {project_stats_by_date_filename}"
         )
 
+        # generate geometries for HOT Tasking Manager
+        tasking_manager_geometries.generate_tasking_manager_geometries(project_id)
+
+        # prepare output of function
         project_stats_dict = {
             "project_id": project_id,
             "progress": project_stats_by_date_df["cum_progress"].iloc[-1],

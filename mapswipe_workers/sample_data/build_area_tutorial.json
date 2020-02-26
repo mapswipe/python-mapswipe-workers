@@ -10,7 +10,8 @@
   "contributorCount": 0,
   "examplesFile": "sample_data/build_area_tutorial_tasks.csv",
   "tileServer":{
-    "name": "bing"
+    "name": "bing",
+    "apiKey": ""
   },
   "categories": {
     "building_easy_1": {

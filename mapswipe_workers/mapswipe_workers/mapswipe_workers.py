@@ -29,7 +29,8 @@ class PythonLiteralOption(click.Option):
     def type_cast_value(self, ctx, value):
         try:
             return ast.literal_eval(value)
-        except:
+        except ValueError as e:
+            logger.exception(e)
             raise click.BadParameter(value)
 
 
@@ -304,16 +305,7 @@ def run_create_tutorial(input_file):
     ),
     type=click.Choice(["m", "h", "d"]),
 )
-@click.option(
-    "--only_new_results",
-    default=False,
-    is_flag=True,
-    help=(
-        f"Will generate stats only for projects and users"
-        f"for which new results have been transfered."
-    ),
-)
-def run(schedule, only_new_results):
+def run(schedule):
     sentry.init_sentry()
     try:
         if schedule:

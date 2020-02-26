@@ -135,3 +135,30 @@
 
 #geometryMap { height: 300px; width: 100%}
 #geometryChangeDetectionMap { height: 300px; width: 100%}
+
+div.project-data {
+    padding-bottom: 50px !important;
+    padding-top: 25px !important;
+}
+
+
+/* adjust data tables styles */
+.table {
+    border-spacing: 0px !important;
+}
+
+th.sorting::after{
+    content: "\2195" !important;
+}
+
+th.sorting_asc::after{
+    content: "\2193" !important;
+}
+
+th.sorting_desc::after{
+    content: "\2191" !important;
+}
+
+.paginate_button {
+    padding: 2.5px !important;
+}

@@ -14,23 +14,31 @@
     <meta name="twitter:card" content="summary">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
+    <!-- add firebase -->
     <script src="https://cdn.firebase.com/libs/firebaseui/4.0.0/firebaseui.js"></script>
     <link type="text/css" rel="stylesheet" href="https://cdn.firebase.com/libs/firebaseui/4.0.0/firebaseui.css" />
 
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <!-- add jquery, ajax -->
+    <script src="https://code.jquery.com/jquery-3.3.1.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+    <!-- Add Bootstrap -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+    <!-- Add Data Tables -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.20/css/dataTables.bootstrap.min.css">
+    <script src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
+
+    <!-- add mapswipe styles -->
     <link type="text/css" rel="stylesheet" href="css/mapswipe.css" />
-     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css"
-   integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
-   crossorigin=""/>
-    <!-- Make sure you put this AFTER Leaflet's CSS -->
- <script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js"
-   integrity="sha512-GffPMF3RvMeYyc1LWMHtK8EbPv0iNZ8/oTtHPx9/cc2ILxQ+u905qIwdpULaqDkyBKgOaB57QTMg7ztg8Jm2Og=="
-   crossorigin=""></script>
+
+    <!-- add leaflet and turf.js -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css"  integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="  crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js" integrity="sha512-GffPMF3RvMeYyc1LWMHtK8EbPv0iNZ8/oTtHPx9/cc2ILxQ+u905qIwdpULaqDkyBKgOaB57QTMg7ztg8Jm2Og==" crossorigin=""></script>
     <script src='https://npmcdn.com/@turf/turf/turf.min.js'></script>
 
+    <!-- add sentry -->
     <script
       src="https://browser.sentry-cdn.com/5.7.1/bundle.min.js"
       integrity="sha384-KMv6bBTABABhv0NI+rVWly6PIRvdippFEgjpKyxUcpEmDWZTkDOiueL5xW+cztZZ"
@@ -165,7 +173,7 @@
                           <ul>
                           <li>
                               <label for="zoomLevel">Zoom Level</label>
-                              <input type="number" name="zoomLevel" id="zoomLevel" value="18" min="14" max="24">
+                              <input type="number" name="zoomLevel" id="zoomLevel" value="18" min="14" max="22">
                               <span>We use the Tile Map Service zoom levels. Please check for your area which zoom level is available. For example, Bing imagery is available at zoomlevel 18 for most regions. If you use a custom tile server you may be able to use even higher zoom levels.</span>
                           </li>
                           <li>
@@ -181,11 +189,15 @@
                               <label for="tileServerBuildArea">Tile Server Name</label>
                               <select name="tileServerBuildArea" id="tileServerBuildArea" onchange="displayTileServer(this, 'BuildArea', '')">
                                   <option value="bing">Bing</option>
-                                  <option value="digital_globe">Digital Globe</option>
+                                  <option value="mapbox">MapBox</option>
+                                  <option value="maxar_standard">Maxar Standard</option>
+                                  <option value="maxar_premium">Maxar Premium</option>
+                                  <option value="esri">Esri World Imagery</option>
+                                  <option value="esri_beta">Esri World Imagery (Clarity) Beta</option>
                                   <option value="sinergise">Sinergise</option>
                                   <option value="custom">Custom</option>
                               </select>
-                              <span>Select the tile server providing satellite imagery tiles for your project. Make sure you have permission. Google hasn't given permission yet and won't work until a proper API key is given.</span>
+                              <span>Select the tile server providing satellite imagery tiles for your project. Make sure you have permission.</span>
                           </li>
                           <li style="display:None" id="tileServerUrlFieldBuildArea">
                               <label for="tileServerUrlBuildArea">Custom Tile Server URL</label>
@@ -200,7 +212,7 @@
                           <li id="tileServerCreditsFieldBuildArea">
                               <label for="tileServerCreditsFieldBuildArea">Imagery Credits</label>
                               <input type="text" name="tileServerCreditsBuildArea" id="tileServerCreditsBuildArea" value="© 2019 Microsoft Corporation, Earthstar Geographics SIO">
-                              <span>Insert appropriate imagery credits. E.g. for Bing: "© 2019 Microsoft Corporation, Earthstar Geographics SIO"</span>
+                              <span>Insert appropriate imagery credits if you are using a custom tile server. For other tile server use the default credits.</span>
                           </li>
                           <li>
                               <input type="button" style="" id="submit" value="Submit" onClick="submitInfo()">
@@ -219,11 +231,15 @@
                               <label for="tileServerFootprint">Tile Server Name</label>
                               <select name="tileServerFootprint" id="tileServerFootprint" onchange="displayTileServer(this, 'Footprint', '')">
                                   <option value="bing">Bing</option>
-                                  <option value="digital_globe">Digital Globe</option>
+                                  <option value="mapbox">MapBox</option>
+                                  <option value="maxar_standard">Maxar Standard</option>
+                                  <option value="maxar_premium">Maxar Premium</option>
+                                  <option value="esri">Esri World Imagery</option>
+                                  <option value="esri_beta">Esri World Imagery (Clarity) Beta</option>
                                   <option value="sinergise">Sinergise</option>
                                   <option value="custom">Custom</option>
                               </select>
-                              <span>Select the tile server providing satellite imagery tiles for your project. Make sure you have permission. Google hasn't given permission yet and won't work until a proper API key is given.</span>
+                              <span>Select the tile server providing satellite imagery tiles for your project. Make sure you have permission.</span>
                           </li>
                           <li style="display:None" id="tileServerUrlFieldFootprint">
                               <label for="tileServerUrlFootprint">Custom Tile Server URL</label>
@@ -248,7 +264,7 @@
                           <li id="tileServerCreditsFieldFootprint">
                               <label for="tileServerCreditsFieldFootprint">Imagery Credits</label>
                               <input type="text" name="tileServerCreditsFootprint" id="tileServerCreditsFootprint" value="© 2019 Microsoft Corporation, Earthstar Geographics SIO">
-                              <span>Insert appropriate imagery credits. E.g. for Bing: "© 2019 Microsoft Corporation, Earthstar Geographics SIO"</span>
+                              <span>Insert appropriate imagery credits if you are using a custom tile server. For other tile server use the default credits.</span>
                           </li>
                           <li>
                               <input type="button" style="" id="submit" value="Submit" onClick="submitInfo()">
@@ -260,7 +276,7 @@
                           <ul>
                           <li>
                               <label for="zoomLevelChangeDetection">Zoom Level</label>
-                              <input type="number" name="zoomLevelChangeDetection" id="zoomLevelChangeDetection" value="18" min="16" max="24">
+                              <input type="number" name="zoomLevelChangeDetection" id="zoomLevelChangeDetection" value="18" min="16" max="22">
                               <span>We use the Tile Map Service zoom levels. Please check for your area which zoom level is available. For example, Bing imagery is available at zoomlevel 18 for most regions. If you use a custom tile server you may be able to use even higher zoom levels.</span>
                           </li>
                           <li>
@@ -277,11 +293,15 @@
                               <label for="tileServerChangeDetectionA">Tile Server Name</label>
                               <select name="tileServerChangeDetectionA" id="tileServerChangeDetectionA" onchange="displayTileServer(this, 'ChangeDetection', 'A')">
                                   <option value="bing">Bing</option>
-                                  <option value="digital_globe">Digital Globe</option>
+                                  <option value="mapbox">MapBox</option>
+                                  <option value="maxar_standard">Maxar Standard</option>
+                                  <option value="maxar_premium">Maxar Premium</option>
+                                  <option value="esri">Esri World Imagery</option>
+                                  <option value="esri_beta">Esri World Imagery (Clarity) Beta</option>
                                   <option value="sinergise">Sinergise</option>
                                   <option value="custom">Custom</option>
                               </select>
-                              <span>Select the tile server providing satellite imagery tiles for your project. Make sure you have permission. Google hasn't given permission yet and won't work until a proper API key is given.</span>
+                              <span>Select the tile server providing satellite imagery tiles for your project. Make sure you have permission.</span>
                           </li>
                           <li style="display:None" id="tileServerUrlFieldChangeDetectionA">
                               <label for="tileServerUrlChangeDetectionA">Custom Tile Server URL</label>
@@ -305,19 +325,23 @@
                           </li>
                           <li id="tileServerCreditsFieldChangeDetectionA">
                               <label for="tileServerCreditsFieldChangeDetectionA">Imagery Credits</label>
-                              <input type="text" name="tileServerCreditsChangeDetectionA" id="tileServerCreditsChangeDetectionA">
-                              <span>Insert appropriate imagery credits. E.g. for Bing: "© 2019 Microsoft Corporation, Earthstar Geographics SIO"</span>
+                              <input type="text" name="tileServerCreditsChangeDetectionA" id="tileServerCreditsChangeDetectionA" value="© 2019 Microsoft Corporation, Earthstar Geographics SIO">
+                              <span>Insert appropriate imagery credits if you are using a custom tile server. For other tile server use the default credits.</span>
                           </li>
                           <h4>Tile Server B</h4>
                           <li>
                               <label for="tileServerChangeDetectionB">Tile Server Name</label>
                               <select name="tileServerChangeDetectionB" id="tileServerChangeDetectionB" onchange="displayTileServer(this, 'ChangeDetection', 'B')">
                                   <option value="bing">Bing</option>
-                                  <option value="digital_globe">Digital Globe</option>
+                                  <option value="mapbox">MapBox</option>
+                                  <option value="maxar_standard">Maxar Standard</option>
+                                  <option value="maxar_premium">Maxar Premium</option>
+                                  <option value="esri">Esri World Imagery</option>
+                                  <option value="esri_beta">Esri World Imagery (Clarity) Beta</option>
                                   <option value="sinergise">Sinergise</option>
                                   <option value="custom">Custom</option>
                               </select>
-                              <span>Select the tile server providing satellite imagery tiles for your project. Make sure you have permission. Google hasn't given permission yet and won't work until a proper API key is given.</span>
+                              <span>Select the tile server providing satellite imagery tiles for your project. Make sure you have permission.</span>
                           </li>
                           <li style="display:None" id="tileServerUrlFieldChangeDetectionB">
                               <label for="tileServerUrlChangeDetectionB">Custom Tile Server URL</label>
@@ -341,8 +365,8 @@
                           </li>
                           <li id="tileServerCreditsFieldChangeDetectionB">
                               <label for="tileServerCreditsFieldChangeDetectionB">Imagery Credits</label>
-                              <input type="text" name="tileServerCreditsChangeDetectionB" id="tileServerCreditsChangeDetectionB">
-                              <span>Insert appropriate imagery credits. E.g. for Bing: "© 2019 Microsoft Corporation, Earthstar Geographics SIO"</span>
+                              <input type="text" name="tileServerCreditsChangeDetectionB" id="tileServerCreditsChangeDetectionB" value="© 2019 Microsoft Corporation, Earthstar Geographics SIO">
+                              <span>Insert appropriate imagery credits if you are using a custom tile server. For other tile server use the default credits.</span>
                           </li>
                           <li>
                               <input type="button" style="" id="submit" value="Submit" onClick="submitInfo()">

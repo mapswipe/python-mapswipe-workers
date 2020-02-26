@@ -30,6 +30,22 @@ function displayProjectTypeFormular(projectType) {
   }
 }
 
+function addTileServerCredits (tileServer, projectType, which) {
+    var credits = {
+        "bing": "© 2019 Microsoft Corporation, Earthstar Geographics SIO",
+        "maxar_premium": "© 2019 Maxar",
+        "maxar_standard": "© 2019 Maxar",
+        "esri": "© 2019 ESRI",
+        "esri_beta": "© 2019 ESRI",
+        "mapbox": "© 2019 MapBox",
+        "sinergise": "© 2019 Sinergise",
+        "custom": "Please add imagery credits here."
+    }
+
+    document.getElementById("tileServerCredits"+projectType+which).value = credits[tileServer]
+}
+
+
 function displayTileServer (t, projectType, which) {
     tileServer = t.value
     if (tileServer == "custom") {
@@ -42,6 +58,7 @@ function displayTileServer (t, projectType, which) {
         document.getElementById("tileServerUrlField"+projectType+which).style.display = "None";
         document.getElementById("tileServerLayerNameField"+projectType+which).style.display = "None";
     }
+    addTileServerCredits(tileServer, projectType, which)
 }
 
 function clear_all_fields() {
@@ -131,9 +148,9 @@ function openFile(event) {
               // check project size
 
               area = turf.area(feature)/1000000 // area in square kilometers
-              maxArea = (20 - zoomLevel) * (20 - zoomLevel) * 1250
+              maxArea = (23 - zoomLevel) * (23 - zoomLevel) * 200
               console.log('project size: ' + area + ' sqkm')
-              if (area > 5000) {
+              if (area > maxArea) {
                 throw 'project is to large: ' + area + ' sqkm; ' + 'max allowed size for this zoom level: ' + maxArea + ' sqkm'
               }
               info_output.innerHTML += 'Project Size: ' + area + ' sqkm<br>';
