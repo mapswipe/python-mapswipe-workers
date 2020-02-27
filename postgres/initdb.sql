@@ -103,6 +103,6 @@ CREATE TABLE IF NOT EXISTS results_temp (
     "timestamp" timestamp,
     start_time timestamp,
     end_time timestamp,
-    result int,
+    result int
 );
 
