@@ -58,6 +58,6 @@ def create_test_project_draft(project_type: str) -> list:
 
     fb_db = auth.firebaseDB()
     ref = fb_db.reference(f"/v2/projectDrafts/")
-    project_id = ref.push(project_draft)
+    project_id = ref.push(project_draft).key
 
     return project_id
