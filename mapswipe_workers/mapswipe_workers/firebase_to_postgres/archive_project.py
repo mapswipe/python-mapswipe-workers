@@ -28,11 +28,11 @@ def archive_project(project_ids: list) -> None:
 
         fb_db = auth.firebaseDB()
         ref = fb_db.reference("v2/projects/{0}/status".format(project_id))
-        ref.set({"archived"})
+        ref.set("archived")
 
         pg_db = auth.postgresDB()
         sql_query = (
             "UPDATE projects SET status = 'archived' "
-            + "WHERE project_id = {0}".format(project_id)
+            + "WHERE project_id = '{0}'".format(project_id)
         )
         pg_db.query(sql_query)
