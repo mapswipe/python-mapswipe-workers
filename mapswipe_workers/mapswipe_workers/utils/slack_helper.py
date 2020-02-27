@@ -1,17 +1,25 @@
 """Initialize slack client with values provided by the config file"""
 
 import json
+
 import slack
 
-from mapswipe_workers.definitions import CONFIG_PATH
+from mapswipe_workers.definitions import CONFIG_PATH, logger
 
 
 def send_slack_message(message_type: str, project_name: str, project_id: str = None):
 
     with open(CONFIG_PATH) as config_file:
         config = json.load(config_file)
+    try:
         slack_channel = config["slack"]["channel"]
-        slack_client = slack.WebClient(token=config["slack"]["token"])
+    except KeyError:
+        logger.info(
+            "No configuration for Slack was found. "
+            + "No '{0}' Slack message was sent.".format(message_type)
+        )
+        return None
+    slack_client = slack.WebClient(token=config["slack"]["token"])
 
     if message_type == "success":
         message = (
