@@ -60,7 +60,7 @@ class postgresDB(object):
         self._db_connection.commit()
         self._db_cur.close()
 
-    def copy_from(self, f, table, columns):
+    def copy_from(self, f, table, columns=None):
         self._db_cur = self._db_connection.cursor()
         self._db_cur.copy_from(f, table, columns=columns)
         self._db_connection.commit()
