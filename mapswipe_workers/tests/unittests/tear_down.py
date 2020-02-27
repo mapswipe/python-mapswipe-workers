@@ -21,13 +21,13 @@ def delete_test_project(project_id: str) -> None:
     ref.set({})
 
     pg_db = auth.postgresDB()
-    sql_query = "DELETE FROM results WHERE project_id = {0}".format(project_id)
+    sql_query = "DELETE FROM results WHERE project_id = '{0}'".format(project_id)
     pg_db.query(sql_query)
-    sql_query = "DELETE FROM tasks WHERE project_id = {0}".format(project_id)
+    sql_query = "DELETE FROM tasks WHERE project_id = '{0}'".format(project_id)
     pg_db.query(sql_query)
-    sql_query = "DELETE FROM groups WHERE project_id = {0}".format(project_id)
+    sql_query = "DELETE FROM groups WHERE project_id = '{0}'".format(project_id)
     pg_db.query(sql_query)
-    sql_query = "DELETE FROM projects WHERE project_id = {0}".format(project_id)
+    sql_query = "DELETE FROM projects WHERE project_id = '{0}'".format(project_id)
     pg_db.query(sql_query)
 
 
@@ -39,5 +39,5 @@ def delete_test_user(user_id: str) -> None:
     ref.set({})
 
     pg_db = auth.postgresDB()
-    sql_query = "DELETE FROM users WHERE user_id = {0}".format(user_id)
+    sql_query = "DELETE FROM users WHERE user_id = '{0}'".format(user_id)
     pg_db.query(sql_query)
