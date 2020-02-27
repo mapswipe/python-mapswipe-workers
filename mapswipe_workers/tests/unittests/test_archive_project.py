@@ -11,7 +11,7 @@ class TestArchiveProject(unittest.TestCase):
         self.project_id = set_up.create_test_project("build_area")
 
     def tearDown(self):
-        tear_down.delete_test_data(self.project_id)
+        tear_down.delete_test_project(self.project_id)
 
     def test_firebase_changes(self):
         """Test if groups, tasks and results are deleted from Firebase."""
