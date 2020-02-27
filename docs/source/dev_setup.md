@@ -58,7 +58,7 @@ Setup a local Postgres instance for MapSwipe Workers using the provided Dockerfi
 
 ```bash
 cd postgres/`
-docker build -t mapswipe_postgres .
+docker build -t mapswipe_postgres Dockerfile-dev
 docker run -d -p 5432:5432 --name mapswipe_postgres -e POSTGRES_DB=mapswipe -e POSTGRES_USER=mapswipe_workers -e POSTGRES_PASSWORD=your_password mapswipe_postgres
 ```
 
