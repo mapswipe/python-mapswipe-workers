@@ -6,8 +6,9 @@ import os
 from mapswipe_workers import auth
 
 
-def load_firebase_test_data(data_type: str, project_type: str = "") -> dict:
-    """Load test data of given data type and project type from data directory."""
+def set_firebase_test_data(
+    data_type: str, project_id: str, project_type: str = "",
+) -> dict:
     test_dir = os.path.dirname(__file__)
     data_dir = os.path.join(test_dir, "data", project_type)
     file_name = data_type + ".json"
@@ -15,7 +16,8 @@ def load_firebase_test_data(data_type: str, project_type: str = "") -> dict:
 
     with open(file_path) as test_file:
         test_data = json.load(test_file)
-    return test_data
+    ref = fb_db.reference("/v2/{0}/{1}".format(data_type, project_id))
+    ref.set(test_data)
 
 
 def set_postgres_test_data(data_type: str, project_type: str = "") -> None:
@@ -30,23 +32,21 @@ def set_postgres_test_data(data_type: str, project_type: str = "") -> None:
 
 
 def create_test_project(project_type: str) -> str:
-    """Create a test data in Firebase and Posgres and return the project id."""
+    """Create a test data in Firebase and Posgres."""
     project = load_firebase_test_data("projects", project_type)
     project_id = project["projectId"]
 
     fb_db = auth.firebaseDB()
 
     for data_type in ("projects", "groups", "tasks"):
-        data = load_firebase_test_data(data_type, project_type)
-        ref = fb_db.reference("/v2/{0}/{1}".format(data_type, project_id))
-        ref.set(data)
+        set_firebase_test_data(data_type, project_id, project_type)
         set_postgres_test_data(data_type, project_type)
 
     return project_id
 
 
 def create_test_user() -> str:
-    user = load_firebase_test_data("user")
+    user = load_firebase_test_data("users")
 
     fb_db = auth.firebaseDB()
     ref = fb_db.reference("/v2/users/")
@@ -56,7 +56,10 @@ def create_test_user() -> str:
 
 
 def create_test_project_draft(project_type: str) -> list:
-    """Create test project drafts in Firebase and return project ids."""
+    """
+    Create test project drafts in Firebase and return project ids.
+    Project drafts in Firebase are create by project manager using the dashboard.
+    """
     project_draft = load_firebase_test_data("project_draft", project_type)
 
     fb_db = auth.firebaseDB()
