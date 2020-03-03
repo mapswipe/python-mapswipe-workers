@@ -13,13 +13,14 @@ def send_slack_message(message_type: str, project_name: str, project_id: str = N
         config = json.load(config_file)
     try:
         slack_channel = config["slack"]["channel"]
+        slack_token = config["slack"]["token"]
     except KeyError:
         logger.info(
             "No configuration for Slack was found. "
             + "No '{0}' Slack message was sent.".format(message_type)
         )
         return None
-    slack_client = slack.WebClient(token=config["slack"]["token"])
+    slack_client = slack.WebClient(token=slack_token)
 
     if message_type == "success":
         message = (
