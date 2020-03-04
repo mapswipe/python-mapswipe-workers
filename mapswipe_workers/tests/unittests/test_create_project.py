@@ -22,14 +22,12 @@ class TestCreateProject(unittest.TestCase):
             self.project_id
         )
         result = pg_db.retr_query(query)
-        # TODO: Make comparision
-        print(result)
+        self.assertIsNone(result)
 
         fb_db = auth.firebaseDB()
         ref = fb_db.reference("/v2/projects/{0}".format(self.project_id))
         result = ref.get()
-        # TODO: Make comparision
-        print(result)
+        self.assertIsNone(result)
 
 
 if __name__ == "__main__":
