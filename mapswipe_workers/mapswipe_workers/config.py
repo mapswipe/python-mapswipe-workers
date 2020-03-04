@@ -14,6 +14,7 @@ POSTGRES_USER = os.getenv("POSTGRES_USER", default="mapswipe_workers")
 FIREBASE_DB = os.getenv("FIREBASE_DB", default="mapswipe")
 
 IMAGE_BING_API_KEY = os.getenv("IMAGE_BING_API_KEY")
+IMAGE_DIGITAL_GLOBE_API_KEY = os.getenv("IMAGE_DIGITAL_GLOBE_API_KEY")
 IMAGE_ESRI = os.getenv("IMAGE_ESRI")
 IMAGE_ESRI_BETA = os.getenv("IMAGE_ESRI_BETA")
 IMAGE_MAPBOX_API_KEY = os.getenv("IMAGE_MAPBOX_API_KEY")
