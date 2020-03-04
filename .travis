@@ -39,4 +39,4 @@ before_script:
 
 script:
   - python -m unittest mapswipe_workers/tests/unittests/test_archive_projects.py
-  - ssh -i $KEY_FILE -o StrictHostKeyChecking=no "mapswipe@$DEPLOYMENT_SERVER_IP"
+  # - ssh -i $KEY_FILE -o StrictHostKeyChecking=no "mapswipe@$DEPLOYMENT_SERVER_IP"
