@@ -1,6 +1,6 @@
 # Development Setup
 
-In this document some tips and workflows for development are loosely collected. Those are independend of the production setup using Docker. A working Firebase Project (including Firebase Functions and Database Rules) is presupposed.
+In this document some tips and workflows for development are loosely collected. Those are independent of the production setup using Docker. A working Firebase Project (Including Firebase Functions and Database Rules) is presupposed. Get in touch to get access to an existing Firebase Project for development purposes.
 
 
 ## Installation
@@ -21,26 +21,28 @@ git checkout dev
 
 ### Configuration
 
-MapSwipe Workers looks for configuration in `~/.config/mapswipe_workers`. (XDG Base Directory Specification is respected):
+All configurations values are stored in environment variables.
 
-Create the configuration directory:
-`mkdir --parents ~/.config/mapswipe_workers`
+Please refer to the documentation on [Configuration](configuration.md) for further details.
 
-MapSwipe Workers expects three files in the configuration directory:
-- `configuration.json`
-- `serviceAccountKey.json`
-- `logging.cfg`
 
-Please refer to the [configuration](configuration.md) and [setup](setup.md) documentation for further details.
+### Keys
 
-In addition the data directory for MapSwipe Workers needs to be created:
-`mkdir --parents ~/.local/share/mapswipe_workers`
+To gain access to Firebase MapSwipe workers needs a Service Account Key (`serviceAccountKey.json`). Create on in Firebase and store it where ever you want. Make sure to store the path to the key in the `GOOGLE_APPLICATION_CREDENTIALS` environment variable.
+
+
+### Directories
+
+MapSwipe Workers needs access to a directory for data and logs.
+To create the directory run `mkdir --parents ~/.local/share/mapswipe_workers`.
+
+> Note: XDG Base Directory Specification is respected
 
 
 ### Install MapSwipe Workers Python Package
 
 1. Create a Python virtual environment with `system-site-packages` option enabled to get access to GDAL/OGR Python packages
-2. Activate the vitrual environment.
+2. Activate the virtual environment.
 3. Install MapSwipe Workers using pip.
 4. Run it.
 
@@ -54,7 +56,7 @@ mapswipe_workers --help
 
 ## Postgres
 
-Setup a local Postgres instance for MapSwipe Workers using the provided Dockerfile.
+Setup a local Postgres instance for MapSwipe Workers using the for development purposes provided Dockerfile.
 
 ```bash
 cd postgres/`
@@ -102,9 +104,9 @@ Firebase functions are used by Mapswipe Workers to increment/decrement or calcul
 - user.timeSpentMapping
 - user.contibutions{.projectId.groupId.{timestamp, startTime, endTime}}
 
-The functions will be triggert by incoming results from the Mapswipe App.
+Those functions will be directly or indirectly triggered by incoming results from the MapSwipe App.
 
-By using firebase functions those attributes can be calculated in real-time and be accessed by users immediately. The use of those functions also reduces the data-transfer between the Firebase Realtime Database and Mapswipe Workers.
+By using Firebase functions those attributes can be calculated in real-time and be accessed by users immediately. The use of those functions also reduces the data-transfer between the Firebase Realtime Database and Mapswipe Workers.
 
 On how to setup development enviroment and how to deploy functions to the Firebase instance please refer to the official [Guide on Cloud Function for Firebase](https://firebase.google.com/docs/functions/get-started).
 For more information refer to the official [Reference on Cloud Function for Firebase](https://firebase.google.com/docs/reference/functions/). For example function take a look at this [GitHub repository](https://github.com/firebase/functions-samples).

@@ -1,15 +1,15 @@
 # Installation
 
-This document describes how to setup all the parts of the MapSwipe back-end for the first time.
+This document describes how to setup all the parts of the MapSwipe back-end production.
 
-Please take also a look at our [Configuration Reference](https://mapswipe-workers.readthedocs.io/en/dev/configuration.html) which is a summary of all configurations and keys needed for deployment.
+Please take also a look at our [Configuration Reference](configuration.md) which is a summary of all configurations and keys needed for deployment.
 
 1. Firebase
 2. Postgres
 3. MapSwipe Workers
 4. API
 5. Manager Dashboard
-6. Lets Encrypt and NEGIX as proxy
+6. Lets Encrypt and NGINX as proxy
 
 For all those setups our main repository is required:
 
