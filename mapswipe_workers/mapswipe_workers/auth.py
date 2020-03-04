@@ -1,22 +1,30 @@
 import firebase_admin
 import psycopg2
 from firebase_admin import credentials, db
-
-from mapswipe_workers.definitions import CONFIG, SERVICE_ACCOUNT_KEY_PATH
+from mapswipe_workers.config import (
+    FIREBASE_DB,
+    POSTGRES_HOST,
+    POSTGRES_PORT,
+    POSTGRES_DB,
+    POSTGRES_PASSWORD,
+    POSTGRES_USER,
+    SERVICE_ACCOUNT_KEY_PATH,
+)
+from mapswipe_workers.definitions import IMAGE_URL
 
 
 def get_api_key(tileserver: str) -> str:
     if tileserver == "custom":
         return None
     else:
-        return CONFIG["imagery"][tileserver]["api_key"]
+        return IMAGE_URL[tileserver]
 
 
 def get_tileserver_url(tileserver: str) -> str:
     if tileserver == "custom":
         return None
     else:
-        return CONFIG["imagery"][tileserver]["url"]
+        return IMAGE_URL[tileserver]
 
 
 def firebaseDB() -> object:
@@ -27,12 +35,9 @@ def firebaseDB() -> object:
         return db
     except ValueError:
         cred = credentials.Certificate(SERVICE_ACCOUNT_KEY_PATH)
-        databaseName = CONFIG["firebase"]["database_name"]
-        databaseURL = f"https://{databaseName}.firebaseio.com"
-
+        databaseURL = f"https://{FIREBASE_DB}.firebaseio.com"
         # Initialize the app with a service account, granting admin privileges
         firebase_admin.initialize_app(cred, {"databaseURL": databaseURL})
-
         # Return the imported Firebase Realtime Database module
         return db
 
@@ -44,14 +49,12 @@ class postgresDB(object):
     _db_cur = None
 
     def __init__(self):
-        host = CONFIG["postgres"]["host"]
-        port = CONFIG["postgres"]["port"]
-        dbname = CONFIG["postgres"]["database"]
-        user = CONFIG["postgres"]["username"]
-        password = CONFIG["postgres"]["password"]
-
         self._db_connection = psycopg2.connect(
-            database=dbname, user=user, password=password, host=host, port=port,
+            database=POSTGRES_DB,
+            host=POSTGRES_HOST,
+            password=POSTGRES_PASSWORD,
+            port=POSTGRES_PORT,
+            user=POSTGRES_USER,
         )
 
     def query(self, query, data=None):
