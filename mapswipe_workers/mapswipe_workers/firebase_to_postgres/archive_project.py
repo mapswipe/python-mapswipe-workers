@@ -15,24 +15,50 @@ def archive_project(project_ids: list) -> None:
     """
     for project_id in project_ids:
         logger.info("Archive project with the id {0}".format(project_id))
-        logger.info(
-            "Delete results, groups and tasks of project with the id {0}".format(
-                project_id
-            )
-        )
+        logger.info("Delete results of project with the id {0}".format(project_id))
 
         fb_db = auth.firebaseDB()
         fb_db.reference("v2/results/{0}".format(project_id)).set({})
-        fb_db.reference("v2/groups/{0}".format(project_id)).set({})
-        fb_db.reference("v2/tasks/{0}".format(project_id)).set({})
 
+        # get group keys for this project to estimate size in firebase
+        group_keys = list(
+            fb_db.reference("v2/tasks/{0}/".format(project_id)).get(shallow=True).keys()
+        )
+        chunk_size = 250
+        chunks = int(len(group_keys) / chunk_size) + 1
+
+        # delete groups and tasks in firebase for each chunk using the update function
+        for i in range(1, chunks):
+            logger.info(
+                "Delete max {1} groups and tasks of project with the id {0}".format(
+                    project_id, chunk_size
+                )
+            )
+            update_dict = {}
+            for group_id in group_keys[:250]:
+                update_dict[group_id] = None
+            fb_db.reference("v2/groups/{0}".format(project_id)).update(update_dict)
+            fb_db.reference("v2/tasks/{0}".format(project_id)).update(update_dict)
+
+        logger.info(
+            "Set status=archived in Firebase for project with the id {0}".format(
+                project_id
+            )
+        )
         fb_db = auth.firebaseDB()
         ref = fb_db.reference("v2/projects/{0}/status".format(project_id))
         ref.set("archived")
 
+        logger.info(
+            "Set status=archived in Postgres for project with the id {0}".format(
+                project_id
+            )
+        )
         pg_db = auth.postgresDB()
-        sql_query = (
-            "UPDATE projects SET status = 'archived' "
-            + "WHERE project_id = '{0}'".format(project_id)
+        sql_query = """
+            UPDATE projects SET status = 'archived'
+            WHERE project_id = '{0}';
+        """.format(
+            project_id
         )
         pg_db.query(sql_query)
