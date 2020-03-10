@@ -4,22 +4,54 @@
 # For technical details, see http://travis-ci.org/
 
 language: python
-python:
-  - "3.5"
-  - "3.6"
-  - "3.7"
-  - "3.8"
-virtualenv:
-  system_site_packages: true
+
+env:
+  global:
+    - PIP_WHEEL_DIR=$HOME/.cache/pip/wheels
+    - PIP_FIND_LINKS=file://$HOME/.cache/pip/wheels
+    - GDALINST=$HOME/gdalinstall
+    - GDALBUILD=$HOME/gdalbuild
+    - PROJINST=$HOME/gdalinstall
+    - PROJBUILD=$HOME/projbuild
+
+jobs:
+  include:
+    - python: "3.6"
+      env:
+        GDALVERSION="3.0.4"
+        PROJVERSION="6.2.1"
+
+addons:
+  apt:
+    packages:
+    - libhdf5-serial-dev
+    - libgdal-dev
+    - libatlas-dev
+    - libatlas-base-dev
+    - gfortran
 
 before_install:
- - pip install --upgrade pip setuptools
- - pip install flake8 black
+  - pip install --upgrade pip setuptools
+  - pip install flake8 black
+  - python -m pip install -U pip
+  - python -m pip install wheel
+  - export PATH=$GDALINST/gdal-$GDALVERSION/bin:$PATH
+  - export LD_LIBRARY_PATH=$GDALINST/gdal-$GDALVERSION/lib:$LD_LIBRARY_PATH
+  - . travis_proj_install.sh
+  - travis_wait 20 . travis_gdal_install.sh
+  - export GDAL_DATA=$GDALINST/gdal-$GDALVERSION/share/gdal
+  - export PROJ_LIB=$GDALINST/gdal-$GDALVERSION/share/proj
+
+#before_install:
+ #- pip install --upgrade pip setuptools
+ #- pip install flake8 black
  # - flake8 --config=mapswipe_workers/setup.cfg mapswipe_workers/mapswipe_workers/*.py
  # - black --check mapswipe_workers/mapswipe_workers/*.py
 
 install:
+ - "if [ \"$GDALVERSION\" == \"master\" -o $(gdal-config --version) == \"$GDALVERSION\" ]; then echo \"Using gdal $GDALVERSION\"; else echo \"NOT using gdal $GDALVERSION as expected; aborting\"; exit 1; fi"
  - pip install mapswipe_workers/
+ - "GDAL_CONFIG=$GDALINST/gdal-$GDALVERSION/bin/gdal-config python -m pip install --upgrade --force-reinstall --no-use-pep517 -e .[test,plot]"
  - docker build -t mapswipe_postgres postgres/
 
 before_script:
@@ -39,6 +71,12 @@ before_script:
   - chmod 644 ~/.ssh/known_hosts
 
 script:
+  - python travid_test_gdal.py
   - python -m unittest mapswipe_workers/tests/unittests/test_archive_projects.py
   # TODO: move this to deployment section
   # - ssh -i $KEY_FILE -o StrictHostKeyChecking=no "mapswipe@$DEPLOYMENT_SERVER_IP"
+
+cache:
+  directories:
+    - $GDALINST
+    - ~/.cache/pip
