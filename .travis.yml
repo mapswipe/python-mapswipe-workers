@@ -21,14 +21,15 @@ jobs:
         GDALVERSION="3.0.4"
         PROJVERSION="6.2.1"
 
-addons:
-  apt:
-    packages:
-    - libhdf5-serial-dev
-    - libgdal-dev
-    - libatlas-dev
-    - libatlas-base-dev
-    - gfortran
+# TODO: enable this again at later stage
+#addons:
+#  apt:
+#    packages:
+#    - libhdf5-serial-dev
+#    - libgdal-dev
+#    - libatlas-dev
+#    - libatlas-base-dev
+#    - gfortran
 
 before_install:
   - mkdir -p ~/.config/mapswipe_workers
@@ -55,7 +56,7 @@ install:
 
 
 before_script:
-  - docker run -d -p 5432:5432 --name mapswipe_postgres -e POSTGRES_DB="$POSTGRES_DB" -e POSTGRES_USER="$POSTGRES_USER" -e POSTGRES_PASSWORD="$POSTGRES_PASSWORD"
+  - docker run -d -p 5432:5432 --name mapswipe_postgres -e POSTGRES_DB="$POSTGRES_DB" -e POSTGRES_USER="$POSTGRES_USER" -e POSTGRES_PASSWORD="$POSTGRES_PASSWORD" mapswipe_postgres
   # setup ssh so we can connect to the server from CI runner
   # TODO: let's move this into a separate script
   #- apk add openssh-client
