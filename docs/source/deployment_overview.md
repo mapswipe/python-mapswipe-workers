@@ -13,6 +13,6 @@ MapSwipe utilizes a bunch of Google Cloud services:
     - Create a database: `> Develop > Database > Create Database`
 - [Google Cloud Storage](https://cloud.google.com/storage/) for backup of Postgres
 
-[Configuration and Credentials]() describes all needed configuration and credentials.
+[Configuration](configuration.md) describes all needed configuration and credentials.
 
-[Installation]() describes step-by-step how to setup the backend for the first time.
+[Installation](installation.md) describes step-by-step how to setup the backend for the first time.
