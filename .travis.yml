@@ -50,8 +50,7 @@ before_install:
 
 install:
  - "if [ \"$GDALVERSION\" == \"master\" -o $(gdal-config --version) == \"$GDALVERSION\" ]; then echo \"Using gdal $GDALVERSION\"; else echo \"NOT using gdal $GDALVERSION as expected; aborting\"; exit 1; fi"
- - pip install mapswipe_workers/
- - "GDAL_CONFIG=$GDALINST/gdal-$GDALVERSION/bin/gdal-config python -m pip install --upgrade --force-reinstall --no-use-pep517 -e .[test,plot]"
+ - "GDAL_CONFIG=$GDALINST/gdal-$GDALVERSION/bin/gdal-config python -m pip install mapswipe_workers/ --upgrade --force-reinstall --no-use-pep517 -e .[test,plot]"
  - docker build -t mapswipe_postgres postgres/
 
 before_script:
@@ -59,6 +58,7 @@ before_script:
   - echo "$serviceAccountKey" > ~/.config/mapswipe_workers/serviceAccountKey.json
   - docker run -d -p 5432:5432 --name mapswipe_postgres -e POSTGRES_DB="$POSTGRES_DB" -e POSTGRES_USER="$POSTGRES_USER" -e POSTGRES_PASSWORD="$POSTGRES_PASSWORD"
   # setup ssh so we can connect to the server from CI runner
+  # TODO: let's move this into a separate script
   - apk add openssh-client
   - mkdir -p ~/.ssh
   - chmod 700 ~/.ssh
