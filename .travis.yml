@@ -22,14 +22,14 @@ jobs:
         PROJVERSION="6.2.1"
 
 # TODO: enable this again at later stage
-#addons:
-#  apt:
-#    packages:
-#    - libhdf5-serial-dev
-#    - libgdal-dev
-#    - libatlas-dev
-#    - libatlas-base-dev
-#    - gfortran
+addons:
+  apt:
+    packages:
+    - libhdf5-serial-dev
+    - libgdal-dev
+    - libatlas-dev
+    - libatlas-base-dev
+    - gfortran
 
 before_install:
   - mkdir -p ~/.config/mapswipe_workers
