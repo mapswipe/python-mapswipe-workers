@@ -20,7 +20,7 @@ Required environment variables are:
 - POSTGRES_PORT
 - POSTGRES_USER
 
-Mandatory environment variables are:
+Optional environment variables are:
 - SLACK_CHANNEL
 - SLACK_TOKEN
 - SENTRY_DSN

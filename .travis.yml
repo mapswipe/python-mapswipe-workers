@@ -38,10 +38,9 @@ before_install:
   - python -m pip install -U pip setuptools
   - python -m pip install wheel
   - python -m pip install flake8 black
-  # TODO: enable this again at later stage
+  # TODO: uncomment the lines below once code base is clean
   #- flake8 --config=mapswipe_workers/setup.cfg mapswipe_workers/mapswipe_workers/*.py
   #- black --check mapswipe_workers/mapswipe_workers/*.py
-  # TODO: enable this again at later stage
   - export PATH=$GDALINST/gdal-$GDALVERSION/bin:$PATH
   - export LD_LIBRARY_PATH=$GDALINST/gdal-$GDALVERSION/lib:$LD_LIBRARY_PATH
   - . travis_proj_install.sh
@@ -51,8 +50,6 @@ before_install:
 
 install:
   - docker build -t mapswipe_postgres -f ./postgres/Dockerfile-dev ./postgres
-  # TODO: remove the line below once gdal setup works
-  # - python -m pip install --upgrade --force-reinstall --no-use-pep517 -e mapswipe_workers/
   - if [ "$GDALVERSION" = "master" ]; then echo "Using gdal master"; elif [ $(gdal-config --version) == $(sed 's/[a-zA-Z].*//g' <<< $GDALVERSION) ]; then echo "Using gdal $GDALVERSION"; else echo "NOT using gdal $GDALVERSION as expected; aborting"; exit 1; fi
   - "GDAL_CONFIG=$GDALINST/gdal-$GDALVERSION/bin/gdal-config python -m pip install --upgrade --force-reinstall --no-use-pep517 -e mapswipe_workers/"
 
@@ -62,8 +59,8 @@ before_script:
   - sleep 10
 
 script:
-  - python -m unittest -v tests.integration_tests.test_archive_project
-  - python travis_test_gdal.py
+  - python -m unittest discover -v -s mapswipe_workers/tests/integration_tests/ -p 'test_*.py'
+
 
 cache:
   directories:
