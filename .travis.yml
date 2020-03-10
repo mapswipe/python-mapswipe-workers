@@ -59,18 +59,8 @@ install:
 
 before_script:
   - docker run -d -p 5432:5432 --name mapswipe_postgres -e POSTGRES_DB="$POSTGRES_DB" -e POSTGRES_USER="$POSTGRES_USER" -e POSTGRES_PASSWORD="$POSTGRES_PASSWORD" mapswipe_postgres
-  # setup ssh so we can connect to the server from CI runner
-  # TODO: let's move this into a separate script
-  #- apk add openssh-client
-  #- mkdir -p ~/.ssh
-  #- chmod 700 ~/.ssh
-  #- eval "$(ssh-agent -s)"
-  #- export KEY_FILE=~/.ssh/api_server_ssh_key
-  #- echo "$DEPLOYMENT_SERVER_PRIVATE_KEY" | tr -d '\r' > $KEY_FILE
-  #- chmod 600 $KEY_FILE
-  #- ssh-add $KEY_FILE > /dev/null
-  #- ssh-keyscan -H "$DEPLOYMENT_SERVER_IP" >> ~/.ssh/known_hosts
-  #- chmod 644 ~/.ssh/known_hosts
+  - docker ps -a
+  - sleep 10
 
 script:
   - python -m unittest -v tests.integration_tests.test_archive_project
