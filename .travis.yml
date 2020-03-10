@@ -32,7 +32,7 @@ addons:
 
 before_install:
   - mkdir -p ~/.config/mapswipe_workers
-  - echo "$serviceAccountKey" > ~/.config/mapswipe_workers/serviceAccountKey.json
+  - echo "$SERVICE_ACCOUNT_KEY" > ~/.config/mapswipe_workers/serviceAccountKey.json
   - python -m pip install -U pip setuptools
   - python -m pip install wheel
   - python -m pip install flake8 black
