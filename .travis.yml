@@ -34,12 +34,12 @@ before_install:
   - python -m pip install -U pip setuptools
   - python -m pip install wheel
   - python -m pip install flake8 black
-  - flake8 --config=mapswipe_workers/setup.cfg mapswipe_workers/mapswipe_workers/*.py
-  - black --check mapswipe_workers/mapswipe_workers/*.py
+  #- flake8 --config=mapswipe_workers/setup.cfg mapswipe_workers/mapswipe_workers/*.py
+  #- black --check mapswipe_workers/mapswipe_workers/*.py
   - export PATH=$GDALINST/gdal-$GDALVERSION/bin:$PATH
   - export LD_LIBRARY_PATH=$GDALINST/gdal-$GDALVERSION/lib:$LD_LIBRARY_PATH
   - . travis_proj_install.sh
-  - travis_wait 20 . travis_gdal_install.sh
+  - . travis_gdal_install.sh
   - export GDAL_DATA=$GDALINST/gdal-$GDALVERSION/share/gdal
   - export PROJ_LIB=$GDALINST/gdal-$GDALVERSION/share/proj
 
