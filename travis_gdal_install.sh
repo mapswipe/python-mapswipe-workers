@@ -39,7 +39,7 @@ GDALOPTS="  --with-geos \
             --without-idb \
             --without-sde \
             --without-perl \
-            --without-python"
+            --with-python"
 
 # Create build dir if not exists
 if [ ! -d "$GDALBUILD" ]; then
