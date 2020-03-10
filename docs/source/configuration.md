@@ -1,145 +1,78 @@
-<!--
-
-Then set up a Service Account Key file:
-1. Open [Google Cloud Service Accounts](https://console.cloud.google.com/iam-admin/serviceaccounts)
-2. Create a new Service Account Key file:
-    * set name (e.g. *dev-mapswipe-workers*)
-    * add roles, (e.g. `Storage Admin` and `Firebase Admin`) or use pre-defined role instead (e.g. `Custom Firebase Developer`)
-3. Download Key as file:
-    * select `.json` and save
-
-
-
-
-
-## Firebase
-
-Firebase is a central part of MapSwipe. In our setup we use *Firebase Database*, *Firebase Database Rules* and *Firebase Functions*. In the documentation we will refer to two elements:
-1. `your_project_id`: This is the name of your Firebase project (e.g. *dev-mapswipe*)
-2. `your_database_name`: This is the name of your Firebase database. It is very likely that this will be the same as your Firebase project name as well.)
-
-The `mapswipe_workers` module uses the [Firebase Python SDK](https://firebase.google.com/docs/reference/admin/python) to access *Firebase Database* services as administrator, you must generate a Service Account Key file in JSON format. For this we use the previously generated Service Account Key. (Check the *Google APIs and Services Credentials* section again if you don't have it.) Copy the file to `mapswipe_workers/config/serviceAccountKey.json`.
-
-The `mapswipe_workers` module further uses the [Firebase Database REST API](https://firebase.google.com/docs/reference/rest/database) to access *Firebase Database* either as a normal user or project manager.
-
-For both things to work you need to add your `database_name` in the configuration file. For the the REST API add also the previously generated *mapswipe_workers* api key. (Check the *Google APIs & Services Credentials* section again if you don't have it.) The firebase section in `mapswipe_workers/config/configuration.json` should look like this now:
-
-```json
-"firebase": {
-  "database_name": "your_database_name",
-  "api_key": "mapswipe_workers_api_key"
-}
-```
-
-The `manager_dashboard` module uses the [Firebase JavaScript client SDK](https://firebase.google.com/docs/database/web/start) to access *Firebase Database* service as authenticated as MapSwipe user with project manager credentials. Add the previously generated *manager-dashboard* api key. (Check the *Google APIs & Services Credentials* section again if you don't have it.) Project-id refers to the name of your Firebase project (e.g. dev-mapswipe). The firebaseConfig in `mapswipe_dashboard/js/app.js` should look like this now:
-
-```javascript
-var firebaseConfig = {
-    apiKey: "manager_dashboard_api_key",
-    authDomain: "your_project_id.firebaseapp.com",
-    databaseURL: "https://your_project_id.firebaseio.com",
-    storageBucket: "your_project_id.appspot.com"
-  };
-```
-
-The `firebase` module uses the [Firebase Command Line Interface (CLI) Tools](https://github.com/firebase/firebase-tools) to access *Firebase Database Rules* and *Firebase Functions*. You need a firebase token. Here's how you generate it:
-1. On a PC with a browser install the Firebase Command Line Tools ([https://firebase.google.com/docs/cli/](https://firebase.google.com/docs/cli/#install_the_firebase_cli))
-2. Run `firebase login:ci` to generate a Firebase Token.
-3. Save the Firebase Token to `.env` at the root of the cloned MapSwipe Backend repository: `echo "FIREBASE_TOKEN=your_token" >> .env`
-4. You should have an entry for the firebase token in your `.env` now:
-
-```bash
-FIREBASE_TOKEN="your_token"
-```
-
--->
-
 # Configuration Reference
 
-This document provides details on all required configuration files:
+Most of the configuration is stored in environment variables.
+At the root of the GitHub repository an example file (`example.env`) with all possible configuration variables exists. To get started copy this file to `.env` and fill in missing variables. Once done source this file to make variables accessible as environment variables: `source .env` to either be used by docker-compose during deployment setup or by MapSwipe Workers directly.
 
-- `.env file`
-    * postgres password
-    * firebase token
-    * wal-g google storage prefix
-- `mapswipe_workers/config/configuration.json`
-    * firebase: api-key, databaseName
-    * postgres: host, port, database, username, password
-    * imagery: urls, api keys
-    * slack: token, username, channel
-    * sentry: dsn value
-- `mapswipe_workers/config/serviceAccountKey.json`
-    * check if file exists
-- `manager_dashboard/manager_dashboard/js/app.js`
-    * firebase: authDomain, apiKey, databaseUrl, storageBucket
-- `nginx/nginx.conf`
-    * server name
-    * ssl certificates, ssl certificates key
-
-You can run the script `test_config.py` to check if you set all the needed variables and file. The script will test the following files:
+In following chapters configuration values and keys are discussed for each part of the MapSwipe Back-end.
 
 
-## .env
+## MapSwipe Workers
 
-The environment file (`.env`) contains all variables needed by services running in Docker container.
+All configuration values for MapSwipe Workers are stored in environment variables.
 
-```.env
-POSTGRES_PASSWORD=password
+Required environment variables are:
+- FIREBASE_API_KEY
+- FIREBASE_DB
+- GOOGLE_APPLICATION_CREDENTIALS
+- POSTGRES_DB
+- POSTGRES_HOST
+- POSTGRES_PASSWORD
+- POSTGRES_PORT
+- POSTGRES_USER
 
-# Google Cloud Storage path for backups of Postgres
-WALG_GS_PREFIX=gs://x4m-test-bucket/walg-folder
+Mandatory environment variables are:
+- SLACK_CHANNEL
+- SLACK_TOKEN
+- SENTRY_DSN
 
-# Token for deployment of Firebase Rules and Functions
-FIREBASE_TOKEN=firebase_token
+For satellite imagery access to at least one provider is needed. Define the API key as environment variable:
+- IMAGE_BING_API_KEY
+- IMAGE_MAPBOX_API_KEY
+- IMAGE_MAXA_PREMUIM_API_KEY
+- IMAGE_MAXAR_STANDARD_API_KEY
+- IMAGE_ESRI_API_KEY
+- IMAGE_ESRI_BETA_API_KEY
 
-GOOGLE_APPLICATION_CREDENTIALS=google_application_credentials
+In addition to get access to Firebase a Service Account Key is required.
+The path the Service Account Key is defined in:
+- GOOGLE_APPLICATION_CREDENTIALS
+
+> Notes: When deploying using `docker` or `docker-compose` `POSTGRES_HOST` should have the value `postgres` and the Service Account Key (`serviceAccountKey.json`) should be copied to `mapswipe_workers/serviceAccountKey.json` as described in detail in [Deployment](deployment.md).
+
+
+## Postgres
+
+Required environment variables are:
+- POSTGRES_DB
+- POSTGRES_HOST
+- POSTGRES_PASSWORD
+- POSTGRES_PORT
+- POSTGRES_USER
+
+
+### Postgres Backup
+
+On details of how the back-up works please refer to [Postgres Backup](backup.md).
+
+Required environment variables are:
+- WALG_GS_PREFIX
+
+To gain access to Google Cloud Storage another Service Account Key is needed. Again refer to [Postgres Backup](backup.md) on how to create this file.
+The Service Account Key (`serviceAccountKey.json`) should be saved to `postgres/serviceAccountKey.json`
+
+
+### Manager Dashboard
+
+`manager_dashboard/manager_dashboard/js/app.js`
+
 ```
-
-
-## MapSwipe Workers - Configuration
-
-`mapswipe_workers/config/configuration.json`:
-
-```json
-{
-    "postgres": {
-        "host": "postgres",
-        "port": "5432",
-        "database": "mapswipe",
-        "username": "mapswipe_workers",
-        "password": "your_mapswipe_db_password"
-    },
-    "firebase": {
-        "database_name": "your_firebase_database_name",
-        "api_key": "your_firebase_api_key"
-    },
-    "imagery":{
-        "bing": {
-            "api_key": "your_bing_api_key",
-            "url": "http://t0.tiles.virtualearth.net/tiles/a{quad_key}.jpeg?g=854&mkt=en-US&token={key}"
-        },
-        "digital_globe": {
-            "api_key": "your_digital_globe_api_key",
-            "url": "https://api.mapbox.com/v4/digitalglobe.nal0g75k/{z}/{x}/{y}.png?access_token={key}"
-        },
-        "sinergise": {
-            "api_key": "your_sinergise_api_key",
-            "url": "https://services.sentinel-hub.com/ogc/wmts/{key}?request=getTile&tilematrixset=PopularWebMercator256&tilematrix={z}&tilecol={x}&tilerow={y}&layer={layer}"
-        }
-    },
-    "slack": {
-        "token": "your_slack_token",
-        "channel": "your_slack_channel",
-        "username": "your_slack_username"
-    },
-    "sentry": {
-        "dsn": "your_sentry_dsn_value"
-    }
-}
+TODO
 ```
 
 
 ## NGINX
+
+`nginx/nginx.conf`:
 
 ```
 server {
@@ -180,20 +113,4 @@ server {
         rewrite ^ /manager_dashboard/ permanent;
     }
 }
-```
-
-## Postgres Backup
-We back up the Postgres database using [Wal-G](https://github.com/wal-g/wal-g) and [Google Cloud Storage](https://console.cloud.google.com/storage). You could also set it up using another cloud storage service.
-
-First, create a new cloud storage bucket:
-1. Google Cloud Platform > Storage > Create Bucket
-2. Choose a bucket name, e.g. `your_project_id_postgres_backup`
-3. Select storage location > `Multi-Region` > `eu`
-4. Select storage class > `Coldline`
-
-We need to access Google Cloud Storage. For this we use the previously generated Service Account Key. (Check the *Google APIs and Services Credentials* section again if you don't have it.) Copy the file to `postges/serviceAccountKey.json`.
-
-```bash
-GCS_Link_URL=https://console.cloud.google.com/storage/browser/your_project_id_postgres_backup
-GCS_Link_for_gsutil=gs://your_project_id_postgres_backup
 ```
