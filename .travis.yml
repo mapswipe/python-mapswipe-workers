@@ -42,20 +42,19 @@ before_install:
   #- flake8 --config=mapswipe_workers/setup.cfg mapswipe_workers/mapswipe_workers/*.py
   #- black --check mapswipe_workers/mapswipe_workers/*.py
   # TODO: enable this again at later stage
-  #- export PATH=$GDALINST/gdal-$GDALVERSION/bin:$PATH
-  #- export LD_LIBRARY_PATH=$GDALINST/gdal-$GDALVERSION/lib:$LD_LIBRARY_PATH
-  #- . travis_proj_install.sh
-  #- travis_wait 20 . travis_gdal_install.sh
-  #- export GDAL_DATA=$GDALINST/gdal-$GDALVERSION/share/gdal
-  #- export PROJ_LIB=$GDALINST/gdal-$GDALVERSION/share/proj
+  - export PATH=$GDALINST/gdal-$GDALVERSION/bin:$PATH
+  - export LD_LIBRARY_PATH=$GDALINST/gdal-$GDALVERSION/lib:$LD_LIBRARY_PATH
+  - . travis_proj_install.sh
+  - travis_wait 20 . travis_gdal_install.sh
+  - export GDAL_DATA=$GDALINST/gdal-$GDALVERSION/share/gdal
+  - export PROJ_LIB=$GDALINST/gdal-$GDALVERSION/share/proj
 
 install:
   - docker build -t mapswipe_postgres -f ./postgres/Dockerfile-dev ./postgres
-  - python -m pip install --upgrade --force-reinstall --no-use-pep517 -e mapswipe_workers/
-  #- if [ "$GDALVERSION" = "master" ]; then echo "Using gdal master"; elif [ $(gdal-config --version) == $(sed 's/[a-zA-Z].*//g' <<< $GDALVERSION) ]; then echo "Using gdal $GDALVERSION"; else echo "NOT using gdal $GDALVERSION as expected; aborting"; exit 1; fi
-  #- "GDAL_CONFIG=$GDALINST/gdal-$GDALVERSION/bin/gdal-config python -m pip install --upgrade --force-reinstall --no-use-pep517 -e mapswipe_workers/"
-
-
+  # TODO: remove the line below once gdal setup works
+  # - python -m pip install --upgrade --force-reinstall --no-use-pep517 -e mapswipe_workers/
+  - if [ "$GDALVERSION" = "master" ]; then echo "Using gdal master"; elif [ $(gdal-config --version) == $(sed 's/[a-zA-Z].*//g' <<< $GDALVERSION) ]; then echo "Using gdal $GDALVERSION"; else echo "NOT using gdal $GDALVERSION as expected; aborting"; exit 1; fi
+  - "GDAL_CONFIG=$GDALINST/gdal-$GDALVERSION/bin/gdal-config python -m pip install --upgrade --force-reinstall --no-use-pep517 -e mapswipe_workers/"
 
 before_script:
   - docker run -d -p 5432:5432 --name mapswipe_postgres -e POSTGRES_DB="$POSTGRES_DB" -e POSTGRES_USER="$POSTGRES_USER" -e POSTGRES_PASSWORD="$POSTGRES_PASSWORD" mapswipe_postgres
@@ -65,8 +64,6 @@ before_script:
 script:
   - python -m unittest -v tests.integration_tests.test_archive_project
   - python travis_test_gdal.py
-  # TODO: move this to deployment section
-  # - ssh -i $KEY_FILE -o StrictHostKeyChecking=no "mapswipe@$DEPLOYMENT_SERVER_IP"
 
 cache:
   directories:
