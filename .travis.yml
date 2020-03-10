@@ -72,7 +72,7 @@ before_script:
   #- chmod 644 ~/.ssh/known_hosts
 
 script:
-  - python -m unittest tests.integration_tests.test_archive_project
+  - python -m unittest -v tests.integration_tests.test_archive_project
   - python travis_test_gdal.py
   # TODO: move this to deployment section
   # - ssh -i $KEY_FILE -o StrictHostKeyChecking=no "mapswipe@$DEPLOYMENT_SERVER_IP"
