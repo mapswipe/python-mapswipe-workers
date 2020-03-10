@@ -47,6 +47,7 @@ before_install:
   - travis_wait 20 . travis_gdal_install.sh
   - export GDAL_DATA=$GDALINST/gdal-$GDALVERSION/share/gdal
   - export PROJ_LIB=$GDALINST/gdal-$GDALVERSION/share/proj
+  - python -m pip install GDAL==$GDALVERSION
 
 install:
   - docker build -t mapswipe_postgres -f ./postgres/Dockerfile-dev ./postgres
