@@ -71,7 +71,7 @@ before_script:
   - chmod 644 ~/.ssh/known_hosts
 
 script:
-  - python travid_test_gdal.py
+  - python travis_test_gdal.py
   - python -m unittest mapswipe_workers/tests/unittests/test_archive_projects.py
   # TODO: move this to deployment section
   # - ssh -i $KEY_FILE -o StrictHostKeyChecking=no "mapswipe@$DEPLOYMENT_SERVER_IP"
