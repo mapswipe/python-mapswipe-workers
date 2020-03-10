@@ -31,43 +31,47 @@ addons:
     - gfortran
 
 before_install:
+  - mkdir -p ~/.config/mapswipe_workers
+  - echo "$serviceAccountKey" > ~/.config/mapswipe_workers/serviceAccountKey.json
   - python -m pip install -U pip setuptools
   - python -m pip install wheel
   - python -m pip install flake8 black
+  # TODO: enable this again at later stage
   #- flake8 --config=mapswipe_workers/setup.cfg mapswipe_workers/mapswipe_workers/*.py
   #- black --check mapswipe_workers/mapswipe_workers/*.py
-  - export PATH=$GDALINST/gdal-$GDALVERSION/bin:$PATH
-  - export LD_LIBRARY_PATH=$GDALINST/gdal-$GDALVERSION/lib:$LD_LIBRARY_PATH
-  - . travis_proj_install.sh
-  - travis_wait 20 . travis_gdal_install.sh
-  - export GDAL_DATA=$GDALINST/gdal-$GDALVERSION/share/gdal
-  - export PROJ_LIB=$GDALINST/gdal-$GDALVERSION/share/proj
+  # TODO: enable this again at later stage
+  #- export PATH=$GDALINST/gdal-$GDALVERSION/bin:$PATH
+  #- export LD_LIBRARY_PATH=$GDALINST/gdal-$GDALVERSION/lib:$LD_LIBRARY_PATH
+  #- . travis_proj_install.sh
+  #- travis_wait 20 . travis_gdal_install.sh
+  #- export GDAL_DATA=$GDALINST/gdal-$GDALVERSION/share/gdal
+  #- export PROJ_LIB=$GDALINST/gdal-$GDALVERSION/share/proj
 
 install:
- - if [ "$GDALVERSION" = "master" ]; then echo "Using gdal master"; elif [ $(gdal-config --version) == $(sed 's/[a-zA-Z].*//g' <<< $GDALVERSION) ]; then echo "Using gdal $GDALVERSION"; else echo "NOT using gdal $GDALVERSION as expected; aborting"; exit 1; fi
- - "GDAL_CONFIG=$GDALINST/gdal-$GDALVERSION/bin/gdal-config python -m pip install --upgrade --force-reinstall --no-use-pep517 -e mapswipe_workers/"
- - docker build -t mapswipe_postgres postgres/
+  - docker build -t mapswipe_postgres ./postgres/Dockerfile-dev
+  #- if [ "$GDALVERSION" = "master" ]; then echo "Using gdal master"; elif [ $(gdal-config --version) == $(sed 's/[a-zA-Z].*//g' <<< $GDALVERSION) ]; then echo "Using gdal $GDALVERSION"; else echo "NOT using gdal $GDALVERSION as expected; aborting"; exit 1; fi
+  #- "GDAL_CONFIG=$GDALINST/gdal-$GDALVERSION/bin/gdal-config python -m pip install --upgrade --force-reinstall --no-use-pep517 -e mapswipe_workers/"
+
+
 
 before_script:
-  - mkdir -p ~/.config/mapswipe_workers
-  - echo "$serviceAccountKey" > ~/.config/mapswipe_workers/serviceAccountKey.json
   - docker run -d -p 5432:5432 --name mapswipe_postgres -e POSTGRES_DB="$POSTGRES_DB" -e POSTGRES_USER="$POSTGRES_USER" -e POSTGRES_PASSWORD="$POSTGRES_PASSWORD"
   # setup ssh so we can connect to the server from CI runner
   # TODO: let's move this into a separate script
-  - apk add openssh-client
-  - mkdir -p ~/.ssh
-  - chmod 700 ~/.ssh
-  - eval "$(ssh-agent -s)"
-  - export KEY_FILE=~/.ssh/api_server_ssh_key
-  - echo "$DEPLOYMENT_SERVER_PRIVATE_KEY" | tr -d '\r' > $KEY_FILE
-  - chmod 600 $KEY_FILE
-  - ssh-add $KEY_FILE > /dev/null
-  - ssh-keyscan -H "$DEPLOYMENT_SERVER_IP" >> ~/.ssh/known_hosts
-  - chmod 644 ~/.ssh/known_hosts
+  #- apk add openssh-client
+  #- mkdir -p ~/.ssh
+  #- chmod 700 ~/.ssh
+  #- eval "$(ssh-agent -s)"
+  #- export KEY_FILE=~/.ssh/api_server_ssh_key
+  #- echo "$DEPLOYMENT_SERVER_PRIVATE_KEY" | tr -d '\r' > $KEY_FILE
+  #- chmod 600 $KEY_FILE
+  #- ssh-add $KEY_FILE > /dev/null
+  #- ssh-keyscan -H "$DEPLOYMENT_SERVER_IP" >> ~/.ssh/known_hosts
+  #- chmod 644 ~/.ssh/known_hosts
 
 script:
-  - python travis_test_gdal.py
   - python -m unittest mapswipe_workers/tests/unittests/test_archive_projects.py
+  - python travis_test_gdal.py
   # TODO: move this to deployment section
   # - ssh -i $KEY_FILE -o StrictHostKeyChecking=no "mapswipe@$DEPLOYMENT_SERVER_IP"
 
