@@ -38,9 +38,6 @@ before_install:
   - python -m pip install -U pip setuptools
   - python -m pip install wheel
   - python -m pip install flake8 black
-  # TODO: uncomment the lines below once code base is clean
-  #- flake8 --config=mapswipe_workers/setup.cfg mapswipe_workers/mapswipe_workers/*.py
-  #- black --check mapswipe_workers/mapswipe_workers/*.py
   - export PATH=$GDALINST/gdal-$GDALVERSION/bin:$PATH
   - export LD_LIBRARY_PATH=$GDALINST/gdal-$GDALVERSION/lib:$LD_LIBRARY_PATH
   - . travis_proj_install.sh
@@ -60,7 +57,11 @@ before_script:
   - sleep 10
 
 script:
-  - python -m unittest discover -v -s mapswipe_workers/tests/integration_tests/ -p 'test_*.py'
+  - flake8 --config=mapswipe_workers/setup.cfg mapswipe_workers/mapswipe_workers/*
+  # for now only test if gdal is installed
+  - python -m unittest -v tests.integration_tests.test_gdal
+  # TODO: Use line below once tests have been implemented
+  #- python -m unittest discover -v -s mapswipe_workers/tests/integration_tests/ -p 'test_*.py'
 
 
 cache:
