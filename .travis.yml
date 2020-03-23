@@ -38,7 +38,7 @@ python:
 before_install:
   - sudo add-apt-repository --yes ppa:ubuntugis/ppa
   - sudo apt-get --yes update
-  - sudo apt-get --yes install gdal-bin python-gdal python3-gdal
+  - sudo apt-get --yes install gdal-bin python-gdal python3-gdal libgdal-dev
   - gdalinfo --version
   - pip install --upgrade pip setuptools
   - pip install flake8 black
