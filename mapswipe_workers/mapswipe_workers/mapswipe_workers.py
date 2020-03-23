@@ -4,12 +4,14 @@ import ast
 import json
 import time
 
-import click
 import schedule as sched
+
+import click
 from mapswipe_workers import auth
 from mapswipe_workers.definitions import CustomError, logger, sentry
 from mapswipe_workers.firebase_to_postgres import (
     archive_project,
+    delete_project,
     transfer_results,
     update_data,
 )
@@ -230,20 +232,23 @@ def run_delete_project(project_id, project_ids):
     elif not project_ids:
         project_ids = [project_id]
 
-    click.echo("Projects and all associated data including results with following project ids will be deleted permantly:")
+    click.echo(
+        "Projects and all associated data including results "
+        + "with following project ids will be deleted permantly:"
+    )
     for project_id in project_ids:
         click.echo(project_id)
     click.echo()
-    click.echo('Continue with deletion? [yn] ', nl=False)
+    click.echo("Continue with deletion? [yn] ", nl=False)
     click.echo()
     c = click.getchar()
 
-    if c == 'y':
+    if c == "y":
         delete_project.delete_project()
-    elif c == 'n':
-        click.echo('Abort!')
+    elif c == "n":
+        click.echo("Abort!")
     else:
-        click.echo('Invalid input')
+        click.echo("Invalid input")
 
 
 @cli.command("run")
