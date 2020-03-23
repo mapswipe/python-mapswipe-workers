@@ -198,11 +198,52 @@ def run_create_tutorial(input_file) -> None:
 )
 def run_archive_project(project_id, project_ids):
     """Archive projects in Postgres. Delete groups, tasks and results from Firebase."""
-    if not project_ids:
+    if not project_ids and not project_id:
+        click.echo("Missing argument")
+        return None
+    elif not project_ids:
         project_ids = [project_id]
     update_data.update_project_data(project_ids)
     transfer_results.transfer_results(project_ids)
     archive_project.archive_project(project_ids)
+
+
+@cli.command("delete")
+@click.option(
+    "--project-id", "-i", help=("Delete project with giving project id"), type=str,
+)
+@click.option(
+    "--project-ids",
+    cls=PythonLiteralOption,
+    default="[]",
+    help=(
+        f"Delete multiple projects. "
+        f"Provide project id strings as a list: "
+        f"""["project_a", "project_b"]"""
+    ),
+)
+def run_delete_project(project_id, project_ids):
+    """Delete tasks, groups, project and results."""
+    if not project_ids and not project_id:
+        click.echo("Missing argument")
+        return None
+    elif not project_ids:
+        project_ids = [project_id]
+
+    click.echo("Projects and all associated data including results with following project ids will be deleted permantly:")
+    for project_id in project_ids:
+        click.echo(project_id)
+    click.echo()
+    click.echo('Continue with deletion? [yn] ', nl=False)
+    click.echo()
+    c = click.getchar()
+
+    if c == 'y':
+        delete_project.delete_project()
+    elif c == 'n':
+        click.echo('Abort!')
+    else:
+        click.echo('Invalid input')
 
 
 @cli.command("run")
