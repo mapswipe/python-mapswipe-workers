@@ -37,8 +37,7 @@ python:
 
 before_install:
   - sudo apt-get update
-  - sudo apt-get install gdal-bin
-  - sudo apt-get install libgdal-dev
+  - sudo apt install gdal-bin python-gdal python3-gdal
   - pip install --upgrade pip setuptools
   - pip install flake8 black
   - mkdir -p ~/.config/mapswipe_workers
