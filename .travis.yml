@@ -2,10 +2,23 @@
 # GitHub notifications when changes are committed.
 #
 # For technical details, see http://travis-ci.org/
-
+#
+dist: bionic
+addons:
+  apt:
+    sources:
+      - ppa:ubuntugis/ppa
+    packages:
+      - gdal-bin
+      - python-gdal
+      - python3-gdal
+      - libgdal-dev
 language: python
 python:
   - "3.6"
+virtualenv:
+  system_site_packages: true
+
 
 # env:
 #   global:
@@ -34,12 +47,9 @@ python:
 #     - gfortran
 
 before_install:
-  - sudo add-apt-repository --yes ppa:ubuntugis/ppa
-  - sudo apt-get --yes update
-  - sudo apt-get --yes install gdal-bin python-gdal python3-gdal libgdal-dev
   - gdalinfo --version
   - pip install --upgrade pip setuptools
-  - pip install flake8 black gdal gdal
+  - pip install flake8 black
   - mkdir -p ~/.config/mapswipe_workers
   - mkdir -p ~/.local/share/mapswipe_workers
   - echo "$SERVICE_ACCOUNT_KEY" > ~/.config/mapswipe_workers/serviceAccountKey.json
