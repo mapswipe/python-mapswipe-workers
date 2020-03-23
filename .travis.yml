@@ -8,6 +8,7 @@ addons:
   apt:
     sources:
       - ppa:ubuntugis/ppa
+    update: true
     packages:
       - gdal-bin
       - python-gdal
