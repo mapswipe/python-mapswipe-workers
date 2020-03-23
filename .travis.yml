@@ -43,7 +43,7 @@ before_install:
   - sudo apt-get --yes install gdal-bin python-gdal python3-gdal libgdal-dev
   - gdalinfo --version
   - pip install --upgrade pip setuptools
-  - pip install flake8 black
+  - pip install flake8 black gdal gdal
   - mkdir -p ~/.config/mapswipe_workers
   - mkdir -p ~/.local/share/mapswipe_workers
   - echo "$SERVICE_ACCOUNT_KEY" > ~/.config/mapswipe_workers/serviceAccountKey.json
