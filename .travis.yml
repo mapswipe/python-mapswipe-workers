@@ -57,3 +57,9 @@ script:
 #   - chmod 644 ~/.ssh/known_hosts
 #   - ssh -i $KEY_FILE -o StrictHostKeyChecking=no "mapswipe@$DEPLOYMENT_SERVER_IP"
 
+# deploy:
+#   provider: script
+#   script: bash scripts/deploy.sh
+#   on:
+#     branch: dev
+
