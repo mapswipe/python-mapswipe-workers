@@ -4,66 +4,60 @@
 # For technical details, see http://travis-ci.org/
 
 language: python
+python:
+  - "3.6"
+  - "3.7"
+  - "3.8"
+virtualenv:
+  system_site_packages: true
 
-env:
-  global:
-    - PIP_WHEEL_DIR=$HOME/.cache/pip/wheels
-    - PIP_FIND_LINKS=file://$HOME/.cache/pip/wheels
-    - GDALINST=$HOME/gdalinstall
-    - GDALBUILD=$HOME/gdalbuild
-    - PROJINST=$HOME/gdalinstall
-    - PROJBUILD=$HOME/projbuild
 
-jobs:
-  include:
-    - python: "3.6"
-      env:
-        GDALVERSION="3.0.4"
-        PROJVERSION="6.2.1"
+# env:
+#   global:
+#     - PIP_WHEEL_DIR=$HOME/.cache/pip/wheels
+#     - PIP_FIND_LINKS=file://$HOME/.cache/pip/wheels
+#     - GDALINST=$HOME/gdalinstall
+#     - GDALBUILD=$HOME/gdalbuild
+#     - PROJINST=$HOME/gdalinstall
+#     - PROJBUILD=$HOME/projbuild
 
-# TODO: enable this again at later stage
-addons:
-  apt:
-    packages:
-    - libhdf5-serial-dev
-    - libgdal-dev
-    - libatlas-dev
-    - libatlas-base-dev
-    - gfortran
+# jobs:
+#   include:
+#     - python: "3.6"
+#       env:
+#         GDALVERSION="3.0.4"
+#         PROJVERSION="6.2.1"
+
+# # TODO: enable this again at later stage
+# addons:
+#   apt:
+#     packages:
+#     - libhdf5-serial-dev
+#     - libgdal-dev
+#     - libatlas-dev
+#     - libatlas-base-dev
+#     - gfortran
 
 before_install:
+  - sudo apt-get update
+  - sudo apt-get install gdal-bin
+  - sudo apt-get install libgdal-dev
+  - pip install --upgrade pip setuptools
+  - pip install flake8 black
   - mkdir -p ~/.config/mapswipe_workers
   - mkdir -p ~/.local/share/mapswipe_workers
   - echo "$SERVICE_ACCOUNT_KEY" > ~/.config/mapswipe_workers/serviceAccountKey.json
-  - python -m pip install -U pip setuptools
-  - python -m pip install wheel
-  - python -m pip install flake8 black
-  - export PATH=$GDALINST/gdal-$GDALVERSION/bin:$PATH
-  - export LD_LIBRARY_PATH=$GDALINST/gdal-$GDALVERSION/lib:$LD_LIBRARY_PATH
-  - . travis_proj_install.sh
-  - travis_wait 20 . travis_gdal_install.sh
-  - export GDAL_DATA=$GDALINST/gdal-$GDALVERSION/share/gdal
-  - export PROJ_LIB=$GDALINST/gdal-$GDALVERSION/share/proj
-  - python -m pip install GDAL==$GDALVERSION
 
 install:
-  - docker build -t mapswipe_postgres -f ./postgres/Dockerfile-dev ./postgres
-  - if [ "$GDALVERSION" = "master" ]; then echo "Using gdal master"; elif [ $(gdal-config --version) == $(sed 's/[a-zA-Z].*//g' <<< $GDALVERSION) ]; then echo "Using gdal $GDALVERSION"; else echo "NOT using gdal $GDALVERSION as expected; aborting"; exit 1; fi
-  - "GDAL_CONFIG=$GDALINST/gdal-$GDALVERSION/bin/gdal-config python -m pip install --upgrade --force-reinstall --no-use-pep517 -e mapswipe_workers/"
+  - pip install mapswipe_workers/
+  # - docker build -t mapswipe_postgres -f ./postgres/Dockerfile-dev ./postgres
 
-before_script:
-  - docker run -d -p 5432:5432 --name mapswipe_postgres -e POSTGRES_DB="$POSTGRES_DB" -e POSTGRES_USER="$POSTGRES_USER" -e POSTGRES_PASSWORD="$POSTGRES_PASSWORD" mapswipe_postgres
-  - docker ps -a
-  - sleep 10
+# before_script:
+#   - docker run -d -p 5432:5432 --name mapswipe_postgres -e POSTGRES_DB="$POSTGRES_DB" -e POSTGRES_USER="$POSTGRES_USER" -e POSTGRES_PASSWORD="$POSTGRES_PASSWORD" mapswipe_postgres
+#   - docker ps -a
 
 script:
   # for now only test if gdal is installed
   - python -m unittest -v tests.integration_tests.test_gdal
   # TODO: Use line below once tests have been implemented
   #- python -m unittest discover -v -s mapswipe_workers/tests/integration_tests/ -p 'test_*.py'
-
-
-cache:
-  directories:
-    - $GDALINST
-    - ~/.cache/pip
