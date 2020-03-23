@@ -32,7 +32,7 @@ install:
   - pip install mapswipe_workers/
   - mkdir --parents ~/.config/mapswipe_workers
   - mkdir --parents ~/.local/share/mapswipe_workers
-  - echo "$SERVICE_ACCOUNT_KEY" > ~/.config/mapswipe_workers/serviceAccountKey.json
+  - echo "$SERVICE_ACCOUNT_KEY" > "$GOOGLE_APPLICATION_CREDENTIALS"
   - docker build --tag mapswipe_postgres --file postgres/Dockerfile-dev postgres/
 
 before_script:
@@ -44,7 +44,7 @@ script:
   # TODO: Use line below once tests have been implemented
   #- python -m unittest discover -v -s mapswipe_workers/tests/integration_tests/ -p 'test_*.py'
 
-# after_success:
+# before_deploy:
 #   # SSH setup to deploy to server after build.
 #   - apk add openssh-client
 #   - mkdir -p ~/.ssh
