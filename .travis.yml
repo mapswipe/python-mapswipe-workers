@@ -32,7 +32,7 @@ install:
   - pip install mapswipe_workers/
   - mkdir --parents ~/.config/mapswipe_workers
   - mkdir --parents ~/.local/share/mapswipe_workers
-  - echo "$SERVICE_ACCOUNT_KEY" > "$GOOGLE_APPLICATION_CREDENTIALS"
+  - echo "$SERVICE_ACCOUNT_KEY" > ~/.config/mapswipe_workers/serviceAccountKey.json
   - docker build --tag mapswipe_postgres --file postgres/Dockerfile-dev postgres/
 
 before_script:
