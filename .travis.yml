@@ -42,6 +42,8 @@ install:
 before_script:
   - docker run --detach --publish 5432:5432 --name mapswipe_postgres -e POSTGRES_DB="$POSTGRES_DB" -e POSTGRES_USER="$POSTGRES_USER" -e POSTGRES_PASSWORD="$POSTGRES_PASSWORD" mapswipe_postgres
   - docker-compose up --build -d firebase_deploy
+  - sleep 10
+  - docker ps --all
 
 script:
   # for now only test if gdal is installed
