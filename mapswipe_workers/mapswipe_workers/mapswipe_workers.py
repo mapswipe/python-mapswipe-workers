@@ -205,9 +205,11 @@ def run_archive_project(project_id, project_ids):
         return None
     elif not project_ids:
         project_ids = [project_id]
+    click.echo("Start archive")
     update_data.update_project_data(project_ids)
     transfer_results.transfer_results(project_ids)
-    archive_project.archive_project(project_ids)
+    if archive_project.archive_project(project_ids):
+        click.echo("Finished archive")
 
 
 @cli.command("delete")
@@ -245,7 +247,8 @@ def run_delete_project(project_id, project_ids):
 
     if c == "y":
         click.echo("Start deletion")
-        delete_project.delete_project(project_ids)
+        if delete_project.delete_project(project_ids):
+            click.echo("Finished deletions")
     elif c == "n":
         click.echo("Abort!")
     else:
