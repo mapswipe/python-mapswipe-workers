@@ -3,6 +3,10 @@
 #
 # For technical details, see http://travis-ci.org/
 #
+branches:
+  except:
+    - docs
+
 dist: bionic
 addons:
   apt:
