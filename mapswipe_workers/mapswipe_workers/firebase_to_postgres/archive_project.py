@@ -2,13 +2,15 @@
 Archive a project.
 """
 
+from typing import Iterable
+
 from firebase_admin import exceptions
 
 from mapswipe_workers import auth
 from mapswipe_workers.definitions import logger
 
 
-def chunks(data, size=250):
+def chunks(data: list, size: int = 250) -> Iterable[list]:
     """Yield successive n-sized chunks from list."""
     for i in range(0, len(data), size):
         yield data[i : i + size]
