@@ -59,3 +59,5 @@ def delete_project(project_ids: list) -> None:
         pg_db.query(sql_query, project_id)
         sql_query = "DELETE FROM projects WHERE project_id = {};".format(project_id)
         pg_db.query(sql_query, project_id)
+
+    return True
