@@ -239,12 +239,13 @@ def run_delete_project(project_id, project_ids):
     for project_id in project_ids:
         click.echo(project_id)
     click.echo()
-    click.echo("Continue with deletion? [yn] ", nl=False)
+    click.echo("Continue with deletion? [y/n] ", nl=False)
     click.echo()
     c = click.getchar()
 
     if c == "y":
-        delete_project.delete_project()
+        click.echo("Start deletion")
+        delete_project.delete_project(project_ids)
     elif c == "n":
         click.echo("Abort!")
     else:
