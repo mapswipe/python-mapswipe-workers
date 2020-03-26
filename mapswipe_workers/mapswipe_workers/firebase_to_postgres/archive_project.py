@@ -5,7 +5,6 @@ Archive a project.
 from typing import Iterable
 
 from firebase_admin import exceptions
-
 from mapswipe_workers import auth
 from mapswipe_workers.definitions import logger
 
@@ -24,12 +23,8 @@ def archive_project(project_ids: list) -> bool:
     Set status = archived for project in Firebase and Postgres.
     """
     for project_id in project_ids:
-        if not project_id:
-            # Empty string or None would delete all results, groups and tasks.
-            logger.warning("Project id is an empty string or None.")
-            continue
-
         logger.info(f"Archive project with the id {project_id}")
+
         fb_db = auth.firebaseDB()
         ref = fb_db.reference(f"v2/results/{project_id}")
         try:

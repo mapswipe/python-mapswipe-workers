@@ -5,7 +5,6 @@ Delete projects.
 from typing import Iterable
 
 from firebase_admin import exceptions
-
 from mapswipe_workers import auth
 from mapswipe_workers.definitions import logger
 
@@ -16,7 +15,7 @@ def chunks(data: list, size: int = 250) -> Iterable[list]:
         yield data[i : i + size]
 
 
-def delete_project(project_ids: list) -> None:
+def delete_project(project_ids: list) -> bool:
     """
     Deletes project, groups, tasks and results from Firebase and Postgres.
     """
@@ -26,7 +25,6 @@ def delete_project(project_ids: list) -> None:
         )
 
         fb_db = auth.firebaseDB()
-
         ref = fb_db.reference(f"v2/results/{project_id}")
         try:
             ref.delete()
