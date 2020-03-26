@@ -104,7 +104,7 @@ services:
             context: firebase/
         environment:
             FIREBASE_TOKEN: '${FIREBASE_TOKEN}'
-            FIREBASE_PROJECT_ID: test-mapswipe
-        command: firebase deploy --token $FIREBASE_TOKEN --project $FIREBASE_PROJECT_ID --only functions,database:rules
+            FIREBASE_DB: '${FIREBASE_DB}'
+        command: sh -c "firebase use $FIREBASE_DB && firebase deploy --token $FIREBASE_TOKEN --only functions,database:rules"
         volumes:
             - ./firebase:/firebase
