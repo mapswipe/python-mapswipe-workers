@@ -1,5 +1,5 @@
 """
-Archive a project.
+Delete projects.
 """
 
 from typing import Iterable
@@ -16,21 +16,17 @@ def chunks(data: list, size: int = 250) -> Iterable[list]:
         yield data[i : i + size]
 
 
-def archive_project(project_ids: list) -> bool:
+def delete_project(project_ids: list) -> None:
     """
-    Archive a project.
-
-    Deletes groups, tasks and results from Firebase.
-    Set status = archived for project in Firebase and Postgres.
+    Deletes project, groups, tasks and results from Firebase and Postgres.
     """
     for project_id in project_ids:
-        if not project_id:
-            # Empty string or None would delete all results, groups and tasks.
-            logger.warning("Project id is an empty string or None.")
-            continue
+        logger.info(
+            f"Delete project, groups, tasks and results of project: {project_id}"
+        )
 
-        logger.info(f"Archive project with the id {project_id}")
         fb_db = auth.firebaseDB()
+
         ref = fb_db.reference(f"v2/results/{project_id}")
         try:
             ref.delete()
@@ -42,7 +38,7 @@ def archive_project(project_ids: list) -> bool:
                 ref.update({key: None for key in chunk})
             ref.delete()
 
-        ref = fb_db.reference(f"v2/results/{project_id}")
+        ref = fb_db.reference(f"v2/tasks/{project_id}")
         try:
             ref.delete()
         except exceptions.InvalidArgumentError:
@@ -54,13 +50,16 @@ def archive_project(project_ids: list) -> bool:
             ref.delete()
 
         fb_db.reference(f"v2/groups/{project_id}").delete()
-        fb_db.reference(f"v2/projects/{project_id}/status").set("archived")
+        fb_db.reference(f"v2/projects/{project_id}").delete()
 
         pg_db = auth.postgresDB()
-        sql_query = """
-            UPDATE projects SET status = 'archived'
-            WHERE project_id = %(project_id)s;
-        """
-        pg_db.query(sql_query, {"project_id": project_id})
+        sql_query = "DELETE FROM results WHERE project_id = {};".format(project_id)
+        pg_db.query(sql_query, project_id)
+        sql_query = "DELETE FROM tasks WHERE project_id = {};".format(project_id)
+        pg_db.query(sql_query, project_id)
+        sql_query = "DELETE FROM groups WHERE project_id = {};".format(project_id)
+        pg_db.query(sql_query, project_id)
+        sql_query = "DELETE FROM projects WHERE project_id = {};".format(project_id)
+        pg_db.query(sql_query, project_id)
 
     return True
