@@ -111,19 +111,16 @@ def update_project_data(project_ids: list = []):
         projects_ref = fb_db.reference("v2/projects/")
         projects = projects_ref.get()
 
-    if projects:
-        for project_id, project in projects.items():
-            query_update_project = """
-                UPDATE projects
-                SET status=%s
-                WHERE project_id=%s;
-            """
-            # TODO: Is there need for fallback to ''
-            # if project.status is not existent
-            data_update_project = [project.get("status", ""), project_id]
-            pg_db.query(query_update_project, data_update_project)
-            logger.info(f"updated status for project {project_id} in postgres")
-
-    del pg_db
+    for project_id, project in projects.items():
+        query_update_project = """
+            UPDATE projects
+            SET status=%s
+            WHERE project_id=%s;
+        """
+        # TODO: Is there need for fallback to ''
+        # if project.status is not existent
+        data_update_project = [project.get("status", ""), project_id]
+        pg_db.query(query_update_project, data_update_project)
+        logger.info(f"Updated status for project {project_id} in postgres")
 
     logger.info("Updated project data in Postgres")
