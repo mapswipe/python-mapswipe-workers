@@ -41,13 +41,10 @@ install:
 
 before_script:
   - docker run --detach --publish 5432:5432 --name mapswipe_postgres -e POSTGRES_DB="$POSTGRES_DB" -e POSTGRES_USER="$POSTGRES_USER" -e POSTGRES_PASSWORD="$POSTGRES_PASSWORD" mapswipe_postgres
-  - docker-compose up --build -d firebase_deploy
-  - sleep 10
-  - docker ps --all
-  - docker logs firebase_deploy
+  - docker-compose up --build --detach firebase_deploy
 
 script:
-  # for now only test if gdal is installed
+  # - TODO: Run black and flake8
   - python -m unittest -v tests.integration_tests.test_gdal
   # TODO: Use line below once tests have been implemented
   #- python -m unittest discover -v -s mapswipe_workers/tests/integration_tests/ -p 'test_*.py'
