@@ -3,6 +3,7 @@ import unittest
 import set_up
 import tear_down
 from mapswipe_workers import auth
+from mapswipe_workers.definitions import CustomError
 from mapswipe_workers.firebase_to_postgres import delete_project
 
 
@@ -84,6 +85,48 @@ class TestDeleteProject(unittest.TestCase):
         )
         result = pg_db.retr_query(sql_query)
         self.assertNotEqual(result, [])
+
+    def test_project_id_equals_none(self):
+        """Test for project id which does not exists."""
+        delete_project.delete_project([None])
+
+        fb_db = auth.firebaseDB()
+        ref = fb_db.reference("v2/results")
+        self.assertIsNotNone(ref.get(shallow=True))
+        ref = fb_db.reference("v2/tasks")
+        self.assertIsNotNone(ref.get(shallow=True))
+        ref = fb_db.reference("v2/groups")
+        self.assertIsNotNone(ref.get(shallow=True))
+        ref = fb_db.reference("v2/projects")
+        self.assertIsNotNone(ref.get(shallow=True))
+
+        pg_db = auth.postgresDB()
+        sql_query = "SELECT * FROM tasks WHERE project_id = '{}'".format(
+            self.project_id
+        )
+        result = pg_db.retr_query(sql_query)
+        self.assertNotEqual(result, [])
+        sql_query = "SELECT * FROM groups WHERE project_id = '{}'".format(
+            self.project_id
+        )
+        result = pg_db.retr_query(sql_query)
+        self.assertNotEqual(result, [])
+        sql_query = "SELECT * FROM projects WHERE project_id = '{}'".format(
+            self.project_id
+        )
+        result = pg_db.retr_query(sql_query)
+        self.assertNotEqual(result, [])
+        sql_query = "SELECT * FROM results WHERE project_id = '{}'".format(
+            self.project_id
+        )
+        result = pg_db.retr_query(sql_query)
+        self.assertNotEqual(result, [])
+
+    def test_project_id_invalid(self):
+        """Test for project id which does not exists."""
+        self.assertRaises(CustomError, delete_project.delete_project, [{}])
+        self.assertRaises(CustomError, delete_project.delete_project, [""])
+        self.assertRaises(CustomError, delete_project.delete_project, ["/"])
 
 
 if __name__ == "__main__":
