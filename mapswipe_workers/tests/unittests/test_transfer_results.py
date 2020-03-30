@@ -7,16 +7,16 @@ import set_up
 import tear_down
 
 
-class TestArchiveProject(unittest.TestCase):
+class TestTranserResultsProject(unittest.TestCase):
     def setUp(self):
         self.project_id = set_up.create_test_project("build_area")
-        self.user_id = set_up.create_test_user()
+        set_up.create_test_user("build_area")
+        set_up.create_test_results("build_area")
 
     def tearDown(self):
-        tear_down.delete_test_project(self.project_id)
-        tear_down.delete_test_uster(self.user_id)
+        tear_down.delete_test_data(self.project_id)
 
-    def test_firebase_changes_given_project_id(self):
+    def test_changes_given_project_id(self):
         """Test if results are deleted from Firebase for given project id."""
         transfer_results.transfer_results(project_id_list=[self.project_id])
 
@@ -24,18 +24,14 @@ class TestArchiveProject(unittest.TestCase):
         ref = fb_db.reference("v2/results/{0}".format(self.project_id))
         self.assertIsNone(ref.get())
 
-    def test_postgres_changes_given_project_id(self):
-        """Test if results are transfered to Firebase for given project id."""
-        transfer_results.transfer_results(project_id_list=[self.project_id])
-
         pg_db = auth.postgresDB()
-        sql_query = "SELECT * FROM results WHERE project_id = {0} and user_id = {1}".format(
-            self.project_id, self.user_id
+        sql_query = "SELECT * FROM results WHERE project_id = '{0}' AND user_id = '{0}'".format(
+            self.project_id
         )
         result = pg_db.retr_query(sql_query)
         self.assertIsNotNone(result)
 
-    def test_firebase_changes(self):
+    def test_changes(self):
         """Test if results are deleted from Firebase for given project id."""
         transfer_results.transfer_results()
 
@@ -43,13 +39,9 @@ class TestArchiveProject(unittest.TestCase):
         ref = fb_db.reference("v2/results/{0}".format(self.project_id))
         self.assertIsNone(ref.get())
 
-    def test_postgres_changes(self):
-        """Test if results are transfered to Firebase for given project id."""
-        transfer_results.transfer_results()
-
         pg_db = auth.postgresDB()
-        sql_query = "SELECT * FROM results WHERE project_id = {0} and user_id = {1}".format(
-            self.project_id, self.user_id
+        sql_query = "SELECT * FROM results WHERE project_id = '{0}' and user_id = '{0}'".format(
+            self.project_id
         )
         result = pg_db.retr_query(sql_query)
         self.assertIsNotNone(result)
@@ -58,18 +50,22 @@ class TestArchiveProject(unittest.TestCase):
         """Test if results are transfered for users which are not yet in Postgres."""
         pg_db = auth.postgresDB()
 
-        # Make sure user us not yet in Postgres
-        sql_query = "DELETE FROM users WHERE user_id = {1}".format(self.user_id)
+        # Make sure user and results are not yet in Postgres
+        sql_query = "DELETE FROM results WHERE user_id = '{0}' and project_id = '{0}'".format(
+            self.project_id
+        )
+        pg_db.query(sql_query)
+        sql_query = "DELETE FROM users WHERE user_id = '{0}'".format(self.project_id)
         pg_db.query(sql_query)
 
         transfer_results.transfer_results()
 
-        sql_query = "SELECT * FROM users WHERE user_id = {1}".format(self.user_id)
+        sql_query = "SELECT * FROM users WHERE user_id = '{0}'".format(self.project_id)
         result = pg_db.retr_query(sql_query)
         self.assertIsNotNone(result)
 
-        sql_query = "SELECT * FROM results WHERE project_id = {0} and user_id = {1}".format(
-            self.project_id, self.user_id
+        sql_query = "SELECT * FROM results WHERE project_id = '{0}' AND user_id = '{0}'".format(
+            self.project_id
         )
         result = pg_db.retr_query(sql_query)
         self.assertIsNotNone(result)

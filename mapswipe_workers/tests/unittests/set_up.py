@@ -10,7 +10,7 @@ def set_firebase_test_data(
     data_type: str, identifier: str, project_type: str = "",
 ):
     test_dir = os.path.dirname(__file__)
-    data_dir = os.path.join(test_dir, "data", project_type)
+    data_dir = os.path.join(test_dir, "fixtures", project_type)
     file_name = data_type + ".json"
     file_path = os.path.join(data_dir, file_name)
 
@@ -24,7 +24,7 @@ def set_firebase_test_data(
 
 def set_postgres_test_data(data_type: str, project_type: str = "") -> None:
     test_dir = os.path.dirname(__file__)
-    data_dir = os.path.join(test_dir, "data", project_type)
+    data_dir = os.path.join(test_dir, "fixtures", project_type)
     file_name = data_type + ".csv"
     file_path = os.path.join(data_dir, file_name)
 
@@ -33,21 +33,33 @@ def set_postgres_test_data(data_type: str, project_type: str = "") -> None:
         pg_db.copy_from(f, data_type)
 
 
-def create_test_project(project_type: str) -> str:
+def create_test_project(project_type: str, results: bool = False) -> str:
     """Create a test data in Firebase and Posgres."""
-
     project_id = "test_{0}".format(project_type)
 
-    for data_type in ("projects", "groups", "tasks"):
+    if results:
+        data_types = ("projects", "groups", "tasks", "users", "results")
+    else:
+        data_types = ("projects", "groups", "tasks")
+
+    for data_type in data_types:
         set_firebase_test_data(data_type, project_id, project_type)
         set_postgres_test_data(data_type, project_type)
 
     return project_id
 
 
-def create_test_user() -> str:
-    user_id = "test_user"
-    set_firebase_test_data("users", user_id)
+def create_test_results(project_type: str) -> str:
+    """Create test results only in Firebase."""
+    project_id = "test_{0}".format(project_type)
+    set_firebase_test_data("results", project_id, project_type)
+    return project_id
+
+
+def create_test_user(project_type: str) -> str:
+    """Create test user only in Firebase"""
+    user_id = "test_{0}".format(project_type)
+    set_firebase_test_data("users", user_id, project_type)
     return user_id
 
 
