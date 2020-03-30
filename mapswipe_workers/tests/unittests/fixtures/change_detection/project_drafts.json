@@ -1,0 +1,111 @@
+{
+  "change_detection_default_with_bing": {
+        "createdBy": "Sample Manager",
+        "geometry": {"type":"FeatureCollection","features":[{"type":"Feature","properties":{},"geometry":{"type":"Polygon","coordinates":[[[-175.21785736083984,-21.122295110595505],[-175.2367401123047,-21.148873980682744],[-175.21339416503906,-21.152716314425852],[-175.19931793212888,-21.15239612375494],[-175.19588470458984,-21.147913381670975],[-175.1931381225586,-21.136385707660683],[-175.1934814453125,-21.129660817021904],[-175.21785736083984,-21.122295110595505]]]}}]},
+        "image": "http://www.redcrosseth.org/media/k2/items/cache/5a05a447acfdf6fcc40548cc4c1cea8d_L.jpg",
+        "lookFor": "DESTROYED BUILDINGS",
+        "name": "Change Detection Sample Project",
+        "projectDetails": "This project uses Bing as the tile server and zoom level 18 for the before image. For after we use imagery from open aerial map.",
+        "verificationNumber": 3,
+        "groupSize": 15,
+        "projectType": 3,
+        "tileServerA": {
+              "name": "bing",
+              "apiKeyRequired": true,
+              "caption": "Before",
+              "credits": "© 2019 Microsoft Corporation, Earthstar Geographics SIO"
+        },
+        "tileServerB": {
+              "name": "custom",
+              "url": "https://tiles.openaerialmap.org/5b3541802b6a08001185f8b1/0/5b3541802b6a08001185f8b2/{z}/{x}/{y}.png",
+              "apiKeyRequired": false,
+              "apiKey": "",
+              "caption": "After",
+              "date": "2018-02-21",
+              "credits": "© OpenAerialMap"
+        }
+    },
+  "change_detection_bing_maxar": {
+        "createdBy": "Sample Manager",
+        "geometry": {"type":"FeatureCollection","features":[{"type":"Feature","properties":{},"geometry":{"type":"Polygon","coordinates":[[[-175.21785736083984,-21.122295110595505],[-175.2367401123047,-21.148873980682744],[-175.21339416503906,-21.152716314425852],[-175.19931793212888,-21.15239612375494],[-175.19588470458984,-21.147913381670975],[-175.1931381225586,-21.136385707660683],[-175.1934814453125,-21.129660817021904],[-175.21785736083984,-21.122295110595505]]]}}]},
+        "image": "http://www.redcrosseth.org/media/k2/items/cache/5a05a447acfdf6fcc40548cc4c1cea8d_L.jpg",
+        "lookFor": "DESTROYED BUILDINGS",
+        "name": "Change Detection Bing Maxar",
+        "projectDetails": "This project uses Bing as the tile server and zoom level 18 for the before image. For after we use imagery from open aerial map.",
+        "verificationNumber": 3,
+        "groupSize": 15,
+        "projectType": 3,
+        "tileServerA": {
+              "name": "bing",
+              "apiKeyRequired": true,
+              "caption": "Before",
+              "credits": "© 2019 Microsoft Corporation, Earthstar Geographics SIO"
+        },
+        "tileServerB": {
+              "name": "maxar_premium",
+              "apiKeyRequired": true,
+              "caption": "After",
+              "credits": "© Maxar"
+        }
+    },
+  "change_detection_uganda_planet_wms": {
+        "createdBy": "Sample Manager",
+        "geometry": {"type":"FeatureCollection","features":[{"type":"Feature","geometry":{"type":"Polygon","coordinates":[[[31.2023877804833,3.31249395620835],[31.3658026197263,3.3131502407033],[31.3647088122347,3.17992448822807],[31.2019502574867,3.18276838770619],[31.2023877804833,3.31249395620835]]]},"properties":{"tessellate":-1,"extrude":0,"visibility":-1}}]},
+        "image": "http://www.redcrosseth.org/media/k2/items/cache/5a05a447acfdf6fcc40548cc4c1cea8d_L.jpg",
+        "lookFor": "new / changed settlements",
+        "name": "Change Detection Uganda 1",
+        "projectDetails": "This project uses planet imagery provided as WMS.",
+        "verificationNumber": 5,
+        "groupSize": 15,
+        "projectType": 3,
+        "zoomLevel": 16,
+        "tileServerA": {
+              "name": "custom",
+              "url": "https://tiles.planet.com/basemaps/v1/planet-tiles/global_quarterly_2017q1_mosaic/gmap/{z}/{x}/{y}.png?api_key=8d4aee7b35a94aa68e1d9119f27e01aa",
+              "apiKeyRequired": false,
+              "apiKey": "",
+              "caption": "Before",
+              "date": "2017-Q1",
+              "credits": "Imagery © 2019 Planet.com"
+        },
+        "tileServerB": {
+              "name": "custom",
+              "url": "https://tiles.planet.com/basemaps/v1/planet-tiles/global_quarterly_2019q1_mosaic/gmap/{z}/{x}/{y}.png?api_key=8d4aee7b35a94aa68e1d9119f27e01aa",
+              "apiKeyRequired": false,
+              "apiKey": "",
+              "caption": "After",
+              "date": "2019-Q1",
+              "credits": "Imagery © 2019 Planet.com"
+        }
+    },
+  "change_detection_uganda_planet_wms_2": {
+        "createdBy": "Sample Manager",
+        "geometry": {"type":"FeatureCollection","features":[{"type":"Feature","geometry":{"type":"Polygon","coordinates":[[[31.1958249355338,3.01716593348],[31.2019502574867,3.18276838770619],[31.3647088122347,3.17992448822807],[31.3568333982953,3.00754042755404],[31.1958249355338,3.01716593348]]]},"properties":{"tessellate":-1,"extrude":0,"visibility":-1}}]},
+        "image": "http://www.redcrosseth.org/media/k2/items/cache/5a05a447acfdf6fcc40548cc4c1cea8d_L.jpg",
+        "lookFor": "new / changed settlements",
+        "name": "Change Detection Uganda 2",
+        "projectDetails": "This project uses planet imagery provided as WMS.",
+        "verificationNumber": 5,
+        "groupSize": 15,
+        "projectType": 3,
+        "zoomLevel": 16,
+        "tileServerA": {
+              "name": "custom",
+              "url": "https://tiles.planet.com/basemaps/v1/planet-tiles/global_quarterly_2017q1_mosaic/gmap/{z}/{x}/{y}.png?api_key=8d4aee7b35a94aa68e1d9119f27e01aa",
+              "apiKeyRequired": false,
+              "apiKey": "",
+              "caption": "Before",
+              "date": "2017-Q1",
+              "credits": "Imagery © 2019 Planet.com"
+        },
+        "tileServerB": {
+              "name": "custom",
+              "url": "https://tiles.planet.com/basemaps/v1/planet-tiles/global_quarterly_2019q1_mosaic/gmap/{z}/{x}/{y}.png?api_key=8d4aee7b35a94aa68e1d9119f27e01aa",
+              "apiKeyRequired": false,
+              "apiKey": "",
+              "caption": "After",
+              "date": "2019-Q1",
+              "credits": "Imagery © 2019 Planet.com"
+        }
+    }
+}
