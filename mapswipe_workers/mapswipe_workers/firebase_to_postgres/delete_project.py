@@ -1,13 +1,13 @@
 """
 Delete projects.
 """
-
+import re
 from typing import Iterable
 
 from firebase_admin import exceptions
 
 from mapswipe_workers import auth
-from mapswipe_workers.definitions import logger
+from mapswipe_workers.definitions import logger, CustomError
 
 
 def chunks(data: list, size: int = 250) -> Iterable[list]:
@@ -26,8 +26,11 @@ def delete_project(project_ids: list) -> None:
         )
 
         fb_db = auth.firebaseDB()
-
         ref = fb_db.reference(f"v2/results/{project_id}")
+        if not re.match("/v2/\w+/[a-zA-Z0-9|-|_]+", ref.path):
+            raise CustomError(
+                "Given argument resulted in invalid Firebase Realtime Database reference."
+            )
         try:
             ref.delete()
         except exceptions.InvalidArgumentError:
@@ -39,6 +42,10 @@ def delete_project(project_ids: list) -> None:
             ref.delete()
 
         ref = fb_db.reference(f"v2/tasks/{project_id}")
+        if not re.match("/v2/\w+/[a-zA-Z0-9|-|_]+", ref.path):
+            raise CustomError(
+                "Given argument resulted in invalid Firebase Realtime Database reference."
+            )
         try:
             ref.delete()
         except exceptions.InvalidArgumentError:
@@ -49,17 +56,27 @@ def delete_project(project_ids: list) -> None:
                 ref.update({key: None for key in chunk})
             ref.delete()
 
-        fb_db.reference(f"v2/groups/{project_id}").delete()
-        fb_db.reference(f"v2/projects/{project_id}").delete()
+        ref = fb_db.reference(f"v2/groups/{project_id}")
+        if not re.match("/v2/\w+/[a-zA-Z0-9|-|_]+", ref.path):
+            raise CustomError(
+                "Given argument resulted in invalid Firebase Realtime Database reference."
+            )
+        ref.delete()
+        ref = fb_db.reference(f"v2/projects/{project_id}")
+        if not re.match("/v2/\w+/[a-zA-Z0-9|-|_]+", ref.path):
+            raise CustomError(
+                "Given argument resulted in invalid Firebase Realtime Database reference."
+            )
+        ref.delete()
 
         pg_db = auth.postgresDB()
-        sql_query = "DELETE FROM results WHERE project_id = {};".format(project_id)
+        sql_query = "DELETE FROM results WHERE project_id = '{}';".format(project_id)
         pg_db.query(sql_query, project_id)
-        sql_query = "DELETE FROM tasks WHERE project_id = {};".format(project_id)
+        sql_query = "DELETE FROM tasks WHERE project_id = '{}';".format(project_id)
         pg_db.query(sql_query, project_id)
-        sql_query = "DELETE FROM groups WHERE project_id = {};".format(project_id)
+        sql_query = "DELETE FROM groups WHERE project_id = '{}';".format(project_id)
         pg_db.query(sql_query, project_id)
-        sql_query = "DELETE FROM projects WHERE project_id = {};".format(project_id)
+        sql_query = "DELETE FROM projects WHERE project_id = '{}';".format(project_id)
         pg_db.query(sql_query, project_id)
 
     return True

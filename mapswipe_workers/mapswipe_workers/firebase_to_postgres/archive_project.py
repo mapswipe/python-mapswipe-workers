@@ -1,13 +1,13 @@
 """
 Archive a project.
 """
-
+import re
 from typing import Iterable
 
 from firebase_admin import exceptions
 
 from mapswipe_workers import auth
-from mapswipe_workers.definitions import logger
+from mapswipe_workers.definitions import logger, CustomError
 
 
 def chunks(data: list, size: int = 250) -> Iterable[list]:
@@ -28,6 +28,10 @@ def archive_project(project_ids: list) -> None:
 
         fb_db = auth.firebaseDB()
         ref = fb_db.reference(f"v2/results/{project_id}")
+        if not re.match("/v2/\w+/[a-zA-Z0-9|-|_]+", ref.path):
+            raise CustomError(
+                "Given argument resulted in invalid Firebase Realtime Database reference."
+            )
         try:
             ref.delete()
         except exceptions.InvalidArgumentError:
@@ -38,7 +42,11 @@ def archive_project(project_ids: list) -> None:
                 ref.update({key: None for key in chunk})
             ref.delete()
 
-        ref = fb_db.reference(f"v2/results/{project_id}")
+        ref = fb_db.reference(f"v2/tasks/{project_id}")
+        if not re.match("/v2/\w+/[a-zA-Z0-9|-|_]+", ref.path):
+            raise CustomError(
+                "Given argument resulted in invalid Firebase Realtime Database reference."
+            )
         try:
             ref.delete()
         except exceptions.InvalidArgumentError:
@@ -49,7 +57,20 @@ def archive_project(project_ids: list) -> None:
                 ref.update({key: None for key in chunk})
             ref.delete()
 
-        fb_db.reference(f"v2/groups/{project_id}").delete()
+        ref = fb_db.reference(f"v2/groups/{project_id}")
+        if not re.match("/v2/\w+/[a-zA-Z0-9|-|_]+", ref.path):
+            raise CustomError(
+                "Given argument resulted in invalid Firebase Realtime Database reference."
+            )
+        ref.delete()
+
+        ref = fb_db.reference(f"v2/groups/{project_id}")
+        if not re.match("/v2/\w+/[a-zA-Z0-9|-|_]+", ref.path):
+            raise CustomError(
+                "Given argument resulted in invalid Firebase Realtime Database reference."
+            )
+        ref.delete()
+
         fb_db.reference(f"v2/projects/{project_id}/status").set("archived")
 
         pg_db = auth.postgresDB()
