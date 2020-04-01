@@ -27,7 +27,7 @@ def delete_project(project_ids: list) -> None:
 
         fb_db = auth.firebaseDB()
         ref = fb_db.reference(f"v2/results/{project_id}")
-        if not re.match(r"/v2/\w+/[a-zA-Z0-9|-|_]+", ref.path):
+        if not re.match(r"/v2/\w+/[-a-zA-Z0-9]+", ref.path):
             raise CustomError(
                 f"""Given argument resulted in invalid Firebase Realtime Database reference.
                 {ref.path}"""
@@ -43,7 +43,7 @@ def delete_project(project_ids: list) -> None:
             ref.delete()
 
         ref = fb_db.reference(f"v2/tasks/{project_id}")
-        if not re.match(r"/v2/\w+/[a-zA-Z0-9|-|_]+", ref.path):
+        if not re.match(r"/v2/\w+/[-a-zA-Z0-9]+", ref.path):
             raise CustomError(
                 f"""Given argument resulted in invalid Firebase Realtime Database reference.
                 {ref.path}"""
@@ -59,14 +59,14 @@ def delete_project(project_ids: list) -> None:
             ref.delete()
 
         ref = fb_db.reference(f"v2/groups/{project_id}")
-        if not re.match(r"/v2/\w+/[a-zA-Z0-9|-|_]+", ref.path):
+        if not re.match(r"/v2/\w+/[-a-zA-Z0-9]+", ref.path):
             raise CustomError(
                 f"""Given argument resulted in invalid Firebase Realtime Database reference.
                 {ref.path}"""
             )
         ref.delete()
         ref = fb_db.reference(f"v2/projects/{project_id}")
-        if not re.match(r"/v2/\w+/[a-zA-Z0-9|-|_]+", ref.path):
+        if not re.match(r"/v2/\w+/[-a-zA-Z0-9]+", ref.path):
             raise CustomError(
                 f"""Given argument resulted in invalid Firebase Realtime Database reference.
                 {ref.path}"""
