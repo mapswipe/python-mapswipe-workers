@@ -13,7 +13,7 @@ from mapswipe_workers.definitions import logger, CustomError
 def chunks(data: list, size: int = 250) -> Iterable[list]:
     """Yield successive n-sized chunks from list."""
     for i in range(0, len(data), size):
-        yield data[i : i + size]
+        yield data[i : i + size]  # noqa E203
 
 
 def archive_project(project_ids: list) -> None:
@@ -28,9 +28,10 @@ def archive_project(project_ids: list) -> None:
 
         fb_db = auth.firebaseDB()
         ref = fb_db.reference(f"v2/results/{project_id}")
-        if not re.match("/v2/\w+/[a-zA-Z0-9|-|_]+", ref.path):
+        if not re.match(r"/v2/\w+/[a-zA-Z0-9|-|_]+", ref.path):
             raise CustomError(
-                "Given argument resulted in invalid Firebase Realtime Database reference."
+                f"""Given argument resulted in invalid Firebase Realtime Database reference.
+                {ref.path}"""
             )
         try:
             ref.delete()
@@ -43,9 +44,10 @@ def archive_project(project_ids: list) -> None:
             ref.delete()
 
         ref = fb_db.reference(f"v2/tasks/{project_id}")
-        if not re.match("/v2/\w+/[a-zA-Z0-9|-|_]+", ref.path):
+        if not re.match(r"/v2/\w+/[a-zA-Z0-9|-|_]+", ref.path):
             raise CustomError(
-                "Given argument resulted in invalid Firebase Realtime Database reference."
+                f"""Given argument resulted in invalid Firebase Realtime Database reference.
+                {ref.path}"""
             )
         try:
             ref.delete()
@@ -58,16 +60,18 @@ def archive_project(project_ids: list) -> None:
             ref.delete()
 
         ref = fb_db.reference(f"v2/groups/{project_id}")
-        if not re.match("/v2/\w+/[a-zA-Z0-9|-|_]+", ref.path):
+        if not re.match(r"/v2/\w+/[a-zA-Z0-9|-|_]+", ref.path):
             raise CustomError(
-                "Given argument resulted in invalid Firebase Realtime Database reference."
+                f"""Given argument resulted in invalid Firebase Realtime Database reference.
+                {ref.path}"""
             )
         ref.delete()
 
         ref = fb_db.reference(f"v2/groups/{project_id}")
-        if not re.match("/v2/\w+/[a-zA-Z0-9|-|_]+", ref.path):
+        if not re.match(r"/v2/\w+/[a-zA-Z0-9|-|_]+", ref.path):
             raise CustomError(
-                "Given argument resulted in invalid Firebase Realtime Database reference."
+                f"""Given argument resulted in invalid Firebase Realtime Database reference.
+                {ref.path}"""
             )
         ref.delete()
 
