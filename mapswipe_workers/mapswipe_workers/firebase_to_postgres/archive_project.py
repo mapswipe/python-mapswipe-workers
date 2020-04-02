@@ -16,7 +16,7 @@ def chunks(data: list, size: int = 250) -> Iterable[list]:
         yield data[i : i + size]  # noqa E203
 
 
-def archive_project(project_ids: list) -> None:
+def archive_project(project_ids: list) -> bool:
     """
     Archive a project.
 
@@ -58,14 +58,6 @@ def archive_project(project_ids: list) -> None:
             for chunk in chunks(list(childs.keys())):
                 ref.update({key: None for key in chunk})
             ref.delete()
-
-        ref = fb_db.reference(f"v2/groups/{project_id}")
-        if not re.match(r"/v2/\w+/[-a-zA-Z0-9]+", ref.path):
-            raise CustomError(
-                f"""Given argument resulted in invalid Firebase Realtime Database reference.
-                {ref.path}"""
-            )
-        ref.delete()
 
         ref = fb_db.reference(f"v2/groups/{project_id}")
         if not re.match(r"/v2/\w+/[-a-zA-Z0-9]+", ref.path):
