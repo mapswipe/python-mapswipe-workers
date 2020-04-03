@@ -1,8 +1,8 @@
 # Installation
 
-This document describes how to setup all the parts of the MapSwipe back-end production.
+This document describes how to setup all the parts of the MapSwipe backend in a production environment.
 
-Please take also a look at our [Configuration Reference](configuration.md) which is a summary of all configurations and keys needed for deployment.
+Please consult the [Configuration Reference](configuration.html) for this setup as well.
 
 1. Firebase
 2. Postgres
@@ -11,21 +11,19 @@ Please take also a look at our [Configuration Reference](configuration.md) which
 5. Manager Dashboard
 6. Lets Encrypt and NGINX as proxy
 
-For all those setups our main repository is required:
+For this setup the main repository is required:
 
 ```bash
 git clone https://github.com/mapswipe/python-mapswipe-workers.git
 cd python-mapswipe-workers
 ```
 
-
 ## Firebase Setup
 
 Download a Service Account Key File for MapSwipe Workers:
 
 1. In the Firebase console, open Settings > Service Accounts.
-2. Click Generate New Private Key
-3. Store the JSON file under `mapswipe_workers/config/serviceAccountKey.json`
+2. Click Generate New Private Key, download it and store it to `mapswipe_workers/serviceAccountKey.json`
 
 Configure your API Keys in Google APIs & Services
 1. Open [Google APIs & Services > Credentials](https://console.cloud.google.com/apis/credentials)
@@ -47,21 +45,19 @@ The Firebase setup consists of two parts:
 - Firebase Database Rules (`firebase/database.rules.json`)
 - Firebase Functions (`firebase/functions/`)
 
-To deploy them to the Firebase Project the Firebase Command Line Tools are requiered. They are preinstalled in the provided Docker image (`firebase/Dockerfile`). When running this image the database rules and the functions will be deployed. For this to work a Firebase Token is needed:
+To deploy them to the Firebase Project the Firebase Command Line Tools are required. When running the provided Docker image (`firebase/Dockerfile`) the database rules and the functions will be deployed. For this to work a Firebase Token is needed:
 
 1. On a PC with a browser install the Firebase Command Line Tools ([https://firebase.google.com/docs/cli/](https://firebase.google.com/docs/cli/#install_the_firebase_cli))
 2. Run `firebase login:ci` to generate a Firebase Token.
 3. Save the Firebase Token to `.env` at the root of the cloned MapSwipe Backend repository on the server: `echo "FIREBASE_TOKEN=your_token" >> .env`
 
-Once the Firebase Token is set the database rules and functions will be deployed when running the `firebase_deploy` docker image using `docker-compose`:
+Once the Firebase Token is set the database rules and functions will be deployed when running the `firebase_deploy` Docker image using `docker-compose`:
 
 ```
 docker-compose up --build -d firebase_deploy
 ```
 
 This container needs to run only as long until the `firebase deploy` command inside the Docker container terminates. Use `docker logs firebase_deploy` to find out if the command is still running.
-
-For more information about the Firebase Command Line Tools visit:[https://firebase.google.com/docs/cli/](https://firebase.google.com/docs/cli/#install_the_firebase_cli)
 
 
 ## Postgres Setup
@@ -70,10 +66,10 @@ In the `postgres` directory is an `initdb.sql` file for initializing a Postgres 
 
 When running Postgres using the provided Dockerfile it will setup a Postgres database using the `initdb.sql` file during the build.
 
-A Postgres password has to be defined in the environment file (`.env`). E.g:
+The Postgres configuration (eg. password) has to be defined in the environment file (`.env`):
 
 ```
-POSTGRES_PASSWORD=mapswipe
+POSTGRES_PASSWORD=your_password
 ```
 
 To run the Postgres Docker container:
@@ -87,90 +83,8 @@ The Postgres instance will be exposed to `localhost:5432`.
 
 ## MapSwipe Workers
 
+
 ### Configuration
-
-To run MapSwipe Workers a valid configuration (`config/configuration.json`) and the Firebase Service Account Key (`config/serviceAccountKey.json`) are required.
-
-To authorize MapSwipe Workers to access Firebase database, generate a Firebase Service Account Key in JSON format and save it to `mapswipe_workers/config/serviceAccountKey.json` (See *Firebase Setup* section above for details).
-
-To run the MapSwipe workers you need a configuration file. Edit the provided configuration file template (`config/example-configuration.json`) and rename it to `configuration.json`. In following sections all required configuration will be descibed in detail.
-
-
-#### Firebase Athentication
-
-The MapSwipe workers use the Firebase Python SDK and the Firebase REST API. The REST API is used for user management only to sign in as "normal" user or "project manager". Both require the `database_name` in your configuration file.
-
-```json
-"firebase": {
-  "database_name": "your_database_name",
-  "api_key": "your_firebase_api_key"
-}
-```
-
-#### Postgres
-
-The MapSwipe Workers writes data to a Postgres database and generate files for the api based on views in postgres.
-Provide only password. Leave the rest at default.
-
-```json
-"postgres": {
-  "host": "postgres",
-  "port": "5432",
-  "database": "mapswipe",
-  "username": "mapswipe_workers",
-  "password": "your_mapswipe_db_password"
-  },
-```
-
-#### Sentry
-
-The MapSwipe workers use sentry to capture exceptions. You can find your project’s DSN in the “Client Keys” section of your “Project Settings” in Sentry. Check [Sentry's documentation](https://docs.sentry.io/error-reporting/configuration/?platform=python) for more information.
-
-```json
-"sentry": {
-  "dsn": "your_sentry_dsn_value"
-  }
-```
-
-#### Slack (optional)
-
-The MapSwipe workers send messages to slack when a project has been created successfully, the project creation failed or an exception during mapswipe_workers cli occurred.
-You need to add a slack token to use slack messaging.
-You can find out more from [Python slackclient's documentation](https://github.com/slackapi/python-slackclient) how to get it.
-
-
-```json
-"slack": {
-  "token": "your_slack_token",
-  "channel": "your_slack_channel",
-  "username": "your_slack_username"
-  },
-```
-
-
-#### Imagery
-
-MapSwipe uses satellite imagery provided by Tile Map Services (TMS).
-If you are not familiar with the basic concept have a look at [Bing's documentation](https://docs.microsoft.com/en-us/bingmaps/articles/bing-maps-tile-system).
-Make sure to get api keys for the services you would like to use in your app. 
-For each satellite imagery provider add an `api_key` and `url`. 
-
-```json
-"imagery": {
-  "bing": {
-    "api_key": "your_bing_api_key",
-    "url": "http://t0.tiles.virtualearth.net/tiles/a{quad_key}.jpeg?g=854&mkt=en-US&token={key}"
-    },
-  "digital_globe": {
-    "api_key": "your_digital_globe_api_key",
-    "url": "https://api.mapbox.com/v4/digitalglobe.nal0g75k/{z}/{x}/{y}.png?access_token={key}"
-    },
-  "sinergise": {
-    "api_key": "your_sinergise_api_key",
-    "url": "https://services.sentinel-hub.com/ogc/wmts/{key}?request=getTile&tilematrixset=PopularWebMercator256&tilematrix={z}&tilecol={x}&tilerow={y}&layer={layer}"
-    }
-  }
-```
 
 
 ### Run MapSwipe Workers

@@ -31,7 +31,7 @@ git checkout dev
 
 ### Configuration
 
-All configurations values are stored in environment variables. Please refer to the documentation on [Configuration](configuration.md) for further details.
+All configurations values are stored in environment variables. Please refer to the documentation on [Configuration](configuration.html) for further details.
 
 
 ### Directories
@@ -105,7 +105,7 @@ except Exception:
 
 Default logging level is Info. To change the logging level edit the configuration. Logs are written to STDOUT and `~/.local/share/mapswipe_workers/mapswipe_workers.log`.
 
-Per default logging of third-party packages is disabled. To change this edit the definition module (`mapswipe_workers/defintions.md`). Set the `disable_existing_loggers` parameter of the `logging.config.fileConfig()` function to `False`.
+Per default logging of third-party packages is disabled. To change this edit the definition module (`mapswipe_workers/defintions.py`). Set the `disable_existing_loggers` parameter of the `logging.config.fileConfig()` function to `False`.
 
 
 ## Firebase Functions

@@ -38,6 +38,22 @@ In addition to get access to Firebase a Service Account Key is required.
 The path the Service Account Key is defined in:
 - GOOGLE_APPLICATION_CREDENTIALS
 
+> Notes: When deploying using `docker` or `docker-compose` `POSTGRES_HOST` should have the value `postgres` and the Service Account Key (`serviceAccountKey.json`) should be copied to `mapswipe_workers/serviceAccountKey.json` so that during the build of the image the file can by copied by Docker.
+
+
+### Elaboration
+
+**Firebase**: MapSwipe Workers use the Firebase Python SDK and the Firebase REST API. Both require the database name (`FIREBASE_DB`) and the API-Key from the Firebase instance. The Firebase Python SDK does also need a Service Account Key. The path to this file is set in the `GOOGLE_APPLICATION_CREDENTIALS` environment variable.
+
+**Postgres**: MapSwipe Workers writes data to a Postgres database and generate files for the API based data in Postgres.
+
+**Sentry (optional)**: MapSwipe workers use sentry to capture exceptions. You can find your project’s DSN in the “Client Keys” section of your “Project Settings” in Sentry. Check [Sentry's documentation](https://docs.sentry.io/error-reporting/configuration/?platform=python) for more information.
+
+**Slack (optional)**: The MapSwipe workers send messages to slack when a project has been created successfully, the project creation failed or an exception gets raised. refer to [Python slackclient's documentation](https://github.com/slackapi/python-slackclient) how to get a Slack Token.
+
+**Imagery:** MapSwipe uses satellite imagery provided by Tile Map Services (TMS).
+If you are not familiar with the basic concept have a look at [Bing's documentation](https://docs.microsoft.com/en-us/bingmaps/articles/bing-maps-tile-system).
+
 
 ## Postgres
 
@@ -48,17 +64,17 @@ Required environment variables are (Those are the same as needed by MapSwipe Wor
 - POSTGRES_PORT
 - POSTGRES_USER
 
-> Notes: When deploying using `docker` or `docker-compose` `POSTGRES_HOST` should have the value `postgres` and the Service Account Key (`serviceAccountKey.json`) should be copied to `mapswipe_workers/serviceAccountKey.json` as described in detail in [Deployment](deployment.md).
+> Notes: When deploying using `docker` or `docker-compose` `POSTGRES_HOST` should have the value `postgres`.
 
 
 ### Postgres Backup
 
-On details of how the back-up works please refer to [Postgres Backup](backup.md).
+On details of how the back-up works please refer to [Postgres Backup](backup.html).
 
 Required environment variables are:
 - WALG_GS_PREFIX
 
-To gain access to Google Cloud Storage another Service Account Key is needed. Again refer to [Postgres Backup](backup.md) on how to create this file.
+To gain access to Google Cloud Storage another Service Account Key is needed. Again refer to [Postgres Backup](backup.html) on how to create this file.
 The Service Account Key (`serviceAccountKey.json`) should be saved to `postgres/serviceAccountKey.json`
 
 
