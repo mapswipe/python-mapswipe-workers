@@ -1,7 +1,9 @@
 # Configuration Reference
 
 Most of the configuration is stored in environment variables.
-At the root of the GitHub repository an example file (`example.env`) with all possible configuration variables exists. To get started copy this file to `.env` and fill in missing variables. Once done source this file to make variables accessible as environment variables: `source .env` to either be used by docker-compose during deployment setup or by MapSwipe Workers directly.
+At the root of the GitHub repository (in the same directory as `docker-compose.yml`) an example file (`example.env`) with all possible configuration variables exists. To get started copy this file to `.env` (no name is required) and fill in missing variables. The Docker Compose file will access those variables when needed.
+
+> Note: If you want those variables to be accessible as Environment Variables in your current shell (Eg. Inside a Python virtual environment for development.) your need to parse the file and export the variables: `export $(cat .env | xargs)`
 
 In following chapters configuration values and keys are discussed for each part of the MapSwipe Back-end.
 
@@ -13,7 +15,6 @@ All configuration values for MapSwipe Workers are stored in environment variable
 Required environment variables are:
 - FIREBASE_API_KEY
 - FIREBASE_DB
-- GOOGLE_APPLICATION_CREDENTIALS
 - POSTGRES_DB
 - POSTGRES_HOST
 - POSTGRES_PASSWORD
@@ -37,17 +38,17 @@ In addition to get access to Firebase a Service Account Key is required.
 The path the Service Account Key is defined in:
 - GOOGLE_APPLICATION_CREDENTIALS
 
-> Notes: When deploying using `docker` or `docker-compose` `POSTGRES_HOST` should have the value `postgres` and the Service Account Key (`serviceAccountKey.json`) should be copied to `mapswipe_workers/serviceAccountKey.json` as described in detail in [Deployment](deployment.md).
-
 
 ## Postgres
 
-Required environment variables are:
+Required environment variables are (Those are the same as needed by MapSwipe Workers):
 - POSTGRES_DB
 - POSTGRES_HOST
 - POSTGRES_PASSWORD
 - POSTGRES_PORT
 - POSTGRES_USER
+
+> Notes: When deploying using `docker` or `docker-compose` `POSTGRES_HOST` should have the value `postgres` and the Service Account Key (`serviceAccountKey.json`) should be copied to `mapswipe_workers/serviceAccountKey.json` as described in detail in [Deployment](deployment.md).
 
 
 ### Postgres Backup
@@ -61,7 +62,7 @@ To gain access to Google Cloud Storage another Service Account Key is needed. Ag
 The Service Account Key (`serviceAccountKey.json`) should be saved to `postgres/serviceAccountKey.json`
 
 
-### Manager Dashboard
+## Manager Dashboard
 
 `manager_dashboard/manager_dashboard/js/app.js`
 
