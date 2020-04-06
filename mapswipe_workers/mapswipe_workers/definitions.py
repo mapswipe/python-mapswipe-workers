@@ -15,15 +15,43 @@ class CustomError(Exception):
 DATA_PATH = os.path.join(XDG_DATA_HOME, "mapswipe_workers")
 if not os.path.exists(DATA_PATH):
     os.makedirs(DATA_PATH)
-ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
-LOGGING_CONFIG_PATH = os.path.join(ROOT_DIR, "logging.cfg")
 LOGGING_FILE_PATH = os.path.join(DATA_PATH, "mapswipe_workers.log")
 
-logging.config.fileConfig(
-    fname=LOGGING_CONFIG_PATH,
-    defaults={"logfilename": LOGGING_FILE_PATH},
-    disable_existing_loggers=True,
-)
+LOGGING_CONFIG = {
+    "version": 1,
+    "disable_existing_loggers": True,
+    "formatters": {
+        "standard": {
+            "format": "%(asctime)s - %(levelname)s - %(filename)s - %(funcName)s - %(message)s"
+        },
+    },
+    "handlers": {
+        "console": {
+            "level": "INFO",
+            "class": "logging.StreamHandler",
+            "formatter": "standard",
+        },
+        "file": {
+            "level": "INFO",
+            "class": "logging.handlers.TimedRotatingFileHandler",
+            "formatter": "standard",
+            "filename": LOGGING_FILE_PATH,
+            "when": "D",
+            "interval": 1,
+            "backupCount": 14,
+        },
+    },
+    "loggers": {
+        "root": {"handlers": ["console"], "level": "INFO"},
+        "mapswipe": {
+            "handlers": ["console", "file"],
+            "level": "INFO",
+            "propagate": False,
+        },
+    },
+}
+
+logging.config.dictConfig(LOGGING_CONFIG)
 logger = logging.getLogger("Mapswipe Workers")
 
 
