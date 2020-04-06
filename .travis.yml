@@ -1,0 +1,71 @@
+# This is a special configuration file to run tests on Travis-CI via
+# GitHub notifications when changes are committed.
+#
+# For technical details, see http://travis-ci.org/
+#
+branches:
+  except:
+    - docs
+
+dist: bionic
+addons:
+  apt:
+    sources:
+      - ppa:ubuntugis/ppa
+    update: true
+    packages:
+      - gdal-bin
+      - python-gdal
+      - python3-gdal
+      - libgdal-dev
+
+language: python
+python:
+  - "3.6"
+virtualenv:
+  system_site_packages: true
+
+services:
+  - docker
+
+before_install:
+  - pip install --upgrade pip setuptools
+  - pip install flake8 black
+
+install:
+  - pip install mapswipe_workers/
+  - mkdir --parents ~/.config/mapswipe_workers
+  - mkdir --parents ~/.local/share/mapswipe_workers
+  - echo "$SERVICE_ACCOUNT_KEY" > ~/.config/mapswipe_workers/serviceAccountKey.json
+  - docker build --tag mapswipe_postgres --file postgres/Dockerfile-dev postgres/
+
+before_script:
+  - docker run --detach --publish 5432:5432 --name mapswipe_postgres -e POSTGRES_DB="$POSTGRES_DB" -e POSTGRES_USER="$POSTGRES_USER" -e POSTGRES_PASSWORD="$POSTGRES_PASSWORD" mapswipe_postgres
+  - docker-compose up --build --detach firebase_deploy
+
+script:
+  # - TODO: Run black and flake8
+  - python -m unittest -v tests.integration_tests.test_gdal
+  # TODO: Use line below once tests have been implemented
+  #- python -m unittest discover -v -s mapswipe_workers/tests/integration_tests/ -p 'test_*.py'
+
+# before_deploy:
+#   # SSH setup to deploy to server after build.
+#   - apk add openssh-client
+#   - mkdir -p ~/.ssh
+#   - chmod 700 ~/.ssh
+#   - eval "$(ssh-agent -s)"
+#   - export KEY_FILE=~/.ssh/api_server_ssh_key
+#   - echo "$DEPLOYMENT_SERVER_PRIVATE_KEY" | tr -d '\r' > $KEY_FILE
+#   - chmod 600 $KEY_FILE
+#   - ssh-add $KEY_FILE > /dev/null
+#   - ssh-keyscan -H "$DEPLOYMENT_SERVER_IP" >> ~/.ssh/known_hosts
+#   - chmod 644 ~/.ssh/known_hosts
+#   - ssh -i $KEY_FILE -o StrictHostKeyChecking=no "mapswipe@$DEPLOYMENT_SERVER_IP"
+
+# deploy:
+#   provider: script
+#   script: bash scripts/deploy.sh
+#   on:
+#     branch: dev
+

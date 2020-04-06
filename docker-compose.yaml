@@ -104,6 +104,7 @@ services:
             context: firebase/
         environment:
             FIREBASE_TOKEN: '${FIREBASE_TOKEN}'
-        command: firebase deploy --token $FIREBASE_TOKEN --only functions,database:rules
+            FIREBASE_DB: '${FIREBASE_DB}'
+        command: sh -c "firebase use $FIREBASE_DB && firebase deploy --token $FIREBASE_TOKEN --only functions,database:rules"
         volumes:
             - ./firebase:/firebase

@@ -9,22 +9,23 @@ from mapswipe_workers.config import (
     POSTGRES_PASSWORD,
     POSTGRES_USER,
     SERVICE_ACCOUNT_KEY_PATH,
+    IMAGE_API_KEYS,
 )
-from mapswipe_workers.definitions import IMAGE_URL
+from mapswipe_workers.definitions import IMAGE_URLS
 
 
 def get_api_key(tileserver: str) -> str:
     if tileserver == "custom":
         return None
     else:
-        return IMAGE_URL[tileserver]
+        return IMAGE_API_KEYS[tileserver]
 
 
 def get_tileserver_url(tileserver: str) -> str:
     if tileserver == "custom":
         return None
     else:
-        return IMAGE_URL[tileserver]
+        return IMAGE_URLS[tileserver]
 
 
 def firebaseDB() -> object:

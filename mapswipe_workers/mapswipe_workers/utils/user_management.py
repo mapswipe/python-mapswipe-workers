@@ -86,8 +86,9 @@ def delete_user(email):
 
 def sign_in_with_email_and_password(email, password):
     api_key = FIREBASE_API_KEY
-    request_ref = "https://www.googleapis.com/identitytoolkit/v3/relyingparty/verifyPassword?key={0}".format(
-        api_key
+    request_ref = (
+        "https://www.googleapis.com/identitytoolkit/"
+        + "v3/relyingparty/verifyPassword?key={0}".format(api_key)
     )
     headers = {"content-type": "application/json; charset=UTF-8"}
     data = json.dumps({"email": email, "password": password, "returnSecureToken": True})
@@ -98,8 +99,8 @@ def sign_in_with_email_and_password(email, password):
 
 
 def get_firebase_db(path, custom_arguments=None, token=None):
-    databaseName = FIREBASE_DB
-    database_url = f"https://{databaseName}.firebaseio.com"
+    database_name = FIREBASE_DB
+    database_url = f"https://{database_name}.firebaseio.com"
     request_ref = "{0}{1}.json?{3}auth={2}".format(
         database_url, path, token, custom_arguments
     )
@@ -116,8 +117,8 @@ def get_firebase_db(path, custom_arguments=None, token=None):
 
 
 def set_firebase_db(path, data, token=None):
-    databaseName = FIREBASE_DB
-    database_url = f"https://{databaseName}.firebaseio.com"
+    database_name = FIREBASE_DB
+    database_url = f"https://{database_name}.firebaseio.com"
     request_ref = "{0}{1}.json?auth={2}".format(database_url, path, token)
     headers = {"content-type": "application/json; charset=UTF-8"}
     request_object = requests.put(
@@ -132,8 +133,8 @@ def set_firebase_db(path, data, token=None):
 
 
 def update_firebase_db(path, data, token=None):
-    databaseName = FIREBASE_DB
-    database_url = f"https://{databaseName}.firebaseio.com"
+    database_name = FIREBASE_DB
+    database_url = f"https://{database_name}.firebaseio.com"
     request_ref = "{0}{1}.json?auth={2}".format(database_url, path, token)
     headers = {"content-type": "application/json; charset=UTF-8"}
     request_object = requests.patch(
