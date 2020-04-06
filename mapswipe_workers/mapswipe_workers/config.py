@@ -31,6 +31,6 @@ IMAGE_API_KEYS = {
     "maxar_premium": IMAGE_MAXAR_PREMIUM_API_KEY,
 }
 
-SLACK_CHANNEL = os.getenv("SLACK_CHANNEL", default=None)
-SLACK_TOKEN = os.getenv("SLACK_TOKEN", default=None)
-SENTRY_DSN = os.getenv("SENTRY_DSN", default=None)
+SLACK_CHANNEL = os.getenv("SLACK_CHANNEL")
+SLACK_TOKEN = os.getenv("SLACK_TOKEN")
+SENTRY_DSN = os.getenv("SENTRY_DSN")
