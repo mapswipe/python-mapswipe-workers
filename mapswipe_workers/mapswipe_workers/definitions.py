@@ -38,36 +38,36 @@ sentry = sentry_sdk
 
 IMAGE_URLS = {
     "bing": (
-        "https://ecn.t0.tiles.virtualearth.net",
-        "/tiles/a{quad_key}.jpeg?g=7505&mkt=en-US&token={key}",
+        "https://ecn.t0.tiles.virtualearth.net"
+        + "/tiles/a{quad_key}.jpeg?g=7505&mkt=en-US&token={key}"
     ),
     "mapbox": (
-        "https://d.tiles.mapbox.com",
-        "/v4/mapbox.satellite/{z}/{x}/{y}.jpg?access_token={key}",
+        "https://d.tiles.mapbox.com"
+        + "/v4/mapbox.satellite/{z}/{x}/{y}.jpg?access_token={key}"
     ),
     "maxar_premium": (
-        "https://services.digitalglobe.com",
-        "/earthservice/tmsaccess/tms/1.0.0/",
-        "DigitalGlobe%3AImageryTileService@EPSG%3A3857@jpg/",
-        "{z}/{x}/{y}.jpg?connectId={key}",
+        "https://services.digitalglobe.com"
+        + "/earthservice/tmsaccess/tms/1.0.0/"
+        + "DigitalGlobe%3AImageryTileService@EPSG%3A3857@jpg/"
+        + "{z}/{x}/{y}.jpg?connectId={key}"
     ),
     "maxar_standard": (
-        "https://services.digitalglobe.com",
-        "/earthservice/tmsaccess/tms/1.0.0/",
-        "DigitalGlobe%3AImageryTileService@EPSG%3A3857@jpg/",
-        "{z}/{x}/{y}.jpg?connectId={key}",
+        "https://services.digitalglobe.com"
+        + "/earthservice/tmsaccess/tms/1.0.0/"
+        + "DigitalGlobe%3AImageryTileService@EPSG%3A3857@jpg/"
+        + "{z}/{x}/{y}.jpg?connectId={key}"
     ),
     "esri": (
-        "https://services.arcgisonline.com",
-        "/arcgis/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+        "https://services.arcgisonline.com"
+        + "/arcgis/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
     ),
     "esri_beta": (
-        "https://clarity.maptiles.arcgis.com",
-        "/arcgis/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+        "https://clarity.maptiles.arcgis.com"
+        + "/arcgis/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
     ),
     "sinergise": (
-        "https://services.sentinel-hub.com",
-        "/ogc/wmts/{key}?request=getTile&tilematrixset=PopularWebMercator256&",
-        "tilematrix={z}&tilecol={x}&tilerow={y}&layer={layer}",
+        "https://services.sentinel-hub.com"
+        + "/ogc/wmts/{key}?request=getTile&tilematrixset=PopularWebMercator256&"
+        + "tilematrix={z}&tilecol={x}&tilerow={y}&layer={layer}"
     ),
 }
