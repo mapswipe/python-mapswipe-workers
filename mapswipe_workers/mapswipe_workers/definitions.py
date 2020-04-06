@@ -12,7 +12,31 @@ class CustomError(Exception):
     pass
 
 
-IMAGE_URL = {
+DATA_PATH = os.path.join(XDG_DATA_HOME, "mapswipe_workers")
+if not os.path.exists(DATA_PATH):
+    os.makedirs(DATA_PATH)
+ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
+LOGGING_CONFIG_PATH = os.path.join(ROOT_DIR, "logging.cfg")
+LOGGING_FILE_PATH = os.path.join(DATA_PATH, "mapswipe_workers.log")
+
+logging.config.fileConfig(
+    fname=LOGGING_CONFIG_PATH,
+    defaults={"logfilename": LOGGING_FILE_PATH},
+    disable_existing_loggers=True,
+)
+logger = logging.getLogger("Mapswipe Workers")
+
+
+try:
+    sentry_sdk.init(SENTRY_DSN)
+except KeyError:
+    logger.info(
+        "No configuration for Sentry was found. Continue without Sentry integration."
+    )
+sentry = sentry_sdk
+
+
+IMAGE_URLS = {
     "bing": (
         "https://ecn.t0.tiles.virtualearth.net",
         "/tiles/a{quad_key}.jpeg?g=7505&mkt=en-US&token={key}",
@@ -47,25 +71,3 @@ IMAGE_URL = {
         "tilematrix={z}&tilecol={x}&tilerow={y}&layer={layer}",
     ),
 }
-
-DATA_PATH = os.path.join(XDG_DATA_HOME, "mapswipe_workers")
-if not os.path.exists(DATA_PATH):
-    os.makedirs(DATA_PATH)
-ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
-LOGGING_CONFIG_PATH = os.path.join(ROOT_DIR, "logging.cfg")
-LOGGING_FILE_PATH = os.path.join(DATA_PATH, "mapswipe_workers.log")
-
-logging.config.fileConfig(
-    fname=LOGGING_CONFIG_PATH,
-    defaults={"logfilename": LOGGING_FILE_PATH},
-    disable_existing_loggers=True,
-)
-logger = logging.getLogger("Mapswipe Workers")
-
-try:
-    sentry_sdk.init(SENTRY_DSN)
-except KeyError:
-    logger.info(
-        "No configuration for Sentry was found. Continue without Sentry integration."
-    )
-sentry = sentry_sdk
