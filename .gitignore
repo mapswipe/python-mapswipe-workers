@@ -133,5 +133,5 @@ nginx.conf
 
 .DS_Store
 
-#pre commit file
+# pre commit file
 .pre-commit-config.yaml
