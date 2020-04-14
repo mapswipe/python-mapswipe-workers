@@ -2,8 +2,7 @@ from osgeo import ogr
 import os
 from mapswipe_workers.utils import tile_grouping_functions as t
 from mapswipe_workers.project_types.build_area.build_area_group import BuildAreaGroup
-from mapswipe_workers.project_types.build_area.build_area_task \
-    import BuildAreaTask
+from mapswipe_workers.project_types.build_area.build_area_task import BuildAreaTask
 from mapswipe_workers.project_types.build_area.build_area_project import (
     BuildAreaProject,
 )
@@ -11,21 +10,23 @@ from mapswipe_workers.project_types.build_area.build_area_project import (
 
 from mapswipe_workers.definitions import logger
 
-url = ("https://ecn.t0.tiles.virtualearth.net/tiles/a"
-       "{quad_key}.jpeg?g=7505&mkt=en-US&token={key}")
+url = (
+    "https://ecn.t0.tiles.virtualearth.net/tiles/a"
+    "{quad_key}.jpeg?g=7505&mkt=en-US&token={key}"
+)
 
-apiKeyRequired = 'AopsdXjtTu-IwNoCTiZBtgRJ1g7yPkzAi65nXplc-eLJwZHYlAIf2yuSY_Kjg3Wn'
-apiKey = 'AopsdXjtTu-IwNoCTiZBtgRJ1g7yPkzAi65nXplc-eLJwZHYlAIf2yuSY_Kjg3Wn'
+apiKeyRequired = "AopsdXjtTu-IwNoCTiZBtgRJ1g7yPkzAi65nXplc-eLJwZHYlAIf2yuSY_Kjg3Wn"
+apiKey = "AopsdXjtTu-IwNoCTiZBtgRJ1g7yPkzAi65nXplc-eLJwZHYlAIf2yuSY_Kjg3Wn"
 
 tile_server_dict = {
-    'name': 'bing',
-    'url': url,
-    'apiKeyRequired': apiKeyRequired,
-    'apiKey': apiKey,
-    'wmtsLayerName': None,
-    'captions': None,
-    'date': None,
-    'credits': "credits"
+    "name": "bing",
+    "url": url,
+    "apiKeyRequired": apiKeyRequired,
+    "apiKey": apiKey,
+    "wmtsLayerName": None,
+    "captions": None,
+    "date": None,
+    "credits": "credits",
 }
 
 BuildAreaProject.projectId = 12
@@ -34,9 +35,7 @@ BuildAreaProject.tileServer = tile_server_dict
 
 project_area = "/home/tahira/Public/LOKI/nuernberg/nuernberg_projectarea.geojson"
 
-raw_groups = t.extent_to_slices(
-    project_area, 18, 120
-)
+raw_groups = t.extent_to_slices(project_area, 18, 120)
 
 
 project = BuildAreaProject
@@ -44,12 +43,12 @@ project = BuildAreaProject
 tasks = list()
 
 for group_id, slice in raw_groups.items():
-    xMax = slice['xMax']
-    xMin = slice['xMin']
-    yMax = slice['yMax']
-    yMin = slice['yMin']
+    xMax = slice["xMax"]
+    xMin = slice["xMin"]
+    yMax = slice["yMax"]
+    yMin = slice["yMin"]
     group = BuildAreaGroup(project, group_id, slice)
-    #following lines from create_task function
+    # following lines from create_task function
     for TileX in range(int(xMin), int(xMax) + 1):
         for TileY in range(int(yMin), int(yMax) + 1):
             task = BuildAreaTask(group, project, TileX, TileY)
