@@ -3,7 +3,7 @@
   "projectType": 1,
   "projectId": "completeness_tutorial",
   "zoomLevel": 18,
-  "lookFor": "completeness",
+  "lookFor": "completeness of buildings",
   "status": "completeness_tutorial",
   "projectDetails": "This is a tutorial",
   "progress": 0,
@@ -13,13 +13,21 @@
     "name": "bing",
     "apiKey": ""
   },
+  "tileServerB" : {
+    "apiKey" : "",
+    "apiKeyRequired" : false,
+    "caption" : "After",
+    "date" : "",
+    "name" : "custom",
+    "url" : "https://api.mapbox.com/styles/v1/tahirau/ck6t8815214fq1it82leerpst/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoidGFoaXJhdSIsImEiOiJjazZrdGQyMjYwMnpsM2VwNjdmdnl6eGo5In0.RIyd6m3AoPKWEkJFSc5CDA"
+  },
   "categories": {
-    "completeness_easy_1": {
+    "building_easy_1": {
       "pre": "Tap once on all tiles where blue buildings match with the buildings on th satellite imagery.",
       "post_correct": "Great. Swipe left and let's have a look a some more difficult examples.",
-      "post_wrong": "... there are some buildings here. Please map all of them. "
+      "post_wrong": "... there are some buildings here. Please assess if all of blue buildings match with satellite imagery. "
     },
-    "completeness_easy_2": {
+    "building_easy_2": {
       "pre": "Again tap the tiles where blue buildings match with satellite imagery. Don't be distracted by roads and other features.",
       "post_correct": "Perfect. Swipe left and let's have a look at examples without buildings.",
       "post_wrong": "Oh no. Make sure to map all buildings, also if only small parts of a building are visible in a tile."
@@ -39,13 +47,17 @@
       "post_correct": "Isn't it simple? Swipe left and see more examples.",
       "post_wrong": "... even if there are other objects, there are no buildings here."
     },
-    "incomplete_1": {
-      "pre": "If blue buildings don't match with the satellite imagery tap three times.",
+     "bad_clouds_1": {
+      "pre": "If you see clouds and no buildings tap three times.",
       "post_correct": "Perfect. Let's move on.",
-      "post_wrong": "Oh no. Make sure to indicate incomplete blue buildings."
-
+      "post_wrong": "Oh no. Make sure to indicate clouds as well."
     },
-    "incomplete_2": {
+    "bad_no_imagery_1": {
+      "pre": "If imagery is lacking also tap three times.",
+      "post_correct": "Nice.",
+      "post_wrong": "Please mark all tiles for which there is no imagery."
+    },
+    "bad_no_imagery_2": {
       "pre": "You can also swipe down to mark all tiles red at once. (And you can swipe up to redo this.)",
       "post_correct": "Cool. We're done with the tutorial. Now you are ready for some real mapping projects.",
       "post_wrong": "Try again."

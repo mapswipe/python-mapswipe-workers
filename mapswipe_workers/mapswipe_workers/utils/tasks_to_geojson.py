@@ -49,7 +49,7 @@ for group_id, slice in raw_groups.items():
     yMax = slice['yMax']
     yMin = slice['yMin']
     group = BuildAreaGroup(project, group_id, slice)
-
+    #following lines from create_task function
     for TileX in range(int(xMin), int(xMax) + 1):
         for TileY in range(int(yMin), int(yMax) + 1):
             task = BuildAreaTask(group, project, TileX, TileY)
@@ -57,6 +57,22 @@ for group_id, slice in raw_groups.items():
 
 
 def tasks_to_geoJson(tasks, outfile):
+    """
+        The function to create a geojson file from the tasks.
+
+        Parameters
+        ----------
+        tasks : list of dict's
+            a dictionary contains "yMin", "yMax", "xMax", "xMin", "groupId", "taskId"
+            and a "geometry" as ogr.Geometry(ogr.wkbPolygon)
+        outfile : str
+            the path a .geojson file for storing the output
+
+        Returns
+        -------
+        bool
+            True if successful, False otherwise.
+        """
     # Create the output Driver
     driver = ogr.GetDriverByName("GeoJSON")
     # Create the output GeoJSON

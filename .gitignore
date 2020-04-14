@@ -132,3 +132,6 @@ nginx.conf
 */.firebaserc
 
 .DS_Store
+
+#pre commit file
+/.pre-commit-config.yaml

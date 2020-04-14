@@ -44,6 +44,7 @@ def generate_tutorial_data(tutorial):
                         "reference_answer_list": [],
                         "category": category,
                         "url_list": [],
+                        "url_listB": [],
                     }
 
                 grouped_tasks[category][row[3]]["task_id_list"].append(row[0])
@@ -55,7 +56,11 @@ def generate_tutorial_data(tutorial):
                 url = t.tile_coords_zoom_and_tileserver_to_url(
                     task_x, task_y, zoom, tutorial["tileServer"]
                 )
+                urlB = t.tile_coords_zoom_and_tileserver_to_url(
+                    task_x, task_y, zoom, tutorial["tileServerB"]
+                )
                 grouped_tasks[category][row[3]]["url_list"].append(url)
+                grouped_tasks[category][row[3]]["url_listB"].append(urlB)
                 grouped_tasks[category][row[3]]["reference_answer_list"].append(row[1])
 
     groups_dict = {}
@@ -103,6 +108,7 @@ def generate_tutorial_data(tutorial):
                     "referenceAnswer": tasks["reference_answer_list"][j],
                     "category": tasks["category"],
                     "url": tasks["url_list"][j],
+                    "urlB": tasks["url_listB"][j],
                 }
 
                 if tasks["task_x_list"][j] == x_min:
