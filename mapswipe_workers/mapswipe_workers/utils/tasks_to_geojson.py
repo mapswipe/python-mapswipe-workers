@@ -1,7 +1,5 @@
-import math
 from osgeo import ogr
-import os, osr
-import sys
+import os
 from mapswipe_workers.utils import tile_grouping_functions as t
 from mapswipe_workers.project_types.build_area.build_area_group import BuildAreaGroup
 from mapswipe_workers.project_types.build_area.build_area_task \
@@ -13,11 +11,17 @@ from mapswipe_workers.project_types.build_area.build_area_project import (
 
 from mapswipe_workers.definitions import logger
 
+url = ("https://ecn.t0.tiles.virtualearth.net/tiles/a"
+       "{quad_key}.jpeg?g=7505&mkt=en-US&token={key}")
+
+apiKeyRequired = 'AopsdXjtTu-IwNoCTiZBtgRJ1g7yPkzAi65nXplc-eLJwZHYlAIf2yuSY_Kjg3Wn'
+apiKey = 'AopsdXjtTu-IwNoCTiZBtgRJ1g7yPkzAi65nXplc-eLJwZHYlAIf2yuSY_Kjg3Wn'
+
 tile_server_dict = {
     'name': 'bing',
-    'url': 'https://ecn.t0.tiles.virtualearth.net/tiles/a{quad_key}.jpeg?g=7505&mkt=en-US&token={key}',
-    'apiKeyRequired': 'AopsdXjtTu-IwNoCTiZBtgRJ1g7yPkzAi65nXplc-eLJwZHYlAIf2yuSY_Kjg3Wn',
-    'apiKey': 'AopsdXjtTu-IwNoCTiZBtgRJ1g7yPkzAi65nXplc-eLJwZHYlAIf2yuSY_Kjg3Wn',
+    'url': url,
+    'apiKeyRequired': apiKeyRequired,
+    'apiKey': apiKey,
     'wmtsLayerName': None,
     'captions': None,
     'date': None,
@@ -34,8 +38,6 @@ raw_groups = t.extent_to_slices(
     project_area, 18, 120
 )
 
-# for group_id, group in raw_groups.items():
-# print(group["group_polygon"])
 
 project = BuildAreaProject
 
@@ -54,7 +56,7 @@ for group_id, slice in raw_groups.items():
             tasks.append(vars(task))
 
 
-def save_tasks_as_geoJson(tasks, outfile):
+def tasks_to_geoJson(tasks, outfile):
     # Create the output Driver
     driver = ogr.GetDriverByName("GeoJSON")
     # Create the output GeoJSON
@@ -89,6 +91,4 @@ def save_tasks_as_geoJson(tasks, outfile):
     return True
 
 
-
-
-a = save_tasks_as_geoJson(tasks, "nuernberg_tasks.geojson")
+a = tasks_to_geoJson(tasks, "nuernberg_tasks.geojson")
