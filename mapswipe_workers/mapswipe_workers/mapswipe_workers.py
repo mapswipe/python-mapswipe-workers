@@ -180,7 +180,7 @@ def run_create_tutorial(input_file) -> None:
         }
         project_types_tutorial[project_type](tutorial)
     except Exception:
-        logger.exception()
+        logger.exception("sorry")
         sentry.capture_exception()
 
 
