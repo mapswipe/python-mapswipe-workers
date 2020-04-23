@@ -34,8 +34,8 @@ Attributes:
 This gives you the unfiltered MapSwipe results. This is most suited if you want to apply some custom data processing with the MapSwipe data, e.g. select only specific tasks for machine learning. If you want to use MapSwipe data in the Tasking Manager you might look for the data explained below.
 
 Files:
-- `aggregated_results_{project_id}.csv`, e.g. [agg_results_-M56eeMCZ5VeOHjJN4Bx.csv](https://apps.mapswipe.org/api/agg_results/agg_results_-M56eeMCZ5VeOHjJN4Bx.csv)
-- `aggregated_results_{project_id}.geojson`, e.g. [agg_results_-M56eeMCZ5VeOHjJN4Bx.geojson](https://apps.mapswipe.org/api/agg_results/agg_results_-M56eeMCZ5VeOHjJN4Bx.geojson)
+- `aggregated_results_{project_id}.csv`, e.g. [agg\_results\_-M56eeMCZ5VeOHjJN4Bx.csv](https://apps.mapswipe.org/api/agg_results/agg_results_-M56eeMCZ5VeOHjJN4Bx.csv)
+- `aggregated_results_{project_id}.geojson`, e.g. [agg\_results\_-M56eeMCZ5VeOHjJN4Bx.geojson](https://apps.mapswipe.org/api/agg_results/agg_results_-M56eeMCZ5VeOHjJN4Bx.geojson)
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
@@ -58,7 +58,7 @@ Files:
  This gives you filtered MapSwipe data ready to be imported to the HOT Tasking Manager. Currently, the geometries in this dataset consist of maximum 15 MapSwipe Tasks, where at least 35% of all users indicated the presence of a building by classifying as "yes" or "maybe". 
  
  Files:
- - `hot_tm_{project_id}.geojson`, e.g.[hot_tm_-M56eeMCZ5VeOHjJN4Bx.geojson](https://apps.mapswipe.org/api/hot_tm/hot_tm_-M56eeMCZ5VeOHjJN4Bx.geojson)
+ - `hot_tm_{project_id}.geojson`, e.g. [hot\_tm\_-M56eeMCZ5VeOHjJN4Bx.geojson](https://apps.mapswipe.org/api/hot_tm/hot_tm_-M56eeMCZ5VeOHjJN4Bx.geojson)
  
 | Name | Type | Description |
 | ---- | ---- | ----------- |
