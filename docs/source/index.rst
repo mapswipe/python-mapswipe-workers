@@ -20,6 +20,7 @@ Welcome to MapSwipe Back-End's documentation!
 
    for_mapswipe_managers
    cli
+   data
 
 
 .. toctree::
