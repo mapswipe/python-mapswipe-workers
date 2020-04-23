@@ -55,7 +55,7 @@ Files:
  
  
  ## HOT Tasking Manager Geometries
- This gives you filtered MapSwipe ready to be imported to the HOT Tasking Manager. Currently, the geometries in this data set consist of maximum 15 MapSwipe Tasks, where at least 35% of all users indicated the presence of a building by classifying as "yes" or "maybe". 
+ This gives you filtered MapSwipe data ready to be imported to the HOT Tasking Manager. Currently, the geometries in this dataset consist of maximum 15 MapSwipe Tasks, where at least 35% of all users indicated the presence of a building by classifying as "yes" or "maybe". 
  
  Files:
  * hot_tm_{project_id}.geojson, e.g.[hot_tm_-M56eeMCZ5VeOHjJN4Bx.geojson](https://apps.mapswipe.org/api/hot_tm/hot_tm_-M56eeMCZ5VeOHjJN4Bx.geojson)
