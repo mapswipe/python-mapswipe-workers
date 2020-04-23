@@ -65,6 +65,6 @@ Files:
 | group_id | integer | A ID for the geometry. It has no connection to the MapSwipe data model. |
 | geometry | geometry | A polygon geometry representing the selected MapSwipe tasks. In our GIS workflow we further aggregate and simplify the geometry, hence they kind of look like easter eggs. |
 
-<img src="_static/img/tasking_manager_geometries_examples.png" width="600px">
+<img src="_static/img/tasking_manager_geometries_example.png" width="600px">
  
  
