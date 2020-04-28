@@ -122,6 +122,7 @@ def create_group_geom(group_data, shape="bounding_box"):
         ring.AddPoint(lon_right, lat_bottom)
         ring.AddPoint(lon_left, lat_bottom)
         ring.AddPoint(lon_left, lat_top)
+        # TODO: Make sure to return 2D geom, currently 3D with z = 0.0
         group_geom = ogr.Geometry(ogr.wkbPolygon)
         group_geom.AddGeometry(ring)
 
