@@ -372,8 +372,6 @@ class BaseProject(metaclass=ABCMeta):
         outfile = (
             f"{DATA_PATH}/api/project_geometries/project_geom_{self.projectId}.geojson"
         )
-        print(project)
-
         wkt_geom = project["geometry"]
         geometries = [ogr.CreateGeometryFromWkt(wkt_geom)]
         geojson_functions.create_geojson_file(geometries, outfile)
