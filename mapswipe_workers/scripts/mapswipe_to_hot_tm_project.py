@@ -26,4 +26,4 @@ def mapswipe_to_hot_tm_project(project_id, project_name):
 
 mapswipe_project_id = "build_area_default_with_bing"
 tm_project_name = "benni_test"
-mapswipe_to_hot_tm_project(mapswpe_project_id, tm_project_name)
+mapswipe_to_hot_tm_project(mapswipe_project_id, tm_project_name)
