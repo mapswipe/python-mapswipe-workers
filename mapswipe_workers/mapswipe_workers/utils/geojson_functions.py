@@ -228,15 +228,21 @@ def create_geojson_file_from_dict(final_groups_dict, outfile):
 
 def create_geojson_file(geometries, outfile):
 
-    driver = ogr.GetDriverByName("GeoJSON")
+    driver = ogr.GetDriverByName("GeoJSONSeq")
     # define spatial Reference
     srs = osr.SpatialReference()
     srs.ImportFromEPSG(4326)
+    outfile_temp = outfile.replace(".geojson", "_temp.geojson")
+
+    if os.path.exists(outfile_temp):
+        driver.DeleteDataSource(outfile_temp)
+
     if os.path.exists(outfile):
         driver.DeleteDataSource(outfile)
-    dataSource = driver.CreateDataSource(outfile)
+
+    dataSource = driver.CreateDataSource(outfile_temp)
     # create layer
-    layer = dataSource.CreateLayer(outfile, srs, geom_type=ogr.wkbPolygon)
+    layer = dataSource.CreateLayer(outfile_temp, srs, geom_type=ogr.wkbPolygon,)
 
     # create fields
     field_id = ogr.FieldDefn("id", ogr.OFTInteger)
@@ -257,5 +263,33 @@ def create_geojson_file(geometries, outfile):
             # add feature to layer
             layer.CreateFeature(feature)
 
+    # make sure to close layer and data source
     layer = None
+    dataSource = None
+
+    # load the features from temp file
+    feature_collection = []
+    with open(outfile_temp, "r") as f:
+        for cnt, line in enumerate(f):
+            feature_collection.append(json.loads(line))
+
+    # create final geojson structure
+    geojson_structure = {
+        "type": "FeatureCollection",
+        "name": outfile,
+        "crs": {
+            "type": "name",
+            "properties": {"name": "urn:ogc:def:crs:OGC:1.3:CRS84"},
+        },
+        "features": feature_collection,
+    }
+    # save to geojson
+    with open(outfile, "w") as json_file:
+        json.dump(geojson_structure, json_file)
+        logger.info("created outfile: %s." % outfile)
+
+    # remove temp file
+    if os.path.exists(outfile_temp):
+        driver.DeleteDataSource(outfile_temp)
+
     logger.info("created outfile: %s." % outfile)

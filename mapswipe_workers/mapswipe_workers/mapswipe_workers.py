@@ -83,7 +83,7 @@ def run_create_projects():
             project.create_groups()
             project.calc_required_results()
             # Save project and its groups and tasks to Firebase and Postgres.
-            project.save_project()
+            project.save_project
             send_slack_message("success", project_name, project.projectId)
             logger.info("Success: Project Creation ({0})".format(project_name))
         except CustomError:

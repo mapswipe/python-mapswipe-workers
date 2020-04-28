@@ -52,7 +52,7 @@ LOGGING_CONFIG = {
 }
 
 logging.config.dictConfig(LOGGING_CONFIG)
-logger = logging.getLogger("Mapswipe Workers")
+logger = logging.getLogger("mapswipe")
 
 
 try:
