@@ -14,28 +14,26 @@
     "apiKey": ""
   },
   "tileServerB" : {
-    "apiKey" : "pk.eyJ1IjoidGFoaXJhdSIsImEiOiJjazZrdGQyMjYwMnpsM2VwNjdmdnl6eGo5In0.RIyd6m3AoPKWEkJFSc5CDA",
-    "apiKeyRequired" : false,
-    "caption" : "After",
+    "apiKey" : "",
     "date" : "",
     "name" : "custom",
-    "url" : "https://api.mapbox.com/styles/v1/tahirau/ck6t8815214fq1it82leerpst/tiles/{z}/{x}/{y}?access_token={key}"
+    "url" : "https://api.mapbox.com/styles/v1/tahirau/ck9ieq2rh1zid1iqytdkwlv5d/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoidGFoaXJhdSIsImEiOiJjazZrdGQyMjYwMnpsM2VwNjdmdnl6eGo5In0.RIyd6m3AoPKWEkJFSc5CDA"
   },
   "categories": {
     "building_easy_1": {
-      "pre": "Tap once on all tiles where orange buildings match with the buildings on th satellite imagery.",
+      "pre": "Look at the blue buildings on top of the imagery and tap once if it matches the buildings underneath it.",
       "post_correct": "Great. Swipe left and let's have a look a some more difficult examples.",
-      "post_wrong": "... there are some buildings here. Please assess if all of blue buildings match with satellite imagery. "
+      "post_wrong": "... Oh no. Please make sure if all of blue buildings match with satellite imagery. "
     },
     "building_easy_2": {
-      "pre": "Again tap the tiles where orange buildings match with satellite imagery. Don't be distracted by roads and other features.",
-      "post_correct": "Perfect. Swipe left and let's have a look at examples without buildings.",
-      "post_wrong": "Oh no. Make sure to tap correctly, also if only small parts of a building are visible in a tile."
+      "pre": "Sometimes the imagery underneath the blue buildings is older. Mark such tiles as complete anyway.",
+      "post_correct": "Perfect. Swipe left and let's have a look at examples with incomplete tiles.",
+      "post_wrong": "Oh no. Make sure to tap correctly."
     },
     "maybe_1": {
-      "pre": "Tap two times to indicate incomplete tiles, for example where orange buildings don't match with satellite imagery.",
+      "pre": "Tap two times to indicate incomplete tiles, for example buildings on satellite imagery aren't pictured as blue buildings. Don't be distracted if blue buildings don't align with the imagery properly.",
       "post_correct": "Great.",
-      "post_wrong": "Check if you have tapped correctly."
+      "post_wrong": "Sometimes there are no blue buildings on top of the imagery at all, tap twice two mark such tile as incomplete."
     },
     "no_building_easy_1": {
       "pre": "In many cases there will be no buildings at all. Just swipe left to map further.",

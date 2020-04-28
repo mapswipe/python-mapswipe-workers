@@ -89,8 +89,9 @@ def generate_tutorial_data(tutorial):
         # the task_y represents a tile located at the equator at zoom level 18
         task_y = 131072
         for category in categories:
-            # print(category)
+            print(category)
             keys = list(grouped_tasks[category].keys())
+            print(keys)
             tasks = grouped_tasks[category][keys[i]]
 
             x_min = min(tasks["task_x_list"])
