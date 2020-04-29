@@ -26,6 +26,9 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 
+    <!-- Add icon library -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
     <!-- Add Data Tables -->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.10.20/css/dataTables.bootstrap.min.css">
     <script src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
@@ -36,7 +39,7 @@
     <!-- add leaflet and turf.js -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css"  integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="  crossorigin=""/>
     <script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js" integrity="sha512-GffPMF3RvMeYyc1LWMHtK8EbPv0iNZ8/oTtHPx9/cc2ILxQ+u905qIwdpULaqDkyBKgOaB57QTMg7ztg8Jm2Og==" crossorigin=""></script>
-    <script src='https://npmcdn.com/@turf/turf/turf.min.js'></script>
+    <script src="https://cdn.jsdelivr.net/npm/@turf/turf@5/turf.min.js"></script>
 
     <!-- add sentry -->
     <script
@@ -82,6 +85,20 @@
   </div>
 
   <div class="section" id="signed-in-manager" style="display: none">
+      <div id="uploadModal" class="modal">
+          <div class="modal-content">
+          <div id="modalOngoing">
+              <p><i class="fa fa-spinner fa-spin"></i> Submitting your project. Be patient.</p>
+          </div>
+          <div id="modalSuccess" style="display:none;">
+            <p>Your project has been uploaded. It should take around 15 minutes to appear in the dashboard.</p>
+          <button class="btn btn-success" onclick="closeModal()">Close</button>
+          </div>
+
+          </div>
+      </div>
+
+
       <div class="container" >
 
         <!-- import projects -->

@@ -1,5 +1,5 @@
 """
-Archive a project.
+Delete projects.
 """
 import re
 from typing import Iterable
@@ -16,15 +16,14 @@ def chunks(data: list, size: int = 250) -> Iterable[list]:
         yield data[i : i + size]  # noqa E203
 
 
-def archive_project(project_ids: list) -> bool:
+def delete_project(project_ids: list) -> None:
     """
-    Archive a project.
-
-    Deletes groups, tasks and results from Firebase.
-    Set status = archived for project in Firebase and Postgres.
+    Deletes project, groups, tasks and results from Firebase and Postgres.
     """
     for project_id in project_ids:
-        logger.info(f"Archive project with the id {project_id}")
+        logger.info(
+            f"Delete project, groups, tasks and results of project: {project_id}"
+        )
 
         fb_db = auth.firebaseDB()
         ref = fb_db.reference(f"v2/results/{project_id}")
@@ -66,14 +65,22 @@ def archive_project(project_ids: list) -> bool:
                 {ref.path}"""
             )
         ref.delete()
-
-        fb_db.reference(f"v2/projects/{project_id}/status").set("archived")
+        ref = fb_db.reference(f"v2/projects/{project_id}")
+        if not re.match(r"/v2/\w+/[-a-zA-Z0-9]+", ref.path):
+            raise CustomError(
+                f"""Given argument resulted in invalid Firebase Realtime Database reference.
+                {ref.path}"""
+            )
+        ref.delete()
 
         pg_db = auth.postgresDB()
-        sql_query = """
-            UPDATE projects SET status = 'archived'
-            WHERE project_id = %(project_id)s;
-        """
+        sql_query = "DELETE FROM results WHERE project_id = %(project_id)s;"
+        pg_db.query(sql_query, {"project_id": project_id})
+        sql_query = "DELETE FROM tasks WHERE project_id = %(project_id)s;"
+        pg_db.query(sql_query, {"project_id": project_id})
+        sql_query = "DELETE FROM groups WHERE project_id = %(project_id)s;"
+        pg_db.query(sql_query, {"project_id": project_id})
+        sql_query = "DELETE FROM projects WHERE project_id = %(project_id)s;"
         pg_db.query(sql_query, {"project_id": project_id})
 
     return True
