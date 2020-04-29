@@ -20,17 +20,17 @@ The web mercator projection distorts the image in a way that objects further awa
 
 Figure 1 shows the decrease in size from south to north in project 10836 (Chad) on the northern hemisphere.
 
-<img src="/_static/img/chad_area.png" width="800">
+<img src="_static/img/chad_area.png" width="800">
 <p><i>Figure 1: Area in m² of Mapswipe tiles in project 10836.  As it is located on the northern hemisphere, tiles further north are smaller.</i></p>
 
 In the Mapswipe App, each tile has a size of 256x256 pixels. The translation of pixels into meters is depending on geographical longitude and level of details (see Figure 2).
 
-<img src="/_static/img/length-plot.png" width="600">
+<img src="_static/img/length-plot.png" width="600">
 <p><i>Figure 2: Tile length from pixel to meters: f(latitude, level) =  (cos(latitude * pi/180) * 2 * pi * 6378137) / (256 * 2^level) * 256;  for level = 18. Values range from 152.8741 m (Equator) to close to 0 m (poles). </i></p>
 
 As a result of the change in sidelength and inner angles, the area of the tiles decreases with distance from equator as well. Have a look at Figure 3.
 
-<img src="/_static/img/area-plot.png" width="800">
+<img src="_static/img/area-plot.png" width="800">
 <p><i>Figure 3 shows the calculated area for the standart level 18 from 90 ° to 0 °.</i></p>
 
 ## Summary
