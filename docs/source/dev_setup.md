@@ -89,12 +89,12 @@ mapswipe_workers --help
 
 ## Logging
 
-Mapswipe workers logs are generated using the Python logging module of the standard library (See [Official docs](https://docs.python.org/3/library/logging.html) or this [Tutorial](https://realpython.com/python-logging/#the-logging-module). The logging configuration is defined in the `logging.cfg` file (`mapswipe_workers/logging.cfg`). To use the logger object import the it from the `definitions` module:
+Mapswipe workers logs are generated using the Python logging module of the standard library (See [Official docs](https://docs.python.org/3/library/logging.html) or this [Tutorial](https://realpython.com/python-logging/#the-logging-module). To use the logger object import the it from the `definitions` module:
 
 ```python
 from mapswipe_workers.definitions import logger
-logger.info('information')
-logger.waring('warning')
+logger.info('information messages')
+logger.waring('warning messages')
 
 # Include stack trace in the log
 try:
@@ -103,7 +103,7 @@ except Exception:
     logger.exception('Additional information.')
 ```
 
-Default logging level is Info. To change the logging level edit the configuration. Logs are written to STDOUT and `~/.local/share/mapswipe_workers/mapswipe_workers.log`.
+Default logging level is Info. To change the logging level edit the logging configuration which is found in the module `definitions.py`. Logs are written to STDOUT and `~/.local/share/mapswipe_workers/mapswipe_workers.log`.
 
 Per default logging of third-party packages is disabled. To change this edit the definition module (`mapswipe_workers/defintions.py`). Set the `disable_existing_loggers` parameter of the `logging.config.fileConfig()` function to `False`.
 

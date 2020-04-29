@@ -3,11 +3,13 @@
 ## Logs - MapSwipe Workers
 
 Where can I find logs?
+- `docker logs mapswipe_workers`
+- or
+- `cat mapswipe-data/mapswipe_workers.log`
 
-Logs are written to directly to console and also to `/var/log/mapswipe_workers.log`:
+Logs are written to directly to the terminal (stdout). The easiest way is therefore is to run `docker logs mapswipe_workers` to see the logs.
 
-- `docker exec -t mapswipe_workers cat /var/log/mapswipe_workers/mapswipe_workers.log` (if container is running)
-- `docker logs container_name` (also if container is not running)
+Logs are also writing to file inside the Docker container (`~/.local/share/mapswipe_workers/mapswipe_workers.log`). The parent directory of the file is the data directory of MapSwipe Workers. This directory is mounted (as a Docker volume) locally to disk (`mapswipe-data/`). Logs can therefore be accessed as text file as well: `cat mapswipe-data/mapswipe_workers.log`
 
 
 ## Common Errors
