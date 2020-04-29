@@ -27,7 +27,10 @@ from mapswipe_workers.project_types.change_detection.change_detection_project im
 from mapswipe_workers.project_types.footprint.footprint_project import FootprintProject
 from mapswipe_workers.utils import user_management
 from mapswipe_workers.utils.create_directories import create_directories
-from mapswipe_workers.utils.slack_helper import send_slack_message
+from mapswipe_workers.utils.slack_helper import (
+    send_slack_message,
+    send_progress_notification,
+)
 
 
 class PythonLiteralOption(click.Option):
@@ -101,6 +104,7 @@ def run_firebase_to_postgres() -> list:
     update_data.update_user_data()
     update_data.update_project_data()
     project_ids = transfer_results.transfer_results()
+    [send_progress_notification(project_id) for project_id in project_ids]
     return project_ids
 
 
