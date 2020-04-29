@@ -8,7 +8,7 @@ import schedule as sched
 
 import click
 from mapswipe_workers import auth
-from mapswipe_workers.definitions import CustomError, logger, sentry
+from mapswipe_workers.definitions import CustomError, logger, sentry, MessageType
 from mapswipe_workers.firebase_to_postgres import (
     archive_project,
     delete_project,
@@ -87,12 +87,12 @@ def run_create_projects():
             project.calc_required_results()
             # Save project and its groups and tasks to Firebase and Postgres.
             project.save_project()
-            send_slack_message("success", project_name, project.projectId)
+            send_slack_message(MessageType.SUCCESS, project_name, project.projectId)
             logger.info("Success: Project Creation ({0})".format(project_name))
         except CustomError:
             ref = fb_db.reference(f"v2/projectDrafts/{project_draft_id}")
             ref.set({})
-            send_slack_message("fail", project_name, project.projectId)
+            send_slack_message(MessageType.FAIL, project_name, project.projectId)
             logger.exception("Failed: Project Creation ({0}))".format(project_name))
             sentry.capture_exception()
         continue

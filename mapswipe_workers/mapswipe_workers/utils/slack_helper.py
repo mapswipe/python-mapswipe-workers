@@ -2,9 +2,12 @@ import slack
 from mapswipe_workers.definitions import logger
 from mapswipe_workers import auth
 from mapswipe_workers.config import SLACK_CHANNEL, SLACK_TOKEN
+from mapswipe_workers.definitions import MessageType
 
 
-def send_slack_message(message_type: str, project_name: str, project_id: str = None):
+def send_slack_message(
+    message_type: MessageType, project_name: str, project_id: str = None
+):
     """Initialize slack client with values provided in environment."""
     if SLACK_TOKEN is None or SLACK_CHANNEL is None:
         logger.info(
@@ -15,7 +18,7 @@ def send_slack_message(message_type: str, project_name: str, project_id: str = N
 
     slack_client = slack.WebClient(token=SLACK_TOKEN)
 
-    if message_type == "success":
+    if message_type == MessageType.SUCCESS:
         message = (
             "### PROJECT CREATION SUCCESSFUL ###\n"
             + f"Project Name: {project_name}\n"
@@ -24,14 +27,14 @@ def send_slack_message(message_type: str, project_name: str, project_id: str = N
             + "Happy Swiping. :)"
         )
         slack_client.chat_postMessage(channel=SLACK_CHANNEL, text=message)
-    elif message_type == "fail":
+    elif message_type == MessageType.FAIL:
         message = (
             "### PROJECT CREATION FAILED ###\n"
             + f"Project Name: {project_name}\n"
             + "Project draft is deleted."
         )
         slack_client.chat_postMessage(channel=SLACK_CHANNEL, text=message)
-    elif message_type == "notification_90":
+    elif message_type == MessageType.NOTIFICATION_90:
         message = (
             "### ALMOST THERE! PROJECT REACHED 90% ###\n"
             + f"Project Name: {project_name}\n"
@@ -39,7 +42,7 @@ def send_slack_message(message_type: str, project_name: str, project_id: str = N
             + "Get your next projects ready."
         )
         slack_client.chat_postMessage(channel="mapswipe_managers", text=message)
-    elif message_type == "notification_100":
+    elif message_type == MessageType.NOTIFICATION_100:
         message = (
             "### GREAT! PROJECT REACHED 100% ###\n"
             + f"Project Name: {project_name}\n"
@@ -73,10 +76,10 @@ def send_progress_notification(project_id: int):
 
         if progress >= 90 and not notification_90_sent:
             # send notification and set value in firebase
-            send_slack_message("notification_90", project_name, project_id)
+            send_slack_message(MessageType.NOTIFICATION_90, project_name, project_id)
             fb_db.reference(f"v2/projects/{project_id}/notification_90_sent").set(True)
 
         if progress >= 100 and not notification_100_sent:
             # send notification and set value in firebase
-            send_slack_message("notification_100", project_name, project_id)
+            send_slack_message(MessageType.NOTIFICATION_100, project_name, project_id)
             fb_db.reference(f"v2/projects/{project_id}/notification_100_sent").set(True)
