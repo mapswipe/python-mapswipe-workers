@@ -29,6 +29,7 @@ class BuildAreaProject(BaseProject):
         self.zoomLevel = int(project_draft.get("zoomLevel", 18))
         self.tileServer = self.get_tile_server(project_draft["tileServer"])
 
+
     def validate_geometries(self):
         raw_input_file = (
             f"{DATA_PATH}/input_geometries/" f"raw_input_{self.projectId}.geojson"

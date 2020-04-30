@@ -86,6 +86,8 @@
 
         <!-- import projects -->
         <div class="row justify-content-center" id="project-import" style="display: block">
+
+
           <div class="col-md-12" align="center" id="import-overview">
             <h2>Create a new project.</h2>
           </div>
@@ -134,6 +136,7 @@
                                   <option value="1">Build Area</option>
                                   <option value="2">Footprint</option>
                                   <option value="3">Change Detection</option>
+                                  <option value="4">Completeness</option>
                               </select>
                               <span>Select the type of your project.</span>
                           </li>
@@ -373,7 +376,99 @@
                           </li>
                           </ul>
                       </form>
+                      <form class="form-style-7" style="display:None" id="CompletenessProjectFormular">
+                          <ul>
+                          <li>
+                              <label for="zoomLevelCompleteness">Zoom Level</label>
+                              <input type="number" name="zoomLevelCompleteness" id="zoomLevelCompleteness" value="18" min="16" max="22">
+                              <span>We use the Tile Map Service zoom levels. Please check for your area which zoom level is available. For example, Bing imagery is available at zoomlevel 18 for most regions. If you use a custom tile server you may be able to use even higher zoom levels.</span>
+                          </li>
+                          <li>
+                              <label for="geometry">GeoJSON File</label>
+                              <!-- <textarea name="geometry" id="geometry" onkeyup="adjust_textarea(this)"></textarea> -->
+                              <input type="file" accept=".GeoJSON" id="geometryCompleteness" onchange='openFile(event)'>
+                              <div id="geometryCompletenessMap"></div>
+                              <p id="geometryCompletenessInfo"></p>
+                              <p id="geometryCompletenessContent"></p>
+                              <span>Upload your project area as GeoJSON File (max. 2.5MB). Make sure that you provide a single polygon geometry.</span>
+                          </li>
+                          <h4>Tile Server A</h4>
+                          <li>
+                              <label for="tileServerCompletenessA">Tile Server Name</label>
+                              <select name="tileServerCompletenessA" id="tileServerCompletenessA" onchange="displayTileServer(this, 'Completeness', 'A')">
+                                  <option value="bing">Bing</option>
+                                  <option value="mapbox">MapBox</option>
+                                  <option value="maxar_standard">Maxar Standard</option>
+                                  <option value="maxar_premium">Maxar Premium</option>
+                                  <option value="esri">Esri World Imagery</option>
+                                  <option value="esri_beta">Esri World Imagery (Clarity) Beta</option>
+                                  <option value="sinergise">Sinergise</option>
+                                  <option value="custom">Custom</option>
+                              </select>
+                              <span>Select the tile server providing satellite imagery tiles for your project. Make sure you have permission.</span>
+                          </li>
+                          <li style="display:None" id="tileServerUrlFieldCompletenessA">
+                              <label for="tileServerUrlCompletenessA">Custom Tile Server URL</label>
+                              <input type="text" name="tileServerUrlCompletenessA" id="tileServerUrlCompletenessA">
+                              <span>Make sure you have permission. Add a custom tile server URL that uses {z}, {x} and {y} as placeholders and that already includes the api key.</span>
+                          </li>
+                          <li style="display:None" id="tileServerLayerNameFieldCompletenessA">
+                              <label for="tileServerLayerNameCompletenessA">WMTS Layer Name</label>
+                              <input type="text" name="tileServerLayerNameCompletenessA" id="tileServerLayerNameCompletenessA">
+                              <span>Enter the name of the layer of the WMTS offered by Sinergise.</span>
+                          </li>
+                          <li style="display:None" id="captionFieldCompletenessA">
+                              <label for="captionChangeDetectionA">Caption</label>
+                              <input type="text" name="captionCompletenessA" id="captionCompletenessA">
+                              <span>Which caption do you want to display?</span>
+                          </li>
+                          <li style="display:None" id="dateFieldCompletenessA">
+                              <label for="dateCompletenessA">Date</label>
+                              <input type="text" name="dateCompletenessA" id="dateCompletenessA">
+                              <span>Add the imagery capture date if available.</span>
+                          </li>
+                          <li id="tileServerCreditsFieldCompletenessA">
+                              <label for="tileServerCreditsFieldCompletenessA">Imagery Credits</label>
+                              <input type="text" name="tileServerCreditsCompletenessA" id="tileServerCreditsCompletenessA" value="© 2019 Microsoft Corporation, Earthstar Geographics SIO">
+                              <span>Insert appropriate imagery credits if you are using a custom tile server. For other tile server use the default credits.</span>
+                          </li>
+                              <h4>Tile Server B</h4>
+                          <li>
+                              <input type="text" name="tileServerCompletenessB" id="tileServerCompletenessB" value="Mapbox">
+                              <span>Tile Server B is the buildings footprint layer that will be shown on top of the imagery.</span>
+                          </li>
+                          <li style="display:block" id="tileServerUrlFieldCompletenessB">
+                              <label for="tileServerUrlCompletenessB">Mapbox Tile Server URL</label>
+                              <input type="text" name="tileServerUrlCompletenessB" id="tileServerUrlCompletenessB">
+                              <span>Make sure you have permission. Add a custom tile server URL that uses {z}, {x} and {y} as placeholders and that already includes the api key.</span>
+                          </li>
 
+                          <li style="display:block" id="tileServerLayerNameFieldCompletenessB">
+                              <label for="tileServerLayerNameChangeDetectionB">WMTS Layer Name</label>
+                              <input type="text" name="tileServerLayerNameChangeDetectionB" id="tileServerLayerNameCompletenessB">
+                              <span>Enter the name of the layer of the WMTS offered by Sinergise.</span>
+                          </li>
+                          <li style="display:None" id="captionFieldCompletenessB">
+                              <label for="captionChangeDetectionB">Caption</label>
+                              <input type="text" name="captionChangeDetectionB" id="captionCompletenessB">
+                              <span>Which caption do you want to display?</span>
+                          </li>
+                          <li style="display:None" id="dateFieldCompletenessB">
+                              <label for="dateCompletenessB">Date</label>
+                              <input type="text" name="dateCompletenessB" id="dateCompletenessB">
+                              <span>Add the imagery capture date if available.</span>
+                          </li>
+                          <li id="tileServerCreditsFieldCompletenessB">
+                              <label for="tileServerCreditsFieldChangeDetectionB">Imagery Credits</label>
+                              <input type="text" name="tileServerCreditsCompletenessB" id="tileServerCreditsCompletenessB" value="© 2019 Microsoft Corporation, Earthstar Geographics SIO">
+                              <span>Insert appropriate imagery credits if you are using a custom tile server. For other tile server use the default credits.</span>
+                          </li>
+                          <li>
+                              <input type="button" style="" id="submit" value="Submit" onClick="submitInfo()">
+                          </li>
+
+                          </ul>
+                      </form>
               </div>
             </div>
           </div>

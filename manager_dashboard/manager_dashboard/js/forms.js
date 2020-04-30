@@ -9,6 +9,7 @@ function displayProjectTypeFormular(projectType) {
         document.getElementById("BuildAreaProjectFormular").style.display = "block";
         document.getElementById("FootprintProjectFormular").style.display = "None",
         document.getElementById("ChangeDetectionProjectFormular").style.display = "None";
+        document.getElementById("CompletenessProjectFormular").style.display = "None";
         document.getElementById("tileServerBuildArea").value = "bing";
         displayTileServer ("bing", "BuildArea", "");
         setTimeout(function(){ BuildAreaMap.invalidateSize()}, 400);
@@ -16,17 +17,28 @@ function displayProjectTypeFormular(projectType) {
         document.getElementById("FootprintProjectFormular").style.display = "block";
         document.getElementById("BuildAreaProjectFormular").style.display = "None";
         document.getElementById("ChangeDetectionProjectFormular").style.display = "None";
+        document.getElementById("CompletenessProjectFormular").style.display = "None";
         document.getElementById("tileServerFootprint").value = "bing";
         displayTileServer ("bing", "Footprint", "");
-    } else if (projectType == 3) {
+    } else if (projectType == 3 ) {
       document.getElementById("FootprintProjectFormular").style.display = "None"
       document.getElementById("BuildAreaProjectFormular").style.display = "None";
       document.getElementById("ChangeDetectionProjectFormular").style.display = "block";
+      document.getElementById("CompletenessProjectFormular").style.display = "None";
       document.getElementById("tileServerChangeDetectionA").value = "bing";
       document.getElementById("tileServerChangeDetectionB").value = "bing";
       displayTileServer ("bing", "ChangeDetectionA", "");
       displayTileServer ("bing", "ChangeDetectionB", "");
       setTimeout(function(){ ChangeDetectionMap.invalidateSize()}, 400);
+  } else if (projectType == 4 ) {
+      document.getElementById("FootprintProjectFormular").style.display = "None"
+      document.getElementById("BuildAreaProjectFormular").style.display = "None";
+      document.getElementById("ChangeDetectionProjectFormular").style.display = "None";
+      document.getElementById("CompletenessProjectFormular").style.display = "block";
+      document.getElementById("tileServerCompletenessA").value = "bing";
+      displayTileServer ("bing", "CompletenessA", "");
+
+      setTimeout(function(){ CompletenessMap.invalidateSize()}, 400);
   }
 }
 
@@ -72,6 +84,9 @@ function clear_all_fields() {
     document.getElementById('geometryChangeDetectionInfo').innerHTML = ''
     document.getElementById('geometryChangeDetectionContent').innerHTML = ''
     ChangeDetectionLayer.clearLayers()
+    document.getElementById('geometryCompletenessInfo').innerHTML = ''
+    document.getElementById('geometryCompletenessContent').innerHTML = ''
+    CompletenessLayer.clearLayers()
     document.getElementById('imageText').innerHTML = ''
     document.getElementById('imageFile').src = ''
     displayProjectTypeFormular(1)
@@ -103,10 +118,15 @@ function openFile(event) {
       var map = BuildAreaMap
       var layer = BuildAreaLayer
       var zoomLevel = parseInt(document.getElementById('zoomLevel').value)
-    } else {
+    } else if (event.target.id === 'geometryChangeDetection'){
       var map = ChangeDetectionMap
       var layer = ChangeDetectionLayer
       var zoomLevel = parseInt(document.getElementById('zoomLevelChangeDetection').value)
+    } else if (event.target.id === 'geometryCompleteness'){
+      var map = CompletenessMap
+      var layer = CompletenessLayer
+      var zoomLevel = parseInt(document.getElementById('zoomLevelCompleteness').value)
+      console.log(zoomLevel)
     }
 
     // Check file size before loading
@@ -158,6 +178,7 @@ function openFile(event) {
 
               // add feature to map
               layer.clearLayers()
+
               layer.addData(geojsonData);
               map.fitBounds(layer.getBounds());
               console.log('added input geojson feature')
@@ -168,8 +189,10 @@ function openFile(event) {
 
               if (event.target.id === 'geometry') {
                 BuildAreaGeometry = text
-              } else {
+              } else if (event.target.id === 'geometryChangeDetection') {
                 ChangeDetectionGeometry = text
+              } else if (event.target.id === 'geometryCompleteness') {
+                CompletenessGeometry = text
               }
 
             }
@@ -220,4 +243,14 @@ function initMap() {
   console.log('added map');
   ChangeDetectionLayer = L.geoJSON().addTo(ChangeDetectionMap);
   setTimeout(function(){ ChangeDetectionMap.invalidateSize()}, 400);
+
+  CompletenessMap = L.map('geometryCompletenessMap').setView([0.0, 0.0], 4);
+  L.tileLayer( 'https://maps.wikimedia.org/osm-intl/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    subdomains: ['a','b','c']
+  }).addTo(CompletenessMap);
+  console.log('added map');
+  CompletenessLayer = L.geoJSON().addTo(CompletenessMap);
+  setTimeout(function(){ CompletenessMap.invalidateSize()}, 400);
+
   }

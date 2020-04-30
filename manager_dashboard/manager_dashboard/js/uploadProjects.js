@@ -150,6 +150,48 @@ function submitInfo() {
           createdBy: createdBy
       }
 
+    } else if (projectType == 4) {
+        var zoomLevel = document.getElementById("zoomLevelCompleteness").value;
+        var geometry = CompletenessGeometry;
+
+
+        var tileServer = {
+        name: document.getElementById("tileServerCompletenessA").value,
+        url: document.getElementById("tileServerUrlCompletenessA").value,
+        wmtsLayerName: document.getElementById("tileServerLayerNameCompletenessA").value,
+        caption: document.getElementById("captionCompletenessA").value,
+        date: document.getElementById("dateCompletenessA").value,
+        credits: document.getElementById("tileServerCreditsCompletenessA").value
+      };
+
+      var tileServerB = {
+        name: document.getElementById("tileServerCompletenessB").value,
+        url: document.getElementById("tileServerUrlCompletenessB").value,
+        wmtsLayerName: document.getElementById("tileServerLayerNameCompletenessB").value,
+        caption: document.getElementById("captionCompletenessB").value,
+        date: document.getElementById("dateCompletenessB").value,
+        credits: document.getElementById("tileServerCreditsCompletenessB").value
+      };
+
+      console.log(tileServerA);
+      console.log(tileServerB);
+
+      var mapswipe_import = {
+          name: name,
+          lookFor: lookFor,
+          projectDetails: projectDetails,
+          projectType: parseInt(projectType),
+          image: image,
+          groupSize: parseInt(groupSize),
+          verificationNumber: parseInt(verificationNumber),
+          tileServer: tileServer,
+          tileServerB: tileServerB,
+          zoomLevel: parseInt(zoomLevel),
+          geometry: JSON.parse(geometry),
+          createdBy: createdBy
+      }
+
+
     }
 
     var file = document.getElementById('image').files[0]
@@ -183,6 +225,7 @@ function submitInfo() {
         console.log('File available at', downloadURL);
         mapswipe_import.image = downloadURL
         console.log(mapswipe_import)
+
 
         // upload projectDraft to firebase once image has been uploaded
 
