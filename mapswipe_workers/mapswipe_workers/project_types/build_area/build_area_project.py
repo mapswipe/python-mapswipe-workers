@@ -16,19 +16,20 @@ class BuildAreaProject(BaseProject):
     The subclass for an import of the type Footprint
     """
 
-    project_type = 1
-    project_type_name = "Build Area"
+
 
     def __init__(self, project_draft):
         # this will create the basis attributes
         super().__init__(project_draft)
 
         # set group size
+        self.project_type = project_draft["projectType"]
         self.groupSize = project_draft["groupSize"]
         self.geometry = project_draft["geometry"]
         self.zoomLevel = int(project_draft.get("zoomLevel", 18))
         self.tileServer = self.get_tile_server(project_draft["tileServer"])
-
+        if self.project_type == 4:
+            self.tileServerB = self.get_tile_server(project_draft["tileServerB"])
 
     def validate_geometries(self):
         raw_input_file = (

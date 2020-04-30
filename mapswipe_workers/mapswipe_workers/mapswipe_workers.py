@@ -62,6 +62,7 @@ def run_create_projects():
         1: BuildAreaProject,
         2: FootprintProject,
         3: ChangeDetectionProject,
+        4: BuildAreaProject,
     }
 
     fb_db = auth.firebaseDB()
