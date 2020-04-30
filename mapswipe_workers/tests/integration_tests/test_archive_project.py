@@ -16,8 +16,9 @@ class TestArchiveProject(unittest.TestCase):
     def tearDownClass(cls):
         """Tear down after tests are run."""
         pg_db = auth.postgresDB()
-        sql_query = "".format(cls.project_id)
-        pg_db.query(sql_query)
+        # TODO: put a real query here
+        sql_query = "SELECT * FROM projects WHERE project_id = %(project_id)s;"
+        pg_db.query(sql_query, {"project_id": cls.project_id})
 
         fb_db = auth.firebaseDB()
         ref = fb_db.reference("v2/projects/{0}".format(cls.project_id))
@@ -39,10 +40,8 @@ class TestArchiveProject(unittest.TestCase):
     def test_postgres_changes(self):
         """Test if postgres project is archived."""
         pg_db = auth.postgresDB()
-        sql_query = "SELECT archived FROM projects WHERE project_id = {}".format(
-            self.project_id
-        )
-        result = pg_db.retr_query(sql_query)
+        sql_query = "SELECT status FROM projects WHERE project_id = %(project_id)s"
+        result = pg_db.retr_query(sql_query, {"project_id": self.project_id})
         self.assertEqual(result, "archived")
 
 

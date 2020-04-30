@@ -61,19 +61,19 @@ function displayTileServer (t, projectType, which) {
     addTileServerCredits(tileServer, projectType, which)
 }
 
-function clear_all_fields() {
-    forms = document.getElementsByClassName('form-style-7')
-    for (i = 0; i < forms.length; i++) {
-      forms[i].reset()
-    }
+function clear_fields() {
+    console.log('clear fields.')
+    document.getElementById('projectNumber').value = 1
+    document.getElementById('geometry').value = null
     document.getElementById('geometryInfo').innerHTML = ''
     document.getElementById('geometryContent').innerHTML = ''
     BuildAreaLayer.clearLayers()
+    document.getElementById('geometryChangeDetection').value = null
     document.getElementById('geometryChangeDetectionInfo').innerHTML = ''
     document.getElementById('geometryChangeDetectionContent').innerHTML = ''
     ChangeDetectionLayer.clearLayers()
-    document.getElementById('imageText').innerHTML = ''
-    document.getElementById('imageFile').src = ''
+    //document.getElementById('imageText').innerHTML = ''
+    //document.getElementById('imageFile').src = ''
     displayProjectTypeFormular(1)
   }
 
@@ -221,3 +221,11 @@ function initMap() {
   ChangeDetectionLayer = L.geoJSON().addTo(ChangeDetectionMap);
   setTimeout(function(){ ChangeDetectionMap.invalidateSize()}, 400);
   }
+
+
+function closeModal() {
+    var modal = document.getElementById("uploadModal");
+    modal.style.display = "none";
+    var modalSuccess = document.getElementById("modalSuccess");
+    modalSuccess.style.display = "none";
+}

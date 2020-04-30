@@ -46,6 +46,8 @@ def cli(verbose):
     create_directories()
     if not verbose:
         logger.disabled = True
+    else:
+        logger.info("Logging enabled")
 
 
 @cli.command("create-projects")

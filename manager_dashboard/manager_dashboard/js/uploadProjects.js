@@ -152,6 +152,9 @@ function submitInfo() {
 
     }
 
+    var modal = document.getElementById("uploadModal");
+    modal.style.display = "block";
+
     var file = document.getElementById('image').files[0]
     console.log(file)
     var filename = file.name
@@ -176,6 +179,7 @@ function submitInfo() {
       }
     }, function(error) {
       // Handle unsuccessful uploads
+      modal.style.display = "none";
     }, function() {
       // Handle successful uploads on complete
       // For instance, get the download URL: https://firebasestorage.googleapis.com/...
@@ -188,10 +192,14 @@ function submitInfo() {
 
         firebase.database().ref('v2/projectDrafts/').push().set(mapswipe_import)
           .then(function() {
-            clear_all_fields();
-            displaySuccessMessage();
+            clear_fields();
+            var modalOngoing = document.getElementById("modalOngoing");
+            modalOngoing.style.display = "none";
+            var modalSuccess = document.getElementById("modalSuccess");
+            modalSuccess.style.display = "block";
           })
           .catch(function(error) {
+            modal.style.display = "none";
             alert('could not upload data: ' + error);
           });
 
