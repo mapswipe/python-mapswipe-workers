@@ -57,7 +57,8 @@ You could also set up your own Firebase instance. However, this is not recommend
 
 ### Postgres
 
-Setup a local Postgres instance for MapSwipe Workers using the Dockerfile provided for development purposes (`postgres/Dockerfile-dev`). Make sure that the specified port is not in use already. If so, adjust the port (also in the `.env` file).
+Setup a local Postgres instance for MapSwipe Workers using the Dockerfile provided for development purposes (`postgres/Dockerfile-dev`). The Dockerfile for production (`postgres/Dockerfile`) does need additional setup for build-in backup to Google Cloud Storage, which is not needed for local development. That is why a simplified Dockerfile for development is provided.
+Make sure that the specified port is not in use already. If so, adjust the port (also in the `.env` file).
 
 ```bash
 docker build -t mapswipe_postgres -f ./postgres/Dockerfile-dev ./postgres
