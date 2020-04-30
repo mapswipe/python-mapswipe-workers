@@ -9,6 +9,8 @@ PGPASSWORD="backupuserpassword"
 ssh -Cfo ExitOnForwardFailure=yes -NL 1111:localhost:5432 ${SSH_REMOTE_HOST}
 PID=$(pgrep -f 'NL 1111:')
 
+mkdir $(date +%Y%m%d) && cd "$_"
+
 PGPASSWORD=$PGPASSWORD pg_dump \
     --dbname=$PGDATABASE \
     --username $PGUSER \
