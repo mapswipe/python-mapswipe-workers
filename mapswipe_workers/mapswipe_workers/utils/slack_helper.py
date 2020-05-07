@@ -1,7 +1,5 @@
 """Initialize slack client with values provided by the config file"""
 
-import json
-
 import slack
 
 from mapswipe_workers.definitions import logger

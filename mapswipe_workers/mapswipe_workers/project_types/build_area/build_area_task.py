@@ -48,7 +48,7 @@ class BuildAreaTask(BaseTask):
         self.url = t.tile_coords_zoom_and_tileserver_to_url(
             TileX, TileY, project.zoomLevel, project.tileServer
         )
-        self.url = t.tile_coords_zoom_and_tileserver_to_url(
+        self.urlB = t.tile_coords_zoom_and_tileserver_to_url(
             TileX, TileY, project.zoomLevel, project.tileServerB
         )
         self.geometry = t.geometry_from_tile_coords(TileX, TileY, project.zoomLevel)
