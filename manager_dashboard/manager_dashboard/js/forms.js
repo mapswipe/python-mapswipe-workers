@@ -119,7 +119,6 @@ function openFile(event) {
     // clear map layers
     aoiLayer.clearLayers()
 
-
     // Check file size before loading
     var filesize = input.files[0].size;
     if (filesize > 1 * 1024 * 1024) {

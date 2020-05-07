@@ -134,6 +134,7 @@ function upload_to_firebase() {
             alert("You are not logged in.");
         default:
             // get form data
+            // TODO: add checks if all input values are valid, e.g. image available
             mapswipe_import = getFormInput()
 
             // upload projectDraft to firebase once image has been uploaded
