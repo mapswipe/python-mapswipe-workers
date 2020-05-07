@@ -26,6 +26,9 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 
+    <!-- Add icon library -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
     <!-- Add Data Tables -->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.10.20/css/dataTables.bootstrap.min.css">
     <script src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
@@ -47,7 +50,7 @@
         Sentry.init({ dsn: 'https://30340378d1e5495ca7c4d7c8751f0cba@sentry.io/1788403' });
     </script>
 </head>
-<body onload="initMap()">
+<body onload="initForm()">
 
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <a class="navbar-brand" href="index.html">
@@ -82,12 +85,22 @@
   </div>
 
   <div class="section" id="signed-in-manager" style="display: none">
-      <div class="container" >
+      <div id="uploadModal" class="modal">
+          <div class="modal-content">
+          <div id="modalOngoing">
+              <p><i class="fa fa-spinner fa-spin"></i> Submitting your project. Be patient.</p>
+          </div>
+          <div id="modalSuccess" style="display:none;">
+            <p>Your project has been uploaded. It should take around 15 minutes to appear in the dashboard.</p>
+          <button class="btn btn-success" onclick="closeModal()">Close</button>
+          </div>
 
+          </div>
+      </div>
+
+      <div class="container" >
         <!-- import projects -->
         <div class="row justify-content-center" id="project-import" style="display: block">
-
-
           <div class="col-md-12" align="center" id="import-overview">
             <h2>Create a new project.</h2>
           </div>
@@ -97,8 +110,7 @@
                   <!--Let's start with collecting the basic information -->
                   <div class="container">
                       <h3>Basic Project Information</h3>
-
-                      <form class="form-style-7">
+                      <form class="form-style-7" id="form_basic_project_information">
                           <ul>
                           <li>
                               <label for="projectTopic">Project Topic</label>
@@ -132,11 +144,11 @@
                           </li>
                           <li>
                               <label for="projectType">Project Type</label>
-                              <select name="projectType" id="projectType" onchange="displayProjectTypeFormular(this.value)">
-                                  <option value="1">Build Area</option>
-                                  <option value="2">Footprint</option>
-                                  <option value="3">Change Detection</option>
-                                  <option value="4">Completeness</option>
+                              <select name="projectType" id="projectType" onchange="displayProjectTypeForm(this.value)">
+                                  <option value="build_area">Build Area</option>
+                                  <option value="footprint">Footprint</option>
+                                  <option value="change_detection">Change Detection</option>
+                                  <option value="completeness">Completeness</option>
                               </select>
                               <span>Select the type of your project.</span>
                           </li>
@@ -167,134 +179,58 @@
                           </ul>
                       </form>
                   </div>
-              </div>
-              <div class="col-md-6">
-                  <div class="container">
-                      <h3>Project Type Specific Information</h3>
-
-                      <form class="form-style-7" style="display:block" id="BuildAreaProjectFormular">
+                  <div class="container" id="form_zoom_level">
+                      <h3>Zoom Level</h3>
+                      <form class="form-style-7">
                           <ul>
                           <li>
                               <label for="zoomLevel">Zoom Level</label>
                               <input type="number" name="zoomLevel" id="zoomLevel" value="18" min="14" max="22">
                               <span>We use the Tile Map Service zoom levels. Please check for your area which zoom level is available. For example, Bing imagery is available at zoomlevel 18 for most regions. If you use a custom tile server you may be able to use even higher zoom levels.</span>
                           </li>
-                          <li>
-                              <label for="geometry">GeoJSON File</label>
+                          <li></li>
+                          </ul>
+                      </form>
+                  </div>
+              </div>
+              <div class="col-md-6">
+                  <div class="container" id="form_project_aoi_geometry">
+                      <h3>Project AOI Geometry</h3>
+                      <form class="form-style-7">
+                          <ul>
+                          <li id="inputAoiField">
+                              <label for="inputAoi">GeoJSON File</label>
                               <!-- <textarea name="geometry" id="geometry" onkeyup="adjust_textarea(this)"></textarea> -->
-                              <input type="file" accept=".GeoJSON" id="geometry" onchange='openFile(event)'>
+                              <input type="file" accept=".GeoJSON" id="inputAoi" onchange='openFile(event)'>
                               <div id="geometryMap"></div>
                               <p id="geometryInfo"></p>
                               <p id="geometryContent"></p>
-                              <span>Upload your project area as GeoJSON File (max. 2.5MB). Make sure that you provide a single polygon geometry.</span>
+                              <span>Upload your project area as GeoJSON File (max. 1MB). Make sure that you provide a single polygon geometry.</span>
                           </li>
-                          <li>
-                              <label for="tileServerBuildArea">Tile Server Name</label>
-                              <select name="tileServerBuildArea" id="tileServerBuildArea" onchange="displayTileServer(this, 'BuildArea', '')">
-                                  <option value="bing">Bing</option>
-                                  <option value="mapbox">MapBox</option>
-                                  <option value="maxar_standard">Maxar Standard</option>
-                                  <option value="maxar_premium">Maxar Premium</option>
-                                  <option value="esri">Esri World Imagery</option>
-                                  <option value="esri_beta">Esri World Imagery (Clarity) Beta</option>
-                                  <option value="sinergise">Sinergise</option>
-                                  <option value="custom">Custom</option>
-                              </select>
-                              <span>Select the tile server providing satellite imagery tiles for your project. Make sure you have permission.</span>
-                          </li>
-                          <li style="display:None" id="tileServerUrlFieldBuildArea">
-                              <label for="tileServerUrlBuildArea">Custom Tile Server URL</label>
-                              <input type="text" name="tileServerUrlBuildArea" id="tileServerUrlBuildArea">
-                              <span>Make sure you have permission. Add a custom tile server URL that uses {z}, {x} and {y} as placeholders and that already includes the api key.</span>
-                          </li>
-                          <li style="display:None" id="tileServerLayerNameFieldBuildArea">
-                              <label for="tileServerLayerNameBuildArea">WMTS Layer Name</label>
-                              <input type="text" name="tileServerLayerNameBuildArea" id="tileServerLayerNameBuildArea">
-                              <span>Enter the name of the layer of the WMTS offered by Sinergise.</span>
-                          </li>
-                          <li id="tileServerCreditsFieldBuildArea">
-                              <label for="tileServerCreditsFieldBuildArea">Imagery Credits</label>
-                              <input type="text" name="tileServerCreditsBuildArea" id="tileServerCreditsBuildArea" value="© 2019 Microsoft Corporation, Earthstar Geographics SIO">
-                              <span>Insert appropriate imagery credits if you are using a custom tile server. For other tile server use the default credits.</span>
-                          </li>
-                          <li>
-                              <input type="button" style="" id="submit" value="Submit" onClick="submitInfo()">
-                          </li>
+                          <li></li>
                           </ul>
                       </form>
-
-                      <form class="form-style-7" style="display:None" id="FootprintProjectFormular">
+                  </div>
+                  <div class="container" id="form_project_task_geometry">
+                      <h3>Project Tasks Geometry</h3>
+                      <form class="form-style-7">
                           <ul>
-                          <li>
-                              <label for="inputGeometries">Input Geometries File (Direct Link)</label>
-                              <input type="text" name="inputGeometries" id="inputGeometries">
+                          <li id="inputTaskGeometriesField">
+                              <label for="inputTaskGeometries">Input Geometries File (Direct Link)</label>
+                              <input type="text" name="inputTaskGeometries" id="inputTaskGeometries">
                               <span>Provide a direct link to a GeoJSON file containing your building footprint geometries.</span>
                           </li>
-                          <li>
-                              <label for="tileServerFootprint">Tile Server Name</label>
-                              <select name="tileServerFootprint" id="tileServerFootprint" onchange="displayTileServer(this, 'Footprint', '')">
-                                  <option value="bing">Bing</option>
-                                  <option value="mapbox">MapBox</option>
-                                  <option value="maxar_standard">Maxar Standard</option>
-                                  <option value="maxar_premium">Maxar Premium</option>
-                                  <option value="esri">Esri World Imagery</option>
-                                  <option value="esri_beta">Esri World Imagery (Clarity) Beta</option>
-                                  <option value="sinergise">Sinergise</option>
-                                  <option value="custom">Custom</option>
-                              </select>
-                              <span>Select the tile server providing satellite imagery tiles for your project. Make sure you have permission.</span>
-                          </li>
-                          <li style="display:None" id="tileServerUrlFieldFootprint">
-                              <label for="tileServerUrlFootprint">Custom Tile Server URL</label>
-                              <input type="text" name="tileServerUrlFootprint" id="tileServerUrlFootprint">
-                              <span>Make sure you have permission. Add a custom tile server URL that uses {z}, {x} and {y} as placeholders and that already includes the api key.</span>
-                          </li>
-                          <li style="display:None" id="tileServerLayerNameFieldFootprint">
-                              <label for="tileServerLayerNameFootprint">WMTS Layer Name</label>
-                              <input type="text" name="tileServerLayerNameFootprint" id="tileServerLayerNameFootprint">
-                              <span>Enter the name of the layer of the WMTS offered by Sinergise.</span>
-                          </li>
-                          <li style="display:None" id="captionFieldFootprint">
-                              <label for="captionFootprint">Caption</label>
-                              <input type="text" name="captionFootprint" id="captionFootprint">
-                              <span>Which caption do you want to display?</span>
-                          </li>
-                          <li style="display:None" id="dateFieldFootprint">
-                              <label for="dateFootprint">Date</label>
-                              <input type="text" name="dateFootprint" id="dateFootprint">
-                              <span>Add the imagery capture date if available.</span>
-                          </li>
-                          <li id="tileServerCreditsFieldFootprint">
-                              <label for="tileServerCreditsFieldFootprint">Imagery Credits</label>
-                              <input type="text" name="tileServerCreditsFootprint" id="tileServerCreditsFootprint" value="© 2019 Microsoft Corporation, Earthstar Geographics SIO">
-                              <span>Insert appropriate imagery credits if you are using a custom tile server. For other tile server use the default credits.</span>
-                          </li>
-                          <li>
-                              <input type="button" style="" id="submit" value="Submit" onClick="submitInfo()">
-                          </li>
+                          <li></li>
                           </ul>
                       </form>
-
-                      <form class="form-style-7" style="display:None" id="ChangeDetectionProjectFormular">
+                  </div>
+                  <div class="container" id="form_tile_server_a">
+                      <h3>Tile Server A</h3>
+                      <form class="form-style-7">
                           <ul>
                           <li>
-                              <label for="zoomLevelChangeDetection">Zoom Level</label>
-                              <input type="number" name="zoomLevelChangeDetection" id="zoomLevelChangeDetection" value="18" min="16" max="22">
-                              <span>We use the Tile Map Service zoom levels. Please check for your area which zoom level is available. For example, Bing imagery is available at zoomlevel 18 for most regions. If you use a custom tile server you may be able to use even higher zoom levels.</span>
-                          </li>
-                          <li>
-                              <label for="geometry">GeoJSON File</label>
-                              <!-- <textarea name="geometry" id="geometry" onkeyup="adjust_textarea(this)"></textarea> -->
-                              <input type="file" accept=".GeoJSON" id="geometryChangeDetection" onchange='openFile(event)'>
-                              <div id="geometryChangeDetectionMap"></div>
-                              <p id="geometryChangeDetectionInfo"></p>
-                              <p id="geometryChangeDetectionContent"></p>
-                              <span>Upload your project area as GeoJSON File (max. 2.5MB). Make sure that you provide a single polygon geometry.</span>
-                          </li>
-                          <h4>Tile Server A</h4>
-                          <li>
-                              <label for="tileServerChangeDetectionA">Tile Server Name</label>
-                              <select name="tileServerChangeDetectionA" id="tileServerChangeDetectionA" onchange="displayTileServer(this, 'ChangeDetection', 'A')">
+                              <label for="tileServerAName">Tile Server Name</label>
+                              <select name="tileServerAName" id="tileServerAName" onchange="displayTileServer(this.value, 'A')">
                                   <option value="bing">Bing</option>
                                   <option value="mapbox">MapBox</option>
                                   <option value="maxar_standard">Maxar Standard</option>
@@ -306,96 +242,32 @@
                               </select>
                               <span>Select the tile server providing satellite imagery tiles for your project. Make sure you have permission.</span>
                           </li>
-                          <li style="display:None" id="tileServerUrlFieldChangeDetectionA">
-                              <label for="tileServerUrlChangeDetectionA">Custom Tile Server URL</label>
-                              <input type="text" name="tileServerUrlChangeDetectionA" id="tileServerUrlChangeDetectionA">
+                          <li id="tileServerAUrlField">
+                              <label for="tileServerAUrl">Custom Tile Server URL</label>
+                              <input type="text" name="tileServerAUrl" id="tileServerAUrl">
                               <span>Make sure you have permission. Add a custom tile server URL that uses {z}, {x} and {y} as placeholders and that already includes the api key.</span>
                           </li>
-                          <li style="display:None" id="tileServerLayerNameFieldChangeDetectionA">
-                              <label for="tileServerLayerNameChangeDetectionA">WMTS Layer Name</label>
-                              <input type="text" name="tileServerLayerNameChangeDetectionA" id="tileServerLayerNameChangeDetectionA">
+                          <li id="tileServerALayerNameField">
+                              <label for="tileServerALayerName">WMTS Layer Name</label>
+                              <input type="text" name="tileServerALayerName" id="tileServerALayerName">
                               <span>Enter the name of the layer of the WMTS offered by Sinergise.</span>
                           </li>
-                          <li style="display:None" id="captionFieldChangeDetectionA">
-                              <label for="captionChangeDetectionA">Caption</label>
-                              <input type="text" name="captionChangeDetectionA" id="captionChangeDetectionA">
-                              <span>Which caption do you want to display?</span>
-                          </li>
-                          <li style="display:None" id="dateFieldChangeDetectionA">
-                              <label for="dateChangeDetectionA">Date</label>
-                              <input type="text" name="dateChangeDetectionA" id="dateChangeDetectionA">
-                              <span>Add the imagery capture date if available.</span>
-                          </li>
-                          <li id="tileServerCreditsFieldChangeDetectionA">
-                              <label for="tileServerCreditsFieldChangeDetectionA">Imagery Credits</label>
-                              <input type="text" name="tileServerCreditsChangeDetectionA" id="tileServerCreditsChangeDetectionA" value="© 2019 Microsoft Corporation, Earthstar Geographics SIO">
+                          <li id="tileServerACreditsField">
+                              <label for="tileServerACredits">Imagery Credits</label>
+                              <input type="text" name="tileServerACredits" id="tileServerACredits" value="© 2019 Microsoft Corporation, Earthstar Geographics SIO">
                               <span>Insert appropriate imagery credits if you are using a custom tile server. For other tile server use the default credits.</span>
                           </li>
-                          <h4>Tile Server B</h4>
-                          <li>
-                              <label for="tileServerChangeDetectionB">Tile Server Name</label>
-                              <select name="tileServerChangeDetectionB" id="tileServerChangeDetectionB" onchange="displayTileServer(this, 'ChangeDetection', 'B')">
-                                  <option value="bing">Bing</option>
-                                  <option value="mapbox">MapBox</option>
-                                  <option value="maxar_standard">Maxar Standard</option>
-                                  <option value="maxar_premium">Maxar Premium</option>
-                                  <option value="esri">Esri World Imagery</option>
-                                  <option value="esri_beta">Esri World Imagery (Clarity) Beta</option>
-                                  <option value="sinergise">Sinergise</option>
-                                  <option value="custom">Custom</option>
-                              </select>
-                              <span>Select the tile server providing satellite imagery tiles for your project. Make sure you have permission.</span>
-                          </li>
-                          <li style="display:None" id="tileServerUrlFieldChangeDetectionB">
-                              <label for="tileServerUrlChangeDetectionB">Custom Tile Server URL</label>
-                              <input type="text" name="tileServerUrlChangeDetectionB" id="tileServerUrlChangeDetectionB">
-                              <span>Make sure you have permission. Add a custom tile server URL that uses {z}, {x} and {y} as placeholders and that already includes the api key.</span>
-                          </li>
-                          <li style="display:None" id="tileServerLayerNameFieldChangeDetectionB">
-                              <label for="tileServerLayerNameChangeDetectionB">WMTS Layer Name</label>
-                              <input type="text" name="tileServerLayerNameChangeDetectionB" id="tileServerLayerNameChangeDetectionB">
-                              <span>Enter the name of the layer of the WMTS offered by Sinergise.</span>
-                          </li>
-                          <li style="display:None" id="captionFieldChangeDetectionB">
-                              <label for="captionChangeDetectionB">Caption</label>
-                              <input type="text" name="captionChangeDetectionB" id="captionChangeDetectionB">
-                              <span>Which caption do you want to display?</span>
-                          </li>
-                          <li style="display:None" id="dateFieldChangeDetectionB">
-                              <label for="dateChangeDetectionB">Date</label>
-                              <input type="text" name="dateChangeDetectionB" id="dateChangeDetectionB">
-                              <span>Add the imagery capture date if available.</span>
-                          </li>
-                          <li id="tileServerCreditsFieldChangeDetectionB">
-                              <label for="tileServerCreditsFieldChangeDetectionB">Imagery Credits</label>
-                              <input type="text" name="tileServerCreditsChangeDetectionB" id="tileServerCreditsChangeDetectionB" value="© 2019 Microsoft Corporation, Earthstar Geographics SIO">
-                              <span>Insert appropriate imagery credits if you are using a custom tile server. For other tile server use the default credits.</span>
-                          </li>
-                          <li>
-                              <input type="button" style="" id="submit" value="Submit" onClick="submitInfo()">
-                          </li>
+                          <li></li>
                           </ul>
                       </form>
-                      <form class="form-style-7" style="display:None" id="CompletenessProjectFormular">
+                  </div>
+                  <div class="container" id="form_tile_server_b">
+                      <h3>Tile Server B</h3>
+                      <form class="form-style-7">
                           <ul>
                           <li>
-                              <label for="zoomLevelCompleteness">Zoom Level</label>
-                              <input type="number" name="zoomLevelCompleteness" id="zoomLevelCompleteness" value="18" min="16" max="22">
-                              <span>We use the Tile Map Service zoom levels. Please check for your area which zoom level is available. For example, Bing imagery is available at zoomlevel 18 for most regions. If you use a custom tile server you may be able to use even higher zoom levels.</span>
-                          </li>
-                          <li>
-                              <label for="geometry">GeoJSON File</label>
-                              <!-- <textarea name="geometry" id="geometry" onkeyup="adjust_textarea(this)"></textarea> -->
-                              <input type="file" accept=".GeoJSON" id="geometryCompleteness" onchange='openFile(event)'>
-                              <div id="geometryCompletenessMap"></div>
-                              <p id="geometryCompletenessInfo"></p>
-                              <p id="geometryCompletenessContent"></p>
-                              <span>Upload your project area as GeoJSON File (max. 2.5MB). Make sure that you provide a single polygon geometry.</span>
-                          </li>
-                          <h4>Tile Server A</h4>
-                          <li>
-                              <label for="tileServerCompletenessA">Tile Server Name</label>
-                              <select name="tileServerCompletenessA" id="tileServerCompletenessA" onchange="displayTileServer(this, 'Completeness', 'A')">
+                              <label for="tileServerBName">Tile Server Name</label>
+                              <select name="tileServerBName" id="tileServerBName" onchange="displayTileServer(this.value, 'B')">
                                   <option value="bing">Bing</option>
                                   <option value="mapbox">MapBox</option>
                                   <option value="maxar_standard">Maxar Standard</option>
@@ -407,72 +279,36 @@
                               </select>
                               <span>Select the tile server providing satellite imagery tiles for your project. Make sure you have permission.</span>
                           </li>
-                          <li style="display:None" id="tileServerUrlFieldCompletenessA">
-                              <label for="tileServerUrlCompletenessA">Custom Tile Server URL</label>
-                              <input type="text" name="tileServerUrlCompletenessA" id="tileServerUrlCompletenessA">
+                          <li id="tileServerBUrlField">
+                              <label for="tileServerBUrl">Custom Tile Server URL</label>
+                              <input type="text" name="tileServerBUrl" id="tileServerBUrl">
                               <span>Make sure you have permission. Add a custom tile server URL that uses {z}, {x} and {y} as placeholders and that already includes the api key.</span>
                           </li>
-                          <li style="display:None" id="tileServerLayerNameFieldCompletenessA">
-                              <label for="tileServerLayerNameCompletenessA">WMTS Layer Name</label>
-                              <input type="text" name="tileServerLayerNameCompletenessA" id="tileServerLayerNameCompletenessA">
+                          <li id="tileServerBLayerNameField">
+                              <label for="tileServerBLayerName">WMTS Layer Name</label>
+                              <input type="text" name="tileServerBLayerName" id="tileServerBLayerName">
                               <span>Enter the name of the layer of the WMTS offered by Sinergise.</span>
                           </li>
-                          <li style="display:None" id="captionFieldCompletenessA">
-                              <label for="captionChangeDetectionA">Caption</label>
-                              <input type="text" name="captionCompletenessA" id="captionCompletenessA">
-                              <span>Which caption do you want to display?</span>
-                          </li>
-                          <li style="display:None" id="dateFieldCompletenessA">
-                              <label for="dateCompletenessA">Date</label>
-                              <input type="text" name="dateCompletenessA" id="dateCompletenessA">
-                              <span>Add the imagery capture date if available.</span>
-                          </li>
-                          <li id="tileServerCreditsFieldCompletenessA">
-                              <label for="tileServerCreditsFieldCompletenessA">Imagery Credits</label>
-                              <input type="text" name="tileServerCreditsCompletenessA" id="tileServerCreditsCompletenessA" value="© 2019 Microsoft Corporation, Earthstar Geographics SIO">
+                          <li id="tileServerBCreditsField">
+                              <label for="tileServerBCreditsField">Imagery Credits</label>
+                              <input type="text" name="tileServerBCredits" id="tileServerBCredits" value="© 2019 Microsoft Corporation, Earthstar Geographics SIO">
                               <span>Insert appropriate imagery credits if you are using a custom tile server. For other tile server use the default credits.</span>
                           </li>
-                              <h4>Tile Server B</h4>
-                          <li>
-                              <input type="text" name="tileServerCompletenessB" id="tileServerCompletenessB" value="custom">
-                              <span>Tile Server B is the buildings footprint layer that will be shown on top of the imagery.</span>
-                          </li>
-                          <li style="display:block" id="tileServerUrlFieldCompletenessB">
-                              <label for="tileServerUrlCompletenessB">Mapbox Tile Server URL</label>
-                              <input type="text" name="tileServerUrlCompletenessB" id="tileServerUrlCompletenessB">
-                              <span>Make sure you have permission. Add a custom tile server URL that uses {z}, {x} and {y} as placeholders and that already includes the api key.</span>
-                          </li>
-
-                          <li style="display:block" id="tileServerLayerNameFieldCompletenessB">
-                              <label for="tileServerLayerNameChangeDetectionB">WMTS Layer Name</label>
-                              <input type="text" name="tileServerLayerNameChangeDetectionB" id="tileServerLayerNameCompletenessB">
-                              <span>Enter the name of the layer of the WMTS offered by Sinergise.</span>
-                          </li>
-                          <li style="display:None" id="captionFieldCompletenessB">
-                              <label for="captionChangeDetectionB">Caption</label>
-                              <input type="text" name="captionChangeDetectionB" id="captionCompletenessB">
-                              <span>Which caption do you want to display?</span>
-                          </li>
-                          <li style="display:None" id="dateFieldCompletenessB">
-                              <label for="dateCompletenessB">Date</label>
-                              <input type="text" name="dateCompletenessB" id="dateCompletenessB">
-                              <span>Add the imagery capture date if available.</span>
-                          </li>
-                          <li id="tileServerCreditsFieldCompletenessB">
-                              <label for="tileServerCreditsFieldChangeDetectionB">Imagery Credits</label>
-                              <input type="text" name="tileServerCreditsCompletenessB" id="tileServerCreditsCompletenessB" value="© 2019 Microsoft Corporation, Earthstar Geographics SIO">
-                              <span>Insert appropriate imagery credits if you are using a custom tile server. For other tile server use the default credits.</span>
-                          </li>
-                          <li>
-                              <input type="button" style="" id="submit" value="Submit" onClick="submitInfo()">
-                          </li>
-
+                          <li></li>
                           </ul>
                       </form>
+                  </div>
+              </div>
+              <div class="cold-md-12">
+                  <div class="container">
+                      <h3>Let's go!</h3>
+                      <form class="form-style-7">
+                        <input type="button" id="submit" value="Submit" onClick="upload_to_firebase()">
+                      <form class="form-style-7">
+                  </div>
               </div>
             </div>
           </div>
-      </div>
         </div>
       </div>
   </div>
