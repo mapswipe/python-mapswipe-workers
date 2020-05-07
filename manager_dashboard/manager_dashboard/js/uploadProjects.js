@@ -1,198 +1,81 @@
 var database = firebase.database();
 
-function upload_project_image() {
-    var file = document.getElementById('image').files[0]
-    console.log(file)
-    var filename = file.name
-    console.log(filename)
-    // Create a reference to the image
-    var storageRef = firebase.storage().ref();
-    var projectImageRef = storageRef.child('projectImages/'+filename);
 
-    var uploadImage = projectImageRef.put(file);
-    uploadImage.on('state_changed', function(snapshot){
-      // Observe state change events such as progress, pause, and resume
-      // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
-      var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-      console.log('Upload is ' + progress + '% done');
-      switch (snapshot.state) {
-        case firebase.storage.TaskState.PAUSED: // or 'paused'
-          console.log('Upload is paused');
-          break;
-        case firebase.storage.TaskState.RUNNING: // or 'running'
-          console.log('Upload is running');
-          break;
-      }
-    }, function(error) {
-      // Handle unsuccessful uploads
-    }, function() {
-      // Handle successful uploads on complete
-      // For instance, get the download URL: https://firebasestorage.googleapis.com/...
-      uploadImage.snapshot.ref.getDownloadURL().then(function(downloadURL) {
-        console.log('File available at', downloadURL);
-        return downloadURL
-      });
-    });
+function getFormInput() {
+    var form_data = {
+        projectRegion: document.getElementById("projectRegion").value,
+        projectTopic: document.getElementById("projectTopic").value,
+        projectNumber: document.getElementById("projectNumber").value,
+        requestingOrganisation: document.getElementById("requestingOrganisation").value,
+        lookFor: document.getElementById("lookFor").value,
+        projectDetails: document.getElementById("projectDetails").value,
+        image: image,
+        verificationNumber: parseInt(document.getElementById("verificationNumber").value),
+        groupSize: parseInt(document.getElementById("groupSize").value),
+        createdBy: currentUid
+    }
+    form_data.name = form_data.projectTopic + ' - ' +
+        form_data.projectRegion +
+        ' (' + form_data.projectNumber + ')\n' +
+        form_data.requestingOrganisation
 
+    // add project type specific attributes
+    projectType = document.getElementById("projectType").value
+    switch (projectType) {
+        case "build_area":
+            form_data.projectType = 1;
+            form_data.zoomLevel = parseInt(document.getElementById("zoomLevel").value);
+            form_data.geometry = JSON.parse(projectAoiGeometry)
+            form_data.tileServer = {
+              name: document.getElementById("tileServerAName").value,
+              url: document.getElementById("tileServerAUrl").value,
+              wmtsLayerName: document.getElementById("tileServerALayerName").value,
+              credits: document.getElementById("tileServerACredits").value
+            };
+            break;
+        case "footprint":
+            form_data.projectType = 2;
+            form_data.input_geometries = document.getElementById("inputTaskGeometries").value;
+            form_data.tileServer = {
+              name: document.getElementById("tileServerAName").value,
+              url: document.getElementById("tileServerAUrl").value,
+              wmtsLayerName: document.getElementById("tileServerALayerName").value,
+              credits: document.getElementById("tileServerACredits").value
+            };
+            break;
+        case "change_detection":
+        case "completeness":
+            if (projectType == "change_detection") {
+                form_data.projectType = 3;
+            } else {
+                form_data.projectType = 4;
+            }
+            form_data.zoomLevel = parseInt(document.getElementById("zoomLevel").value);
+            form_data.geometry = JSON.parse(projectAoiGeometry)
+            form_data.tileServerA = {
+              name: document.getElementById("tileServerAName").value,
+              url: document.getElementById("tileServerAUrl").value,
+              wmtsLayerName: document.getElementById("tileServerALayerName").value,
+              credits: document.getElementById("tileServerACredits").value
+            };
+            form_data.tileServerB = {
+              name: document.getElementById("tileServerBName").value,
+              url: document.getElementById("tileServerBUrl").value,
+              wmtsLayerName: document.getElementById("tileServerBLayerName").value,
+              credits: document.getElementById("tileServerBCredits").value
+            };
+            break;
+    }
+    return form_data
 }
 
 
-function submitInfo() {
+function upload_project_image(mapswipe_import) {
 
-    if (currentUid == null) {
-      alert("You are not logged in.");
-    } else {
-
-    // get basic project information
-    var projectTopic = document.getElementById("projectTopic").value;
-    var projectRegion = document.getElementById("projectRegion").value;
-    var projectNumber = document.getElementById("projectNumber").value;
-    var requestingOrganisation = document.getElementById("requestingOrganisation").value;
-    var name = projectTopic + ' - ' + projectRegion + ' (' + projectNumber + ')\n' + requestingOrganisation
-
-
-    var lookFor = document.getElementById("lookFor").value;
-    var projectDetails = document.getElementById("projectDetails").value;
-    var projectType = document.getElementById("projectType").value;
-
-    var verificationNumber = document.getElementById("verificationNumber").value;
-    var createdBy = currentUid;
-    var groupSize = document.getElementById("groupSize").value;
-
-    if (projectType == 1) {
-
-        var zoomLevel = document.getElementById("zoomLevel").value;
-        var geometry = BuildAreaGeometry;
-        var tileServer = {
-          name: document.getElementById("tileServerBuildArea").value,
-          url: document.getElementById("tileServerUrlBuildArea").value,
-          wmtsLayerName: document.getElementById("tileServerLayerNameBuildArea").value,
-          credits: document.getElementById("tileServerCreditsBuildArea").value
-        };
-
-        var mapswipe_import = {
-            name: name,
-            projectRegion: projectRegion,
-            projectTopic: projectTopic,
-            projectNumber: projectNumber,
-            requestingOrganisation: requestingOrganisation,
-            lookFor: lookFor,
-            projectDetails: projectDetails,
-            projectType: parseInt(projectType),
-            image: image,
-            verificationNumber: parseInt(verificationNumber),
-            groupSize: parseInt(groupSize),
-            tileServer: tileServer,
-            zoomLevel: parseInt(zoomLevel),
-            geometry: JSON.parse(geometry),
-            createdBy: createdBy
-        }
-        console.log(mapswipe_import)
-
-    } else if (projectType == 2) {
-
-        var inputGeometries = document.getElementById("inputGeometries").value;
-        var tileServer = {
-          name: document.getElementById("tileServerFootprint").value,
-          url: document.getElementById("tileServerUrlFootprint").value,
-          wmtsLayerName: document.getElementById("tileServerLayerNameFootprint").value,
-          caption: document.getElementById("captionFootprint").value,
-          date: document.getElementById("dateFootprint").value,
-          credits: document.getElementById("tileServerCreditsFootprint").value
-        };
-
-        var mapswipe_import = {
-            name: name,
-            lookFor: lookFor,
-            projectDetails: projectDetails,
-            projectType: parseInt(projectType),
-            image: image,
-            groupSize: parseInt(groupSize),
-            verificationNumber: parseInt(verificationNumber),
-            tileServer: tileServer,
-            createdBy: createdBy,
-            inputGeometries: inputGeometries
-        }
-
-    } else if (projectType == 3) {
-
-      var zoomLevel = document.getElementById("zoomLevelChangeDetection").value;
-      var geometry = ChangeDetectionGeometry;
-      var tileServerA = {
-        name: document.getElementById("tileServerChangeDetectionA").value,
-        url: document.getElementById("tileServerUrlChangeDetectionA").value,
-        wmtsLayerName: document.getElementById("tileServerLayerNameChangeDetectionA").value,
-        caption: document.getElementById("captionChangeDetectionA").value,
-        date: document.getElementById("dateChangeDetectionA").value,
-        credits: document.getElementById("tileServerCreditsChangeDetectionA").value
-      };
-      var tileServerB = {
-        name: document.getElementById("tileServerChangeDetectionB").value,
-        url: document.getElementById("tileServerUrlChangeDetectionB").value,
-        wmtsLayerName: document.getElementById("tileServerLayerNameChangeDetectionB").value,
-        caption: document.getElementById("captionChangeDetectionB").value,
-        date: document.getElementById("dateChangeDetectionB").value,
-        credits: document.getElementById("tileServerCreditsChangeDetectionB").value
-      };
-
-      var mapswipe_import = {
-          name: name,
-          lookFor: lookFor,
-          projectDetails: projectDetails,
-          projectType: parseInt(projectType),
-          image: image,
-          groupSize: parseInt(groupSize),
-          verificationNumber: parseInt(verificationNumber),
-          tileServerA: tileServerA,
-          tileServerB: tileServerB,
-          zoomLevel: parseInt(zoomLevel),
-          geometry: JSON.parse(geometry),
-          createdBy: createdBy
-      }
-
-    } else if (projectType == 4) {
-        var zoomLevel = document.getElementById("zoomLevelCompleteness").value;
-        var geometry = CompletenessGeometry;
-
-
-        var tileServer = {
-        name: document.getElementById("tileServerCompletenessA").value,
-        url: document.getElementById("tileServerUrlCompletenessA").value,
-        wmtsLayerName: document.getElementById("tileServerLayerNameCompletenessA").value,
-        caption: document.getElementById("captionCompletenessA").value,
-        date: document.getElementById("dateCompletenessA").value,
-        credits: document.getElementById("tileServerCreditsCompletenessA").value
-      };
-
-      var tileServerB = {
-        name: document.getElementById("tileServerCompletenessB").value,
-        url: document.getElementById("tileServerUrlCompletenessB").value,
-        wmtsLayerName: document.getElementById("tileServerLayerNameCompletenessB").value,
-        caption: document.getElementById("captionCompletenessB").value,
-        date: document.getElementById("dateCompletenessB").value,
-        credits: document.getElementById("tileServerCreditsCompletenessB").value
-      };
-
-      console.log(tileServerA);
-      console.log(tileServerB);
-
-      var mapswipe_import = {
-          name: name,
-          lookFor: lookFor,
-          projectDetails: projectDetails,
-          projectType: parseInt(projectType),
-          image: image,
-          groupSize: parseInt(groupSize),
-          verificationNumber: parseInt(verificationNumber),
-          tileServer: tileServer,
-          tileServerB: tileServerB,
-          zoomLevel: parseInt(zoomLevel),
-          geometry: JSON.parse(geometry),
-          createdBy: createdBy
-      }
-
-
-    }
+    var modal = document.getElementById("uploadModal");
+    modal.style.display = "block";
+    var modalOngoing = document.getElementById("modalOngoing");
+    modalOngoing.style.display = "block";
 
     var file = document.getElementById('image').files[0]
     console.log(file)
@@ -218,29 +101,42 @@ function submitInfo() {
       }
     }, function(error) {
       // Handle unsuccessful uploads
+      modal.style.display = "none";
     }, function() {
       // Handle successful uploads on complete
       // For instance, get the download URL: https://firebasestorage.googleapis.com/...
       uploadImage.snapshot.ref.getDownloadURL().then(function(downloadURL) {
         console.log('File available at', downloadURL);
         mapswipe_import.image = downloadURL
-        console.log(mapswipe_import)
 
-
-        // upload projectDraft to firebase once image has been uploaded
-
+        // TODO: unwrap this here and use separate function and await
         firebase.database().ref('v2/projectDrafts/').push().set(mapswipe_import)
           .then(function() {
-            clear_all_fields();
-            displaySuccessMessage();
+            clear_fields();
+            modalOngoing.style.display = "none";
+            var modalSuccess = document.getElementById("modalSuccess");
+            modalSuccess.style.display = "block";
           })
           .catch(function(error) {
+            modal.style.display = "none";
             alert('could not upload data: ' + error);
           });
 
-
-
       });
     });
-  }
+
+}
+
+
+function upload_to_firebase() {
+    switch (currentUid) {
+        case null:
+            alert("You are not logged in.");
+        default:
+            // get form data
+            mapswipe_import = getFormInput()
+
+            // upload projectDraft to firebase once image has been uploaded
+            upload_project_image(mapswipe_import)
+    }
 }
