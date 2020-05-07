@@ -3,7 +3,6 @@ import csv
 import datetime as dt
 import json
 import os
-import sys
 import ogr
 
 from mapswipe_workers import auth
@@ -80,7 +79,6 @@ class BaseProject(metaclass=ABCMeta):
     # def resultRequiredCounter(self):
     #     return self.resultRequiredCounter
 
-    @property
     def save_project(self):
         """
         Creates a projects with groups and tasks
@@ -223,7 +221,24 @@ class BaseProject(metaclass=ABCMeta):
 
         query_insert_project = """
             INSERT INTO projects
-            VALUES (%s,%s,ST_Force2D(ST_Multi(ST_GeomFromText(%s, 4326))),%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s);
+            VALUES (
+              %s  -- created
+              ,%s  -- createdBy
+              ,ST_Force2D(ST_Multi(ST_GeomFromText(%s, 4326)))  -- geometry
+              ,%s  -- image
+              ,%s  -- isFeatured
+              ,%s  -- lookFor
+              ,%s  -- name
+              ,%s  -- progress
+              ,%s  -- projectDetails
+              ,%s  -- projectId
+              ,%s  -- projectType
+              ,%s  -- requiredResults
+              ,%s  -- resultCount
+              ,%s  -- status
+              ,%s  -- verificationCount
+              ,%s  -- projectTypeSpecifics
+            );
             """
 
         data_project = [
