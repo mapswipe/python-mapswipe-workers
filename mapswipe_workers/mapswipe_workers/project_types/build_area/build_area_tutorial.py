@@ -19,6 +19,7 @@ def generate_tutorial_data(tutorial):
         "building_easy_1": {},
         "building_easy_2": {},
         "maybe_1": {},
+        "maybe_2": {},
         "no_building_easy_1": {},
         "no_building_easy_2": {},
         "bad_clouds_1": {},

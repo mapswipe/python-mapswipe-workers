@@ -35,6 +35,11 @@
       "post_correct": "Great.",
       "post_wrong": "Sometimes there are no blue buildings on top of the imagery at all, tap twice two mark such tile as incomplete."
     },
+    "maybe_2": {
+      "pre": "Sometimes there are areas that aren't mapped at all. Tap twice to mark these tiles as incomplete.",
+      "post_correct": "Great.",
+      "post_wrong": "Oh no. Try it again!"
+    },
     "no_building_easy_1": {
       "pre": "In many cases there will be no buildings at all. Just swipe left to map further.",
       "post_correct": "Nice. Well done.",

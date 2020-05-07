@@ -48,5 +48,7 @@ class BuildAreaTask(BaseTask):
         self.url = t.tile_coords_zoom_and_tileserver_to_url(
             TileX, TileY, project.zoomLevel, project.tileServer
         )
-        self.urlB = "https://api.mapbox.com/styles/v1/tahirau/ck6t8815214fq1it82leerpst/tiles/" + str(project.zoomLevel) + "/" + self.taskX + "/" + self.taskY + "?access_token=pk.eyJ1IjoidGFoaXJhdSIsImEiOiJjazZrdGQyMjYwMnpsM2VwNjdmdnl6eGo5In0.RIyd6m3AoPKWEkJFSc5CDA"
+        self.url = t.tile_coords_zoom_and_tileserver_to_url(
+            TileX, TileY, project.zoomLevel, project.tileServerB
+        )
         self.geometry = t.geometry_from_tile_coords(TileX, TileY, project.zoomLevel)

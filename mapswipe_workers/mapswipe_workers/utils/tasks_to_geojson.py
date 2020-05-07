@@ -33,7 +33,7 @@ BuildAreaProject.projectId = 12
 BuildAreaProject.zoomLevel = int(18)
 BuildAreaProject.tileServer = tile_server_dict
 
-project_area = "/home/tahira/Public/LOKI/Attica/athen.geojson"
+project_area = "/home/tahira/Public/LOKI/Attica/attica_maybe2.geojson"
 
 raw_groups = t.extent_to_slices(project_area, 18, 120)
 
@@ -106,4 +106,4 @@ def tasks_to_geoJson(tasks, outfile):
     return True
 
 
-a = tasks_to_geoJson(tasks, "athen_tasks.geojson")
+a = tasks_to_geoJson(tasks, "attica_tasks_maybe2.geojson")

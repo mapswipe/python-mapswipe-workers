@@ -16,8 +16,6 @@ class BuildAreaProject(BaseProject):
     The subclass for an import of the type Footprint
     """
 
-
-
     def __init__(self, project_draft):
         # this will create the basis attributes
         super().__init__(project_draft)

@@ -9,7 +9,8 @@ from mapswipe_workers.config import SLACK_CHANNEL, SLACK_TOKEN
 
 
 def send_slack_message(message_type: str, project_name: str, project_id: str = None):
-
+    print(SLACK_TOKEN)
+    print(SLACK_CHANNEL)
     if SLACK_TOKEN is None or SLACK_CHANNEL is None:
         logger.info(
             "No configuration for Slack was found. "
