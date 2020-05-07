@@ -52,7 +52,7 @@ function getFormInput() {
             }
             form_data.zoomLevel = parseInt(document.getElementById("zoomLevel").value);
             form_data.geometry = JSON.parse(projectAoiGeometry)
-            form_data.tileServerA = {
+            form_data.tileServer = {
               name: document.getElementById("tileServerAName").value,
               url: document.getElementById("tileServerAUrl").value,
               wmtsLayerName: document.getElementById("tileServerALayerName").value,

@@ -23,6 +23,7 @@ function initMap() {
   }
 
 function displayProjectTypeForm(projectType) {
+    document.getElementById("projectType").value = projectType;
     switch (projectType) {
         case "build_area":
             displayTileServer("bing", "A");
