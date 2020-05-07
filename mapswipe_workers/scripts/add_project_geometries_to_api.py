@@ -19,7 +19,7 @@ def add_project_geometries_to_api():
     print(len(data))
 
     # save as geojson one by one
-    for i, project in enumerate(data):
+    for project in data:
         project_id = project[0]
         wkt_geom = project[1]
 
@@ -29,7 +29,7 @@ def add_project_geometries_to_api():
         try:
             geometries = [ogr.CreateGeometryFromWkt(wkt_geom)]
             geojson_functions.create_geojson_file(geometries, outfile)
-        except Exception as e:
+        except Exception:
             print(f"got an error for {project_id}")
             # just ignore if this fails
             pass
