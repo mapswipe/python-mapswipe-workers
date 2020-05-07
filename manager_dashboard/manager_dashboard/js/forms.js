@@ -4,6 +4,12 @@ function adjust_textarea(h) {
     h.style.height = (h.scrollHeight)+"px";
 }
 
+function initForm() {
+    initMap();
+    displayProjectTypeForm("build_area")
+}
+
+
 function initMap() {
   ProjectAoiMap = L.map('geometryMap').setView([0.0, 0.0], 4);
   L.tileLayer( 'https://maps.wikimedia.org/osm-intl/{z}/{x}/{y}.png', {
@@ -19,6 +25,7 @@ function initMap() {
 function displayProjectTypeForm(projectType) {
     switch (projectType) {
         case "build_area":
+            displayTileServer("bing", "A");
             document.getElementById("form_project_aoi_geometry").style.display = "block";
             document.getElementById("form_project_task_geometry").style.display = "None";
             document.getElementById("form_zoom_level").style.display = "block";
@@ -27,6 +34,7 @@ function displayProjectTypeForm(projectType) {
             setTimeout(function(){ ProjectAoiMap.invalidateSize()}, 400);
             break;
         case "footprint":
+            displayTileServer("bing", "A");
             document.getElementById("form_project_aoi_geometry").style.display = "None";
             document.getElementById("form_project_task_geometry").style.display = "block";
             document.getElementById("form_zoom_level").style.display = "None";
@@ -35,6 +43,8 @@ function displayProjectTypeForm(projectType) {
             break;
         case "change_detection":
         case "completeness":
+            displayTileServer("bing", "A");
+            displayTileServer("bing", "B");
             document.getElementById("form_project_aoi_geometry").style.display = "block";
             document.getElementById("form_project_task_geometry").style.display = "None";
             document.getElementById("form_zoom_level").style.display = "block";
