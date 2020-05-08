@@ -5,7 +5,7 @@ import datetime
 from typing import List
 from mapswipe_workers import auth
 from mapswipe_workers.definitions import logger, DATA_PATH
-from mapswipe_workers.utils import geojson_functions
+from mapswipe_workers.utils import geojson_functions, tile_functions
 from mapswipe_workers.generate_stats import (
     project_stats_by_date,
     tasking_manager_geometries,
@@ -180,22 +180,7 @@ def calc_agreement(total: int, no: int, yes: int, maybe: int, bad: int) -> float
 
 
 def calc_share(total: int, no: int, yes: int, maybe: int, bad: int) -> List[float]:
-    """
-    Calculate the share of each category ("no", "yes", "maybe", "bad") on the total count.
-
-    Parameters
-    ----------
-    total
-    no
-    yes
-    maybe
-    bad
-
-    Returns
-    -------
-
-    """
-
+    """Calculate the share of each category on the total count."""
     no_share = no / total
     yes_share = yes / total
     maybe_share = maybe / total
@@ -208,14 +193,6 @@ def calc_count(row) -> List[int]:
     """
     Check if a count exists for each category ("no", "yes", "maybe", "bad").
     Then calculate total count as the sum of all categories.
-
-    Parameters
-    ----------
-    row
-
-    Returns
-    -------
-
     """
 
     try:
@@ -244,17 +221,33 @@ def calc_count(row) -> List[int]:
     return [total_count, no_count, yes_count, maybe_count, bad_count]
 
 
+def calc_quadkey(row):
+    """Calculate quadkey based on task id."""
+    try:
+        tile_z, tile_x, tile_y = row["task_id"].split("-")
+        quadkey = tile_functions.tile_coords_and_zoom_to_quadKey(
+            int(tile_x), int(tile_y), int(tile_z)
+        )
+    except ValueError:
+        # return None if task_id is not composed of x,y ,z
+        quadkey = None
+
+    return quadkey
+
+
 def get_agg_results_by_task_id(
     results_df: pd.DataFrame, tasks_df: pd.DataFrame
 ) -> pd.DataFrame:
     """
     For each task several users contribute results.
-    Get agg_results dataframe by aggregating results df by task_id, group_id and project_id.
+    Get agg_results dataframe by aggregating results df by task_id,
+    group_id and project_id.
     Calculate the following attributes to agg_results dataframe:
     total_count, 0_count, 1_count, 2_count, 3_count
     0_share, 1_share, 2_share, 3_share.
     Calculate "agreement" for each task based on Scott's Pi.
-    Perform a left join for agg_results df with tasks dataframe to add the task geometry.
+    Perform a left join for agg_results df with
+    tasks dataframe to add the task geometry.
     Return aggregated results dataframe.
 
     Parameters
@@ -290,6 +283,12 @@ def get_agg_results_by_task_id(
     )
     logger.info(f"calculated agreement")
 
+    # add quadkey
+    results_by_task_id_df.reset_index(level=["task_id"], inplace=True)
+    results_by_task_id_df["quadkey"] = results_by_task_id_df.apply(
+        lambda row: calc_quadkey(row), axis=1
+    )
+
     # add task geometry using left join
     agg_results_df = results_by_task_id_df.merge(
         tasks_df[["geom", "task_id"]], left_on="task_id", right_on="task_id"
@@ -313,19 +312,16 @@ def get_per_project_statistics(project_id: str, project_info: pd.Series) -> dict
     - Save aggregated results to csv file and GeoJSON file.
     - Save project history to csv file.
     - return the most recent statistics as a dictionary
-    The returned dictionary will be used by generate_stats.py to update the projects_dynamic.csv
+    The returned dictionary will be used by generate_stats.py
+    to update the projects_dynamic.csv
     """
 
     # set filenames
     results_filename = f"{DATA_PATH}/api/results/results_{project_id}.csv"
     tasks_filename = f"{DATA_PATH}/api/tasks/tasks_{project_id}.csv"
     groups_filename = f"{DATA_PATH}/api/groups/groups_{project_id}.csv"
-    agg_results_filename = (
-        f"{DATA_PATH}/api/agg_results/agg_results_{project_id}.csv"
-    )
-    project_stats_by_date_filename = (
-        f"{DATA_PATH}/api/history/history_{project_id}.csv"
-    )
+    agg_results_filename = f"{DATA_PATH}/api/agg_results/agg_results_{project_id}.csv"
+    project_stats_by_date_filename = f"{DATA_PATH}/api/history/history_{project_id}.csv"
 
     # load data from postgres or local storage if already downloaded
     results_df = get_results(results_filename, project_id)
@@ -353,7 +349,8 @@ def get_per_project_statistics(project_id: str, project_info: pd.Series) -> dict
         project_stats_by_date_df["project_id"] = project_id
         project_stats_by_date_df.to_csv(project_stats_by_date_filename)
         logger.info(
-            f"saved project stats by date for {project_id}: {project_stats_by_date_filename}"
+            f"saved project stats by date for {project_id}: "
+            f"{project_stats_by_date_filename}"
         )
 
         # generate geometries for HOT Tasking Manager
