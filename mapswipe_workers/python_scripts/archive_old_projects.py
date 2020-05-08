@@ -1,5 +1,14 @@
 from mapswipe_workers import auth
-from mapswipe_workers.definitions import logger
+from mapswipe_workers.definitions import logger, CustomError
+from typing import Iterable
+import re
+from firebase_admin import exceptions
+
+
+def chunks(data: list, size: int = 250) -> Iterable[list]:
+    """Yield successive n-sized chunks from list."""
+    for i in range(0, len(data), size):
+        yield data[i : i + size]  # noqa E203
 
 
 def get_old_projects():
@@ -52,8 +61,21 @@ def delete_old_groups(project_id):
     Delete old groups for a project
     """
     fb_db = auth.firebaseDB()
-    fb_db.reference("groups/{0}".format(project_id)).set({})
-    logger.info(f"deleted groups for: {project_id}")
+    ref = fb_db.reference(f"/groups/{project_id}")
+    if not re.match(r"/\w+/[-a-zA-Z0-9]+", ref.path):
+        raise CustomError(
+            f"""Given argument resulted in invalid Firebase Realtime Database reference.
+                    {ref.path}"""
+        )
+    try:
+        ref.delete()
+    except exceptions.InvalidArgumentError:
+        # Data to write exceeds the maximum size that can be modified
+        # with a single request. Delete chunks of data instead.
+        childs = ref.get(shallow=True)
+        for chunk in chunks(list(childs.keys())):
+            ref.update({key: None for key in chunk})
+        ref.delete()
 
 
 def delete_other_old_data():
