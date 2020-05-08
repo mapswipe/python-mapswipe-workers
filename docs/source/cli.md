@@ -113,3 +113,8 @@ Options:
   --help             Show this message and exit.
 
 ```
+
+## Run a script which requires mapswipe_workers library
+```
+docker-compose run mapswipe_workers python3 python_scripts/add_project_geometries_to_api.py
+```
