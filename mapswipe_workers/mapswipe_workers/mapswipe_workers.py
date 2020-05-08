@@ -21,9 +21,6 @@ from mapswipe_workers.project_types.build_area.build_area_project import (
     BuildAreaProject,
 )
 from mapswipe_workers.project_types.change_detection import change_detection_tutorial
-from mapswipe_workers.project_types.change_detection.change_detection_project import (
-    ChangeDetectionProject,
-)
 from mapswipe_workers.project_types.footprint.footprint_project import FootprintProject
 from mapswipe_workers.utils import user_management
 from mapswipe_workers.utils.create_directories import create_directories
@@ -61,7 +58,7 @@ def run_create_projects():
     project_type_classes = {
         1: BuildAreaProject,
         2: FootprintProject,
-        3: ChangeDetectionProject,
+        3: BuildAreaProject,
         4: BuildAreaProject,
     }
 

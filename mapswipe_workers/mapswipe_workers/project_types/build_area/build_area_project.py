@@ -26,7 +26,9 @@ class BuildAreaProject(BaseProject):
         self.geometry = project_draft["geometry"]
         self.zoomLevel = int(project_draft.get("zoomLevel", 18))
         self.tileServer = self.get_tile_server(project_draft["tileServer"])
-        if self.project_type == 4:
+
+        # get TileServerB for change detection and completeness type
+        if self.project_type in [3, 4]:
             self.tileServerB = self.get_tile_server(project_draft["tileServerB"])
 
     def validate_geometries(self):

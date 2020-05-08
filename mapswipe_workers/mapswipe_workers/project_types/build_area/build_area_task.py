@@ -45,10 +45,15 @@ class BuildAreaTask(BaseTask):
         super().__init__(group, taskId)
         self.taskX = str(TileX)
         self.taskY = str(TileY)
+        self.geometry = t.geometry_from_tile_coords(TileX, TileY, project.zoomLevel)
+
+        # get TileServer for all project types
         self.url = t.tile_coords_zoom_and_tileserver_to_url(
             TileX, TileY, project.zoomLevel, project.tileServer
         )
-        self.urlB = t.tile_coords_zoom_and_tileserver_to_url(
-            TileX, TileY, project.zoomLevel, project.tileServerB
-        )
-        self.geometry = t.geometry_from_tile_coords(TileX, TileY, project.zoomLevel)
+
+        # get TileServer B only for change_detection or completeness type
+        if project.project_type in [3, 4]:
+            self.urlB = t.tile_coords_zoom_and_tileserver_to_url(
+                TileX, TileY, project.zoomLevel, project.tileServerB
+            )
