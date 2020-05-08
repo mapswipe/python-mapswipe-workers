@@ -9,6 +9,7 @@ from mapswipe_workers.utils import geojson_functions, tile_functions
 from mapswipe_workers.generate_stats import (
     project_stats_by_date,
     tasking_manager_geometries,
+    user_stats,
 )
 
 
@@ -321,6 +322,7 @@ def get_per_project_statistics(project_id: str, project_info: pd.Series) -> dict
     tasks_filename = f"{DATA_PATH}/api/tasks/tasks_{project_id}.csv"
     groups_filename = f"{DATA_PATH}/api/groups/groups_{project_id}.csv"
     agg_results_filename = f"{DATA_PATH}/api/agg_results/agg_results_{project_id}.csv"
+    agg_results_by_user_id_filename = f"{DATA_PATH}/api/users/users_{project_id}.csv"
     project_stats_by_date_filename = f"{DATA_PATH}/api/history/history_{project_id}.csv"
 
     # load data from postgres or local storage if already downloaded
@@ -338,6 +340,17 @@ def get_per_project_statistics(project_id: str, project_info: pd.Series) -> dict
         agg_results_df.to_csv(agg_results_filename, index_label="idx")
         logger.info(f"saved agg results for {project_id}: {agg_results_filename}")
         geojson_functions.csv_to_geojson(agg_results_filename, "geom")
+
+        # aggregate results by user id
+        agg_results_by_user_id_df = user_stats.get_agg_results_by_user_id(
+            results_df, agg_results_df
+        )
+        agg_results_by_user_id_df.to_csv(
+            agg_results_by_user_id_filename, index_label="idx"
+        )
+        logger.info(
+            f"saved agg results for {project_id}: {agg_results_by_user_id_filename}"
+        )
 
         if any("maxar" in s for s in project_info["tile_server_names"]):
             add_metadata_to_csv(agg_results_filename)

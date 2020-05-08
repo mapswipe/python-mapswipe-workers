@@ -15,6 +15,8 @@ def create_directories() -> None:
         DATA_PATH + "/api/results",
         DATA_PATH + "/api/tasks",
         DATA_PATH + "/api/yes_maybe",
+        DATA_PATH + "/api/users",
+        DATA_PATH + "/api/project_geometries",
     )
 
     for path in dirs:
