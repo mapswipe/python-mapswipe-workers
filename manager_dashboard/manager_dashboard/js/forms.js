@@ -27,6 +27,7 @@ function displayProjectTypeForm(projectType) {
     switch (projectType) {
         case "build_area":
             displayTileServer("bing", "A");
+            document.getElementById("groupSize").value = 120;
             document.getElementById("form_project_aoi_geometry").style.display = "block";
             document.getElementById("form_project_task_geometry").style.display = "None";
             document.getElementById("form_zoom_level").style.display = "block";
@@ -36,6 +37,7 @@ function displayProjectTypeForm(projectType) {
             break;
         case "footprint":
             displayTileServer("bing", "A");
+            document.getElementById("groupSize").value = 25;
             document.getElementById("form_project_aoi_geometry").style.display = "None";
             document.getElementById("form_project_task_geometry").style.display = "block";
             document.getElementById("form_zoom_level").style.display = "None";
@@ -46,6 +48,11 @@ function displayProjectTypeForm(projectType) {
         case "completeness":
             displayTileServer("bing", "A");
             displayTileServer("bing", "B");
+            if (projectType == "change_detection") {
+                document.getElementById("groupSize").value = 25;
+            } else {
+                document.getElementById("groupSize").value = 80;
+            }
             document.getElementById("form_project_aoi_geometry").style.display = "block";
             document.getElementById("form_project_task_geometry").style.display = "None";
             document.getElementById("form_zoom_level").style.display = "block";
