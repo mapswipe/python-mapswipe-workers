@@ -1,7 +1,7 @@
 import pandas as pd
 
 
-def calc_agreement_counts(row):
+def calc_agreement_counts(row) -> tuple:
     """Calc number of agreeig and disagreeing results from other users."""
     this_user_label = row["result"]
     other_user_labels = []
@@ -16,7 +16,7 @@ def calc_agreement_counts(row):
     agreeing_contributions = other_user_labels.count(this_user_label)
     disagreeing_contributions = len(other_user_labels) - agreeing_contributions
 
-    return agreeing_contributions, disagreeing_contributions
+    return (agreeing_contributions, disagreeing_contributions)
 
 
 def calc_agreement_score(row):
