@@ -4,9 +4,8 @@ import ast
 import json
 import time
 
-import schedule as sched
-
 import click
+import schedule as sched
 from mapswipe_workers import auth
 from mapswipe_workers.definitions import CustomError, logger, sentry
 from mapswipe_workers.firebase_to_postgres import (
