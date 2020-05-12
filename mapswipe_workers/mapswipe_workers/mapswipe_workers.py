@@ -177,7 +177,7 @@ def run_create_tutorial(input_file) -> None:
         }
         project_types_tutorial[project_type](tutorial)
     except Exception:
-        logger.exception("sorry")
+        logger.exception("Tutroials could not be created.")
         sentry.capture_exception()
 
 
