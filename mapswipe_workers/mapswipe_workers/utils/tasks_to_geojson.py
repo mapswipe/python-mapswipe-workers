@@ -15,8 +15,8 @@ url = (
     "{quad_key}.jpeg?g=7505&mkt=en-US&token={key}"
 )
 
-apiKeyRequired = "AopsdXjtTu-IwNoCTiZBtgRJ1g7yPkzAi65nXplc-eLJwZHYlAIf2yuSY_Kjg3Wn"
-apiKey = "AopsdXjtTu-IwNoCTiZBtgRJ1g7yPkzAi65nXplc-eLJwZHYlAIf2yuSY_Kjg3Wn"
+apiKeyRequired = ""
+apiKey = ""
 
 tile_server_dict = {
     "name": "bing",

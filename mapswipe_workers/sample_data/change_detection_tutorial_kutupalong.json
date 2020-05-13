@@ -9,7 +9,7 @@
   "progress": 0,
   "contributorCount": 0,
   "tileServerA" : {
-    "apiKey" : "AopsdXjtTu-IwNoCTiZBtgRJ1g7yPkzAi65nXplc-eLJwZHYlAIf2yuSY_Kjg3Wn",
+    "apiKey" : "",
     "captions" : "",
     "date" : "",
     "name" : "custom",
@@ -17,7 +17,7 @@
     "credits": "International Organization for Migration (IOM)"
   },
   "tileServerB" : {
-    "apiKey" : "91e57457-aa2d-41ad-a42b-3b63a123f54a",
+    "apiKey" : "",
     "captions" : "",
     "date" : "",
     "name" : "custom",
