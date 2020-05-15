@@ -76,7 +76,7 @@ def run_create_projects():
         project_name = project_draft["name"]
         try:
             # Create a project object using appropriate class (project type).
-            project = ProjectType(project_type).constructor()
+            project = ProjectType(project_type).constructor(project_draft)
             project.geometry = project.validate_geometries()
             project.create_groups()
             project.calc_required_results()
