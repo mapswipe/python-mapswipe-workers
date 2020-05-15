@@ -122,6 +122,7 @@ class ProjectType(Enum):
 
     @property
     def constuctor(self):
+        # Imports are first made once this method get called to avoid circular imports.
         from mapswipe_workers.project_types.build_area.build_area_project import (
             BuildAreaProject,
         )
