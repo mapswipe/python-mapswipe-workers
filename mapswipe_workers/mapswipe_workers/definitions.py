@@ -1,21 +1,11 @@
 import logging.config
 import os
-import sentry_sdk
-from xdg import XDG_DATA_HOME
-from mapswipe_workers.config import SENTRY_DSN
 from enum import Enum
 
+import sentry_sdk
+from xdg import XDG_DATA_HOME
 
-class CustomError(Exception):
-    pass
-
-
-class MessageType(Enum):
-    SUCCESS = 1
-    FAIL = 2
-    NOTIFICATION_90 = 3
-    NOTIFICATION_100 = 4
-
+from mapswipe_workers.config import SENTRY_DSN
 
 DATA_PATH = os.path.join(XDG_DATA_HOME, "mapswipe_workers")
 if not os.path.exists(DATA_PATH):
@@ -104,3 +94,44 @@ IMAGE_URLS = {
         + "tilematrix={z}&tilecol={x}&tilerow={y}&layer={layer}"
     ),
 }
+
+
+class CustomError(Exception):
+    pass
+
+
+class MessageType(Enum):
+    SUCCESS = 1
+    FAIL = 2
+    NOTIFICATION_90 = 3
+    NOTIFICATION_100 = 4
+
+
+class ProjectType(Enum):
+    """
+    Definition of Project Type names, identifiers and constructors.
+
+    There are different project types with the same constructor.
+    Get the class constructor of a project type with:
+    ProjectType(1).constructor
+    """
+
+    BUILD_AREA = 1
+    FOOTPRINT = 2
+    CHANGE_DETECTION = 3
+
+    @property
+    def constuctor(self):
+        from mapswipe_workers.project_types.build_area.build_area_project import (
+            BuildAreaProject,
+        )
+        from mapswipe_workers.project_types.footprint.footprint_project import (
+            FootprintProject,
+        )
+
+        project_type_classes = {
+            1: BuildAreaProject,
+            2: FootprintProject,
+            3: BuildAreaProject,
+        }
+        return project_type_classes[self.value]
