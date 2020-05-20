@@ -17,7 +17,7 @@
     "apiKey" : "",
     "date" : "",
     "name" : "custom",
-    "url" : "https://api.mapbox.com/styles/v1/tahirau/ck9ieq2rh1zid1iqytdkwlv5d/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoidGFoaXJhdSIsImEiOiJjazZrdGQyMjYwMnpsM2VwNjdmdnl6eGo5In0.RIyd6m3AoPKWEkJFSc5CDA"
+    "url" : "https://api.mapbox.com/styles/v1/tahirau/ck9wt55hc0rnd1is3lcd4wd8o/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoidGFoaXJhdSIsImEiOiJjazZrdGQyMjYwMnpsM2VwNjdmdnl6eGo5In0.RIyd6m3AoPKWEkJFSc5CDA"
   },
   "categories": {
     "building_easy_1": {

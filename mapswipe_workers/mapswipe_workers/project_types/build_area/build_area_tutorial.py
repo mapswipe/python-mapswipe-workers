@@ -71,7 +71,7 @@ def generate_tutorial_data(tutorial):
         group_id = 101 + i
         # the yMin represents a tile located at the equator at zoom level 18
         groups_dict[group_id] = {
-            "xMax": "115",
+            "xMax": "117",
             "xMin": "100",
             "yMax": "131074",
             "yMin": "131072",
