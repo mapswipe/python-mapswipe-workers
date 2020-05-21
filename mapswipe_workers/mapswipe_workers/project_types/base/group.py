@@ -14,7 +14,8 @@ class BaseGroup(metaclass=ABCMeta):
         completedCount: int
             Number of users who finished the group
         neededCount: int
-            Required number of users left to finish the group. Decreases with the increase of completedCount
+            Required number of users left to finish the group.
+            Decreases with the increase of completedCount.
         count: int
              Number of tasks associated with the group
     """
@@ -45,11 +46,11 @@ class BaseGroup(metaclass=ABCMeta):
 
     @abstractmethod
     def create_tasks():
-        '''
+        """
             Create tasks as task object for one group
             and appends those to a tasks list of the group object.
 
             The number of tasks has to be calculated
             and saved to the numberOfTasks attribute of the group object.
-        '''
+        """
         pass

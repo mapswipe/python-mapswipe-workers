@@ -17,7 +17,7 @@ LOGGING_CONFIG = {
     "disable_existing_loggers": True,
     "formatters": {
         "standard": {
-            "format": "%(asctime)s - %(levelname)s - %(filename)s - %(funcName)s - %(message)s"
+            "format": "%(asctime)s - %(levelname)s - %(filename)s - %(funcName)s - %(message)s"  # noqa: E501
         },
     },
     "handlers": {
@@ -121,18 +121,33 @@ class ProjectType(Enum):
     CHANGE_DETECTION = 3
 
     @property
-    def constuctor(self):
+    def constructor(self):
         # Imports are first made once this method get called to avoid circular imports.
-        from mapswipe_workers.project_types.build_area.build_area_project import (
-            BuildAreaProject,
+        from mapswipe_workers.project_types.tile_map_service_grid.project import (
+            Project as tmsg_project,
         )
-        from mapswipe_workers.project_types.footprint.footprint_project import (
-            FootprintProject,
+        from mapswipe_workers.project_types.arbitrary_geometry.project import (
+            Project as ag_project,
         )
 
         project_type_classes = {
-            1: BuildAreaProject,
-            2: FootprintProject,
-            3: BuildAreaProject,
+            1: tmsg_project,
+            2: ag_project,
+            3: tmsg_project,
         }
         return project_type_classes[self.value]
+
+    @property
+    def tutorial(self):
+        from mapswipe_workers.project_types.tile_map_service_grid import (
+            build_area_tutorial,
+        )
+        from mapswipe_workers.project_types.tile_map_service_grid import (
+            change_detection_tutorial,
+        )
+
+        project_type_tutorial = {
+            1: build_area_tutorial,
+            3: change_detection_tutorial,
+        }
+        return project_type_tutorial[self.value]
