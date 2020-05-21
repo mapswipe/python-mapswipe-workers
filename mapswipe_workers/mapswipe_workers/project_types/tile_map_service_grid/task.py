@@ -1,18 +1,14 @@
-from mapswipe_workers.base.base_task import BaseTask
+from mapswipe_workers.project_types.base.task import BaseTask
 from mapswipe_workers.utils import tile_functions as t
 
 
-class BuildAreaTask(BaseTask):
+class Task(BaseTask):
     """
-        The subclass of BaseTask to specify tasks of the footprint \
-                project type.
-
         Attributes
         ----------
         task_id: str
             The id of the task
         projectId: str
-            The id of the associated BuildAreaProject
         taskX: int
             X coordinate of the respective imagery of the task
         taskY: int
@@ -24,17 +20,10 @@ class BuildAreaTask(BaseTask):
                     tiled imagery server
     """
 
-    def __init__(self, group, project, TileX, TileY):
+    def __init__(self, group: object, project: object, TileX: str, TileY: str):
         """
-            The Constructor method for a group instance of the \
-                    footprint project type.
-
         Parameters
         ----------
-        group: BuildAreaGroup object
-            The group the task is associated with
-        project: BuildAreaProject object
-            The project the task is associated with
         TileX: str
             X coordinate of the imagery tile
         TileY: str

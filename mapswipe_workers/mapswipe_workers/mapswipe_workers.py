@@ -22,8 +22,6 @@ from mapswipe_workers.firebase_to_postgres import (
     update_data,
 )
 from mapswipe_workers.generate_stats import generate_stats
-from mapswipe_workers.project_types.build_area import build_area_tutorial
-from mapswipe_workers.project_types.change_detection import change_detection_tutorial
 from mapswipe_workers.utils import user_management
 from mapswipe_workers.utils.create_directories import create_directories
 from mapswipe_workers.utils.slack_helper import (
@@ -169,16 +167,9 @@ def run_create_tutorial(input_file) -> None:
     try:
         logger.info(f"will generate tutorial based on {input_file}")
         with open(input_file) as json_file:
-            tutorial = json.load(json_file)
-
-        project_type = tutorial["projectType"]
-
-        project_types_tutorial = {
-            # Make sure to import all project types here
-            1: build_area_tutorial.create_tutorial,
-            3: change_detection_tutorial.create_tutorial,
-        }
-        project_types_tutorial[project_type](tutorial)
+            tutorial_data = json.load(json_file)
+        project_type = tutorial_data["projectType"]
+        ProjectType(project_type).tutorial(tutorial_data)
     except Exception:
         logger.exception()
         sentry.capture_exception()
