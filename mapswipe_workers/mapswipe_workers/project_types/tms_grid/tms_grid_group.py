@@ -1,9 +1,8 @@
-from mapswipe_workers.project_types.build_area.build_area_task \
-        import BuildAreaTask
+from mapswipe_workers.project_types.tms_grid.tms_grid_task import TMSGridTask
 from mapswipe_workers.base.base_group import BaseGroup
 
 
-class BuildAreaGroup(BaseGroup):
+class TMSGridGroup(BaseGroup):
     """
         The subclass of BaseGroup to specify groups of the build area
         project type.
@@ -36,10 +35,10 @@ class BuildAreaGroup(BaseGroup):
             of the group as extent consisting of 4 values
         """
         super().__init__(project, groupId)
-        self.xMax = slice['xMax']
-        self.xMin = slice['xMin']
-        self.yMax = slice['yMax']
-        self.yMin = slice['yMin']
+        self.xMax = slice["xMax"]
+        self.xMin = slice["xMin"]
+        self.yMax = slice["yMax"]
+        self.yMin = slice["yMin"]
 
     def create_tasks(self, project):
         """
@@ -53,6 +52,6 @@ class BuildAreaGroup(BaseGroup):
         """
         for TileX in range(int(self.xMin), int(self.xMax) + 1):
             for TileY in range(int(self.yMin), int(self.yMax) + 1):
-                task = BuildAreaTask(self, project, TileX, TileY)
+                task = TMSGridTask(self, project, TileX, TileY)
                 self.tasks.append(task)
         self.numberOfTasks = len(self.tasks)

@@ -1,20 +1,21 @@
-from mapswipe_workers.project_types.footprint.footprint_task \
-        import FootprintTask
+from mapswipe_workers.project_types.arbitrary_geometries.arbitrary_geometries_task import (
+    FootprintTask,
+)
 from mapswipe_workers.base.base_group import BaseGroup
 
 
 class FootprintGroup(BaseGroup):
     """
         The subclass of BaseGroup to specify
-        groups of the footprint project type.
+        groups of the arbitrary_geometries project type.
     """
 
     type = 2
 
-    def __init__(self, project,  groupId):
+    def __init__(self, project, groupId):
         """
            The Constructor Method for a group instance
-           of the footprint project type.
+           of the arbitrary_geometries project type.
 
         Parameters
         ----------
@@ -28,14 +29,14 @@ class FootprintGroup(BaseGroup):
             The geometry of the feature as geojson. Consisting of two keys:
             coordinates and type.
             Coordinates consists of four two pair coordinates
-            representing the footprint of an object
+            representing the arbitrary_geometries of an object
         """
         super().__init__(project, groupId)
 
     def create_tasks(self, feature_ids, feature_geometries):
         """
         The Function to create tasks for the group of
-        the footprint project type
+        the arbitrary_geometries project type
 
         Parameters
         ----------
@@ -46,7 +47,7 @@ class FootprintGroup(BaseGroup):
             These consist two keys:
             Coordinates and type.
             Coordinates of four two pair coordinates.
-            Every coordinate pair is a vertex, representing the footprint
+            Every coordinate pair is a vertex, representing the arbitrary_geometries
             of an object.
 
         Returns

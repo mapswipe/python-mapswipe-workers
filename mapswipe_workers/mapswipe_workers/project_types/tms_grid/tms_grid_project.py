@@ -6,12 +6,12 @@ import json
 from mapswipe_workers.definitions import DATA_PATH
 from mapswipe_workers.definitions import logger
 from mapswipe_workers.base.base_project import BaseProject
-from mapswipe_workers.project_types.build_area.build_area_group import BuildAreaGroup
+from mapswipe_workers.project_types.tms_grid.tms_grid_group import TMSGridGroup
 from mapswipe_workers.utils import tile_grouping_functions as grouping_functions
 from mapswipe_workers.definitions import CustomError
 
 
-class BuildAreaProject(BaseProject):
+class TMSGridProject(BaseProject):
     """
     The subclass for an import of the type Footprint
     """
@@ -157,7 +157,7 @@ class BuildAreaProject(BaseProject):
         )
 
         for group_id, slice in raw_groups.items():
-            group = BuildAreaGroup(self, group_id, slice)
+            group = TMSGridGroup(self, group_id, slice)
             group.create_tasks(self)
             self.groups.append(group)
 
