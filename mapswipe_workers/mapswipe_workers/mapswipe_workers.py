@@ -8,7 +8,7 @@ import schedule as sched
 
 import click
 from mapswipe_workers import auth
-from mapswipe_workers.definitions import CustomError, logger, sentry
+from mapswipe_workers.definitions import CustomError, logger, sentry, MessageType
 from mapswipe_workers.firebase_to_postgres import (
     archive_project,
     delete_project,
@@ -27,7 +27,10 @@ from mapswipe_workers.project_types.change_detection.change_detection_project im
 from mapswipe_workers.project_types.footprint.footprint_project import FootprintProject
 from mapswipe_workers.utils import user_management
 from mapswipe_workers.utils.create_directories import create_directories
-from mapswipe_workers.utils.slack_helper import send_slack_message
+from mapswipe_workers.utils.slack_helper import (
+    send_slack_message,
+    send_progress_notification,
+)
 
 
 class PythonLiteralOption(click.Option):
@@ -46,6 +49,8 @@ def cli(verbose):
     create_directories()
     if not verbose:
         logger.disabled = True
+    else:
+        logger.info("Logging enabled")
 
 
 @cli.command("create-projects")
@@ -84,12 +89,12 @@ def run_create_projects():
             project.calc_required_results()
             # Save project and its groups and tasks to Firebase and Postgres.
             project.save_project()
-            send_slack_message("success", project_name, project.projectId)
+            send_slack_message(MessageType.SUCCESS, project_name, project.projectId)
             logger.info("Success: Project Creation ({0})".format(project_name))
         except CustomError:
             ref = fb_db.reference(f"v2/projectDrafts/{project_draft_id}")
             ref.set({})
-            send_slack_message("fail", project_name, project.projectId)
+            send_slack_message(MessageType.FAIL, project_name, project.projectId)
             logger.exception("Failed: Project Creation ({0}))".format(project_name))
             sentry.capture_exception()
         continue
@@ -101,6 +106,8 @@ def run_firebase_to_postgres() -> list:
     update_data.update_user_data()
     update_data.update_project_data()
     project_ids = transfer_results.transfer_results()
+    for project_id in project_ids:
+        send_progress_notification(project_id)
     return project_ids
 
 

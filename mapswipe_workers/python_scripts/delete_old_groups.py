@@ -1,15 +1,24 @@
 from mapswipe_workers import auth
-from mapswipe_workers.definitions import logger
+from mapswipe_workers.definitions import logger, CustomError
+from typing import Iterable
+import re
+from firebase_admin import exceptions
 
 
-def get_old_projects():
+def chunks(data: list, size: int = 250) -> Iterable[list]:
+    """Yield successive n-sized chunks from list."""
+    for i in range(0, len(data), size):
+        yield data[i : i + size]  # noqa E203
+
+
+def get_old_groups():
     """
     Get all projects from Firebase which have been created
     before we switched to v2.
     """
     fb_db = auth.firebaseDB()
-    ref = fb_db.reference("projects")
-    projects = ref.get()
+    ref = fb_db.reference("groups")
+    projects = ref.get(shallow=True)
     logger.info("got old projects from firebase")
     return projects
 
@@ -52,40 +61,34 @@ def delete_old_groups(project_id):
     Delete old groups for a project
     """
     fb_db = auth.firebaseDB()
-    fb_db.reference("groups/{0}".format(project_id)).set({})
-    logger.info(f"deleted groups for: {project_id}")
+    ref = fb_db.reference(f"/groups/{project_id}")
+    if not re.match(r"/\w+/[-a-zA-Z0-9]+", ref.path):
+        raise CustomError(
+            f"""Given argument resulted in invalid Firebase Realtime Database reference.
+                    {ref.path}"""
+        )
+    try:
+        ref.delete()
+    except exceptions.InvalidArgumentError:
+        # Data to write exceeds the maximum size that can be modified
+        # with a single request. Delete chunks of data instead.
+        childs = ref.get(shallow=True)
+        for chunk in chunks(list(childs.keys())):
+            ref.update({key: None for key in chunk})
+        ref.delete()
 
 
-def delete_other_old_data():
+def run_delete_old_groups():
     """
-    Delete old imports, results, announcements in Firebase
-    """
-    fb_db = auth.firebaseDB()
-    fb_db.reference("imports").set({})
-    fb_db.reference("results").set({})
-    fb_db.reference("announcements").set({})
-    logger.info(f"deleted old results, imports, announcements")
-
-
-def archive_old_projects():
-    """
-    Run workflow to archive old projects.
-    First get all old projects.
-    Move project data to v2/projects in Firebase and
-    set status=archived.
-    Then delete all groups for a project.
-    Finally, delete old results, imports and announcements.
-    We don't touch the old user data in this workflow.
+    Run workflow to delete old groups.
+    First get all old project ids from remaining groups.
+    Then delete all groups for the given project_ids.
     """
 
-    projects = get_old_projects()
-    for project_id in projects.keys():
-        if move_project_data_to_v2(project_id):
-            delete_old_groups(project_id)
-        else:
-            logger.info(f"didn't delete project and groups for project: {project_id}")
-
-    delete_other_old_data()
+    projects = get_old_groups()
+    for project_id in projects:
+        delete_old_groups(project_id)
+        logger.info(f"{project_id}: deleted old groups")
 
 
-archive_old_projects()
+run_delete_old_groups()

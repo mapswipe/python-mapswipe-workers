@@ -57,7 +57,8 @@ You could also set up your own Firebase instance. However, this is not recommend
 
 ### Postgres
 
-Setup a local Postgres instance for MapSwipe Workers using the Dockerfile provided for development purposes (`postgres/Dockerfile-dev`). Make sure that the specified port is not in use already. If so, adjust the port (also in the `.env` file).
+Setup a local Postgres instance for MapSwipe Workers using the Dockerfile provided for development purposes (`postgres/Dockerfile-dev`). The Dockerfile for production (`postgres/Dockerfile`) does need additional setup for build-in backup to Google Cloud Storage, which is not needed for local development. That is why a simplified Dockerfile for development is provided.
+Make sure that the specified port is not in use already. If so, adjust the port (also in the `.env` file).
 
 ```bash
 docker build -t mapswipe_postgres -f ./postgres/Dockerfile-dev ./postgres
@@ -89,12 +90,12 @@ mapswipe_workers --help
 
 ## Logging
 
-Mapswipe workers logs are generated using the Python logging module of the standard library (See [Official docs](https://docs.python.org/3/library/logging.html) or this [Tutorial](https://realpython.com/python-logging/#the-logging-module). The logging configuration is defined in the `logging.cfg` file (`mapswipe_workers/logging.cfg`). To use the logger object import the it from the `definitions` module:
+Mapswipe workers logs are generated using the Python logging module of the standard library (See [Official docs](https://docs.python.org/3/library/logging.html) or this [Tutorial](https://realpython.com/python-logging/#the-logging-module). To use the logger object import the it from the `definitions` module:
 
 ```python
 from mapswipe_workers.definitions import logger
-logger.info('information')
-logger.waring('warning')
+logger.info('information messages')
+logger.waring('warning messages')
 
 # Include stack trace in the log
 try:
@@ -103,7 +104,7 @@ except Exception:
     logger.exception('Additional information.')
 ```
 
-Default logging level is Info. To change the logging level edit the configuration. Logs are written to STDOUT and `~/.local/share/mapswipe_workers/mapswipe_workers.log`.
+Default logging level is Info. To change the logging level edit the logging configuration which is found in the module `definitions.py`. Logs are written to STDOUT and `~/.local/share/mapswipe_workers/mapswipe_workers.log`.
 
 Per default logging of third-party packages is disabled. To change this edit the definition module (`mapswipe_workers/defintions.py`). Set the `disable_existing_loggers` parameter of the `logging.config.fileConfig()` function to `False`.
 

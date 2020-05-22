@@ -1,15 +1,20 @@
-import logging
 import logging.config
 import os
-
 import sentry_sdk
 from xdg import XDG_DATA_HOME
-
 from mapswipe_workers.config import SENTRY_DSN
+from enum import Enum
 
 
 class CustomError(Exception):
     pass
+
+
+class MessageType(Enum):
+    SUCCESS = 1
+    FAIL = 2
+    NOTIFICATION_90 = 3
+    NOTIFICATION_100 = 4
 
 
 DATA_PATH = os.path.join(XDG_DATA_HOME, "mapswipe_workers")
@@ -52,7 +57,7 @@ LOGGING_CONFIG = {
 }
 
 logging.config.dictConfig(LOGGING_CONFIG)
-logger = logging.getLogger("Mapswipe Workers")
+logger = logging.getLogger("mapswipe")
 
 
 try:
