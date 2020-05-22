@@ -11,7 +11,7 @@ class TestCreateProject(unittest.TestCase):
         self.project_id = set_up.create_test_project_draft("build_area")
 
     def tearDown(self):
-        tear_down.delete_test_project(self.project_id)
+        tear_down.delete_test_data(self.project_id)
 
     def test_create_project(self):
         runner = CliRunner()

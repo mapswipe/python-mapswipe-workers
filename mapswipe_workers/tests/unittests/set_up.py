@@ -9,6 +9,9 @@ from mapswipe_workers import auth
 def set_firebase_test_data(
     data_type: str, identifier: str, project_type: str = "",
 ):
+    if data_type == "users":
+        project_type = ""
+
     test_dir = os.path.dirname(__file__)
     data_dir = os.path.join(test_dir, "fixtures", project_type)
     file_name = data_type + ".json"
@@ -56,10 +59,10 @@ def create_test_results(project_type: str) -> str:
     return project_id
 
 
-def create_test_user(project_type: str) -> str:
+def create_test_user() -> str:
     """Create test user only in Firebase"""
-    user_id = "test_{0}".format(project_type)
-    set_firebase_test_data("users", user_id, project_type)
+    user_id = "test_user_name"
+    set_firebase_test_data("users", user_id)
     return user_id
 
 
@@ -69,5 +72,5 @@ def create_test_project_draft(project_type: str) -> list:
     Project drafts in Firebase are create by project manager using the dashboard.
     """
     project_id = "test_{0}".format(project_type)
-    set_firebase_test_data("project_draft", project_id, project_type)
+    set_firebase_test_data("projectDrafts", project_id, project_type)
     return project_id
