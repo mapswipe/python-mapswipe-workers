@@ -9,10 +9,10 @@ import tear_down
 
 class TestArchiveProject(unittest.TestCase):
     def setUp(self):
-        self.user_id = set_up.create_test_user()
+        self.user_id = set_up.create_test_user("build_area")
 
     def tearDown(self):
-        tear_down.delete_test_user(self.user_id)
+        tear_down.delete_test_data(self.user_id)
 
     def test_no_users_in_postgres(self):
         """Test update users when no users are in postgres yet."""
@@ -25,7 +25,7 @@ class TestArchiveProject(unittest.TestCase):
     def test_last_updated_users(self):
         """Test update users when some users are in postgres."""
         update_data.update_user_data()
-        user_id = set_up.create_test_user()
+        user_id = set_up.create_test_user("build_area", user_id="test_user")
         update_data.update_user_data()
 
         pg_db = auth.postgresDB()

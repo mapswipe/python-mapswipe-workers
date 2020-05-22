@@ -9,9 +9,7 @@ import tear_down
 
 class TestTranserResultsProject(unittest.TestCase):
     def setUp(self):
-        self.project_id = set_up.create_test_project("build_area")
-        set_up.create_test_user("build_area")
-        set_up.create_test_results("build_area")
+        self.project_id = set_up.create_test_project("build_area", results=True)
 
     def tearDown(self):
         tear_down.delete_test_data(self.project_id)
