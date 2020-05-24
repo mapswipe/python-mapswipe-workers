@@ -1,11 +1,16 @@
+import logging
 import logging.config
 import os
-from enum import Enum
 
 import sentry_sdk
 from xdg import XDG_DATA_HOME
 
 from mapswipe_workers.config import SENTRY_DSN
+
+
+class CustomError(Exception):
+    pass
+
 
 DATA_PATH = os.path.join(XDG_DATA_HOME, "mapswipe_workers")
 if not os.path.exists(DATA_PATH):
@@ -94,66 +99,3 @@ IMAGE_URLS = {
         + "tilematrix={z}&tilecol={x}&tilerow={y}&layer={layer}"
     ),
 }
-
-
-class CustomError(Exception):
-    pass
-
-
-class MessageType(Enum):
-    SUCCESS = 1
-    FAIL = 2
-    NOTIFICATION_90 = 3
-    NOTIFICATION_100 = 4
-
-
-class ProjectType(Enum):
-    """
-    Definition of project type names, identifiers and constructors.
-    There are different project types with the same constructor.
-    Get the class constructor of a project type with:
-    ProjectType(1).constructor
-    """
-
-    BUILD_AREA = 1
-    FOOTPRINT = 2
-    CHANGE_DETECTION = 3
-    COMPLETENESS = 4
-
-    @property
-    def constructor(self):
-        # Imports are first made once this method get called to avoid circular imports.
-        from mapswipe_workers.project_types.tms_grid.tms_grid_project import (
-            TMSGridProject,
-        )
-        from mapswipe_workers.project_types.arbitrary_geometries.arbitrary_geometries_project import (
-            ArbitraryGeometriesProject,
-        )
-
-        project_type_classes = {
-            1: TMSGridProject,
-            2: ArbitraryGeometriesProject,
-            3: TMSGridProject,
-            4: TMSGridProject,
-        }
-        return project_type_classes[self.value]
-
-    @property
-    def tutorial_constructor(self):
-        # Imports are first made once this method get called to avoid circular imports.
-        from mapswipe_workers.project_types.tms_grid.tms_grid_tutorial import (
-            TMSGridTutorial,
-        )
-
-        # TODO: implement for arbitrary geometries
-        # from mapswipe_workers.project_types.arbitrary_geometries.arbitrary_geometries_tutorial import (
-        #    ArbitraryGeometriesTutorial,
-        # )
-
-        project_type_classes = {
-            1: TMSGridTutorial,
-            # 2: ArbitraryGeometriesTutorial,
-            3: TMSGridTutorial,
-            4: TMSGridTutorial,
-        }
-        return project_type_classes[self.value]

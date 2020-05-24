@@ -2,9 +2,9 @@ from mapswipe_workers.base.base_task import BaseTask
 from mapswipe_workers.utils import tile_functions as t
 
 
-class TMSGridTask(BaseTask):
+class BuildAreaTask(BaseTask):
     """
-        The subclass of BaseTask to specify tasks of the arbitrary_geometries \
+        The subclass of BaseTask to specify tasks of the footprint \
                 project type.
 
         Attributes
@@ -27,7 +27,7 @@ class TMSGridTask(BaseTask):
     def __init__(self, group, project, TileX, TileY):
         """
             The Constructor method for a group instance of the \
-                    arbitrary_geometries project type.
+                    footprint project type.
 
         Parameters
         ----------

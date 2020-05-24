@@ -8,7 +8,7 @@
   "projectDetails": "This is a tutorial",
   "progress": 0,
   "contributorCount": 0,
-  "tileServer" : {
+  "tileServerA" : {
     "apiKey" : "",
     "apiKeyRequired" : false,
     "caption" : "Before",
@@ -24,7 +24,7 @@
     "name" : "custom",
     "url" : "https://tiles.planet.com/basemaps/v1/planet-tiles/global_quarterly_2019q1_mosaic/gmap/{z}/{x}/{y}.png?api_key=8d4aee7b35a94aa68e1d9119f27e01aa"
   },
-  "examplesFile": "mapswipe_workers/sample_data/change_detection_tutorial_tasks_new.geojson",
+  "examplesFile": "sample_data/change_detection_tutorial_tasks_new.geojson",
   "categories": {
     "changes_1": {
       "pre": "For this project we are looking for new settlements. Compare the upper (before) and lower (after) image and swipe right to indicate that new settlements have been built.",

@@ -1,6 +1,6 @@
 {
   "name": "Build Area Tutorial",
-  "projectType": 4,
+  "projectType": 1,
   "projectId": "completeness_tutorial",
   "zoomLevel": 18,
   "lookFor": "completeness of buildings",
@@ -8,11 +8,14 @@
   "projectDetails": "This is a tutorial",
   "progress": 0,
   "contributorCount": 0,
-  "examplesFile": "sample_data/completeness_tutorial_tasks.geojson",
+  "examplesFile": "sample_data/completeness_tutorial_tasks.csv",
   "tileServer":{
-    "name": "bing"
+    "name": "bing",
+    "apiKey": ""
   },
   "tileServerB" : {
+    "apiKey" : "",
+    "date" : "",
     "name" : "custom",
     "url" : "https://api.mapbox.com/styles/v1/tahirau/ck9wt55hc0rnd1is3lcd4wd8o/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoidGFoaXJhdSIsImEiOiJjazZrdGQyMjYwMnpsM2VwNjdmdnl6eGo5In0.RIyd6m3AoPKWEkJFSc5CDA"
   },

@@ -6,13 +6,11 @@ from mapswipe_workers.definitions import DATA_PATH
 from mapswipe_workers.definitions import CustomError
 from mapswipe_workers.definitions import logger
 from mapswipe_workers.base.base_project import BaseProject
-from mapswipe_workers.project_types.arbitrary_geometries import grouping_functions as g
-from mapswipe_workers.project_types.arbitrary_geometries.arbitrary_geometries_group import (
-    FootprintGroup,
-)
+from mapswipe_workers.project_types.footprint import grouping_functions as g
+from mapswipe_workers.project_types.footprint.footprint_group import FootprintGroup
 
 
-class ArbitraryGeometriesProject(BaseProject):
+class FootprintProject(BaseProject):
     """
     The subclass for an import of the type Footprint
     """
@@ -82,7 +80,7 @@ class ArbitraryGeometriesProject(BaseProject):
             raise Exception(err)
 
         # get geometry as wkt
-        # for arbitrary_geometries type project we get the bounding box / extent of the layer
+        # for footprint type project we get the bounding box / extent of the layer
         extent = layer.GetExtent()
         # Create a Polygon from the extent tuple
         ring = ogr.Geometry(ogr.wkbLinearRing)
@@ -151,7 +149,7 @@ class ArbitraryGeometriesProject(BaseProject):
 
     def create_groups(self):
         """
-        The function to create groups of arbitrary_geometries geometries
+        The function to create groups of footprint geometries
         """
 
         raw_groups = g.group_input_geometries(self.validInputGeometries, self.groupSize)

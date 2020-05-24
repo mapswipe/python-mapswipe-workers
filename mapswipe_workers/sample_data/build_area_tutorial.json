@@ -8,7 +8,7 @@
   "projectDetails": "This is a tutorial",
   "progress": 0,
   "contributorCount": 0,
-  "examplesFile": "mapswipe_workers/sample_data/build_area_tutorial_tasks.geojson",
+  "examplesFile": "sample_data/build_area_tutorial_tasks.csv",
   "tileServer":{
     "name": "bing",
     "apiKey": ""

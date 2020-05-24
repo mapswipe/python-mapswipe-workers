@@ -7,7 +7,7 @@ import time
 import click
 import schedule as sched
 from mapswipe_workers import auth
-from mapswipe_workers.definitions import CustomError, logger, sentry, ProjectType
+from mapswipe_workers.definitions import CustomError, logger, sentry
 from mapswipe_workers.firebase_to_postgres import (
     archive_project,
     delete_project,
@@ -15,8 +15,12 @@ from mapswipe_workers.firebase_to_postgres import (
     update_data,
 )
 from mapswipe_workers.generate_stats import generate_stats
-from mapswipe_workers.project_types.tms_grid import tms_grid_tutorial
+from mapswipe_workers.project_types.build_area import build_area_tutorial
+from mapswipe_workers.project_types.build_area.build_area_project import (
+    BuildAreaProject,
+)
 from mapswipe_workers.project_types.change_detection import change_detection_tutorial
+from mapswipe_workers.project_types.footprint.footprint_project import FootprintProject
 from mapswipe_workers.utils import user_management
 from mapswipe_workers.utils.create_directories import create_directories
 from mapswipe_workers.utils.slack_helper import send_slack_message
@@ -50,6 +54,13 @@ def run_create_projects():
     Save created projects, groups and tasks to Firebase and Postgres.
     """
 
+    project_type_classes = {
+        1: BuildAreaProject,
+        2: FootprintProject,
+        3: BuildAreaProject,
+        4: BuildAreaProject,
+    }
+
     fb_db = auth.firebaseDB()
     ref = fb_db.reference("v2/projectDrafts/")
     project_drafts = ref.get()
@@ -64,7 +75,7 @@ def run_create_projects():
         project_name = project_draft["name"]
         try:
             # Create a project object using appropriate class (project type).
-            project = ProjectType(project_type).constructor(project_draft)
+            project = project_type_classes[project_type](project_draft)
             project.geometry = project.validate_geometries()
             project.create_groups()
             project.calc_required_results()
@@ -155,15 +166,18 @@ def run_create_tutorial(input_file) -> None:
     try:
         logger.info(f"will generate tutorial based on {input_file}")
         with open(input_file) as json_file:
-            tutorial_draft = json.load(json_file)
+            tutorial = json.load(json_file)
 
-        project_type = tutorial_draft["projectType"]
-        tutorial = ProjectType(project_type).tutorial_constructor(tutorial_draft)
-        tutorial.create_tutorial_groups()
-        tutorial.create_tutorial_tasks()
-        tutorial.save_tutorial()
+        project_type = tutorial["projectType"]
+
+        project_types_tutorial = {
+            # Make sure to import all project types here
+            1: build_area_tutorial.create_tutorial,
+            3: change_detection_tutorial.create_tutorial,
+        }
+        project_types_tutorial[project_type](tutorial)
     except Exception:
-        logger.exception("Tutorials could not be created.")
+        logger.exception("Tutroials could not be created.")
         sentry.capture_exception()
 
 
