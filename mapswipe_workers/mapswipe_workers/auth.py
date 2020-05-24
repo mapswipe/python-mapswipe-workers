@@ -36,9 +36,8 @@ def firebaseDB() -> object:
     except ValueError:
         databaseURL = f"https://{FIREBASE_DB}.firebaseio.com"
         # Initialize the app.
-        # Credentials will be retrieved from one of following environment variables:
+        # Credentials will be retrieved from of following environment variable:
         # GOOGLE_APPLICATION_CREDENTIALS (Path to service account key in json format)
-        # FIREBASE_CONFIG (Service account key as json)
         firebase_admin.initialize_app(options={"databaseURL": databaseURL})
         # Return the imported Firebase Realtime Database module
         return db
