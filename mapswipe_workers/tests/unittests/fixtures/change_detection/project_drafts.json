@@ -61,7 +61,7 @@
         "zoomLevel": 16,
         "tileServerA": {
               "name": "custom",
-              "url": "https://tiles.planet.com/basemaps/v1/planet-tiles/global_quarterly_2017q1_mosaic/gmap/{z}/{x}/{y}.png?api_key=8d4aee7b35a94aa68e1d9119f27e01aa",
+              "url": "https://tiles.planet.com/basemaps/v1/planet-tiles/global_quarterly_2017q1_mosaic/gmap/{z}/{x}/{y}.png?",
               "apiKeyRequired": false,
               "apiKey": "",
               "caption": "Before",
@@ -70,7 +70,7 @@
         },
         "tileServerB": {
               "name": "custom",
-              "url": "https://tiles.planet.com/basemaps/v1/planet-tiles/global_quarterly_2019q1_mosaic/gmap/{z}/{x}/{y}.png?api_key=8d4aee7b35a94aa68e1d9119f27e01aa",
+              "url": "https://tiles.planet.com/basemaps/v1/planet-tiles/global_quarterly_2019q1_mosaic/gmap/{z}/{x}/{y}.png?",
               "apiKeyRequired": false,
               "apiKey": "",
               "caption": "After",
@@ -91,7 +91,7 @@
         "zoomLevel": 16,
         "tileServerA": {
               "name": "custom",
-              "url": "https://tiles.planet.com/basemaps/v1/planet-tiles/global_quarterly_2017q1_mosaic/gmap/{z}/{x}/{y}.png?api_key=8d4aee7b35a94aa68e1d9119f27e01aa",
+              "url": "https://tiles.planet.com/basemaps/v1/planet-tiles/global_quarterly_2017q1_mosaic/gmap/{z}/{x}/{y}.png?",
               "apiKeyRequired": false,
               "apiKey": "",
               "caption": "Before",
@@ -100,7 +100,7 @@
         },
         "tileServerB": {
               "name": "custom",
-              "url": "https://tiles.planet.com/basemaps/v1/planet-tiles/global_quarterly_2019q1_mosaic/gmap/{z}/{x}/{y}.png?api_key=8d4aee7b35a94aa68e1d9119f27e01aa",
+              "url": "https://tiles.planet.com/basemaps/v1/planet-tiles/global_quarterly_2019q1_mosaic/gmap/{z}/{x}/{y}.png?",
               "apiKeyRequired": false,
               "apiKey": "",
               "caption": "After",

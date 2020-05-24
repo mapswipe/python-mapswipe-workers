@@ -14,7 +14,7 @@
     "caption" : "Before",
     "date" : "2017-Q1",
     "name" : "custom",
-    "url" : "https://tiles.planet.com/basemaps/v1/planet-tiles/global_quarterly_2017q1_mosaic/gmap/{z}/{x}/{y}.png?api_key=8d4aee7b35a94aa68e1d9119f27e01aa"
+    "url" : "https://tiles.planet.com/basemaps/v1/planet-tiles/global_quarterly_2017q1_mosaic/gmap/{z}/{x}/{y}.png?"
   },
   "tileServerB" : {
     "apiKey" : "",
@@ -22,7 +22,7 @@
     "caption" : "After",
     "date" : "2019-Q1",
     "name" : "custom",
-    "url" : "https://tiles.planet.com/basemaps/v1/planet-tiles/global_quarterly_2019q1_mosaic/gmap/{z}/{x}/{y}.png?api_key=8d4aee7b35a94aa68e1d9119f27e01aa"
+    "url" : "https://tiles.planet.com/basemaps/v1/planet-tiles/global_quarterly_2019q1_mosaic/gmap/{z}/{x}/{y}.png?"
   },
   "examplesFile": "sample_data/change_detection_tutorial_tasks_new.geojson",
   "categories": {

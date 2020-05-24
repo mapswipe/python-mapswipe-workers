@@ -20,7 +20,7 @@
   "resultCount" : 0,
   "status" : "inactive",
   "tileServer" : {
-    "apiKey" : "AopsdXjtTu-IwNoCTiZBtgRJ1g7yPkzAi65nXplc-eLJwZHYlAIf2yuSY_Kjg3Wn",
+    "apiKey" : "",
     "credits" : "© 2019 Microsoft Corporation, Earthstar Geographics SIO",
     "name" : "bing",
     "url" : "https://ecn.t0.tiles.virtualearth.net/tiles/a{quad_key}.jpeg?g=7505&mkt=en-US&token={key}"
