@@ -5,7 +5,6 @@ import re
 from typing import Iterable
 
 from firebase_admin import exceptions
-
 from mapswipe_workers import auth
 from mapswipe_workers.definitions import logger, CustomError
 
@@ -16,7 +15,7 @@ def chunks(data: list, size: int = 250) -> Iterable[list]:
         yield data[i : i + size]  # noqa E203
 
 
-def delete_project(project_ids: list) -> None:
+def delete_project(project_ids: list) -> bool:
     """
     Deletes project, groups, tasks and results from Firebase and Postgres.
     """

@@ -20,6 +20,7 @@ Welcome to MapSwipe Back-End's documentation!
 
    for_mapswipe_managers
    cli
+   data
 
 
 .. toctree::
@@ -54,6 +55,7 @@ Welcome to MapSwipe Back-End's documentation!
    contributing
    diagrams
    use_cases
+   tile_size
 
 
 Indices and tables

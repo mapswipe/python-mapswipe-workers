@@ -95,7 +95,6 @@ function displayTileServer (tileServerName, which) {
     addTileServerCredits(tileServerName, which)
 }
 
-
 function clear_fields() {
     console.log('clear fields.')
     document.getElementById('projectNumber').value = 1
@@ -105,7 +104,6 @@ function clear_fields() {
     aoiLayer.clearLayers()
     displayProjectTypeForm("build_area")
   }
-
 
 function displaySuccessMessage() {
   //document.getElementById("import-formular").style.display = "None";
@@ -214,7 +212,6 @@ function openImageFile(event) {
     };
     reader.readAsDataURL(input.files[0]);
   };
-
 
 function closeModal() {
     var modal = document.getElementById("uploadModal");

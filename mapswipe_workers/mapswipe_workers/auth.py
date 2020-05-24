@@ -1,6 +1,6 @@
 import firebase_admin
 import psycopg2
-from firebase_admin import credentials, db
+from firebase_admin import db
 from mapswipe_workers.config import (
     FIREBASE_DB,
     POSTGRES_HOST,
@@ -8,7 +8,6 @@ from mapswipe_workers.config import (
     POSTGRES_DB,
     POSTGRES_PASSWORD,
     POSTGRES_USER,
-    SERVICE_ACCOUNT_KEY_PATH,
     IMAGE_API_KEYS,
 )
 from mapswipe_workers.definitions import IMAGE_URLS
@@ -35,10 +34,11 @@ def firebaseDB() -> object:
         # Return the imported Firebase Realtime Database module
         return db
     except ValueError:
-        cred = credentials.Certificate(SERVICE_ACCOUNT_KEY_PATH)
         databaseURL = f"https://{FIREBASE_DB}.firebaseio.com"
-        # Initialize the app with a service account, granting admin privileges
-        firebase_admin.initialize_app(cred, {"databaseURL": databaseURL})
+        # Initialize the app.
+        # Credentials will be retrieved from of following environment variable:
+        # GOOGLE_APPLICATION_CREDENTIALS (Path to service account key in json format)
+        firebase_admin.initialize_app(options={"databaseURL": databaseURL})
         # Return the imported Firebase Realtime Database module
         return db
 

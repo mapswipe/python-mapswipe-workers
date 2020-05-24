@@ -77,6 +77,9 @@ function upload_project_image(mapswipe_import) {
     var modalOngoing = document.getElementById("modalOngoing");
     modalOngoing.style.display = "block";
 
+    var modal = document.getElementById("uploadModal");
+    modal.style.display = "block";
+
     var file = document.getElementById('image').files[0]
     console.log(file)
     var filename = file.name
@@ -113,6 +116,7 @@ function upload_project_image(mapswipe_import) {
         firebase.database().ref('v2/projectDrafts/').push().set(mapswipe_import)
           .then(function() {
             clear_fields();
+            var modalOngoing = document.getElementById("modalOngoing");
             modalOngoing.style.display = "none";
             var modalSuccess = document.getElementById("modalSuccess");
             modalSuccess.style.display = "block";
