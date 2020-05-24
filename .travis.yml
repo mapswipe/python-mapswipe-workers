@@ -45,7 +45,7 @@ before_script:
 
 script:
   # - TODO: Run black and flake8
-  - python -m unittest discover -v -s mapswipe_workers/tests/unittests/ -p 'test_*.py'
+  # - python -m unittest discover -v -s mapswipe_workers/tests/unittests/ -p 'test_*.py'
 
 # before_deploy:
 #   # SSH setup to deploy to server after build.
