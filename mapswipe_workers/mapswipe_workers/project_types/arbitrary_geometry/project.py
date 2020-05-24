@@ -1,25 +1,15 @@
 import os
 import urllib.request
+
+from mapswipe_workers.project_types.base.project import BaseProject
+from mapswipe_workers.definitions import DATA_PATH, CustomError, logger
+from mapswipe_workers.project_types.arbitrary_geometry import grouping_functions as g
+from mapswipe_workers.project_types.arbitrary_geometry.group import Group
 from osgeo import ogr
 
-from mapswipe_workers.definitions import DATA_PATH
-from mapswipe_workers.definitions import CustomError
-from mapswipe_workers.definitions import logger
-from mapswipe_workers.base.base_project import BaseProject
-from mapswipe_workers.project_types.footprint import grouping_functions as g
-from mapswipe_workers.project_types.footprint.footprint_group import FootprintGroup
 
-
-class FootprintProject(BaseProject):
-    """
-    The subclass for an import of the type Footprint
-    """
-
-    project_type = 2
-    project_type_name = "Footprint"
-
-    def __init__(self, project_draft):
-        # this will create the basis attributes
+class Project(BaseProject):
+    def __init__(self, project_draft: dict) -> None:
         super().__init__(project_draft)
 
         # set group size
@@ -80,7 +70,7 @@ class FootprintProject(BaseProject):
             raise Exception(err)
 
         # get geometry as wkt
-        # for footprint type project we get the bounding box / extent of the layer
+        # get the bounding box/ extent of the layer
         extent = layer.GetExtent()
         # Create a Polygon from the extent tuple
         ring = ogr.Geometry(ogr.wkbLinearRing)
@@ -148,14 +138,10 @@ class FootprintProject(BaseProject):
         return wkt_geometry
 
     def create_groups(self):
-        """
-        The function to create groups of footprint geometries
-        """
-
         raw_groups = g.group_input_geometries(self.validInputGeometries, self.groupSize)
 
         for group_id, item in raw_groups.items():
-            group = FootprintGroup(self, group_id)
+            group = Group(self, group_id)
             group.create_tasks(item["feature_ids"], item["feature_geometries"])
             self.groups.append(group)
 

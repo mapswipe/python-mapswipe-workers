@@ -1,29 +1,17 @@
-import os
-from osgeo import ogr
-from osgeo import osr
 import json
+import os
 
-from mapswipe_workers.definitions import DATA_PATH
-from mapswipe_workers.definitions import logger
-from mapswipe_workers.base.base_project import BaseProject
-from mapswipe_workers.project_types.build_area.build_area_group import BuildAreaGroup
+from mapswipe_workers.project_types.base.project import BaseProject
+from mapswipe_workers.definitions import DATA_PATH, CustomError, logger
+from mapswipe_workers.project_types.tile_map_service_grid.group import Group
 from mapswipe_workers.utils import tile_grouping_functions as grouping_functions
-from mapswipe_workers.definitions import CustomError
+from osgeo import ogr, osr
 
 
-class BuildAreaProject(BaseProject):
-    """
-    The subclass for an import of the type Footprint
-    """
-
-    project_type = 1
-    project_type_name = "Build Area"
-
-    def __init__(self, project_draft):
-        # this will create the basis attributes
+class Project(BaseProject):
+    def __init__(self, project_draft: dict):
         super().__init__(project_draft)
 
-        # set group size
         self.groupSize = project_draft["groupSize"]
         self.geometry = project_draft["geometry"]
         self.zoomLevel = int(project_draft.get("zoomLevel", 18))
@@ -102,7 +90,8 @@ class BuildAreaProject(BaseProject):
             wkt_geometry = feat_geom.ExportToWkt()
 
             # check size of project make sure its smaller than  5,000 sqkm
-            # for doing this we transform the geometry into Mollweide projection (EPSG Code 54009)
+            # for doing this we transform the geometry
+            # into Mollweide projection (EPSG Code 54009)
             source = feat_geom.GetSpatialReference()
             target = osr.SpatialReference()
             target.ImportFromProj4(
@@ -131,7 +120,8 @@ class BuildAreaProject(BaseProject):
                     f"Please split your projects into smaller sub-projects and resubmit"
                 )
                 raise CustomError(
-                    f"Project is to large: {project_area} sqkm. Max area for zoom level {self.zoomLevel} = {max_area} sqkm"
+                    f"Project is to large: {project_area} sqkm. "
+                    f"Max area for zoom level {self.zoomLevel} = {max_area} sqkm"
                 )
 
         del datasource
@@ -155,7 +145,7 @@ class BuildAreaProject(BaseProject):
         )
 
         for group_id, slice in raw_groups.items():
-            group = BuildAreaGroup(self, group_id, slice)
+            group = Group(self, group_id, slice)
             group.create_tasks(self)
             self.groups.append(group)
 
