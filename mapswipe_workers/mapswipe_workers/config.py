@@ -1,7 +1,5 @@
 import os
 
-SERVICE_ACCOUNT_KEY_PATH = os.environ["GOOGLE_APPLICATION_CREDENTIALS"]
-
 FIREBASE_API_KEY = os.environ["FIREBASE_API_KEY"]
 FIREBASE_DB = os.getenv("FIREBASE_DB", default="mapswipe")
 
