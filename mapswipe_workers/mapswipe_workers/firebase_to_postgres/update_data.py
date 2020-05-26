@@ -20,7 +20,7 @@ def get_last_updated_timestamp() -> str:
         last_updated = last_updated[0][0]
         last_updated = last_updated.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
         logger.info("Last updated users: {0}".format(last_updated))
-    except IndexError:
+    except (IndexError, AttributeError):
         logger.exception("Could not get last timestamp of users.")
         sentry.capture_exception()
         last_updated = ""
