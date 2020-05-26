@@ -5,17 +5,22 @@ from mapswipe_workers.project_types.base.project import BaseProject
 from mapswipe_workers.definitions import DATA_PATH, CustomError, logger
 from mapswipe_workers.project_types.tile_map_service_grid.group import Group
 from mapswipe_workers.utils import tile_grouping_functions as grouping_functions
+from mapswipe_workers.project_types.base.tile_server import BaseTileServer
 from osgeo import ogr, osr
 
 
 class Project(BaseProject):
     def __init__(self, project_draft: dict):
         super().__init__(project_draft)
-
+        self.project_type = project_draft["projectType"]
         self.groupSize = project_draft["groupSize"]
         self.geometry = project_draft["geometry"]
         self.zoomLevel = int(project_draft.get("zoomLevel", 18))
-        self.tileServer = self.get_tile_server(project_draft["tileServer"])
+        self.tileServer = vars(BaseTileServer(project_draft["tileServer"]))
+
+        # get TileServerB for change detection and completeness type
+        if self.project_type in [3, 4]:
+            self.tileServer = vars(BaseTileServer(project_draft["tileServerB"]))
 
     def validate_geometries(self):
         raw_input_file = (

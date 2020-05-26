@@ -1,7 +1,7 @@
 import unittest
 
-import set_up
-import tear_down
+from tests.unittests import set_up
+from tests.unittests import tear_down
 from mapswipe_workers import auth
 from mapswipe_workers.firebase_to_postgres import archive_project
 

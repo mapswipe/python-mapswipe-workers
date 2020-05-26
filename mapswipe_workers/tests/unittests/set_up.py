@@ -72,3 +72,7 @@ def create_test_project_draft(project_type: str) -> list:
     project_id = "test_{0}".format(project_type)
     set_firebase_test_data("projectDrafts", project_id, project_type)
     return project_id
+
+
+if __name__ == "__main__":
+    create_test_project_draft("build_area")

@@ -8,18 +8,12 @@
   "projectDetails": "This is a tutorial",
   "progress": 0,
   "contributorCount": 0,
-  "tileServerA" : {
-    "apiKey" : "AopsdXjtTu-IwNoCTiZBtgRJ1g7yPkzAi65nXplc-eLJwZHYlAIf2yuSY_Kjg3Wn",
-    "captions" : "",
-    "date" : "",
+  "tileServer" : {
     "name" : "custom",
     "url" : "https://tiles.openaerialmap.org/5a4203c12553e6000ce5ab28/0/b6dae42c-0c6e-4f8e-ac84-a1344aa009da/{z}/{x}/{y}.png",
     "credits": "International Organization for Migration (IOM)"
   },
   "tileServerB" : {
-    "apiKey" : "91e57457-aa2d-41ad-a42b-3b63a123f54a",
-    "captions" : "",
-    "date" : "",
     "name" : "custom",
     "url" : "https://tiles.openaerialmap.org/5ae862e00b093000130affd9/0/5ae862e00b093000130affda/{z}/{x}/{y}.png",
     "credits": "International Organization for Migration (IOM)"

@@ -40,3 +40,7 @@ def delete_test_data(project_id: str) -> None:
     pg_db.query(sql_query)
     sql_query = "DELETE FROM users WHERE user_id = '{0}'".format(project_id)
     pg_db.query(sql_query)
+
+
+if __name__ == "__main__":
+    delete_test_data("build_area")

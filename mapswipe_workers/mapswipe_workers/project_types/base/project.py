@@ -558,51 +558,6 @@ class BaseProject(metaclass=ABCMeta):
                 self.requiredResults + group.requiredCount * group.numberOfTasks
             )
 
-    def get_tile_server(self, tile_server):
-        """
-        Creates a dictonary with informations of the tile server
-        with project draft values or default values.
-        """
-
-        name = tile_server.get("name", "bing")
-
-        url = tile_server.get(
-            "url", auth.get_tileserver_url(tile_server.get("name", "bing"))
-        )
-        if url == "":
-            url = auth.get_tileserver_url(tile_server.get("name", "bing"))
-
-        apiKeyRequired = tile_server.get("apiKeyRequired")
-
-        apiKey = tile_server.get(
-            "apiKey", auth.get_api_key(tile_server.get("name", "bing"))
-        )
-        if apiKey == "":
-            apiKey = auth.get_api_key(tile_server.get("name", "bing"))
-
-        wmtsLayerName = tile_server.get("wmtsLayerName", None)
-        if wmtsLayerName == "":
-            wmtsLayerName = None
-
-        captions = tile_server.get("caption", None)
-
-        date = tile_server.get("date", None)
-
-        credits = tile_server.get("credits", "")
-
-        tile_server_dict = {
-            "name": name,
-            "url": url,
-            "apiKeyRequired": apiKeyRequired,
-            "apiKey": apiKey,
-            "wmtsLayerName": wmtsLayerName,
-            "captions": captions,
-            "date": date,
-            "credits": credits,
-        }
-
-        return tile_server_dict
-
     @abstractmethod
     def validate_geometries():
         pass

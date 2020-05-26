@@ -1,10 +1,8 @@
 import unittest
-
 from mapswipe_workers import auth
 from mapswipe_workers.firebase_to_postgres import update_data
-
-import set_up
-import tear_down
+from tests.unittests import set_up
+from tests.unittests import tear_down
 
 
 class TestArchiveProject(unittest.TestCase):

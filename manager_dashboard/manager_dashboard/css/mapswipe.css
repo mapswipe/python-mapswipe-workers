@@ -135,6 +135,7 @@
 
 #geometryMap { height: 300px; width: 100%}
 #geometryChangeDetectionMap { height: 300px; width: 100%}
+#geometryCompletenessMap { height: 300px; width: 100%}
 
 div.project-data {
     padding-bottom: 50px !important;
