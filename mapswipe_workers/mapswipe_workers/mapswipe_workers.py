@@ -167,11 +167,14 @@ def run_create_tutorial(input_file) -> None:
     try:
         logger.info(f"will generate tutorial based on {input_file}")
         with open(input_file) as json_file:
-            tutorial_data = json.load(json_file)
-        project_type = tutorial_data["projectType"]
-        ProjectType(project_type).tutorial(tutorial_data)
+            tutorial_draft = json.load(json_file)
+        project_type = tutorial_draft["projectType"]
+        tutorial = ProjectType(project_type).tutorial(tutorial_draft)
+        tutorial.create_tutorial_groups()
+        tutorial.create_tutorial_tasks()
+        tutorial.save_tutorial()
     except Exception:
-        logger.exception("Tutroials could not be created.")
+        logger.exception("Tutorials could not be created.")
         sentry.capture_exception()
 
 

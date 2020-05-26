@@ -119,6 +119,7 @@ class ProjectType(Enum):
     BUILD_AREA = 1
     FOOTPRINT = 2
     CHANGE_DETECTION = 3
+    COMPLETENESS = 4
 
     @property
     def constructor(self):
@@ -134,20 +135,26 @@ class ProjectType(Enum):
             1: tmsg_project,
             2: ag_project,
             3: tmsg_project,
+            4: tmsg_project,
         }
         return project_type_classes[self.value]
 
     @property
     def tutorial(self):
-        from mapswipe_workers.project_types.tile_map_service_grid import (
-            build_area_tutorial,
-        )
-        from mapswipe_workers.project_types.tile_map_service_grid import (
-            change_detection_tutorial,
+        # Imports are first made once this method get called to avoid circular imports.
+        from mapswipe_workers.project_types.tile_map_service_grid.tutorial import (
+            Tutorial as tmsg_tutorial,
         )
 
-        project_type_tutorial = {
-            1: build_area_tutorial,
-            3: change_detection_tutorial,
+        # TODO: implement for arbitrary geometries
+        # from mapswipe_workers.project_types.arbitrary_geometries.arbitrary_geometries_tutorial import (
+        #    ArbitraryGeometriesTutorial,
+        # )
+
+        project_type_classes = {
+            1: tmsg_tutorial,
+            # 2: ArbitraryGeometriesTutorial,
+            3: tmsg_tutorial,
+            4: tmsg_tutorial,
         }
-        return project_type_tutorial[self.value]
+        return project_type_classes[self.value]
