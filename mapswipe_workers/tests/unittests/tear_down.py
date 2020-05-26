@@ -43,4 +43,4 @@ def delete_test_data(project_id: str) -> None:
 
 
 if __name__ == "__main__":
-    delete_test_data("test_build_area")
+    delete_test_data("build_area")

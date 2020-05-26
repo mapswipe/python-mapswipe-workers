@@ -1,7 +1,6 @@
 import unittest
-
-import set_up
-import tear_down
+from tests.unittests import set_up
+from tests.unittests import tear_down
 from click.testing import CliRunner
 from mapswipe_workers import auth, mapswipe_workers
 
