@@ -16,7 +16,7 @@ def update_username(uid):
             ref = fb_db.reference(f"v2/users/{user.uid}/username")
             ref.set(username)
             logger.info(f"updated username for user {uid}: {username}")
-    except Exception:
+    except auth.UserNotFoundError:
         logger.info(f"could not find user {uid} in firebase to update username.")
 
 
