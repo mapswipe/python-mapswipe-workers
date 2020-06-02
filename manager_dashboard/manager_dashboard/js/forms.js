@@ -4,33 +4,66 @@ function adjust_textarea(h) {
     h.style.height = (h.scrollHeight)+"px";
 }
 
-function displayProjectTypeFormular(projectType) {
-    if (projectType == 1) {
-        document.getElementById("BuildAreaProjectFormular").style.display = "block";
-        document.getElementById("FootprintProjectFormular").style.display = "None",
-        document.getElementById("ChangeDetectionProjectFormular").style.display = "None";
-        document.getElementById("tileServerBuildArea").value = "bing";
-        displayTileServer ("bing", "BuildArea", "");
-        setTimeout(function(){ BuildAreaMap.invalidateSize()}, 400);
-    } else if (projectType == 2) {
-        document.getElementById("FootprintProjectFormular").style.display = "block";
-        document.getElementById("BuildAreaProjectFormular").style.display = "None";
-        document.getElementById("ChangeDetectionProjectFormular").style.display = "None";
-        document.getElementById("tileServerFootprint").value = "bing";
-        displayTileServer ("bing", "Footprint", "");
-    } else if (projectType == 3) {
-      document.getElementById("FootprintProjectFormular").style.display = "None"
-      document.getElementById("BuildAreaProjectFormular").style.display = "None";
-      document.getElementById("ChangeDetectionProjectFormular").style.display = "block";
-      document.getElementById("tileServerChangeDetectionA").value = "bing";
-      document.getElementById("tileServerChangeDetectionB").value = "bing";
-      displayTileServer ("bing", "ChangeDetectionA", "");
-      displayTileServer ("bing", "ChangeDetectionB", "");
-      setTimeout(function(){ ChangeDetectionMap.invalidateSize()}, 400);
-  }
+function initForm() {
+    initMap();
+    displayProjectTypeForm("build_area")
 }
 
-function addTileServerCredits (tileServer, projectType, which) {
+
+function initMap() {
+  ProjectAoiMap = L.map('geometryMap').setView([0.0, 0.0], 4);
+  L.tileLayer( 'https://maps.wikimedia.org/osm-intl/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    subdomains: ['a','b','c']
+  }).addTo( ProjectAoiMap );
+  console.log('added map');
+  aoiLayer = L.geoJSON().addTo(ProjectAoiMap);
+  setTimeout(function(){ ProjectAoiMap.invalidateSize()}, 400);
+
+  }
+
+function displayProjectTypeForm(projectType) {
+    document.getElementById("projectType").value = projectType;
+    switch (projectType) {
+        case "build_area":
+            displayTileServer("bing", "A");
+            document.getElementById("groupSize").value = 120;
+            document.getElementById("form_project_aoi_geometry").style.display = "block";
+            document.getElementById("form_project_task_geometry").style.display = "None";
+            document.getElementById("form_zoom_level").style.display = "block";
+            document.getElementById("form_tile_server_a").style.display = "block";
+            document.getElementById("form_tile_server_b").style.display = "None";
+            setTimeout(function(){ ProjectAoiMap.invalidateSize()}, 400);
+            break;
+        case "footprint":
+            displayTileServer("bing", "A");
+            document.getElementById("groupSize").value = 25;
+            document.getElementById("form_project_aoi_geometry").style.display = "None";
+            document.getElementById("form_project_task_geometry").style.display = "block";
+            document.getElementById("form_zoom_level").style.display = "None";
+            document.getElementById("form_tile_server_a").style.display = "block";
+            document.getElementById("form_tile_server_b").style.display = "None";
+            break;
+        case "change_detection":
+        case "completeness":
+            displayTileServer("bing", "A");
+            displayTileServer("bing", "B");
+            if (projectType == "change_detection") {
+                document.getElementById("groupSize").value = 25;
+            } else {
+                document.getElementById("groupSize").value = 80;
+            }
+            document.getElementById("form_project_aoi_geometry").style.display = "block";
+            document.getElementById("form_project_task_geometry").style.display = "None";
+            document.getElementById("form_zoom_level").style.display = "block";
+            document.getElementById("form_tile_server_a").style.display = "block";
+            document.getElementById("form_tile_server_b").style.display = "block";
+            setTimeout(function(){ ProjectAoiMap.invalidateSize()}, 400);
+            break;
+    }
+}
+
+function addTileServerCredits (tileServerName, which) {
     var credits = {
         "bing": "© 2019 Microsoft Corporation, Earthstar Geographics SIO",
         "maxar_premium": "© 2019 Maxar",
@@ -41,40 +74,35 @@ function addTileServerCredits (tileServer, projectType, which) {
         "sinergise": "© 2019 Sinergise",
         "custom": "Please add imagery credits here."
     }
-
-    document.getElementById("tileServerCredits"+projectType+which).value = credits[tileServer]
+    document.getElementById("tileServer"+which+"Credits").value = credits[tileServerName]
 }
 
 
-function displayTileServer (t, projectType, which) {
-    tileServer = t.value
-    if (tileServer == "custom") {
-        document.getElementById("tileServerUrlField"+projectType+which).style.display = "block"
-        document.getElementById("tileServerLayerNameField"+projectType+which).style.display = "block";
-    } else if (tileServer == "sinergise") {
-        document.getElementById("tileServerUrlField"+projectType+which).style.display = "None";
-        document.getElementById("tileServerLayerNameField"+projectType+which).style.display = "block";
-    } else {
-        document.getElementById("tileServerUrlField"+projectType+which).style.display = "None";
-        document.getElementById("tileServerLayerNameField"+projectType+which).style.display = "None";
+function displayTileServer (tileServerName, which) {
+    switch (tileServerName) {
+        case "custom":
+            document.getElementById("tileServer"+which+"UrlField").style.display = "block";
+            document.getElementById("tileServer"+which+"LayerNameField").style.display = "block";
+            break;
+        case "sinergise":
+            document.getElementById("tileServer"+which+"UrlField").style.display = "None";
+            document.getElementById("tileServer"+which+"LayerNameField").style.display = "block";
+            break;
+        default:
+            document.getElementById("tileServer"+which+"UrlField").style.display = "None";
+            document.getElementById("tileServer"+which+"LayerNameField").style.display = "None";
     }
-    addTileServerCredits(tileServer, projectType, which)
+    addTileServerCredits(tileServerName, which)
 }
 
 function clear_fields() {
     console.log('clear fields.')
     document.getElementById('projectNumber').value = 1
-    document.getElementById('geometry').value = null
+    document.getElementById('inputAoi').value = null
     document.getElementById('geometryInfo').innerHTML = ''
     document.getElementById('geometryContent').innerHTML = ''
-    BuildAreaLayer.clearLayers()
-    document.getElementById('geometryChangeDetection').value = null
-    document.getElementById('geometryChangeDetectionInfo').innerHTML = ''
-    document.getElementById('geometryChangeDetectionContent').innerHTML = ''
-    ChangeDetectionLayer.clearLayers()
-    //document.getElementById('imageText').innerHTML = ''
-    //document.getElementById('imageFile').src = ''
-    displayProjectTypeFormular(1)
+    aoiLayer.clearLayers()
+    displayProjectTypeForm("build_area")
   }
 
 function displaySuccessMessage() {
@@ -89,30 +117,18 @@ function displayImportForm() {
 function openFile(event) {
     var input = event.target;
 
-    var info_element_id = event.target.id + 'Info'
-    var content_element_id = event.target.id + 'Content'
-    var map_element_id = event.target.id + 'Map'
-
-    var info_output = document.getElementById(info_element_id);
+    // clear info field
+    var info_output = document.getElementById("geometryInfo");
     info_output.innerHTML = '';
     info_output.style.display = 'block'
 
-    var content_output = document.getElementById(content_element_id);
-
-    if (event.target.id === 'geometry') {
-      var map = BuildAreaMap
-      var layer = BuildAreaLayer
-      var zoomLevel = parseInt(document.getElementById('zoomLevel').value)
-    } else {
-      var map = ChangeDetectionMap
-      var layer = ChangeDetectionLayer
-      var zoomLevel = parseInt(document.getElementById('zoomLevelChangeDetection').value)
-    }
+    // clear map layers
+    aoiLayer.clearLayers()
 
     // Check file size before loading
     var filesize = input.files[0].size;
-    if (filesize > 2.5 * 1024 * 1024) {
-      var err='filesize is too big (max 2.5MB): ' + filesize/(1000*1000)
+    if (filesize > 1 * 1024 * 1024) {
+      var err='filesize is too big (max 1MB): ' + filesize/(1000*1000)
       info_output.innerHTML = '<b>Error reading GeoJSON file</b><br>' + err;
       info_output.style.display = 'block'
     } else {
@@ -145,8 +161,8 @@ function openFile(event) {
               info_output.innerHTML += 'Feature Type: ' + type + '<br>';
               info_output.style.display = 'block'
 
-              // check project size
-
+              // check project size, based on zoom level
+              var zoomLevel = parseInt(document.getElementById('zoomLevel').value);
               area = turf.area(feature)/1000000 // area in square kilometers
               maxArea = (23 - zoomLevel) * (23 - zoomLevel) * 200
               console.log('project size: ' + area + ' sqkm')
@@ -157,21 +173,16 @@ function openFile(event) {
               info_output.style.display = 'block'
 
               // add feature to map
-              layer.clearLayers()
-              layer.addData(geojsonData);
-              map.fitBounds(layer.getBounds());
+              aoiLayer.addData(geojsonData);
+              ProjectAoiMap.fitBounds(aoiLayer.getBounds());
               console.log('added input geojson feature')
 
               // add text to html object
               info_output.innerHTML += 'Project seems to be valid :)';
               info_output.style.display = 'block'
 
-              if (event.target.id === 'geometry') {
-                BuildAreaGeometry = text
-              } else {
-                ChangeDetectionGeometry = text
-              }
-
+              // set project aoi geometry
+              projectAoiGeometry = text
             }
             catch(err) {
               info_output.innerHTML = '<b>Error reading GeoJSON file</b><br>' + err;
@@ -201,27 +212,6 @@ function openImageFile(event) {
     };
     reader.readAsDataURL(input.files[0]);
   };
-
-function initMap() {
-  BuildAreaMap = L.map('geometryMap').setView([0.0, 0.0], 4);
-  L.tileLayer( 'https://maps.wikimedia.org/osm-intl/{z}/{x}/{y}.png', {
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-    subdomains: ['a','b','c']
-  }).addTo( BuildAreaMap );
-  console.log('added map');
-  BuildAreaLayer = L.geoJSON().addTo(BuildAreaMap);
-  setTimeout(function(){ BuildAreaMap.invalidateSize()}, 400);
-
-  ChangeDetectionMap = L.map('geometryChangeDetectionMap').setView([0.0, 0.0], 4);
-  L.tileLayer( 'https://maps.wikimedia.org/osm-intl/{z}/{x}/{y}.png', {
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-    subdomains: ['a','b','c']
-  }).addTo( ChangeDetectionMap );
-  console.log('added map');
-  ChangeDetectionLayer = L.geoJSON().addTo(ChangeDetectionMap);
-  setTimeout(function(){ ChangeDetectionMap.invalidateSize()}, 400);
-  }
-
 
 function closeModal() {
     var modal = document.getElementById("uploadModal");

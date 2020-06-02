@@ -1,21 +1,11 @@
 import logging.config
 import os
-import sentry_sdk
-from xdg import XDG_DATA_HOME
-from mapswipe_workers.config import SENTRY_DSN
 from enum import Enum
 
+import sentry_sdk
+from xdg import XDG_DATA_HOME
 
-class CustomError(Exception):
-    pass
-
-
-class MessageType(Enum):
-    SUCCESS = 1
-    FAIL = 2
-    NOTIFICATION_90 = 3
-    NOTIFICATION_100 = 4
-
+from mapswipe_workers.config import SENTRY_DSN
 
 DATA_PATH = os.path.join(XDG_DATA_HOME, "mapswipe_workers")
 if not os.path.exists(DATA_PATH):
@@ -27,7 +17,7 @@ LOGGING_CONFIG = {
     "disable_existing_loggers": True,
     "formatters": {
         "standard": {
-            "format": "%(asctime)s - %(levelname)s - %(filename)s - %(funcName)s - %(message)s"
+            "format": "%(asctime)s - %(levelname)s - %(filename)s - %(funcName)s - %(message)s"  # noqa: E501
         },
     },
     "handlers": {
@@ -104,3 +94,67 @@ IMAGE_URLS = {
         + "tilematrix={z}&tilecol={x}&tilerow={y}&layer={layer}"
     ),
 }
+
+
+class CustomError(Exception):
+    pass
+
+
+class MessageType(Enum):
+    SUCCESS = 1
+    FAIL = 2
+    NOTIFICATION_90 = 3
+    NOTIFICATION_100 = 4
+
+
+class ProjectType(Enum):
+    """
+    Definition of Project Type names, identifiers and constructors.
+
+    There are different project types with the same constructor.
+    Get the class constructor of a project type with:
+    ProjectType(1).constructor
+    """
+
+    BUILD_AREA = 1
+    FOOTPRINT = 2
+    CHANGE_DETECTION = 3
+    COMPLETENESS = 4
+
+    @property
+    def constructor(self):
+        # Imports are first made once this method get called to avoid circular imports.
+        from mapswipe_workers.project_types.tile_map_service_grid.project import (
+            Project as tmsg_project,
+        )
+        from mapswipe_workers.project_types.arbitrary_geometry.project import (
+            Project as ag_project,
+        )
+
+        project_type_classes = {
+            1: tmsg_project,
+            2: ag_project,
+            3: tmsg_project,
+            4: tmsg_project,
+        }
+        return project_type_classes[self.value]
+
+    @property
+    def tutorial(self):
+        # Imports are first made once this method get called to avoid circular imports.
+        from mapswipe_workers.project_types.tile_map_service_grid.tutorial import (
+            Tutorial as tmsg_tutorial,
+        )
+
+        # TODO: implement for arbitrary geometries
+        # from mapswipe_workers.project_types.arbitrary_geometries.arbitrary_geometries_tutorial import (
+        #    ArbitraryGeometriesTutorial,
+        # )
+
+        project_type_classes = {
+            1: tmsg_tutorial,
+            # 2: ArbitraryGeometriesTutorial,
+            3: tmsg_tutorial,
+            4: tmsg_tutorial,
+        }
+        return project_type_classes[self.value]
