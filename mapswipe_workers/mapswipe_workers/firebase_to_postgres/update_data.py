@@ -12,6 +12,7 @@ def get_last_updated_timestamp() -> str:
     query = """
         SELECT created
         FROM users
+        WHERE created IS NOT NULL
         ORDER BY created DESC
         LIMIT 1
         """
