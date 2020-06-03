@@ -11,6 +11,7 @@ from requests.exceptions import HTTPError
 
 
 def set_project_manager_rights(email):
+    fb_db = firebaseDB()  # noqa E841
     try:
         user = auth.get_user_by_email(email)
         auth.set_custom_user_claims(user.uid, {"projectManager": True})
@@ -23,6 +24,7 @@ def set_project_manager_rights(email):
 
 
 def remove_project_manager_rights(email):
+    fb_db = firebaseDB()  # noqa E841
     try:
         user = auth.get_user_by_email(email)
         auth.update_user(user.uid, custom_claims=auth.DELETE_ATTRIBUTE)
