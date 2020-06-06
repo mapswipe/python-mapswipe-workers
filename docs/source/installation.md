@@ -146,12 +146,7 @@ To enable SSL for the API and MapSwipe Manager Dashboard use Certbot to issue st
 
 ### Certbot
 
-Install certbot:
-
-```bash
-apt-get install certbot
-```
-
+To install Certbot follow instructions on https://certbot.eff.org/lets-encrypt/ubuntubionic-other
 
 Create certificates:
 
