@@ -167,7 +167,7 @@ certbot certonly \
 
 > Note: Certbot systemd timer for renewal of certificate will not work for standalone certificates because the service (docker nginx) which occupies port 80 has to be stopped before renewal.
 
-For certificate renewal a cronjob is used:
+For certificate renewal a cronjob is used. This has to be run as root: `sudo crontab -e`
 
 ```bash
 SHELL=/bin/sh
