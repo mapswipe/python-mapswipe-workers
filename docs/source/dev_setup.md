@@ -134,6 +134,17 @@ On how to setup development environment and how to deploy functions to the Fireb
 For more information refer to the official [Reference on Cloud Function for Firebase](https://firebase.google.com/docs/reference/functions/). For example function take a look at this [GitHub repository](https://github.com/firebase/functions-samples).
 
 
+## Travis Setup
+
+Configuration for travis setup is utilizing environment variables.
+
+One difference to production or development setup is that the service account key as json is stored in the environment variables `FIREBASE_CONFIG` as text. To make this work special characters as to be escaped first. This command will simply escape every character:
+
+```bash
+sed -e 's/./\\&/g; 1{$s/^$/""/}; 1!s/^/"/; $!s/$/"/' serviceAccountKey.json
+```
+
+
 ## Database Backup
 
 ### Firebase
