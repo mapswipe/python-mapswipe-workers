@@ -62,58 +62,17 @@
         ".indexOn": [
           "created"
         ]
-      }
-    },
-    "groups": {
-      ".write": false,
-      ".read": true,
-      "$project_id": {
-        "$group_id": {
-          ".indexOn": [
-            "distributedCount",
-            "completedCount"
-          ],
-          ".write": "auth != null",
-          "completedCount": {
-            ".write": "auth != null"
-          }
+      },
+      "userContributions": {
+        ".write": false,
+        ".read": false,
+        "$uid": {
+          ".read": "auth != null && auth.uid == $uid"
         },
         ".indexOn": [
-          "distributedCount",
-          "completedCount"
+          "projectId"
         ]
       }
-    },
-    "imports": {
-      ".read": false,
-      ".write": true,
-      ".indexOn": [
-        "complete"
-      ]
-    },
-    "projects": {
-      ".write": false,
-      ".read": true
-    },
-    "announcement": {
-      ".write": true,
-      ".read": true
-    },
-    "results": {
-      ".write": false,
-      ".read": true,
-      "$task_id": {
-        "$user_id": {
-          ".write": "auth != null && auth.uid == $user_id"
-        }
-      }
-    },
-    "users": {
-      "$uid": {
-        ".read": "auth != null && auth.uid == $uid",
-        ".write": "auth != null && auth.uid == $uid"
-      },
-      ".read": true
     }
   }
 }

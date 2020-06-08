@@ -46,6 +46,7 @@ def update_user_data(user_ids: list = []) -> None:
         # Get only new users from Firebase.
         query = ref.order_by_child("created").start_at(last_updated)
         users = query.get()
+
         if len(users) == 0:
             logger.info("there are no new users in Firebase.")
         else:
@@ -54,8 +55,11 @@ def update_user_data(user_ids: list = []) -> None:
             users.popitem(last=False)
     else:
         # Get all users from Firebase.
+        # TODO: you should never do this frequently since it will come very costly
+        #  this might be okay, if we move some of the data to another part in firebase
         users = ref.get()
 
+    logger.info(f"number of users retrieved from firebase: {len(users)}")
     for user_id, user in users.items():
         # Convert timestamp (ISO 8601) from string to a datetime object.
         try:
@@ -85,7 +89,7 @@ def update_user_data(user_ids: list = []) -> None:
             created,
         ]
         pg_db.query(query_update_user, data_update_user)
-    logger.info("Updated user data in Potgres.")
+    logger.info("Updated user data in Postgres.")
 
 
 def update_project_data(project_ids: list = []):
