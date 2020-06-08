@@ -16,7 +16,6 @@ def copy_user_contributions(uid):
     try:
         ref = fb_db.reference(f"v2/users/{uid}/contributions")
         user_contributions = ref.get()
-        # only set username for users with display_name
         if not user_contributions:
             logger.info(f"user {uid} has no contributions in firebase.")
         else:
@@ -33,7 +32,7 @@ def copy_user_contributions(uid):
             # ref.set(None)
 
     except ValueError:
-        logger.info(f"could copy user contributions in firebase for {uid}.")
+        logger.info(f"could not copy user contributions in firebase for {uid}.")
 
 
 if __name__ == "__main__":
