@@ -43,12 +43,12 @@ exports.counter = functions.database.ref('/v2/results/{projectId}/{groupId}/{use
     const taskContributionCountRef      = admin.database().ref('/v2/users/'+context.params.userId+'/taskContributionCount')
     const groupContributionCountRef     = admin.database().ref('/v2/users/'+context.params.userId+'/groupContributionCount')
     const projectContributionCountRef   = admin.database().ref('/v2/users/'+context.params.userId+'/projectContributionCount')
-    const contributionsRefNew              = admin.database().ref('/v2/userContributions/'+context.params.userId+'/'+context.params.projectId)
-    const groupContributionsRefNew         = admin.database().ref('/v2/userContributions/'+context.params.userId+'/'+context.params.projectId +'/'+context.params.groupId)
-    const totalTimeSpentMappingRef      = admin.database().ref('/v2/users/'+context.params.userId+'/timeSpentMapping')
-
     const contributionsRef              = admin.database().ref('/v2/users/'+context.params.userId+'/contributions/'+context.params.projectId)
     const groupContributionsRef         = admin.database().ref('/v2/users/'+context.params.userId+'/contributions/'+context.params.projectId +'/'+context.params.groupId)
+    const totalTimeSpentMappingRef      = admin.database().ref('/v2/users/'+context.params.userId+'/timeSpentMapping')
+
+    const contributionsRefNew           = admin.database().ref('/v2/userContributions/'+context.params.userId+'/'+context.params.projectId)
+    const groupContributionsRefNew      = admin.database().ref('/v2/userContributions/'+context.params.userId+'/'+context.params.projectId +'/'+context.params.groupId)
 
     const timestampRef          = admin.database().ref('/v2/results/'+context.params.projectId+'/'+context.params.groupId+'/'+context.params.userId+'/timestamp')
     const startTimeRef          = admin.database().ref('/v2/results/'+context.params.projectId+'/'+context.params.groupId+'/'+context.params.userId+'/startTime')
@@ -178,7 +178,7 @@ exports.counter = functions.database.ref('/v2/results/{projectId}/{groupId}/{use
                 'startTime': result['startTime'],
                 'endTime': result['endTime']
              }
-             return groupContributionsRefOld.set(data)
+             return groupContributionsRefNew.set(data)
             }
         })
     promises.push(contributionsNew)
