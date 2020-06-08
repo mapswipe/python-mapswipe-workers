@@ -21,6 +21,8 @@ You have to run this script manually:
 * `docker-compose build --no-cache mapswipe_workers`
 * `docker-compose run -d mapswipe_workers python3 python_scripts/copy_user_contributions_in_firebase.py`
 
+This might take some time.
+
 ## 2. Step release of new MapSwipe client version
 We should release a new version of the MapSwipe app. This version should check which groups a user has been completed under the new path at `v2/userContributions`.
 
