@@ -47,6 +47,9 @@ exports.counter = functions.database.ref('/v2/results/{projectId}/{groupId}/{use
     const groupContributionsRef         = admin.database().ref('/v2/userContributions/'+context.params.userId+'/'+context.params.projectId +'/'+context.params.groupId)
     const totalTimeSpentMappingRef      = admin.database().ref('/v2/users/'+context.params.userId+'/timeSpentMapping')
 
+    const contributionsRefOld           = admin.database().ref('/v2/users/'+context.params.userId+'/contributions/'+context.params.projectId)
+    const groupContributionsRefOld      = admin.database().ref('/v2/users/'+context.params.userId+'/contributions/'+context.params.projectId +'/'+context.params.groupId)
+
     const timestampRef          = admin.database().ref('/v2/results/'+context.params.projectId+'/'+context.params.groupId+'/'+context.params.userId+'/timestamp')
     const startTimeRef          = admin.database().ref('/v2/results/'+context.params.projectId+'/'+context.params.groupId+'/'+context.params.userId+'/startTime')
     const endTimeRef            = admin.database().ref('/v2/results/'+context.params.projectId+'/'+context.params.groupId+'/'+context.params.userId+'/endTime')
@@ -123,6 +126,23 @@ exports.counter = functions.database.ref('/v2/results/{projectId}/{groupId}/{use
             }
         })
     promises.push(contributions)
+
+    // this can removed once all clients don't need this data in Firebase
+    const contributionsOld = groupContributionsRefOld.once('value')
+        .then((dataSnapshot) => {
+            if (dataSnapshot.exists()) {
+                return null
+            }
+            else {
+            const data = {
+                'timestamp': result['timestamp'],
+                'startTime': result['startTime'],
+                'endTime': result['endTime']
+             }
+             return groupContributionsRefOld.set(data)
+            }
+        })
+    promises.push(contributionsOld)
 
     // // TODO: Does not work
     // const timeSpentMapping = timeSpentMappingRef.set((timeSpentMapping) => {
