@@ -43,12 +43,12 @@ exports.counter = functions.database.ref('/v2/results/{projectId}/{groupId}/{use
     const taskContributionCountRef      = admin.database().ref('/v2/users/'+context.params.userId+'/taskContributionCount')
     const groupContributionCountRef     = admin.database().ref('/v2/users/'+context.params.userId+'/groupContributionCount')
     const projectContributionCountRef   = admin.database().ref('/v2/users/'+context.params.userId+'/projectContributionCount')
-    const contributionsRef              = admin.database().ref('/v2/userContributions/'+context.params.userId+'/'+context.params.projectId)
-    const groupContributionsRef         = admin.database().ref('/v2/userContributions/'+context.params.userId+'/'+context.params.projectId +'/'+context.params.groupId)
+    const contributionsRefNew              = admin.database().ref('/v2/userContributions/'+context.params.userId+'/'+context.params.projectId)
+    const groupContributionsRefNew         = admin.database().ref('/v2/userContributions/'+context.params.userId+'/'+context.params.projectId +'/'+context.params.groupId)
     const totalTimeSpentMappingRef      = admin.database().ref('/v2/users/'+context.params.userId+'/timeSpentMapping')
 
-    const contributionsRefOld           = admin.database().ref('/v2/users/'+context.params.userId+'/contributions/'+context.params.projectId)
-    const groupContributionsRefOld      = admin.database().ref('/v2/users/'+context.params.userId+'/contributions/'+context.params.projectId +'/'+context.params.groupId)
+    const contributionsRef              = admin.database().ref('/v2/users/'+context.params.userId+'/contributions/'+context.params.projectId)
+    const groupContributionsRef         = admin.database().ref('/v2/users/'+context.params.userId+'/contributions/'+context.params.projectId +'/'+context.params.groupId)
 
     const timestampRef          = admin.database().ref('/v2/results/'+context.params.projectId+'/'+context.params.groupId+'/'+context.params.userId+'/timestamp')
     const startTimeRef          = admin.database().ref('/v2/results/'+context.params.projectId+'/'+context.params.groupId+'/'+context.params.userId+'/startTime')
@@ -67,6 +67,8 @@ exports.counter = functions.database.ref('/v2/results/{projectId}/{groupId}/{use
     promises.push(groupRequiredCount)
 
     // Counter for projects
+    // This should be removed once all mapswipe clients
+    //   can deal with user contributions at `v2/userContributions`
     const contributorsCount = contributionsRef.once('value')
         .then((dataSnapshot) => {
             if (dataSnapshot.exists()) {
@@ -79,6 +81,24 @@ exports.counter = functions.database.ref('/v2/results/{projectId}/{groupId}/{use
             }
         })
     promises.push(contributorsCount)
+
+    // Counter for projects
+    // This should be activated once all mapswipe clients
+    //   can deal with user contributions at `v2/userContributions`
+    /*
+    const contributorsCount = contributionsRefNew.once('value')
+        .then((dataSnapshot) => {
+            if (dataSnapshot.exists()) {
+                return null
+            }
+            else {
+                return contributorsCountRef.transaction((currentCount) => {
+                    return currentCount + 1
+                })
+            }
+        })
+    promises.push(contributorsCount)
+    */
 
     // Counter for users
     const projectContributionCount = contributionsRef.once('value')
@@ -93,6 +113,24 @@ exports.counter = functions.database.ref('/v2/results/{projectId}/{groupId}/{use
             }
         })
     promises.push(projectContributionCount)
+
+    // Counter for users
+    // This should be activated once all mapswipe clients
+    //   can deal with user contributions at `v2/userContributions`
+    /*
+    const projectContributionCount = contributionsRefNew.once('value')
+        .then((dataSnapshot) => {
+            if (dataSnapshot.exists()) {
+                return null
+            }
+            else {
+                return projectContributionCountRef.transaction((currentCount) => {
+                    return currentCount + 1
+                })
+            }
+        })
+    promises.push(projectContributionCount)
+    */
 
     const groupContributionCount = groupContributionCountRef.transaction((currentCount) => {
         return currentCount + 1
@@ -111,6 +149,8 @@ exports.counter = functions.database.ref('/v2/results/{projectId}/{groupId}/{use
         })
     promises.push(taskContributionCount)
 
+    // This should be removed once all mapswipe clients
+    //   can deal with user contributions at `v2/userContributions`
     const contributions = groupContributionsRef.once('value')
         .then((dataSnapshot) => {
             if (dataSnapshot.exists()) {
@@ -127,8 +167,7 @@ exports.counter = functions.database.ref('/v2/results/{projectId}/{groupId}/{use
         })
     promises.push(contributions)
 
-    // this can removed once all clients don't need this data in Firebase
-    const contributionsOld = groupContributionsRefOld.once('value')
+    const contributionsNew = groupContributionsRefNew.once('value')
         .then((dataSnapshot) => {
             if (dataSnapshot.exists()) {
                 return null
@@ -142,7 +181,7 @@ exports.counter = functions.database.ref('/v2/results/{projectId}/{groupId}/{use
              return groupContributionsRefOld.set(data)
             }
         })
-    promises.push(contributionsOld)
+    promises.push(contributionsNew)
 
     // // TODO: Does not work
     // const timeSpentMapping = timeSpentMappingRef.set((timeSpentMapping) => {

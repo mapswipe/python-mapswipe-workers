@@ -26,6 +26,12 @@ def copy_user_contributions(uid):
                 logger.info(
                     f"updated user contributions for user {uid}, project {project_id}"
                 )
+
+            # TODO: uncomment when we want to delete old contributions from firebase.
+            #  This should be done after all mapswipe clients can deal with it.
+            # ref = fb_db.reference(f"v2/users/{uid}/contributions/")
+            # ref.set(None)
+
     except ValueError:
         logger.info(f"could copy user contributions in firebase for {uid}.")
 
