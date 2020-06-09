@@ -22,16 +22,16 @@ def get_agg_results_by_user_id(
     # Calc number of agreeig and disagreeing results from other users.
     raw_contributions_df.loc[
         raw_contributions_df["result"] == 0, "agreeing_contributions"
-    ] = (raw_contributions_df[f"0_count"] - 1)
+    ] = (raw_contributions_df["0_count"] - 1)
     raw_contributions_df.loc[
         raw_contributions_df["result"] == 1, "agreeing_contributions"
-    ] = (raw_contributions_df[f"1_count"] - 1)
+    ] = (raw_contributions_df["1_count"] - 1)
     raw_contributions_df.loc[
         raw_contributions_df["result"] == 2, "agreeing_contributions"
-    ] = (raw_contributions_df[f"2_count"] - 1)
+    ] = (raw_contributions_df["2_count"] - 1)
     raw_contributions_df.loc[
         raw_contributions_df["result"] == 3, "agreeing_contributions"
-    ] = (raw_contributions_df[f"3_count"] - 1)
+    ] = (raw_contributions_df["3_count"] - 1)
 
     raw_contributions_df["disagreeing_contributions"] = raw_contributions_df[
         f"total_count"
