@@ -114,7 +114,7 @@ exports.counter = functions.database.ref('/v2/results/{projectId}/{groupId}/{use
                 return null
             }
             else {
-             return groupContributionsRef.set(true)
+             return groupContributionsRef.set(1)
             }
         })
     promises.push(contributions)
