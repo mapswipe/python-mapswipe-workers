@@ -146,14 +146,11 @@ function openFile(event) {
               numberOfFeatures = geojsonData['features'].length
 
               console.log('number of features: ' + numberOfFeatures)
-
               if (numberOfFeatures > 10) {
                 throw 'too many features: ' + numberOfFeatures
               }
               info_output.innerHTML += 'Number of Features: ' + numberOfFeatures + '<br>';
               info_output.style.display = 'block'
-
-
 
               sumArea = 0
               // check input geometry type
@@ -168,18 +165,16 @@ function openFile(event) {
 
                 info_output.innerHTML += 'Feature Type: ' + type + '<br>';
                 info_output.style.display = 'block'
-
                 sumArea += turf.area(feature)/1000000 // area in square kilometers
-
                }
 
-               // check project size, based on zoom level
+              // check project size, based on zoom level
               var zoomLevel = parseInt(document.getElementById('zoomLevel').value);
               maxArea = (23 - zoomLevel) * (23 - zoomLevel) * 200
               console.log('project size: ' + sumArea + ' sqkm')
 
               if (sumArea > maxArea) {
-                    throw 'project is to large: ' + sumArea + ' sqkm; ' + 'max allowed size for this zoom level: ' + maxArea + ' sqkm'
+                throw 'project is to large: ' + sumArea + ' sqkm; ' + 'max allowed size for this zoom level: ' + maxArea + ' sqkm'
               }
 
               info_output.innerHTML += 'Project Size: ' + sumArea + ' sqkm<br>';
