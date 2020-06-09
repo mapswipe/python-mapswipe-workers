@@ -1,21 +1,26 @@
 import unittest
 
-from tests.unittests import set_up
-from tests.unittests import tear_down
+from click.testing import CliRunner
 from mapswipe_workers import auth
-from mapswipe_workers.firebase_to_postgres import archive_project
+from mapswipe_workers.mapswipe_workers import cli
+
+import set_up
+import tear_down
 
 
 class TestArchiveProject(unittest.TestCase):
     def setUp(self):
-        self.project_id = set_up.create_test_project("build_area", results=True)
+        self.project_id = set_up.create_test_project(
+            "tile_map_service_grid", "build_area", results=True
+        )
 
     def tearDown(self):
         tear_down.delete_test_data(self.project_id)
 
     def test_changes(self):
         """Test if groups, tasks and results are deleted from Firebase."""
-        archive_project.archive_project([self.project_id])
+        runner = CliRunner()
+        runner.invoke(cli, "--verbose archive --project_id {0}".format(self.project_id))
 
         fb_db = auth.firebaseDB()
         ref = fb_db.reference("v2/groups/{0}".format(self.project_id))
@@ -36,7 +41,8 @@ class TestArchiveProject(unittest.TestCase):
 
     def test_project_id_not_exists(self):
         """Test for project id which does not exists."""
-        archive_project.archive_project(["tuna"])
+        runner = CliRunner()
+        runner.invoke(cli, "--verbose archive --project_id tuna")
 
         fb_db = auth.firebaseDB()
         ref = fb_db.reference("v2/groups/")

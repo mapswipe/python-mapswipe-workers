@@ -1,4 +1,11 @@
-"""Helper functions for test set up"""
+"""
+Helper functions for test set up.
+
+Directory structure of fixtures: fixtures/project_type/data_type/fixture_name
+- project_type is either tile_map_service_grid or arbitrary_geometry.
+- data_type is one of following: projectDrafts, projects, groups, tasks, users, results
+- fixture_name is the name of the fixture file without extension. E.g. build_area
+"""
 
 import json
 import os
@@ -7,12 +14,13 @@ from mapswipe_workers import auth
 
 
 def set_firebase_test_data(
-    data_type: str, identifier: str, project_type: str = "",
+    project_type: str, data_type: str, fixture_name: str, identifier: str
 ):
     test_dir = os.path.dirname(__file__)
-    data_dir = os.path.join(test_dir, "fixtures", project_type)
-    file_name = data_type + ".json"
-    file_path = os.path.join(data_dir, file_name)
+    fixture_name = fixture_name + ".json"
+    file_path = os.path.join(
+        test_dir, "fixtures", project_type, data_type, fixture_name
+    )
 
     with open(file_path) as test_file:
         test_data = json.load(test_file)
@@ -22,56 +30,64 @@ def set_firebase_test_data(
     ref.set(test_data)
 
 
-def set_postgres_test_data(data_type: str, project_type: str = "") -> None:
+def set_postgres_test_data(
+    project_type: str, data_type: str, fixture_name: str
+) -> None:
     test_dir = os.path.dirname(__file__)
-    data_dir = os.path.join(test_dir, "fixtures", project_type)
-    file_name = data_type + ".csv"
-    file_path = os.path.join(data_dir, file_name)
+    fixture_name = fixture_name + ".csv"
+    file_path = os.path.join(
+        test_dir, "fixtures", project_type, data_type, fixture_name
+    )
 
     pg_db = auth.postgresDB()
-    with open(file_path) as f:
-        pg_db.copy_from(f, data_type)
+    with open(file_path) as test_file:
+        pg_db.copy_from(test_file, data_type)
 
 
-def create_test_project(project_type: str, results: bool = False) -> str:
+def create_test_project(
+    project_type: str, fixture_name: str, results: bool = False
+) -> str:
     """Create a test data in Firebase and Posgres."""
-    project_id = "test_{0}".format(project_type)
+    project_id = "test_{0}".format(fixture_name)
+
+    for data_type in ["projects", "groups", "tasks"]:
+        set_firebase_test_data(project_type, data_type, fixture_name, project_id)
+        set_postgres_test_data(project_type, data_type, fixture_name)
 
     if results:
-        data_types = ("projects", "groups", "tasks", "users", "results")
-    else:
-        data_types = ("projects", "groups", "tasks")
-
-    for data_type in data_types:
-        set_firebase_test_data(data_type, project_id, project_type)
-        set_postgres_test_data(data_type, project_type)
+        set_firebase_test_data(project_type, "users", "user", project_id)
+        set_postgres_test_data(project_type, "users", "user")
+        set_firebase_test_data(project_type, "results", fixture_name, project_id)
+        set_postgres_test_data(project_type, "results", fixture_name)
 
     return project_id
 
 
-def create_test_results(project_type: str) -> str:
+def create_test_results(project_type: str, fixture_name: str) -> str:
     """Create test results only in Firebase."""
     project_id = "test_{0}".format(project_type)
-    set_firebase_test_data("results", project_id, project_type)
+    set_firebase_test_data(project_type, "results", fixture_name, project_id)
     return project_id
 
 
-def create_test_user(project_id, user_id: str = None) -> str:
+def create_test_user(project_type: str, fixture_name: str) -> str:
     """Create test user only in Firebase"""
-    if user_id is None:
-        user_id = project_id
-    set_firebase_test_data("users", user_id, project_id)
+    user_id = "test_{0}".format(project_type)
+    set_firebase_test_data(project_type, "users", "users", user_id)
     return user_id
 
 
-def create_test_project_draft(project_type: str) -> list:
+def create_test_project_draft(
+    project_type: str, fixture_name: str = "user", user_id: str = ""
+) -> str:
     """
     Create test project drafts in Firebase and return project ids.
     Project drafts in Firebase are create by project manager using the dashboard.
     """
-    project_id = "test_{0}".format(project_type)
-    set_firebase_test_data("projectDrafts", project_id, project_type)
-    return project_id
+    if not user_id:
+        user_id = "test_{0}".format(project_type)
+    set_firebase_test_data(project_type, "projectDrafts", fixture_name, user_id)
+    return user_id
 
 
 if __name__ == "__main__":

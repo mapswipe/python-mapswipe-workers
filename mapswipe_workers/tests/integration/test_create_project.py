@@ -1,13 +1,17 @@
 import unittest
-from tests.unittests import set_up
-from tests.unittests import tear_down
+
 from click.testing import CliRunner
 from mapswipe_workers import auth, mapswipe_workers
+
+import set_up
+import tear_down
 
 
 class TestCreateProject(unittest.TestCase):
     def setUp(self):
-        self.project_id = set_up.create_test_project_draft("build_area")
+        self.project_id = set_up.create_test_project_draft(
+            "tile_map_service_grid", "build_area"
+        )
 
     def tearDown(self):
         tear_down.delete_test_data(self.project_id)
