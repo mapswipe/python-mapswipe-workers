@@ -6,9 +6,9 @@ from mapswipe_workers.firebase_to_postgres import update_data
 
 
 def load_project_ids_from_disk():
-    filename = 'project_ids.pickle'
+    filename = "project_ids.pickle"
     if os.path.isfile(filename):
-        with open(filename, 'rb') as f:
+        with open(filename, "rb") as f:
             existing_project_ids = pickle.load(f)
     else:
         existing_project_ids = set([])
@@ -17,9 +17,9 @@ def load_project_ids_from_disk():
 
 
 def load_user_ids_from_disk():
-    filename = 'users.pickle'
+    filename = "users.pickle"
     if os.path.isfile(filename):
-        with open(filename, 'rb') as f:
+        with open(filename, "rb") as f:
             users = pickle.load(f)
             user_ids = list(users.keys())
     else:
@@ -28,7 +28,7 @@ def load_user_ids_from_disk():
     return user_ids
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # only perform transfer for specified project ids
     project_ids = load_project_ids_from_disk()
     user_ids = load_user_ids_from_disk()
@@ -36,4 +36,3 @@ if __name__ == '__main__':
     update_data.update_user_data(user_ids)
     update_data.update_project_data(project_ids)
     transfer_results.transfer_results(project_id_list=project_ids)
-

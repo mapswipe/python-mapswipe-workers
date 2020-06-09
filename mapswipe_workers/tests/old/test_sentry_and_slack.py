@@ -13,5 +13,3 @@ except Exception as e:
 
 # this a just an exeception
 division_by_zero = 1 / 0
-
-
