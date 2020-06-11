@@ -70,10 +70,11 @@ def create_test_results(project_type: str, fixture_name: str) -> str:
     return project_id
 
 
-def create_test_user(project_type: str, fixture_name: str) -> str:
+def create_test_user(project_type: str, user_id: str = None) -> str:
     """Create test user only in Firebase"""
-    user_id = "test_{0}".format(project_type)
-    set_firebase_test_data(project_type, "users", "users", user_id)
+    if not user_id:
+        user_id = "test_{0}".format(project_type)
+    set_firebase_test_data(project_type, "users", "user", user_id)
     return user_id
 
 
