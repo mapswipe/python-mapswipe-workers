@@ -1,16 +1,19 @@
 import unittest
+
 from mapswipe_workers import auth
 from mapswipe_workers.firebase_to_postgres import update_data
-from tests.unittests import set_up
-from tests.unittests import tear_down
+
+import set_up
+import tear_down
 
 
 class TestArchiveProject(unittest.TestCase):
     def setUp(self):
-        self.user_id = set_up.create_test_user("build_area")
+        self.user_id = set_up.create_test_user("tile_map_service_grid")
+        self.user_ids = [self.user_id]
 
     def tearDown(self):
-        tear_down.delete_test_data(self.user_id)
+        tear_down.delete_test_user(self.user_ids)
 
     def test_no_users_in_postgres(self):
         """Test update users when no users are in postgres yet."""
@@ -23,7 +26,8 @@ class TestArchiveProject(unittest.TestCase):
     def test_last_updated_users(self):
         """Test update users when some users are in postgres."""
         update_data.update_user_data()
-        user_id = set_up.create_test_user("build_area", user_id="test_user")
+        user_id = set_up.create_test_user("tile_map_service_grid", "test_user_2")
+        self.user_ids.append(user_id)
         update_data.update_user_data()
 
         pg_db = auth.postgresDB()

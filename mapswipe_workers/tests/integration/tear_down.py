@@ -1,5 +1,6 @@
 """Helper functions for test tear down"""
 import re
+from typing import List
 
 from mapswipe_workers import auth
 
@@ -40,6 +41,23 @@ def delete_test_data(project_id: str) -> None:
     pg_db.query(sql_query)
     sql_query = "DELETE FROM users WHERE user_id = '{0}'".format(project_id)
     pg_db.query(sql_query)
+
+
+def delete_test_user(user_ids: List) -> None:
+    for user_id in user_ids:
+        if not re.match(r"[-a-zA-Z0-9]+", user_id):
+            raise ValueError(
+                f"Given argument resulted in invalid "
+                f"Firebase Realtime Database reference. "
+            )
+
+        fb_db = auth.firebaseDB()
+        ref = fb_db.reference("v2/users/{0}".format(user_id))
+        ref.delete()
+
+        pg_db = auth.postgresDB()
+        sql_query = "DELETE FROM users WHERE user_id = '{0}'".format(user_id)
+        pg_db.query(sql_query)
 
 
 if __name__ == "__main__":

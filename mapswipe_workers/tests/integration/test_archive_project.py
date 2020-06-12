@@ -1,14 +1,17 @@
 import unittest
 
-from tests.unittests import set_up
-from tests.unittests import tear_down
 from mapswipe_workers import auth
 from mapswipe_workers.firebase_to_postgres import archive_project
+
+import set_up
+import tear_down
 
 
 class TestArchiveProject(unittest.TestCase):
     def setUp(self):
-        self.project_id = set_up.create_test_project("build_area", results=True)
+        self.project_id = set_up.create_test_project(
+            "tile_map_service_grid", "build_area", results=True
+        )
 
     def tearDown(self):
         tear_down.delete_test_data(self.project_id)
