@@ -45,7 +45,7 @@ before_script:
 
 script:
   # - TODO: Run black and flake8
-  - python -m unittest -v tests.unittests.test_gdal
+  - python -m unittest -v tests.integration.test_gdal
   # - TODO: python -m unittest discover -v -s mapswipe_workers/tests/unittests/ -p 'test_*.py'
 
 # before_deploy:
