@@ -349,7 +349,7 @@ def get_per_project_statistics(project_id: str, project_info: pd.Series) -> dict
             agg_results_by_user_id_filename, index_label="idx"
         )
         logger.info(
-            f"saved agg results for {project_id}: {agg_results_by_user_id_filename}"
+            f"saved user stats for {project_id}: {agg_results_by_user_id_filename}"
         )
 
         if any("maxar" in s for s in project_info["tile_server_names"]):
