@@ -8,12 +8,16 @@ from mapswipe_workers.generate_stats.user_stats import get_agg_results_by_user_i
 class TestUserStats(unittest.TestCase):
     def setUp(self) -> None:
         test_dir = os.path.dirname(__file__)
-        data_dir = os.path.join(test_dir, "fixtures", "build_area")
-        results_file = os.path.join(data_dir, "results_-M7nTGflMusNxFd4iSfD.csv")
-        agg_results_file = os.path.join(
-            data_dir, "agg_results_-M7nTGflMusNxFd4iSfD.csv"
+        data_dir = os.path.join(test_dir, "fixtures", "tile_map_service_grid")
+        results_file = os.path.join(
+            data_dir, "results", "results_-M7nTGflMusNxFd4iSfD.csv"
         )
-        user_stats_file = os.path.join(data_dir, "users_-M7nTGflMusNxFd4iSfD.csv")
+        agg_results_file = os.path.join(
+            data_dir, "agg_results", "agg_results_-M7nTGflMusNxFd4iSfD.csv"
+        )
+        user_stats_file = os.path.join(
+            data_dir, "users", "users_-M7nTGflMusNxFd4iSfD.csv"
+        )
         self.results_df = pd.read_csv(results_file)
         self.agg_results_df = pd.read_csv(agg_results_file)
         self.user_stats_df = pd.read_csv(user_stats_file)
