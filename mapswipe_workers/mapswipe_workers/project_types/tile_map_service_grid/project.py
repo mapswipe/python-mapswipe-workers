@@ -58,15 +58,17 @@ class Project(BaseProject):
             raise CustomError(f"Empty file. ")
 
         # check if more than 1 geometry is provided
-        elif layer.GetFeatureCount() > 1:
+        elif layer.GetFeatureCount() > 10:
             logger.warning(
                 f"{self.projectId}"
                 f" - validate geometry - "
-                f"Input file contains more than one geometry. "
-                f"Make sure to provide exact one input geometry."
+                f"Input file contains more than 10 geometries. "
+                f"Make sure to provide less than 10 geometries."
             )
-            raise CustomError(f"Input file contains more than one geometry. ")
+            raise CustomError(f"Input file contains more than 10 geometries. ")
 
+        project_area = 0
+        wkt_geometries = []
         # check if the input geometry is a valid polygon
         for feature in layer:
             feat_geom = feature.GetGeometryRef()
@@ -93,6 +95,7 @@ class Project(BaseProject):
 
             # get geometry as wkt
             wkt_geometry = feat_geom.ExportToWkt()
+            wkt_geometries.append(wkt_geometry)
 
             # check size of project make sure its smaller than  5,000 sqkm
             # for doing this we transform the geometry
@@ -105,29 +108,27 @@ class Project(BaseProject):
 
             transform = osr.CoordinateTransformation(source, target)
             feat_geom.Transform(transform)
-            project_area = feat_geom.GetArea() / 1000000
+            project_area = +feat_geom.GetArea() / 1000000
 
-            # calculate max area based on zoom level
-            # for zoom level 18 this will be 5000 square kilometers
-            # max zoom level is 22
-            if self.zoomLevel > 22:
-                raise CustomError(
-                    f"zoom level is to large (max: 22): {self.zoomLevel}."
-                )
+        # calculate max area based on zoom level
+        # for zoom level 18 this will be 5000 square kilometers
+        # max zoom level is 22
+        if self.zoomLevel > 22:
+            raise CustomError(f"zoom level is to large (max: 22): {self.zoomLevel}.")
 
-            max_area = (23 - int(self.zoomLevel)) * (23 - int(self.zoomLevel)) * 200
+        max_area = (23 - int(self.zoomLevel)) * (23 - int(self.zoomLevel)) * 200
 
-            if project_area > max_area:
-                logger.warning(
-                    f"{self.projectId}"
-                    f" - validate geometry - "
-                    f"Project is to large: {project_area} sqkm. "
-                    f"Please split your projects into smaller sub-projects and resubmit"
-                )
-                raise CustomError(
-                    f"Project is to large: {project_area} sqkm. "
-                    f"Max area for zoom level {self.zoomLevel} = {max_area} sqkm"
-                )
+        if project_area > max_area:
+            logger.warning(
+                f"{self.projectId}"
+                f" - validate geometry - "
+                f"Project is to large: {project_area} sqkm. "
+                f"Please split your projects into smaller sub-projects and resubmit"
+            )
+            raise CustomError(
+                f"Project is to large: {project_area} sqkm. "
+                f"Max area for zoom level {self.zoomLevel} = {max_area} sqkm"
+            )
 
         del datasource
         del layer
@@ -138,7 +139,7 @@ class Project(BaseProject):
             f"{self.projectId}" f" - validate geometry - " f"input geometry is correct."
         )
 
-        return wkt_geometry
+        return wkt_geometries
 
     def create_groups(self):
         """
