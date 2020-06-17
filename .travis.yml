@@ -45,7 +45,8 @@ before_script:
   - docker-compose up --build --detach firebase_deploy
   - docker run python-mapswipe-workers_mapswipe_workers python -m unittest -v tests.integration.test_gdal
 
-# script:
+script:
+  - echo ""
   # - TODO: Run black and flake8
 
 # before_deploy:
