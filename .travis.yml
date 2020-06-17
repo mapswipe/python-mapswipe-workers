@@ -37,11 +37,13 @@ install:
   - mkdir --parents ~/.config/mapswipe_workers
   - mkdir --parents ~/.local/share/mapswipe_workers
   - echo "$SERVICE_ACCOUNT_KEY" > ~/.config/mapswipe_workers/serviceAccountKey.json
+  - docker build --tag mapswipe_workers --file mapswipe_workers/Dockerfile mapswipe_workers/
   - docker build --tag mapswipe_postgres --file postgres/Dockerfile-dev postgres/
 
 before_script:
   - docker run --detach --publish 5432:5432 --name mapswipe_postgres -e POSTGRES_DB="$POSTGRES_DB" -e POSTGRES_USER="$POSTGRES_USER" -e POSTGRES_PASSWORD="$POSTGRES_PASSWORD" mapswipe_postgres
   - docker-compose up --build --detach firebase_deploy
+  - docker run --env-file .env mapswipe_workers python -m unittest -v tests.integration.test_gdal
 
 script:
   # - TODO: Run black and flake8
