@@ -35,13 +35,12 @@ before_install:
 install:
   - echo "$SERVICE_ACCOUNT_KEY" > mapswipe_workers/serviceAccountKey.json
   - docker build --tag mapswipe_postgres --file postgres/Dockerfile-dev postgres/  # Dockerfile-dev is used because backup routine is not needed for travis builds
-  - docker-compose build mapswipe_workers
 
 script:
   # - TODO: Run black and flake8
   - docker run --detach --publish 5432:5432 --name mapswipe_postgres -e POSTGRES_DB="$POSTGRES_DB" -e POSTGRES_USER="$POSTGRES_USER" -e POSTGRES_PASSWORD="$POSTGRES_PASSWORD" mapswipe_postgres
   - docker-compose up --build --detach firebase_deploy
-  - docker run python-mapswipe-workers_mapswipe_workers python -m unittest discover --verbose --start-directory tests/
+  - docker-compose run mapswipe_workers python -m unittest discover --verbose --start-directory tests/
 
 # before_deploy:
 #   # SSH setup to deploy to server after build.
