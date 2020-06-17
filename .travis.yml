@@ -37,8 +37,8 @@ install:
   - mkdir --parents ~/.config/mapswipe_workers
   - mkdir --parents ~/.local/share/mapswipe_workers
   - echo "$SERVICE_ACCOUNT_KEY" > ~/.config/mapswipe_workers/serviceAccountKey.json
-  - docker build --tag mapswipe_postgres --file postgres/Dockerfile-dev postgres/
-  - docker-compose build mapswipe_workers
+  - docker build --tag mapswipe_postgres --file postgres/Dockerfile-dev postgres/  # Dockerfile-dev is used because backup routine is not needed for travis builds
+  - docker-compose build --tag mapswipe_workers mapswipe_workers
 
 before_script:
   - docker run --detach --publish 5432:5432 --name mapswipe_postgres -e POSTGRES_DB="$POSTGRES_DB" -e POSTGRES_USER="$POSTGRES_USER" -e POSTGRES_PASSWORD="$POSTGRES_PASSWORD" mapswipe_postgres
