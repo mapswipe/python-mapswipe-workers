@@ -18,7 +18,7 @@
     "url" : "https://tiles.openaerialmap.org/5ae862e00b093000130affd9/0/5ae862e00b093000130affda/{z}/{x}/{y}.png",
     "credits": "International Organization for Migration (IOM)"
   },
-  "examplesFile": "sample_data/change_detection/change_detection_tutorial_tasks_kutupalong.geojson",
+  "examplesFile": "./tests/unittests/fixtures/tile_map_service_grid/tutorials/change_detection_tutorial_tasks_kutupalong.geojson",
   "categories": {
     "changes_1": {
       "pre": "For this project we are looking for changes regarding settlements. Compare the upper (before) and lower (after) image and *SWIPE RIGHT* (not tap) to indicate that new settlements have been built.",

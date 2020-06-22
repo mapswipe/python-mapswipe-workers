@@ -34,7 +34,7 @@ class Tutorial(BaseTutorial):
         self.status = status_dict[self.projectType]
 
     def create_tutorial_groups(self):
-        """Create a single group for the tutorial based on provided examples in geojson file."""
+        """Create a single group for the tutorial based on example geojson file."""
         # load examples/tasks from file
         with open(self.examplesFile, "r") as f:
             self.raw_tasks = json.load(f)[
@@ -50,14 +50,14 @@ class Tutorial(BaseTutorial):
             "xMin": 100,  # this will be always set to 100
             "yMax": 131074,  # this is set to be at the equator
             "yMin": 131072,  # this is set to be at the equator
-            "requiredCount": 5,  # this is not needed from back end perspective, maybe for client
-            "finishedCount": 0,  # this is not needed from back end perspective, maybe for client
+            "requiredCount": 5,  # this is not needed from backend side
+            "finishedCount": 0,  # this is not needed from backend side
             "groupId": 101,  # a tutorial has only one group
             "projectId": self.projectId,
             "numberOfTasks": len(
                 self.raw_tasks
             ),  # this depends on the number of screens/tasks to show
-            "progress": 0,  # this is not needed from back end perspective, maybe for client
+            "progress": 0,  # this is not needed from backend side
         }
 
         if self.projectType in [3]:
@@ -94,23 +94,34 @@ class Tutorial(BaseTutorial):
                 tile_x = raw_task["properties"]["tile_x"]
                 tile_y = raw_task["properties"]["tile_y"]
 
-                if i < 3:  # get adjusted tile_x to fit in tutorial data schema
-                    tile_x_tutorial = self.groups[101]["xMin"] + (2 * (screen - 1))
-                else:
-                    tile_x_tutorial = self.groups[101]["xMin"] + (2 * (screen - 1)) + 1
+                # set tileX and tileY for build area and completeness
+                if self.projectType in [1, 4]:
+                    # get adjusted tile_x to fit in tutorial data schema
+                    if i < 3:
+                        tile_x_tutorial = self.groups[101]["xMin"] + (2 * (screen - 1))
+                    else:
+                        tile_x_tutorial = (
+                            self.groups[101]["xMin"] + (2 * (screen - 1)) + 1
+                        )
 
-                if i in [0, 3]:  # get adjusted tile_y to fit in tutorial data schema
+                    # get adjusted tile_y to fit in tutorial data schema
+                    if i in [0, 3]:
+                        tile_y_tutorial = self.groups[101]["yMin"]
+                    elif i in [1, 4]:
+                        tile_y_tutorial = self.groups[101]["yMin"] + 1
+                    elif i in [2, 5]:
+                        tile_y_tutorial = int(self.groups[101]["yMin"]) + 2
+
+                # set tileX and tileY for change detection projects
+                elif self.projectType in [3]:
+                    tile_x_tutorial = self.groups[101]["xMin"] + screen
                     tile_y_tutorial = self.groups[101]["yMin"]
-                elif i in [1, 4]:
-                    tile_y_tutorial = self.groups[101]["yMin"] + 1
-                elif i in [2, 5]:
-                    tile_y_tutorial = int(self.groups[101]["yMin"]) + 2
 
                 task = {
                     "taskId_real": f"{self.zoomLevel}-{tile_x}-{tile_y}",
                     "taskId": f"{self.zoomLevel}-{tile_x_tutorial}-{tile_y_tutorial}",
-                    "taskX": tile_x_tutorial,  # need to set this correctly based on screen
-                    "taskY": tile_y_tutorial,  # need to set this correctly based on screen
+                    "taskX": tile_x_tutorial,
+                    "taskY": tile_y_tutorial,
                     "groupId": 101,  # a tutorial has only one group
                     "projectId": self.projectId,
                     "referenceAnswer": raw_task["properties"]["reference"],
