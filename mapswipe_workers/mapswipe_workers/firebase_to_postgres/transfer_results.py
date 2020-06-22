@@ -104,7 +104,6 @@ def results_to_file(results, projectId):
             # check if all attributes are set,
             # if not don't transfer the results for this group
             try:
-                timestamp = results["timestamp"]
                 start_time = results["startTime"]
                 end_time = results["endTime"]
                 results = results["results"]
@@ -121,9 +120,9 @@ def results_to_file(results, projectId):
                 )
                 continue
 
-            timestamp = dateutil.parser.parse(timestamp)
             start_time = dateutil.parser.parse(start_time)
             end_time = dateutil.parser.parse(end_time)
+            timestamp = end_time
 
             if type(results) is dict:
                 for taskId, result in results.items():
