@@ -18,10 +18,6 @@ exports.counter = functions.database.ref('/v2/results/{projectId}/{groupId}/{use
         console.log('no results attribute for /v2/results/'+context.params.projectId+'/'+context.params.groupId+'/'+context.params.userId )
         console.log('will not update counters')
         return null
-    } else if (!result.hasOwnProperty('timestamp')) {
-        console.log('no timestamp attribute for /v2/results/'+context.params.projectId+'/'+context.params.groupId+'/'+context.params.userId )
-        console.log('will not update counters')
-        return null
     } else if (!result.hasOwnProperty('endTime')) {
         console.log('no endTime attribute for /v2/results/'+context.params.projectId+'/'+context.params.groupId+'/'+context.params.userId )
         console.log('will not update counters')
@@ -47,7 +43,6 @@ exports.counter = functions.database.ref('/v2/results/{projectId}/{groupId}/{use
     const groupContributionsRef         = admin.database().ref('/v2/users/'+context.params.userId+'/contributions/'+context.params.projectId +'/'+context.params.groupId)
     const totalTimeSpentMappingRef      = admin.database().ref('/v2/users/'+context.params.userId+'/timeSpentMapping')
 
-    const timestampRef          = admin.database().ref('/v2/results/'+context.params.projectId+'/'+context.params.groupId+'/'+context.params.userId+'/timestamp')
     const startTimeRef          = admin.database().ref('/v2/results/'+context.params.projectId+'/'+context.params.groupId+'/'+context.params.userId+'/startTime')
     const endTimeRef            = admin.database().ref('/v2/results/'+context.params.projectId+'/'+context.params.groupId+'/'+context.params.userId+'/endTime')
     const timeSpentMappingRef   = admin.database().ref('/v2/results/'+context.params.projectId+'/'+context.params.groupId+'/'+context.params.userId+'/timeSpentMappingRef')
@@ -115,7 +110,6 @@ exports.counter = functions.database.ref('/v2/results/{projectId}/{groupId}/{use
             }
             else {
             const data = {
-                'timestamp': result['timestamp'],
                 'startTime': result['startTime'],
                 'endTime': result['endTime']
              }
