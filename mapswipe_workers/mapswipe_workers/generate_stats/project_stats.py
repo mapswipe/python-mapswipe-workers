@@ -4,7 +4,7 @@ import pandas as pd
 import datetime
 from typing import List
 from mapswipe_workers import auth
-from mapswipe_workers.definitions import logger, DATA_PATH
+from mapswipe_workers.definitions import logger, DATA_PATH, sentry
 from mapswipe_workers.utils import geojson_functions, tile_functions
 from mapswipe_workers.generate_stats import (
     project_stats_by_date,
@@ -342,15 +342,20 @@ def get_per_project_statistics(project_id: str, project_info: pd.Series) -> dict
         geojson_functions.csv_to_geojson(agg_results_filename, "geom")
 
         # aggregate results by user id
-        agg_results_by_user_id_df = user_stats.get_agg_results_by_user_id(
-            results_df, agg_results_df
-        )
-        agg_results_by_user_id_df.to_csv(
-            agg_results_by_user_id_filename, index_label="idx"
-        )
-        logger.info(
-            f"saved user stats for {project_id}: {agg_results_by_user_id_filename}"
-        )
+        # TODO: solve memory issue for agg results by user id
+        try:
+            agg_results_by_user_id_df = user_stats.get_agg_results_by_user_id(
+                results_df, agg_results_df
+            )
+            agg_results_by_user_id_df.to_csv(
+                agg_results_by_user_id_filename, index_label="idx"
+            )
+            logger.info(
+                f"saved agg results for {project_id}: {agg_results_by_user_id_filename}"
+            )
+        except MemoryError:
+            sentry.capture_exception()
+            logger.info(f"failed to agg results by user id for {project_id}")
 
         if any("maxar" in s for s in project_info["tile_server_names"]):
             add_metadata_to_csv(agg_results_filename)
