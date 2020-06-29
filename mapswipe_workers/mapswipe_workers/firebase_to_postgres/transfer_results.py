@@ -109,8 +109,8 @@ def results_to_file(results, projectId):
                 end_time = results["endTime"]
                 results = results["results"]
             except KeyError as e:
-                sentry.capture_exception_sentry(e)
-                sentry.capture_message_sentry(
+                sentry.capture_exception(e)
+                sentry.capture_message(
                     f"at least one missing attribute for: "
                     f"{projectId}/{groupId}/{userId}, will skip this one"
                 )
