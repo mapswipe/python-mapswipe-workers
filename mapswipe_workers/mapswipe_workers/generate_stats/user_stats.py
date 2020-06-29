@@ -1,32 +1,6 @@
 import pandas as pd
 
 
-def calc_agreement_counts(row) -> tuple:
-    """Calc number of agreeig and disagreeing results from other users."""
-    this_user_label = row["result"]
-    other_user_labels = []
-
-    for label in [0, 1, 2, 3]:
-        if label == this_user_label:
-            label_count = row[f"{label}_count"] - 1
-        else:
-            label_count = row[f"{label}_count"]
-        other_user_labels.extend([label] * label_count)
-
-    agreeing_contributions = other_user_labels.count(this_user_label)
-    disagreeing_contributions = len(other_user_labels) - agreeing_contributions
-
-    return (agreeing_contributions, disagreeing_contributions)
-
-
-def calc_agreement_score(row):
-    """Calc simple agreement score as share of agreeing contributions."""
-    agreement_score = row["agreeing_contributions"] / (
-        row["agreeing_contributions"] + row["disagreeing_contributions"]
-    )
-    return agreement_score
-
-
 def get_agg_results_by_user_id(
     results_df: pd.DataFrame, agg_results_df: pd.DataFrame
 ) -> pd.DataFrame:
@@ -45,11 +19,23 @@ def get_agg_results_by_user_id(
     )
 
     # compare to classifications of other users
-    raw_contributions_df[
-        ["agreeing_contributions", "disagreeing_contributions"]
-    ] = raw_contributions_df.apply(
-        lambda row: calc_agreement_counts(row), axis=1, result_type="expand"
-    )
+    # Calc number of agreeig and disagreeing results from other users.
+    raw_contributions_df.loc[
+        raw_contributions_df["result"] == 0, "agreeing_contributions"
+    ] = (raw_contributions_df["0_count"] - 1)
+    raw_contributions_df.loc[
+        raw_contributions_df["result"] == 1, "agreeing_contributions"
+    ] = (raw_contributions_df["1_count"] - 1)
+    raw_contributions_df.loc[
+        raw_contributions_df["result"] == 2, "agreeing_contributions"
+    ] = (raw_contributions_df["2_count"] - 1)
+    raw_contributions_df.loc[
+        raw_contributions_df["result"] == 3, "agreeing_contributions"
+    ] = (raw_contributions_df["3_count"] - 1)
+
+    raw_contributions_df["disagreeing_contributions"] = raw_contributions_df[
+        f"total_count"
+    ] - (raw_contributions_df[f"agreeing_contributions"] + 1)
 
     agg_results_by_user_id_df = raw_contributions_df.groupby(
         ["project_id", "user_id"]
@@ -64,9 +50,13 @@ def get_agg_results_by_user_id(
         ),
     )
 
-    agg_results_by_user_id_df[
-        "simple_agreement_score"
-    ] = agg_results_by_user_id_df.apply(lambda row: calc_agreement_score(row), axis=1)
+    # Calc simple agreement score as share of agreeing contributions.
+    agg_results_by_user_id_df["simple_agreement_score"] = agg_results_by_user_id_df[
+        "agreeing_contributions"
+    ] / (
+        agg_results_by_user_id_df["agreeing_contributions"]
+        + agg_results_by_user_id_df["disagreeing_contributions"]
+    )
 
     agg_results_by_user_id_df.reset_index(inplace=True)
 

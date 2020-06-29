@@ -37,7 +37,7 @@ def tasks_to_geojson(project_extent_file, zoomlevel, outfile):
     project.zoomLevel = int(zoomlevel)
     project.tileServer = vars(BaseTileServer(tile_server_dict))
 
-    raw_groups = t.extent_to_slices(project_extent_file, 18, 120)
+    raw_groups = t.extent_to_slices(project_extent_file, project.zoomLevel, 120)
 
     tasks = list()
 

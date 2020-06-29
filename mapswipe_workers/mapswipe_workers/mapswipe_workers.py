@@ -154,7 +154,7 @@ def run_user_management(email, manager) -> None:
         elif not manager:
             user_management.remove_project_manager_rights(email)
     except Exception:
-        logger.exception()
+        logger.exception("grant user credentials failed")
         sentry.capture_exception()
 
 

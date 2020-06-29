@@ -146,12 +146,7 @@ To enable SSL for the API and MapSwipe Manager Dashboard use Certbot to issue st
 
 ### Certbot
 
-Install certbot:
-
-```bash
-apt-get install certbot
-```
-
+To install Certbot follow instructions on https://certbot.eff.org/lets-encrypt/ubuntubionic-other
 
 Create certificates:
 
@@ -167,7 +162,7 @@ certbot certonly \
 
 > Note: Certbot systemd timer for renewal of certificate will not work for standalone certificates because the service (docker nginx) which occupies port 80 has to be stopped before renewal.
 
-For certificate renewal a cronjob is used:
+For certificate renewal a cronjob is used. This has to be run as root: `sudo crontab -e`
 
 ```bash
 SHELL=/bin/sh
