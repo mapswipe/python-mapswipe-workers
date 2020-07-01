@@ -50,7 +50,7 @@ def groups_overlap(groups):
                 Rect2 = Rect(p1, p2)
 
                 if overlap(Rect1, Rect2):
-                    print("overlap!")
+                    print("overlap!", group_id_B)
                     try:
                         group_overlap[group_id].append(group_id_B)
                     except KeyError:
