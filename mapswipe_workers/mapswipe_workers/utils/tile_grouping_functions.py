@@ -282,12 +282,11 @@ def get_vertical_slice(slice_infos, zoom, width_threshold=40):
 
 def adjust_overlapping_groups(groups):
     group_ids = list(groups.keys())
-    raw_groups = {}
+    groups_without_overlap = {}
 
     for group_id in group_ids:
         x_max = groups[group_id]["xMax"]
         x_min = groups[group_id]["xMin"]
-
         y_max = groups[group_id]["yMax"]
         y_min = groups[group_id]["yMin"]
 
@@ -333,8 +332,7 @@ def adjust_overlapping_groups(groups):
                 poly.AddGeometry(ring)
 
                 # add info to groups_dict
-
-                raw_groups[group_id] = {
+                groups_without_overlap[group_id] = {
                     "xMin": str(x_min),
                     "xMax": str(int(new_x_max) - 1),
                     "yMin": str(y_min),
@@ -342,12 +340,13 @@ def adjust_overlapping_groups(groups):
                     "group_polygon": poly,
                 }
 
-        print(overlap_count)
+        # print(overlap_count)
 
         if overlap_count == 0:
-            raw_groups[group_id_b] = groups[group_id_b]
+            groups_without_overlap[group_id] = groups[group_id]
 
-    return raw_groups
+    print(len(groups_without_overlap))
+    return groups_without_overlap
 
 
 def extent_to_slices(infile, zoom, groupSize):
