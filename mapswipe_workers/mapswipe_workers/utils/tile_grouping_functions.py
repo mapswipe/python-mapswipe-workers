@@ -1,6 +1,5 @@
 import math
 from osgeo import ogr
-
 from mapswipe_workers.definitions import logger
 from mapswipe_workers.utils import tile_functions as t
 
@@ -280,11 +279,83 @@ def get_vertical_slice(slice_infos, zoom, width_threshold=40):
     return raw_groups
 
 
-def adjust_overlapping_groups(groups):
+def remove_groups_within_other_groups(groups, zoom):
+    def a_within_b():
+        # b is bigger/wider than a
+        # TODO: find correct expression
+        return (
+            (int(x_max) <= int(x_maxB))
+            and (int(x_min) >= int(x_minB))
+            and (int(y_min) <= int(y_maxB))
+            and (int(y_minB) <= int(y_max))
+        )
+
+    def b_within_a():
+        # a is bigger/wider than b
+        return (
+            (int(x_maxB) <= int(x_max))
+            and (int(x_minB) >= int(x_min))
+            and (int(y_min) <= int(y_maxB))
+            and (int(y_minB) <= int(y_max))
+        )
+
+    counter = 0
+    for group_id in list(groups.keys()):
+
+        # skip if groups has been removed already
+        if group_id not in groups.keys():
+            continue
+
+        x_max = groups[group_id]["xMax"]
+        x_min = groups[group_id]["xMin"]
+        y_max = groups[group_id]["yMax"]
+        y_min = groups[group_id]["yMin"]
+
+        counter = 0
+        for group_id_b in list(groups.keys()):
+            # skip if it is the same group
+            if group_id_b == group_id:
+                continue
+
+            y_minB = groups[group_id_b]["yMin"]
+            y_maxB = groups[group_id_b]["yMax"]
+            x_maxB = groups[group_id_b]["xMax"]
+            x_minB = groups[group_id_b]["xMin"]
+
+            if a_within_b():
+                counter += 1
+                # remove group a and break
+                del groups[group_id]
+                break
+
+            elif b_within_a():
+                counter += 1
+                # remove group b and continue
+                del groups[group_id_b]
+                continue
+
+    return groups
+
+
+def adjust_overlapping_groups(groups, zoom):
+    def groups_intersect():
+        # returns True if groups intersect
+        return (
+            (int(x_min) <= int(x_maxB))
+            and (int(x_minB) <= int(x_max))
+            and (int(y_min) <= int(y_maxB))
+            and (int(y_minB) <= int(y_max))
+        )
 
     groups_without_overlap = {}
+    overlaps_total = 0
 
     for group_id in list(groups.keys()):
+
+        # skip if groups has been removed already
+        if group_id not in groups.keys():
+            continue
+
         x_max = groups[group_id]["xMax"]
         x_min = groups[group_id]["xMin"]
         y_max = groups[group_id]["yMax"]
@@ -301,27 +372,31 @@ def adjust_overlapping_groups(groups):
             x_maxB = groups[group_id_b]["xMax"]
             x_minB = groups[group_id_b]["xMin"]
 
-            # content from range_overlap
-            if (
-                (int(x_min) <= int(x_maxB))
-                and (int(x_minB) <= int(x_max))
-                and (int(y_min) <= int(y_maxB))
-                and (int(y_minB) <= int(y_max))
-            ):
+            if groups_intersect():
                 overlap_count += 1
-                new_x_max = int(x_minB) + 1
+
+                # define new x_min and x_max
+
+                # add info to groups_dict
+                # depending on intersection x_min or x_max need to change
+                if x_max >= x_minB:  # intersection on left side
+                    new_x_min = int(x_min)
+                    new_x_max = int(x_minB) - 1
+                elif x_min <= x_maxB:  # intersection on right side
+                    new_x_min = int(x_maxB) + 1
+                    new_x_max = int(x_max)
 
                 # Calculate lat, lon of upper left corner of tile
-                PixelX = int(x_min) * 256
+                PixelX = int(new_x_min) * 256
                 PixelY = (int(y_max) + 1) * 256
-                lon_left, lat_top = t.pixel_coords_zoom_to_lat_lon(PixelX, PixelY, 18)
+                lon_left, lat_top = t.pixel_coords_zoom_to_lat_lon(PixelX, PixelY, zoom)
                 # logging.info('lon_left: %s, lat_top: %s' % (lon_left, lat_top))
 
                 # Calculate lat, lon of bottom right corner of tile
-                PixelX = (int(new_x_max) - 1) * 256
-                PixelY = (int(y_min)) * 256
+                PixelX = (int(new_x_max) + 1) * 256
+                PixelY = int(y_min) * 256
                 lon_right, lat_bottom = t.pixel_coords_zoom_to_lat_lon(
-                    PixelX, PixelY, 18
+                    PixelX, PixelY, zoom
                 )
 
                 # Create Geometry
@@ -334,12 +409,11 @@ def adjust_overlapping_groups(groups):
                 poly = ogr.Geometry(ogr.wkbPolygon)
                 poly.AddGeometry(ring)
 
-                # add info to groups_dict
                 groups_without_overlap[group_id] = {
-                    "xMin": str(x_min),
-                    "xMax": str(int(new_x_max) - 1),
+                    "xMin": str(new_x_min),
+                    "xMax": str(new_x_max),
                     "yMin": str(y_min),
-                    "yMax": str(int(y_max) + 1),
+                    "yMax": str(y_max),
                     "group_polygon": poly,
                 }
 
@@ -347,8 +421,10 @@ def adjust_overlapping_groups(groups):
             groups_without_overlap[group_id] = groups[group_id]
 
         del groups[group_id]
+        overlaps_total += overlap_count
 
-    return groups_without_overlap
+    print(f"overlaps_total: {overlaps_total}")
+    return groups_without_overlap, overlaps_total
 
 
 def extent_to_slices(infile, zoom, groupSize):
@@ -378,6 +454,10 @@ def extent_to_slices(infile, zoom, groupSize):
 
     # then get vertical slices --> columns
     raw_groups_dict = get_vertical_slice(horizontal_slice_infos, zoom, groupSize)
+
+    # finally remove overlapping groups
+    # TODO: add this line once properly working
+    # groups_dict, overlaps_total = adjust_overlapping_groups(raw_groups_dict, zoom)
 
     return raw_groups_dict
 
