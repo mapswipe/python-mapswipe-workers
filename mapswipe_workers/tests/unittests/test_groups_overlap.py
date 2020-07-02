@@ -20,6 +20,9 @@ class TestGroupsOverlap(unittest.TestCase):
         )
         t.save_vertical_slices_as_geojson(groups, "groups.geojson")
 
+        # we expect 117 groups
+        self.assertEqual(len(groups), 117)
+
 
 if __name__ == "__main__":
     unittest.main()
