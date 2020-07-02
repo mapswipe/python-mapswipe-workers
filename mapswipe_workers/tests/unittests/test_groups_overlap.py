@@ -41,7 +41,7 @@ class TestGroupsOverlap(unittest.TestCase):
         # save files for visual inspection in qgis
         t.save_vertical_slices_as_geojson(groups, "groups.geojson")
 
-        # we expect 117 groups
+        # we expect 64 groups
         self.assertEqual(len(groups), 64)
 
 
