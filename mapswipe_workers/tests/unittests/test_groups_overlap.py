@@ -12,12 +12,13 @@ class TestGroupsOverlap(unittest.TestCase):
 
     def test_adjust_groups_overlap(self):
         groups_with_overlaps = t.extent_to_slices(self.project_extent_file, 18, 100)
-        groups = t.adjust_overlapping_groups(groups_with_overlaps)
-
-        # save files for visual inspection in qgis
         t.save_vertical_slices_as_geojson(
             groups_with_overlaps, "groups_with_overlaps.geojson"
         )
+
+        groups = t.adjust_overlapping_groups(groups_with_overlaps)
+
+        # save files for visual inspection in qgis
         t.save_vertical_slices_as_geojson(groups, "groups.geojson")
 
         # we expect 117 groups

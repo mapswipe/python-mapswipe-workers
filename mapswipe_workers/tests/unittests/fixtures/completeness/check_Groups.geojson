@@ -1,6 +1,6 @@
 {
 "type": "FeatureCollection",
-"name": "fixtures\/completeness\/check_Groups.geojson",
+"name": "\/home\/h9b\/GIT_REPOS\/python-mapswipe-workers\/mapswipe_workers\/tests\/unittests\/fixtures\/completeness\/check_Groups.geojson",
 "features": [
 { "type": "Feature", "properties": { "group_id": "g217", "xmin": 140716, "xmax": 140770, "ymin": 122452, "ymax": 122454 }, "geometry": { "type": "Polygon", "coordinates": [ [ [ 13.2440185546875, 11.754436756202466, 0.0 ], [ 13.319549560546875, 11.754436756202466, 0.0 ], [ 13.319549560546875, 11.750403248589137, 0.0 ], [ 13.2440185546875, 11.750403248589137, 0.0 ], [ 13.2440185546875, 11.754436756202466, 0.0 ] ] ] } },
 { "type": "Feature", "properties": { "group_id": "g119", "xmin": 140586, "xmax": 140660, "ymin": 122389, "ymax": 122392 }, "geometry": { "type": "Polygon", "coordinates": [ [ [ 13.06549072265625, 11.835094475418842, 0.0 ], [ 13.1671142578125, 11.835094475418842, 0.0 ], [ 13.1671142578125, 11.839126738255743, 0.0 ], [ 13.06549072265625, 11.839126738255743, 0.0 ], [ 13.06549072265625, 11.835094475418842, 0.0 ] ] ] } },

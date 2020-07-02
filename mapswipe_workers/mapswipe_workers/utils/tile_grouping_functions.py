@@ -281,18 +281,21 @@ def get_vertical_slice(slice_infos, zoom, width_threshold=40):
 
 
 def adjust_overlapping_groups(groups):
-    group_ids = list(groups.keys())
+
     groups_without_overlap = {}
 
-    for group_id in group_ids:
+    for group_id in list(groups.keys()):
         x_max = groups[group_id]["xMax"]
         x_min = groups[group_id]["xMin"]
         y_max = groups[group_id]["yMax"]
         y_min = groups[group_id]["yMin"]
 
-        group_ids.remove(group_id)
         overlap_count = 0
-        for group_id_b in group_ids:
+        for group_id_b in list(groups.keys()):
+            # skip if it is the same group
+            if group_id_b == group_id:
+                continue
+
             y_minB = groups[group_id_b]["yMin"]
             y_maxB = groups[group_id_b]["yMax"]
             x_maxB = groups[group_id_b]["xMax"]
@@ -340,12 +343,11 @@ def adjust_overlapping_groups(groups):
                     "group_polygon": poly,
                 }
 
-        # print(overlap_count)
-
         if overlap_count == 0:
             groups_without_overlap[group_id] = groups[group_id]
 
-    print(len(groups_without_overlap))
+        del groups[group_id]
+
     return groups_without_overlap
 
 
