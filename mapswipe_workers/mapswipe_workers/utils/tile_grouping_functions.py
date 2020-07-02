@@ -273,6 +273,7 @@ def get_vertical_slice(slice_infos, zoom, width_threshold=40):
             }
 
             #####################
+            # TODO what does the line below exactly do?
             TileX = TileX + step_size
 
     logger.info("created vertical_slice")
