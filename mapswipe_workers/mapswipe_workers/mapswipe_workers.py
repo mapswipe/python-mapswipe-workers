@@ -75,6 +75,15 @@ def run_create_projects():
         try:
             # Create a project object using appropriate class (project type).
             project = ProjectType(project_type).constructor(project_draft)
+            # TODO: here the project.geometry attribute is overwritten
+            #  this is super confusing since it's not a geojson anymore
+            #  but this is what we set initially,
+            #  e.g. in tile_map_service_grid/project.py
+            #  project.geometry is set to a list of wkt geometries now
+            #  this can't be handled in postgres,
+            #  postgres expects just a string not an array
+            #  validated_geometries should be called during init already
+            #  for the respective project types
             project.geometry = project.validate_geometries()
             project.create_groups()
             project.calc_required_results()
