@@ -38,6 +38,7 @@ class TestGroupsOverlap(unittest.TestCase):
         # we expect 117 groups
         self.assertEqual(len(groups_2), 117)
 
+    '''
     def test_project_geometries_within(self):
         zoom = 18
         project_extent_file = os.path.join(
@@ -93,6 +94,7 @@ class TestGroupsOverlap(unittest.TestCase):
         # we expect 64 groups
         #self.assertEqual(len(groups), 64)
     """
+'''
 
 
 if __name__ == "__main__":

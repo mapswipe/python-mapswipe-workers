@@ -21,6 +21,7 @@ class Project(BaseProject):
         # get TileServerB for change detection and completeness type
         if self.project_type in [3, 4]:
             self.tileServerB = vars(BaseTileServer(project_draft["tileServerB"]))
+        print(self.geometry)
 
     def validate_geometries(self):
         raw_input_file = (

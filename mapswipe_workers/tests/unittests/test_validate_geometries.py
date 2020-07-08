@@ -25,7 +25,6 @@ class TestGeometryValidation(unittest.TestCase):
         path = os.path.join(test_dir, "fixtures/completeness/multiplePolygons.geojson")
         driver = ogr.GetDriverByName("GeoJSON")
         data_source = driver.Open(path, 0)
-
         wkt_geometries_expected = []
         # Get the data layer
         layer = data_source.GetLayer()
@@ -35,7 +34,6 @@ class TestGeometryValidation(unittest.TestCase):
 
         # results coming from the validate geometries function
         wkt = project.validate_geometries()
-        # Test that sequence first contains the same elements as second
         self.assertCountEqual(wkt, wkt_geometries_expected)
 
     def test_single_geom_validation(self):
