@@ -14,6 +14,7 @@ class Project(BaseProject):
         super().__init__(project_draft)
         self.project_type = project_draft["projectType"]
         self.groupSize = project_draft["groupSize"]
+        # Note: this will be overwritten by validate_geometry in mapswipe_workers.py
         self.geometry = project_draft["geometry"]
         self.zoomLevel = int(project_draft.get("zoomLevel", 18))
         self.tileServer = vars(BaseTileServer(project_draft["tileServer"]))
@@ -21,7 +22,6 @@ class Project(BaseProject):
         # get TileServerB for change detection and completeness type
         if self.project_type in [3, 4]:
             self.tileServerB = vars(BaseTileServer(project_draft["tileServerB"]))
-        print(self.geometry)
 
     def validate_geometries(self):
         raw_input_file = (
@@ -69,7 +69,7 @@ class Project(BaseProject):
             raise CustomError(f"Input file contains more than 10 geometries. ")
 
         project_area = 0
-        wkt_geometries = []
+        geometry_collection = ogr.Geometry(ogr.wkbGeometryCollection)
         # check if the input geometry is a valid polygon
         for feature in layer:
             feat_geom = feature.GetGeometryRef()
@@ -94,9 +94,8 @@ class Project(BaseProject):
                 )
                 raise CustomError(f"Invalid geometry type: {geom_name}. ")
 
-            # get geometry as wkt
-            wkt_geometry = feat_geom.ExportToWkt()
-            wkt_geometries.append(wkt_geometry)
+            # add geometry to geometry collection
+            geometry_collection.AddGeometry(feat_geom)
 
             # check size of project make sure its smaller than  5,000 sqkm
             # for doing this we transform the geometry
@@ -135,12 +134,13 @@ class Project(BaseProject):
         del layer
 
         self.validInputGeometries = raw_input_file
+        wkt_geometry_collection = geometry_collection.ExportToWkt()
 
         logger.info(
             f"{self.projectId}" f" - validate geometry - " f"input geometry is correct."
         )
 
-        return wkt_geometries
+        return wkt_geometry_collection
 
     def create_groups(self):
         """

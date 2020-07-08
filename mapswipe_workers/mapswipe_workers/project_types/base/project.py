@@ -224,7 +224,7 @@ class BaseProject(metaclass=ABCMeta):
             VALUES (
               %s  -- created
               ,%s  -- createdBy
-              ,ST_Force2D(ST_Collect(ST_Multi(ST_GeomFromText(%s, 4326)))) -- geometry
+              ,ST_Force2D(ST_GeomFromText(%s, 4326)) -- geometry
               ,%s  -- image
               ,%s  -- isFeatured
               ,%s  -- lookFor
@@ -327,7 +327,7 @@ class BaseProject(metaclass=ABCMeta):
               project_id,
               group_id,
               task_id,
-              ST_Force2D(ST_Collect(ST_Multi(ST_GeomFromText(%s, 4326)))),
+              ST_Force2D(ST_Multi(ST_GeomFromText(geom, 4326))),
               project_type_specifics
             FROM raw_tasks;
             DROP TABLE IF EXISTS raw_tasks CASCADE;
