@@ -22,7 +22,7 @@ from mapswipe_workers.firebase_to_postgres import (
     update_data,
 )
 from mapswipe_workers.generate_stats import generate_stats
-from mapswipe_workers.utils import user_management
+from mapswipe_workers.utils import user_management, team_management
 from mapswipe_workers.utils.create_directories import create_directories
 from mapswipe_workers.utils.slack_helper import (
     send_progress_notification,
@@ -155,6 +155,60 @@ def run_user_management(email, manager) -> None:
             user_management.remove_project_manager_rights(email)
     except Exception:
         logger.exception("grant user credentials failed")
+        sentry.capture_exception()
+
+
+@cli.command("team-management")
+@click.option(
+    "--team_name",
+    "-n",
+    help=f"The name of the team in Firebase for creation.",
+    type=str,
+)
+@click.option("--team_id", "-i", help=f"The id of the team in Firebase.", type=str)
+@click.option(
+    "--action",
+    "-a",
+    help=(
+        f"You can either create, delete teams or renew the teamToken. " f"choices here"
+    ),
+    type=click.Choice(["create", "delete", "renew-team-token"]),
+)
+def run_team_management(team_name, team_id, action) -> None:
+    """Create, Delete Teams or Renew TeamToken."""
+    try:
+        if action == "create":
+            if not team_name:
+                click.echo("Missing argument: --team_name")
+                return None
+            else:
+                team_management.create_team(team_name)
+        elif action == "delete":
+            if not team_id:
+                click.echo("Missing argument: --team_id")
+                return None
+            else:
+                click.echo(
+                    f"Do you want to delete the team with the id: {team_id}? [y/n] ",
+                    nl=False,
+                )
+                click.echo()
+                c = click.getchar()
+                if c == "y":
+                    click.echo("Start deletion")
+                    team_management.delete_team(team_id)
+                elif c == "n":
+                    click.echo("Abort!")
+                else:
+                    click.echo("Invalid input")
+        elif action == "renew-team-token":
+            if not team_id:
+                click.echo("Missing argument: --team_id")
+                return None
+            else:
+                team_management.renew_team_token(team_id)
+    except Exception:
+        logger.exception("team management failed")
         sentry.capture_exception()
 
 
