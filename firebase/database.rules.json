@@ -43,6 +43,13 @@
         ".write": false,
         ".read": true
       },
+      "teams": {
+        ".write": "auth.token.projectManager === true",
+        ".read": "auth.token.projectManager === true",
+        ".indexOn": [
+          "teamName"
+        ]
+      },
       "results": {
         ".write": false,
         ".read": false,
@@ -56,11 +63,33 @@
       },
       "users": {
         ".read": true,
+        ".write": false,
         "$uid": {
-          ".write": "auth != null && auth.uid == $uid"
+          "username": {
+            ".write": "auth != null && auth.uid == $uid"
+          },
+          "created": {
+            ".write": "auth != null && auth.uid == $uid"
+          },
+          "lastAppUse": {
+            ".write": "auth != null && auth.uid == $uid"
+          },
+          "projectContributionCount": {
+            ".write": "auth != null && auth.uid == $uid"
+          },
+          "groupContributionCount": {
+            ".write": "auth != null && auth.uid == $uid"
+          },
+          "taskContributionCount": {
+            ".write": "auth != null && auth.uid == $uid"
+          },
+          "teamId": {
+            ".write": false
+          }
         },
         ".indexOn": [
-          "created"
+          "created",
+          "teamId"
         ]
       }
     },
