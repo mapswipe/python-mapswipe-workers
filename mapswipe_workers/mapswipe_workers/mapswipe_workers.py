@@ -135,24 +135,37 @@ def run_generate_stats_all_projects() -> None:
 
 @cli.command("user-management")
 @click.option(
-    "--email", help=(f"The email of the MapSwipe user."), required=True, type=str
+    "--email", help=f"The email of the MapSwipe user.", required=True, type=str
 )
+@click.option("--team_id", "-i", help=f"The id of the team in Firebase.", type=str)
 @click.option(
-    "--manager",
-    help=("Use true to grant credentials. Use false to remove credentials."),
-    type=bool,
+    "--action",
+    "-a",
+    help=(
+        f"You can either create, delete teams or renew the teamToken. " f"choices here"
+    ),
+    type=click.Choice(
+        ["add-manager-rights", "remove-manager-right", "add-team", "remove-team"]
+    ),
 )
-def run_user_management(email, manager) -> None:
+def run_user_management(email, action, team_id) -> None:
     """
     Manage project manager credentials
 
     Grant or remove credentials.
     """
     try:
-        if manager:
+        if action == "add-manager-rights":
             user_management.set_project_manager_rights(email)
-        elif not manager:
+        elif action == "remove-manager-rights":
             user_management.remove_project_manager_rights(email)
+        elif action == "add-team":
+            if not team_id:
+                click.echo("Missing argument: --team_id")
+                return None
+            user_management.add_team(email, team_id)
+        elif action == "remove-team":
+            user_management.remove_team(email)
     except Exception:
         logger.exception("grant user credentials failed")
         sentry.capture_exception()
