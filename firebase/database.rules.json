@@ -19,7 +19,7 @@
           }
         },
         ".indexOn": [
-            "status", "isFeatured"
+            "status", "isFeatured", "teamId"
           ]
       },
       "projectDrafts": {

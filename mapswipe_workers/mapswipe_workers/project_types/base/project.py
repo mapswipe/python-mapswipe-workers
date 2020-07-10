@@ -66,11 +66,17 @@ class BaseProject(metaclass=ABCMeta):
         self.projectId = project_draft["projectDraftId"]
         self.projectType = int(project_draft["projectType"])
         self.verificationNumber = project_draft["verificationNumber"]
-        self.status = "inactive"
         self.projectTopic = project_draft.get("projectTopic", None)
         self.projectRegion = project_draft.get("projectRegion", None)
         self.projectNumber = project_draft.get("projectNumber", None)
         self.requestingOrganisation = project_draft.get("requestingOrganisation", None)
+        self.teamId = project_draft.get("teamId", None)
+        if not self.teamId:
+            self.status = "inactive"  # this is a public project
+        else:
+            self.status = (
+                "privat_inactive"  # private project visible only for team members
+            )
 
     # TODO: Implement resultRequiredCounter as property.
     # Does not work because for some reason project['group'] = vars()
