@@ -40,6 +40,8 @@ function getTeamMembers() {
     var teamId = this.id
 
     var tableRef = $("#teamMembersTable").DataTable();
+    // remove all existing rows
+    tableRef.clear();
     var rows = []
 
     var TeamsRef = firebase.database().ref("v2/users").orderByChild("teamId").equalTo(teamId);;
