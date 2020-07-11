@@ -3,21 +3,141 @@ function addEventListeners(status) {
   $("#projectsTable-"+status).on('click', '.change-isFeatured', changeProjectIsFeatured);
 }
 
-function getProjects(status) {
-  console.log('start get project status')
-  var ProjectsRef = firebase.database().ref("v2/projects").orderByChild("status").equalTo(status);
+function getTeams() {
+    var teams = {}
+    var TeamsRef = firebase.database().ref("v2/teams");
+    TeamsRef.once('value', function(snapshot){
+        if(snapshot.exists()){
+            snapshot.forEach(function(data){
+                teams[data.key] = {
+                    "teamName": data.val().teamName
+                    }
+                })
+            }
+        })
+    console.log("got teams from firebase")
+    return teams
+}
 
-  var tableRef = $("#projectsTable-"+status).DataTable();
-  var rows = []
+
+function getProjects(status) {
+  console.log('start download projects from firebase')
+  var teams = getTeams()
+  var projects =  []
+  var ProjectsRef = firebase.database().ref("v2/projects").orderByChild("status").equalTo(status);
   ProjectsRef.once('value', function(snapshot){
     if(snapshot.exists()){
         snapshot.forEach(function(data){
+            info = {
+                    "projectId": data.key,
+                    "name": data.val().name,
+                    "projectType": data.val().projectType,
+                    "progress": data.val().progress
+                    }
+
+            // set visibility based on status
+            switch (status) {
+                case "active":
+                case "inactive":
+                case "finished":
+                    info["visibility"] = "public";
+                    break;
+                case "private_active":
+                case "private_inactive":
+                case "private_finished":
+                    info["visibility"] = teams[data.val().teamId]["teamName"];
+                    break;
+            }
+            projects.push(info)
+        })
+    }
+  })
+
+  return projects
+}
+
+
+function addProjectToTable(status){
+    // init basic structure
+    var tableRef = $("#projectsTable-"+status).DataTable();
+    var rows = []
+
+    // get projects based on status
+    switch (status) {
+        case "active":
+            // get active and private_active projects
+            public_projects = getProjects("active")
+            private_projects = getProjects("private_active")
+            merged_projects = {public_projects, private_projects};
+            break;
+        case "inactive":
+            // get inactive and private inactive projects
+            public_projects = getProjects("inactive")
+            private_projects = getProjects("private_inactive")
+            break;
+        case "finished":
+            // get finished and private finished projects
+            public_projects = getProjects("finished")
+            private_projects = getProjects("private_finished")
+            merged_projects = {public_projects, private_projects};
+            break;
+        case "archived":
+            // for archived projects we do not distinguish public or private
+            public_projects = getProjects("archived")
+            private_projects = {}
+            break;
+    }
+
+    console.log(public_projects)
+    console.log(public_projects.length)
+
+    for (var i = 0; i < public_projects.length; i++) {
+        console.log(public_projects[i]);
+        //Do something
+        console.log('hey')
+    }
+
+
+
+
+}
+
+
+    /*
+
+
+    $('.dataTables_length').addClass('bs-select');
+    console.log('added data table styles')
+
+
+            /*
+                })
+            projectId = data.key
+            var projectStatus = data.val().status
 
             row_array = []
-            row_array.push(data.key)
-            row_array.push(data.val().name)
-            row_array.push(data.val().projectType)
-            row_array.push(data.val().progress + "%")
+            row_array.push(projectId)
+            row_array.push(data.val().name)  // set project name
+            row_array.push("Public")  // set visibility
+            row_array.push(data.val().projectType)  // set project type
+            row_array.push(data.val().progress + "%")  // set project progress
+
+            // set visibility based on status
+            switch (projectStatus) {
+                case "active":
+                case "inactive":
+                case "finished":
+                    visibility = "public";
+                    console.log("public");
+                    break;
+                case "private_active":
+                case "private_inactive":
+                case "private_finished":
+                    console.log(teams)
+                    //console.log(data.val().teamId)
+                    //console.log(data.val())
+                    //visibility = teams[data.val().teamId]["teamName"]
+            }
 
             if (data.val().status == "inactive") {
               btn1 = addButton(data.key, data.val().status, "active")
@@ -54,6 +174,8 @@ function getProjects(status) {
                 row_array.push(row_val + btn.outerHTML)
             }
 
+
+
             rows.push(row_array)
             tableRef.row.add(row_array).draw( false )
         });
@@ -61,9 +183,19 @@ function getProjects(status) {
     $('.dataTables_length').addClass('bs-select');
     console.log('added data table styles')
   });
+  */
 
 
-}
+/*
+function addProjectToTable(status):
+    var tableRef = $("#projectsTable-"+status).DataTable();
+    var rows = []
+
+
+    $('.dataTables_length').addClass('bs-select');
+    console.log('added data table styles')
+
+*/
 
 function addButton(id, oldStatus, newStatus){
   btn = document.createElement('button')
@@ -148,9 +280,12 @@ function changeProjectIsFeatured() {
 
 
 status_array = ["active", "inactive", "finished", "archived"]
+status_array = ["inactive"]
 
   for (var i = 0; i < status_array.length; i++) {
     status = status_array[i]
-    getProjects(status)
+
+    addProjectToTable(status)
+    //getProjects(status)
     addEventListeners(status)
   }
