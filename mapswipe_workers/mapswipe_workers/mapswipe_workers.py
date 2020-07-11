@@ -185,7 +185,9 @@ def run_user_management(email, action, team_id) -> None:
     help=(
         f"You can either create, delete teams or renew the teamToken. " f"choices here"
     ),
-    type=click.Choice(["create", "delete", "renew-team-token"]),
+    type=click.Choice(
+        ["create", "delete", "renew-team-token", "remove-all-team-members"]
+    ),
 )
 def run_team_management(team_name, team_id, action) -> None:
     """Create, Delete Teams or Renew TeamToken."""
@@ -220,6 +222,25 @@ def run_team_management(team_name, team_id, action) -> None:
                 return None
             else:
                 team_management.renew_team_token(team_id)
+        elif action == "remove-all-team-members":
+            if not team_id:
+                click.echo("Missing argument: --team_id")
+                return None
+            else:
+                click.echo(
+                    f"Do you want to remove all users from "
+                    f"the team with the id: {team_id}? [y/n] ",
+                    nl=False,
+                )
+                click.echo()
+                c = click.getchar()
+                if c == "y":
+                    click.echo("Start remove all team members")
+                    team_management.remove_all_team_members(team_id)
+                elif c == "n":
+                    click.echo("Abort!")
+                else:
+                    click.echo("Invalid input")
     except Exception:
         logger.exception("team management failed")
         sentry.capture_exception()

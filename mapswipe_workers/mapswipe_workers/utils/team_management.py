@@ -4,6 +4,44 @@ from mapswipe_workers.auth import firebaseDB
 from mapswipe_workers.definitions import logger, CustomError
 
 
+def remove_all_team_members(team_id):
+    """Remove teamId attribute for all users of the team."""
+    fb_db = firebaseDB()  # noqa E841
+    try:
+        # check if team exist in firebase
+        if not fb_db.reference(f"v2/teams/{team_id}").get():
+            raise CustomError(f"can't find team in firebase: {team_id}")
+
+        # get team name from firebase
+        team_name = fb_db.reference(f"v2/teams/{team_id}/teamName").get()
+
+        # generate random uuid4 token
+        team_members = (
+            fb_db.reference(f"v2/users/")
+            .order_by_child("teamId")
+            .equal_to(team_id)
+            .get()
+        )
+
+        # remove teamId attribute for each members
+        if not team_members:
+            logger.info(f"there are no members of the team {team_id} - '{team_name}'")
+        else:
+            for user_id in team_members.keys():
+                # update data in firebase
+                ref = fb_db.reference(f"v2/users/{user_id}/")
+                ref.update({"teamId": None})
+                logger.info(
+                    f"removed teamId {team_id} - '{team_name}' for user {user_id}"
+                )
+            logger.info(
+                f"removed all team members from team: {team_id} - '{team_name}'"
+            )
+    except Exception as e:
+        logger.info(f"could not create team: {team_name}")
+        raise CustomError(e)
+
+
 def create_team(team_name):
     """Create new team in Firebase."""
     fb_db = firebaseDB()  # noqa E841
@@ -25,11 +63,15 @@ def delete_team(team_id):
     """Delete team in Firebase."""
     # TODO: What is the consequence of this on projects and users
     #   do we expect that the teamId is removed there as well?
+    #   teamId is removed for users, but not for projects at the moment
     fb_db = firebaseDB()  # noqa E841
     try:
         # check if team exist in firebase
         if not fb_db.reference(f"v2/teams/{team_id}").get():
             raise CustomError(f"can't find team in firebase: {team_id}")
+
+        # remove all team members
+        remove_all_team_members(team_id)
 
         # get team name from firebase
         team_name = fb_db.reference(f"v2/teams/{team_id}/teamName").get()
