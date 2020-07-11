@@ -75,7 +75,7 @@ class BaseProject(metaclass=ABCMeta):
             self.status = "inactive"  # this is a public project
         else:
             self.status = (
-                "privat_inactive"  # private project visible only for team members
+                "private_inactive"  # private project visible only for team members
             )
 
     # TODO: Implement resultRequiredCounter as property.
