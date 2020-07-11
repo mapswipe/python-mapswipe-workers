@@ -147,7 +147,6 @@ function getProjects(status) {
 
             rows.push(row_array)
             tableRef.row.add(row_array).draw( false )
-            //projects.push(info)
         })
     }
   })
