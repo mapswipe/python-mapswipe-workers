@@ -175,7 +175,7 @@ def add_team(email, team_id):
         except auth.UserNotFoundError:
             raise CustomError(f"can't find user in firebase: {email}")
 
-        # set team token in firebase
+        # set teamId attribute for user in firebase
         ref = fb_db.reference(f"v2/users/{user.uid}")
         ref.update({"teamId": team_id})
         logger.info(f"added teamId {team_id} for user {email} - {user.uid}.")

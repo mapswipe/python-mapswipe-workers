@@ -142,7 +142,9 @@ def run_generate_stats_all_projects() -> None:
     "--action",
     "-a",
     help=(
-        f"You can either create, delete teams or renew the teamToken. " f"choices here"
+        f"You can either add, remove manager-rights or "
+        f"add, remove user to/from a team. "
+        f"choices here"
     ),
     type=click.Choice(
         ["add-manager-rights", "remove-manager-right", "add-team", "remove-team"]
