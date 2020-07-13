@@ -54,6 +54,7 @@ def create_team(team_name):
         team_ref = ref.push()
         team_ref.set({"teamName": team_name, "teamToken": team_token})
         logger.info(f"created team: {team_ref.key} - '{team_name}' - {team_token}")
+        return team_ref.key, team_token
     except Exception as e:
         logger.info(f"could not create team: {team_name}")
         raise CustomError(e)
@@ -118,6 +119,7 @@ def renew_team_token(team_id):
         # set team token in firebase
         ref.update({"teamToken": new_team_token})
         logger.info(f"renewed team token: {team_id} - '{team_name}' - {new_team_token}")
+        return new_team_token
 
     except Exception as e:
         logger.info(f"could not delete team: {team_id}")
