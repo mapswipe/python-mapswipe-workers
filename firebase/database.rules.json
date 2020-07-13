@@ -91,56 +91,12 @@
         ]
       }
     },
-    "groups": {
-      ".write": false,
-      ".read": true,
-      "$project_id": {
-        "$group_id": {
-          ".indexOn": [
-            "distributedCount",
-            "completedCount"
-          ],
-          ".write": "auth != null",
-          "completedCount": {
-            ".write": "auth != null"
-          }
-        },
-        ".indexOn": [
-          "distributedCount",
-          "completedCount"
-        ]
-      }
-    },
-    "imports": {
-      ".read": false,
-      ".write": true,
-      ".indexOn": [
-        "complete"
-      ]
-    },
-    "projects": {
-      ".write": false,
-      ".read": true
-    },
-    "announcement": {
-      ".write": true,
-      ".read": true
-    },
-    "results": {
-      ".write": false,
-      ".read": true,
-      "$task_id": {
-        "$user_id": {
-          ".write": "auth != null && auth.uid == $user_id"
-        }
-      }
-    },
+    // leaving this here, since version before v2 pull data from there
     "users": {
       "$uid": {
         ".read": "auth != null && auth.uid == $uid",
         ".write": "auth != null && auth.uid == $uid"
-      },
-      ".read": true
+      }
     }
   }
 }
