@@ -5,17 +5,20 @@
     "v2": {
       "announcement": {
         ".write": false,
-        ".read": true
+        ".read": "auth != null"
       },
       "projects": {
-        ".write": false,
-        ".read": "auth != null",
+        // project managers can read/write all attributes
+        ".write": "auth.token.projectManager === true",
+        ".read": "auth.token.projectManager === true",
         "$project_id": {
-          "status": {
-            ".write": "auth.token.projectManager === true"
+          "teamId": {
+            // only team members can read
+            ".read": "root.child('/v2/users/'+auth.uid+'/teamId').val() === data.val()"
           },
-          "isFeatured": {
-            ".write": "auth.token.projectManager === true"
+          "$other": {
+            // all users can read, project managers can write
+            ".read": "auth != null"
           }
         },
         ".indexOn": [
@@ -23,6 +26,7 @@
           ]
       },
       "projectDrafts": {
+        // only project managers can write projectDrafts
         ".read": false,
         ".write": "auth.token.projectManager === true",
         ".indexOn": [
@@ -30,8 +34,9 @@
         ]
       },
       "groups": {
+        // users can read tasks, nobody can write
         ".write": false,
-        ".read": true,
+        ".read": "auth != null",
         "$project_id": {
           ".indexOn": [
             "finishedCount",
@@ -40,15 +45,23 @@
         }
       },
       "tasks": {
+        // users can read tasks, nobody can write
         ".write": false,
-        ".read": true
+        ".read": "auth != null"
       },
       "teams": {
-        ".write": "auth.token.projectManager === true",
-        ".read": "auth.token.projectManager === true",
-        ".indexOn": [
-          "teamName"
-        ]
+        "$teamId": {
+          // project managers can read/write all attributes
+          ".write": "auth.token.projectManager === true",
+          ".read": "auth.token.projectManager === true",
+          "teamName": {
+            // team members read teamName
+            ".read": "(root.child('/v2/users/'+auth.uid+'/teamId').val() === $teamId) || (auth.token.projectManager === true)"
+          },
+          ".indexOn": [
+            "teamName"
+          ]
+        }
       },
       "results": {
         ".write": false,
