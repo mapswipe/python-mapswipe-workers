@@ -56,7 +56,7 @@
           ".read": "auth.token.projectManager === true",
           "teamName": {
             // team members read teamName
-            ".read": "(root.child('/v2/users/'+auth.uid+'/teamId').val() === $teamId) || (auth.token.projectManager === true)"
+            ".read": "(root.child('/v2/users/'+auth.uid+'/teamId').val() === $teamId)"
           },
           ".indexOn": [
             "teamName"
