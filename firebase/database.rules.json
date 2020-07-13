@@ -81,7 +81,7 @@
           "teamId": {
             ".write": false
           },
-          "$other" {
+          "$other": {
             ".write": "auth != null && auth.uid == $uid"
           }
         },
