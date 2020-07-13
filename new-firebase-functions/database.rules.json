@@ -78,26 +78,11 @@
         ".read": true,
         ".write": false,
         "$uid": {
-          "username": {
-            ".write": "auth != null && auth.uid == $uid"
-          },
-          "created": {
-            ".write": "auth != null && auth.uid == $uid"
-          },
-          "lastAppUse": {
-            ".write": "auth != null && auth.uid == $uid"
-          },
-          "projectContributionCount": {
-            ".write": "auth != null && auth.uid == $uid"
-          },
-          "groupContributionCount": {
-            ".write": "auth != null && auth.uid == $uid"
-          },
-          "taskContributionCount": {
-            ".write": "auth != null && auth.uid == $uid"
-          },
           "teamId": {
             ".write": false
+          },
+          "$other" {
+            ".write": "auth != null && auth.uid == $uid"
           }
         },
         ".indexOn": [
