@@ -160,7 +160,7 @@ def permission_denied(request_object):
             raise HTTPError(e, request_object.text)
 
 
-def add_team(email, team_id):
+def add_user_to_team(email, team_id):
     """Add teamId attribute for user."""
     try:
         fb_db = firebaseDB()  # noqa E841
@@ -185,7 +185,7 @@ def add_team(email, team_id):
         raise CustomError(e)
 
 
-def remove_team(email):
+def remove_user_from_team(email):
     """Remove teamId attribute for user."""
     try:
         fb_db = firebaseDB()  # noqa E841
@@ -201,7 +201,7 @@ def remove_team(email):
 
         # remove teamId attribute for user in firebase
         ref = fb_db.reference(f"v2/users/{user.uid}")
-        ref.update({"teamId": None})
+        ref.update({"teamId": None})  # deletes the teamId attribute in firebase
         logger.info(f"removed teamId {team_id} for user {email} - {user.uid}.")
 
     except Exception as e:

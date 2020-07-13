@@ -165,9 +165,9 @@ def run_user_management(email, action, team_id) -> None:
             if not team_id:
                 click.echo("Missing argument: --team_id")
                 return None
-            user_management.add_team(email, team_id)
+            user_management.add_user_to_team(email, team_id)
         elif action == "remove-team":
-            user_management.remove_team(email)
+            user_management.remove_user_from_team(email)
     except Exception:
         logger.exception("grant user credentials failed")
         sentry.capture_exception()
