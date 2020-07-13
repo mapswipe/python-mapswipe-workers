@@ -105,6 +105,12 @@ class TestTeamManagement(unittest.TestCase):
         self.assertGreaterEqual(len(new_team_token), 32)
         self.assertNotEqual(new_team_token, self.team_token)
 
+        # check if no data in Firebase
+        fb_db = firebaseDB()
+        ref = fb_db.reference(f"v2/teams/{self.team_id}/teamToken")
+        team_token = ref.get()
+        self.assertEqual(team_token, new_team_token)
+
     def test_remove_all_team_members(self):
         team_management.remove_all_team_members(self.team_id)
 
