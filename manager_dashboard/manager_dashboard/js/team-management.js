@@ -51,9 +51,9 @@ function getTeamMembers() {
                 row_array = []
                 row_array.push(data.key)
                 row_array.push(data.val().username)
-                row_array.push(data.val().projectContributionCount)
-                row_array.push(data.val().groupContributionCount)
-                row_array.push(data.val().taskContributionCount)
+                row_array.push(data.val().projectContributionCount || 0)
+                row_array.push(data.val().groupContributionCount || 0)
+                row_array.push(data.val().taskContributionCount || 0)
                 rows.push(row_array)
                 tableRef.row.add(row_array).draw( false )
                 })
