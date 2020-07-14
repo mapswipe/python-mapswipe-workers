@@ -10,20 +10,26 @@
       "projects": {
         // project managers can read/write all attributes
         ".write": "auth.token.projectManager === true",
-        ".read": "auth.token.projectManager === true",
+        ".read": "
+          // all users can query by status
+        	(auth != null  && query.orderByChild == 'status' && query.equalTo == 'active')
+          ||
+          // only team members can query by their own teamId
+          (auth != null && query.orderByChild == 'teamId' &&
+           query.equalTo == root.child('/v2/users/'+auth.uid+'/teamId').val())
+        ",
         "$project_id": {
-          "teamId": {
-            // only team members can read
-            ".read": "root.child('/v2/users/'+auth.uid+'/teamId').val() === data.val()"
-          },
-          "$other": {
-            // all users can read, project managers can write
-            ".read": "auth != null"
-          }
+         ".read": "
+            // all users can read all public projects
+            (data.child('teamId').exists() == false)
+            ||
+            // team members can read their projects
+            (data.child('teamId').val() == root.child('/v2/users/'+auth.uid+'/teamId').val())
+          "
         },
         ".indexOn": [
             "status", "isFeatured", "teamId"
-          ]
+        ]
       },
       "projectDrafts": {
         // only project managers can write projectDrafts
@@ -36,27 +42,44 @@
       "groups": {
         // users can read tasks, nobody can write
         ".write": false,
-        ".read": "auth != null",
+        ".read": false,
+        //".read": "auth != null",
         "$project_id": {
-          ".indexOn": [
-            "finishedCount",
-            "requiredCount"
-          ]
-        }
+          ".read": "
+            // everyone can read groups for public projects
+          	(root.child('/v2/projects/'+$project_id).hasChild('teamId') === false)
+            ||
+            (root.child('/v2/projects/'+$project_id+'/teamId').val() ==
+             root.child('/v2/users/'+auth.uid+'/teamId').val())
+          "
+        },
+        ".indexOn": [
+          "finishedCount",
+          "requiredCount"
+        ]
       },
       "tasks": {
         // users can read tasks, nobody can write
         ".write": false,
-        ".read": "auth != null"
+        "$project_id": {
+          ".read": "
+            // everyone can read groups for public projects
+          	(root.child('/v2/projects/'+$project_id).hasChild('teamId') === false)
+            ||
+            (root.child('/v2/projects/'+$project_id+'/teamId').val() ==
+             root.child('/v2/users/'+auth.uid+'/teamId').val())
+          "
+        },
       },
       "teams": {
+        // project managers can read/write all attributes
+        ".write": "auth.token.projectManager === true",
+        ".read": "auth.token.projectManager === true",
         "$teamId": {
-          // project managers can read/write all attributes
-          ".write": "auth.token.projectManager === true",
-          ".read": "auth.token.projectManager === true",
           "teamName": {
             // team members read teamName
             ".read": "(root.child('/v2/users/'+auth.uid+'/teamId').val() === $teamId)"
+            //".read": "auth != null"
           },
           ".indexOn": [
             "teamName"
