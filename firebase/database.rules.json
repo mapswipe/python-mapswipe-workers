@@ -8,8 +8,7 @@
         ".read": "auth != null"
       },
       "projects": {
-        // project managers can read/write all attributes
-        ".write": "auth.token.projectManager === true",
+        ".write": false,
         ".read": "
           // all users can query by status
         	(auth != null  && query.orderByChild == 'status' && query.equalTo == 'active')
@@ -17,8 +16,13 @@
           // only team members can query by their own teamId
           (auth != null && query.orderByChild == 'teamId' &&
            query.equalTo == root.child('/v2/users/'+auth.uid+'/teamId').val())
+          ||
+          // project managers can read all
+          (auth.token.projectManager === true)
         ",
         "$project_id": {
+         // project managers can read/write all attributes
+         ".write": "auth.token.projectManager === true",
          ".read": "
             // all users can read all public projects
             (data.child('teamId').exists() == false)
@@ -40,10 +44,8 @@
         ]
       },
       "groups": {
-        // users can read tasks, nobody can write
         ".write": false,
-        ".read": false,
-        //".read": "auth != null",
+        ".read": "auth.token.projectManager === true",
         "$project_id": {
           ".read": "
             // everyone can read groups for public projects
@@ -59,8 +61,8 @@
         ]
       },
       "tasks": {
-        // users can read tasks, nobody can write
         ".write": false,
+        ".read": "auth.token.projectManager === true",
         "$project_id": {
           ".read": "
             // everyone can read groups for public projects
@@ -72,10 +74,11 @@
         },
       },
       "teams": {
-        // project managers can read/write all attributes
-        ".write": "auth.token.projectManager === true",
+        ".write": false,
+        // project managers can read all attributes
         ".read": "auth.token.projectManager === true",
         "$teamId": {
+          ".write": "auth.token.projectManager === true",
           "teamName": {
             // team members read teamName
             ".read": "(root.child('/v2/users/'+auth.uid+'/teamId').val() === $teamId)"
@@ -92,7 +95,17 @@
         "$project_id": {
           "$group_id": {
             "$uid": {
-              ".write": "$uid === auth.uid"
+              ".write": "
+                // everyone can write results for public projects
+                (root.child('/v2/projects/'+$project_id).hasChild('teamId') === false &&
+                 auth.uid == $uid
+                )
+                ||
+                (root.child('/v2/projects/'+$project_id+'/teamId').val() ==
+                 root.child('/v2/users/'+auth.uid+'/teamId').val() &&
+                 auth.uid == $uid
+                )
+              "
             }
           }
         }

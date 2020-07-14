@@ -35,6 +35,20 @@ def tear_down_team(team_id):
     ref.delete()
 
 
+def tear_down_project(project_id):
+    fb_db = firebaseDB()
+    # check if reference path is valid, e.g. if team_id is None
+    ref = fb_db.reference(f"v2/projects/{project_id}")
+    if not re.match(r"/v2/\w+/[-a-zA-Z0-9]+", ref.path):
+        raise CustomError(
+            f"""Given argument resulted in invalid Firebase Realtime Database reference.
+                                    {ref.path}"""
+        )
+
+    # delete team in firebase
+    ref.delete()
+
+
 def setup_user(project_manager: bool, team_member: bool, team_id=None):
     if project_manager and team_member:
         username = f"unittest-project-manager-and-team-member"
@@ -52,6 +66,8 @@ def setup_user(project_manager: bool, team_member: bool, team_id=None):
     user = user_management.create_user(email, username, password)
 
     # set project manager credentials
+    if project_manager:
+        user_management.set_project_manager_rights(email)
 
     # set team member attribute
     if team_member:
@@ -101,8 +117,20 @@ def test_get_endpoint(user, path, custom_arguments=""):
         return True
 
 
-def test_set_endpoint(user, endpoint):
-    pass
+def test_set_endpoint(user, path):
+    data = {"test_key": "test_value"}
+    database_url = f"https://{FIREBASE_DB}.firebaseio.com"
+    request_ref = f"{database_url}{path}.json?auth={user['idToken']}"
+    headers = {"content-type": "application/json; charset=UTF-8"}
+    request_object = requests.put(
+        request_ref, headers=headers, data=json.dumps(data).encode("utf-8")
+    )
+    if permission_denied(request_object):
+        logger.info(f"permission denied for {database_url}{path}.json")
+        return False
+    else:
+        logger.info(f"permission granted for  for {database_url}{path}.json")
+        return True
 
 
 def test_update_endpoint(user, endpoint):
@@ -135,9 +163,6 @@ class TestFirebaseDBRules(unittest.TestCase):
             project_manager=False, team_member=True, team_id=self.team_id
         )
         self.project_manager = setup_user(project_manager=True, team_member=False)
-        self.project_manager_and_team_member = setup_user(
-            project_manager=True, team_member=True, team_id=self.team_id
-        )
 
         # generate all endpoints to test
         self.endpoints = [  # [path, custom_arguments]
@@ -176,11 +201,10 @@ class TestFirebaseDBRules(unittest.TestCase):
         user_management.delete_user(self.normal_user.email)
         user_management.delete_user(self.team_member.email)
         user_management.delete_user(self.project_manager.email)
-        user_management.delete_user(self.project_manager_and_team_member.email)
 
-        # tear down public project
-
-        # tear down private project
+        # tear down public / private project
+        tear_down_project(self.public_project_id)
+        tear_down_project(self.private_project_id)
 
     def test_access_as_normal_user(self):
         # sign in user with email and password to simulate app user
@@ -210,11 +234,17 @@ class TestFirebaseDBRules(unittest.TestCase):
         for i, endpoint in enumerate(self.endpoints):
             path = endpoint[0].replace("<user_id>", user["localId"])
             custom_arguments = endpoint[1]
-            access = test_get_endpoint(user, path, custom_arguments)
+            read_access = test_get_endpoint(user, path, custom_arguments)
             self.assertEqual(
-                access,
+                read_access,
                 expected_access[i][0],
-                f"observed, expected, {endpoint} {user['displayName']}",
+                f"observed, expected, get {endpoint} {user['displayName']}",
+            )
+            write_access = test_set_endpoint(user, path)
+            self.assertEqual(
+                write_access,
+                expected_access[i][1],
+                f"observed, expected, set {endpoint} {user['displayName']}",
             )
 
     def test_access_as_team_member(self):
@@ -245,26 +275,59 @@ class TestFirebaseDBRules(unittest.TestCase):
         for i, endpoint in enumerate(self.endpoints):
             path = endpoint[0].replace("<user_id>", user["localId"])
             custom_arguments = endpoint[1]
-            access = test_get_endpoint(user, path, custom_arguments)
+            read_access = test_get_endpoint(user, path, custom_arguments)
             self.assertEqual(
-                access,
+                read_access,
                 expected_access[i][0],
-                f"observed, expected, {endpoint} {user['displayName']}",
+                f"observed, expected, get {endpoint} {user['displayName']}",
+            )
+            write_access = test_set_endpoint(user, path)
+            self.assertEqual(
+                write_access,
+                expected_access[i][1],
+                f"observed, expected, set {endpoint} {user['displayName']}",
             )
 
-    """
-    def test_access_as_team_member(self):
-        user = self.team_member
-        pass
-
     def test_access_as_project_manager(self):
-        user = self.project_manager
-        pass
+        # sign in user with email and password to simulate app user
+        user = sign_in_with_email_and_password(
+            self.project_manager.email, f"{self.project_manager.display_name}_pw"
+        )
 
-    def test_access_as_project_manager_and_team_member(self):
-        user = self.project_manager_and_team_member
-        pass
-    """
+        expected_access = [  # [read, write]
+            [True, False],  # public project query
+            [True, True],  # public project status attribute
+            [True, False],  # private project query
+            [True, True],  # private project status
+            [True, True],  # team
+            [True, True],  # teamName
+            [True, True],  # teamToken
+            [True, False],  # public group
+            [True, False],  # private group
+            [True, False],  # public task
+            [True, False],  # private task
+            [True, False],  # user
+            [True, False],  # user teamId
+            [True, True],  # user username
+            [False, True],  # results public project
+            [False, False],  # results private project
+        ]
+
+        for i, endpoint in enumerate(self.endpoints):
+            path = endpoint[0].replace("<user_id>", user["localId"])
+            custom_arguments = endpoint[1]
+            read_access = test_get_endpoint(user, path, custom_arguments)
+            self.assertEqual(
+                read_access,
+                expected_access[i][0],
+                f"observed, expected, get {endpoint} {user['displayName']}",
+            )
+            write_access = test_set_endpoint(user, path)
+            self.assertEqual(
+                write_access,
+                expected_access[i][1],
+                f"observed, expected, set {endpoint} {user['displayName']}",
+            )
 
 
 if __name__ == "__main__":
