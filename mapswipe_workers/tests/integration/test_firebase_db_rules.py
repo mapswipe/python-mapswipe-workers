@@ -46,6 +46,20 @@ def tear_down_project(project_id: str):
     ref.delete()
 
 
+def tear_down_results(project_id: str):
+    fb_db = firebaseDB()
+    # check if reference path is valid, e.g. if team_id is None
+    ref = fb_db.reference(f"v2/results/{project_id}")
+    if not re.match(r"/v2/\w+/[-a-zA-Z0-9]+", ref.path):
+        raise CustomError(
+            f"""Given argument resulted in invalid Firebase Realtime Database reference.
+                                    {ref.path}"""
+        )
+
+    # delete team in firebase
+    ref.delete()
+
+
 def setup_user(
     project_manager: bool, team_member: bool, team_id: str = ""
 ) -> UserRecord:
@@ -220,7 +234,10 @@ class TestFirebaseDBRules(unittest.TestCase):
         tear_down_project(self.private_project_id)
         tear_down_project(self.private_project_id_b)
 
-        # TODO: remove results that have been set in firebase
+        # tear down results
+        tear_down_results(self.public_project_id)
+        tear_down_results(self.private_project_id)
+        tear_down_results(self.private_project_id_b)
 
     def test_access_as_normal_user(self):
         # sign in user with email and password to simulate app user
