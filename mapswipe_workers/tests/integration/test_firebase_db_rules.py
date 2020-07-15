@@ -3,25 +3,21 @@ import unittest
 from requests.exceptions import HTTPError
 import requests
 import re
+from firebase_admin.auth import UserRecord
 from mapswipe_workers.config import FIREBASE_DB, FIREBASE_API_KEY
 from mapswipe_workers.auth import firebaseDB
 from mapswipe_workers.definitions import logger, CustomError
 from mapswipe_workers.utils import user_management
 
 
-def set_up_team():
+def set_up_team(team_id, team_name, team_token):
     fb_db = firebaseDB()
-    team_id = "unittest-team-1234"
-    team_name = "unittest-team"
-    team_token = "12345678-1234-5678-1234-567812345678"
     data = {"teamName": team_name, "teamToken": team_token}
     ref = fb_db.reference(f"v2/teams/{team_id}")
     ref.set(data)
 
-    return team_id, team_name, team_token
 
-
-def tear_down_team(team_id):
+def tear_down_team(team_id: str):
     fb_db = firebaseDB()
     # check if reference path is valid, e.g. if team_id is None
     ref = fb_db.reference(f"v2/teams/{team_id}")
@@ -35,7 +31,7 @@ def tear_down_team(team_id):
     ref.delete()
 
 
-def tear_down_project(project_id):
+def tear_down_project(project_id: str):
     fb_db = firebaseDB()
     # check if reference path is valid, e.g. if team_id is None
     ref = fb_db.reference(f"v2/projects/{project_id}")
@@ -49,7 +45,9 @@ def tear_down_project(project_id):
     ref.delete()
 
 
-def setup_user(project_manager: bool, team_member: bool, team_id=None):
+def setup_user(
+    project_manager: bool, team_member: bool, team_id: str = ""
+) -> UserRecord:
     if project_manager and team_member:
         username = f"unittest-project-manager-and-team-member"
     elif project_manager:
@@ -76,7 +74,7 @@ def setup_user(project_manager: bool, team_member: bool, team_id=None):
     return user
 
 
-def sign_in_with_email_and_password(email, password):
+def sign_in_with_email_and_password(email: str, password: str) -> dict:
     api_key = FIREBASE_API_KEY
     request_ref = (
         "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword"
@@ -90,7 +88,7 @@ def sign_in_with_email_and_password(email, password):
     return current_user
 
 
-def permission_denied(request_object):
+def permission_denied(request_object: requests.Response):
     try:
         request_object.raise_for_status()
     except HTTPError as e:
@@ -100,7 +98,7 @@ def permission_denied(request_object):
             raise HTTPError(e, request_object.text)
 
 
-def test_get_endpoint(user, path, custom_arguments=""):
+def test_get_endpoint(user: dict, path: str, custom_arguments: str = ""):
     database_url = f"https://{FIREBASE_DB}.firebaseio.com"
     request_ref = f"{database_url}{path}.json?{custom_arguments}&auth={user['idToken']}"
     headers = {"content-type": "application/json; charset=UTF-8"}
@@ -117,7 +115,7 @@ def test_get_endpoint(user, path, custom_arguments=""):
         return True
 
 
-def test_set_endpoint(user, path):
+def test_set_endpoint(user: dict, path: str):
     data = {"test_key": "test_value"}
     database_url = f"https://{FIREBASE_DB}.firebaseio.com"
     request_ref = f"{database_url}{path}.json?auth={user['idToken']}"
@@ -133,17 +131,14 @@ def test_set_endpoint(user, path):
         return True
 
 
-def test_update_endpoint(user, endpoint):
-    pass
-
-
 class TestFirebaseDBRules(unittest.TestCase):
     def setUp(self):
+        self.team_id = "unittest-team-1234"
+        self.team_name = "unittest-team"
+        self.team_token = "12345678-1234-5678-1234-567812345678"
+
         # setup team
-        self.team_id, self.team_name, self.team_token = set_up_team()
-        fb_db = firebaseDB()
-        ref = fb_db.reference(f"v2/teams/{self.team_id}")
-        ref.set({"teamName": "unittest-team", "teamToken": ""})
+        set_up_team(self.team_id, self.team_name, self.team_token)
 
         # setup public project
         self.public_project_id = "unittest-public-project"
