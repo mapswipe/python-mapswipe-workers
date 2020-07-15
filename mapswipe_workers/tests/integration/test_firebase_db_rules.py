@@ -220,6 +220,8 @@ class TestFirebaseDBRules(unittest.TestCase):
         tear_down_project(self.private_project_id)
         tear_down_project(self.private_project_id_b)
 
+        # TODO: remove results that have been set in firebase
+
     def test_access_as_normal_user(self):
         # sign in user with email and password to simulate app user
         user = sign_in_with_email_and_password(
