@@ -3,6 +3,7 @@ import unittest
 from requests.exceptions import HTTPError
 import requests
 import re
+from typing import Dict
 from firebase_admin.auth import UserRecord
 from mapswipe_workers.config import FIREBASE_DB, FIREBASE_API_KEY
 from mapswipe_workers.auth import firebaseDB
@@ -74,11 +75,10 @@ def setup_user(
     return user
 
 
-def sign_in_with_email_and_password(email: str, password: str) -> dict:
-    api_key = FIREBASE_API_KEY
+def sign_in_with_email_and_password(email: str, password: str) -> Dict:
     request_ref = (
-        "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword"
-        "?key={0}".format(api_key)
+        f"https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword"
+        f"?key={FIREBASE_API_KEY}"
     )
     headers = {"content-type": "application/json; charset=UTF-8"}
     data = json.dumps({"email": email, "password": password, "returnSecureToken": True})
@@ -133,12 +133,18 @@ def test_set_endpoint(user: dict, path: str):
 
 class TestFirebaseDBRules(unittest.TestCase):
     def setUp(self):
+
+        # setup team
         self.team_id = "unittest-team-1234"
         self.team_name = "unittest-team"
         self.team_token = "12345678-1234-5678-1234-567812345678"
-
-        # setup team
         set_up_team(self.team_id, self.team_name, self.team_token)
+
+        # setup team b
+        self.team_id_b = "unittest-team-1234-b"
+        self.team_name_b = "unittest-team-b"
+        self.team_token_b = "12345678-1234-5678-1234-567812345678"
+        set_up_team(self.team_id_b, self.team_name_b, self.team_token_b)
 
         # setup public project
         self.public_project_id = "unittest-public-project"
@@ -146,11 +152,17 @@ class TestFirebaseDBRules(unittest.TestCase):
         ref = fb_db.reference(f"v2/projects/{self.public_project_id}")
         ref.update({"status": "active"})
 
-        # setup private project
+        # setup private project team a
         self.private_project_id = "unittest-private-project"
         fb_db = firebaseDB()
         ref = fb_db.reference(f"v2/projects/{self.private_project_id}")
         ref.update({"teamId": self.team_id, "status": "private_active"})
+
+        # setup private project team b
+        self.private_project_id_b = "unittest-private-project-b"
+        fb_db = firebaseDB()
+        ref = fb_db.reference(f"v2/projects/{self.private_project_id_b}")
+        ref.update({"teamId": self.team_id_b, "status": "private_active"})
 
         # setup users
         self.normal_user = setup_user(project_manager=False, team_member=False)
@@ -169,6 +181,11 @@ class TestFirebaseDBRules(unittest.TestCase):
                 f'orderBy="teamId"&equalTo="{self.team_id}"&limitToFirst=20',
             ],
             [f"/v2/projects/{self.private_project_id}/status", ""],
+            [
+                f"/v2/projects",
+                f'orderBy="teamId"&equalTo="{self.team_id_b}"&limitToFirst=20',
+            ],
+            [f"/v2/projects/{self.private_project_id_b}/status", ""],
             # teams
             [f"/v2/teams/{self.team_id}", ""],
             [f"/v2/teams/{self.team_id}/teamName", ""],
@@ -191,6 +208,7 @@ class TestFirebaseDBRules(unittest.TestCase):
     def tearDown(self):
         # tear down team
         tear_down_team(self.team_id)
+        tear_down_team(self.team_id_b)
 
         # tear down users
         user_management.delete_user(self.normal_user.email)
@@ -200,6 +218,7 @@ class TestFirebaseDBRules(unittest.TestCase):
         # tear down public / private project
         tear_down_project(self.public_project_id)
         tear_down_project(self.private_project_id)
+        tear_down_project(self.private_project_id_b)
 
     def test_access_as_normal_user(self):
         # sign in user with email and password to simulate app user
@@ -208,24 +227,25 @@ class TestFirebaseDBRules(unittest.TestCase):
         )
 
         expected_access = [  # [read, write]
-            [True, False],  # public project query
-            [True, False],  # public project status attribute
-            [False, False],  # private project query
-            [False, False],  # private project status attribute
-            [False, False],  # team
-            [False, False],  # teamName
-            [False, False],  # teamToken
-            [True, False],  # public group
-            [False, False],  # private group
-            [True, False],  # public task
-            [False, False],  # private task
-            [True, False],  # user
-            [True, False],  # user teamId
-            [True, True],  # user username
-            [False, True],  # results public project
-            [False, False],  # results private project
+            (True, False),  # public project query
+            (True, False),  # public project status attribute
+            (False, False),  # private project query
+            (False, False),  # private project status attribute
+            (False, False),  # private project b query
+            (False, False),  # private project b status attribute
+            (False, False),  # team
+            (False, False),  # teamName
+            (False, False),  # teamToken
+            (True, False),  # public group
+            (False, False),  # private group
+            (True, False),  # public task
+            (False, False),  # private task
+            (True, False),  # user
+            (True, False),  # user teamId
+            (True, True),  # user username
+            (False, True),  # results public project
+            (False, False),  # results private project
         ]
-
         for i, endpoint in enumerate(self.endpoints):
             path = endpoint[0].replace("<user_id>", user["localId"])
             custom_arguments = endpoint[1]
@@ -249,22 +269,24 @@ class TestFirebaseDBRules(unittest.TestCase):
         )
 
         expected_access = [  # [read, write]
-            [True, False],  # public project query
-            [True, False],  # public project status attribute
-            [True, False],  # private project query
-            [True, False],  # private project status
-            [False, False],  # team
-            [True, False],  # teamName
-            [False, False],  # teamToken
-            [True, False],  # public group
-            [True, False],  # private group
-            [True, False],  # public task
-            [True, False],  # private task
-            [True, False],  # user
-            [True, False],  # user teamId
-            [True, True],  # user username
-            [False, True],  # results public project
-            [False, True],  # results private project
+            (True, False),  # public project query
+            (True, False),  # public project status attribute
+            (True, False),  # private project query
+            (True, False),  # private project status
+            (False, False),  # private project b query
+            (False, False),  # private project b status
+            (False, False),  # team
+            (True, False),  # teamName
+            (False, False),  # teamToken
+            (True, False),  # public group
+            (True, False),  # private group
+            (True, False),  # public task
+            (True, False),  # private task
+            (True, False),  # user
+            (True, False),  # user teamId
+            (True, True),  # user username
+            (False, True),  # results public project
+            (False, True),  # results private project
         ]
 
         for i, endpoint in enumerate(self.endpoints):
@@ -290,22 +312,24 @@ class TestFirebaseDBRules(unittest.TestCase):
         )
 
         expected_access = [  # [read, write]
-            [True, False],  # public project query
-            [True, True],  # public project status attribute
-            [True, False],  # private project query
-            [True, True],  # private project status
-            [True, True],  # team
-            [True, True],  # teamName
-            [True, True],  # teamToken
-            [True, False],  # public group
-            [True, False],  # private group
-            [True, False],  # public task
-            [True, False],  # private task
-            [True, False],  # user
-            [True, False],  # user teamId
-            [True, True],  # user username
-            [False, True],  # results public project
-            [False, False],  # results private project
+            (True, False),  # public project query
+            (True, True),  # public project status attribute
+            (True, False),  # private project query
+            (True, True),  # private project status
+            (True, False),  # private project b query
+            (True, True),  # private project b status
+            (True, True),  # team
+            (True, True),  # teamName
+            (True, True),  # teamToken
+            (True, False),  # public group
+            (True, False),  # private group
+            (True, False),  # public task
+            (True, False),  # private task
+            (True, False),  # user
+            (True, False),  # user teamId
+            (True, True),  # user username
+            (False, True),  # results public project
+            (False, False),  # results private project
         ]
 
         for i, endpoint in enumerate(self.endpoints):
