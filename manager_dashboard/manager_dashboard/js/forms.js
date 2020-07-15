@@ -6,6 +6,7 @@ function adjust_textarea(h) {
 
 function initForm() {
     initMap();
+    initTeams();
     displayProjectTypeForm("build_area")
 }
 
@@ -21,6 +22,25 @@ function initMap() {
   setTimeout(function(){ ProjectAoiMap.invalidateSize()}, 400);
 
   }
+
+
+function initTeams() {
+    console.log("init teams")
+    // get teams from firebase
+    var TeamsRef = firebase.database().ref("v2/teams").orderByChild("teamName");
+    TeamsRef.once('value', function(snapshot){
+    if(snapshot.exists()){
+        snapshot.forEach(function(data){
+            // add teamName to drop down option and set teamId as value
+            option = document.createElement('option')
+            option.innerHTML = data.val().teamName
+            option.value = data.key
+            document.getElementById("visibility").appendChild(option);
+            })
+        }
+    })
+}
+
 
 function displayProjectTypeForm(projectType) {
     document.getElementById("projectType").value = projectType;

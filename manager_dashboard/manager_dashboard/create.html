@@ -65,10 +65,13 @@
         <li class="nav-item active">
           <a class="nav-link" href="create.html">CREATE PROJECTS</a>
         </li>
-        <li class="nav-item active">
+        <li class="nav-item">
           <a class="nav-link" href="manage.html">MANAGE PROJECTS</a>
         </li>
-        <li class="nav-item active">
+        <li class="nav-item">
+          <a class="nav-link" href="teams.html">MANAGE TEAMS</a>
+        </li>
+        <li class="nav-item">
           <a class="nav-link" href="index.html">LOGIN</a>
         </li>
       </ul>
@@ -135,6 +138,13 @@
                               <label for="name">Name</label>
                               <p id="name"></br>[projectTopic] - [projectRegion](taskNumber)<br>[requesting organisation]</p>
                               <span>We will generate you project name based on your inputs above.</span>
+                          </li>
+                          <li>
+                              <label for="visibility">Visibility</label>
+                              <select name="visibility" id="visibility">
+                                  <option value="public">Public</option>
+                              </select>
+                              <span>Choose either "public" or select the team for which this project should be displayed.</span>
                           </li>
                           <li>
                               <label for="lookFor">Look For</label>

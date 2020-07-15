@@ -158,3 +158,52 @@ def permission_denied(request_object):
             return True
         else:
             raise HTTPError(e, request_object.text)
+
+
+def add_user_to_team(email, team_id):
+    """Add teamId attribute for user."""
+    try:
+        fb_db = firebaseDB()  # noqa E841
+
+        # check if team exist in firebase
+        if not fb_db.reference(f"v2/teams/{team_id}").get():
+            raise CustomError(f"can't find team in firebase: {team_id}")
+
+        # get user by email
+        try:
+            user = auth.get_user_by_email(email)
+        except auth.UserNotFoundError:
+            raise CustomError(f"can't find user in firebase: {email}")
+
+        # set teamId attribute for user in firebase
+        ref = fb_db.reference(f"v2/users/{user.uid}")
+        ref.update({"teamId": team_id})
+        logger.info(f"added teamId {team_id} for user {email} - {user.uid}.")
+
+    except Exception as e:
+        logger.info(f"could not add teamId attribute for user.")
+        raise CustomError(e)
+
+
+def remove_user_from_team(email):
+    """Remove teamId attribute for user."""
+    try:
+        fb_db = firebaseDB()  # noqa E841
+
+        # get user by email
+        try:
+            user = auth.get_user_by_email(email)
+        except auth.UserNotFoundError:
+            raise CustomError(f"can't find user in firebase: {email}")
+
+        # get teamId from firebase
+        team_id = fb_db.reference(f"v2/users/{user.uid}/teamId").get()
+
+        # remove teamId attribute for user in firebase
+        ref = fb_db.reference(f"v2/users/{user.uid}")
+        ref.update({"teamId": None})  # deletes the teamId attribute in firebase
+        logger.info(f"removed teamId {team_id} for user {email} - {user.uid}.")
+
+    except Exception as e:
+        logger.info(f"could not remove teamId attribute for user.")
+        raise CustomError(e)

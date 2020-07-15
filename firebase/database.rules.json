@@ -5,24 +5,38 @@
     "v2": {
       "announcement": {
         ".write": false,
-        ".read": true
+        ".read": "auth != null"
       },
       "projects": {
         ".write": false,
-        ".read": "auth != null",
+        ".read": "
+          // all users can query by status
+        	(auth != null  && query.orderByChild == 'status' && query.equalTo == 'active')
+          ||
+          // only team members can query by their own teamId
+          (auth != null && query.orderByChild == 'teamId' &&
+           query.equalTo == root.child('/v2/users/'+auth.uid+'/teamId').val())
+          ||
+          // project managers can read all
+          (auth.token.projectManager === true)
+        ",
         "$project_id": {
-          "status": {
-            ".write": "auth.token.projectManager === true"
-          },
-          "isFeatured": {
-            ".write": "auth.token.projectManager === true"
-          }
+         // project managers can read/write all attributes
+         ".write": "auth.token.projectManager === true",
+         ".read": "
+            // all users can read all public projects
+            (data.child('teamId').exists() == false)
+            ||
+            // team members can read their projects
+            (data.child('teamId').val() == root.child('/v2/users/'+auth.uid+'/teamId').val())
+          "
         },
         ".indexOn": [
-            "status", "isFeatured"
-          ]
+            "status", "isFeatured", "teamId"
+        ]
       },
       "projectDrafts": {
+        // only project managers can write projectDrafts
         ".read": false,
         ".write": "auth.token.projectManager === true",
         ".indexOn": [
@@ -31,17 +45,49 @@
       },
       "groups": {
         ".write": false,
-        ".read": true,
+        ".read": "auth.token.projectManager === true",
         "$project_id": {
-          ".indexOn": [
-            "finishedCount",
-            "requiredCount"
-          ]
-        }
+          ".read": "
+            // everyone can read groups for public projects
+          	(root.child('/v2/projects/'+$project_id).hasChild('teamId') === false)
+            ||
+            (root.child('/v2/projects/'+$project_id+'/teamId').val() ==
+             root.child('/v2/users/'+auth.uid+'/teamId').val())
+          "
+        },
+        ".indexOn": [
+          "finishedCount",
+          "requiredCount"
+        ]
       },
       "tasks": {
         ".write": false,
-        ".read": true
+        ".read": "auth.token.projectManager === true",
+        "$project_id": {
+          ".read": "
+            // everyone can read groups for public projects
+          	(root.child('/v2/projects/'+$project_id).hasChild('teamId') === false)
+            ||
+            (root.child('/v2/projects/'+$project_id+'/teamId').val() ==
+             root.child('/v2/users/'+auth.uid+'/teamId').val())
+          "
+        },
+      },
+      "teams": {
+        ".write": false,
+        // project managers can read all attributes
+        ".read": "auth.token.projectManager === true",
+        "$teamId": {
+          ".write": "auth.token.projectManager === true",
+          "teamName": {
+            // team members read teamName
+            ".read": "(root.child('/v2/users/'+auth.uid+'/teamId').val() === $teamId)"
+            //".read": "auth != null"
+          },
+          ".indexOn": [
+            "teamName"
+          ]
+        }
       },
       "results": {
         ".write": false,
@@ -49,71 +95,44 @@
         "$project_id": {
           "$group_id": {
             "$uid": {
-              ".write": "$uid === auth.uid"
+              ".write": "
+                // everyone can write results for public projects
+                (root.child('/v2/projects/'+$project_id).hasChild('teamId') === false &&
+                 auth.uid == $uid
+                )
+                ||
+                (root.child('/v2/projects/'+$project_id+'/teamId').val() ==
+                 root.child('/v2/users/'+auth.uid+'/teamId').val() &&
+                 auth.uid == $uid
+                )
+              "
             }
           }
         }
       },
       "users": {
         ".read": true,
+        ".write": false,
         "$uid": {
-          ".write": "auth != null && auth.uid == $uid"
-        },
-        ".indexOn": [
-          "created"
-        ]
-      }
-    },
-    "groups": {
-      ".write": false,
-      ".read": true,
-      "$project_id": {
-        "$group_id": {
-          ".indexOn": [
-            "distributedCount",
-            "completedCount"
-          ],
-          ".write": "auth != null",
-          "completedCount": {
-            ".write": "auth != null"
+          "teamId": {
+            ".write": false
+          },
+          "$other": {
+            ".write": "auth != null && auth.uid == $uid"
           }
         },
         ".indexOn": [
-          "distributedCount",
-          "completedCount"
+          "created",
+          "teamId"
         ]
       }
     },
-    "imports": {
-      ".read": false,
-      ".write": true,
-      ".indexOn": [
-        "complete"
-      ]
-    },
-    "projects": {
-      ".write": false,
-      ".read": true
-    },
-    "announcement": {
-      ".write": true,
-      ".read": true
-    },
-    "results": {
-      ".write": false,
-      ".read": true,
-      "$task_id": {
-        "$user_id": {
-          ".write": "auth != null && auth.uid == $user_id"
-        }
-      }
-    },
+    // leaving this here, since version before v2 pull data from there
     "users": {
       "$uid": {
         ".read": "auth != null && auth.uid == $uid",
         ".write": "auth != null && auth.uid == $uid"
-      },
-      ".read": true
+      }
     }
   }
 }
