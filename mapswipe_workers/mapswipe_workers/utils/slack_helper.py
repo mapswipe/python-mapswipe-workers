@@ -61,7 +61,9 @@ def send_progress_notification(project_id: int):
     fb_db = auth.firebaseDB()
     progress = fb_db.reference(f"v2/projects/{project_id}/progress").get()
 
-    if progress >= 90:
+    if not progress:
+        logger.info(f"could not get progress from firebase for project {project_id}")
+    elif progress >= 90:
         project_name = fb_db.reference(f"v2/projects/{project_id}/name").get()
         notification_90_sent = fb_db.reference(
             f"v2/projects/{project_id}/notification_90_sent"
