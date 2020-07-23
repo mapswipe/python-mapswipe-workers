@@ -1,0 +1,75 @@
+2020-07-13 11:40:21,518 - INFO - mapswipe_workers.py - cli - Logging enabled
+2020-07-13 11:40:24,102 - INFO - project.py - validate_geometries - -MC6vz49TfX2dk-6myDd - validate geometry - input geometry is correct.
+2020-07-13 11:40:24,102 - INFO - tile_grouping_functions.py - get_geometry_from_file - got geometry and extent from file
+2020-07-13 11:40:24,104 - INFO - tile_grouping_functions.py - get_vertical_slice - created vertical_slice
+2020-07-13 11:40:24,117 - INFO - project.py - create_groups - -MC6vz49TfX2dk-6myDd - create_groups - created groups dictionary
+2020-07-13 11:40:24,117 - INFO - project.py - save_project - -MC6vz49TfX2dk-6myDd - start creating a project
+2020-07-13 11:40:24,124 - ERROR - project.py - save_project - -MC6vz49TfX2dk-6myDd - the project could not be saved to postgres and will therefor not be  saved to firebase
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.8/dist-packages/mapswipe_workers/project_types/base/project.py", line 360, in save_to_postgres
+    p_con = auth.postgresDB()
+  File "/usr/local/lib/python3.8/dist-packages/mapswipe_workers/auth.py", line 53, in __init__
+    self._db_connection = psycopg2.connect(
+  File "/usr/local/lib/python3.8/dist-packages/psycopg2/__init__.py", line 126, in connect
+    conn = _connect(dsn, connection_factory=connection_factory, **kwasync)
+psycopg2.OperationalError: could not connect to server: Connection refused
+	Is the server running on host "postgres" (172.22.0.2) and accepting
+	TCP/IP connections on port 5432?
+
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.8/dist-packages/mapswipe_workers/project_types/base/project.py", line 119, in save_project
+    self.save_to_postgres(
+  File "/usr/local/lib/python3.8/dist-packages/mapswipe_workers/project_types/base/project.py", line 376, in save_to_postgres
+    del p_con
+UnboundLocalError: local variable 'p_con' referenced before assignment
+2020-07-13 11:40:24,691 - ERROR - mapswipe_workers.py - run_create_projects - Failed: Project Creation (multiTest -  (1)
+))
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.8/dist-packages/mapswipe_workers/project_types/base/project.py", line 360, in save_to_postgres
+    p_con = auth.postgresDB()
+  File "/usr/local/lib/python3.8/dist-packages/mapswipe_workers/auth.py", line 53, in __init__
+    self._db_connection = psycopg2.connect(
+  File "/usr/local/lib/python3.8/dist-packages/psycopg2/__init__.py", line 126, in connect
+    conn = _connect(dsn, connection_factory=connection_factory, **kwasync)
+psycopg2.OperationalError: could not connect to server: Connection refused
+	Is the server running on host "postgres" (172.22.0.2) and accepting
+	TCP/IP connections on port 5432?
+
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.8/dist-packages/mapswipe_workers/project_types/base/project.py", line 119, in save_project
+    self.save_to_postgres(
+  File "/usr/local/lib/python3.8/dist-packages/mapswipe_workers/project_types/base/project.py", line 376, in save_to_postgres
+    del p_con
+UnboundLocalError: local variable 'p_con' referenced before assignment
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.8/dist-packages/mapswipe_workers/mapswipe_workers.py", line 91, in run_create_projects
+    project.save_project()
+  File "/usr/local/lib/python3.8/dist-packages/mapswipe_workers/project_types/base/project.py", line 132, in save_project
+    raise CustomError(e)
+mapswipe_workers.definitions.CustomError: local variable 'p_con' referenced before assignment
+2020-07-13 11:43:55,566 - INFO - mapswipe_workers.py - cli - Logging enabled
+2020-07-13 11:43:56,309 - INFO - project.py - validate_geometries - -MC6zDSrCeUXzyCCwTQ_ - validate geometry - input geometry is correct.
+2020-07-13 11:43:56,309 - INFO - tile_grouping_functions.py - get_geometry_from_file - got geometry and extent from file
+2020-07-13 11:43:56,311 - INFO - tile_grouping_functions.py - get_vertical_slice - created vertical_slice
+2020-07-13 11:43:56,324 - INFO - project.py - create_groups - -MC6zDSrCeUXzyCCwTQ_ - create_groups - created groups dictionary
+2020-07-13 11:43:56,324 - INFO - project.py - save_project - -MC6zDSrCeUXzyCCwTQ_ - start creating a project
+2020-07-13 11:43:56,391 - INFO - project.py - save_project - -MC6zDSrCeUXzyCCwTQ_ - the project has been saved to postgres
+2020-07-13 11:43:56,392 - INFO - geojson_functions.py - create_geojson_file - created outfile: /root/.local/share/mapswipe_workers/api/project_geometries/project_geom_-MC6zDSrCeUXzyCCwTQ_.geojson.
+2020-07-13 11:43:56,393 - INFO - geojson_functions.py - create_geojson_file - created outfile: /root/.local/share/mapswipe_workers/api/project_geometries/project_geom_-MC6zDSrCeUXzyCCwTQ_.geojson.
+2020-07-13 11:43:56,393 - INFO - project.py - save_project - -MC6zDSrCeUXzyCCwTQ_ - the project has been saved to files
+2020-07-13 11:43:56,718 - INFO - project.py - save_to_firebase - -MC6zDSrCeUXzyCCwTQ_ - uploaded project to firebase realtime database
+2020-07-13 11:43:56,939 - INFO - project.py - save_to_firebase - -MC6zDSrCeUXzyCCwTQ_ - uploaded groups to firebase realtime database
+2020-07-13 11:43:56,939 - INFO - project.py - save_to_firebase - there are 6 groups for this project
+2020-07-13 11:43:57,392 - INFO - project.py - save_to_firebase - -MC6zDSrCeUXzyCCwTQ_ - uploaded 150 groups with tasks to firebase realtime database
+2020-07-13 11:43:57,581 - INFO - project.py - save_project - -MC6zDSrCeUXzyCCwTQ_ - the project has been saved to firebase
+2020-07-13 11:43:57,835 - INFO - mapswipe_workers.py - run_create_projects - Success: Project Creation (multiTest -  (1)
+)

@@ -250,6 +250,8 @@ def get_vertical_slice(slice_infos, zoom, width_threshold=40):
             PixelY = TileY_bottom * 256
             lon_right, lat_bottom = t.pixel_coords_zoom_to_lat_lon(PixelX, PixelY, zoom)
 
+            # TODO line 254-262 does exactly the same as in line 345-352,
+            #  maybe put it in a function create_geom_from_group_coords
             # Create Geometry
             ring = ogr.Geometry(ogr.wkbLinearRing)
             ring.AddPoint(lon_left, lat_top)
@@ -271,70 +273,10 @@ def get_vertical_slice(slice_infos, zoom, width_threshold=40):
                 "group_polygon": group_poly,
             }
 
-            #####################
-            # TODO what does the line below exactly do?
             TileX = TileX + step_size
 
     logger.info("created vertical_slice")
     return raw_groups
-
-
-def remove_groups_within_other_groups(groups, zoom):
-    def a_within_b():
-        # b is bigger/wider than a
-        # TODO: find correct expression
-        return (
-            (int(x_max) <= int(x_maxB))
-            and (int(x_min) >= int(x_minB))
-            and (int(y_min) <= int(y_maxB))
-            and (int(y_minB) <= int(y_max))
-        )
-
-    def b_within_a():
-        # a is bigger/wider than b
-        return (
-            (int(x_maxB) <= int(x_max))
-            and (int(x_minB) >= int(x_min))
-            and (int(y_min) <= int(y_maxB))
-            and (int(y_minB) <= int(y_max))
-        )
-
-    counter = 0
-    for group_id in list(groups.keys()):
-
-        # skip if groups has been removed already
-        if group_id not in groups.keys():
-            continue
-
-        x_max = groups[group_id]["xMax"]
-        x_min = groups[group_id]["xMin"]
-        y_max = groups[group_id]["yMax"]
-        y_min = groups[group_id]["yMin"]
-
-        counter = 0
-        for group_id_b in list(groups.keys()):
-            # skip if it is the same group
-            if group_id_b == group_id:
-                continue
-
-            y_minB = groups[group_id_b]["yMin"]
-            y_maxB = groups[group_id_b]["yMax"]
-            x_maxB = groups[group_id_b]["xMax"]
-            x_minB = groups[group_id_b]["xMin"]
-
-            if a_within_b():
-                counter += 1
-                # remove group a and break
-                del groups[group_id]
-                break
-
-            elif b_within_a():
-                counter += 1
-                # remove group b and continue
-                del groups[group_id_b]
-                continue
-
-    return groups
 
 
 def adjust_overlapping_groups(groups, zoom):
@@ -376,7 +318,6 @@ def adjust_overlapping_groups(groups, zoom):
                 overlap_count += 1
 
                 # define new x_min and x_max
-
                 # add info to groups_dict
                 # depending on intersection x_min or x_max need to change
                 if x_max >= x_minB:  # intersection on left side
@@ -427,7 +368,7 @@ def adjust_overlapping_groups(groups, zoom):
     return groups_without_overlap, overlaps_total
 
 
-def extent_to_slices(infile, zoom, groupSize):
+def extent_to_groups(infile, zoom, groupSize):
     """
     The function to polygon geometries of a given input file
     into horizontal slices and then vertical slices.
@@ -457,12 +398,12 @@ def extent_to_slices(infile, zoom, groupSize):
 
     # finally remove overlapping groups
     # TODO: add this line once properly working
-    # groups_dict, overlaps_total = adjust_overlapping_groups(raw_groups_dict, zoom)
+    groups_dict, overlaps_total = adjust_overlapping_groups(raw_groups_dict, zoom)
 
-    return raw_groups_dict
+    return groups_dict
 
 
-def save_vertical_slices_as_geojson(raw_group_infos, outfile):
+def vertical_groups_as_geojson(raw_group_infos, outfile):
     """
     The function to create a geojson file from the groups dictionary.
 
@@ -512,7 +453,7 @@ def save_vertical_slices_as_geojson(raw_group_infos, outfile):
     return True
 
 
-def save_horizontal_slices_as_geojson(slices_info, outfile):
+def horizontal_groups_as_geojson(slices_info, outfile):
 
     # Create the output Driver and out GeoJson
     outDriver = ogr.GetDriverByName("GeoJSON")

@@ -1,0 +1,6 @@
+-MC6vz49TfX2dk-6myDd	g101	24	0	3	0	{"groupId": "g101", "numberOfTasks": 24, "projectId": "-MC6vz49TfX2dk-6myDd", "finishedCount": 0, "requiredCount": 3, "xMax": "232469", "xMin": "232462", "yMax": "103467", "yMin": "103465"}
+-MC6vz49TfX2dk-6myDd	g102	27	0	3	0	{"groupId": "g102", "numberOfTasks": 27, "projectId": "-MC6vz49TfX2dk-6myDd", "finishedCount": 0, "requiredCount": 3, "xMax": "232469", "xMin": "232461", "yMax": "103470", "yMin": "103468"}
+-MC6vz49TfX2dk-6myDd	g103	18	0	3	0	{"groupId": "g103", "numberOfTasks": 18, "projectId": "-MC6vz49TfX2dk-6myDd", "finishedCount": 0, "requiredCount": 3, "xMax": "232467", "xMin": "232462", "yMax": "103473", "yMin": "103471"}
+-MC6vz49TfX2dk-6myDd	g104	21	0	3	0	{"groupId": "g104", "numberOfTasks": 21, "projectId": "-MC6vz49TfX2dk-6myDd", "finishedCount": 0, "requiredCount": 3, "xMax": "232453", "xMin": "232447", "yMax": "103479", "yMin": "103477"}
+-MC6vz49TfX2dk-6myDd	g105	24	0	3	0	{"groupId": "g105", "numberOfTasks": 24, "projectId": "-MC6vz49TfX2dk-6myDd", "finishedCount": 0, "requiredCount": 3, "xMax": "232454", "xMin": "232447", "yMax": "103482", "yMin": "103480"}
+-MC6vz49TfX2dk-6myDd	g106	24	0	3	0	{"groupId": "g106", "numberOfTasks": 24, "projectId": "-MC6vz49TfX2dk-6myDd", "finishedCount": 0, "requiredCount": 3, "xMax": "232454", "xMin": "232447", "yMax": "103485", "yMin": "103483"}

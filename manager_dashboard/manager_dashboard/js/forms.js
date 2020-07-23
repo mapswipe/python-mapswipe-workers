@@ -141,7 +141,6 @@ function openFile(event) {
           try {
               var text = reader.result;
               var geojsonData = JSON.parse(text)
-              console.log(geojsonData);
               // check number of features
               numberOfFeatures = geojsonData['features'].length
 
