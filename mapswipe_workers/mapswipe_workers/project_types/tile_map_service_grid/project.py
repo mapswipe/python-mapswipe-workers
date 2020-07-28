@@ -2,7 +2,7 @@ import json
 import os
 
 from mapswipe_workers.project_types.base.project import BaseProject
-from mapswipe_workers.definitions import DATA_PATH, CustomError, logger
+from mapswipe_workers.definitions import DATA_PATH, CustomError, logger, featureNumber
 from mapswipe_workers.project_types.tile_map_service_grid.group import Group
 from mapswipe_workers.utils import tile_grouping_functions as grouping_functions
 from mapswipe_workers.project_types.base.tile_server import BaseTileServer
@@ -59,12 +59,12 @@ class Project(BaseProject):
             raise CustomError(f"Empty file. ")
 
         # check if more than 1 geometry is provided
-        elif layer.GetFeatureCount() > 10:
+        elif layer.GetFeatureCount() > featureNumber:
             logger.warning(
                 f"{self.projectId}"
                 f" - validate geometry - "
-                f"Input file contains more than 10 geometries. "
-                f"Make sure to provide less than 10 geometries."
+                f"Input file contains more than {featureNumber} geometries. "
+                f"Make sure to provide less than {featureNumber} geometries."
             )
             raise CustomError(f"Input file contains more than 10 geometries. ")
 
