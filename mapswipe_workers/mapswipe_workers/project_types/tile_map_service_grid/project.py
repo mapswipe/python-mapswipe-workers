@@ -2,7 +2,12 @@ import json
 import os
 
 from mapswipe_workers.project_types.base.project import BaseProject
-from mapswipe_workers.definitions import DATA_PATH, CustomError, logger, featureNumber
+from mapswipe_workers.definitions import (
+    DATA_PATH,
+    CustomError,
+    logger,
+    MAX_INPUT_GEOMETRIES,
+)
 from mapswipe_workers.project_types.tile_map_service_grid.group import Group
 from mapswipe_workers.utils import tile_grouping_functions as grouping_functions
 from mapswipe_workers.project_types.base.tile_server import BaseTileServer
@@ -59,14 +64,16 @@ class Project(BaseProject):
             raise CustomError(f"Empty file. ")
 
         # check if more than 1 geometry is provided
-        elif layer.GetFeatureCount() > featureNumber:
+        elif layer.GetFeatureCount() > MAX_INPUT_GEOMETRIES:
             logger.warning(
                 f"{self.projectId}"
                 f" - validate geometry - "
-                f"Input file contains more than {featureNumber} geometries. "
-                f"Make sure to provide less than {featureNumber} geometries."
+                f"Input file contains more than {MAX_INPUT_GEOMETRIES} geometries. "
+                f"Make sure to provide less than {MAX_INPUT_GEOMETRIES} geometries."
             )
-            raise CustomError(f"Input file contains more than 10 geometries. ")
+            raise CustomError(
+                f"Input file contains more than {MAX_INPUT_GEOMETRIES} geometries. "
+            )
 
         project_area = 0
         geometry_collection = ogr.Geometry(ogr.wkbMultiPolygon)
@@ -76,13 +83,10 @@ class Project(BaseProject):
             geom_name = feat_geom.GetGeometryName()
             # add geometry to geometry collection
             if geom_name == "MULTIPOLYGON":
-                for multi in feat_geom:
-                    geometry_collection.AddGeometry(multi)
-                dissolved_geometry = geometry_collection.UnionCascaded()
-                wkt_geometry_collection = dissolved_geometry.ExportToWkt()
+                for singlepart_polygon in feat_geom:
+                    geometry_collection.AddGeometry(singlepart_polygon)
             if geom_name == "POLYGON":
                 geometry_collection.AddGeometry(feat_geom)
-                wkt_geometry_collection = geometry_collection.ExportToWkt()
             if not feat_geom.IsValid():
                 logger.warning(
                     f"{self.projectId}"
@@ -143,6 +147,9 @@ class Project(BaseProject):
         logger.info(
             f"{self.projectId}" f" - validate geometry - " f"input geometry is correct."
         )
+
+        dissolved_geometry = geometry_collection.UnionCascaded()
+        wkt_geometry_collection = dissolved_geometry.ExportToWkt()
 
         return wkt_geometry_collection
 

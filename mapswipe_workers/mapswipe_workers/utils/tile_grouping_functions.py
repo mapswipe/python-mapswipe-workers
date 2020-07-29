@@ -400,6 +400,9 @@ def extent_to_groups(infile, zoom, groupSize):
     # TODO: add this line once properly working
     groups_dict, overlaps_total = adjust_overlapping_groups(raw_groups_dict, zoom)
 
+    if overlaps_total == 0:
+        groups_dict = groups_dict
+
     return groups_dict
 
 

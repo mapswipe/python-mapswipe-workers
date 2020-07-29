@@ -120,6 +120,8 @@ mapswipe_workers/config/configuration.json
 # don´t upload data dir
 data/
 
+mapswipe-data/
+
 # don't upload app config for project managers dashboard
 app.js
 
