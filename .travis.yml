@@ -38,8 +38,8 @@ install:
 
 script:
   - docker-compose up --build --detach firebase_deploy
-  - docker-compose run mapswipe_workers python -m unittest discover --verbose --start-directory mapswipe_workers/tests/unittests/
-  - docker-compose run mapswipe_workers python -m unittest discover --verbose --start-directory mapswipe_workers/tests/integration/
+  - docker-compose run mapswipe_workers python -m unittest discover --verbose --start-directory tests/unittests/
+  - docker-compose run mapswipe_workers python -m unittest discover --verbose --start-directory tests/integration/
   # - TODO: Run black and flake8
 
 # before_deploy:
