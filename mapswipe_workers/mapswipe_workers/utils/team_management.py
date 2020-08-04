@@ -42,7 +42,7 @@ def remove_all_team_members(team_id):
         raise CustomError(e)
 
 
-def create_team(team_name):
+def create_team(team_name: str, max_tasks_per_user_per_project: int = None):
     """Create new team in Firebase."""
     fb_db = firebaseDB()  # noqa E841
     try:
@@ -52,7 +52,13 @@ def create_team(team_name):
         # set data in firebase
         ref = fb_db.reference(f"v2/teams/")
         team_ref = ref.push()
-        team_ref.set({"teamName": team_name, "teamToken": team_token})
+        team_ref.set(
+            {
+                "teamName": team_name,
+                "teamToken": team_token,
+                "maxTasksPerUserPerProject": max_tasks_per_user_per_project,
+            }
+        )
         logger.info(f"created team: {team_ref.key} - '{team_name}' - {team_token}")
         return team_ref.key, team_token
     except Exception as e:

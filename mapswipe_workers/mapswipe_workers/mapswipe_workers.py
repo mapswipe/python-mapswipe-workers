@@ -191,6 +191,15 @@ def run_user_management(email, action, team_id) -> None:
 )
 @click.option("--team_id", "-i", help=f"The id of the team in Firebase.", type=str)
 @click.option(
+    "--max_tasks_per_user_per_project",
+    "-t",
+    help=(
+        f"The number of tasks a team member can contribute per project of this team."
+        f"This is set when creating a team."
+    ),
+    type=int,
+)
+@click.option(
     "--action",
     "-a",
     help=(
@@ -200,7 +209,9 @@ def run_user_management(email, action, team_id) -> None:
         ["create", "delete", "renew-team-token", "remove-all-team-members"]
     ),
 )
-def run_team_management(team_name, team_id, action) -> None:
+def run_team_management(
+    team_name, team_id, max_tasks_per_user_per_project, action
+) -> None:
     """Create, Delete Teams or Renew TeamToken."""
     try:
         if action == "create":
@@ -208,7 +219,7 @@ def run_team_management(team_name, team_id, action) -> None:
                 click.echo("Missing argument: --team_name")
                 return None
             else:
-                team_management.create_team(team_name)
+                team_management.create_team(team_name, max_tasks_per_user_per_project)
         elif action == "delete":
             if not team_id:
                 click.echo("Missing argument: --team_id")
