@@ -38,7 +38,8 @@ install:
 
 script:
   - docker-compose up --build --detach firebase_deploy
-  - docker-compose run --detach postgres postgres
+  - docker build --tag mapswipe_postgres --file postgres/Dockerfile-dev postgres/
+  - docker run --detach --publish 5432:5432 --name postgres -e POSTGRES_DB="$POSTGRES_DB" -e POSTGRES_USER="$POSTGRES_USER" -e POSTGRES_PASSWORD="$POSTGRES_PASSWORD" mapswipe_postgres
   - docker-compose run mapswipe_workers python -m unittest tests/integration/test_gdal.py
   # - docker-compose run mapswipe_workers python -m unittest discover --verbose --start-directory tests/integration/
   # - TODO: Run black and flake8
