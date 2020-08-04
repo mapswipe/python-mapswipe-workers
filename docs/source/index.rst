@@ -13,13 +13,15 @@ Welcome to MapSwipe Back-End's documentation!
 
    readme_link
    overview
+   contributing
 
 .. toctree::
    :maxdepth: 2
    :caption: Using:
 
    for_mapswipe_managers
-   cli
+   use_cases
+   tile_size
    data
 
 
@@ -30,32 +32,14 @@ Welcome to MapSwipe Back-End's documentation!
    deployment_overview
    configuration
    installation
-   tutorials
-   updating
-   testing
+   cli
+   dev_setup
+   testing_and_travis
    debugging
    backup
 
 
-.. toctree::
-   :maxdepth: 2
-   :caption: Project Types and Data Model:
 
-   project_type
-   project_type-buildArea
-   project_type-footprint
-   project_type-changeDetection
-
-
-.. toctree::
-   :maxdepth: 2
-   :caption: Miscellaneous:
-
-   dev_setup
-   contributing
-   diagrams
-   use_cases
-   tile_size
 
 
 Indices and tables
