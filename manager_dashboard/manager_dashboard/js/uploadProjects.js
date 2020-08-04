@@ -19,6 +19,12 @@ function getFormInput() {
         ' (' + form_data.projectNumber + ')\n' +
         form_data.requestingOrganisation
 
+    // add teamId if visibility is not set to public
+    visibility = document.getElementById("visibility").value
+    if (visibility != "public") {
+        form_data.teamId = visibility
+    }
+
     // add project type specific attributes
     projectType = document.getElementById("projectType").value
     switch (projectType) {

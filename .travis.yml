@@ -29,24 +29,18 @@ services:
   - docker
 
 before_install:
+  - echo "$SERVICE_ACCOUNT_KEY" > mapswipe_workers/serviceAccountKey.json
+  - echo "MOCK_SERVICE_ACCOUNT_KEY" > postgres/serviceAccountKey.json
+
+install:
   - pip install --upgrade pip setuptools
   - pip install flake8 black
 
-install:
-  - pip install mapswipe_workers/
-  - mkdir --parents ~/.config/mapswipe_workers
-  - mkdir --parents ~/.local/share/mapswipe_workers
-  - echo "$SERVICE_ACCOUNT_KEY" > ~/.config/mapswipe_workers/serviceAccountKey.json
-  - docker build --tag mapswipe_postgres --file postgres/Dockerfile-dev postgres/
-
-before_script:
-  - docker run --detach --publish 5432:5432 --name mapswipe_postgres -e POSTGRES_DB="$POSTGRES_DB" -e POSTGRES_USER="$POSTGRES_USER" -e POSTGRES_PASSWORD="$POSTGRES_PASSWORD" mapswipe_postgres
-  - docker-compose up --build --detach firebase_deploy
-
 script:
+  - docker-compose up --build --detach firebase_deploy
+  - docker-compose run mapswipe_workers python -m unittest discover --verbose --start-directory tests/unittests/
+  #- docker-compose run mapswipe_workers python -m unittest discover --verbose --start-directory tests/integration/
   # - TODO: Run black and flake8
-  - python -m unittest -v tests.unittests.test_gdal
-  # - TODO: python -m unittest discover -v -s mapswipe_workers/tests/unittests/ -p 'test_*.py'
 
 # before_deploy:
 #   # SSH setup to deploy to server after build.

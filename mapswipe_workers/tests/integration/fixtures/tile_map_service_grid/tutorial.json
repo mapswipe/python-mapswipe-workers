@@ -1,0 +1,58 @@
+{
+  "name": "Build Area Tutorial",
+  "projectType": 1,
+  "projectId": "build_area_tutorial",
+  "zoomLevel": 18,
+  "lookFor": "Buildings",
+  "status": "build_area_tutorial",
+  "projectDetails": "This is a tutorial",
+  "progress": 0,
+  "contributorCount": 0,
+  "examplesFile": "sample_data/build_area_tutorial_tasks.csv",
+  "tileServer":{
+    "name": "bing",
+    "apiKey": ""
+  },
+  "categories": {
+    "building_easy_1": {
+      "pre": "Tap once on all tiles with at least one building or parts of a building.",
+      "post_correct": "Great. Swipe left and let's have a look a some more difficult examples.",
+      "post_wrong": "... there are some buildings here. Please map all of them. "
+    },
+    "building_easy_2": {
+      "pre": "Again tap the tiles that show buildings. Don't be distracted by roads and other features.",
+      "post_correct": "Perfect. Swipe left and let's have a look at examples without buildings.",
+      "post_wrong": "Oh no. Make sure to map all buildings, also if only small parts of a building are visible in a tile."
+    },
+    "maybe_1": {
+      "pre": "Sometimes, you might be unsure whether a feature is a building or not. In those cases tap two times to indicate a maybe. Mark the bottom left tile as maybe.",
+      "post_correct": "Great.",
+      "post_wrong": "Even if you are absolutely sure, mark the bottom left tile as maybe to move on with this tutorial."
+    },
+    "no_building_easy_1": {
+      "pre": "In many cases there will be no buildings. Just swipe left to map further.",
+      "post_correct": "Nice. Well done.",
+      "post_wrong": "Be careful. We can't find any buildings here."
+    },
+    "no_building_easy_2": {
+      "pre": "Also in this example we can't find any building. Swipe left and move on.",
+      "post_correct": "Isn't it simple? Swipe left and see more examples.",
+      "post_wrong": "... even if there are other objects, there are no buildings here."
+    },
+    "bad_clouds_1": {
+      "pre": "If you see clouds and no buildings tap three times.",
+      "post_correct": "Perfect. Let's move on.",
+      "post_wrong": "Oh no. Make sure to indicate clouds as well."
+    },
+    "bad_no_imagery_1": {
+      "pre": "If imagery is lacking also tap three times.",
+      "post_correct": "Nice.",
+      "post_wrong": "Please mark all tiles for which there is no imagery."
+    },
+    "bad_no_imagery_2": {
+      "pre": "You can also swipe down to mark all tiles red at once. (And you can swipe up to redo this.)",
+      "post_correct": "Cool. We're done with the tutorial. Now you are ready for some real mapping projects.",
+      "post_wrong": "Try again."
+    }
+  }
+}

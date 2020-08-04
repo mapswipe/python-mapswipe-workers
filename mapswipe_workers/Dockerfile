@@ -16,12 +16,7 @@ WORKDIR /root
 RUN mkdir --parents .local/share/mapswipe_workers
 
 # Copy mapswipe workers repo from local repo
-COPY mapswipe_workers/ mapswipe_workers/
-COPY python_scripts/ python_scripts/
-COPY sample_data/ sample_data/
-COPY requirements.txt .
-COPY setup.py .
-COPY serviceAccountKey.json .
+COPY . .
 
 # Update setuptools and install mapswipe-workers with dependencies (requirements.txt)
 RUN pip3 install --upgrade setuptools
