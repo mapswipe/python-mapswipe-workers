@@ -4,7 +4,7 @@ CREATE EXTENSION postgis;
 CREATE TABLE IF NOT EXISTS projects (
     created timestamp,
     created_by varchar,
-    geom geometry(MULTIPOLYGON, 4326),
+    geom geometry,
     image varchar,
     is_featured boolean,
     look_for varchar,
@@ -43,7 +43,7 @@ CREATE TABLE IF NOT EXISTS tasks (
     project_id varchar,
     group_id varchar,
     task_id varchar,
-    geom geometry(MULTIPOLYGON, 4326),
+    geom geometry,
     project_type_specifics json,
     PRIMARY KEY (project_id, group_id, task_id),
     FOREIGN KEY (project_id) REFERENCES projects (project_id),

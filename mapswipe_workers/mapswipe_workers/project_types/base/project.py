@@ -230,7 +230,7 @@ class BaseProject(metaclass=ABCMeta):
             VALUES (
               %s  -- created
               ,%s  -- createdBy
-              ,ST_Force2D(ST_Multi(ST_GeomFromText(%s, 4326)))  -- geometry
+              ,ST_Force2D(ST_GeomFromText(%s, 4326)) -- geometry
               ,%s  -- image
               ,%s  -- isFeatured
               ,%s  -- lookFor

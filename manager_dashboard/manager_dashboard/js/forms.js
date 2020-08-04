@@ -161,35 +161,42 @@ function openFile(event) {
           try {
               var text = reader.result;
               var geojsonData = JSON.parse(text)
-
               // check number of features
               numberOfFeatures = geojsonData['features'].length
+
               console.log('number of features: ' + numberOfFeatures)
-              if (numberOfFeatures > 1) {
+              if (numberOfFeatures > 10) {
                 throw 'too many features: ' + numberOfFeatures
               }
               info_output.innerHTML += 'Number of Features: ' + numberOfFeatures + '<br>';
               info_output.style.display = 'block'
 
+              sumArea = 0
               // check input geometry type
-              feature = geojsonData['features'][0]
-              type = turf.getType(feature)
-              console.log('geometry type: ' + type)
-              if (type !== 'Polygon' & type !== 'MultiPolygon') {
-                throw 'wrong geometry type: ' + type
-              }
-              info_output.innerHTML += 'Feature Type: ' + type + '<br>';
-              info_output.style.display = 'block'
+              for (var i =0; i < geojsonData.features.length; i++) {
+                feature = geojsonData.features[i]
+                type = turf.getType(feature)
+                console.log('geometry type: ' + type)
+
+                if (type !== 'Polygon' & type !== 'MultiPolygon') {
+                    throw 'GeoJson contains one or more wrong geometry type(s): ' + type
+                }
+
+                info_output.innerHTML += 'Feature Type: ' + type + '<br>';
+                info_output.style.display = 'block'
+                sumArea += turf.area(feature)/1000000 // area in square kilometers
+               }
 
               // check project size, based on zoom level
               var zoomLevel = parseInt(document.getElementById('zoomLevel').value);
-              area = turf.area(feature)/1000000 // area in square kilometers
               maxArea = (23 - zoomLevel) * (23 - zoomLevel) * 200
-              console.log('project size: ' + area + ' sqkm')
-              if (area > maxArea) {
-                throw 'project is to large: ' + area + ' sqkm; ' + 'max allowed size for this zoom level: ' + maxArea + ' sqkm'
+              console.log('project size: ' + sumArea + ' sqkm')
+
+              if (sumArea > maxArea) {
+                throw 'project is to large: ' + sumArea + ' sqkm; ' + 'max allowed size for this zoom level: ' + maxArea + ' sqkm'
               }
-              info_output.innerHTML += 'Project Size: ' + area + ' sqkm<br>';
+
+              info_output.innerHTML += 'Project Size: ' + sumArea + ' sqkm<br>';
               info_output.style.display = 'block'
 
               // add feature to map

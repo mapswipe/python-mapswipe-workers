@@ -12,6 +12,9 @@ if not os.path.exists(DATA_PATH):
     os.makedirs(DATA_PATH)
 LOGGING_FILE_PATH = os.path.join(DATA_PATH, "mapswipe_workers.log")
 
+# number of geometries for project geometries
+MAX_INPUT_GEOMETRIES = 10
+
 LOGGING_CONFIG = {
     "version": 1,
     "disable_existing_loggers": True,
@@ -147,7 +150,7 @@ class ProjectType(Enum):
         )
 
         # TODO: implement for arbitrary geometries
-        # from mapswipe_workers.project_types.arbitrary_geometries.arbitrary_geometries_tutorial import (
+        # from mapswipe_workers.project_types.arbitrary_geometries.arbitrary_geometries_tutorial import ( # noqa E501
         #    ArbitraryGeometriesTutorial,
         # )
 

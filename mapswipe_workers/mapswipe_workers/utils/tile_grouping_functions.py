@@ -1,6 +1,5 @@
 import math
 from osgeo import ogr
-
 from mapswipe_workers.definitions import logger
 from mapswipe_workers.utils import tile_functions as t
 
@@ -85,69 +84,71 @@ def get_horizontal_slice(extent, geomcol, zoom):
     ymin = extent[2]
     ymax = extent[3]
 
-    # we only use the first geometry
-    polygon_to_slice = geomcol.GetGeometryRef(0)
-    # logging.info('polygon to slice: %s' % polygon_to_slice)
+    for i in range(0, geomcol.GetGeometryCount()):
+        polygon_to_slice = geomcol.GetGeometryRef(i)
+        # logging.info('polygon to slice: %s' % polygon_to_slice)'''
 
-    # get upper left left tile coordinates
-    pixel = t.lat_long_zoom_to_pixel_coords(ymax, xmin, zoom)
-    tile = t.pixel_coords_to_tile_address(pixel.x, pixel.y)
-    TileX_left = tile.x
-    TileY_top = tile.y
+        # polygon_to_slice = geomcol.GetGeometryRef(0)
 
-    # get lower right tile coordinates
-    pixel = t.lat_long_zoom_to_pixel_coords(ymin, xmax, zoom)
-    tile = t.pixel_coords_to_tile_address(pixel.x, pixel.y)
+        # get upper left left tile coordinates
+        pixel = t.lat_long_zoom_to_pixel_coords(ymax, xmin, zoom)
+        tile = t.pixel_coords_to_tile_address(pixel.x, pixel.y)
+        TileX_left = tile.x
+        TileY_top = tile.y
 
-    TileX_right = tile.x
-    TileY_bottom = tile.y
+        # get lower right tile coordinates
+        pixel = t.lat_long_zoom_to_pixel_coords(ymin, xmax, zoom)
+        tile = t.pixel_coords_to_tile_address(pixel.x, pixel.y)
 
-    TileHeight = abs(TileY_top - TileY_bottom)
-    TileY = TileY_top
+        TileX_right = tile.x
+        TileY_bottom = tile.y
+        TileHeight = abs(TileY_top - TileY_bottom)
 
-    # get rows
-    rows = int(math.ceil(TileHeight / 3))
+        TileY = TileY_top
 
-    ############################################################
+        # get rows
+        rows = int(math.ceil(TileHeight / 3))
 
-    for i in range(0, rows + 1):
-        # Calculate lat, lon of upper left corner of tile
-        PixelX = TileX_left * 256
-        PixelY = TileY * 256
-        lon_left, lat_top = t.pixel_coords_zoom_to_lat_lon(PixelX, PixelY, zoom)
+        ############################################################
 
-        PixelX = TileX_right * 256
-        PixelY = (TileY + 3) * 256
-        lon_right, lat_bottom = t.pixel_coords_zoom_to_lat_lon(PixelX, PixelY, zoom)
+        for i in range(0, rows + 1):
+            # Calculate lat, lon of upper left corner of tile
+            PixelX = TileX_left * 256
+            PixelY = TileY * 256
+            lon_left, lat_top = t.pixel_coords_zoom_to_lat_lon(PixelX, PixelY, zoom)
 
-        # Create Geometry
-        ring = ogr.Geometry(ogr.wkbLinearRing)
-        ring.AddPoint(lon_left, lat_top)
-        ring.AddPoint(lon_right, lat_top)
-        ring.AddPoint(lon_right, lat_bottom)
-        ring.AddPoint(lon_left, lat_bottom)
-        ring.AddPoint(lon_left, lat_top)
-        poly = ogr.Geometry(ogr.wkbPolygon)
-        poly.AddGeometry(ring)
+            PixelX = TileX_right * 256
+            PixelY = (TileY + 3) * 256
+            lon_right, lat_bottom = t.pixel_coords_zoom_to_lat_lon(PixelX, PixelY, zoom)
 
-        sliced_poly = poly.Intersection(polygon_to_slice)
+            # Create Geometry
+            ring = ogr.Geometry(ogr.wkbLinearRing)
+            ring.AddPoint(lon_left, lat_top)
+            ring.AddPoint(lon_right, lat_top)
+            ring.AddPoint(lon_right, lat_bottom)
+            ring.AddPoint(lon_left, lat_bottom)
+            ring.AddPoint(lon_left, lat_top)
+            poly = ogr.Geometry(ogr.wkbPolygon)
+            poly.AddGeometry(ring)
 
-        if sliced_poly:
-            if sliced_poly.GetGeometryName() == "POLYGON":
-                slice_infos["tile_y_top"].append(TileY)
-                slice_infos["tile_y_bottom"].append(TileY + 3)
-                slice_infos["slice_collection"].AddGeometry(sliced_poly)
-            elif sliced_poly.GetGeometryName() == "MULTIPOLYGON":
-                for geom_part in sliced_poly:
+            sliced_poly = poly.Intersection(polygon_to_slice)
+
+            if sliced_poly:
+                if sliced_poly.GetGeometryName() == "POLYGON":
                     slice_infos["tile_y_top"].append(TileY)
                     slice_infos["tile_y_bottom"].append(TileY + 3)
-                    slice_infos["slice_collection"].AddGeometry(geom_part)
+                    slice_infos["slice_collection"].AddGeometry(sliced_poly)
+                elif sliced_poly.GetGeometryName() == "MULTIPOLYGON":
+                    for geom_part in sliced_poly:
+                        slice_infos["tile_y_top"].append(TileY)
+                        slice_infos["tile_y_bottom"].append(TileY + 3)
+                        slice_infos["slice_collection"].AddGeometry(geom_part)
+                else:
+                    pass
             else:
                 pass
-        else:
-            pass
 
-        TileY = TileY + 3
+            TileY = TileY + 3
 
     return slice_infos
 
@@ -249,6 +250,8 @@ def get_vertical_slice(slice_infos, zoom, width_threshold=40):
             PixelY = TileY_bottom * 256
             lon_right, lat_bottom = t.pixel_coords_zoom_to_lat_lon(PixelX, PixelY, zoom)
 
+            # TODO line 254-262 does exactly the same as in line 345-352,
+            #  maybe put it in a function create_geom_from_group_coords
             # Create Geometry
             ring = ogr.Geometry(ogr.wkbLinearRing)
             ring.AddPoint(lon_left, lat_top)
@@ -270,14 +273,102 @@ def get_vertical_slice(slice_infos, zoom, width_threshold=40):
                 "group_polygon": group_poly,
             }
 
-            #####################
             TileX = TileX + step_size
 
     logger.info("created vertical_slice")
     return raw_groups
 
 
-def extent_to_slices(infile, zoom, groupSize):
+def adjust_overlapping_groups(groups, zoom):
+    def groups_intersect():
+        # returns True if groups intersect
+        return (
+            (int(x_min) <= int(x_maxB))
+            and (int(x_minB) <= int(x_max))
+            and (int(y_min) <= int(y_maxB))
+            and (int(y_minB) <= int(y_max))
+        )
+
+    groups_without_overlap = {}
+    overlaps_total = 0
+
+    for group_id in list(groups.keys()):
+
+        # skip if groups has been removed already
+        if group_id not in groups.keys():
+            continue
+
+        x_max = groups[group_id]["xMax"]
+        x_min = groups[group_id]["xMin"]
+        y_max = groups[group_id]["yMax"]
+        y_min = groups[group_id]["yMin"]
+
+        overlap_count = 0
+        for group_id_b in list(groups.keys()):
+            # skip if it is the same group
+            if group_id_b == group_id:
+                continue
+
+            y_minB = groups[group_id_b]["yMin"]
+            y_maxB = groups[group_id_b]["yMax"]
+            x_maxB = groups[group_id_b]["xMax"]
+            x_minB = groups[group_id_b]["xMin"]
+
+            if groups_intersect():
+                overlap_count += 1
+
+                # define new x_min and x_max
+                # add info to groups_dict
+                # depending on intersection x_min or x_max need to change
+                if x_max >= x_minB:  # intersection on left side
+                    new_x_min = int(x_min)
+                    new_x_max = int(x_minB) - 1
+                elif x_min <= x_maxB:  # intersection on right side
+                    new_x_min = int(x_maxB) + 1
+                    new_x_max = int(x_max)
+
+                # Calculate lat, lon of upper left corner of tile
+                PixelX = int(new_x_min) * 256
+                PixelY = (int(y_max) + 1) * 256
+                lon_left, lat_top = t.pixel_coords_zoom_to_lat_lon(PixelX, PixelY, zoom)
+                # logging.info('lon_left: %s, lat_top: %s' % (lon_left, lat_top))
+
+                # Calculate lat, lon of bottom right corner of tile
+                PixelX = (int(new_x_max) + 1) * 256
+                PixelY = int(y_min) * 256
+                lon_right, lat_bottom = t.pixel_coords_zoom_to_lat_lon(
+                    PixelX, PixelY, zoom
+                )
+
+                # Create Geometry
+                ring = ogr.Geometry(ogr.wkbLinearRing)
+                ring.AddPoint(lon_left, lat_top)
+                ring.AddPoint(lon_right, lat_top)
+                ring.AddPoint(lon_right, lat_bottom)
+                ring.AddPoint(lon_left, lat_bottom)
+                ring.AddPoint(lon_left, lat_top)
+                poly = ogr.Geometry(ogr.wkbPolygon)
+                poly.AddGeometry(ring)
+
+                groups_without_overlap[group_id] = {
+                    "xMin": str(new_x_min),
+                    "xMax": str(new_x_max),
+                    "yMin": str(y_min),
+                    "yMax": str(y_max),
+                    "group_polygon": poly,
+                }
+
+        if overlap_count == 0:
+            groups_without_overlap[group_id] = groups[group_id]
+
+        del groups[group_id]
+        overlaps_total += overlap_count
+
+    print(f"overlaps_total: {overlaps_total}")
+    return groups_without_overlap, overlaps_total
+
+
+def extent_to_groups(infile, zoom, groupSize):
     """
     The function to polygon geometries of a given input file
     into horizontal slices and then vertical slices.
@@ -305,10 +396,14 @@ def extent_to_slices(infile, zoom, groupSize):
     # then get vertical slices --> columns
     raw_groups_dict = get_vertical_slice(horizontal_slice_infos, zoom, groupSize)
 
-    return raw_groups_dict
+    # finally remove overlapping groups
+    # TODO: add this line once properly working
+    groups_dict, overlaps_total = adjust_overlapping_groups(raw_groups_dict, zoom)
+
+    return groups_dict
 
 
-def save_slices_as_geojson(raw_group_infos, outfile):
+def vertical_groups_as_geojson(raw_group_infos, outfile):
     """
     The function to create a geojson file from the groups dictionary.
 
@@ -327,13 +422,13 @@ def save_slices_as_geojson(raw_group_infos, outfile):
         True if successful, False otherwise.
     """
 
-    # Create the output Driver
+    # Create the output Driver and the output GeoJSON
     outDriver = ogr.GetDriverByName("GeoJSON")
     # Create the output GeoJSON
     outDataSource = outDriver.CreateDataSource(outfile)
     outLayer = outDataSource.CreateLayer(outfile, geom_type=ogr.wkbPolygon)
 
-    outLayer.CreateField(ogr.FieldDefn("group_id", ogr.OFTInteger))
+    outLayer.CreateField(ogr.FieldDefn("group_id", ogr.OFTString))
     outLayer.CreateField(ogr.FieldDefn("xmin", ogr.OFTInteger))
     outLayer.CreateField(ogr.FieldDefn("xmax", ogr.OFTInteger))
     outLayer.CreateField(ogr.FieldDefn("ymin", ogr.OFTInteger))
@@ -349,6 +444,28 @@ def save_slices_as_geojson(raw_group_infos, outfile):
         outFeature.SetField("xmax", group["xMax"])
         outFeature.SetField("ymin", group["yMin"])
         outFeature.SetField("ymax", group["yMax"])
+        outLayer.CreateFeature(outFeature)
+        outFeature = None
+
+    outDataSource = None
+    logger.info("created all %s." % outfile)
+
+    return True
+
+
+def horizontal_groups_as_geojson(slices_info, outfile):
+
+    # Create the output Driver and out GeoJson
+    outDriver = ogr.GetDriverByName("GeoJSON")
+    # Create the output GeoJSON
+    outDataSource = outDriver.CreateDataSource(outfile)
+    outLayer = outDataSource.CreateLayer(outfile, geom_type=ogr.wkbPolygon)
+    slices_geom = slices_info["slice_collection"]
+
+    for group in slices_geom:
+        featureDefn = outLayer.GetLayerDefn()
+        outFeature = ogr.Feature(featureDefn)
+        outFeature.SetGeometry(group)
         outLayer.CreateFeature(outFeature)
         outFeature = None
 

@@ -37,7 +37,7 @@ def tasks_to_geojson(project_extent_file, zoomlevel, outfile):
     project.zoomLevel = int(zoomlevel)
     project.tileServer = vars(BaseTileServer(tile_server_dict))
 
-    raw_groups = t.extent_to_slices(project_extent_file, project.zoomLevel, 120)
+    raw_groups = t.extent_to_groups(project_extent_file, project.zoomLevel, 120)
 
     tasks = list()
 
@@ -53,6 +53,12 @@ def tasks_to_geojson(project_extent_file, zoomlevel, outfile):
                 task = Task(group, project, TileX, TileY)
                 tasks.append(vars(task))
 
+    # count tasks
+    count_tasks = 0
+    for i in tasks:
+        count_tasks += 1
+
+    print(count_tasks)
     # Create the output Driver
     driver = ogr.GetDriverByName("GeoJSON")
     # Create the output GeoJSON
