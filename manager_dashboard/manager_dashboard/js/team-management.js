@@ -16,6 +16,7 @@ function addTeamsToTable() {
                 row_array.push(data.key)
                 row_array.push(data.val().teamName)
                 row_array.push(data.val().teamToken)
+                row_array.push(data.val().maxTasksPerUserPerProject || '-')
                 // add button for team members
                 btn = document.createElement('button')
                 btn.id = data.key
