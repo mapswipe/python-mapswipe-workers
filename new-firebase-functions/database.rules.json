@@ -11,7 +11,9 @@
         ".write": false,
         ".read": "
           // all users can query by status
-        	(auth != null  && query.orderByChild == 'status' && query.equalTo == 'active')
+          (auth != null  && query.orderByChild == 'status' && query.equalTo == 'active')
+          ||
+          (auth != null  && query.orderByChild == 'status' && query.equalTo == 'build_area_tutorial' && query.limitToFirst == 1)
           ||
           // only team members can query by their own teamId
           (auth != null && query.orderByChild == 'teamId' &&
