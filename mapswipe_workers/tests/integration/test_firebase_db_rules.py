@@ -200,6 +200,11 @@ class TestFirebaseDBRules(unittest.TestCase):
                 f'orderBy="teamId"&equalTo="{self.team_id_b}"&limitToFirst=20',
             ],
             [f"/v2/projects/{self.private_project_id_b}/status", ""],
+            # query for tutorial
+            [
+                f"/v2/projects",
+                f'orderBy="status"&equalTo="build_area_tutorial"&limitToFirst=1',
+            ],
             # teams
             [f"/v2/teams/{self.team_id}", ""],
             [f"/v2/teams/{self.team_id}/teamName", ""],
@@ -252,6 +257,7 @@ class TestFirebaseDBRules(unittest.TestCase):
             (False, False),  # private project status attribute
             (False, False),  # private project b query
             (False, False),  # private project b status attribute
+            (True, False),  # build area tutorial query
             (False, False),  # team
             (False, False),  # teamName
             (False, False),  # teamToken
@@ -294,6 +300,7 @@ class TestFirebaseDBRules(unittest.TestCase):
             (True, False),  # private project status
             (False, False),  # private project b query
             (False, False),  # private project b status
+            (True, False),  # build area tutorial query
             (False, False),  # team
             (True, False),  # teamName
             (False, False),  # teamToken
@@ -337,6 +344,7 @@ class TestFirebaseDBRules(unittest.TestCase):
             (True, True),  # private project status
             (True, False),  # private project b query
             (True, True),  # private project b status
+            (True, False),  # build area tutorial query
             (True, True),  # team
             (True, True),  # teamName
             (True, True),  # teamToken
