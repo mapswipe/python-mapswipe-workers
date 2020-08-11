@@ -136,13 +136,11 @@ For more information refer to the official [Reference on Cloud Function for Fire
 
 ## Travis Setup
 
-Configuration for travis setup is utilizing environment variables.
+A Travis instance is used to build MapSwipe Workers and run tests.
 
-One difference to production or development setup is that the service account key as json is stored in the environment variables `FIREBASE_CONFIG` as text. To make this work special characters as to be escaped first. This command will simply escape every character:
+For the configuration of Travis environment variables are used: https://docs.travis-ci.com/user/environment-variables/#defining-variables-in-repository-settings
 
-```bash
-sed -e 's/./\\&/g; 1{$s/^$/""/}; 1!s/^/"/; $!s/$/"/' serviceAccountKey.json
-```
+A Service Account Key in JSON format is encrypted and added to the GitHub repository using the travis CLI: https://docs.travis-ci.com/user/encrypting-files/
 
 
 ## Database Backup
