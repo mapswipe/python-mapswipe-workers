@@ -137,10 +137,22 @@ For more information refer to the official [Reference on Cloud Function for Fire
 ## Travis Setup
 
 A Travis instance is used to build MapSwipe Workers and run tests.
+There exists a Firebase instance only for Travis.
+For the configuration of Travis following environment variables are used:
 
-For the configuration of Travis environment variables are used: https://docs.travis-ci.com/user/environment-variables/#defining-variables-in-repository-settings
+- FIREBASE_API_KEY
+- FIREBASE_DB: test-mapswipe
+- FIREBASE_TOKEN
+- POSTGRES_DB
+- POSTGRES_HOST
+- POSTGRES_PASSWORD
+- POSTGRES_PASSWORD
+- POSTGRES_USER
+- WALG_GS_PREFIX: empty
 
-A Service Account Key in JSON format is encrypted and added to the GitHub repository using the travis CLI: https://docs.travis-ci.com/user/encrypting-files/
+Those variables can be definied directly in the repository settings of Travis. For more inofmration refer to: https://docs.travis-ci.com/user/environment-variables/#defining-variables-in-repository-settings
+
+Additionaly a Service Account Key in JSON format is encrypted and added to the GitHub repository using the travis CLI. Read more on that process in the Travis docs: https://docs.travis-ci.com/user/encrypting-files/
 
 
 ## Database Backup
