@@ -11,12 +11,8 @@ class TestFirebaseConnection(unittest.TestCase):
         self.fb_db = None
 
     def test_create_project(self):
-        ref = self.fb_db.reference("/v2/test")
-        ref.push("test")
-        result = ref.get()
-        self.assertIsNotNone(result)
-        ref.set({})
-        result = ref.get()
+        ref = self.fb_db.reference("/v2")
+        result = ref.get(shallow=True)
         self.assertIsNone(result)
 
 
