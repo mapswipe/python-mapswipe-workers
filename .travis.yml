@@ -11,7 +11,7 @@ services:
   - docker
 
 before_install:
-  - openssl aes-256-cbc -K $encrypted_8490673b5c7a_key -iv $encrypted_8490673b5c7a_iv -in travis-serviceAccountKey.json.enc -out mapswipe_workers/serviceAccountKey.json -d
+  - openssl aes-256-cbc -K $encrypted_92177d6f9c77_key -iv $encrypted_92177d6f9c77_iv -in .travis-serviceAccountKey.json.enc -out mapswipe_workers/serviceAccountKey.json -d
   # Create a mock file
   - touch postgres/serviceAccountKey.json
 
