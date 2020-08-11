@@ -5,6 +5,7 @@ import tear_down
 from click.testing import CliRunner
 
 from mapswipe_workers import auth, mapswipe_workers
+from mapswipe_workers.utils.create_directories import create_directories
 
 
 class TestCreateProject(unittest.TestCase):
@@ -12,6 +13,7 @@ class TestCreateProject(unittest.TestCase):
         self.project_id = set_up.create_test_project_draft(
             "tile_map_service_grid", "build_area"
         )
+        create_directories()
 
     def tearDown(self):
         tear_down.delete_test_data(self.project_id)
