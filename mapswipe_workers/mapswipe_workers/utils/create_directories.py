@@ -20,6 +20,6 @@ def create_directories() -> None:
     )
 
     for dir_name in dirs:
-        path = pathlib.PurePath(DATA_PATH).joinpath(dir_name)
+        path = pathlib.Path(DATA_PATH + dir_name)
         # mimicking the POSIX mkdir -p command
         path.mkdir(parents=True, exist_ok=True)
