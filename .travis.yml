@@ -12,6 +12,7 @@ services:
 
 before_install:
   - openssl aes-256-cbc -K $encrypted_8490673b5c7a_key -iv $encrypted_8490673b5c7a_iv -in travis-serviceAccountKey.json.enc -out mapswipe_workers/serviceAccountKey.json -d
+  # Create a mock file
   - touch postgres/serviceAccountKey.json
 
 install:
@@ -22,7 +23,7 @@ script:
   - docker-compose up --build --detach firebase_deploy
   - docker-compose up --build --detach postgres
   - docker-compose run mapswipe_workers python -m unittest discover --verbose --start-directory tests/unittests/
-  #- docker-compose run mapswipe_workers python -m unittest discover --verbose --start-directory tests/integration/
+  - docker-compose run mapswipe_workers python -m unittest discover --verbose --start-directory tests/integration/
   # - TODO: Run black and flake8
 
 # before_deploy:
