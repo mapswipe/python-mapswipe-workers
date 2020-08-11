@@ -1,10 +1,10 @@
 import unittest
 
-from click.testing import CliRunner
-from mapswipe_workers import auth, mapswipe_workers
-
 import set_up
 import tear_down
+from click.testing import CliRunner
+
+from mapswipe_workers import auth, mapswipe_workers
 
 
 class TestCreateProject(unittest.TestCase):
@@ -21,16 +21,16 @@ class TestCreateProject(unittest.TestCase):
         runner.invoke(mapswipe_workers.run_create_projects)
 
         pg_db = auth.postgresDB()
-        query = "SELECT * FROM projects WHERE project_id = '{0}'".format(
+        query = "SELECT project_id FROM projects WHERE project_id = '{0}'".format(
             self.project_id
         )
-        result = pg_db.retr_query(query)
-        self.assertIsNone(result)
+        result = pg_db.retr_query(query)[0][0]
+        self.assertEqual(result, self.project_id)
 
         fb_db = auth.firebaseDB()
         ref = fb_db.reference("/v2/projects/{0}".format(self.project_id))
         result = ref.get()
-        self.assertIsNone(result)
+        self.assertIsNotNone(result)
 
 
 if __name__ == "__main__":

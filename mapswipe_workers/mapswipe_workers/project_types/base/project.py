@@ -1,14 +1,14 @@
-from abc import ABCMeta, abstractmethod
 import csv
 import datetime as dt
 import json
 import os
+import pathlib
+from abc import ABCMeta, abstractmethod
+
 import ogr
 
 from mapswipe_workers import auth
-from mapswipe_workers.definitions import DATA_PATH
-from mapswipe_workers.definitions import logger
-from mapswipe_workers.definitions import CustomError
+from mapswipe_workers.definitions import DATA_PATH, CustomError, logger
 from mapswipe_workers.utils import geojson_functions
 
 
@@ -387,15 +387,12 @@ class BaseProject(metaclass=ABCMeta):
 
     def save_to_files(self, project):
         """Save the project extent geometry as a GeoJSON file."""
-        if not os.path.isdir("{}/api/project_geometries".format(DATA_PATH)):
-            os.mkdir("{}/api/project_geometries".format(DATA_PATH))
-
-        outfile = (
-            f"{DATA_PATH}/api/project_geometries/project_geom_{self.projectId}.geojson"
-        )
+        path = pathlib.Path("{0}/api/project_geometries".format(DATA_PATH))
+        path.mkdir(parents=True, exist_ok=True)
+        outfile = path.joinpath("/project_geom_{0}.geojson".format(self.projectId))
         wkt_geom = project["geometry"]
         geometries = [ogr.CreateGeometryFromWkt(wkt_geom)]
-        geojson_functions.create_geojson_file(geometries, outfile)
+        geojson_functions.create_geojson_file(geometries, str(outfile))
 
     def delete_from_files(self):
         """Delete the project extent geometry file."""
