@@ -149,6 +149,7 @@ For the configuration of Travis following environment variables are used:
 - POSTGRES_PASSWORD
 - POSTGRES_USER
 - WALG_GS_PREFIX: empty
+- GOOGLE_APPLICATION_CREDENTIALS: mapswipe_workers/serviceAccountKey.json
 
 Those variables can be definied directly in the repository settings of Travis. For more inofmration refer to: https://docs.travis-ci.com/user/environment-variables/#defining-variables-in-repository-settings
 
