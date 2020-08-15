@@ -1,0 +1,98 @@
+{
+  "1": {
+    "instructions": {
+      "title": "There's some waste in this image",
+      "description": "Tap once where you think you can see waste.",
+      "icon": "tap-1"
+    },
+    "success": {
+      "title": "You found your first area with waste!",
+      "description": "Swipe to the next screen to look for more",
+      "icon": "check"
+    }
+  },
+  "2": {
+    "instructions": {
+      "title": "We're not sure about this one",
+      "description": "Tap Twice to indicate there might be waste.",
+      "icon": "tap-2"
+    },
+    "success": {
+      "title": "Nice. Use this whenever you're unsure",
+      "description": "Swipe to the next screen to learn more.",
+      "icon": "check"
+    }
+  },
+  "3": {
+    "instructions": {
+      "title": "Some of the imagery is missing here",
+      "description": "Tap 3 times to mark the tile red.",
+      "icon": "tap-3"
+    },
+    "success": {
+      "title": "Great stuff!",
+      "description": "Swipe to keep on going",
+      "icon": "check"
+    }
+  },
+  "4": {
+    "instructions": {
+      "title": "Often, there will be no waste on screen.",
+      "description": "You can just swipe to the next screen.",
+      "icon": "swipe-left"
+    }
+  },
+  "5": {
+    "instructions": {
+      "title": "Find all the waste",
+      "description": "Mark all the tiles using what you've learned. You can show answers if you get stuck",
+      "icon": "tap"
+    },
+    "success": {
+      "title": "Well done, you found all the waste!",
+      "description": "Swipe to practice some more.",
+      "icon": "check"
+    }
+  },
+  "6": {
+    "instructions": {
+      "title": "Let's try another trickier one.",
+      "description": "Remember, tap once for waste, twice for maybe, three times for poor imagery.",
+      "icon": "tap"
+    },
+    "success": {
+      "title": "Well done, you found all the waste!",
+      "description": "Swipe to practice some more.",
+      "icon": "check"
+    },
+    "hint": {
+      "title": "This is how the tiles should look.",
+      "description": "Swipe to try another again on a new screen.",
+      "icon": "swipe-left"
+    }
+  },
+  "7": {
+    "instructions": {
+      "title": "It's all bad imagery... so many taps",
+      "description": "When every tiles is bad imagery, you can swipe down to mark all tiles red.",
+      "icon": "swipe-down"
+    },
+    "success": {
+      "title": "Perfect",
+      "description": "This could save you a lot of tapping. Swipe to learn more.",
+      "icon": "check"
+    }
+  },
+  "8": {
+    "instructions": {
+      "title": "How to reset a screen?",
+      "description": "You can undo and clear the color of every tile by swiping up.",
+      "icon": "swipe-up"
+    },
+    "success": {
+      "title": "Cool",
+      "description": "This could save you a lot of tapping. Swipe to learn more.",
+      "icon": "check"
+    }
+  }
+}
