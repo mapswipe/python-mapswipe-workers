@@ -47,6 +47,14 @@
           "complete"
         ]
       },
+      "tutorialDrafts": {
+        // only project managers can write projectDrafts
+        ".read": false,
+        ".write": "auth.token.projectManager === true",
+        ".indexOn": [
+          "complete"
+        ]
+      },
       "groups": {
         ".write": false,
         ".read": "auth.token.projectManager === true",
