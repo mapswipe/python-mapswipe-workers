@@ -1,7 +1,6 @@
 """Command Line Interface for MapSwipe Workers."""
 
 import ast
-import json
 import time
 
 import click
@@ -258,23 +257,36 @@ def run_team_management(team_name, team_id, action) -> None:
 
 
 @cli.command("create-tutorial")
-@click.option(
-    "--input-file", help=(f"A JSON file of the tutorial."), required=True, type=str,
-)
-def run_create_tutorial(input_file) -> None:
+def run_create_tutorial() -> None:
     """Create a tutorial project from provided JSON file."""
-    try:
-        logger.info(f"will generate tutorial based on {input_file}")
-        with open(input_file) as json_file:
-            tutorial_draft = json.load(json_file)
+
+    fb_db = auth.firebaseDB()
+    ref = fb_db.reference("v2/tutorialDrafts/")
+    tutorial_drafts = ref.get()
+
+    if tutorial_drafts is None:
+        logger.info("There are no tutorial drafts in firebase.")
+        return None
+
+    for tutorial_draft_id, tutorial_draft in tutorial_drafts.items():
+        tutorial_draft["tutorialDraftId"] = tutorial_draft_id
         project_type = tutorial_draft["projectType"]
-        tutorial = ProjectType(project_type).tutorial(tutorial_draft)
-        tutorial.create_tutorial_groups()
-        tutorial.create_tutorial_tasks()
-        tutorial.save_tutorial()
-    except Exception:
-        logger.exception("Tutorials could not be created.")
-        sentry.capture_exception()
+        project_name = tutorial_draft["name"]
+
+        try:
+            tutorial = ProjectType(project_type).tutorial(tutorial_draft)
+            tutorial.create_tutorial_groups()
+            tutorial.create_tutorial_tasks()
+            tutorial.save_tutorial()
+            send_slack_message(MessageType.SUCCESS, project_name, tutorial.projectId)
+            logger.info(f"Success: Tutorial Creation ({project_name})")
+        except CustomError:
+            ref = fb_db.reference(f"v2/tutorialDrafts/{tutorial_draft_id}")
+            ref.set({})
+            send_slack_message(MessageType.FAIL, project_name, tutorial.projectId)
+            logger.exception("Failed: Project Creation ({0}))".format(project_name))
+            sentry.capture_exception()
+        continue
 
 
 @cli.command("archive")

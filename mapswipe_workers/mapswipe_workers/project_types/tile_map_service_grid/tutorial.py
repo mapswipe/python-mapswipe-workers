@@ -1,4 +1,3 @@
-import json
 from mapswipe_workers.definitions import logger
 from mapswipe_workers.project_types.base.tutorial import BaseTutorial
 from mapswipe_workers.project_types.base.tile_server import BaseTileServer
@@ -15,8 +14,8 @@ class Tutorial(BaseTutorial):
         self.projectType = tutorial_draft["projectType"]
         self.zoomLevel = int(tutorial_draft.get("zoomLevel", 18))
         self.tileServer = vars(BaseTileServer(tutorial_draft["tileServer"]))
-        self.examplesFile = tutorial_draft["examplesFile"]
-        self.categories = tutorial_draft["categories"]
+        self.tutorial_tasks = tutorial_draft["tutorialTasks"]
+        self.screens = tutorial_draft["screens"]
         self.groups = dict()
         self.tasks = dict()
 
@@ -34,14 +33,10 @@ class Tutorial(BaseTutorial):
         self.status = status_dict[self.projectType]
 
     def create_tutorial_groups(self):
-        """Create a single group for the tutorial based on provided examples in geojson file."""
+        """Create group for the tutorial based on provided examples in geojson file."""
         # load examples/tasks from file
-        with open(self.examplesFile, "r") as f:
-            self.raw_tasks = json.load(f)[
-                "features"
-            ]  # get list of features from geojson file
 
-        number_of_screens = len(self.categories)
+        number_of_screens = len(self.screens)
         # create the groups dict to be uploaded in Firebase
         self.groups[101] = {
             "xMax": 100
@@ -50,14 +45,14 @@ class Tutorial(BaseTutorial):
             "xMin": 100,  # this will be always set to 100
             "yMax": 131074,  # this is set to be at the equator
             "yMin": 131072,  # this is set to be at the equator
-            "requiredCount": 5,  # this is not needed from back end perspective, maybe for client
-            "finishedCount": 0,  # this is not needed from back end perspective, maybe for client
+            "requiredCount": 5,  # this is not needed from back end perspective
+            "finishedCount": 0,  # this is not needed from back end perspective
             "groupId": 101,  # a tutorial has only one group
             "projectId": self.projectId,
             "numberOfTasks": len(
-                self.raw_tasks
+                self.tutorial_tasks
             ),  # this depends on the number of screens/tasks to show
-            "progress": 0,  # this is not needed from back end perspective, maybe for client
+            "progress": 0,  # this is not needed from back end perspective
         }
 
         if self.projectType in [3]:
@@ -77,13 +72,17 @@ class Tutorial(BaseTutorial):
 
         self.tasks = dict()
         self.tasks[101] = list()
-        number_of_screens = len(self.categories)
+        number_of_screens = len(self.screens)
 
         for screen in range(1, number_of_screens + 1):
             # get all tasks for this screen
+
             raw_tasks_screen = [
-                d for d in self.raw_tasks if d["properties"]["screen"] in [screen]
+                d
+                for d in self.tutorial_tasks["features"]
+                if d["properties"]["screen"] in [screen]
             ]
+
             # sort by tile_x and tile_y
             raw_tasks_screen_sorted = sorted(
                 raw_tasks_screen,
@@ -109,8 +108,8 @@ class Tutorial(BaseTutorial):
                 task = {
                     "taskId_real": f"{self.zoomLevel}-{tile_x}-{tile_y}",
                     "taskId": f"{self.zoomLevel}-{tile_x_tutorial}-{tile_y_tutorial}",
-                    "taskX": tile_x_tutorial,  # need to set this correctly based on screen
-                    "taskY": tile_y_tutorial,  # need to set this correctly based on screen
+                    "taskX": tile_x_tutorial,  # need to set this based on screen
+                    "taskY": tile_y_tutorial,  # need to set this based on screen
                     "groupId": 101,  # a tutorial has only one group
                     "projectId": self.projectId,
                     "referenceAnswer": raw_task["properties"]["reference"],

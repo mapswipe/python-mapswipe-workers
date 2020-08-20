@@ -10,8 +10,8 @@ class BaseTutorial(metaclass=ABCMeta):
         """The function to initialize a new tutorial."""
         self.lookFor = tutorial_draft["lookFor"]
         self.name = tutorial_draft["name"]
-        self.projectId = tutorial_draft["projectId"]
-        self.projectDetails = tutorial_draft["projectDetails"]
+        self.projectId = tutorial_draft["name"]
+        self.projectDetails = "This is a tutorial"
         self.progress = 0
         self.contributorCount = 0
 

@@ -56,7 +56,6 @@ function getFormInput() {
     form_data.tutorialTasks = JSON.parse(tutorialTasks)
 
     form_data.name = projectType + '_tutorial_' + form_data.lookFor
-    form_data.status = projectType + '_tutorial_' + form_data.lookFor
     return form_data
 }
 
