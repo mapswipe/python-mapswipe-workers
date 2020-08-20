@@ -113,7 +113,7 @@ class Tutorial(BaseTutorial):
                     "groupId": 101,  # a tutorial has only one group
                     "projectId": self.projectId,
                     "referenceAnswer": raw_task["properties"]["reference"],
-                    "category": raw_task["properties"]["category"],
+                    "screen": raw_task["properties"]["screen"],
                     "url": t.tile_coords_zoom_and_tileserver_to_url(
                         tile_x, tile_y, self.zoomLevel, self.tileServer
                     ),

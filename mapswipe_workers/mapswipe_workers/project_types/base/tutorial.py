@@ -11,6 +11,7 @@ class BaseTutorial(metaclass=ABCMeta):
         self.lookFor = tutorial_draft["lookFor"]
         self.name = tutorial_draft["name"]
         self.projectId = tutorial_draft["name"]
+        self.tutorialDraftId = tutorial_draft["tutorialDraftId"]
         self.projectDetails = "This is a tutorial"
         self.progress = 0
         self.contributorCount = 0
@@ -26,6 +27,7 @@ class BaseTutorial(metaclass=ABCMeta):
         tutorial.pop("tasks", None)
         tutorial.pop("raw_tasks", None)
         tutorial.pop("examplesFile", None)
+        tutorial.pop("tutorial_tasks", None)
 
         fb_db = auth.firebaseDB()
         ref = fb_db.reference("")
@@ -45,6 +47,9 @@ class BaseTutorial(metaclass=ABCMeta):
         )
 
         logger.info(f"uploaded tutorial data to firebase for {self.projectId}")
+
+        ref = fb_db.reference(f"v2/tutorialDrafts/{self.tutorialDraftId}")
+        ref.set({})
 
     @abstractmethod
     def create_tutorial_groups():
