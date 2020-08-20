@@ -13,7 +13,7 @@
           // all users can query by status
           (auth != null  && query.orderByChild == 'status' && query.equalTo == 'active')
           ||
-          (auth != null  && query.orderByChild == 'status' && query.equalTo == 'build_area_tutorial' && query.limitToFirst == 1)
+          (auth != null  && query.orderByChild == 'status' && query.equalTo == 'build_area_tutorial' && query.limitToFirst == 5)
           ||
           (auth != null  && query.orderByChild == 'status' && query.equalTo == 'completeness_tutorial' && query.limitToFirst == 1)
           ||
