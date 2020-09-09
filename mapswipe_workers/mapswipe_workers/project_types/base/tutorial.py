@@ -15,6 +15,8 @@ class BaseTutorial(metaclass=ABCMeta):
         self.projectDetails = "This is a tutorial"
         self.progress = 0
         self.contributorCount = 0
+        self.exampleImage1 = tutorial_draft.get("exampleImage1", None)
+        self.exampleImage2 = tutorial_draft.get("exampleImage2", None)
 
     def save_tutorial(self):
         """Save the tutorial in Firebase."""

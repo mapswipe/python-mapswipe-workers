@@ -146,6 +146,5 @@ function upload_to_firebase() {
                     alert('could not upload data: ' + error);
                   });
             }, 15000)
-
         }
 }
