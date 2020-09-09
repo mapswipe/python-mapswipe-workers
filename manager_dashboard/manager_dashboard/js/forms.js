@@ -54,6 +54,7 @@ function displayProjectTypeForm(projectType) {
             document.getElementById("form_tile_server_a").style.display = "block";
             document.getElementById("form_tile_server_b").style.display = "None";
             setTimeout(function(){ ProjectAoiMap.invalidateSize()}, 400);
+            document.getElementById("form_team_settings").style.display = "None";
             break;
         case "footprint":
             displayTileServer("bing", "A");
@@ -63,6 +64,7 @@ function displayProjectTypeForm(projectType) {
             document.getElementById("form_zoom_level").style.display = "None";
             document.getElementById("form_tile_server_a").style.display = "block";
             document.getElementById("form_tile_server_b").style.display = "None";
+            document.getElementById("form_team_settings").style.display = "None";
             break;
         case "change_detection":
         case "completeness":
@@ -79,6 +81,7 @@ function displayProjectTypeForm(projectType) {
             document.getElementById("form_tile_server_a").style.display = "block";
             document.getElementById("form_tile_server_b").style.display = "block";
             setTimeout(function(){ ProjectAoiMap.invalidateSize()}, 400);
+            document.getElementById("form_team_settings").style.display = "None";
             break;
     }
 }
@@ -95,6 +98,16 @@ function addTileServerCredits (tileServerName, which) {
         "custom": "Please add imagery credits here."
     }
     document.getElementById("tileServer"+which+"Credits").value = credits[tileServerName]
+}
+
+function displayTeamSettings (teamId) {
+    switch (teamId) {
+        case "public":
+            document.getElementById("form_team_settings").style.display = "None";
+            break;
+        default:
+            document.getElementById("form_team_settings").style.display = "block";
+    }
 }
 
 

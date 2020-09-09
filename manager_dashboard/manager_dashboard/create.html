@@ -144,7 +144,7 @@
                           </li>
                           <li>
                               <label for="visibility">Visibility</label>
-                              <select name="visibility" id="visibility">
+                              <select name="visibility" id="visibility" onchange="displayTeamSettings(this.value)">
                                   <option value="public">Public</option>
                               </select>
                               <span>Choose either "public" or select the team for which this project should be displayed.</span>
@@ -231,6 +231,19 @@
                               <label for="inputTaskGeometries">Input Geometries File (Direct Link)</label>
                               <input type="text" name="inputTaskGeometries" id="inputTaskGeometries">
                               <span>Provide a direct link to a GeoJSON file containing your building footprint geometries.</span>
+                          </li>
+                          <li></li>
+                          </ul>
+                      </form>
+                  </div>
+                  <div class="container" id="form_team_settings">
+                      <h3>Team Settings</h3>
+                      <form class="form-style-7">
+                          <ul>
+                          <li>
+                              <label for="maxTasksPerUser">Max Tasks Per User</label>
+                              <input type="number" name="maxTasksPerUser" id="maxTasksPerUser" value="-1" min="-1">
+                              <span>How many tasks each user is allowed to work on for this project. "-1" indicates that no limit is set.</span>
                           </li>
                           <li></li>
                           </ul>

@@ -23,6 +23,10 @@ function getFormInput() {
     visibility = document.getElementById("visibility").value
     if (visibility != "public") {
         form_data.teamId = visibility
+        maxTasksPerUser = document.getElementById("maxTasksPerUser").value
+        if (maxTasksPerUser > 0) {
+            form_data.maxTasksPerUser = maxTasksPerUser
+        }
     }
 
     // add project type specific attributes
