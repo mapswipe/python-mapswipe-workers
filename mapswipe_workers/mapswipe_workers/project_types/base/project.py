@@ -77,7 +77,9 @@ class BaseProject(metaclass=ABCMeta):
             self.status = (
                 "private_inactive"  # private project visible only for team members
             )
-            self.maxTasksPerUser = project_draft.get("maxTasksPerUser", None)
+            max_tasks_per_user = project_draft.get("maxTasksPerUser", None)
+            if max_tasks_per_user:
+                self.maxTasksPerUser = int(max_tasks_per_user)
 
     # TODO: Implement resultRequiredCounter as property.
     # Does not work because for some reason project['group'] = vars()
