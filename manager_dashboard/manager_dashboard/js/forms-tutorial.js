@@ -8,7 +8,26 @@ function initForm() {
     displayProjectTypeForm("build_area")
 }
 
+function openImageFile(event) {
+    var input = event.target;
+    console.log(event.target.id)
+    element_id = event.target.id + 'File'
 
+    var reader = new FileReader();
+    reader.onload = function(){
+      try {
+        var dataURL = reader.result;
+        var output = document.getElementById(element_id);
+        output.src = dataURL;
+      }
+      catch(err) {
+          element_id = event.target.id + 'Text'
+          var output = document.getElementById(element_id);
+          output.innerHTML = '<b>Error reading Image file</b><br>' + err;
+        }
+    };
+    reader.readAsDataURL(input.files[0]);
+  };
 
 function displayProjectTypeForm(projectType) {
     document.getElementById("projectType").value = projectType;
