@@ -42,7 +42,7 @@ class Task(BaseTask):
         )
 
         # get TileServer B only for change_detection or completeness type
-        if project.project_type in [3, 4]:
+        if project.projectType in [3, 4]:
             self.urlB = t.tile_coords_zoom_and_tileserver_to_url(
                 TileX, TileY, project.zoomLevel, project.tileServerB
             )

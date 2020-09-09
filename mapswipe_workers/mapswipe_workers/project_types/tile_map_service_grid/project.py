@@ -17,7 +17,6 @@ from osgeo import ogr, osr
 class Project(BaseProject):
     def __init__(self, project_draft: dict):
         super().__init__(project_draft)
-        self.project_type = project_draft["projectType"]
         self.groupSize = project_draft["groupSize"]
         # Note: this will be overwritten by validate_geometry in mapswipe_workers.py
         self.geometry = project_draft["geometry"]
@@ -25,7 +24,7 @@ class Project(BaseProject):
         self.tileServer = vars(BaseTileServer(project_draft["tileServer"]))
 
         # get TileServerB for change detection and completeness type
-        if self.project_type in [3, 4]:
+        if self.projectType in [3, 4]:
             self.tileServerB = vars(BaseTileServer(project_draft["tileServerB"]))
 
     def validate_geometries(self):
