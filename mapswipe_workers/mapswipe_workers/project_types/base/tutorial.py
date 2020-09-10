@@ -13,6 +13,7 @@ class BaseTutorial(metaclass=ABCMeta):
         self.projectId = f"tutorial_{tutorial_draft['tutorialDraftId']}"
         self.lookFor = tutorial_draft["lookFor"]
         self.name = tutorial_draft["name"]
+        self.tutorialDraftId = tutorial_draft["tutorialDraftId"]
         self.projectDetails = "This is a tutorial"
         self.progress = 0
         self.contributorCount = 0

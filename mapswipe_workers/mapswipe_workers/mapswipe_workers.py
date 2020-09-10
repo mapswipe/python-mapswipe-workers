@@ -256,8 +256,8 @@ def run_team_management(team_name, team_id, action) -> None:
         sentry.capture_exception()
 
 
-@cli.command("create-tutorial")
-def run_create_tutorial() -> None:
+@cli.command("create-tutorials")
+def run_create_tutorials() -> None:
     """Create a tutorial project from provided JSON file."""
 
     fb_db = auth.firebaseDB()
@@ -374,6 +374,7 @@ def run(context, schedule):
     def _run():
         logger.info("start mapswipe backend workflow.")
         context.invoke(run_create_projects)
+        context.invoke(run_create_tutorials)
         project_ids = context.invoke(run_firebase_to_postgres)
         context.invoke(run_generate_stats, project_ids=project_ids)
 
