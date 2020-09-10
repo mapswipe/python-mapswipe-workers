@@ -47,6 +47,10 @@ exports.counter = functions.database.ref('/v2/results/{projectId}/{groupId}/{use
     const endTimeRef            = admin.database().ref('/v2/results/'+context.params.projectId+'/'+context.params.groupId+'/'+context.params.userId+'/endTime')
     const timeSpentMappingRef   = admin.database().ref('/v2/results/'+context.params.projectId+'/'+context.params.groupId+'/'+context.params.userId+'/timeSpentMappingRef')
 
+    // references for project based counters for tasks and groups
+    const projectTaskContributionCountRef      = admin.database().ref('/v2/users/'+context.params.userId+'/contributions/'+context.params.projectId+'/taskContributionCount')
+    const projectGroupContributionCountRef     = admin.database().ref('/v2/users/'+context.params.userId+'/contributions/'+context.params.projectId+'/groupContributionCount')
+
     // Counter for groups
     const groupFinishedCount = groupFinishedCountRef.transaction((currentCount) => {
         return currentCount + 1
@@ -117,6 +121,25 @@ exports.counter = functions.database.ref('/v2/results/{projectId}/{groupId}/{use
             }
         })
     promises.push(contributions)
+
+    // counters for tasks and groups per user and per project
+    const projectTaskContributionCount = numberOfTasksRef.once('value')
+        .then((dataSnapshot) => {
+            const numberOfTasks = dataSnapshot.val()
+            return numberOfTasks
+        })
+        .then((numberOfTasks) => {
+            return projectTaskContributionCountRef.transaction((currentCount) => {
+                return currentCount + numberOfTasks
+            })
+        })
+    promises.push(projectTaskContributionCount)
+
+    // Counter for groups
+    const projectGroupContributionCount = projectGroupContributionCountRef.transaction((currentCount) => {
+        return currentCount + 1
+    });
+    promises.push(projectGroupContributionCount)
 
     // // TODO: Does not work
     // const timeSpentMapping = timeSpentMappingRef.set((timeSpentMapping) => {
