@@ -5,7 +5,7 @@ from mapswipe_workers.utils import tile_grouping_functions as t
 from mapswipe_workers.project_types.tile_map_service_grid.group import Group
 from mapswipe_workers.project_types.tile_map_service_grid.task import Task
 from mapswipe_workers.project_types.tile_map_service_grid.project import Project
-from mapswipe_workers.definitions import logger
+from mapswipe_workers.definitions import logger, ProjectType
 from mapswipe_workers.project_types.base.tile_server import BaseTileServer
 
 
@@ -32,7 +32,7 @@ def tasks_to_geojson(project_extent_file, zoomlevel, outfile):
     }
 
     project = Project
-    project.project_type = 1
+    project.projectType = ProjectType.BUILD_AREA.value
     project.projectId = "tasks_to_geojson"
     project.zoomLevel = int(zoomlevel)
     project.tileServer = vars(BaseTileServer(tile_server_dict))
