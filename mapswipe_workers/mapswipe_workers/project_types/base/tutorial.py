@@ -20,6 +20,8 @@ class BaseTutorial(metaclass=ABCMeta):
         self.exampleImage1 = tutorial_draft.get("exampleImage1", None)
         self.exampleImage2 = tutorial_draft.get("exampleImage2", None)
         self.status = "tutorial"
+        # need to filter out None values in list due to Firebase
+        self.screens = list(filter(None, tutorial_draft["screens"]))
 
     def save_tutorial(self):
         """Save the tutorial in Firebase."""

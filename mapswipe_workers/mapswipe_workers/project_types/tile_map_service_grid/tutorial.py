@@ -2,6 +2,7 @@ from mapswipe_workers.definitions import logger
 from mapswipe_workers.project_types.base.tutorial import BaseTutorial
 from mapswipe_workers.project_types.base.tile_server import BaseTileServer
 from mapswipe_workers.utils import tile_functions as t
+from mapswipe_workers.definitions import ProjectType
 
 
 class Tutorial(BaseTutorial):
@@ -15,7 +16,6 @@ class Tutorial(BaseTutorial):
         self.zoomLevel = int(tutorial_draft.get("zoomLevel", 18))
         self.tileServer = vars(BaseTileServer(tutorial_draft["tileServer"]))
         self.tutorial_tasks = tutorial_draft["tutorialTasks"]
-        self.screens = tutorial_draft["screens"]
         self.groups = dict()
         self.tasks = dict()
 
@@ -46,7 +46,7 @@ class Tutorial(BaseTutorial):
             "progress": 0,  # this is not needed from back end perspective
         }
 
-        if self.projectType in [3]:
+        if self.projectType in [ProjectType.CHANGE_DETECTION.value]:
             # need to adjust xMax and yMax for Change Detection projects
             # since they use a different view with only one tile per screen
             self.groups[101]["xMax"] = str(100 + (number_of_screens - 1))
@@ -111,7 +111,10 @@ class Tutorial(BaseTutorial):
                 }
 
                 # Completeness and Change Detection projects use a second tile image url
-                if self.projectType in [3, 4]:
+                if self.projectType in [
+                    ProjectType.CHANGE_DETECTION.value,
+                    ProjectType.COMPLETENESS.value,
+                ]:
                     task["urlB"] = t.tile_coords_zoom_and_tileserver_to_url(
                         tile_x, tile_y, self.zoomLevel, self.tileServerB
                     )
