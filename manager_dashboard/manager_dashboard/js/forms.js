@@ -1,3 +1,8 @@
+const BUILD_AREA_TYPE = 1
+const FOOTPRINT_TYPE = 2
+const CHANGE_DETECTION_TYPE = 3
+const COMPLETENESS_TYPE = 4
+
 //auto expand textarea
 function adjust_textarea(h) {
     h.style.height = "20px";
@@ -68,7 +73,7 @@ function displayProjectTypeForm(projectType) {
     document.getElementById("projectType").value = projectType;
     switch (projectType) {
         case "build_area":
-            initTutorials(1);
+            initTutorials(BUILD_AREA_TYPE);
             displayTileServer("bing", "A");
             document.getElementById("groupSize").value = 120;
             document.getElementById("form_project_aoi_geometry").style.display = "block";
@@ -80,7 +85,7 @@ function displayProjectTypeForm(projectType) {
             document.getElementById("form_team_settings").style.display = "None";
             break;
         case "footprint":
-            initTutorials(2);
+            initTutorials(FOOTPRINT_TYPE);
             displayTileServer("bing", "A");
             document.getElementById("groupSize").value = 25;
             document.getElementById("form_project_aoi_geometry").style.display = "None";
@@ -96,10 +101,10 @@ function displayProjectTypeForm(projectType) {
             displayTileServer("bing", "B");
             if (projectType == "change_detection") {
                 document.getElementById("groupSize").value = 25;
-                initTutorials(3);
+                initTutorials(CHANGE_DETECTION_TYPE);
             } else {
                 document.getElementById("groupSize").value = 80;
-                initTutorials(4);
+                initTutorials(COMPLETENESS_TYPE);
             }
             document.getElementById("form_project_aoi_geometry").style.display = "block";
             document.getElementById("form_project_task_geometry").style.display = "None";

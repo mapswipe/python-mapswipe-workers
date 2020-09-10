@@ -7,6 +7,7 @@ from mapswipe_workers.definitions import (
     CustomError,
     logger,
     MAX_INPUT_GEOMETRIES,
+    ProjectType,
 )
 from mapswipe_workers.project_types.tile_map_service_grid.group import Group
 from mapswipe_workers.utils import tile_grouping_functions as grouping_functions
@@ -24,7 +25,10 @@ class Project(BaseProject):
         self.tileServer = vars(BaseTileServer(project_draft["tileServer"]))
 
         # get TileServerB for change detection and completeness type
-        if self.projectType in [3, 4]:
+        if self.projectType in [
+            ProjectType.COMPLETENESS.value,
+            ProjectType.CHANGE_DETECTION.value,
+        ]:
             self.tileServerB = vars(BaseTileServer(project_draft["tileServerB"]))
 
     def validate_geometries(self):

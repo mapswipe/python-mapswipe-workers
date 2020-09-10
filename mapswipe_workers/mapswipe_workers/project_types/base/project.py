@@ -78,7 +78,7 @@ class BaseProject(metaclass=ABCMeta):
                 "private_inactive"  # private project visible only for team members
             )
             max_tasks_per_user = project_draft.get("maxTasksPerUser", None)
-            if max_tasks_per_user:
+            if max_tasks_per_user is not None:
                 self.maxTasksPerUser = int(max_tasks_per_user)
 
         self.tutorialId = project_draft.get("tutorialId", None)

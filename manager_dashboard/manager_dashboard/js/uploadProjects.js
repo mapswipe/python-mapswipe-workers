@@ -22,7 +22,7 @@ function getFormInput() {
 
     // add teamId if visibility is not set to public
     visibility = document.getElementById("visibility").value
-    if (visibility != "public") {
+    if (visibility !== "public") {
         form_data.teamId = visibility
         maxTasksPerUser = document.getElementById("maxTasksPerUser").value
         if (maxTasksPerUser > 0) {

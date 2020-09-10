@@ -1,14 +1,16 @@
 import sys
 from mapswipe_workers.auth import firebaseDB
-from mapswipe_workers.definitions import logger
+from mapswipe_workers.definitions import logger, ProjectType
 
 
-def get_all_projects(project_type: int):
-    """Get the user ids from all users in Firebase DB."""
+def get_all_projects_of_type(project_type: int):
+    """Get the project ids for active and inactive projects in Firebase DB."""
 
     project_id_list = []
     fb_db = firebaseDB()
 
+    # we neglect private projects here
+    # since there are no projects set up in production yet
     status_list = ["active", "inactive"]
 
     for status in status_list:
@@ -37,8 +39,8 @@ def add_tutorial_id_to_projects(project_id_list, tutorial_id):
 
 
 if __name__ == "__main__":
-    """python add_tutorial_id_to_projects.py project_type tutorial_id"""
-    project_type = sys.argv[1]
+    """python add_tutorial_id_to_projects.py BUILD_AREA tutorial_id"""
+    project_type = ProjectType[sys.argv[1]].value
     tutorial_id = sys.argv[2]
-    project_id_list = get_all_projects(1)
+    project_id_list = get_all_projects_of_type(project_type)
     add_tutorial_id_to_projects(project_id_list, tutorial_id)
