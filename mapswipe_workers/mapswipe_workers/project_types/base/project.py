@@ -81,6 +81,8 @@ class BaseProject(metaclass=ABCMeta):
             if max_tasks_per_user:
                 self.maxTasksPerUser = int(max_tasks_per_user)
 
+        self.tutorialId = project_draft.get("tutorialId", None)
+
     # TODO: Implement resultRequiredCounter as property.
     # Does not work because for some reason project['group'] = vars()
     # and then del project['group'] will delete also project.group.

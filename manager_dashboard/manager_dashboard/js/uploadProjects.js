@@ -12,7 +12,8 @@ function getFormInput() {
         image: image,
         verificationNumber: parseInt(document.getElementById("verificationNumber").value),
         groupSize: parseInt(document.getElementById("groupSize").value),
-        createdBy: currentUid
+        createdBy: currentUid,
+        tutorialId: document.getElementById("tutorial").value
     }
     form_data.name = form_data.projectTopic + ' - ' +
         form_data.projectRegion +

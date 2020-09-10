@@ -8,15 +8,19 @@ class BaseTutorial(metaclass=ABCMeta):
 
     def __init__(self, tutorial_draft):
         """The function to initialize a new tutorial."""
+
+        # the id of the tutorial
+        self.projectId = f"tutorial_{tutorial_draft['tutorialDraftId']}"
         self.lookFor = tutorial_draft["lookFor"]
         self.name = tutorial_draft["name"]
-        self.projectId = tutorial_draft["name"]
         self.tutorialDraftId = tutorial_draft["tutorialDraftId"]
         self.projectDetails = "This is a tutorial"
         self.progress = 0
         self.contributorCount = 0
         self.exampleImage1 = tutorial_draft.get("exampleImage1", None)
         self.exampleImage2 = tutorial_draft.get("exampleImage2", None)
+        self.status = "tutorial"
+        self.tutorial = True
 
     def save_tutorial(self):
         """Save the tutorial in Firebase."""

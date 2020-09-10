@@ -42,10 +42,33 @@ function initTeams() {
 }
 
 
+function initTutorials(projectType) {
+    // clear all existing options
+    document.getElementById("tutorial").innerHTML = ""
+    console.log("init tutorials")
+    // get teams from firebase
+    var TutorialsRef = firebase.database().ref("v2/projects").orderByChild("status").equalTo("tutorial");
+    TutorialsRef.once('value', function(snapshot){
+    if(snapshot.exists()){
+        snapshot.forEach(function(data){
+            // add teamName to drop down option and set teamId as value
+            if (data.val().projectType == projectType) {
+                option = document.createElement('option')
+                option.innerHTML = data.val().name
+                option.value = data.key
+                document.getElementById("tutorial").appendChild(option);
+                }
+            })
+        }
+    })
+}
+
+
 function displayProjectTypeForm(projectType) {
     document.getElementById("projectType").value = projectType;
     switch (projectType) {
         case "build_area":
+            initTutorials(1);
             displayTileServer("bing", "A");
             document.getElementById("groupSize").value = 120;
             document.getElementById("form_project_aoi_geometry").style.display = "block";
@@ -57,6 +80,7 @@ function displayProjectTypeForm(projectType) {
             document.getElementById("form_team_settings").style.display = "None";
             break;
         case "footprint":
+            initTutorials(2);
             displayTileServer("bing", "A");
             document.getElementById("groupSize").value = 25;
             document.getElementById("form_project_aoi_geometry").style.display = "None";
@@ -72,8 +96,10 @@ function displayProjectTypeForm(projectType) {
             displayTileServer("bing", "B");
             if (projectType == "change_detection") {
                 document.getElementById("groupSize").value = 25;
+                initTutorials(3);
             } else {
                 document.getElementById("groupSize").value = 80;
+                initTutorials(4);
             }
             document.getElementById("form_project_aoi_geometry").style.display = "block";
             document.getElementById("form_project_task_geometry").style.display = "None";

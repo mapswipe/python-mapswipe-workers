@@ -4,7 +4,8 @@ var database = firebase.database();
 function getFormInput() {
     var form_data = {
         lookFor: document.getElementById("lookFor").value,
-        createdBy: currentUid
+        createdBy: currentUid,
+        name: document.getElementById("name").value
     }
 
     // add project type specific attributes
@@ -54,8 +55,6 @@ function getFormInput() {
 
     form_data.screens = JSON.parse(screens)
     form_data.tutorialTasks = JSON.parse(tutorialTasks)
-
-    form_data.name = projectType + '_tutorial_' + form_data.lookFor
 
     return form_data
 }

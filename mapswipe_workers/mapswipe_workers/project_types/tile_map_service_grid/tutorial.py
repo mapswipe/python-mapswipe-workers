@@ -23,15 +23,6 @@ class Tutorial(BaseTutorial):
         if self.projectType in [3, 4]:
             self.tileServerB = vars(BaseTileServer(tutorial_draft["tileServerB"]))
 
-        # TODO: make sure that "tutorial" is fine from the app side
-        #  currently it expects "completeness_tutorial" for instance
-        status_dict = {
-            1: "build_area_tutorial",
-            3: "change_detection_tutorial",
-            4: "completeness_tutorial",
-        }
-        self.status = status_dict[self.projectType]
-
     def create_tutorial_groups(self):
         """Create group for the tutorial based on provided examples in geojson file."""
         # load examples/tasks from file
