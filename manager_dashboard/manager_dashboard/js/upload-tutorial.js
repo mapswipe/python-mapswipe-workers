@@ -3,31 +3,9 @@ var database = firebase.database();
 
 function getFormInput() {
     var form_data = {
-        projectRegion: document.getElementById("projectRegion").value,
-        projectTopic: document.getElementById("projectTopic").value,
-        projectNumber: document.getElementById("projectNumber").value,
-        requestingOrganisation: document.getElementById("requestingOrganisation").value,
         lookFor: document.getElementById("lookFor").value,
-        projectDetails: document.getElementById("projectDetails").value,
-        image: image,
-        verificationNumber: parseInt(document.getElementById("verificationNumber").value),
-        groupSize: parseInt(document.getElementById("groupSize").value),
         createdBy: currentUid,
-        tutorialId: document.getElementById("tutorial").value
-    }
-    form_data.name = form_data.projectTopic + ' - ' +
-        form_data.projectRegion +
-        ' (' + form_data.projectNumber + ')\n' +
-        form_data.requestingOrganisation
-
-    // add teamId if visibility is not set to public
-    visibility = document.getElementById("visibility").value
-    if (visibility !== "public") {
-        form_data.teamId = visibility
-        maxTasksPerUser = document.getElementById("maxTasksPerUser").value
-        if (maxTasksPerUser > 0) {
-            form_data.maxTasksPerUser = maxTasksPerUser
-        }
+        name: document.getElementById("name").value
     }
 
     // add project type specific attributes
@@ -36,7 +14,6 @@ function getFormInput() {
         case "build_area":
             form_data.projectType = 1;
             form_data.zoomLevel = parseInt(document.getElementById("zoomLevel").value);
-            form_data.geometry = JSON.parse(projectAoiGeometry)
             form_data.tileServer = {
               name: document.getElementById("tileServerAName").value,
               url: document.getElementById("tileServerAUrl").value,
@@ -46,7 +23,6 @@ function getFormInput() {
             break;
         case "footprint":
             form_data.projectType = 2;
-            form_data.input_geometries = document.getElementById("inputTaskGeometries").value;
             form_data.tileServer = {
               name: document.getElementById("tileServerAName").value,
               url: document.getElementById("tileServerAUrl").value,
@@ -62,7 +38,6 @@ function getFormInput() {
                 form_data.projectType = 4;
             }
             form_data.zoomLevel = parseInt(document.getElementById("zoomLevel").value);
-            form_data.geometry = JSON.parse(projectAoiGeometry)
             form_data.tileServer = {
               name: document.getElementById("tileServerAName").value,
               url: document.getElementById("tileServerAUrl").value,
@@ -77,21 +52,16 @@ function getFormInput() {
             };
             break;
     }
+
+    form_data.screens = JSON.parse(screens)
+    form_data.tutorialTasks = JSON.parse(tutorialTasks)
+
     return form_data
 }
 
+function upload_project_image(id) {
 
-function upload_project_image(mapswipe_import) {
-
-    var modal = document.getElementById("uploadModal");
-    modal.style.display = "block";
-    var modalOngoing = document.getElementById("modalOngoing");
-    modalOngoing.style.display = "block";
-
-    var modal = document.getElementById("uploadModal");
-    modal.style.display = "block";
-
-    var file = document.getElementById('image').files[0]
+    var file = document.getElementById(id).files[0]
     console.log(file)
     var filename = file.name
     console.log(filename)
@@ -121,38 +91,59 @@ function upload_project_image(mapswipe_import) {
       // For instance, get the download URL: https://firebasestorage.googleapis.com/...
       uploadImage.snapshot.ref.getDownloadURL().then(function(downloadURL) {
         console.log('File available at', downloadURL);
-        mapswipe_import.image = downloadURL
-
-        // TODO: unwrap this here and use separate function and await
-        firebase.database().ref('v2/projectDrafts/').push().set(mapswipe_import)
-          .then(function() {
-            clear_fields();
-            var modalOngoing = document.getElementById("modalOngoing");
-            modalOngoing.style.display = "none";
-            var modalSuccess = document.getElementById("modalSuccess");
-            modalSuccess.style.display = "block";
-          })
-          .catch(function(error) {
-            modal.style.display = "none";
-            alert('could not upload data: ' + error);
-          });
-
+        if (id == "image1") {
+            exampleImage1 = downloadURL
+        } else if (id == "image2") {
+            exampleImage2 = downloadURL
+        }
       });
     });
 
-}
 
+}
 
 function upload_to_firebase() {
     switch (currentUid) {
         case null:
             alert("You are not logged in.");
         default:
+            var modal = document.getElementById("uploadModal");
+            modal.style.display = "block";
+            var modalOngoing = document.getElementById("modalOngoing");
+            modalOngoing.style.display = "block";
+
+            var modal = document.getElementById("uploadModal");
+            modal.style.display = "block";
+
             // get form data
             // TODO: add checks if all input values are valid, e.g. image available
             mapswipe_import = getFormInput()
 
-            // upload projectDraft to firebase once image has been uploaded
-            upload_project_image(mapswipe_import)
-    }
+            upload_project_image("image1")
+            upload_project_image("image2")
+
+
+            // TODO: this should be implemented better...
+            setTimeout(function() {
+
+                mapswipe_import.exampleImage1 = exampleImage1
+                mapswipe_import.exampleImage2 = exampleImage2
+
+                console.log(mapswipe_import)
+
+                // TODO: unwrap this here and use separate function and await
+                firebase.database().ref('v2/tutorialDrafts/').push().set(mapswipe_import)
+                  .then(function() {
+                    clear_fields();
+                    var modalOngoing = document.getElementById("modalOngoing");
+                    modalOngoing.style.display = "none";
+                    var modalSuccess = document.getElementById("modalSuccess");
+                    modalSuccess.style.display = "block";
+                  })
+                  .catch(function(error) {
+                    modal.style.display = "none";
+                    alert('could not upload data: ' + error);
+                  });
+            }, 15000)
+        }
 }
