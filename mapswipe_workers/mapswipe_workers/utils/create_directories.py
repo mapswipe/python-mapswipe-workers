@@ -24,7 +24,8 @@ def create_directories() -> None:
             try:
                 os.makedirs(path)
             except OSError:
-                logger.exception("Creation of the directory {0} failed".format(path))
+                logger.exception(
+                    "Creation of the directory {0} failed".format(path))
                 sentry.capture_exception()
                 break
             else:

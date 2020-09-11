@@ -54,7 +54,8 @@ try:
     sentry_sdk.init(SENTRY_DSN)
 except KeyError:
     logger.info(
-        "No configuration for Sentry was found. Continue without Sentry integration."
+        "No configuration for Sentry was found. Continue without Sentry"
+        " integration."
     )
 sentry = sentry_sdk
 
@@ -90,7 +91,8 @@ IMAGE_URLS = {
     ),
     "sinergise": (
         "https://services.sentinel-hub.com"
-        + "/ogc/wmts/{key}?request=getTile&tilematrixset=PopularWebMercator256&"
+        + "/ogc/wmts/{key}?request=getTile&tilematrixset="
+        + "PopularWebMercator256&"
         + "tilematrix={z}&tilecol={x}&tilerow={y}&layer={layer}"
     ),
 }
@@ -123,13 +125,14 @@ class ProjectType(Enum):
 
     @property
     def constructor(self):
-        # Imports are first made once this method get called to avoid circular imports.
-        from mapswipe_workers.project_types.tile_map_service_grid.project import (
-            Project as tmsg_project,
-        )
-        from mapswipe_workers.project_types.arbitrary_geometry.project import (
-            Project as ag_project,
-        )
+        # Imports are first made once this method get called to avoid circular
+        # imports.
+        from \
+            mapswipe_workers.project_types.tile_map_service_grid.project \
+            import Project as tmsg_project
+        from \
+            mapswipe_workers.project_types.arbitrary_geometry.project \
+            import Project as ag_project
 
         project_type_classes = {
             1: tmsg_project,
@@ -139,15 +142,16 @@ class ProjectType(Enum):
         }
         return project_type_classes[self.value]
 
-    @property
+    @ property
     def tutorial(self):
-        # Imports are first made once this method get called to avoid circular imports.
-        from mapswipe_workers.project_types.tile_map_service_grid.tutorial import (
-            Tutorial as tmsg_tutorial,
-        )
+        # Imports are first made once this method get called to avoid circular
+        # imports.
+        from mapswipe_workers.project_types.tile_map_service_grid.tutorial \
+            import Tutorial as tmsg_tutorial
 
         # TODO: implement for arbitrary geometries
-        # from mapswipe_workers.project_types.arbitrary_geometries.arbitrary_geometries_tutorial import (
+        # from mapswipe_workers -> project_types -> arbitrary_geometries
+        # -> arbitrary_geometries_tutorial import (
         #    ArbitraryGeometriesTutorial,
         # )
 

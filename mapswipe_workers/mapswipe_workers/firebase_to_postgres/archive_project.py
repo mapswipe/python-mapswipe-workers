@@ -12,7 +12,7 @@ from mapswipe_workers.definitions import logger, CustomError
 def chunks(data: list, size: int = 250) -> Iterable[list]:
     """Yield successive n-sized chunks from list."""
     for i in range(0, len(data), size):
-        yield data[i : i + size]  # noqa E203
+        yield data[i: i + size]  # noqa E203
 
 
 def archive_project(project_ids: list) -> bool:

@@ -17,19 +17,21 @@ def update_username(uid):
             ref.set(username)
             logger.info(f"updated username for user {uid}: {username}")
     except auth.UserNotFoundError:
-        logger.info(f"could not find user {uid} in firebase to update username.")
+        logger.info(
+            f"could not find user {uid} in firebase to update username.")
 
 
 def get_all_users():
     """Get the user ids from all users in Firebase DB."""
     fb_db = firebaseDB()
-    users = fb_db.reference(f"v2/users/").get(shallow=True)
+    users = fb_db.reference("v2/users/").get(shallow=True)
     uid_list = users.keys()
     return uid_list
 
 
 if __name__ == "__main__":
-    """Get all user ids from Firebase and update username based on auth.display_name."""
+    """Get all user ids from Firebase and update username based on
+    auth.display_name."""
     uid_list = get_all_users()
     for uid in uid_list:
         update_username(uid)

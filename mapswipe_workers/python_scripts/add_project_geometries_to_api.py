@@ -24,7 +24,8 @@ def add_project_geometries_to_api():
         wkt_geom = project[1]
 
         outfile = (
-            f"{DATA_PATH}/api/project_geometries/project_geom_{project_id}.geojson"
+            f"{DATA_PATH}/api/project_geometries/project_geom_{project_id}"
+            f".geojson"
         )
         try:
             geometries = [ogr.CreateGeometryFromWkt(wkt_geom)]

@@ -69,13 +69,15 @@ class BaseProject(metaclass=ABCMeta):
         self.projectTopic = project_draft.get("projectTopic", None)
         self.projectRegion = project_draft.get("projectRegion", None)
         self.projectNumber = project_draft.get("projectNumber", None)
-        self.requestingOrganisation = project_draft.get("requestingOrganisation", None)
+        self.requestingOrganisation = project_draft.get(
+            "requestingOrganisation", None)
         self.teamId = project_draft.get("teamId", None)
         if not self.teamId:
             self.status = "inactive"  # this is a public project
         else:
             self.status = (
-                "private_inactive"  # private project visible only for team members
+                # private project visible only for team members
+                "private_inactive"
             )
 
     # TODO: Implement resultRequiredCounter as property.
@@ -123,10 +125,13 @@ class BaseProject(metaclass=ABCMeta):
         # Make sure projects get saved in Postgres and Firebase successful
         try:
             self.save_to_postgres(
-                project, groups, groupsOfTasks,
+                project,
+                groups,
+                groupsOfTasks,
             )
             logger.info(
-                f"{self.projectId}" f" - the project has been saved" f" to postgres"
+                f"{self.projectId} - the project has been saved"
+                f" to postgres"
             )
         except Exception as e:
             logger.exception(
@@ -141,24 +146,30 @@ class BaseProject(metaclass=ABCMeta):
         try:
             self.save_to_files(project)
             logger.info(
-                f"{self.projectId}" f" - the project has been saved" f" to files"
+                f"{self.projectId} - the project has been saved"
+                f" to files"
             )
         except Exception as e:
             self.delete_from_postgres()
             logger.exception(
-                f"{self.projectId}" f" - the project could not be saved" f" to files. "
+                f"{self.projectId} - the project could not be saved"
+                f" to files. "
             )
             logger.info(
-                f"{self.projectId} deleted project data from files and postgres"
+                f"{self.projectId} deleted project data from files and "
+                f"postgres"
             )
             raise CustomError(e)
 
         try:
             self.save_to_firebase(
-                project, groups, groupsOfTasks,
+                project,
+                groups,
+                groupsOfTasks,
             )
             logger.info(
-                f"{self.projectId}" f" - the project has been saved" f" to firebase"
+                f"{self.projectId} - the project has been saved"
+                f" to firebase"
             )
         # if project can't be saved to firebase, delete also in postgres
         except Exception as e:
@@ -171,7 +182,8 @@ class BaseProject(metaclass=ABCMeta):
             )
 
             logger.info(
-                f"{self.projectId} deleted project data from postgres and files"
+                f"{self.projectId} deleted project data from postgres and "
+                f"files"
             )
             raise CustomError(e)
 
@@ -190,28 +202,32 @@ class BaseProject(metaclass=ABCMeta):
         # save project
         ref.update({f"v2/projects/{self.projectId}": project})
         logger.info(
-            f"{self.projectId} -" f" uploaded project to firebase realtime database"
+            f"{self.projectId} -"
+            f" uploaded project to firebase realtime database"
         )
         # save groups
         ref.update({f"v2/groups/{self.projectId}": groups})
         logger.info(
-            f"{self.projectId} -" f" uploaded groups to firebase realtime database"
+            f"{self.projectId} -"
+            f" uploaded groups to firebase realtime database"
         )
-        # save tasks, to avoid firebase write size limit we write chunks of task
-        # we write the tasks for 250 groups at once
+        # save tasks, to avoid firebase write size limit we write chunks of
+        # task we write the tasks for 250 groups at once
         task_upload_dict = {}
 
         logger.info(f"there are {len(groupsOfTasks)} groups for this project")
         c = 0
         for group_id, tasks_list in groupsOfTasks.items():
             c += 1
-            task_upload_dict[f"v2/tasks/{self.projectId}/{group_id}"] = tasks_list
+            task_upload_dict[f"v2/tasks/{self.projectId}/{group_id}"] =\
+                tasks_list
 
             if len(task_upload_dict) % 150 == 0 or c == len(groupsOfTasks):
                 ref.update(task_upload_dict)
                 logger.info(
                     f"{self.projectId} -"
-                    f" uploaded 150 groups with tasks to firebase realtime database"
+                    f" uploaded 150 groups with tasks to firebase realtime "
+                    f"database"
                 )
                 task_upload_dict = {}
 
@@ -373,7 +389,8 @@ class BaseProject(metaclass=ABCMeta):
                     groups_file, "raw_groups", columns=groups_columns
                 )
             with open(tasks_txt_filename, "r") as tasks_file:
-                p_con._db_cur.copy_from(tasks_file, "raw_tasks", columns=tasks_columns)
+                p_con._db_cur.copy_from(
+                    tasks_file, "raw_tasks", columns=tasks_columns)
             p_con._db_cur.execute(query_insert_raw_groups, None)
             p_con._db_cur.execute(query_insert_raw_tasks, None)
             p_con._db_connection.commit()
@@ -391,7 +408,8 @@ class BaseProject(metaclass=ABCMeta):
             os.mkdir("{}/api/project_geometries".format(DATA_PATH))
 
         outfile = (
-            f"{DATA_PATH}/api/project_geometries/project_geom_{self.projectId}.geojson"
+            f"{DATA_PATH}/api/project_geometries/project_geom_{self.projectId}"
+            f".geojson"
         )
         wkt_geom = project["geometry"]
         geometries = [ogr.CreateGeometryFromWkt(wkt_geom)]
@@ -400,7 +418,8 @@ class BaseProject(metaclass=ABCMeta):
     def delete_from_files(self):
         """Delete the project extent geometry file."""
         outfile = (
-            f"{DATA_PATH}/project_geometries/project_geom_{self.projectId}.geojson"
+            f"{DATA_PATH}/project_geometries/project_geom_{self.projectId}"
+            f".geojson"
         )
         try:
             os.remove(outfile)
@@ -431,7 +450,8 @@ class BaseProject(metaclass=ABCMeta):
 
         # create txt file with header for later
         # import with copy function into postgres
-        groups_txt_filename = f"{DATA_PATH}/tmp/raw_groups_{self.projectId}.txt"
+        groups_txt_filename = (f"{DATA_PATH}/tmp/raw_groups_{self.projectId}"
+                               f".txt")
         groups_txt_file = open(groups_txt_filename, "w", newline="")
         fieldnames = (
             "project_id",
@@ -443,7 +463,10 @@ class BaseProject(metaclass=ABCMeta):
             "project_type_specifics",
         )
         w = csv.DictWriter(
-            groups_txt_file, fieldnames=fieldnames, delimiter="\t", quotechar="'",
+            groups_txt_file,
+            fieldnames=fieldnames,
+            delimiter="\t",
+            quotechar="'",
         )
 
         for groupId, group in groups.items():
@@ -513,7 +536,10 @@ class BaseProject(metaclass=ABCMeta):
             "project_type_specifics",
         )
         w = csv.DictWriter(
-            tasks_txt_file, fieldnames=fieldnames, delimiter="\t", quotechar="'",
+            tasks_txt_file,
+            fieldnames=fieldnames,
+            delimiter="\t",
+            quotechar="'",
         )
 
         for groupId, tasks in groupsOfTasks.items():
@@ -561,7 +587,8 @@ class BaseProject(metaclass=ABCMeta):
         for group in self.groups:
             group.requiredCount = self.verificationNumber
             self.requiredResults = (
-                self.requiredResults + group.requiredCount * group.numberOfTasks
+                self.requiredResults
+                + group.requiredCount * group.numberOfTasks
             )
 
     @abstractmethod

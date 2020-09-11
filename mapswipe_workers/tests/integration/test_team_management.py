@@ -67,7 +67,8 @@ class TestTeamManagement(unittest.TestCase):
 
     def test_create_team(self):
         self.team_name = "unittest-team"
-        self.team_id, self.team_token = team_management.create_team(self.team_name)
+        self.team_id, self.team_token = team_management.create_team(
+            self.team_name)
 
         # check if returned values are plausible
         self.assertIsNotNone(self.team_id)
@@ -92,7 +93,7 @@ class TestTeamManagement(unittest.TestCase):
 
         # check if no members
         team_members = (
-            fb_db.reference(f"v2/users/")
+            fb_db.reference("v2/users/")
             .order_by_child("teamId")
             .equal_to(self.team_id)
             .get()
@@ -117,7 +118,7 @@ class TestTeamManagement(unittest.TestCase):
         # check if no members
         fb_db = firebaseDB()
         team_members = (
-            fb_db.reference(f"v2/users/")
+            fb_db.reference("v2/users/")
             .order_by_child("teamId")
             .equal_to(self.team_id)
             .get()

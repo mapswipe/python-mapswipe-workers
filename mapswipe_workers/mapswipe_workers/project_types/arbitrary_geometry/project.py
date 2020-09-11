@@ -3,7 +3,8 @@ import urllib.request
 
 from mapswipe_workers.project_types.base.project import BaseProject
 from mapswipe_workers.definitions import DATA_PATH, CustomError, logger
-from mapswipe_workers.project_types.arbitrary_geometry import grouping_functions as g
+from mapswipe_workers.project_types.arbitrary_geometry import (
+    grouping_functions as g)
 from mapswipe_workers.project_types.arbitrary_geometry.group import Group
 from osgeo import ogr
 
@@ -19,10 +20,12 @@ class Project(BaseProject):
 
     def validate_geometries(self):
         raw_input_file = (
-            f"{DATA_PATH}/" f"input_geometries/raw_input_{self.projectId}.geojson"
+            f"{DATA_PATH}/"
+            f"input_geometries/raw_input_{self.projectId}.geojson"
         )
         valid_input_file = (
-            f"{DATA_PATH}/" f"input_geometries/valid_input_{self.projectId}.geojson"
+            f"{DATA_PATH}/"
+            f"input_geometries/valid_input_{self.projectId}.geojson"
         )
 
         if not os.path.isdir("{}/input_geometries".format(DATA_PATH)):
@@ -111,7 +114,8 @@ class Project(BaseProject):
                 # Add field values from input Layer
                 for i in range(0, outLayerDefn.GetFieldCount()):
                     outFeature.SetField(
-                        outLayerDefn.GetFieldDefn(i).GetNameRef(), feature.GetField(i)
+                        outLayerDefn.GetFieldDefn(
+                            i).GetNameRef(), feature.GetField(i)
                     )
                 outFeature.SetGeometry(feat_geom)
                 outLayer.CreateFeature(outFeature)
@@ -119,7 +123,8 @@ class Project(BaseProject):
 
         # check if layer is empty
         if layer.GetFeatureCount() < 1:
-            err = "no geometries left after checking validity and geometry type."
+            err = ("no geometries left after checking validity and geometry"
+                   " type.")
             logger.warning(f"{self.projectId} - check_input_geometry - {err}")
             raise Exception(err)
 
@@ -138,7 +143,8 @@ class Project(BaseProject):
         return wkt_geometry
 
     def create_groups(self):
-        raw_groups = g.group_input_geometries(self.validInputGeometries, self.groupSize)
+        raw_groups = g.group_input_geometries(
+            self.validInputGeometries, self.groupSize)
 
         for group_id, item in raw_groups.items():
             group = Group(self, group_id)
@@ -146,5 +152,7 @@ class Project(BaseProject):
             self.groups.append(group)
 
         logger.info(
-            f"{self.projectId} " f"- create_groups - " f"created groups dictionary"
+            f"{self.projectId} "
+            f"- create_groups - "
+            f"created groups dictionary"
         )

@@ -14,7 +14,8 @@ def csv_to_geojson(filename: str, geometry_field: str = "geom"):
     """
 
     outfile = filename.replace(".csv", f"_{geometry_field}.geojson")
-    # need to remove file here because ogr2ogr can't overwrite when choosing GeoJSON
+    # need to remove file here because ogr2ogr can't overwrite when choosing
+    # GeoJSON
     if os.path.isfile(outfile):
         os.remove(outfile)
     filename_without_path = filename.split("/")[-1].replace(".csv", "")
@@ -27,7 +28,8 @@ def csv_to_geojson(filename: str, geometry_field: str = "geom"):
             outfile,
             filename,
             "-sql",
-            f'SELECT *, CAST({geometry_field} as geometry) FROM "{filename_without_path}"',  # noqa E501
+            (f'SELECT *, CAST({geometry_field} as geometry) FROM '
+             f'"{filename_without_path}"'),  # noqa E501
         ],
         check=True,
     )
@@ -38,8 +40,8 @@ def csv_to_geojson(filename: str, geometry_field: str = "geom"):
 
 def cast_datatypes_for_geojson(filename: str):
     """
-    Go through geojson file and try to cast all values as float, except project_id
-    remove redundant geometry property
+    Go through geojson file and try to cast all values as float, except
+    project_id remove redundant geometry property
     """
 
     filename = filename.replace("csv", "geojson")
@@ -69,7 +71,8 @@ def cast_datatypes_for_geojson(filename: str):
                     del geojson_data["features"][i]["properties"][property]
                 else:
                     try:
-                        geojson_data["features"][i]["properties"][property] = float(
+                        geojson_data["features"][i]["properties"][property] = \
+                            float(
                             geojson_data["features"][i]["properties"][property]
                         )
                     except ValueError:
@@ -113,7 +116,8 @@ def create_group_geom(group_data, shape="bounding_box"):
         group_geom = result_geom_collection.ConvexHull()
     elif shape == "bounding_box":
         # Get Envelope
-        lon_left, lon_right, lat_top, lat_bottom = result_geom_collection.GetEnvelope()
+        lon_left, lon_right, lat_top, lat_bottom = \
+            result_geom_collection.GetEnvelope()
 
         # Create Geometry
         ring = ogr.Geometry(ogr.wkbLinearRing)
@@ -154,7 +158,11 @@ def create_geojson_file_from_dict(final_groups_dict, outfile):
 
     dataSource = driver.CreateDataSource(outfile_temp)
     # create layer
-    layer = dataSource.CreateLayer(outfile_temp, srs, geom_type=ogr.wkbPolygon,)
+    layer = dataSource.CreateLayer(
+        outfile_temp,
+        srs,
+        geom_type=ogr.wkbPolygon,
+    )
 
     # create fields
     field_id = ogr.FieldDefn("group_id", ogr.OFTInteger)
@@ -243,7 +251,11 @@ def create_geojson_file(geometries, outfile):
 
     dataSource = driver.CreateDataSource(outfile_temp)
     # create layer
-    layer = dataSource.CreateLayer(outfile_temp, srs, geom_type=ogr.wkbPolygon,)
+    layer = dataSource.CreateLayer(
+        outfile_temp,
+        srs,
+        geom_type=ogr.wkbPolygon,
+    )
 
     # create fields
     field_id = ogr.FieldDefn("id", ogr.OFTInteger)

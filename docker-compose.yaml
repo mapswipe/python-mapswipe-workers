@@ -15,7 +15,7 @@ services:
         build:
             context: nginx/
         volumes:
-            - /etc/letsencrypt/:/etc/letsencrypt/:ro
+            - / etc/letsencrypt/: / etc/letsencrypt/: ro
         restart: unless-stopped
         ports:
             - '80:80'
@@ -30,7 +30,7 @@ services:
         build:
             context: api/
         volumes:
-            - ./mapswipe-data/api:/usr/share/nginx/html/api/:ro
+            - ./mapswipe-data/api: / usr/share/nginx/html/api/: ro
         restart: unless-stopped
         expose:
             - "80"
@@ -73,9 +73,9 @@ services:
             SENTRY_DSN: '${SENTRY_DSN}'
         depends_on:
             - postgres
-        command: mapswipe_workers --verbose run --schedule
+        command: mapswipe_workers - -verbose run - -schedule
         volumes:
-            - ./mapswipe-data:/root/.local/share/mapswipe_workers
+            - ./mapswipe-data: / root/.local/share/mapswipe_workers
         restart: "no"
         networks:
             - mapswipe_workers
@@ -93,12 +93,12 @@ services:
             WALG_GS_PREFIX: '${WALG_GS_PREFIX}'
             GOOGLE_APPLICATION_CREDENTIALS: '/serviceAccountKey.json'
         # Set options for WAL-G (backup tool)
-        command: postgres -c archive_mode=on -c archive_timeout=60 -c archive_command="/archive_command.sh %p"
+        command: postgres - c archive_mode = on - c archive_timeout = 60 - c archive_command = "/archive_command.sh %p"
         volumes:
-          - ./postgres-data:/var/lib/postgresql/mapswipe
+            - ./postgres-data: / var/lib/postgresql/mapswipe
         restart: unless-stopped
         ports:
-          - "5432:5432"
+            - "5432:5432"
         networks:
             - postgres
 
@@ -114,9 +114,9 @@ services:
             WALG_GS_PREFIX: '${WALG_GS_PREFIX}'
             GOOGLE_APPLICATION_CREDENTIALS: '/serviceAccountKey.json'
         volumes:
-            - ./pgdata_restored:/var/lib/postgresql/mapswipe
+            - ./pgdata_restored: / var/lib/postgresql/mapswipe
         ports:
-          - "5445:5432"
+            - "5445:5432"
 
     firebase_deploy:
         container_name: firebase_deploy
@@ -125,6 +125,6 @@ services:
         environment:
             FIREBASE_TOKEN: '${FIREBASE_TOKEN}'
             FIREBASE_DB: '${FIREBASE_DB}'
-        command: sh -c "firebase use $FIREBASE_DB && firebase deploy --token $FIREBASE_TOKEN --only functions,database:rules"
+        command: sh - c "firebase use $FIREBASE_DB && firebase deploy --token $FIREBASE_TOKEN --only functions,database:rules"
         volumes:
-            - ./firebase:/firebase
+            - ./firebase: / firebase

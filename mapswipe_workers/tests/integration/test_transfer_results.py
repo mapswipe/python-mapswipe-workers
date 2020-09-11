@@ -25,8 +25,11 @@ class TestTranserResultsProject(unittest.TestCase):
         self.assertIsNone(ref.get())
 
         pg_db = auth.postgresDB()
-        sql_query = "SELECT * FROM results WHERE project_id = '{0}' AND user_id = '{0}'".format(
-            self.project_id
+        sql_query = (
+            "SELECT * FROM results WHERE project_id = '{0}' AND "
+            "user_id = '{0}'".format(
+                self.project_id
+            )
         )
         result = pg_db.retr_query(sql_query)
         self.assertIsNotNone(result)
@@ -40,32 +43,44 @@ class TestTranserResultsProject(unittest.TestCase):
         self.assertIsNone(ref.get())
 
         pg_db = auth.postgresDB()
-        sql_query = "SELECT * FROM results WHERE project_id = '{0}' and user_id = '{0}'".format(
-            self.project_id
+        sql_query = (
+            "SELECT * FROM results WHERE project_id = '{0}' and "
+            "user_id = '{0}'".format(
+                self.project_id
+            )
         )
         result = pg_db.retr_query(sql_query)
         self.assertIsNotNone(result)
 
     def test_user_not_in_postgres(self):
-        """Test if results are transfered for users which are not yet in Postgres."""
+        """Test if results are transfered for users which are not yet in
+        Postgres."""
         pg_db = auth.postgresDB()
 
         # Make sure user and results are not yet in Postgres
-        sql_query = "DELETE FROM results WHERE user_id = '{0}' and project_id = '{0}'".format(
-            self.project_id
+        sql_query = (
+            "DELETE FROM results WHERE user_id = '{0}' and "
+            "project_id = '{0}'".format(
+                self.project_id
+            )
         )
         pg_db.query(sql_query)
-        sql_query = "DELETE FROM users WHERE user_id = '{0}'".format(self.project_id)
+        sql_query = "DELETE FROM users WHERE user_id = '{0}'".format(
+            self.project_id)
         pg_db.query(sql_query)
 
         transfer_results.transfer_results()
 
-        sql_query = "SELECT * FROM users WHERE user_id = '{0}'".format(self.project_id)
+        sql_query = "SELECT * FROM users WHERE user_id = '{0}'".format(
+            self.project_id)
         result = pg_db.retr_query(sql_query)
         self.assertIsNotNone(result)
 
-        sql_query = "SELECT * FROM results WHERE project_id = '{0}' AND user_id = '{0}'".format(
-            self.project_id
+        sql_query = (
+            "SELECT * FROM results WHERE project_id = '{0}' AND "
+            "user_id = '{0}'".format(
+                self.project_id
+            )
         )
         result = pg_db.retr_query(sql_query)
         self.assertIsNotNone(result)

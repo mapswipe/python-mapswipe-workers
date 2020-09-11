@@ -114,11 +114,13 @@ def get_horizontal_slice(extent, geomcol, zoom):
         # Calculate lat, lon of upper left corner of tile
         PixelX = TileX_left * 256
         PixelY = TileY * 256
-        lon_left, lat_top = t.pixel_coords_zoom_to_lat_lon(PixelX, PixelY, zoom)
+        lon_left, lat_top = t.pixel_coords_zoom_to_lat_lon(
+            PixelX, PixelY, zoom)
 
         PixelX = TileX_right * 256
         PixelY = (TileY + 3) * 256
-        lon_right, lat_bottom = t.pixel_coords_zoom_to_lat_lon(PixelX, PixelY, zoom)
+        lon_right, lat_bottom = t.pixel_coords_zoom_to_lat_lon(
+            PixelX, PixelY, zoom)
 
         # Create Geometry
         ring = ogr.Geometry(ogr.wkbLinearRing)
@@ -242,12 +244,14 @@ def get_vertical_slice(slice_infos, zoom, width_threshold=40):
             # Calculate lat, lon of upper left corner of tile
             PixelX = TileX * 256
             PixelY = TileY_top * 256
-            lon_left, lat_top = t.pixel_coords_zoom_to_lat_lon(PixelX, PixelY, zoom)
+            lon_left, lat_top = t.pixel_coords_zoom_to_lat_lon(
+                PixelX, PixelY, zoom)
             # logging.info('lon_left: %s, lat_top: %s' % (lon_left, lat_top))
 
             PixelX = (TileX + step_size) * 256
             PixelY = TileY_bottom * 256
-            lon_right, lat_bottom = t.pixel_coords_zoom_to_lat_lon(PixelX, PixelY, zoom)
+            lon_right, lat_bottom = t.pixel_coords_zoom_to_lat_lon(
+                PixelX, PixelY, zoom)
 
             # Create Geometry
             ring = ogr.Geometry(ogr.wkbLinearRing)
@@ -303,7 +307,8 @@ def extent_to_slices(infile, zoom, groupSize):
     horizontal_slice_infos = get_horizontal_slice(extent, geomcol, zoom)
 
     # then get vertical slices --> columns
-    raw_groups_dict = get_vertical_slice(horizontal_slice_infos, zoom, groupSize)
+    raw_groups_dict = get_vertical_slice(
+        horizontal_slice_infos, zoom, groupSize)
 
     return raw_groups_dict
 

@@ -4,7 +4,8 @@ import os
 from mapswipe_workers.project_types.base.project import BaseProject
 from mapswipe_workers.definitions import DATA_PATH, CustomError, logger
 from mapswipe_workers.project_types.tile_map_service_grid.group import Group
-from mapswipe_workers.utils import tile_grouping_functions as grouping_functions
+from mapswipe_workers.utils import (
+    tile_grouping_functions as grouping_functions)
 from mapswipe_workers.project_types.base.tile_server import BaseTileServer
 from osgeo import ogr, osr
 
@@ -20,11 +21,13 @@ class Project(BaseProject):
 
         # get TileServerB for change detection and completeness type
         if self.project_type in [3, 4]:
-            self.tileServerB = vars(BaseTileServer(project_draft["tileServerB"]))
+            self.tileServerB = vars(
+                BaseTileServer(project_draft["tileServerB"]))
 
     def validate_geometries(self):
         raw_input_file = (
-            f"{DATA_PATH}/input_geometries/" f"raw_input_{self.projectId}.geojson"
+            f"{DATA_PATH}/input_geometries/"
+            f"raw_input_{self.projectId}.geojson"
         )
         # check if a 'data' folder exists and create one if not
         if not os.path.isdir("{}/input_geometries".format(DATA_PATH)):
@@ -45,7 +48,7 @@ class Project(BaseProject):
                 f" - validate geometry - "
                 f"Could not get layer for datasource"
             )
-            raise CustomError(f"could not get layer for datasource")
+            raise CustomError("could not get layer for datasource")
 
         # check if layer is empty
         if layer.GetFeatureCount() < 1:
@@ -55,7 +58,7 @@ class Project(BaseProject):
                 f"Empty file. "
                 f"No geometry is provided."
             )
-            raise CustomError(f"Empty file. ")
+            raise CustomError("Empty file. ")
 
         # check if more than 1 geometry is provided
         elif layer.GetFeatureCount() > 1:
@@ -65,7 +68,7 @@ class Project(BaseProject):
                 f"Input file contains more than one geometry. "
                 f"Make sure to provide exact one input geometry."
             )
-            raise CustomError(f"Input file contains more than one geometry. ")
+            raise CustomError("Input file contains more than one geometry. ")
 
         # check if the input geometry is a valid polygon
         for feature in layer:
@@ -100,7 +103,8 @@ class Project(BaseProject):
             source = feat_geom.GetSpatialReference()
             target = osr.SpatialReference()
             target.ImportFromProj4(
-                "+proj=moll +lon_0=0 +x_0=0 +y_0=0 +datum=WGS84 +units=m +no_defs"
+                "+proj=moll +lon_0=0 +x_0=0 +y_0=0 "
+                "+datum=WGS84 +units=m +no_defs"
             )
 
             transform = osr.CoordinateTransformation(source, target)
@@ -115,18 +119,21 @@ class Project(BaseProject):
                     f"zoom level is to large (max: 22): {self.zoomLevel}."
                 )
 
-            max_area = (23 - int(self.zoomLevel)) * (23 - int(self.zoomLevel)) * 200
+            max_area = (23 - int(self.zoomLevel)) * \
+                (23 - int(self.zoomLevel)) * 200
 
             if project_area > max_area:
                 logger.warning(
                     f"{self.projectId}"
                     f" - validate geometry - "
                     f"Project is to large: {project_area} sqkm. "
-                    f"Please split your projects into smaller sub-projects and resubmit"
+                    f"Please split your projects into smaller sub-projects and"
+                    f" resubmit"
                 )
                 raise CustomError(
                     f"Project is to large: {project_area} sqkm. "
-                    f"Max area for zoom level {self.zoomLevel} = {max_area} sqkm"
+                    f"Max area for zoom level {self.zoomLevel} = {max_area} "
+                    f"sqkm"
                 )
 
         del datasource
@@ -135,7 +142,8 @@ class Project(BaseProject):
         self.validInputGeometries = raw_input_file
 
         logger.info(
-            f"{self.projectId}" f" - validate geometry - " f"input geometry is correct."
+            f"{self.projectId} - validate geometry - "
+            f"input geometry is correct."
         )
 
         return wkt_geometry
@@ -155,5 +163,6 @@ class Project(BaseProject):
             self.groups.append(group)
 
         logger.info(
-            f"{self.projectId}" f" - create_groups - " f"created groups dictionary"
+            f"{self.projectId} - create_groups - "
+            f"created groups dictionary"
         )

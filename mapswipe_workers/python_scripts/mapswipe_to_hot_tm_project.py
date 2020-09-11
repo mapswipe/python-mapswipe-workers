@@ -5,7 +5,8 @@ from mapswipe_workers.definitions import DATA_PATH
 def mapswipe_to_hot_tm_project(project_id, project_name):
 
     # get project aoi
-    aoi_file = f"{DATA_PATH}/api/project_geometries/project_geom_{project_id}.geojson"
+    aoi_file = (f"{DATA_PATH}/api/project_geometries/project_geom_{project_id}"
+                f".geojson")
     with open(aoi_file) as f:
         aoi_geojson = json.load(f)
 

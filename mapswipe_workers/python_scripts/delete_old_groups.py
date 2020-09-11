@@ -8,7 +8,7 @@ from firebase_admin import exceptions
 def chunks(data: list, size: int = 250) -> Iterable[list]:
     """Yield successive n-sized chunks from list."""
     for i in range(0, len(data), size):
-        yield data[i : i + size]  # noqa E203
+        yield data[i: i + size]  # noqa E203
 
 
 def get_old_groups():
@@ -46,7 +46,8 @@ def move_project_data_to_v2(project_id):
     projects_ref = fb_db.reference(f"projects/{project_id}")
     try:
         projects_ref.transaction(transfer)
-        logger.info(f"{project_id}: Transfered project to v2 and delete in old path")
+        logger.info(
+            f"{project_id}: Transfered project to v2 and delete in old path")
         return True
     except fb_db.TransactionAbortedError:
         logger.exception(

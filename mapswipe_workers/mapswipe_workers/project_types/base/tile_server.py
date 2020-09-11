@@ -1,4 +1,4 @@
-from abc import ABCMeta, abstractmethod
+from abc import ABCMeta
 from mapswipe_workers import auth
 
 
@@ -11,17 +11,20 @@ class BaseTileServer(metaclass=ABCMeta):
 
         # set base url
         self.url = tile_server_dict.get(
-            "url", auth.get_tileserver_url(tile_server_dict.get("name", "bing"))
+            "url", auth.get_tileserver_url(
+                tile_server_dict.get("name", "bing"))
         )
         if self.url == "":
-            self.url = auth.get_tileserver_url(tile_server_dict.get("name", "bing"))
+            self.url = auth.get_tileserver_url(
+                tile_server_dict.get("name", "bing"))
 
         # set api key
         self.apiKey = tile_server_dict.get(
             "apiKey", auth.get_api_key(tile_server_dict.get("name", "bing"))
         )
         if self.apiKey == "":
-            self.apiKey = auth.get_api_key(tile_server_dict.get("name", "bing"))
+            self.apiKey = auth.get_api_key(
+                tile_server_dict.get("name", "bing"))
 
         # only needed if tile server is a WMS
         self.wmtsLayerName = tile_server_dict.get("wmtsLayerName", None)

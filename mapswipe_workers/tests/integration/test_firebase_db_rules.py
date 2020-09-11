@@ -24,8 +24,8 @@ def tear_down_team(team_id: str):
     ref = fb_db.reference(f"v2/teams/{team_id}")
     if not re.match(r"/v2/\w+/[-a-zA-Z0-9]+", ref.path):
         raise CustomError(
-            f"""Given argument resulted in invalid Firebase Realtime Database reference.
-                                    {ref.path}"""
+            f"Given argument resulted in invalid Firebase Realtime Database "
+            f"reference. {ref.path}"
         )
 
     # delete team in firebase
@@ -38,8 +38,8 @@ def tear_down_project(project_id: str):
     ref = fb_db.reference(f"v2/projects/{project_id}")
     if not re.match(r"/v2/\w+/[-a-zA-Z0-9]+", ref.path):
         raise CustomError(
-            f"""Given argument resulted in invalid Firebase Realtime Database reference.
-                                    {ref.path}"""
+            f"Given argument resulted in invalid Firebase Realtime Database "
+            f"reference. {ref.path}"
         )
 
     # delete team in firebase
@@ -52,8 +52,8 @@ def tear_down_results(project_id: str):
     ref = fb_db.reference(f"v2/results/{project_id}")
     if not re.match(r"/v2/\w+/[-a-zA-Z0-9]+", ref.path):
         raise CustomError(
-            f"""Given argument resulted in invalid Firebase Realtime Database reference.
-                                    {ref.path}"""
+            f"Given argument resulted in invalid Firebase Realtime Database "
+            f"reference. {ref.path}"
         )
 
     # delete team in firebase
@@ -64,13 +64,13 @@ def setup_user(
     project_manager: bool, team_member: bool, team_id: str = ""
 ) -> UserRecord:
     if project_manager and team_member:
-        username = f"unittest-project-manager-and-team-member"
+        username = "unittest-project-manager-and-team-member"
     elif project_manager:
-        username = f"unittest-project-manager"
+        username = "unittest-project-manager"
     elif team_member:
-        username = f"unittest-team-member"
+        username = "unittest-team-member"
     else:
-        username = f"unittest-normal-user"
+        username = "unittest-normal-user"
 
     email = f"{username}@mapswipe.org"
     password = f"{username}_pw"
@@ -91,11 +91,12 @@ def setup_user(
 
 def sign_in_with_email_and_password(email: str, password: str) -> Dict:
     request_ref = (
-        f"https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword"
-        f"?key={FIREBASE_API_KEY}"
+        f"https://identitytoolkit.googleapis.com/v1/accounts:"
+        f"signInWithPassword?key={FIREBASE_API_KEY}"
     )
     headers = {"content-type": "application/json; charset=UTF-8"}
-    data = json.dumps({"email": email, "password": password, "returnSecureToken": True})
+    data = json.dumps({"email": email, "password": password,
+                       "returnSecureToken": True})
     request_object = requests.post(request_ref, headers=headers, data=data)
     current_user = request_object.json()
     logger.info(f"signed in with user {email}")
@@ -114,17 +115,20 @@ def permission_denied(request_object: requests.Response):
 
 def test_get_endpoint(user: dict, path: str, custom_arguments: str = ""):
     database_url = f"https://{FIREBASE_DB}.firebaseio.com"
-    request_ref = f"{database_url}{path}.json?{custom_arguments}&auth={user['idToken']}"
+    request_ref = (f"{database_url}{path}.json?{custom_arguments}"
+                   f"&auth={user['idToken']}")
     headers = {"content-type": "application/json; charset=UTF-8"}
     request_object = requests.get(request_ref, headers=headers)
     if permission_denied(request_object):
         logger.info(
-            f"permission denied for {database_url}{path}.json?{custom_arguments}"
+            f"permission denied for {database_url}{path}."
+            f"json?{custom_arguments}"
         )
         return False
     else:
         logger.info(
-            f"permission granted for {database_url}{path}.json?{custom_arguments}"
+            f"permission granted for {database_url}{path}."
+            f"json?{custom_arguments}"
         )
         return True
 
@@ -183,28 +187,29 @@ class TestFirebaseDBRules(unittest.TestCase):
         self.team_member = setup_user(
             project_manager=False, team_member=True, team_id=self.team_id
         )
-        self.project_manager = setup_user(project_manager=True, team_member=False)
+        self.project_manager = setup_user(
+            project_manager=True, team_member=False)
 
         # generate all endpoints to test
         self.endpoints = [  # [path, custom_arguments]
             # projects
-            [f"/v2/projects", f'orderBy="status"&equalTo="active"&limitToFirst=20'],
+            ["/v2/projects",
+                'orderBy="status"&equalTo="active"&limitToFirst=20'],
             [f"/v2/projects/{self.public_project_id}/status", ""],
             [
-                f"/v2/projects",
+                "/v2/projects",
                 f'orderBy="teamId"&equalTo="{self.team_id}"&limitToFirst=20',
             ],
             [f"/v2/projects/{self.private_project_id}/status", ""],
             [
-                f"/v2/projects",
+                "/v2/projects",
                 f'orderBy="teamId"&equalTo="{self.team_id_b}"&limitToFirst=20',
             ],
             [f"/v2/projects/{self.private_project_id_b}/status", ""],
             # query for tutorial
-            [
-                f"/v2/projects",
-                f'orderBy="status"&equalTo="build_area_tutorial"&limitToFirst=1',
-            ],
+            ["/v2/projects",
+             'orderBy="status"&equalTo="build_area_tutorial"&limitToFirst=1',
+             ],
             # teams
             [f"/v2/teams/{self.team_id}", ""],
             [f"/v2/teams/{self.team_id}/teamName", ""],
@@ -216,12 +221,14 @@ class TestFirebaseDBRules(unittest.TestCase):
             [f"/v2/tasks/{self.public_project_id}", ""],
             [f"/v2/tasks/{self.private_project_id}", ""],
             # users
-            [f"/v2/users/<user_id>", ""],
-            [f"/v2/users/<user_id>/teamId", ""],
-            [f"/v2/users/<user_id>/username", ""],
+            ["/v2/users/<user_id>", ""],
+            ["/v2/users/<user_id>/teamId", ""],
+            ["/v2/users/<user_id>/username", ""],
             # results
-            [f"/v2/results/{self.public_project_id}/<group_id>/<user_id>", ""],
-            [f"/v2/results/{self.private_project_id}/<group_id>/<user_id>", ""],
+            [f"/v2/results/{self.public_project_id}/<group_id>/<user_id>",
+                ""],
+            [f"/v2/results/{self.private_project_id}/<group_id>/<user_id>",
+                ""],
         ]
 
     def tearDown(self):
@@ -334,7 +341,8 @@ class TestFirebaseDBRules(unittest.TestCase):
     def test_access_as_project_manager(self):
         # sign in user with email and password to simulate app user
         user = sign_in_with_email_and_password(
-            self.project_manager.email, f"{self.project_manager.display_name}_pw"
+            self.project_manager.email,
+            f"{self.project_manager.display_name}_pw"
         )
 
         expected_access = [  # [read, write]

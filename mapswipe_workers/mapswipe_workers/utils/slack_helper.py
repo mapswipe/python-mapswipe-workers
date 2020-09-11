@@ -23,7 +23,7 @@ def send_slack_message(
             "### PROJECT CREATION SUCCESSFUL ###\n"
             + f"Project Name: {project_name}\n"
             + f"Project Id: {project_id}\n\n"
-            + "Make sure to activate the project using the manager dashboard.\n"
+            + "Make sure to activate the project with the manager dashboard.\n"
             + "Happy Swiping. :)"
         )
         slack_client.chat_postMessage(channel=SLACK_CHANNEL, text=message)
@@ -41,7 +41,8 @@ def send_slack_message(
             + f"Project Id: {project_id}\n\n"
             + "Get your next projects ready."
         )
-        slack_client.chat_postMessage(channel="mapswipe_managers", text=message)
+        slack_client.chat_postMessage(
+            channel="mapswipe_managers", text=message)
     elif message_type == MessageType.NOTIFICATION_100:
         message = (
             "### GREAT! PROJECT REACHED 100% ###\n"
@@ -50,7 +51,8 @@ def send_slack_message(
             + "You can set this project to 'finished' "
             + "and activate another one."
         )
-        slack_client.chat_postMessage(channel="mapswipe_managers", text=message)
+        slack_client.chat_postMessage(
+            channel="mapswipe_managers", text=message)
     else:
         # TODO: Raise an Exception
         pass
@@ -62,7 +64,8 @@ def send_progress_notification(project_id: int):
     progress = fb_db.reference(f"v2/projects/{project_id}/progress").get()
 
     if not progress:
-        logger.info(f"could not get progress from firebase for project {project_id}")
+        logger.info(
+            f"could not get progress from firebase for project {project_id}")
     elif progress >= 90:
         project_name = fb_db.reference(f"v2/projects/{project_id}/name").get()
         notification_90_sent = fb_db.reference(
@@ -78,10 +81,14 @@ def send_progress_notification(project_id: int):
 
         if progress >= 90 and not notification_90_sent:
             # send notification and set value in firebase
-            send_slack_message(MessageType.NOTIFICATION_90, project_name, project_id)
-            fb_db.reference(f"v2/projects/{project_id}/notification_90_sent").set(True)
+            send_slack_message(MessageType.NOTIFICATION_90,
+                               project_name, project_id)
+            fb_db.reference(
+                f"v2/projects/{project_id}/notification_90_sent").set(True)
 
         if progress >= 100 and not notification_100_sent:
             # send notification and set value in firebase
-            send_slack_message(MessageType.NOTIFICATION_100, project_name, project_id)
-            fb_db.reference(f"v2/projects/{project_id}/notification_100_sent").set(True)
+            send_slack_message(MessageType.NOTIFICATION_100,
+                               project_name, project_id)
+            fb_db.reference(
+                f"v2/projects/{project_id}/notification_100_sent").set(True)

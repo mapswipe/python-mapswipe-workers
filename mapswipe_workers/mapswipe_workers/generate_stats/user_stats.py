@@ -34,13 +34,14 @@ def get_agg_results_by_user_id(
     ] = (raw_contributions_df["3_count"] - 1)
 
     raw_contributions_df["disagreeing_contributions"] = raw_contributions_df[
-        f"total_count"
-    ] - (raw_contributions_df[f"agreeing_contributions"] + 1)
+        "total_count"
+    ] - (raw_contributions_df["agreeing_contributions"] + 1)
 
     agg_results_by_user_id_df = raw_contributions_df.groupby(
         ["project_id", "user_id"]
     ).agg(
-        groups_completed=pd.NamedAgg(column="group_id", aggfunc=pd.Series.nunique),
+        groups_completed=pd.NamedAgg(
+            column="group_id", aggfunc=pd.Series.nunique),
         total_contributions=pd.NamedAgg(column="user_id", aggfunc="count"),
         agreeing_contributions=pd.NamedAgg(
             column="agreeing_contributions", aggfunc="sum"
@@ -51,9 +52,8 @@ def get_agg_results_by_user_id(
     )
 
     # Calc simple agreement score as share of agreeing contributions.
-    agg_results_by_user_id_df["simple_agreement_score"] = agg_results_by_user_id_df[
-        "agreeing_contributions"
-    ] / (
+    agg_results_by_user_id_df["simple_agreement_score"] = \
+        agg_results_by_user_id_df["agreeing_contributions"] / (
         agg_results_by_user_id_df["agreeing_contributions"]
         + agg_results_by_user_id_df["disagreeing_contributions"]
     )

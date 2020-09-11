@@ -50,7 +50,8 @@ def update_user_data(user_ids: list = []) -> None:
             logger.info("there are no new users in Firebase.")
         else:
             # Delete first user in ordered dict (FIFO).
-            # This user is already in the database (user.created = last_updated).
+            # This user is already in the database
+            # (user.created = last_updated).
             users.popitem(last=False)
     else:
         # Get all users from Firebase.
@@ -102,13 +103,14 @@ def update_project_data(project_ids: list = []):
     pg_db = auth.postgresDB()
 
     if project_ids:
-        logger.info(f"update project data in postgres for selected projects")
+        logger.info("update project data in postgres for selected projects")
         projects = dict()
         for project_id in project_ids:
             project_ref = fb_db.reference(f"v2/projects/{project_id}")
             projects[project_id] = project_ref.get()
     else:
-        logger.info(f"update project data in postgres for all firebase projects")
+        logger.info(
+            "update project data in postgres for all firebase projects")
         projects_ref = fb_db.reference("v2/projects/")
         projects = projects_ref.get()
 

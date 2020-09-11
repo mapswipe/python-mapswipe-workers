@@ -19,14 +19,16 @@ class TestArchiveProject(unittest.TestCase):
         """Test update users when no users are in postgres yet."""
         update_data.update_user_data()
         pg_db = auth.postgresDB()
-        sql_query = "SELECT * FROM users WHERE user_id = '{0}'".format(self.user_id)
+        sql_query = "SELECT * FROM users WHERE user_id = '{0}'".format(
+            self.user_id)
         result = pg_db.retr_query(sql_query)
         self.assertIsNotNone(result)
 
     def test_last_updated_users(self):
         """Test update users when some users are in postgres."""
         update_data.update_user_data()
-        user_id = set_up.create_test_user("tile_map_service_grid", "test_user_2")
+        user_id = set_up.create_test_user(
+            "tile_map_service_grid", "test_user_2")
         self.user_ids.append(user_id)
         update_data.update_user_data()
 
@@ -38,7 +40,8 @@ class TestArchiveProject(unittest.TestCase):
     def test_with_user_ids(self):
         update_data.update_user_data([self.user_id])
         pg_db = auth.postgresDB()
-        sql_query = "SELECT * FROM users WHERE user_id = '{0}'".format(self.user_id)
+        sql_query = "SELECT * FROM users WHERE user_id = '{0}'".format(
+            self.user_id)
         result = pg_db.retr_query(sql_query)
         self.assertIsNotNone(result)
 

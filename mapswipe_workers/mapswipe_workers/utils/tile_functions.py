@@ -52,7 +52,8 @@ def lat_long_zoom_to_pixel_coords(lat, lon, zoom):
 
 
 def pixel_coords_zoom_to_lat_lon(PixelX, PixelY, zoom):
-    """Compute latitude, longituted from pixel coordinates at a given zoom level."""
+    """Compute latitude, longituted from pixel coordinates at a given zoom
+    level."""
 
     MapSize = 256 * math.pow(2, zoom)
     x = (PixelX / MapSize) - 0.5
@@ -75,7 +76,8 @@ def pixel_coords_to_tile_address(PixelX, PixelY):
 def tile_coords_zoom_and_tileserver_to_url(
     tile_x: int, tile_y: int, tile_z: int, tile_server: dict
 ) -> str:
-    """Create a URL for a tile based on tile coordinates, zoom and given tile server."""
+    """Create a URL for a tile based on tile coordinates, zoom and given tile
+    server."""
 
     if tile_server["name"] == "bing":
         quadKey = tile_coords_and_zoom_to_quadKey(tile_x, tile_y, tile_z)
@@ -95,7 +97,10 @@ def tile_coords_zoom_and_tileserver_to_url(
         # https://www.maptiler.com/google-maps-coordinates-tile-bounds-projection/
         tile_y = int(math.pow(2, tile_z) - tile_y) - 1
         url = tile_server["url"].format(
-            key=tile_server["apiKey"], x=tile_x, y=tile_y, z=tile_z,
+            key=tile_server["apiKey"],
+            x=tile_x,
+            y=tile_y,
+            z=tile_z,
         )
     elif "{-y}" in tile_server["url"]:
         # this uses not the standard TMS tile y coordinate,
@@ -104,17 +109,26 @@ def tile_coords_zoom_and_tileserver_to_url(
         # https://www.maptiler.com/google-maps-coordinates-tile-bounds-projection/
         tile_y = int(math.pow(2, tile_z) - tile_y) - 1
         url = tile_server["url"].replace("{-y}", "{y}")
-        url = url.format(key=tile_server["apiKey"], x=tile_x, y=tile_y, z=tile_z,)
+        url = url.format(
+            key=tile_server["apiKey"],
+            x=tile_x,
+            y=tile_y,
+            z=tile_z,
+        )
     else:
         url = tile_server["url"].format(
-            key=tile_server["apiKey"], x=tile_x, y=tile_y, z=tile_z,
+            key=tile_server["apiKey"],
+            x=tile_x,
+            y=tile_y,
+            z=tile_z,
         )
 
     return url
 
 
 def tile_coords_and_zoom_to_quadKey(TileX, TileY, zoom):
-    """Create a quadkey for use with certain tileservers that use them, e.g. Bing."""
+    """Create a quadkey for use with certain tileservers that use them,
+    e.g. Bing."""
 
     quadKey = ""
     for i in range(zoom, 0, -1):

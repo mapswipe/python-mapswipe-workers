@@ -2,8 +2,7 @@ from osgeo import ogr
 import argparse
 import json
 
-
-########################################################################################################################
+##############################################################################
 parser = argparse.ArgumentParser(description="Process some integers.")
 parser.add_argument(
     "-i",
@@ -21,12 +20,13 @@ parser.add_argument(
     type=int,
     help="the size of each group",
 )
-########################################################################################################################
+##############################################################################
 
 
 def group_input_geometries(input_geometries_file, group_size):
     """
-    The function to create groups of input geometries using the given size (number of features) per group
+    The function to create groups of input geometries using the given size
+    (number of features) per group
 
     Parameters
     ----------
@@ -38,7 +38,8 @@ def group_input_geometries(input_geometries_file, group_size):
     Returns
     -------
     groups : dict
-        the dictionary containing a list of "feature_ids" and a list of "feature_geometries" per group with given group id key
+        the dictionary containing a list of "feature_ids" and a list of
+        "feature_geometries" per group with given group id key
     """
 
     driver = ogr.GetDriverByName("GeoJSON")
@@ -60,7 +61,8 @@ def group_input_geometries(input_geometries_file, group_size):
         try:
             groups[group_id_string]
         except:
-            groups[group_id_string] = {"feature_ids": [], "feature_geometries": []}
+            groups[group_id_string] = {
+                "feature_ids": [], "feature_geometries": []}
 
         groups[group_id_string]["feature_ids"].append(feature.GetFID())
         groups[group_id_string]["feature_geometries"].append(
@@ -70,13 +72,13 @@ def group_input_geometries(input_geometries_file, group_size):
     return groups
 
 
-########################################################################################################################
+##############################################################################
 if __name__ == "__main__":
 
     try:
         args = parser.parse_args()
     except:
-        print("have a look at the input arguments, something went wrong there.")
+        print("Look at the input arguments, something went wrong there.")
 
     groups = group_input_geometries(args.input_file, args.group_size)
 

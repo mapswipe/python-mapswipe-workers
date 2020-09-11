@@ -22,7 +22,8 @@ class Tutorial(BaseTutorial):
 
         # get TileServerB for change detection and completeness type
         if self.projectType in [3, 4]:
-            self.tileServerB = vars(BaseTileServer(tutorial_draft["tileServerB"]))
+            self.tileServerB = vars(BaseTileServer(
+                tutorial_draft["tileServerB"]))
 
         # TODO: make sure that "tutorial" is fine from the app side
         #  currently it expects "completeness_tutorial" for instance
@@ -34,7 +35,8 @@ class Tutorial(BaseTutorial):
         self.status = status_dict[self.projectType]
 
     def create_tutorial_groups(self):
-        """Create a single group for the tutorial based on provided examples in geojson file."""
+        """Create a single group for the tutorial based on provided examples
+        in geojson file."""
         # load examples/tasks from file
         with open(self.examplesFile, "r") as f:
             self.raw_tasks = json.load(f)[
@@ -50,14 +52,14 @@ class Tutorial(BaseTutorial):
             "xMin": 100,  # this will be always set to 100
             "yMax": 131074,  # this is set to be at the equator
             "yMin": 131072,  # this is set to be at the equator
-            "requiredCount": 5,  # this is not needed from back end perspective, maybe for client
-            "finishedCount": 0,  # this is not needed from back end perspective, maybe for client
+            "requiredCount": 5,  # not needed for back end, maybe client
+            "finishedCount": 0,  # not needed for back end, maybe client
             "groupId": 101,  # a tutorial has only one group
             "projectId": self.projectId,
             "numberOfTasks": len(
                 self.raw_tasks
             ),  # this depends on the number of screens/tasks to show
-            "progress": 0,  # this is not needed from back end perspective, maybe for client
+            "progress": 0,  # not needed for back end, maybe for client
         }
 
         if self.projectType in [3]:
@@ -81,13 +83,13 @@ class Tutorial(BaseTutorial):
 
         for screen in range(1, number_of_screens + 1):
             # get all tasks for this screen
-            raw_tasks_screen = [
-                d for d in self.raw_tasks if d["properties"]["screen"] in [screen]
-            ]
+            raw_tasks_screen = [d for d in self.raw_tasks if
+                                d["properties"]["screen"] in [screen]]
             # sort by tile_x and tile_y
             raw_tasks_screen_sorted = sorted(
                 raw_tasks_screen,
-                key=lambda k: (k["properties"]["tile_x"], k["properties"]["tile_y"]),
+                key=lambda k: (k["properties"]["tile_x"],
+                               k["properties"]["tile_y"]),
             )
 
             for i, raw_task in enumerate(raw_tasks_screen_sorted):
@@ -95,11 +97,13 @@ class Tutorial(BaseTutorial):
                 tile_y = raw_task["properties"]["tile_y"]
 
                 if i < 3:  # get adjusted tile_x to fit in tutorial data schema
-                    tile_x_tutorial = self.groups[101]["xMin"] + (2 * (screen - 1))
+                    tile_x_tutorial = self.groups[101]["xMin"] + \
+                        (2 * (screen - 1))
                 else:
-                    tile_x_tutorial = self.groups[101]["xMin"] + (2 * (screen - 1)) + 1
+                    tile_x_tutorial = self.groups[101]["xMin"] + \
+                        (2 * (screen - 1)) + 1
 
-                if i in [0, 3]:  # get adjusted tile_y to fit in tutorial data schema
+                if i in [0, 3]:  # tuned tile_y to fit in tutorial data schema
                     tile_y_tutorial = self.groups[101]["yMin"]
                 elif i in [1, 4]:
                     tile_y_tutorial = self.groups[101]["yMin"] + 1
@@ -108,9 +112,10 @@ class Tutorial(BaseTutorial):
 
                 task = {
                     "taskId_real": f"{self.zoomLevel}-{tile_x}-{tile_y}",
-                    "taskId": f"{self.zoomLevel}-{tile_x_tutorial}-{tile_y_tutorial}",
-                    "taskX": tile_x_tutorial,  # need to set this correctly based on screen
-                    "taskY": tile_y_tutorial,  # need to set this correctly based on screen
+                    "taskId": (f"{self.zoomLevel}-{tile_x_tutorial}-"
+                               f"{tile_y_tutorial}"),
+                    "taskX": tile_x_tutorial,  # to be set correctly for screen
+                    "taskY": tile_y_tutorial,  # to be set correctly for screen
                     "groupId": 101,  # a tutorial has only one group
                     "projectId": self.projectId,
                     "referenceAnswer": raw_task["properties"]["reference"],
@@ -120,7 +125,8 @@ class Tutorial(BaseTutorial):
                     ),
                 }
 
-                # Completeness and Change Detection projects use a second tile image url
+                # Completeness and Change Detection projects use a second tile
+                # image url
                 if self.projectType in [3, 4]:
                     task["urlB"] = t.tile_coords_zoom_and_tileserver_to_url(
                         tile_x, tile_y, self.zoomLevel, self.tileServerB

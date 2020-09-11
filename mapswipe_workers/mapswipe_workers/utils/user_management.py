@@ -18,7 +18,8 @@ def set_project_manager_rights(email):
         logger.info(f"user {email} has project manager rights.")
     except Exception as e:
         logger.info(
-            f"could not find user {email} in firebase to set project manager rights."
+            f"could not find user {email} in firebase to set project manager "
+            f"rights."
         )
         raise CustomError(e)
 
@@ -32,7 +33,8 @@ def remove_project_manager_rights(email):
     except Exception as e:
 
         logger.info(
-            f"could not find user {email} in firebase to remove project manager rights."
+            f"could not find user {email} in firebase to remove project "
+            f"manager rights."
         )
         raise CustomError(e)
 
@@ -46,14 +48,16 @@ def update_username(email, username):
         ref.set(username)
         logger.info(f"updated username for user {email}: {username}")
     except Exception as e:
-        logger.info(f"could not find user {email} in firebase to update username.")
+        logger.info(
+            f"could not find user {email} in firebase to update username.")
         raise CustomError(e)
 
 
 def create_user(email, username, password):
     fb_db = firebaseDB()
     try:
-        user = auth.create_user(email=email, display_name=username, password=password)
+        user = auth.create_user(
+            email=email, display_name=username, password=password)
 
         ref = fb_db.reference(f"v2/users/{user.uid}/")
         ref.update(
@@ -77,7 +81,7 @@ def delete_user(email):
     fb_db = firebaseDB()
     try:
         user = auth.get_user_by_email(email)
-        ref = fb_db.reference(f"v2/users/")
+        ref = fb_db.reference("v2/users/")
         ref.update({user.uid: None})
         auth.delete_user(user.uid)
         logger.info(f"deleted user {email}")
@@ -93,7 +97,8 @@ def sign_in_with_email_and_password(email, password):
         + "v3/relyingparty/verifyPassword?key={0}".format(api_key)
     )
     headers = {"content-type": "application/json; charset=UTF-8"}
-    data = json.dumps({"email": email, "password": password, "returnSecureToken": True})
+    data = json.dumps({"email": email, "password": password,
+                       "returnSecureToken": True})
     request_object = requests.post(request_ref, headers=headers, data=data)
     current_user = request_object.json()
     logger.info(f"signed in with user {email}")
@@ -113,7 +118,8 @@ def get_firebase_db(path, custom_arguments=None, token=None):
         return False
     else:
         logger.info(
-            f"get data in firebase for {database_url}{path}.json?{custom_arguments}"
+            f"get data in firebase for {database_url}{path}."
+            f"json?{custom_arguments}"
         )
         return request_object.json()
 
@@ -181,7 +187,7 @@ def add_user_to_team(email, team_id):
         logger.info(f"added teamId {team_id} for user {email} - {user.uid}.")
 
     except Exception as e:
-        logger.info(f"could not add teamId attribute for user.")
+        logger.info("could not add teamId attribute for user.")
         raise CustomError(e)
 
 
@@ -201,9 +207,10 @@ def remove_user_from_team(email):
 
         # remove teamId attribute for user in firebase
         ref = fb_db.reference(f"v2/users/{user.uid}")
-        ref.update({"teamId": None})  # deletes the teamId attribute in firebase
+        # deletes the teamId attribute in firebase
+        ref.update({"teamId": None})
         logger.info(f"removed teamId {team_id} for user {email} - {user.uid}.")
 
     except Exception as e:
-        logger.info(f"could not remove teamId attribute for user.")
+        logger.info("could not remove teamId attribute for user.")
         raise CustomError(e)

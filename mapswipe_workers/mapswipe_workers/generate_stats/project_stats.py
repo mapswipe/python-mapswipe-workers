@@ -102,7 +102,8 @@ def get_tasks(filename: str, project_id: str) -> pd.DataFrame:
     """
 
     if os.path.isfile(filename):
-        logger.info(f"file {filename} already exists for {project_id}. skip download.")
+        logger.info(
+            f"file {filename} already exists for {project_id}. skip download.")
         pass
     else:
 
@@ -136,13 +137,15 @@ def get_groups(filename: str, project_id: str) -> pd.DataFrame:
     """
 
     if os.path.isfile(filename):
-        logger.info(f"file {filename} already exists for {project_id}. skip download.")
+        logger.info(
+            f"file {filename} already exists for {project_id}. skip download.")
         pass
     else:
         sql_query = sql.SQL(
             """
             COPY (
-                SELECT *, (required_count+finished_count) as number_of_users_required
+                SELECT *, (required_count+finished_count) as
+                number_of_users_required
                 FROM groups
                 WHERE project_id = {}
             ) TO STDOUT WITH CSV HEADER
@@ -154,7 +157,8 @@ def get_groups(filename: str, project_id: str) -> pd.DataFrame:
     return df
 
 
-def calc_agreement(total: int, no: int, yes: int, maybe: int, bad: int) -> float:
+def calc_agreement(total: int, no: int, yes: int,
+                   maybe: int, bad: int) -> float:
     """
     for each task the "agreement" is computed as defined by Scott's Pi
     Scott's Pi is a measure for inter-rater reliability
@@ -180,7 +184,8 @@ def calc_agreement(total: int, no: int, yes: int, maybe: int, bad: int) -> float
     return agreement
 
 
-def calc_share(total: int, no: int, yes: int, maybe: int, bad: int) -> List[float]:
+def calc_share(total: int, no: int, yes: int,
+               maybe: int, bad: int) -> List[float]:
     """Calculate the share of each category on the total count."""
     no_share = no / total
     yes_share = yes / total
@@ -264,7 +269,8 @@ def get_agg_results_by_task_id(
     )
 
     # calculate total count and check if other counts are defined
-    results_by_task_id_df[["total_count", 0, 1, 2, 3]] = results_by_task_id_df.apply(
+    results_by_task_id_df[["total_count", 0, 1, 2, 3]] = \
+        results_by_task_id_df.apply(
         lambda row: calc_count(row), axis=1, result_type="expand"
     )
 
@@ -272,17 +278,19 @@ def get_agg_results_by_task_id(
     results_by_task_id_df[
         ["0_share", "1_share", "2_share", "3_share"]
     ] = results_by_task_id_df.apply(
-        lambda row: calc_share(row["total_count"], row[0], row[1], row[2], row[3]),
+        lambda row: calc_share(
+            row["total_count"], row[0], row[1], row[2], row[3]),
         axis=1,
         result_type="expand",
     )
 
     # calculate agreement
     results_by_task_id_df["agreement"] = results_by_task_id_df.apply(
-        lambda row: calc_agreement(row["total_count"], row[0], row[1], row[2], row[3]),
+        lambda row: calc_agreement(
+            row["total_count"], row[0], row[1], row[2], row[3]),
         axis=1,
     )
-    logger.info(f"calculated agreement")
+    logger.info("calculated agreement")
 
     # add quadkey
     results_by_task_id_df.reset_index(level=["task_id"], inplace=True)
@@ -294,17 +302,19 @@ def get_agg_results_by_task_id(
     agg_results_df = results_by_task_id_df.merge(
         tasks_df[["geom", "task_id"]], left_on="task_id", right_on="task_id"
     )
-    logger.info(f"added geometry to aggregated results")
+    logger.info("added geometry to aggregated results")
 
     # rename columns, ogr2ogr will fail otherwise
     agg_results_df.rename(
-        columns={0: "0_count", 1: "1_count", 2: "2_count", 3: "3_count"}, inplace=True
+        columns={0: "0_count", 1: "1_count", 2: "2_count", 3: "3_count"},
+        inplace=True
     )
 
     return agg_results_df
 
 
-def get_per_project_statistics(project_id: str, project_info: pd.Series) -> dict:
+def get_per_project_statistics(project_id: str,
+                               project_info: pd.Series) -> dict:
     """
     The function calculates all project related statistics.
     Always save results to csv file.
@@ -321,9 +331,12 @@ def get_per_project_statistics(project_id: str, project_info: pd.Series) -> dict
     results_filename = f"{DATA_PATH}/api/results/results_{project_id}.csv"
     tasks_filename = f"{DATA_PATH}/api/tasks/tasks_{project_id}.csv"
     groups_filename = f"{DATA_PATH}/api/groups/groups_{project_id}.csv"
-    agg_results_filename = f"{DATA_PATH}/api/agg_results/agg_results_{project_id}.csv"
-    agg_results_by_user_id_filename = f"{DATA_PATH}/api/users/users_{project_id}.csv"
-    project_stats_by_date_filename = f"{DATA_PATH}/api/history/history_{project_id}.csv"
+    agg_results_filename = (f"{DATA_PATH}/api/agg_results/agg_results_"
+                            f"{project_id}.csv")
+    agg_results_by_user_id_filename = (f"{DATA_PATH}/api/users/users_"
+                                       f"{project_id}.csv")
+    project_stats_by_date_filename = (f"{DATA_PATH}/api/history/history_"
+                                      f"{project_id}.csv")
 
     # load data from postgres or local storage if already downloaded
     results_df = get_results(results_filename, project_id)
@@ -338,7 +351,8 @@ def get_per_project_statistics(project_id: str, project_info: pd.Series) -> dict
         # aggregate results by task id
         agg_results_df = get_agg_results_by_task_id(results_df, tasks_df)
         agg_results_df.to_csv(agg_results_filename, index_label="idx")
-        logger.info(f"saved agg results for {project_id}: {agg_results_filename}")
+        logger.info(
+            f"saved agg results for {project_id}: {agg_results_filename}")
         geojson_functions.csv_to_geojson(agg_results_filename, "geom")
 
         # aggregate results by user id
@@ -351,7 +365,8 @@ def get_per_project_statistics(project_id: str, project_info: pd.Series) -> dict
                 agg_results_by_user_id_filename, index_label="idx"
             )
             logger.info(
-                f"saved agg results for {project_id}: {agg_results_by_user_id_filename}"
+                f"saved agg results for {project_id}: "
+                "{agg_results_by_user_id_filename}"
             )
         except MemoryError:
             sentry.capture_exception()
@@ -372,16 +387,17 @@ def get_per_project_statistics(project_id: str, project_info: pd.Series) -> dict
         )
 
         # generate geometries for HOT Tasking Manager
-        tasking_manager_geometries.generate_tasking_manager_geometries(project_id)
+        tasking_manager_geometries.generate_tasking_manager_geometries(
+            project_id)
 
         # prepare output of function
         project_stats_dict = {
             "project_id": project_id,
             "progress": project_stats_by_date_df["cum_progress"].iloc[-1],
-            "number_of_users": project_stats_by_date_df["cum_number_of_users"].iloc[-1],
-            "number_of_results": project_stats_by_date_df["cum_number_of_results"].iloc[
-                -1
-            ],
+            "number_of_users":
+            project_stats_by_date_df["cum_number_of_users"].iloc[-1],
+            "number_of_results":
+            project_stats_by_date_df["cum_number_of_results"].iloc[-1],
             "number_of_results_progress": project_stats_by_date_df[
                 "cum_number_of_results_progress"
             ].iloc[-1],

@@ -3,8 +3,10 @@ Helper functions for test set up.
 
 Directory structure of fixtures: fixtures/project_type/data_type/fixture_name
 - project_type is either tile_map_service_grid or arbitrary_geometry.
-- data_type is one of following: projectDrafts, projects, groups, tasks, users, results
-- fixture_name is the name of the fixture file without extension. E.g. build_area
+- data_type is one of following: projectDrafts, projects, groups, tasks, users,
+results
+- fixture_name is the name of the fixture file without extension.
+E.g. build_area
 """
 
 import json
@@ -51,13 +53,15 @@ def create_test_project(
     project_id = "test_{0}".format(fixture_name)
 
     for data_type in ["projects", "groups", "tasks"]:
-        set_firebase_test_data(project_type, data_type, fixture_name, project_id)
+        set_firebase_test_data(project_type, data_type,
+                               fixture_name, project_id)
         set_postgres_test_data(project_type, data_type, fixture_name)
 
     if results:
         set_firebase_test_data(project_type, "users", "user", project_id)
         set_postgres_test_data(project_type, "users", "user")
-        set_firebase_test_data(project_type, "results", fixture_name, project_id)
+        set_firebase_test_data(project_type, "results",
+                               fixture_name, project_id)
         set_postgres_test_data(project_type, "results", fixture_name)
 
     return project_id
@@ -83,11 +87,13 @@ def create_test_project_draft(
 ) -> str:
     """
     Create test project drafts in Firebase and return project ids.
-    Project drafts in Firebase are create by project manager using the dashboard.
+    Project drafts in Firebase are create by project manager using
+    the dashboard.
     """
     if not user_id:
         user_id = "test_{0}".format(project_type)
-    set_firebase_test_data(project_type, "projectDrafts", fixture_name, user_id)
+    set_firebase_test_data(project_type, "projectDrafts",
+                           fixture_name, user_id)
     return user_id
 
 

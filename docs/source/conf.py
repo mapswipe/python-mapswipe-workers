@@ -1,5 +1,3 @@
-from recommonmark.parser import CommonMarkParser
-
 # -- Path setup --------------------------------------------------------------
 
 # If extensions (or modules to document with autodoc) are in another directory,
@@ -13,9 +11,9 @@ from recommonmark.parser import CommonMarkParser
 
 # -- Project information -----------------------------------------------------
 
-project = 'MapSwipe Back-End'
-copyright = '2019, MapSwipe'
-author = 'MapSwipe'
+project = "MapSwipe Back-End"
+copyright = "2019, MapSwipe"
+author = "MapSwipe"
 
 
 # -- General configuration ---------------------------------------------------
@@ -24,14 +22,14 @@ author = 'MapSwipe'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    'sphinx.ext.autodoc',
-    'sphinx.ext.napoleon',
-    'sphinx_markdown_tables',
-    'm2r',
+    "sphinx.ext.autodoc",
+    "sphinx.ext.napoleon",
+    "sphinx_markdown_tables",
+    "m2r",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
-templates_path = ['_templates']
+templates_path = ["_templates"]
 
 # For conversion from markdown to html
 # Add a source file parser for markdwon
@@ -42,7 +40,7 @@ templates_path = ['_templates']
 
 # The suffix(es) of source filenames.
 # You can specify multiple suffix as a list of string:
-source_suffix = ['.rst', '.md']
+source_suffix = [".rst", ".md"]
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
@@ -55,12 +53,12 @@ exclude_patterns = []
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'sphinx_rtd_theme'
+html_theme = "sphinx_rtd_theme"
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
+html_static_path = ["_static"]
 
 
 # -- Extension configuration -------------------------------------------------

@@ -8,7 +8,7 @@ from firebase_admin import exceptions
 def chunks(data: list, size: int = 250) -> Iterable[list]:
     """Yield successive n-sized chunks from list."""
     for i in range(0, len(data), size):
-        yield data[i : i + size]  # noqa E203
+        yield data[i: i + size]  # noqa E203
 
 
 def get_old_projects():
@@ -46,7 +46,8 @@ def move_project_data_to_v2(project_id):
     projects_ref = fb_db.reference(f"projects/{project_id}")
     try:
         projects_ref.transaction(transfer)
-        logger.info(f"{project_id}: Transfered project to v2 and delete in old path")
+        logger.info(
+            f"{project_id}: Transfered project to v2 and delete in old path")
         return True
     except fb_db.TransactionAbortedError:
         logger.exception(
@@ -86,7 +87,7 @@ def delete_other_old_data():
     fb_db.reference("imports").set({})
     fb_db.reference("results").set({})
     fb_db.reference("announcements").set({})
-    logger.info(f"deleted old results, imports, announcements")
+    logger.info("deleted old results, imports, announcements")
 
 
 def archive_old_projects():
@@ -105,7 +106,8 @@ def archive_old_projects():
         if move_project_data_to_v2(project_id):
             delete_old_groups(project_id)
         else:
-            logger.info(f"didn't delete project and groups for project: {project_id}")
+            logger.info(
+                f"didn't delete project and groups for project: {project_id}")
 
     delete_other_old_data()
 

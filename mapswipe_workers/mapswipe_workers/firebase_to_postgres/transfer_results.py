@@ -35,7 +35,7 @@ def transfer_results(project_id_list=None):
         project_id_list = fb_db.reference("v2/results/").get(shallow=True)
         if not project_id_list:
             project_id_list = []
-            logger.info(f"There are no results to transfer.")
+            logger.info("There are no results to transfer.")
 
     # get all project ids from postgres,
     # we will only transfer results for projects we have there
@@ -96,7 +96,8 @@ def results_to_file(results, projectId):
     w = csv.writer(results_file, delimiter="\t", quotechar="'")
 
     logger.info(
-        f"Got %s groups for project {projectId} to transfer" % len(results.items())
+        f"Got %s groups for project {projectId} to transfer" % len(
+            results.items())
     )
     for groupId, users in results.items():
         for userId, results in users.items():
@@ -169,8 +170,8 @@ def results_to_file(results, projectId):
 
 def save_results_to_postgres(results_file):
     """
-    Saves results to a temporary table in postgres using the COPY Statement of Postgres
-    for a more efficient import into the database.
+    Saves results to a temporary table in postgres using the COPY Statement of
+    Postgres for a more efficient import into the database.
 
     Parameters
     ----------

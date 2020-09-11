@@ -18,8 +18,8 @@ def calc_results_progress(
     """
 
     if cum_number_of_users <= number_of_users_required:
-        # this is the simplest case, the number of users is less than the required number of users
-        # all results contribute to progress
+        # this is the simplest case, the number of users is less than
+        # the required number of users all results contribute to progress
         number_of_results_progress = number_of_results
     elif (cum_number_of_users - number_of_users) < number_of_users_required:
         # the number of users is bigger than the number of users required
@@ -51,7 +51,8 @@ def get_progress_by_date(
     results_df: pd.DataFrame, groups_df: pd.DataFrame
 ) -> pd.DataFrame:
     """
-    for each project we retrospectively generate the following attributes for a given date utilizing the results:
+    for each project we retrospectively generate the following attributes
+    for a given date utilizing the results:
     number_of_results, cum_number_of_results, progress, cum_progress
     """
 
@@ -71,7 +72,8 @@ def get_progress_by_date(
         number_of_users_required=pd.NamedAgg(
             column="number_of_users_required", aggfunc="min"
         ),
-        number_of_users=pd.NamedAgg(column="user_id", aggfunc=pd.Series.nunique),
+        number_of_users=pd.NamedAgg(
+            column="user_id", aggfunc=pd.Series.nunique),
     )
     results_by_group_id_df["number_of_results"] = (
         results_by_group_id_df["number_of_users"]
@@ -82,7 +84,8 @@ def get_progress_by_date(
         .groupby(["project_id_x", "group_id"])
         .cumsum()
     )
-    results_by_group_id_df["number_of_results_progress"] = results_by_group_id_df.apply(
+    results_by_group_id_df["number_of_results_progress"] = \
+        results_by_group_id_df.apply(
         lambda row: calc_results_progress(
             row["number_of_users"],
             row["number_of_users_required"],
@@ -97,7 +100,8 @@ def get_progress_by_date(
         results_by_group_id_df.reset_index()
         .groupby(["day"])
         .agg(
-            number_of_results=pd.NamedAgg(column="number_of_results", aggfunc="sum"),
+            number_of_results=pd.NamedAgg(
+                column="number_of_results", aggfunc="sum"),
             number_of_results_progress=pd.NamedAgg(
                 column="number_of_results_progress", aggfunc="sum"
             ),
@@ -106,14 +110,16 @@ def get_progress_by_date(
     progress_by_date_df["cum_number_of_results"] = progress_by_date_df[
         "number_of_results"
     ].cumsum()
-    progress_by_date_df["cum_number_of_results_progress"] = progress_by_date_df[
+    progress_by_date_df["cum_number_of_results_progress"] = \
+        progress_by_date_df[
         "number_of_results_progress"
     ].cumsum()
     progress_by_date_df["progress"] = (
         progress_by_date_df["number_of_results_progress"] / required_results
     )
     progress_by_date_df["cum_progress"] = (
-        progress_by_date_df["cum_number_of_results_progress"] / required_results
+        progress_by_date_df["cum_number_of_results_progress"]
+        / required_results
     )
 
     logger.info("calculated progress by date")
@@ -122,7 +128,8 @@ def get_progress_by_date(
 
 def get_contributors_by_date(results_df: pd.DataFrame) -> pd.DataFrame:
     """
-    for each project we retrospectively generate the following attributes for a given date utilizing the results:
+    for each project we retrospectively generate the following attributes
+    for a given date utilizing the results:
     number_of_users, number_of_new_users, cum_number_of_users
     """
 
@@ -131,7 +138,8 @@ def get_contributors_by_date(results_df: pd.DataFrame) -> pd.DataFrame:
     )
     logger.info("calculated first day per user")
 
-    results_by_user_id_df = results_df.groupby(["project_id", "user_id", "day"]).agg(
+    results_by_user_id_df = results_df.groupby(["project_id", "user_id",
+                                                "day"]).agg(
         number_of_results=pd.NamedAgg(column="user_id", aggfunc="count")
     )
     results_by_user_id_df = results_by_user_id_df.reset_index().merge(
@@ -145,7 +153,8 @@ def get_contributors_by_date(results_df: pd.DataFrame) -> pd.DataFrame:
         results_by_user_id_df.reset_index()
         .groupby(["project_id", "day"])
         .agg(
-            number_of_users=pd.NamedAgg(column="user_id", aggfunc=pd.Series.nunique),
+            number_of_users=pd.NamedAgg(
+                column="user_id", aggfunc=pd.Series.nunique),
             number_of_new_users=pd.NamedAgg(column="new_user", aggfunc="sum"),
         )
     )

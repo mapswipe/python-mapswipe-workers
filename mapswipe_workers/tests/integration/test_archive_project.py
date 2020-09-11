@@ -31,9 +31,10 @@ class TestArchiveProject(unittest.TestCase):
         self.assertIsNone(ref.get())
 
         pg_db = auth.postgresDB()
-        sql_query = "SELECT status FROM projects WHERE project_id = '{}'".format(
-            self.project_id
-        )
+        sql_query = ("SELECT status FROM projects WHERE "
+                     "project_id = '{}'").format(
+            self.project_id)
+
         result = pg_db.retr_query(sql_query)[0][0]
         self.assertEqual(result, "archived")
 
