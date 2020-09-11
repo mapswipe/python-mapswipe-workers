@@ -8,12 +8,20 @@ class BaseTutorial(metaclass=ABCMeta):
 
     def __init__(self, tutorial_draft):
         """The function to initialize a new tutorial."""
+
+        # the id of the tutorial
+        self.projectId = f"tutorial_{tutorial_draft['tutorialDraftId']}"
         self.lookFor = tutorial_draft["lookFor"]
         self.name = tutorial_draft["name"]
-        self.projectId = tutorial_draft["projectId"]
-        self.projectDetails = tutorial_draft["projectDetails"]
+        self.tutorialDraftId = tutorial_draft["tutorialDraftId"]
+        self.projectDetails = "This is a tutorial"
         self.progress = 0
         self.contributorCount = 0
+        self.exampleImage1 = tutorial_draft.get("exampleImage1", None)
+        self.exampleImage2 = tutorial_draft.get("exampleImage2", None)
+        self.status = "tutorial"
+        # need to filter out None values in list due to Firebase
+        self.screens = list(filter(None, tutorial_draft["screens"]))
 
     def save_tutorial(self):
         """Save the tutorial in Firebase."""
@@ -26,6 +34,7 @@ class BaseTutorial(metaclass=ABCMeta):
         tutorial.pop("tasks", None)
         tutorial.pop("raw_tasks", None)
         tutorial.pop("examplesFile", None)
+        tutorial.pop("tutorial_tasks", None)
 
         fb_db = auth.firebaseDB()
         ref = fb_db.reference("")
@@ -45,6 +54,9 @@ class BaseTutorial(metaclass=ABCMeta):
         )
 
         logger.info(f"uploaded tutorial data to firebase for {self.projectId}")
+
+        ref = fb_db.reference(f"v2/tutorialDrafts/{self.tutorialDraftId}")
+        ref.set({})
 
     @abstractmethod
     def create_tutorial_groups():

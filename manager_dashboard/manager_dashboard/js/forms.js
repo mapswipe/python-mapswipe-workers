@@ -1,3 +1,8 @@
+const BUILD_AREA_TYPE = 1
+const FOOTPRINT_TYPE = 2
+const CHANGE_DETECTION_TYPE = 3
+const COMPLETENESS_TYPE = 4
+
 //auto expand textarea
 function adjust_textarea(h) {
     h.style.height = "20px";
@@ -42,10 +47,33 @@ function initTeams() {
 }
 
 
+function initTutorials(projectType) {
+    // clear all existing options
+    document.getElementById("tutorial").innerHTML = ""
+    console.log("init tutorials")
+    // get teams from firebase
+    var TutorialsRef = firebase.database().ref("v2/projects").orderByChild("status").equalTo("tutorial");
+    TutorialsRef.once('value', function(snapshot){
+    if(snapshot.exists()){
+        snapshot.forEach(function(data){
+            // add teamName to drop down option and set teamId as value
+            if (data.val().projectType == projectType) {
+                option = document.createElement('option')
+                option.innerHTML = data.val().name
+                option.value = data.key
+                document.getElementById("tutorial").appendChild(option);
+                }
+            })
+        }
+    })
+}
+
+
 function displayProjectTypeForm(projectType) {
     document.getElementById("projectType").value = projectType;
     switch (projectType) {
         case "build_area":
+            initTutorials(BUILD_AREA_TYPE);
             displayTileServer("bing", "A");
             document.getElementById("groupSize").value = 120;
             document.getElementById("form_project_aoi_geometry").style.display = "block";
@@ -54,8 +82,10 @@ function displayProjectTypeForm(projectType) {
             document.getElementById("form_tile_server_a").style.display = "block";
             document.getElementById("form_tile_server_b").style.display = "None";
             setTimeout(function(){ ProjectAoiMap.invalidateSize()}, 400);
+            document.getElementById("form_team_settings").style.display = "None";
             break;
         case "footprint":
+            initTutorials(FOOTPRINT_TYPE);
             displayTileServer("bing", "A");
             document.getElementById("groupSize").value = 25;
             document.getElementById("form_project_aoi_geometry").style.display = "None";
@@ -63,6 +93,7 @@ function displayProjectTypeForm(projectType) {
             document.getElementById("form_zoom_level").style.display = "None";
             document.getElementById("form_tile_server_a").style.display = "block";
             document.getElementById("form_tile_server_b").style.display = "None";
+            document.getElementById("form_team_settings").style.display = "None";
             break;
         case "change_detection":
         case "completeness":
@@ -70,8 +101,10 @@ function displayProjectTypeForm(projectType) {
             displayTileServer("bing", "B");
             if (projectType == "change_detection") {
                 document.getElementById("groupSize").value = 25;
+                initTutorials(CHANGE_DETECTION_TYPE);
             } else {
                 document.getElementById("groupSize").value = 80;
+                initTutorials(COMPLETENESS_TYPE);
             }
             document.getElementById("form_project_aoi_geometry").style.display = "block";
             document.getElementById("form_project_task_geometry").style.display = "None";
@@ -79,6 +112,7 @@ function displayProjectTypeForm(projectType) {
             document.getElementById("form_tile_server_a").style.display = "block";
             document.getElementById("form_tile_server_b").style.display = "block";
             setTimeout(function(){ ProjectAoiMap.invalidateSize()}, 400);
+            document.getElementById("form_team_settings").style.display = "None";
             break;
     }
 }
@@ -95,6 +129,16 @@ function addTileServerCredits (tileServerName, which) {
         "custom": "Please add imagery credits here."
     }
     document.getElementById("tileServer"+which+"Credits").value = credits[tileServerName]
+}
+
+function displayTeamSettings (teamId) {
+    switch (teamId) {
+        case "public":
+            document.getElementById("form_team_settings").style.display = "None";
+            break;
+        default:
+            document.getElementById("form_team_settings").style.display = "block";
+    }
 }
 
 
@@ -161,35 +205,42 @@ function openFile(event) {
           try {
               var text = reader.result;
               var geojsonData = JSON.parse(text)
-
               // check number of features
               numberOfFeatures = geojsonData['features'].length
+
               console.log('number of features: ' + numberOfFeatures)
-              if (numberOfFeatures > 1) {
+              if (numberOfFeatures > 10) {
                 throw 'too many features: ' + numberOfFeatures
               }
               info_output.innerHTML += 'Number of Features: ' + numberOfFeatures + '<br>';
               info_output.style.display = 'block'
 
+              sumArea = 0
               // check input geometry type
-              feature = geojsonData['features'][0]
-              type = turf.getType(feature)
-              console.log('geometry type: ' + type)
-              if (type !== 'Polygon' & type !== 'MultiPolygon') {
-                throw 'wrong geometry type: ' + type
-              }
-              info_output.innerHTML += 'Feature Type: ' + type + '<br>';
-              info_output.style.display = 'block'
+              for (var i =0; i < geojsonData.features.length; i++) {
+                feature = geojsonData.features[i]
+                type = turf.getType(feature)
+                console.log('geometry type: ' + type)
+
+                if (type !== 'Polygon' & type !== 'MultiPolygon') {
+                    throw 'GeoJson contains one or more wrong geometry type(s): ' + type
+                }
+
+                info_output.innerHTML += 'Feature Type: ' + type + '<br>';
+                info_output.style.display = 'block'
+                sumArea += turf.area(feature)/1000000 // area in square kilometers
+               }
 
               // check project size, based on zoom level
               var zoomLevel = parseInt(document.getElementById('zoomLevel').value);
-              area = turf.area(feature)/1000000 // area in square kilometers
               maxArea = (23 - zoomLevel) * (23 - zoomLevel) * 200
-              console.log('project size: ' + area + ' sqkm')
-              if (area > maxArea) {
-                throw 'project is to large: ' + area + ' sqkm; ' + 'max allowed size for this zoom level: ' + maxArea + ' sqkm'
+              console.log('project size: ' + sumArea + ' sqkm')
+
+              if (sumArea > maxArea) {
+                throw 'project is to large: ' + sumArea + ' sqkm; ' + 'max allowed size for this zoom level: ' + maxArea + ' sqkm'
               }
-              info_output.innerHTML += 'Project Size: ' + area + ' sqkm<br>';
+
+              info_output.innerHTML += 'Project Size: ' + sumArea + ' sqkm<br>';
               info_output.style.display = 'block'
 
               // add feature to map

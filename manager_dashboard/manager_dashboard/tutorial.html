@@ -4,7 +4,7 @@
 <html data-wf-site="574807d20d1625555c1ee150" data-wf-page="577fcec769b57ef60a37539a">
 <head>
     <meta charset="utf-8">
-    <title>Project Management | MapSwipe</title>
+    <title>Project Tutorial | MapSwipe</title>
     <meta name="description"
           content="Humanitarian organisations can&#39;t help people if they can&#39;t find them. MapSwipe is a mobile app that lets you search satellite imagery to help put the world&#39;s most vulnerable people on the map.">
     <meta property="og:title" content="Add Project | MapSwipe">
@@ -62,10 +62,10 @@
 
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       <ul class="navbar-nav mr-auto">
-        <li class="nav-item active">
+        <li class="nav-item">
           <a class="nav-link" href="create.html">CREATE PROJECTS</a>
         </li>
-        <li class="nav-item">
+        <li class="nav-item active">
           <a class="nav-link" href="tutorial.html">CREATE TUTORIAL</a>
         </li>
         <li class="nav-item">
@@ -94,10 +94,10 @@
       <div id="uploadModal" class="modal">
           <div class="modal-content">
           <div id="modalOngoing">
-              <p><i class="fa fa-spinner fa-spin"></i> Submitting your project. Be patient.</p>
+              <p><i class="fa fa-spinner fa-spin"></i> Uploading your tutorial. Be patient.</p>
           </div>
           <div id="modalSuccess" style="display:none;">
-            <p>Your project has been uploaded. It should take around 15 minutes to appear in the dashboard.</p>
+            <p>Your tutorial has been uploaded.</p>
           <button class="btn btn-success" onclick="closeModal()">Close</button>
           </div>
 
@@ -107,53 +107,16 @@
         <!-- import projects -->
         <div class="row justify-content-center" id="project-import" style="display: block">
           <div class="col-md-12" align="center" id="import-overview">
-            <h2>Create a new project.</h2>
+            <h2>Create a tutorial.</h2>
           </div>
           <div class="container" id="import-formular">
             <div class="row">
               <div class="col-md-6">
                   <!--Let's start with collecting the basic information -->
                   <div class="container">
-                      <h3>Basic Project Information</h3>
-                      <form class="form-style-7" id="form_basic_project_information">
+                      <h3>Basic Information</h3>
+                      <form class="form-style-7" id="form_basic_tutorial_information">
                           <ul>
-                          <li>
-                              <label for="projectTopic">Project Topic</label>
-                              <input type="text" name="projectTopic" id="projectTopic" maxlength="50" required>
-                              <span>Enter the topic of your project (50 chars max).</span>
-                          </li>
-                          <li>
-                              <label for="projectRegion">Project Region</label>
-                              <input type="text" name="projectRegion" id="projectRegion" maxlength="50" required>
-                              <span>Enter name of your project Region (50 chars max).</span>
-                          </li>
-                          <li>
-                              <label for="projectNumber">Project Number</label>
-                              <input type="number" name="projectNumber" id="projectNumber" min="1" value="1">
-                              <span>Is this project part of a bigger campaign with multiple projects?</span>
-                          </li>
-                          <li>
-                              <label for="requestingOrganisation">Requesting Organisation</label>
-                              <input type="text" name="requestingOrganisation" id="requestingOrganisation" maxlength="100" required>
-                              <span>Which group, institution or community is requesting this project.</span>
-                          </li>
-                          <li>
-                              <label for="name">Name</label>
-                              <p id="name"></br>[projectTopic] - [projectRegion](taskNumber)<br>[requesting organisation]</p>
-                              <span>We will generate you project name based on your inputs above.</span>
-                          </li>
-                          <li>
-                              <label for="visibility">Visibility</label>
-                              <select name="visibility" id="visibility" onchange="displayTeamSettings(this.value)">
-                                  <option value="public">Public</option>
-                              </select>
-                              <span>Choose either "public" or select the team for which this project should be displayed.</span>
-                          </li>
-                          <li>
-                              <label for="lookFor">Look For</label>
-                              <input type="text" name="lookFor" id="lookFor" maxlength="25" required>
-                              <span>What should the users look for (e.g. buildings, cars, trees)? (15 chars max).</span>
-                          </li>
                           <li>
                               <label for="projectType">Project Type</label>
                               <select name="projectType" id="projectType" onchange="displayProjectTypeForm(this.value)">
@@ -165,33 +128,40 @@
                               <span>Select the type of your project.</span>
                           </li>
                           <li>
-                              <label for="tutorial">Tutorial</label>
-                              <select name="tutorial" id="tutorial">
-                              </select>
-                              <span>Choose which tutorial should be used for this project. Make sure that this aligns with what you are looking for.</span>
+                              <label for="lookFor">Look For</label>
+                              <input type="text" name="lookFor" id="lookFor" maxlength="25" required>
+                              <span>What should the users look for (e.g. buildings, cars, trees)? (15 chars max).</span>
                           </li>
                           <li>
-                              <label for="projectDetails">Project Details</label>
-                              <textarea name="projectDetails" id="projectDetails" onkeyup="adjust_textarea(this)"></textarea>
-                              <span>Enter the description for your project. (3-5 sentences). </span>
+                              <label for="name">Name</label>
+                              <input type="text" name="name" id="name" maxlength="50" required>
+                              <span>Provide a clear name for your tutorial. You can select tutorials based on their name later during the project creation.</span>
                           </li>
                           <li>
-                              <label for="image">Upload Project Image</label>
-                              <input type="file" accept="..gif,.jpg,.jpeg,.png" id="image" onchange='openImageFile(event)'>
+                              <label for="screens">Upload Tutorial Text as JSON</label>
+                              <input type="file" accept=".json" id="screens" onchange='openJsonFile(event)'>
+                              <span>It should end with  .json</span>
+                              <p id="screenInfo"></p>
+                          </li>
+                          <li>
+                              <label for="tutorialTasks">Upload Tutorial Tasks as GeoJSON</label>
+                              <input type="file" accept=".geojson" id="tutorialTasks" onchange='openGeoJsonFile(event)'>
+                              <span>It should end with  .geojson</span>
+                              <p id="tutorialTasksInfo"></p>
+                          </li>
+                          <li>
+                              <label for="image1">Upload Example Image 1</label>
+                              <input type="file" accept="..gif,.jpg,.jpeg,.png" id="image1" onchange='openImageFile(event)'>
                               <span>Make sure you have the rights to use this image. It should end with  .jpg or .png.</span>
-                              <p id="imageText"></p>
-                              <img id="imageFile" width="100%"> </img>
+                              <p id="imageText1"></p>
+                              <img id="image1File" width="100%"> </img>
                           </li>
                           <li>
-                              <label for="verificationNumber">Verification Number</label>
-                              <input type="number" name="verificationNumber" id="verificationNumber" value="3" min="3" max="10">
-                              <span>How many people do you want to see every tile before you consider it finished?
-                          (default is 3 - more is recommended for harder tasks, but this will also make project take longer)</span>
-                          </li>
-                          <li>
-                              <label for="groupSize">Group Size</label>
-                              <input type="number" name="groupSize" id="groupSize" value="120" min="10" max="200">
-                              <span>How big should a mapping session be? Group size refers to the number of tasks per mapping session.</span>
+                              <label for="image2">Upload Example Image 2</label>
+                              <input type="file" accept="..gif,.jpg,.jpeg,.png" id="image2" onchange='openImageFile(event)'>
+                              <span>Make sure you have the rights to use this image. It should end with  .jpg or .png.</span>
+                              <p id="imageText2"></p>
+                              <img id="image2File" width="100%"> </img>
                           </li>
                           <li></li>
                           </ul>
@@ -212,49 +182,6 @@
                   </div>
               </div>
               <div class="col-md-6">
-                  <div class="container" id="form_project_aoi_geometry">
-                      <h3>Project AOI Geometry</h3>
-                      <form class="form-style-7">
-                          <ul>
-                          <li id="inputAoiField">
-                              <label for="inputAoi">GeoJSON File</label>
-                              <!-- <textarea name="geometry" id="geometry" onkeyup="adjust_textarea(this)"></textarea> -->
-                              <input type="file" accept=".GeoJSON" id="inputAoi" onchange='openFile(event)'>
-                              <div id="geometryMap"></div>
-                              <p id="geometryInfo"></p>
-                              <p id="geometryContent"></p>
-                              <span>Upload your project area as GeoJSON File (max. 1MB). Make sure that you provide a single polygon geometry.</span>
-                          </li>
-                          <li></li>
-                          </ul>
-                      </form>
-                  </div>
-                  <div class="container" id="form_project_task_geometry">
-                      <h3>Project Tasks Geometry</h3>
-                      <form class="form-style-7">
-                          <ul>
-                          <li id="inputTaskGeometriesField">
-                              <label for="inputTaskGeometries">Input Geometries File (Direct Link)</label>
-                              <input type="text" name="inputTaskGeometries" id="inputTaskGeometries">
-                              <span>Provide a direct link to a GeoJSON file containing your building footprint geometries.</span>
-                          </li>
-                          <li></li>
-                          </ul>
-                      </form>
-                  </div>
-                  <div class="container" id="form_team_settings">
-                      <h3>Team Settings</h3>
-                      <form class="form-style-7">
-                          <ul>
-                          <li>
-                              <label for="maxTasksPerUser">Max Tasks Per User</label>
-                              <input type="number" name="maxTasksPerUser" id="maxTasksPerUser" value="-1" min="-1">
-                              <span>How many tasks each user is allowed to work on for this project. "-1" indicates that no limit is set.</span>
-                          </li>
-                          <li></li>
-                          </ul>
-                      </form>
-                  </div>
                   <div class="container" id="form_tile_server_a">
                       <h3>Tile Server A</h3>
                       <form class="form-style-7">
@@ -358,8 +285,8 @@
 <script src="https://www.gstatic.com/firebasejs/6.2.4/firebase-storage.js"></script>
 <script src="js/app.js"></script>
 <script src="js/ui.js"></script>
-<script src="js/uploadProjects.js"></script>
-<script src="js/forms.js"></script>
+<script src="js/upload-tutorial.js"></script>
+<script src="js/forms-tutorial.js"></script>
 
 </body>
 </html>

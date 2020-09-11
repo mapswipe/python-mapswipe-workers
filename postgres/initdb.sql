@@ -4,7 +4,7 @@ CREATE EXTENSION postgis;
 CREATE TABLE IF NOT EXISTS projects (
     created timestamp,
     created_by varchar,
-    geom geometry(MULTIPOLYGON, 4326),
+    geom geometry,
     image varchar,
     is_featured boolean,
     look_for varchar,

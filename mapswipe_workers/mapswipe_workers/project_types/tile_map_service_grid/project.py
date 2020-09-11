@@ -2,7 +2,13 @@ import json
 import os
 
 from mapswipe_workers.project_types.base.project import BaseProject
-from mapswipe_workers.definitions import DATA_PATH, CustomError, logger
+from mapswipe_workers.definitions import (
+    DATA_PATH,
+    CustomError,
+    logger,
+    MAX_INPUT_GEOMETRIES,
+    ProjectType,
+)
 from mapswipe_workers.project_types.tile_map_service_grid.group import Group
 from mapswipe_workers.utils import tile_grouping_functions as grouping_functions
 from mapswipe_workers.project_types.base.tile_server import BaseTileServer
@@ -12,14 +18,17 @@ from osgeo import ogr, osr
 class Project(BaseProject):
     def __init__(self, project_draft: dict):
         super().__init__(project_draft)
-        self.project_type = project_draft["projectType"]
         self.groupSize = project_draft["groupSize"]
+        # Note: this will be overwritten by validate_geometry in mapswipe_workers.py
         self.geometry = project_draft["geometry"]
         self.zoomLevel = int(project_draft.get("zoomLevel", 18))
         self.tileServer = vars(BaseTileServer(project_draft["tileServer"]))
 
         # get TileServerB for change detection and completeness type
-        if self.project_type in [3, 4]:
+        if self.projectType in [
+            ProjectType.COMPLETENESS.value,
+            ProjectType.CHANGE_DETECTION.value,
+        ]:
             self.tileServerB = vars(BaseTileServer(project_draft["tileServerB"]))
 
     def validate_geometries(self):
@@ -58,19 +67,29 @@ class Project(BaseProject):
             raise CustomError(f"Empty file. ")
 
         # check if more than 1 geometry is provided
-        elif layer.GetFeatureCount() > 1:
+        elif layer.GetFeatureCount() > MAX_INPUT_GEOMETRIES:
             logger.warning(
                 f"{self.projectId}"
                 f" - validate geometry - "
-                f"Input file contains more than one geometry. "
-                f"Make sure to provide exact one input geometry."
+                f"Input file contains more than {MAX_INPUT_GEOMETRIES} geometries. "
+                f"Make sure to provide less than {MAX_INPUT_GEOMETRIES} geometries."
             )
-            raise CustomError(f"Input file contains more than one geometry. ")
+            raise CustomError(
+                f"Input file contains more than {MAX_INPUT_GEOMETRIES} geometries. "
+            )
 
+        project_area = 0
+        geometry_collection = ogr.Geometry(ogr.wkbMultiPolygon)
         # check if the input geometry is a valid polygon
         for feature in layer:
             feat_geom = feature.GetGeometryRef()
             geom_name = feat_geom.GetGeometryName()
+            # add geometry to geometry collection
+            if geom_name == "MULTIPOLYGON":
+                for singlepart_polygon in feat_geom:
+                    geometry_collection.AddGeometry(singlepart_polygon)
+            if geom_name == "POLYGON":
+                geometry_collection.AddGeometry(feat_geom)
             if not feat_geom.IsValid():
                 logger.warning(
                     f"{self.projectId}"
@@ -91,9 +110,6 @@ class Project(BaseProject):
                 )
                 raise CustomError(f"Invalid geometry type: {geom_name}. ")
 
-            # get geometry as wkt
-            wkt_geometry = feat_geom.ExportToWkt()
-
             # check size of project make sure its smaller than  5,000 sqkm
             # for doing this we transform the geometry
             # into Mollweide projection (EPSG Code 54009)
@@ -105,47 +121,47 @@ class Project(BaseProject):
 
             transform = osr.CoordinateTransformation(source, target)
             feat_geom.Transform(transform)
-            project_area = feat_geom.GetArea() / 1000000
+            project_area = +feat_geom.GetArea() / 1000000
 
-            # calculate max area based on zoom level
-            # for zoom level 18 this will be 5000 square kilometers
-            # max zoom level is 22
-            if self.zoomLevel > 22:
-                raise CustomError(
-                    f"zoom level is to large (max: 22): {self.zoomLevel}."
-                )
+        # calculate max area based on zoom level
+        # for zoom level 18 this will be 5000 square kilometers
+        # max zoom level is 22
+        if self.zoomLevel > 22:
+            raise CustomError(f"zoom level is to large (max: 22): {self.zoomLevel}.")
 
-            max_area = (23 - int(self.zoomLevel)) * (23 - int(self.zoomLevel)) * 200
+        max_area = (23 - int(self.zoomLevel)) * (23 - int(self.zoomLevel)) * 200
 
-            if project_area > max_area:
-                logger.warning(
-                    f"{self.projectId}"
-                    f" - validate geometry - "
-                    f"Project is to large: {project_area} sqkm. "
-                    f"Please split your projects into smaller sub-projects and resubmit"
-                )
-                raise CustomError(
-                    f"Project is to large: {project_area} sqkm. "
-                    f"Max area for zoom level {self.zoomLevel} = {max_area} sqkm"
-                )
+        if project_area > max_area:
+            logger.warning(
+                f"{self.projectId}"
+                f" - validate geometry - "
+                f"Project is to large: {project_area} sqkm. "
+                f"Please split your projects into smaller sub-projects and resubmit"
+            )
+            raise CustomError(
+                f"Project is to large: {project_area} sqkm. "
+                f"Max area for zoom level {self.zoomLevel} = {max_area} sqkm"
+            )
 
         del datasource
         del layer
 
         self.validInputGeometries = raw_input_file
-
         logger.info(
             f"{self.projectId}" f" - validate geometry - " f"input geometry is correct."
         )
 
-        return wkt_geometry
+        dissolved_geometry = geometry_collection.UnionCascaded()
+        wkt_geometry_collection = dissolved_geometry.ExportToWkt()
+
+        return wkt_geometry_collection
 
     def create_groups(self):
         """
         The function to create groups from the project extent
         """
         # first step get properties of each group from extent
-        raw_groups = grouping_functions.extent_to_slices(
+        raw_groups = grouping_functions.extent_to_groups(
             self.validInputGeometries, self.zoomLevel, self.groupSize
         )
 

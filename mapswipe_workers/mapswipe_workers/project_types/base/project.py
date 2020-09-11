@@ -77,6 +77,11 @@ class BaseProject(metaclass=ABCMeta):
             self.status = (
                 "private_inactive"  # private project visible only for team members
             )
+            max_tasks_per_user = project_draft.get("maxTasksPerUser", None)
+            if max_tasks_per_user is not None:
+                self.maxTasksPerUser = int(max_tasks_per_user)
+
+        self.tutorialId = project_draft.get("tutorialId", None)
 
     # TODO: Implement resultRequiredCounter as property.
     # Does not work because for some reason project['group'] = vars()
@@ -230,7 +235,7 @@ class BaseProject(metaclass=ABCMeta):
             VALUES (
               %s  -- created
               ,%s  -- createdBy
-              ,ST_Force2D(ST_Multi(ST_GeomFromText(%s, 4326)))  -- geometry
+              ,ST_Force2D(ST_GeomFromText(%s, 4326)) -- geometry
               ,%s  -- image
               ,%s  -- isFeatured
               ,%s  -- lookFor

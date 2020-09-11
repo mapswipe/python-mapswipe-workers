@@ -1,0 +1,138 @@
+{
+  "1": {
+    "hint" : {
+      "description" : "Can you see the waste? Swipe to learn more.",
+      "icon" : "swipe-left",
+      "title" : "We've marked the square with waste green"
+    },
+    "instructions" : {
+      "description" : "Tap once to mark the square with waste green.",
+      "icon" : "tap-1",
+      "title" : "There's some waste in this image"
+    },
+    "success" : {
+      "description" : "Swipe to the next screen to look for more.",
+      "icon" : "check",
+      "title" : "You found your first area with waste!"
+    }
+  },
+  "2": {
+    "hint" : {
+      "description" : "Tap twice whenever you're not sure. Swipe to learn more.",
+      "icon" : "swipe-left",
+      "title" : "Yellow indicates there might be waste"
+    },
+    "instructions" : {
+      "description" : "Tap the square twice to mark it yellow indicating there might be waste.",
+      "icon" : "tap-2",
+      "title" : "We’re not sure if that’s a pile of waste"
+    },
+    "success" : {
+      "description" : "Swipe to the next screen to learn more.",
+      "icon" : "check",
+      "title" : "Nice. Use this whenever you're unsure"
+    }
+  },
+  "3": {
+    "hint" : {
+      "description" : "Can you see why the imagery is bad? Swipe to learn more.",
+      "icon" : "swipe-left",
+      "title" : "We've marked the bad imagery red"
+    },
+    "instructions" : {
+      "description" : "Tap three times to mark the bad imagery red.",
+      "icon" : "tap-3",
+      "title" : "There’s a square with missing imagery"
+    },
+    "success" : {
+      "description" : "Swipe to keep on going",
+      "icon" : "check",
+      "title" : "Great work!"
+    }
+  },
+  "4": {
+    "hint" : {
+      "description" : "There's no waste in this screen so you can just swipe to the next one.",
+      "icon" : "swipe-left",
+      "title" : "There was no tapping needed here"
+    },
+    "instructions" : {
+      "description" : "No need to tap. Just swipe to the next screen.",
+      "icon" : "swipe-left",
+      "title" : "There’s no waste in this image"
+    },
+    "success" : {
+      "description" : "Swipe to keep on going",
+      "icon" : "check",
+      "title" : "Great stuff!"
+    }
+  },
+  "5": {
+    "hint" : {
+      "description" : "Can you see the waste that we've marked green? Swipe to try some more.",
+      "icon" : "swipe-left",
+      "title" : "We’ve marked the correct answers"
+    },
+    "instructions" : {
+      "description" : "For every square, tap once for waste, twice if you’re unsure and three times for bad imagery.",
+      "icon" : "tap",
+      "title" : "Now it’s your turn to try what you’ve learned"
+    },
+    "success" : {
+      "description" : "Swipe to practice some more.",
+      "icon" : "check",
+      "title" : "Well done, you found all the waste!"
+    }
+  },
+  "6": {
+    "hint" : {
+      "description" : "Make sure to mark every square with waste green. Swipe to try some more.",
+      "icon" : "swipe-left",
+      "title" : "We've marked the correct answers"
+    },
+    "instructions" : {
+      "description" : "Make sure you mark every square with waste.",
+      "icon" : "tap",
+      "title" : "There's lots of waste here!"
+    },
+    "success" : {
+      "description" : "Swipe to practice some more.",
+      "icon" : "check",
+      "title" : "Well done, you got it all!"
+    }
+  },
+  "7": {
+    "hint" : {
+      "description" : "Can you see the waste we've marked green? Did you miss a bit? Swipe to learn more.",
+      "icon" : "swipe-left",
+      "title" : "We’ve marked the correct answers"
+    },
+    "instructions" : {
+      "description" : "Even if waste is just on the edge, still mark it green.",
+      "icon" : "tap",
+      "title" : "Don't miss a square"
+    },
+    "success" : {
+      "description" : "Swipe to practice some more.",
+      "icon" : "check",
+      "title" : "Well done, you found all the waste!"
+    }
+  },
+  "8": {
+    "hint" : {
+      "description" : "Swiping down on screens like this can save you a lot of taps! Swipe to keep going.",
+      "icon" : "swipe-left",
+      "title" : "All squares are red for bad imagery"
+    },
+    "instructions" : {
+      "description" : "When every tiles is bad imagery, you can swipe down to mark all tiles red.",
+      "icon" : "swipe-down",
+      "title" : "It's all bad imagery... so many taps"
+    },
+    "success" : {
+      "description" : "This could save you a lot of tapping. Swipe to learn more.",
+      "icon" : "check",
+      "title" : "Perfect"
+    }
+  }
+}
