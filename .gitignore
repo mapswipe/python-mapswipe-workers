@@ -114,13 +114,10 @@ ENV/
 # serviceAccountKey for Google Platform access
 *serviceAccountKey.json
 
-# don't upload config files and api keys etc. for python_workers
-mapswipe_workers/config/configuration.json
-
 # don´t upload data dir
 data/
-
 mapswipe-data/
+postgres-data/
 
 # don't upload app config for project managers dashboard
 app.js
@@ -135,3 +132,5 @@ nginx.conf
 
 .DS_Store
 
+# Custom setup script
+setup-custom.sh
