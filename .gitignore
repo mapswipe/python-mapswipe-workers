@@ -116,8 +116,8 @@ ENV/
 
 # don´t upload data dir
 data/
-
 mapswipe-data/
+postgres-data/
 
 # don't upload app config for project managers dashboard
 app.js
