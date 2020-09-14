@@ -77,7 +77,7 @@ def delete_user(email):
     fb_db = firebaseDB()
     try:
         user = auth.get_user_by_email(email)
-        ref = fb_db.reference(f"v2/users/")
+        ref = fb_db.reference("v2/users/")
         ref.update({user.uid: None})
         auth.delete_user(user.uid)
         logger.info(f"deleted user {email}")
@@ -181,7 +181,7 @@ def add_user_to_team(email, team_id):
         logger.info(f"added teamId {team_id} for user {email} - {user.uid}.")
 
     except Exception as e:
-        logger.info(f"could not add teamId attribute for user.")
+        logger.info("could not add teamId attribute for user.")
         raise CustomError(e)
 
 
@@ -205,5 +205,5 @@ def remove_user_from_team(email):
         logger.info(f"removed teamId {team_id} for user {email} - {user.uid}.")
 
     except Exception as e:
-        logger.info(f"could not remove teamId attribute for user.")
+        logger.info("could not remove teamId attribute for user.")
         raise CustomError(e)

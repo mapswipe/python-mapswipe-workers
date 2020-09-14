@@ -13,7 +13,7 @@ def delete_test_data(project_id: str) -> None:
 
     if not re.match(r"[-a-zA-Z0-9]+", project_id):
         raise ValueError(
-            f"Given argument resulted in invalid Firebase Realtime Database reference. "
+            "Given argument resulted in invalid Firebase Realtime Database reference. "
         )
 
     fb_db = auth.firebaseDB()
@@ -47,8 +47,8 @@ def delete_test_user(user_ids: List) -> None:
     for user_id in user_ids:
         if not re.match(r"[-a-zA-Z0-9]+", user_id):
             raise ValueError(
-                f"Given argument resulted in invalid "
-                f"Firebase Realtime Database reference. "
+                "Given argument resulted in invalid "
+                "Firebase Realtime Database reference. "
             )
 
         fb_db = auth.firebaseDB()

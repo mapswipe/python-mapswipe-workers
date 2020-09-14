@@ -1,11 +1,11 @@
 class BaseTask(object):
     """
-        The basic class for a task
+    The basic class for a task
 
-        Attributes
-        ----------
-        id : int
-            The id of the task
+    Attributes
+    ----------
+    id : int
+        The id of the task
     """
 
     def __init__(self, group, taskId):

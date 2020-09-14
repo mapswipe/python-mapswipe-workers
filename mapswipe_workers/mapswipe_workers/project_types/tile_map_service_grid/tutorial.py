@@ -34,7 +34,8 @@ class Tutorial(BaseTutorial):
         self.status = status_dict[self.projectType]
 
     def create_tutorial_groups(self):
-        """Create a single group for the tutorial based on provided examples in geojson file."""
+        """Create a single group for the tutorial based on provided examples in geojson
+        file."""
         # load examples/tasks from file
         with open(self.examplesFile, "r") as f:
             self.raw_tasks = json.load(f)[
@@ -50,14 +51,14 @@ class Tutorial(BaseTutorial):
             "xMin": 100,  # this will be always set to 100
             "yMax": 131074,  # this is set to be at the equator
             "yMin": 131072,  # this is set to be at the equator
-            "requiredCount": 5,  # this is not needed from back end perspective, maybe for client
-            "finishedCount": 0,  # this is not needed from back end perspective, maybe for client
+            "requiredCount": 5,  # not needed from backend perspective, maybe for client
+            "finishedCount": 0,  # not needed from backend perspective, maybe for client
             "groupId": 101,  # a tutorial has only one group
             "projectId": self.projectId,
             "numberOfTasks": len(
                 self.raw_tasks
             ),  # this depends on the number of screens/tasks to show
-            "progress": 0,  # this is not needed from back end perspective, maybe for client
+            "progress": 0,  # not needed from backend perspective, maybe for client
         }
 
         if self.projectType in [3]:
@@ -109,8 +110,8 @@ class Tutorial(BaseTutorial):
                 task = {
                     "taskId_real": f"{self.zoomLevel}-{tile_x}-{tile_y}",
                     "taskId": f"{self.zoomLevel}-{tile_x_tutorial}-{tile_y_tutorial}",
-                    "taskX": tile_x_tutorial,  # need to set this correctly based on screen
-                    "taskY": tile_y_tutorial,  # need to set this correctly based on screen
+                    "taskX": tile_x_tutorial,  # need to set correctly based on screen
+                    "taskY": tile_y_tutorial,  # need to set correctly based on screen
                     "groupId": 101,  # a tutorial has only one group
                     "projectId": self.projectId,
                     "referenceAnswer": raw_task["properties"]["reference"],

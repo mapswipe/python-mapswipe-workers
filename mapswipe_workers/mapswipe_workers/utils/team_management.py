@@ -17,7 +17,7 @@ def remove_all_team_members(team_id):
 
         # generate random uuid4 token
         team_members = (
-            fb_db.reference(f"v2/users/")
+            fb_db.reference("v2/users/")
             .order_by_child("teamId")
             .equal_to(team_id)
             .get()
@@ -50,7 +50,7 @@ def create_team(team_name):
         team_token = str(uuid.uuid4())
 
         # set data in firebase
-        ref = fb_db.reference(f"v2/teams/")
+        ref = fb_db.reference("v2/teams/")
         team_ref = ref.push()
         team_ref.set({"teamName": team_name, "teamToken": team_token})
         logger.info(f"created team: {team_ref.key} - '{team_name}' - {team_token}")

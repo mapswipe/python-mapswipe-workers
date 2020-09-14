@@ -282,7 +282,7 @@ def get_agg_results_by_task_id(
         lambda row: calc_agreement(row["total_count"], row[0], row[1], row[2], row[3]),
         axis=1,
     )
-    logger.info(f"calculated agreement")
+    logger.info("calculated agreement")
 
     # add quadkey
     results_by_task_id_df.reset_index(level=["task_id"], inplace=True)
@@ -294,7 +294,7 @@ def get_agg_results_by_task_id(
     agg_results_df = results_by_task_id_df.merge(
         tasks_df[["geom", "task_id"]], left_on="task_id", right_on="task_id"
     )
-    logger.info(f"added geometry to aggregated results")
+    logger.info("added geometry to aggregated results")
 
     # rename columns, ogr2ogr will fail otherwise
     agg_results_df.rename(
