@@ -92,7 +92,7 @@ class TestTeamManagement(unittest.TestCase):
 
         # check if no members
         team_members = (
-            fb_db.reference(f"v2/users/")
+            fb_db.reference("v2/users/")
             .order_by_child("teamId")
             .equal_to(self.team_id)
             .get()
@@ -117,7 +117,7 @@ class TestTeamManagement(unittest.TestCase):
         # check if no members
         fb_db = firebaseDB()
         team_members = (
-            fb_db.reference(f"v2/users/")
+            fb_db.reference("v2/users/")
             .order_by_child("teamId")
             .equal_to(self.team_id)
             .get()

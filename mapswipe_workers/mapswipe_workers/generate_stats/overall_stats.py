@@ -9,7 +9,8 @@ def get_overall_stats(projects_df: pd.DataFrame, filename: str) -> pd.DataFrame:
     """
     The function aggregates the statistics per project using the status attribute.
     We derive aggregated statistics for active, inactive and finished projects.
-    The number of users should not be summed up here, since this would generate wrong results.
+    The number of users should not be summed up here, since this would generate wrong
+    results.
     A single user can contribute to multiple projects, we need to consider this.
 
     Parameters
@@ -40,7 +41,8 @@ def get_project_static_info(filename: str) -> pd.DataFrame:
     """
     The function queries the projects table.
     Each row represents a single project and provides the information which is static.
-    By static we understand all attributes which are not affected by new results being contributed.
+    By static we understand all attributes which are not affected by new results being
+    contributed.
     The results are stored in a csv file and also returned as a pandas DataFrame.
 
     Parameters
@@ -56,13 +58,16 @@ def get_project_static_info(filename: str) -> pd.DataFrame:
             SELECT
                 project_id
                 ,regexp_replace(name, E'[\\n\\r]+', ' ', 'g' ) as name
-                ,regexp_replace(project_details, E'[\\n\\r]+', ' ', 'g' ) as project_details
+                ,regexp_replace(project_details, E'[\\n\\r]+', ' ', 'g' ) as
+                project_details
                 ,regexp_replace(look_for, E'[\\n\\r]+', ' ', 'g' ) as look_for
                 ,project_type
                 -- add an array of the tile server names
                 ,CASE
-                  WHEN project_type_specifics->'tileServer'->'name' IS NOT NULL THEN Array[project_type_specifics->'tileServer'->>'name']
-                  ELSE Array[project_type_specifics->'tileServerA'->>'name', project_type_specifics->'tileServerB'->>'name']
+                  WHEN project_type_specifics->'tileServer'->'name' IS NOT NULL THEN
+                  Array[project_type_specifics->'tileServer'->>'name']
+                  ELSE Array[project_type_specifics->'tileServerA'->>'name',
+                  project_type_specifics->'tileServerB'->>'name']
                 END as tile_server_names
                 ,regexp_replace(status, E'[\\n\\r]+', ' ', 'g' ) as status
                 ,ST_Area(geom::geography)/1000000 as area_sqkm

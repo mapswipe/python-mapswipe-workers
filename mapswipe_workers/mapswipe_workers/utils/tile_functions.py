@@ -95,7 +95,10 @@ def tile_coords_zoom_and_tileserver_to_url(
         # https://www.maptiler.com/google-maps-coordinates-tile-bounds-projection/
         tile_y = int(math.pow(2, tile_z) - tile_y) - 1
         url = tile_server["url"].format(
-            key=tile_server["apiKey"], x=tile_x, y=tile_y, z=tile_z,
+            key=tile_server["apiKey"],
+            x=tile_x,
+            y=tile_y,
+            z=tile_z,
         )
     elif "{-y}" in tile_server["url"]:
         # this uses not the standard TMS tile y coordinate,
@@ -104,10 +107,18 @@ def tile_coords_zoom_and_tileserver_to_url(
         # https://www.maptiler.com/google-maps-coordinates-tile-bounds-projection/
         tile_y = int(math.pow(2, tile_z) - tile_y) - 1
         url = tile_server["url"].replace("{-y}", "{y}")
-        url = url.format(key=tile_server["apiKey"], x=tile_x, y=tile_y, z=tile_z,)
+        url = url.format(
+            key=tile_server["apiKey"],
+            x=tile_x,
+            y=tile_y,
+            z=tile_z,
+        )
     else:
         url = tile_server["url"].format(
-            key=tile_server["apiKey"], x=tile_x, y=tile_y, z=tile_z,
+            key=tile_server["apiKey"],
+            x=tile_x,
+            y=tile_y,
+            z=tile_z,
         )
 
     return url

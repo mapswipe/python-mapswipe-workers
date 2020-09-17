@@ -3,7 +3,7 @@ import argparse
 import json
 
 
-########################################################################################################################
+########################################################################################
 parser = argparse.ArgumentParser(description="Process some integers.")
 parser.add_argument(
     "-i",
@@ -21,12 +21,13 @@ parser.add_argument(
     type=int,
     help="the size of each group",
 )
-########################################################################################################################
+########################################################################################
 
 
 def group_input_geometries(input_geometries_file, group_size):
     """
-    The function to create groups of input geometries using the given size (number of features) per group
+    The function to create groups of input geometries using the given size (number of
+    features) per group
 
     Parameters
     ----------
@@ -38,7 +39,8 @@ def group_input_geometries(input_geometries_file, group_size):
     Returns
     -------
     groups : dict
-        the dictionary containing a list of "feature_ids" and a list of "feature_geometries" per group with given group id key
+        the dictionary containing a list of "feature_ids" and a list of
+        "feature_geometries" per group with given group id key
     """
 
     driver = ogr.GetDriverByName("GeoJSON")
@@ -70,7 +72,7 @@ def group_input_geometries(input_geometries_file, group_size):
     return groups
 
 
-########################################################################################################################
+########################################################################################
 if __name__ == "__main__":
 
     try:

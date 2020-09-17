@@ -6,16 +6,16 @@ from mapswipe_workers.project_types.tile_map_service_grid.task import Task
 
 class Group(BaseGroup):
     """
-        Attributes
-        ----------
-        xMax: int
-            The maximum x coordinate of the extent of the group
-        xMin: int
-            The minimum x coordinate of the extent of the group
-        yMax: int
-            The maximum y coordinate of the extent of the group
-        yMin: int
-            The minimum y coordinate of the extent of the group
+    Attributes
+    ----------
+    xMax: int
+        The maximum x coordinate of the extent of the group
+    xMin: int
+        The minimum x coordinate of the extent of the group
+    yMax: int
+        The maximum y coordinate of the extent of the group
+    yMin: int
+        The minimum y coordinate of the extent of the group
     """
 
     def __init__(self, project: object, groupId: int, _slice: Dict):
