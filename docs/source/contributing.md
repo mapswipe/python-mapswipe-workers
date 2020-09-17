@@ -21,7 +21,7 @@ git push -u origin featureA
 
 ## Style Guide
 
-This project uses [black](https://github.com/psf/black), [flake8](https://gitlab.com/pycqa/flake8) and isort to achive a constisted style across the project.
+This project uses [black](https://github.com/psf/black), [flake8](https://gitlab.com/pycqa/flake8) and [isort](https://github.com/PyCQA/isort) to achive a constisted style across the project.
 The configuration of flake8 and isort is stored in `setup.cfg`.
 
 Use [pre-commit](https://pre-commit.com/) to run `black` and `flake8` prior to any git commit. `pre-commit`, `black` and `flake8` should already be installed in your virtual environment since they are listed in `requirements.txt`. To setup pre-commit simply run:
