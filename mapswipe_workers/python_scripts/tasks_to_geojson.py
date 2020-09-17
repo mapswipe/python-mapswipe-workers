@@ -11,20 +11,20 @@ from mapswipe_workers.project_types.base.tile_server import BaseTileServer
 
 def tasks_to_geojson(project_extent_file, zoomlevel, outfile):
     """
-        The function to create a geojson file from the tasks.
+    The function to create a geojson file from the tasks.
 
-            Parameters
-            ----------
-            tasks : list of dict's
-                a dic. contains: "yMin", "yMax", "xMax", "xMin", "groupId", "taskId"
-                and a "geometry" as ogr.Geometry(ogr.wkbPolygon)
-            outfile : str
-                the path a .geojson file for storing the output
+        Parameters
+        ----------
+        tasks : list of dict's
+            a dic. contains: "yMin", "yMax", "xMax", "xMin", "groupId", "taskId"
+            and a "geometry" as ogr.Geometry(ogr.wkbPolygon)
+        outfile : str
+            the path a .geojson file for storing the output
 
-            Returns
-            -------
-            bool
-                True if successful, False otherwise.
+        Returns
+        -------
+        bool
+            True if successful, False otherwise.
     """
     # select a geojson file and pass it as input parameter
     tile_server_dict = {

@@ -143,16 +143,16 @@ def run_generate_stats_all_projects() -> None:
 
 @cli.command("user-management")
 @click.option(
-    "--email", help=f"The email of the MapSwipe user.", required=True, type=str
+    "--email", help="The email of the MapSwipe user.", required=True, type=str
 )
-@click.option("--team_id", "-i", help=f"The id of the team in Firebase.", type=str)
+@click.option("--team_id", "-i", help="The id of the team in Firebase.", type=str)
 @click.option(
     "--action",
     "-a",
     help=(
-        f"You can either add, remove manager-rights or "
-        f"add, remove user to/from a team. "
-        f"choices here"
+        "You can either add, remove manager-rights or "
+        "add, remove user to/from a team. "
+        "choices here"
     ),
     type=click.Choice(
         ["add-manager-rights", "remove-manager-right", "add-team", "remove-team"]
@@ -185,15 +185,15 @@ def run_user_management(email, action, team_id) -> None:
 @click.option(
     "--team_name",
     "-n",
-    help=f"The name of the team in Firebase for creation.",
+    help="The name of the team in Firebase for creation.",
     type=str,
 )
-@click.option("--team_id", "-i", help=f"The id of the team in Firebase.", type=str)
+@click.option("--team_id", "-i", help="The id of the team in Firebase.", type=str)
 @click.option(
     "--action",
     "-a",
     help=(
-        f"You can either create, delete teams or renew the teamToken. " f"choices here"
+        "You can either create, delete teams or renew the teamToken. " "choices here"
     ),
     type=click.Choice(
         ["create", "delete", "renew-team-token", "remove-all-team-members"]
@@ -258,8 +258,6 @@ def run_team_management(team_name, team_id, action) -> None:
 
 @cli.command("create-tutorials")
 def run_create_tutorials() -> None:
-    """Create a tutorial project from provided JSON file."""
-
     fb_db = auth.firebaseDB()
     ref = fb_db.reference("v2/tutorialDrafts/")
     tutorial_drafts = ref.get()
@@ -291,16 +289,19 @@ def run_create_tutorials() -> None:
 
 @cli.command("archive")
 @click.option(
-    "--project-id", "-i", help=("Archive project with giving project id"), type=str,
+    "--project-id",
+    "-i",
+    help=("Archive project with giving project id"),
+    type=str,
 )
 @click.option(
     "--project-ids",
     cls=PythonLiteralOption,
     default="[]",
     help=(
-        f"Archive multiple projects. "
-        f"Provide project id strings as a list: "
-        f"""["project_a", "project_b"]"""
+        "Archive multiple projects. "
+        "Provide project id strings as a list: "
+        """["project_a", "project_b"]"""
     ),
 )
 def run_archive_project(project_id, project_ids):
@@ -319,16 +320,19 @@ def run_archive_project(project_id, project_ids):
 
 @cli.command("delete")
 @click.option(
-    "--project-id", "-i", help=("Delete project with giving project id"), type=str,
+    "--project-id",
+    "-i",
+    help=("Delete project with giving project id"),
+    type=str,
 )
 @click.option(
     "--project-ids",
     cls=PythonLiteralOption,
     default="[]",
     help=(
-        f"Delete multiple projects. "
-        f"Provide project id strings as a list: "
-        f"""["project_a", "project_b"]"""
+        "Delete multiple projects. "
+        "Provide project id strings as a list: "
+        """["project_a", "project_b"]"""
     ),
 )
 def run_delete_project(project_id, project_ids):

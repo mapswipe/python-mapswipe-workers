@@ -54,7 +54,7 @@ class Project(BaseProject):
                 f" - validate geometry - "
                 f"Could not get layer for datasource"
             )
-            raise CustomError(f"could not get layer for datasource")
+            raise CustomError("could not get layer for datasource")
 
         # check if layer is empty
         if layer.GetFeatureCount() < 1:
@@ -64,7 +64,7 @@ class Project(BaseProject):
                 f"Empty file. "
                 f"No geometry is provided."
             )
-            raise CustomError(f"Empty file. ")
+            raise CustomError("Empty file. ")
 
         # check if more than 1 geometry is provided
         elif layer.GetFeatureCount() > MAX_INPUT_GEOMETRIES:
