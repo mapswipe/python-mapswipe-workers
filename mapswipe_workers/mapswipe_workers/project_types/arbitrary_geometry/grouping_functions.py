@@ -61,7 +61,7 @@ def group_input_geometries(input_geometries_file, group_size):
 
         try:
             groups[group_id_string]
-        except:
+        except KeyError:
             groups[group_id_string] = {"feature_ids": [], "feature_geometries": []}
 
         groups[group_id_string]["feature_ids"].append(feature.GetFID())
@@ -75,10 +75,7 @@ def group_input_geometries(input_geometries_file, group_size):
 ########################################################################################
 if __name__ == "__main__":
 
-    try:
-        args = parser.parse_args()
-    except:
-        print("have a look at the input arguments, something went wrong there.")
+    args = parser.parse_args()
 
     groups = group_input_geometries(args.input_file, args.group_size)
 
