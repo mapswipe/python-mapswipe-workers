@@ -1,5 +1,7 @@
 import datetime
+
 import pandas as pd
+
 from mapswipe_workers.definitions import logger
 
 

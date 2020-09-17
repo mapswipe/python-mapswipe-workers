@@ -1,11 +1,11 @@
-import unittest
 import time
-
-from mapswipe_workers import auth
-from mapswipe_workers.firebase_to_postgres import update_data
+import unittest
 
 import set_up
 import tear_down
+
+from mapswipe_workers import auth
+from mapswipe_workers.firebase_to_postgres import update_data
 
 
 class TestArchiveProject(unittest.TestCase):

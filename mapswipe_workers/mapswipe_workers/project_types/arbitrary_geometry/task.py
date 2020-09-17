@@ -1,5 +1,6 @@
-from mapswipe_workers.project_types.base.task import BaseTask
 from osgeo import ogr
+
+from mapswipe_workers.project_types.base.task import BaseTask
 
 
 class Task(BaseTask):

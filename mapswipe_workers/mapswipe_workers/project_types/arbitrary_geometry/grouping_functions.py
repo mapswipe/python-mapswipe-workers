@@ -1,7 +1,7 @@
-from osgeo import ogr
 import argparse
 import json
 
+from osgeo import ogr
 
 ########################################################################################
 parser = argparse.ArgumentParser(description="Process some integers.")

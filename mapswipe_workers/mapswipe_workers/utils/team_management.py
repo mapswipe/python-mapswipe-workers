@@ -1,7 +1,8 @@
-import uuid
 import re
+import uuid
+
 from mapswipe_workers.auth import firebaseDB
-from mapswipe_workers.definitions import logger, CustomError
+from mapswipe_workers.definitions import CustomError, logger
 
 
 def remove_all_team_members(team_id):

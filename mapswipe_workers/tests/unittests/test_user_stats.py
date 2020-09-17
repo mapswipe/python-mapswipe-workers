@@ -1,8 +1,12 @@
 import os
 import unittest
+
 import pandas as pd
 from pandas.testing import assert_frame_equal
-from mapswipe_workers.generate_stats.user_stats import get_agg_results_by_user_id
+
+from mapswipe_workers.generate_stats.user_stats import (
+    get_agg_results_by_user_id,
+)
 
 
 class TestUserStats(unittest.TestCase):

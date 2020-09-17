@@ -1,11 +1,11 @@
 import csv
-from queue import Queue
 import threading
+from queue import Queue
+
 from osgeo import ogr
 
-from mapswipe_workers.definitions import logger
-from mapswipe_workers.definitions import DATA_PATH
-from mapswipe_workers.utils import tile_functions, geojson_functions
+from mapswipe_workers.definitions import DATA_PATH, logger
+from mapswipe_workers.utils import geojson_functions, tile_functions
 
 
 def load_data(project_id: str, csv_file: str) -> list:

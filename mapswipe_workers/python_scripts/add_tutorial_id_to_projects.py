@@ -1,6 +1,7 @@
 import sys
+
 from mapswipe_workers.auth import firebaseDB
-from mapswipe_workers.definitions import logger, ProjectType
+from mapswipe_workers.definitions import ProjectType, logger
 
 
 def get_all_projects_of_type(project_type: int):

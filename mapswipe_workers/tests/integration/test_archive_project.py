@@ -1,10 +1,10 @@
 import unittest
 
-from mapswipe_workers import auth
-from mapswipe_workers.firebase_to_postgres import archive_project
-
 import set_up
 import tear_down
+
+from mapswipe_workers import auth
+from mapswipe_workers.firebase_to_postgres import archive_project
 
 
 class TestArchiveProject(unittest.TestCase):

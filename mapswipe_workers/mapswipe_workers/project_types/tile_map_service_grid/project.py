@@ -1,18 +1,19 @@
 import json
 import os
 
-from mapswipe_workers.project_types.base.project import BaseProject
+from osgeo import ogr, osr
+
 from mapswipe_workers.definitions import (
     DATA_PATH,
-    CustomError,
-    logger,
     MAX_INPUT_GEOMETRIES,
+    CustomError,
     ProjectType,
+    logger,
 )
+from mapswipe_workers.project_types.base.project import BaseProject
+from mapswipe_workers.project_types.base.tile_server import BaseTileServer
 from mapswipe_workers.project_types.tile_map_service_grid.group import Group
 from mapswipe_workers.utils import tile_grouping_functions as grouping_functions
-from mapswipe_workers.project_types.base.tile_server import BaseTileServer
-from osgeo import ogr, osr
 
 
 class Project(BaseProject):

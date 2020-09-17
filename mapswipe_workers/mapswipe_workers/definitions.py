@@ -127,11 +127,11 @@ class ProjectType(Enum):
     @property
     def constructor(self):
         # Imports are first made once this method get called to avoid circular imports.
-        from mapswipe_workers.project_types.tile_map_service_grid.project import (
-            Project as tmsg_project,
-        )
         from mapswipe_workers.project_types.arbitrary_geometry.project import (
             Project as ag_project,
+        )
+        from mapswipe_workers.project_types.tile_map_service_grid.project import (
+            Project as tmsg_project,
         )
 
         project_type_classes = {

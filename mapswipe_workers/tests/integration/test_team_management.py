@@ -1,8 +1,9 @@
-import unittest
 import re
-from mapswipe_workers.utils import team_management
+import unittest
+
 from mapswipe_workers.auth import firebaseDB
 from mapswipe_workers.definitions import CustomError
+from mapswipe_workers.utils import team_management
 
 
 def set_up_team():

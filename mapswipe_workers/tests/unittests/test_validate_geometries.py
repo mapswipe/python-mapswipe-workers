@@ -1,7 +1,9 @@
-import os
 import json
+import os
 import unittest
+
 from osgeo import ogr
+
 from mapswipe_workers.definitions import ProjectType
 
 

@@ -1,8 +1,7 @@
-from mapswipe_workers.definitions import logger
-from mapswipe_workers.project_types.base.tutorial import BaseTutorial
+from mapswipe_workers.definitions import ProjectType, logger
 from mapswipe_workers.project_types.base.tile_server import BaseTileServer
+from mapswipe_workers.project_types.base.tutorial import BaseTutorial
 from mapswipe_workers.utils import tile_functions as t
-from mapswipe_workers.definitions import ProjectType
 
 
 class Tutorial(BaseTutorial):

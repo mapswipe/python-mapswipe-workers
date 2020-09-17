@@ -1,13 +1,15 @@
 import json
-import unittest
-from requests.exceptions import HTTPError
-import requests
 import re
+import unittest
 from typing import Dict
+
+import requests
 from firebase_admin.auth import UserRecord
-from mapswipe_workers.config import FIREBASE_DB, FIREBASE_API_KEY
+from requests.exceptions import HTTPError
+
 from mapswipe_workers.auth import firebaseDB
-from mapswipe_workers.definitions import logger, CustomError
+from mapswipe_workers.config import FIREBASE_API_KEY, FIREBASE_DB
+from mapswipe_workers.definitions import CustomError, logger
 from mapswipe_workers.utils import user_management
 
 

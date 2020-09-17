@@ -1,4 +1,5 @@
 import json
+
 from mapswipe_workers.definitions import DATA_PATH
 
 

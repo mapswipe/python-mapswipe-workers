@@ -21,7 +21,7 @@ from mapswipe_workers.firebase_to_postgres import (
     update_data,
 )
 from mapswipe_workers.generate_stats import generate_stats
-from mapswipe_workers.utils import user_management, team_management
+from mapswipe_workers.utils import team_management, user_management
 from mapswipe_workers.utils.create_directories import create_directories
 from mapswipe_workers.utils.slack_helper import (
     send_progress_notification,

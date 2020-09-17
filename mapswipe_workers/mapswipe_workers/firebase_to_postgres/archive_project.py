@@ -5,8 +5,9 @@ import re
 from typing import Iterable
 
 from firebase_admin import exceptions
+
 from mapswipe_workers import auth
-from mapswipe_workers.definitions import logger, CustomError
+from mapswipe_workers.definitions import CustomError, logger
 
 
 def chunks(data: list, size: int = 250) -> Iterable[list]:

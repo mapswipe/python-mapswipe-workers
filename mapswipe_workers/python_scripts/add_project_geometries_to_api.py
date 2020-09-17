@@ -1,7 +1,8 @@
-from mapswipe_workers.definitions import DATA_PATH
-from mapswipe_workers import auth
-from mapswipe_workers.utils import geojson_functions
 import ogr
+
+from mapswipe_workers import auth
+from mapswipe_workers.definitions import DATA_PATH
+from mapswipe_workers.utils import geojson_functions
 
 
 def add_project_geometries_to_api():

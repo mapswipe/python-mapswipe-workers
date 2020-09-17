@@ -1,16 +1,18 @@
-import os
-from psycopg2 import sql
-import pandas as pd
 import datetime
+import os
 from typing import List
+
+import pandas as pd
+from psycopg2 import sql
+
 from mapswipe_workers import auth
-from mapswipe_workers.definitions import logger, DATA_PATH, sentry
-from mapswipe_workers.utils import geojson_functions, tile_functions
+from mapswipe_workers.definitions import DATA_PATH, logger, sentry
 from mapswipe_workers.generate_stats import (
     project_stats_by_date,
     tasking_manager_geometries,
     user_stats,
 )
+from mapswipe_workers.utils import geojson_functions, tile_functions
 
 
 def add_metadata_to_csv(filename: str):

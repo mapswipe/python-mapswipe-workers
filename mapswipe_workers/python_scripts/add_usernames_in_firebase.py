@@ -1,4 +1,5 @@
 from firebase_admin import auth
+
 from mapswipe_workers.auth import firebaseDB
 from mapswipe_workers.definitions import logger
 

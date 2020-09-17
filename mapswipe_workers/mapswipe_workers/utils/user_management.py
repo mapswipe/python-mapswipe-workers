@@ -1,13 +1,13 @@
 import datetime
 import json
 
-from firebase_admin import auth
-
 import requests
+from firebase_admin import auth
+from requests.exceptions import HTTPError
+
 from mapswipe_workers.auth import firebaseDB
 from mapswipe_workers.config import FIREBASE_API_KEY, FIREBASE_DB
 from mapswipe_workers.definitions import CustomError, logger
-from requests.exceptions import HTTPError
 
 
 def set_project_manager_rights(email):

@@ -1,5 +1,7 @@
 import os
+
 import pandas as pd
+
 from mapswipe_workers import auth
 from mapswipe_workers.definitions import logger
 from mapswipe_workers.utils import geojson_functions
