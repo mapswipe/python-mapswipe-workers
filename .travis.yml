@@ -18,9 +18,12 @@ before_install:
 
 install:
   - pip install --upgrade pip setuptools
-  - pip install flake8 black
+  - pip install black flake8 isort
 
 script:
+  - black --ckeck mapswipe_workers
+  - flake8 --count --config mapswipe_workers/setup.cfg mapswipe_workers
+  - isort --check --settings-file mapswipe_workers/setup.cfg mapswipe_workers
   - docker-compose up --build --detach firebase_deploy
   - docker-compose up --build --detach postgres
   - docker-compose run mapswipe_workers python -m unittest discover --verbose --start-directory tests/unittests/
