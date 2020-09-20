@@ -6,9 +6,7 @@ from osgeo import ogr
 from mapswipe_workers.definitions import ProjectType, logger
 from mapswipe_workers.project_types.base.tile_server import BaseTileServer
 from mapswipe_workers.project_types.tile_map_service_grid.group import Group
-from mapswipe_workers.project_types.tile_map_service_grid.project import (
-    Project,
-)
+from mapswipe_workers.project_types.tile_map_service_grid.project import Project
 from mapswipe_workers.project_types.tile_map_service_grid.task import Task
 from mapswipe_workers.utils import tile_grouping_functions as t
 
