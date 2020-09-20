@@ -13,7 +13,7 @@ class TestArchiveProject(unittest.TestCase):
         self.project_id = set_up.create_test_project(
             "tile_map_service_grid", "build_area", results=True
         )
-        time.sleep(2)  # Wait for Firebase Functions to complete
+        time.sleep(4)  # Wait for Firebase Functions to complete
 
     def tearDown(self):
         tear_down.delete_test_data(self.project_id)
