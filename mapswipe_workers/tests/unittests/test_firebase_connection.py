@@ -10,10 +10,10 @@ class TestFirebaseConnection(unittest.TestCase):
     def tearDown(self):
         self.fb_db = None
 
-    def test_create_project(self):
+    def test_connection(self):
         ref = self.fb_db.reference("/v2")
         result = ref.get(shallow=True)
-        self.assertIsNone(result)
+        self.assertIsNotNone(result)
 
 
 if __name__ == "__main__":
