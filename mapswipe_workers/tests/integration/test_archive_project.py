@@ -21,7 +21,7 @@ class TestArchiveProject(unittest.TestCase):
     def test_changes(self):
         """Test if groups, tasks and results are deleted from Firebase."""
         archive_project.archive_project([self.project_id])
-        time.sleep(2)  # Wait for Firebase Functions to complete
+        time.sleep(4)  # Wait for Firebase Functions to complete
 
         fb_db = auth.firebaseDB()
         ref = fb_db.reference("v2/groups/{0}".format(self.project_id))
@@ -43,7 +43,7 @@ class TestArchiveProject(unittest.TestCase):
     def test_project_id_not_exists(self):
         """Test for project id which does not exists."""
         archive_project.archive_project(["tuna"])
-        time.sleep(2)  # Wait for Firebase Functions to complete
+        time.sleep(4)  # Wait for Firebase Functions to complete
 
         fb_db = auth.firebaseDB()
         ref = fb_db.reference("v2/groups/")
