@@ -127,9 +127,7 @@ class BaseProject(metaclass=ABCMeta):
         # Make sure projects get saved in Postgres and Firebase successful
         try:
             self.save_to_postgres(
-                project,
-                groups,
-                groupsOfTasks,
+                project, groups, groupsOfTasks,
             )
             logger.info(
                 f"{self.projectId}" f" - the project has been saved" f" to postgres"
@@ -161,9 +159,7 @@ class BaseProject(metaclass=ABCMeta):
 
         try:
             self.save_to_firebase(
-                project,
-                groups,
-                groupsOfTasks,
+                project, groups, groupsOfTasks,
             )
             logger.info(
                 f"{self.projectId}" f" - the project has been saved" f" to firebase"
@@ -452,10 +448,7 @@ class BaseProject(metaclass=ABCMeta):
             "project_type_specifics",
         )
         w = csv.DictWriter(
-            groups_txt_file,
-            fieldnames=fieldnames,
-            delimiter="\t",
-            quotechar="'",
+            groups_txt_file, fieldnames=fieldnames, delimiter="\t", quotechar="'",
         )
 
         for groupId, group in groups.items():
@@ -525,10 +518,7 @@ class BaseProject(metaclass=ABCMeta):
             "project_type_specifics",
         )
         w = csv.DictWriter(
-            tasks_txt_file,
-            fieldnames=fieldnames,
-            delimiter="\t",
-            quotechar="'",
+            tasks_txt_file, fieldnames=fieldnames, delimiter="\t", quotechar="'",
         )
 
         for groupId, tasks in groupsOfTasks.items():
