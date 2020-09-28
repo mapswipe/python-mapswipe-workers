@@ -1,5 +1,7 @@
 import unittest
 
+from firebase_admin.exceptions import FirebaseError
+
 from mapswipe_workers import auth
 
 
@@ -10,10 +12,12 @@ class TestFirebaseConnection(unittest.TestCase):
     def tearDown(self):
         self.fb_db = None
 
-    def test_create_project(self):
+    def test_connection(self):
         ref = self.fb_db.reference("/v2")
-        result = ref.get(shallow=True)
-        self.assertIsNone(result)
+        try:
+            ref.push("test_connection")
+        except FirebaseError as error:
+            self.fail(error)
 
 
 if __name__ == "__main__":

@@ -9,6 +9,7 @@ Directory structure of fixtures: fixtures/project_type/data_type/fixture_name
 
 import json
 import os
+import time
 
 from mapswipe_workers import auth
 
@@ -60,6 +61,7 @@ def create_test_project(
         set_firebase_test_data(project_type, "results", fixture_name, project_id)
         set_postgres_test_data(project_type, "results", fixture_name)
 
+    time.sleep(5)  # Wait for Firebase Functions to complete
     return project_id
 
 
@@ -67,6 +69,7 @@ def create_test_results(project_type: str, fixture_name: str) -> str:
     """Create test results only in Firebase."""
     project_id = "test_{0}".format(project_type)
     set_firebase_test_data(project_type, "results", fixture_name, project_id)
+    time.sleep(5)  # Wait for Firebase Functions to complete
     return project_id
 
 
