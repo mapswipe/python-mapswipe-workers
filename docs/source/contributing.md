@@ -30,4 +30,7 @@ Use [pre-commit](https://pre-commit.com/) to run `black` and `flake8` prior to a
 pre-commit install
 ```
 
-From now on `black` and `flake8` should run automatically whenever `git commit` is executed.
+From now on `black`, `flake8` and `isort` should run automatically whenever `git commit` is executed.
+
+When running those tools manually please make sure the right version is used. The version can be looked up in `.pre-commit-config.yaml`.
+To update to newer version please make sure to change version numbers in `.pre-commit-config.yaml`, `.travis.yml` and `requirements.txt`.
