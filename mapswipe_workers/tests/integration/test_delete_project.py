@@ -1,4 +1,3 @@
-import time
 import unittest
 
 import set_up
@@ -14,7 +13,6 @@ class TestDeleteProject(unittest.TestCase):
         self.project_id = set_up.create_test_project(
             "tile_map_service_grid", "build_area", results=True
         )
-        time.sleep(4)  # Wait for Firebase Functions to complete
 
     def tearDown(self):
         tear_down.delete_test_data(self.project_id)
@@ -22,7 +20,6 @@ class TestDeleteProject(unittest.TestCase):
     def test_deletion(self):
         """Test if tasks, groups, project and results are deleted."""
         delete_project.delete_project([self.project_id])
-        time.sleep(2)  # Wait for Firebase Functions to complete
 
         fb_db = auth.firebaseDB()
         ref = fb_db.reference("v2/results/{0}".format(self.project_id))
@@ -59,7 +56,6 @@ class TestDeleteProject(unittest.TestCase):
     def test_project_id_not_exists(self):
         """Test for project id which does not exists."""
         delete_project.delete_project(["tuna"])
-        time.sleep(2)  # Wait for Firebase Functions to complete
 
         fb_db = auth.firebaseDB()
         ref = fb_db.reference("v2/results")
@@ -96,7 +92,6 @@ class TestDeleteProject(unittest.TestCase):
     def test_project_id_equals_none(self):
         """Test for project id which does not exists."""
         delete_project.delete_project([None])
-        time.sleep(2)  # Wait for Firebase Functions to complete
 
         fb_db = auth.firebaseDB()
         ref = fb_db.reference("v2/results")
