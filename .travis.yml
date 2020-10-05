@@ -27,7 +27,7 @@ script:
   - docker-compose up --build --detach firebase_deploy
   - docker-compose up --build --detach postgres
   - docker-compose run mapswipe_workers python -m unittest discover --verbose --start-directory tests/unittests/
-  # TODO: - docker-compose run mapswipe_workers python -m unittest discover --verbose --start-directory tests/integration/
+  - docker-compose run mapswipe_workers python -m unittest discover --verbose --start-directory tests/integration/
 
 # before_deploy:
 #   # SSH setup to deploy to server after build.
