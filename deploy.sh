@@ -1,60 +1,8 @@
-git pull
-if [[ $? = 0 ]]; then
-    echo "success"
-else
-    echo "failure: $?"
-    exit
-fi
+#!/bin/bash
+# This script builds and starts all Docker container for running the Mapswipe ecosystem.
+# It is run either manually or by an Ansible Playbook after a successful Travis build.
 
-python3 test_config.py
-if [[ $? = 0 ]]; then
-    echo "success"
-else
-    echo "failure: $?"
-    exit
-fi
-
-docker-compose build --no-cache postgres
-if [[ $? = 0 ]]; then
-    echo "success"
-else
-    echo "failure: $?"
-    exit
-fi
-
-docker-compose build --no-cache firebase_deploy
-if [[ $? = 0 ]]; then
-    echo "success"
-else
-    echo "failure: $?"
-    exit
-fi
-
-docker-compose build --no-cache mapswipe_workers
-if [[ $? = 0 ]]; then
-    echo "success"
-else
-    echo "failure: $?"
-    exit
-fi
-
-docker-compose build --no-cache manager_dashboard
-if [[ $? = 0 ]]; then
-    echo "success"
-else
-    echo "failure: $?"
-    exit
-fi
-
-docker-compose build --no-cache nginx
-if [[ $? = 0 ]]; then
-    echo "success"
-else
-    echo "failure: $?"
-    exit
-fi
-
-docker-compose build --no-cache api
+docker-compose build --no-cache postgres firebase_deploy mapswipe_workers manager_dashboard nginx api
 if [[ $? = 0 ]]; then
     echo "success"
 else
@@ -69,20 +17,3 @@ else
     echo "failure: $?"
     exit
 fi
-
-docker logs firebase_deploy
-if [[ $? = 0 ]]; then
-    echo "success"
-else
-    echo "failure: $?"
-    exit
-fi
-
-docker ps -a
-if [[ $? = 0 ]]; then
-    echo "success"
-else
-    echo "failure: $?"
-    exit
-fi
-

@@ -1,0 +1,11 @@
+---
+- name: Deploy MapSwipe Backend
+  hosts: dev
+
+  tasks:
+    - name: Fetch latest code base from GitHub.
+      git:
+        repo: 'https://github.com/mapswipe/python-mapswipe-workers.git'
+        dest: /home/mapswipe/python-mapswipe-workers
+    - name: Rebuild and restart Docker container usind Docker-Compose.
+      script: /home/mapswipe/python-mapswipe-worker/deploy.sh
