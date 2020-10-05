@@ -22,7 +22,7 @@ before_install:
 
 install:
   - pip install --upgrade pip setuptools
-  - pip install black flake8 isort
+  - pip install black==19.10b0 flake8==3.8.3 isort==5.5.2
   # Install ansible for automated deployment
   - sudo apt-get --quiet update
   - sudo apt-get --yes install software-properties-common
