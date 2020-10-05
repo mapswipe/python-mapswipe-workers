@@ -9,4 +9,4 @@
         dest: /home/mapswipe/python-mapswipe-workers
         version: dev
     - name: Rebuild and restart Docker container usind Docker-Compose.
-      script: /home/mapswipe/python-mapswipe-worker/deploy.sh
+      script: /home/mapswipe/python-mapswipe-worker/recreate_container.sh

@@ -48,4 +48,10 @@ after_success:
   - openssl aes-256-cbc -K $encrypted_c17fa81e6490_key -iv $encrypted_c17fa81e6490_iv -in travis/ssh-private-key.enc -out travis/ssh-private-key -d
   - chmod 600 travis/ssh-private-key
   - ssh-add travis/ssh-private-key
-  - ansible-playbook -i ansible/inventory.yml ansible/playbook.yml  # Deploy to dev server
+  - chmod +x deploy.sh
+
+deploy:
+  provider: script
+  script: bash deploy.sh
+  on:
+    branch: dev
