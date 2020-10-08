@@ -30,15 +30,12 @@ exports.counter = functions.database.ref('/v2/results/{projectId}/{groupId}/{use
 
 
     // Firebase Realtime Database references
-    const contributorCountRef  = admin.database().ref('/v2/projects/'+context.params.projectId+'/contributorCount')
-
     const groupFinishedCountRef = admin.database().ref('/v2/groups/'+context.params.projectId+'/'+context.params.groupId+'/finishedCount')
     const groupRequiredCountRef = admin.database().ref('/v2/groups/'+context.params.projectId+'/'+context.params.groupId+'/requiredCount')
     const numberOfTasksRef      = admin.database().ref('/v2/groups/'+context.params.projectId+'/'+context.params.groupId+'/numberOfTasks')
 
     const taskContributionCountRef          = admin.database().ref('/v2/users/'+context.params.userId+'/taskContributionCount')
     const groupContributionCountRef         = admin.database().ref('/v2/users/'+context.params.userId+'/groupContributionCount')
-    const projectContributionCountRef       = admin.database().ref('/v2/users/'+context.params.userId+'/projectContributionCount')
     const projectContributionsRef           = admin.database().ref('/v2/users/'+context.params.userId+'/contributions/'+context.params.projectId)
     const groupContributionsRef             = admin.database().ref('/v2/users/'+context.params.userId+'/contributions/'+context.params.projectId +'/'+context.params.groupId)
     const projectTaskContributionCountRef   = admin.database().ref('/v2/users/'+context.params.userId+'/contributions/'+context.params.projectId+'/taskContributionCount')
