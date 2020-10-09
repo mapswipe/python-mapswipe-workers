@@ -50,26 +50,27 @@ class BaseProject(metaclass=ABCMeta):
            True if successful. False otherwise.
         """
 
+        self.contributorCount = 0
         self.created = dt.datetime.now()
         self.createdBy = project_draft["createdBy"]
-        self.groups = list()
         self.groupMaxSize = project_draft.get("groupMaxSize", 0)
-        self.resultCount = 0
+        self.groups = list()
         self.image = project_draft["image"]
         self.isFeatured = False
         self.lookFor = project_draft["lookFor"]
         self.name = project_draft["name"]
-        self.requiredResults = 0
         self.progress = 0
         self.projectDetails = project_draft["projectDetails"]
         self.projectId = project_draft["projectDraftId"]
-        self.projectType = int(project_draft["projectType"])
-        self.verificationNumber = project_draft["verificationNumber"]
-        self.projectTopic = project_draft.get("projectTopic", None)
-        self.projectRegion = project_draft.get("projectRegion", None)
         self.projectNumber = project_draft.get("projectNumber", None)
+        self.projectRegion = project_draft.get("projectRegion", None)
+        self.projectTopic = project_draft.get("projectTopic", None)
+        self.projectType = int(project_draft["projectType"])
         self.requestingOrganisation = project_draft.get("requestingOrganisation", None)
+        self.requiredResults = 0
+        self.resultCount = 0
         self.teamId = project_draft.get("teamId", None)
+        self.verificationNumber = project_draft["verificationNumber"]
         if not self.teamId:
             self.status = "inactive"  # this is a public project
         else:
