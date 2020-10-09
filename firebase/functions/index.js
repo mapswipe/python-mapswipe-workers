@@ -131,16 +131,23 @@ exports.counter = functions.database.ref('/v2/results/{projectId}/{groupId}/{use
 
 
 exports.counter_2 = functions.database.ref('/v2/users/{userId}/contributions/{projectId}/').onCreate((snapshot, context) => {
+    const promises = []
+
     // Firebase Realtime Database references
     const contributorCountRef           = admin.database().ref('/v2/projects/'+context.params.projectId+'/contributorCount')
     const projectContributionCountRef   = admin.database().ref('/v2/users/'+context.params.userId+'/projectContributionCount')
 
-    projectContributionCountRef.transaction((currentCount) => {
+    const projectContributionCount = projectContributionCountRef.transaction((currentCount) => {
         return currentCount + 1
     })
-    contributorCountRef.transaction((currentCount) => {
+    promises.push(projectContributionCount)
+
+    const contributorCount = contributorCountRef.transaction((currentCount) => {
         return currentCount + 1
     })
+    promises.push(contributorCount)
+
+    return Promise.all(promises)
 })
 
 
