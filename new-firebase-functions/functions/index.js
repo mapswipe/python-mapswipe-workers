@@ -122,7 +122,7 @@ exports.resultCounter = functions.database.ref('/v2/results/{projectId}/{groupId
 // Counters to keep track of contributors and project contributions of Project and User.
 // Gets triggered when User contributes to new project.
 exports.contributionCounter = functions.database.ref('/v2/users/{userId}/contributions/{projectId}/').onCreate((snapshot, context) => {
-    const promises = []
+    const promises_2 = []
 
     // Firebase Realtime Database references
     const contributorCountRef           = admin.database().ref('/v2/projects/'+context.params.projectId+'/contributorCount')
@@ -131,14 +131,14 @@ exports.contributionCounter = functions.database.ref('/v2/users/{userId}/contrib
     const projectContributionCount = projectContributionCountRef.transaction((currentCount) => {
         return currentCount + 1
     })
-    promises.push(projectContributionCount)
+    promises_2.push(projectContributionCount)
 
     const contributorCount = contributorCountRef.transaction((currentCount) => {
         return currentCount + 1
     })
-    promises.push(contributorCount)
+    promises_2.push(contributorCount)
 
-    return Promise.all(promises)
+    return Promise.all(promises_2)
 })
 
 // Increment project.resultCount by group.numberOfTasks.
