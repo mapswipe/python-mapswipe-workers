@@ -1,0 +1,138 @@
+{
+  "1": {
+    "hint" : {
+      "description" : "Les voyez-vous? Faites glisser pour en savoir plus.",
+      "icon" : "swipe-left",
+      "title" : "Nous avons marqué en vert l'image qui contient des déchets."
+    },
+    "instructions" : {
+      "description" : "Tapez une seule fois sur l'image contenant des déchets.",
+      "icon" : "tap-1",
+      "title" : "Il y'a des déchets sur ces images."
+    },
+    "success" : {
+      "description" : "Faites glisser vers l'écran suivant pour continuer.",
+      "icon" : "check",
+      "title" : "Vous avez trouvé votre première zone de déchets!"
+    }
+  },
+  "2": {
+    "hint" : {
+      "description" : "Tapez deux fois quand vous n'êtes pas sûr.e. Faites glisser pour continuer.",
+      "icon" : "swipe-left",
+      "title" : "Jaune signifie qu'il pourrait y avoir des déchets"
+    },
+    "instructions" : {
+      "description" : "Tapez deux fois sur l'image pour la marquer en jaune et indiquer qu'il pourrait y avoir des déchets.",
+      "icon" : "tap-2",
+      "title" : "Nous ne sommes pas sûrs si c'est un tas de déchets"
+    },
+    "success" : {
+      "description" : "Faites glisser vers l'écran suivant pour continuer.",
+      "icon" : "check",
+      "title" : "Parfait. Faites ceci quand vous avez un doute."
+    }
+  },
+  "3": {
+    "hint" : {
+      "description" : "Voyez-vous pourquoi l'image est mauvaise? Faites glisser pour la suite.",
+      "icon" : "swipe-left",
+      "title" : "Nous avons marqué l'image incomplète en rouge"
+    },
+    "instructions" : {
+      "description" : "Tapez trois fois sur l'image incomplète pour la marquer en rouge.",
+      "icon" : "tap-3",
+      "title" : "Il y'a une image inutilisable"
+    },
+    "success" : {
+      "description" : "Faites glisser pour continuer.",
+      "icon" : "check",
+      "title" : "Bon travail!"
+    }
+  },
+  "4": {
+    "hint" : {
+      "description" : "Il n'y a pas de déchets sur cet écran, vous pouvez simplement faire glisser pour continuer.",
+      "icon" : "swipe-left",
+      "title" : "Pas besoin de taper cette fois-ci"
+    },
+    "instructions" : {
+      "description" : "Pas besoin de taper. Faites simplement glisser vers l'écran suivant.",
+      "icon" : "swipe-left",
+      "title" : "Pas de déchets? Pas besoin de taper!"
+    },
+    "success" : {
+      "description" : "Faites glisser pour continuer",
+      "icon" : "check",
+      "title" : "Parfait!"
+    }
+  },
+  "5": {
+    "hint" : {
+      "description" : "Voyez-vous les déchets que nous avons marqués en vert? Faites glisser pour la suite.",
+      "icon" : "swipe-left",
+      "title" : "Nous avons marqué les bonnes réponses"
+    },
+    "instructions" : {
+      "description" : "Pour chaque carré, tapez une fois s'il y'a des déchets, deux fois si vous avez un doute, trois fois si l'image n'est pas claire.",
+      "icon" : "tap",
+      "title" : "À votre tour d'utiliser ce que vous venez d'apprendre"
+    },
+    "success" : {
+      "description" : "Faites glisser pour voir un autre exemmple.",
+      "icon" : "check",
+      "title" : "Bon travail! Vous avez trouvé tous les déchets!"
+    }
+  },
+  "6": {
+    "hint" : {
+      "description" : "Assurez-vous de marquer chaque case contenant des déchets en vert. Faites glisser pour la suite.",
+      "icon" : "swipe-left",
+      "title" : "Nous avons marqué les bonnes réponses"
+    },
+    "instructions" : {
+      "description" : "Marquez chaque image contenant des déchets en vert.",
+      "icon" : "tap",
+      "title" : "Il y'a beaucoup de déchets ici!"
+    },
+    "success" : {
+      "description" : "Faites glisser pour voir un autre exemmple.",
+      "icon" : "check",
+      "title" : "Bien joué! Vous avez tout trouvé!"
+    }
+  },
+  "7": {
+    "hint" : {
+      "description" : "Voyez-vous les déchets que nous avons marqués en vert? En aviez-vous manqué? Faites glisser pour continuer.",
+      "icon" : "swipe-left",
+      "title" : "Nous avons marqué les bonnes réponses"
+    },
+    "instructions" : {
+      "description" : "Même si les déchets ne sont que dans le coin de l'image, marquez la en vert.",
+      "icon" : "tap",
+      "title" : "Marquez bien toutes les images"
+    },
+    "success" : {
+      "description" : "Faites glisser pour voir un autre exemmple.",
+      "icon" : "check",
+      "title" : "Bien joué! Vous avez tout trouvé!"
+    }
+  },
+  "8": {
+    "hint" : {
+      "description" : "Faire glisser de haut en bas de cette façon peut vous faire économiser beaucoup de temps. Faites glisser pour la suite.",
+      "icon" : "swipe-left",
+      "title" : "Toutes les images sont rouges comme elles sont inutilisables"
+    },
+    "instructions" : {
+      "description" : "Quand toutes les images sont mauvaises, faites glisser de haut en bas pour les marquer toutes en rouge.",
+      "icon" : "swipe-down",
+      "title" : "Toutes les images sont mauvaises ou manquantes... C'est trop long à taper!"
+    },
+    "success" : {
+      "description" : "Vous pouvez gagner beaucoup de temps ainsi. Faites glisser vers la gauche pour la suite.",
+      "icon" : "check",
+      "title" : "Parfait!"
+    }
+  }
+}
