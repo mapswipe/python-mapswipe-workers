@@ -32,7 +32,7 @@ exports.resultCounter = functions.database.ref('/v2/results/{projectId}/{groupId
     const userRef = admin.database().ref('/v2/users/' + context.params.userId)
     const userContributionRef = userRef.child('contributions/' + context.params.projectId)
 
-    // Counter for User
+    // Counter for User contributions across Projects
     const totalGroupContributionCount = userRef.child('groupContributionCount').transaction((currentCount) => {
         return currentCount + 1
     });
@@ -50,7 +50,7 @@ exports.resultCounter = functions.database.ref('/v2/results/{projectId}/{groupId
         })
     promises.push(totalTaskContributionCount)
 
-    // Counter for User per Project
+    // Counter for User contributions on a distict Project
     const groupContributionCount = userContributionRef.child('groupContributionCount').transaction((currentCount) => {
         return currentCount + 1
     });
