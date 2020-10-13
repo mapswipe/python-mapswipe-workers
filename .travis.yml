@@ -9,16 +9,25 @@ python:
   - "3.6"
 services:
   - docker
+addons:
+  ssh_known_hosts:
+    - 35.190.148.87  # Development server
+env:
+  - ANSIBLE_CONFIG=ansible/ansible.cfg
 
 before_install:
-  - openssl aes-256-cbc -K $encrypted_444bb228fd3f_key -iv $encrypted_444bb228fd3f_iv -in .ci-mapswipe-firebase-adminsdk-80fzw-21ddcd1649.json.enc -out mapswipe_workers/serviceAccountKey.json -d
-
+  - openssl aes-256-cbc -K $encrypted_444bb228fd3f_key -iv $encrypted_444bb228fd3f_iv -in travis/ci-mapswipe-firebase-adminsdk-80fzw-21ddcd1649.json.enc -out mapswipe_workers/serviceAccountKey.json -d
   # Create a mock file for wal-g setup
   - touch postgres/serviceAccountKey.json
 
 install:
   - pip install --upgrade pip setuptools
   - pip install black==19.10b0 flake8==3.8.3 isort==5.5.2
+  # Install ansible for automated deployment
+  - sudo apt-get --quiet update
+  - sudo apt-get --yes install software-properties-common
+  - sudo apt-add-repository --yes --update ppa:ansible/ansible
+  - sudo apt-get --yes install ansible
 
 script:
   - black --check mapswipe_workers
@@ -29,22 +38,21 @@ script:
   - docker-compose run mapswipe_workers python -m unittest discover --verbose --start-directory tests/unittests/
   - docker-compose run mapswipe_workers python -m unittest discover --verbose --start-directory tests/integration/
 
-# before_deploy:
-#   # SSH setup to deploy to server after build.
-#   - apk add openssh-client
-#   - mkdir -p ~/.ssh
-#   - chmod 700 ~/.ssh
-#   - eval "$(ssh-agent -s)"
-#   - export KEY_FILE=~/.ssh/api_server_ssh_key
-#   - echo "$DEPLOYMENT_SERVER_PRIVATE_KEY" | tr -d '\r' > $KEY_FILE
-#   - chmod 600 $KEY_FILE
-#   - ssh-add $KEY_FILE > /dev/null
-#   - ssh-keyscan -H "$DEPLOYMENT_SERVER_IP" >> ~/.ssh/known_hosts
-#   - chmod 644 ~/.ssh/known_hosts
-#   - ssh -i $KEY_FILE -o StrictHostKeyChecking=no "mapswipe@$DEPLOYMENT_SERVER_IP"
+after_success:
+  # Deploy to development server using Ansible
+  # SSH setup to deploy to server after build.
+  - apk add openssh-client
+  - eval "$(ssh-agent -s)"  #start the ssh agent
+  - mkdir -p $HOME/.ssh
+  # - chmod 700 $HOME/.ssh
+  - cp travis/ssh_config $HOME/.ssh/config
+  - openssl aes-256-cbc -K $encrypted_c17fa81e6490_key -iv $encrypted_c17fa81e6490_iv -in travis/ssh-private-key.enc -out $HOME/.ssh/private-key -d
+  - chmod 600 $HOME/.ssh/private-key
+  - ssh-add $HOME/.ssh/private-key
+  - chmod +x deploy.sh
 
-# deploy:
-#   provider: script
-#   script: bash scripts/deploy.sh
-#   on:
-#     branch: dev
+deploy:
+  provider: script
+  script: bash deploy.sh
+  on:
+    branch: dev
