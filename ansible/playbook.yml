@@ -9,7 +9,7 @@
         dest: $HOME/python-mapswipe-workers
         version: dev
     - name: Rebuild Docker container.
-      command: docker-compose build --no-cache postgres firebase_deploy mapswipe_workers manager_dashboard nginx api
+      command: docker-compose build postgres firebase_deploy mapswipe_workers manager_dashboard nginx api
       args:
         chdir: $HOME/python-mapswipe-workers
     - name: Restart Docker container.
