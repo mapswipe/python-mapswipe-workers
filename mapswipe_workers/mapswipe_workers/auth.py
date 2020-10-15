@@ -1,14 +1,15 @@
 import firebase_admin
 import psycopg2
 from firebase_admin import db
+
 from mapswipe_workers.config import (
     FIREBASE_DB,
-    POSTGRES_HOST,
-    POSTGRES_PORT,
-    POSTGRES_DB,
-    POSTGRES_PASSWORD,
-    POSTGRES_USER,
     IMAGE_API_KEYS,
+    POSTGRES_DB,
+    POSTGRES_HOST,
+    POSTGRES_PASSWORD,
+    POSTGRES_PORT,
+    POSTGRES_USER,
 )
 from mapswipe_workers.definitions import IMAGE_URLS
 

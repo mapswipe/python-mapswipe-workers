@@ -1,8 +1,7 @@
-from mapswipe_workers.definitions import logger
-from mapswipe_workers.project_types.base.tutorial import BaseTutorial
+from mapswipe_workers.definitions import ProjectType, logger
 from mapswipe_workers.project_types.base.tile_server import BaseTileServer
+from mapswipe_workers.project_types.base.tutorial import BaseTutorial
 from mapswipe_workers.utils import tile_functions as t
-from mapswipe_workers.definitions import ProjectType
 
 
 class Tutorial(BaseTutorial):
@@ -36,14 +35,14 @@ class Tutorial(BaseTutorial):
             "xMin": 100,  # this will be always set to 100
             "yMax": 131074,  # this is set to be at the equator
             "yMin": 131072,  # this is set to be at the equator
-            "requiredCount": 5,  # this is not needed from back end perspective
-            "finishedCount": 0,  # this is not needed from back end perspective
+            "requiredCount": 5,  # not needed from backend perspective, maybe for client
+            "finishedCount": 0,  # not needed from backend perspective, maybe for client
             "groupId": 101,  # a tutorial has only one group
             "projectId": self.projectId,
             "numberOfTasks": len(
                 self.tutorial_tasks
             ),  # this depends on the number of screens/tasks to show
-            "progress": 0,  # this is not needed from back end perspective
+            "progress": 0,  # not needed from backend perspective, maybe for client
         }
 
         if self.projectType in [ProjectType.CHANGE_DETECTION.value]:
@@ -99,8 +98,8 @@ class Tutorial(BaseTutorial):
                 task = {
                     "taskId_real": f"{self.zoomLevel}-{tile_x}-{tile_y}",
                     "taskId": f"{self.zoomLevel}-{tile_x_tutorial}-{tile_y_tutorial}",
-                    "taskX": tile_x_tutorial,  # need to set this based on screen
-                    "taskY": tile_y_tutorial,  # need to set this based on screen
+                    "taskX": tile_x_tutorial,  # need to set correctly based on screen
+                    "taskY": tile_y_tutorial,  # need to set correctly based on screen
                     "groupId": 101,  # a tutorial has only one group
                     "projectId": self.projectId,
                     "referenceAnswer": raw_task["properties"]["reference"],

@@ -1,4 +1,5 @@
 from firebase_admin import auth
+
 from mapswipe_workers.auth import firebaseDB
 from mapswipe_workers.definitions import logger
 
@@ -23,7 +24,7 @@ def update_username(uid):
 def get_all_users():
     """Get the user ids from all users in Firebase DB."""
     fb_db = firebaseDB()
-    users = fb_db.reference(f"v2/users/").get(shallow=True)
+    users = fb_db.reference("v2/users/").get(shallow=True)
     uid_list = users.keys()
     return uid_list
 

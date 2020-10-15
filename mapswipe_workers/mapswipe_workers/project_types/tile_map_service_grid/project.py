@@ -1,18 +1,19 @@
 import json
 import os
 
-from mapswipe_workers.project_types.base.project import BaseProject
+from osgeo import ogr, osr
+
 from mapswipe_workers.definitions import (
     DATA_PATH,
-    CustomError,
-    logger,
     MAX_INPUT_GEOMETRIES,
+    CustomError,
     ProjectType,
+    logger,
 )
+from mapswipe_workers.project_types.base.project import BaseProject
+from mapswipe_workers.project_types.base.tile_server import BaseTileServer
 from mapswipe_workers.project_types.tile_map_service_grid.group import Group
 from mapswipe_workers.utils import tile_grouping_functions as grouping_functions
-from mapswipe_workers.project_types.base.tile_server import BaseTileServer
-from osgeo import ogr, osr
 
 
 class Project(BaseProject):
@@ -54,7 +55,7 @@ class Project(BaseProject):
                 f" - validate geometry - "
                 f"Could not get layer for datasource"
             )
-            raise CustomError(f"could not get layer for datasource")
+            raise CustomError("could not get layer for datasource")
 
         # check if layer is empty
         if layer.GetFeatureCount() < 1:
@@ -64,7 +65,7 @@ class Project(BaseProject):
                 f"Empty file. "
                 f"No geometry is provided."
             )
-            raise CustomError(f"Empty file. ")
+            raise CustomError("Empty file. ")
 
         # check if more than 1 geometry is provided
         elif layer.GetFeatureCount() > MAX_INPUT_GEOMETRIES:

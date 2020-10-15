@@ -1,14 +1,13 @@
-from abc import ABCMeta, abstractmethod
 import csv
 import datetime as dt
 import json
 import os
+from abc import ABCMeta, abstractmethod
+
 import ogr
 
 from mapswipe_workers import auth
-from mapswipe_workers.definitions import DATA_PATH
-from mapswipe_workers.definitions import logger
-from mapswipe_workers.definitions import CustomError
+from mapswipe_workers.definitions import DATA_PATH, CustomError, logger
 from mapswipe_workers.utils import geojson_functions
 
 
@@ -51,26 +50,27 @@ class BaseProject(metaclass=ABCMeta):
            True if successful. False otherwise.
         """
 
+        self.contributorCount = 0
         self.created = dt.datetime.now()
         self.createdBy = project_draft["createdBy"]
-        self.groups = list()
         self.groupMaxSize = project_draft.get("groupMaxSize", 0)
-        self.resultCount = 0
+        self.groups = list()
         self.image = project_draft["image"]
         self.isFeatured = False
         self.lookFor = project_draft["lookFor"]
         self.name = project_draft["name"]
-        self.requiredResults = 0
         self.progress = 0
         self.projectDetails = project_draft["projectDetails"]
         self.projectId = project_draft["projectDraftId"]
-        self.projectType = int(project_draft["projectType"])
-        self.verificationNumber = project_draft["verificationNumber"]
-        self.projectTopic = project_draft.get("projectTopic", None)
-        self.projectRegion = project_draft.get("projectRegion", None)
         self.projectNumber = project_draft.get("projectNumber", None)
+        self.projectRegion = project_draft.get("projectRegion", None)
+        self.projectTopic = project_draft.get("projectTopic", None)
+        self.projectType = int(project_draft["projectType"])
         self.requestingOrganisation = project_draft.get("requestingOrganisation", None)
+        self.requiredResults = 0
+        self.resultCount = 0
         self.teamId = project_draft.get("teamId", None)
+        self.verificationNumber = project_draft["verificationNumber"]
         if not self.teamId:
             self.status = "inactive"  # this is a public project
         else:
@@ -392,11 +392,12 @@ class BaseProject(metaclass=ABCMeta):
 
     def save_to_files(self, project):
         """Save the project extent geometry as a GeoJSON file."""
-        if not os.path.isdir("{}/api/project_geometries".format(DATA_PATH)):
-            os.mkdir("{}/api/project_geometries".format(DATA_PATH))
 
-        outfile = (
-            f"{DATA_PATH}/api/project_geometries/project_geom_{self.projectId}.geojson"
+        outfile = os.path.join(
+            DATA_PATH,
+            "api",
+            "project_geometries",
+            "project_geom_{}.geojson".format(self.projectId),
         )
         wkt_geom = project["geometry"]
         geometries = [ogr.CreateGeometryFromWkt(wkt_geom)]

@@ -1,13 +1,15 @@
 import json
-import unittest
-from requests.exceptions import HTTPError
-import requests
 import re
+import unittest
 from typing import Dict
+
+import requests
 from firebase_admin.auth import UserRecord
-from mapswipe_workers.config import FIREBASE_DB, FIREBASE_API_KEY
+from requests.exceptions import HTTPError
+
 from mapswipe_workers.auth import firebaseDB
-from mapswipe_workers.definitions import logger, CustomError
+from mapswipe_workers.config import FIREBASE_API_KEY, FIREBASE_DB
+from mapswipe_workers.definitions import CustomError, logger
 from mapswipe_workers.utils import user_management
 
 
@@ -64,13 +66,13 @@ def setup_user(
     project_manager: bool, team_member: bool, team_id: str = ""
 ) -> UserRecord:
     if project_manager and team_member:
-        username = f"unittest-project-manager-and-team-member"
+        username = "unittest-project-manager-and-team-member"
     elif project_manager:
-        username = f"unittest-project-manager"
+        username = "unittest-project-manager"
     elif team_member:
-        username = f"unittest-team-member"
+        username = "unittest-team-member"
     else:
-        username = f"unittest-normal-user"
+        username = "unittest-normal-user"
 
     email = f"{username}@mapswipe.org"
     password = f"{username}_pw"
@@ -188,22 +190,22 @@ class TestFirebaseDBRules(unittest.TestCase):
         # generate all endpoints to test
         self.endpoints = [  # [path, custom_arguments]
             # projects
-            [f"/v2/projects", f'orderBy="status"&equalTo="active"&limitToFirst=20'],
+            ["/v2/projects", 'orderBy="status"&equalTo="active"&limitToFirst=20'],
             [f"/v2/projects/{self.public_project_id}/status", ""],
             [
-                f"/v2/projects",
+                "/v2/projects",
                 f'orderBy="teamId"&equalTo="{self.team_id}"&limitToFirst=20',
             ],
             [f"/v2/projects/{self.private_project_id}/status", ""],
             [
-                f"/v2/projects",
+                "/v2/projects",
                 f'orderBy="teamId"&equalTo="{self.team_id_b}"&limitToFirst=20',
             ],
             [f"/v2/projects/{self.private_project_id_b}/status", ""],
             # query for tutorial
             [
-                f"/v2/projects",
-                f'orderBy="status"&equalTo="build_area_tutorial"&limitToFirst=1',
+                "/v2/projects",
+                'orderBy="status"&equalTo="build_area_tutorial"&limitToFirst=1',
             ],
             # teams
             [f"/v2/teams/{self.team_id}", ""],
@@ -216,9 +218,9 @@ class TestFirebaseDBRules(unittest.TestCase):
             [f"/v2/tasks/{self.public_project_id}", ""],
             [f"/v2/tasks/{self.private_project_id}", ""],
             # users
-            [f"/v2/users/<user_id>", ""],
-            [f"/v2/users/<user_id>/teamId", ""],
-            [f"/v2/users/<user_id>/username", ""],
+            ["/v2/users/<user_id>", ""],
+            ["/v2/users/<user_id>/teamId", ""],
+            ["/v2/users/<user_id>/username", ""],
             # results
             [f"/v2/results/{self.public_project_id}/<group_id>/<user_id>", ""],
             [f"/v2/results/{self.private_project_id}/<group_id>/<user_id>", ""],

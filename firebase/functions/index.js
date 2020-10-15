@@ -5,143 +5,100 @@ const functions = require('firebase-functions')
 const admin = require('firebase-admin')
 admin.initializeApp()
 
-// Increments or Decrements various counter
-//
-// Gets triggered when new results of the group are written to the database.
-exports.counter = functions.database.ref('/v2/results/{projectId}/{groupId}/{userId}/').onCreate((snapshot, context) => {
-    const promises = []
+// Increments or decrements various counters of User and Group once new reults are pushed.
+// Gets triggered when new results of a group are written to the database.
+exports.resultCounter = functions.database.ref('/v2/results/{projectId}/{groupId}/{userId}/').onCreate((snapshot, context) => {
+    const promises = []  // List of promises to return
     const result = snapshot.val()
 
     // if result ref does not contain all required attributes we don't updated counters
     // e.g. due to some error when uploading from client
     if (!result.hasOwnProperty('results')) {
-        console.log('no results attribute for /v2/results/'+context.params.projectId+'/'+context.params.groupId+'/'+context.params.userId )
+        console.log('no results attribute for ' + snapshot.ref)
         console.log('will not update counters')
         return null
     } else if (!result.hasOwnProperty('endTime')) {
-        console.log('no endTime attribute for /v2/results/'+context.params.projectId+'/'+context.params.groupId+'/'+context.params.userId )
+        console.log('no endTime attribute for ' + snapshot.ref)
         console.log('will not update counters')
         return null
     } else if (!result.hasOwnProperty('startTime')) {
-        console.log('no startTime attribute for /v2/results/'+context.params.projectId+'/'+context.params.groupId+'/'+context.params.userId )
+        console.log('no startTime attribute for ' + snapshot.ref)
         console.log('will not update counters')
         return null
     }
 
-
     // Firebase Realtime Database references
-    const groupFinishedCountRef = admin.database().ref('/v2/groups/'+context.params.projectId+'/'+context.params.groupId+'/finishedCount')
-    const groupRequiredCountRef = admin.database().ref('/v2/groups/'+context.params.projectId+'/'+context.params.groupId+'/requiredCount')
-    const numberOfTasksRef      = admin.database().ref('/v2/groups/'+context.params.projectId+'/'+context.params.groupId+'/numberOfTasks')
+    const groupRef = admin.database().ref('/v2/groups/' + context.params.projectId + '/' + context.params.groupId)
+    const userRef = admin.database().ref('/v2/users/' + context.params.userId)
+    const userContributionRef = userRef.child('contributions/' + context.params.projectId)
 
-    const contributorsCountRef  = admin.database().ref('/v2/projects/'+context.params.projectId+'/contributorCount')
-
-    const taskContributionCountRef      = admin.database().ref('/v2/users/'+context.params.userId+'/taskContributionCount')
-    const groupContributionCountRef     = admin.database().ref('/v2/users/'+context.params.userId+'/groupContributionCount')
-    const projectContributionCountRef   = admin.database().ref('/v2/users/'+context.params.userId+'/projectContributionCount')
-    const contributionsRef              = admin.database().ref('/v2/users/'+context.params.userId+'/contributions/'+context.params.projectId)
-    const groupContributionsRef         = admin.database().ref('/v2/users/'+context.params.userId+'/contributions/'+context.params.projectId +'/'+context.params.groupId)
-    const totalTimeSpentMappingRef      = admin.database().ref('/v2/users/'+context.params.userId+'/timeSpentMapping')
-
-    const startTimeRef          = admin.database().ref('/v2/results/'+context.params.projectId+'/'+context.params.groupId+'/'+context.params.userId+'/startTime')
-    const endTimeRef            = admin.database().ref('/v2/results/'+context.params.projectId+'/'+context.params.groupId+'/'+context.params.userId+'/endTime')
-    const timeSpentMappingRef   = admin.database().ref('/v2/results/'+context.params.projectId+'/'+context.params.groupId+'/'+context.params.userId+'/timeSpentMappingRef')
-
-    // references for project based counters for tasks and groups
-    const projectTaskContributionCountRef      = admin.database().ref('/v2/users/'+context.params.userId+'/contributions/'+context.params.projectId+'/taskContributionCount')
-    const projectGroupContributionCountRef     = admin.database().ref('/v2/users/'+context.params.userId+'/contributions/'+context.params.projectId+'/groupContributionCount')
-
-    // Counter for groups
-    const groupFinishedCount = groupFinishedCountRef.transaction((currentCount) => {
-        return currentCount + 1
-    })
-    promises.push(groupFinishedCount)
-
-    const groupRequiredCount = groupRequiredCountRef.transaction((currentCount) => {
-        return currentCount - 1
-    })
-    promises.push(groupRequiredCount)
-
-    // Counter for projects
-    const contributorsCount = contributionsRef.once('value')
-        .then((dataSnapshot) => {
-            if (dataSnapshot.exists()) {
-                return null
-            }
-            else {
-                return contributorsCountRef.transaction((currentCount) => {
-                    return currentCount + 1
-                })
-            }
-        })
-    promises.push(contributorsCount)
-
-    // Counter for users
-    const projectContributionCount = contributionsRef.once('value')
-        .then((dataSnapshot) => {
-            if (dataSnapshot.exists()) {
-                return null
-            }
-            else {
-                return projectContributionCountRef.transaction((currentCount) => {
-                    return currentCount + 1
-                })
-            }
-        })
-    promises.push(projectContributionCount)
-
-    const groupContributionCount = groupContributionCountRef.transaction((currentCount) => {
+    // Counter for User contributions across Projects
+    const totalGroupContributionCount = userRef.child('groupContributionCount').transaction((currentCount) => {
         return currentCount + 1
     });
-    promises.push(groupContributionCount)
+    promises.push(totalGroupContributionCount)
 
-    const taskContributionCount = numberOfTasksRef.once('value')
+    const totalTaskContributionCount = groupRef.child('numberOfTasks').once('value')
         .then((dataSnapshot) => {
             const numberOfTasks = dataSnapshot.val()
             return numberOfTasks
         })
         .then((numberOfTasks) => {
-            return taskContributionCountRef.transaction((currentCount) => {
+            return userRef.child('taskContributionCount').transaction((currentCount) => {
+                return currentCount + numberOfTasks
+            })
+        })
+    promises.push(totalTaskContributionCount)
+
+    // Counter for User contributions on a distict Project
+    const groupContributionCount = userContributionRef.child('groupContributionCount').transaction((currentCount) => {
+        return currentCount + 1
+    });
+    promises.push(groupContributionCount)
+
+    const taskContributionCount = groupRef.child('numberOfTasks').once('value')
+        .then((dataSnapshot) => {
+            const numberOfTasks = dataSnapshot.val()
+            return numberOfTasks
+        })
+        .then((numberOfTasks) => {
+            return userContributionRef.child('taskContributionCount').transaction((currentCount) => {
                 return currentCount + numberOfTasks
             })
         })
     promises.push(taskContributionCount)
 
-    const contributions = groupContributionsRef.once('value')
+    const contributionTime = userContributionRef.child(context.params.groupId).once('value')
         .then((dataSnapshot) => {
             if (dataSnapshot.exists()) {
                 return null
             }
             else {
-            const data = {
-                'startTime': result['startTime'],
-                'endTime': result['endTime']
-             }
-             return groupContributionsRef.set(data)
+                const data = {
+                    'startTime': result['startTime'],
+                    'endTime': result['endTime']
+                }
+                return userContributionRef.child(context.params.groupId).set(data)
             }
         })
-    promises.push(contributions)
+    promises.push(contributionTime)
 
-    // counters for tasks and groups per user and per project
-    const projectTaskContributionCount = numberOfTasksRef.once('value')
-        .then((dataSnapshot) => {
-            const numberOfTasks = dataSnapshot.val()
-            return numberOfTasks
-        })
-        .then((numberOfTasks) => {
-            return projectTaskContributionCountRef.transaction((currentCount) => {
-                return currentCount + numberOfTasks
-            })
-        })
-    promises.push(projectTaskContributionCount)
-
-    // Counter for groups
-    const projectGroupContributionCount = projectGroupContributionCountRef.transaction((currentCount) => {
+    // Counter for Group
+    const groupFinishedCount = groupRef.child('finishedCount').transaction((currentCount) => {
         return currentCount + 1
-    });
-    promises.push(projectGroupContributionCount)
+    })
+    promises.push(groupFinishedCount)
+
+    const groupRequiredCount = groupRef.child('requiredCount').transaction((currentCount) => {
+        return currentCount - 1
+    })
+    promises.push(groupRequiredCount)
 
     // // TODO: Does not work
+    // const startTimeRef          = admin.database().ref('/v2/results/'+context.params.projectId+'/'+context.params.groupId+'/'+context.params.userId+'/startTime')
+    // const endTimeRef            = admin.database().ref('/v2/results/'+context.params.projectId+'/'+context.params.groupId+'/'+context.params.userId+'/endTime')
+    // const timeSpentMappingRef   = admin.database().ref('/v2/results/'+context.params.projectId+'/'+context.params.groupId+'/'+context.params.userId+'/timeSpentMappingRef')
+    //
     // const timeSpentMapping = timeSpentMappingRef.set((timeSpentMapping) => {
     //     const startTime = startTimeRef.once('value')
     //         .then((startTimePromise) => {
@@ -162,6 +119,26 @@ exports.counter = functions.database.ref('/v2/results/{projectId}/{groupId}/{use
     return Promise.all(promises)
 })
 
+// Counters to keep track of contributors and project contributions of Project and User.
+// Gets triggered when User contributes to new project.
+exports.contributionCounter = functions.database.ref('/v2/users/{userId}/contributions/{projectId}/').onCreate((snapshot, context) => {
+    const promises_2 = []
+    // Firebase Realtime Database references
+    const contributorCountRef           = admin.database().ref('/v2/projects/'+context.params.projectId+'/contributorCount')
+    const projectContributionCountRef   = admin.database().ref('/v2/users/'+context.params.userId+'/projectContributionCount')
+
+    const projectContributionCount = projectContributionCountRef.transaction((currentCount) => {
+        return currentCount + 1
+    })
+    promises_2.push(projectContributionCount)
+
+    const contributorCount = contributorCountRef.transaction((currentCount) => {
+        return currentCount + 1
+    })
+    promises_2.push(contributorCount)
+
+    return Promise.all(promises_2)
+})
 
 // Increment project.resultCount by group.numberOfTasks.
 // Or (Depending of increase or decrease of group.RequiredCount)
@@ -173,7 +150,7 @@ exports.counter = functions.database.ref('/v2/results/{projectId}/{groupId}/{use
 exports.projectCounter = functions.database.ref('/v2/groups/{projectId}/{groupId}/requiredCount/').onUpdate((groupRequiredCount, context) => {
     const groupNumberOfTasksRef     = admin.database().ref('/v2/groups/'+context.params.projectId+'/'+context.params.groupId+'/numberOfTasks')
     const projectResultCountRef     = admin.database().ref('/v2/projects/'+context.params.projectId+'/resultCount')
-    const projectRequiredResultsRef   = admin.database().ref('/v2/projects/'+context.params.projectId+'/requiredResults')
+    const projectRequiredResultsRef = admin.database().ref('/v2/projects/'+context.params.projectId+'/requiredResults')
 
     // if requiredCount ref does not contain any data do nothing
     if (!groupRequiredCount.after.exists()) {
@@ -248,7 +225,7 @@ exports.calcGroupProgress = functions.database.ref('/v2/groups/{projectId}/{grou
 // Gets triggered when project.resultCount gets changed.
 exports.incProjectProgress = functions.database.ref('/v2/projects/{projectId}/resultCount/').onUpdate((projectResultCount, context) => {
     const projectRequiredResultsRef = admin.database().ref('/v2/projects/'+context.params.projectId+'/requiredResults')
-    const projectProgressRef      = admin.database().ref('/v2/projects/'+context.params.projectId+'/progress')
+    const projectProgressRef = admin.database().ref('/v2/projects/'+context.params.projectId+'/progress')
 
     // if requiredCount ref does not contain any data do nothing
     if (!projectResultCount.after.exists()) {
@@ -274,7 +251,7 @@ exports.incProjectProgress = functions.database.ref('/v2/projects/{projectId}/re
 exports.decProjectProgress = functions.database.ref('/v2/projects/{projectId}/requiredResults/').onUpdate((projectRequiredResults, context) => {
 
     const projectResultCountRef = admin.database().ref('/v2/projects/'+context.params.projectId+'/resultCount')
-    const projectProgressRef      = admin.database().ref('/v2/projects/'+context.params.projectId+'/progress')
+    const projectProgressRef = admin.database().ref('/v2/projects/'+context.params.projectId+'/progress')
 
     // if requiredCount ref does not contain any data do nothing
     if (!projectRequiredResults.after.exists()) {

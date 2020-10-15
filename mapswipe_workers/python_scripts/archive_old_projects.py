@@ -1,8 +1,10 @@
-from mapswipe_workers import auth
-from mapswipe_workers.definitions import logger, CustomError
-from typing import Iterable
 import re
+from typing import Iterable
+
 from firebase_admin import exceptions
+
+from mapswipe_workers import auth
+from mapswipe_workers.definitions import CustomError, logger
 
 
 def chunks(data: list, size: int = 250) -> Iterable[list]:
@@ -86,7 +88,7 @@ def delete_other_old_data():
     fb_db.reference("imports").set({})
     fb_db.reference("results").set({})
     fb_db.reference("announcements").set({})
-    logger.info(f"deleted old results, imports, announcements")
+    logger.info("deleted old results, imports, announcements")
 
 
 def archive_old_projects():

@@ -1,10 +1,10 @@
 import unittest
 
-from mapswipe_workers import auth
-from mapswipe_workers.firebase_to_postgres import transfer_results
-
 import set_up
 import tear_down
+
+from mapswipe_workers import auth
+from mapswipe_workers.firebase_to_postgres import transfer_results
 
 
 class TestTranserResultsProject(unittest.TestCase):
@@ -25,8 +25,11 @@ class TestTranserResultsProject(unittest.TestCase):
         self.assertIsNone(ref.get())
 
         pg_db = auth.postgresDB()
-        sql_query = "SELECT * FROM results WHERE project_id = '{0}' AND user_id = '{0}'".format(
-            self.project_id
+        sql_query = (
+            f"SELECT * "
+            f"FROM results "
+            f"WHERE project_id = '{self.project_id}' "
+            f"AND user_id = '{self.project_id}'"
         )
         result = pg_db.retr_query(sql_query)
         self.assertIsNotNone(result)
@@ -40,8 +43,11 @@ class TestTranserResultsProject(unittest.TestCase):
         self.assertIsNone(ref.get())
 
         pg_db = auth.postgresDB()
-        sql_query = "SELECT * FROM results WHERE project_id = '{0}' and user_id = '{0}'".format(
-            self.project_id
+        sql_query = (
+            f"SELECT * "
+            f"FROM results "
+            f"WHERE project_id = '{self.project_id}' "
+            f"AND user_id = '{self.project_id}'"
         )
         result = pg_db.retr_query(sql_query)
         self.assertIsNotNone(result)
@@ -51,8 +57,10 @@ class TestTranserResultsProject(unittest.TestCase):
         pg_db = auth.postgresDB()
 
         # Make sure user and results are not yet in Postgres
-        sql_query = "DELETE FROM results WHERE user_id = '{0}' and project_id = '{0}'".format(
-            self.project_id
+        sql_query = (
+            f"DELETE FROM results "
+            f"WHERE user_id = '{self.project_id}' "
+            f"AND project_id = '{self.project_id}'"
         )
         pg_db.query(sql_query)
         sql_query = "DELETE FROM users WHERE user_id = '{0}'".format(self.project_id)
@@ -64,8 +72,11 @@ class TestTranserResultsProject(unittest.TestCase):
         result = pg_db.retr_query(sql_query)
         self.assertIsNotNone(result)
 
-        sql_query = "SELECT * FROM results WHERE project_id = '{0}' AND user_id = '{0}'".format(
-            self.project_id
+        sql_query = (
+            f"SELECT * "
+            f"FROM results "
+            f"WHERE project_id = '{self.project_id}' "
+            f"AND user_id = '{self.project_id}'"
         )
         result = pg_db.retr_query(sql_query)
         self.assertIsNotNone(result)

@@ -33,13 +33,16 @@ Welcome to MapSwipe Back-End's documentation!
    configuration
    installation
    cli
-   dev_setup
-   testing_and_travis
    debugging
    backup
 
 
+.. toctree::
+   :maxdepth: 2
+   :caption: Development:
 
+   dev_setup
+   testing_and_travis
 
 
 Indices and tables

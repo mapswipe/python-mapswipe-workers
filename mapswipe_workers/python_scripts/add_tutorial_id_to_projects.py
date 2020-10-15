@@ -1,6 +1,7 @@
 import sys
+
 from mapswipe_workers.auth import firebaseDB
-from mapswipe_workers.definitions import logger, ProjectType
+from mapswipe_workers.definitions import ProjectType, logger
 
 
 def get_all_projects_of_type(project_type: int):
@@ -16,7 +17,7 @@ def get_all_projects_of_type(project_type: int):
     for status in status_list:
         logger.info(f"query {status} projects")
         projects = (
-            fb_db.reference(f"v2/projects/")
+            fb_db.reference("v2/projects/")
             .order_by_child("status")
             .equal_to(status)
             .get()

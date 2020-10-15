@@ -1,5 +1,6 @@
 import csv
 import io
+
 import dateutil.parser
 
 from mapswipe_workers import auth
@@ -35,7 +36,7 @@ def transfer_results(project_id_list=None):
         project_id_list = fb_db.reference("v2/results/").get(shallow=True)
         if not project_id_list:
             project_id_list = []
-            logger.info(f"There are no results to transfer.")
+            logger.info("There are no results to transfer.")
 
     # get all project ids from postgres,
     # we will only transfer results for projects we have there
@@ -95,9 +96,7 @@ def results_to_file(results, projectId):
 
     w = csv.writer(results_file, delimiter="\t", quotechar="'")
 
-    logger.info(
-        f"Got %s groups for project {projectId} to transfer" % len(results.items())
-    )
+    logger.info(f"Got {len(results.items())} groups for project {projectId}")
     for groupId, users in results.items():
         for userId, results in users.items():
 
@@ -105,17 +104,45 @@ def results_to_file(results, projectId):
             # if not don't transfer the results for this group
             try:
                 start_time = results["startTime"]
-                end_time = results["endTime"]
-                results = results["results"]
             except KeyError as e:
                 sentry.capture_exception(e)
                 sentry.capture_message(
-                    f"at least one missing attribute for: "
+                    "missing attribute 'startTime' for: "
                     f"{projectId}/{groupId}/{userId}, will skip this one"
                 )
                 logger.exception(e)
                 logger.warning(
-                    f"at least one missing attribute for: "
+                    "missing attribute 'startTime' for: "
+                    f"{projectId}/{groupId}/{userId}, will skip this one"
+                )
+                continue
+
+            try:
+                end_time = results["endTime"]
+            except KeyError as e:
+                sentry.capture_exception(e)
+                sentry.capture_message(
+                    "missing attribute 'endTime' for: "
+                    f"{projectId}/{groupId}/{userId}, will skip this one"
+                )
+                logger.exception(e)
+                logger.warning(
+                    "missing attribute 'endTime' for: "
+                    f"{projectId}/{groupId}/{userId}, will skip this one"
+                )
+                continue
+
+            try:
+                results = results["results"]
+            except KeyError as e:
+                sentry.capture_exception(e)
+                sentry.capture_message(
+                    "missing attribute 'results' for: "
+                    f"{projectId}/{groupId}/{userId}, will skip this one"
+                )
+                logger.exception(e)
+                logger.warning(
+                    "missing attribute 'results' for: "
                     f"{projectId}/{groupId}/{userId}, will skip this one"
                 )
                 continue
@@ -169,7 +196,8 @@ def results_to_file(results, projectId):
 
 def save_results_to_postgres(results_file):
     """
-    Saves results to a temporary table in postgres using the COPY Statement of Postgres
+    Saves results to a temporary table in postgres
+    using the COPY Statement of Postgres
     for a more efficient import into the database.
 
     Parameters

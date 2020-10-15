@@ -1,5 +1,6 @@
 import os
 import unittest
+
 from mapswipe_workers.utils import tile_grouping_functions as t
 
 

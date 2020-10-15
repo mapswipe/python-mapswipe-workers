@@ -1,6 +1,7 @@
 from abc import ABCMeta, abstractmethod
+
 from mapswipe_workers import auth
-from mapswipe_workers.definitions import logger, CustomError
+from mapswipe_workers.definitions import CustomError, logger
 
 
 class BaseTutorial(metaclass=ABCMeta):

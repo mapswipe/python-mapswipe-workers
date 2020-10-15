@@ -1,17 +1,18 @@
 import csv
-from queue import Queue
 import threading
+from queue import Queue
+
 from osgeo import ogr
 
-from mapswipe_workers.definitions import logger
-from mapswipe_workers.definitions import DATA_PATH
-from mapswipe_workers.utils import tile_functions, geojson_functions
+from mapswipe_workers.definitions import DATA_PATH, logger
+from mapswipe_workers.utils import geojson_functions, tile_functions
 
 
 def load_data(project_id: str, csv_file: str) -> list:
     """
     This will load the aggregated results csv file into a list of dictionaries.
-    For further steps we currently rely on task_x, task_y, task_z and yes_share and maybe_share and wkt
+    For further steps we currently rely on task_x, task_y, task_z and yes_share and
+    maybe_share and wkt
     """
 
     project_data = []
@@ -97,7 +98,8 @@ def check_list_sum(x, range_val):
 def get_neighbour_list(neighbourhood_shape: str, neighbourhood_size: int) -> list:
     """
     Filters tiles that are neighbours.
-    This is based on a given search radius (neighbourhood size) and search window shape (neighbourhood shape=.
+    This is based on a given search radius (neighbourhood size) and search window shape
+    (neighbourhood shape=.
     """
 
     neighbour_list = []
@@ -278,12 +280,16 @@ def create_hot_tm_tasks(
     neighbourhood_size: int = 5,
 ) -> dict:
     """
-    This functions creates a dictionary of tiles which will be forming a task in the HOT Tasking Manager.
-    It will create a neighbourhood list, which will function as a mask to filter tiles that are close to each other.
+    This functions creates a dictionary of tiles which will be forming a task in the HOT
+    Tasking Manager.
+    It will create a neighbourhood list, which will function as a mask to filter tiles
+    that are close to each other.
     The functions assigns group ids to each tile.
     For tiles that got several group ids, this will be resolved in the next step.
-    Once each task has a unique group id, the function checks the size (number of tiles) for each group.
-    Groups that hold too many tiles (too big to map in the Tasking Manager) will be split into smaller groups.
+    Once each task has a unique group id, the function checks the size (number of tiles)
+    for each group.
+    Groups that hold too many tiles (too big to map in the Tasking Manager) will be
+    split into smaller groups.
     Finally, a dictionary is returned which holds each group as an item.
     Each group consists of a limited number of tiles.
     """
@@ -397,8 +403,8 @@ def create_hot_tm_tasks(
 
 def dissolve_project_data(project_data):
     """
-    This functions uses the unionCascaded function to return a dissolved MultiPolygon geometry
-    from several Single Part Polygon geometries.
+    This functions uses the unionCascaded function to return a dissolved MultiPolygon
+    geometry from several Single Part Polygon geometries.
     """
 
     multipolygon_geometry = ogr.Geometry(ogr.wkbMultiPolygon)
@@ -412,17 +418,18 @@ def dissolve_project_data(project_data):
 
 def generate_tasking_manager_geometries(project_id: str):
     """
-    This functions runs the workflow to create a GeoJSON file ready to be used in the HOT Tasking Manager.
+    This functions runs the workflow to create a GeoJSON file ready to be used in the
+    HOT Tasking Manager.
     First, data is loaded from the aggregated results csv file.
-    Then it filers results for which a defined threshold of yes and maybe classifications has been reached.
-    We then derive the Tasking Manager geometries, and a dissolved geometry of all filtered results.
+    Then it filers results for which a defined threshold of yes and maybe
+    classifications has been reached.
+    We then derive the Tasking Manager geometries, and a dissolved geometry of all
+    filtered results.
     Finally, both data sets are saved into GeoJSON files.
     """
 
     raw_data_filename = f"{DATA_PATH}/api/agg_results/agg_results_{project_id}.csv"
-    filtered_data_filename = (
-        f"{DATA_PATH}/api/yes_maybe/yes_maybe_{project_id}.geojson"
-    )
+    filtered_data_filename = f"{DATA_PATH}/api/yes_maybe/yes_maybe_{project_id}.geojson"
     tasking_manager_data_filename = (
         f"{DATA_PATH}/api/hot_tm/hot_tm_{project_id}.geojson"
     )

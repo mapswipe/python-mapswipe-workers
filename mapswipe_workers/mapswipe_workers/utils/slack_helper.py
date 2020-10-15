@@ -1,8 +1,8 @@
 import slack
-from mapswipe_workers.definitions import logger
+
 from mapswipe_workers import auth
 from mapswipe_workers.config import SLACK_CHANNEL, SLACK_TOKEN
-from mapswipe_workers.definitions import MessageType
+from mapswipe_workers.definitions import MessageType, logger
 
 
 def send_slack_message(
