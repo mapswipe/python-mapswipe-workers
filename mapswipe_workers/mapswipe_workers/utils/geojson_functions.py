@@ -2,8 +2,7 @@ import json
 import os
 import subprocess
 
-from osgeo import ogr
-from osgeo import osr
+from osgeo import ogr, osr
 
 from mapswipe_workers.definitions import logger
 

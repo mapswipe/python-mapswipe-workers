@@ -1,6 +1,5 @@
-from mapswipe_workers.definitions import logger
-from mapswipe_workers.definitions import DATA_PATH
-from mapswipe_workers.generate_stats import project_stats, overall_stats
+from mapswipe_workers.definitions import DATA_PATH, logger
+from mapswipe_workers.generate_stats import overall_stats, project_stats
 
 
 def generate_stats(project_id_list: list):
@@ -8,13 +7,15 @@ def generate_stats(project_id_list: list):
     Query attributes for all projects from postgres projects table
     Write information on status (e.g. active, inactive, finished) and further attributes
     for all projects to projects_static.csv.
-    Computationally more expensive tasks are only performed for projects specified in project_id_list.
+    Computationally more expensive tasks are only performed for projects specified in
+    project_id_list.
     Write information on progress and contributors and further attributes
     only for projects specified in project_id_list to projects_dynamic.csv.
     Write information on project progress history and aggregated results
     only for projects specified in project_id_list to csv and geojson files.
     Merge projects_static.csv and projects_dynamic.csv into projects.csv.
-    Convert projects.csv file into GeoJSON format using project geometry and project centroid.
+    Convert projects.csv file into GeoJSON format using project geometry and project
+    centroid.
 
     Parameters
     ----------
@@ -26,9 +27,7 @@ def generate_stats(project_id_list: list):
     projects_df = overall_stats.get_project_static_info(projects_info_filename)
     project_id_list_postgres = projects_df["project_id"].to_list()
 
-    projects_info_dynamic_filename = (
-        f"{DATA_PATH}/api/projects/projects_dynamic.csv"
-    )
+    projects_info_dynamic_filename = f"{DATA_PATH}/api/projects/projects_dynamic.csv"
     projects_dynamic_df = overall_stats.load_project_info_dynamic(
         projects_info_dynamic_filename
     )
@@ -83,7 +82,7 @@ def generate_stats_all_projects():
     then generates project statistics using the derived list of project ids
     """
 
-    logger.info(f"will generate stats for all projects.")
+    logger.info("will generate stats for all projects.")
 
     # get all project ids from postgres database
     projects_info_filename = f"{DATA_PATH}/api/projects/projects_static.csv"

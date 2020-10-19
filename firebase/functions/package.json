@@ -19,7 +19,7 @@
     "eslint-utils": "^1.4.1"
   },
   "engines": {
-    "node": "8"
+    "node": "10"
   },
   "private": true
 }

@@ -12,7 +12,8 @@ function getFormInput() {
         image: image,
         verificationNumber: parseInt(document.getElementById("verificationNumber").value),
         groupSize: parseInt(document.getElementById("groupSize").value),
-        createdBy: currentUid
+        createdBy: currentUid,
+        tutorialId: document.getElementById("tutorial").value
     }
     form_data.name = form_data.projectTopic + ' - ' +
         form_data.projectRegion +
@@ -21,8 +22,12 @@ function getFormInput() {
 
     // add teamId if visibility is not set to public
     visibility = document.getElementById("visibility").value
-    if (visibility != "public") {
+    if (visibility !== "public") {
         form_data.teamId = visibility
+        maxTasksPerUser = document.getElementById("maxTasksPerUser").value
+        if (maxTasksPerUser > 0) {
+            form_data.maxTasksPerUser = maxTasksPerUser
+        }
     }
 
     // add project type specific attributes

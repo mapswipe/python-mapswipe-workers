@@ -1,16 +1,18 @@
-import os
-from psycopg2 import sql
-import pandas as pd
 import datetime
+import os
 from typing import List
+
+import pandas as pd
+from psycopg2 import sql
+
 from mapswipe_workers import auth
-from mapswipe_workers.definitions import logger, DATA_PATH, sentry
-from mapswipe_workers.utils import geojson_functions, tile_functions
+from mapswipe_workers.definitions import DATA_PATH, ProjectType, logger, sentry
 from mapswipe_workers.generate_stats import (
     project_stats_by_date,
     tasking_manager_geometries,
     user_stats,
 )
+from mapswipe_workers.utils import geojson_functions, tile_functions
 
 
 def add_metadata_to_csv(filename: str):
@@ -139,6 +141,8 @@ def get_groups(filename: str, project_id: str) -> pd.DataFrame:
         logger.info(f"file {filename} already exists for {project_id}. skip download.")
         pass
     else:
+        # TODO: check how we use number_of_users_required
+        #   it can get you a wrong number, if more users finished than required
         sql_query = sql.SQL(
             """
             COPY (
@@ -282,7 +286,7 @@ def get_agg_results_by_task_id(
         lambda row: calc_agreement(row["total_count"], row[0], row[1], row[2], row[3]),
         axis=1,
     )
-    logger.info(f"calculated agreement")
+    logger.info("calculated agreement")
 
     # add quadkey
     results_by_task_id_df.reset_index(level=["task_id"], inplace=True)
@@ -294,7 +298,7 @@ def get_agg_results_by_task_id(
     agg_results_df = results_by_task_id_df.merge(
         tasks_df[["geom", "task_id"]], left_on="task_id", right_on="task_id"
     )
-    logger.info(f"added geometry to aggregated results")
+    logger.info("added geometry to aggregated results")
 
     # rename columns, ogr2ogr will fail otherwise
     agg_results_df.rename(
@@ -372,7 +376,11 @@ def get_per_project_statistics(project_id: str, project_info: pd.Series) -> dict
         )
 
         # generate geometries for HOT Tasking Manager
-        tasking_manager_geometries.generate_tasking_manager_geometries(project_id)
+        if project_info.iloc[0]["project_type"] in [ProjectType.FOOTPRINT.value]:
+            # do not do this for ArbitraryGeometry / BuildingFootprint projects
+            logger.info(f"do NOT generate tasking manager geometries for {project_id}")
+        else:
+            tasking_manager_geometries.generate_tasking_manager_geometries(project_id)
 
         # prepare output of function
         project_stats_dict = {

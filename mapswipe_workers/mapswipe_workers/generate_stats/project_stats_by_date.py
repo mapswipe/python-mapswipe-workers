@@ -1,5 +1,7 @@
 import datetime
+
 import pandas as pd
+
 from mapswipe_workers.definitions import logger
 
 
@@ -18,8 +20,8 @@ def calc_results_progress(
     """
 
     if cum_number_of_users <= number_of_users_required:
-        # this is the simplest case, the number of users is less than the required number of users
-        # all results contribute to progress
+        # this is the simplest case, the number of users is less than the required
+        # number of users all results contribute to progress
         number_of_results_progress = number_of_results
     elif (cum_number_of_users - number_of_users) < number_of_users_required:
         # the number of users is bigger than the number of users required
@@ -51,7 +53,8 @@ def get_progress_by_date(
     results_df: pd.DataFrame, groups_df: pd.DataFrame
 ) -> pd.DataFrame:
     """
-    for each project we retrospectively generate the following attributes for a given date utilizing the results:
+    for each project we retrospectively generate the following attributes for a given
+    date utilizing the results:
     number_of_results, cum_number_of_results, progress, cum_progress
     """
 
@@ -122,7 +125,8 @@ def get_progress_by_date(
 
 def get_contributors_by_date(results_df: pd.DataFrame) -> pd.DataFrame:
     """
-    for each project we retrospectively generate the following attributes for a given date utilizing the results:
+    for each project we retrospectively generate the following attributes for a given
+    date utilizing the results:
     number_of_users, number_of_new_users, cum_number_of_users
     """
 

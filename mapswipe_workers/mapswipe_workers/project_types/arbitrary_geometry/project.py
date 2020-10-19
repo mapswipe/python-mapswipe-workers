@@ -1,12 +1,14 @@
 import os
 import urllib.request
 
-from mapswipe_workers.project_types.base.project import BaseProject
+from osgeo import ogr
+
 from mapswipe_workers.definitions import DATA_PATH, CustomError, logger
 from mapswipe_workers.project_types.arbitrary_geometry import grouping_functions as g
 from mapswipe_workers.project_types.arbitrary_geometry.group import Group
 from mapswipe_workers.project_types.base.tile_server import BaseTileServer
 from osgeo import ogr
+from mapswipe_workers.project_types.base.project import BaseProject
 
 
 class Project(BaseProject):

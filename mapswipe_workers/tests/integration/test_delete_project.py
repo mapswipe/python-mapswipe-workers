@@ -1,12 +1,11 @@
 import unittest
-import time
+
+import set_up
+import tear_down
 
 from mapswipe_workers import auth
 from mapswipe_workers.definitions import CustomError
 from mapswipe_workers.firebase_to_postgres import delete_project
-
-import set_up
-import tear_down
 
 
 class TestDeleteProject(unittest.TestCase):
@@ -21,7 +20,6 @@ class TestDeleteProject(unittest.TestCase):
     def test_deletion(self):
         """Test if tasks, groups, project and results are deleted."""
         delete_project.delete_project([self.project_id])
-        time.sleep(1)
 
         fb_db = auth.firebaseDB()
         ref = fb_db.reference("v2/results/{0}".format(self.project_id))

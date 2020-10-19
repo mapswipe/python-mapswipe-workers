@@ -1,7 +1,6 @@
 """Command Line Interface for MapSwipe Workers."""
 
 import ast
-import json
 import time
 
 import click
@@ -22,7 +21,7 @@ from mapswipe_workers.firebase_to_postgres import (
     update_data,
 )
 from mapswipe_workers.generate_stats import generate_stats
-from mapswipe_workers.utils import user_management, team_management
+from mapswipe_workers.utils import team_management, user_management
 from mapswipe_workers.utils.create_directories import create_directories
 from mapswipe_workers.utils.slack_helper import (
     send_progress_notification,
@@ -144,16 +143,16 @@ def run_generate_stats_all_projects() -> None:
 
 @cli.command("user-management")
 @click.option(
-    "--email", help=f"The email of the MapSwipe user.", required=True, type=str
+    "--email", help="The email of the MapSwipe user.", required=True, type=str
 )
-@click.option("--team_id", "-i", help=f"The id of the team in Firebase.", type=str)
+@click.option("--team_id", "-i", help="The id of the team in Firebase.", type=str)
 @click.option(
     "--action",
     "-a",
     help=(
-        f"You can either add, remove manager-rights or "
-        f"add, remove user to/from a team. "
-        f"choices here"
+        "You can either add, remove manager-rights or "
+        "add, remove user to/from a team. "
+        "choices here"
     ),
     type=click.Choice(
         ["add-manager-rights", "remove-manager-right", "add-team", "remove-team"]
@@ -186,15 +185,15 @@ def run_user_management(email, action, team_id) -> None:
 @click.option(
     "--team_name",
     "-n",
-    help=f"The name of the team in Firebase for creation.",
+    help="The name of the team in Firebase for creation.",
     type=str,
 )
-@click.option("--team_id", "-i", help=f"The id of the team in Firebase.", type=str)
+@click.option("--team_id", "-i", help="The id of the team in Firebase.", type=str)
 @click.option(
     "--action",
     "-a",
     help=(
-        f"You can either create, delete teams or renew the teamToken. " f"choices here"
+        "You can either create, delete teams or renew the teamToken. " "choices here"
     ),
     type=click.Choice(
         ["create", "delete", "renew-team-token", "remove-all-team-members"]
@@ -257,24 +256,35 @@ def run_team_management(team_name, team_id, action) -> None:
         sentry.capture_exception()
 
 
-@cli.command("create-tutorial")
-@click.option(
-    "--input-file", help=(f"A JSON file of the tutorial."), required=True, type=str,
-)
-def run_create_tutorial(input_file) -> None:
-    """Create a tutorial project from provided JSON file."""
-    try:
-        logger.info(f"will generate tutorial based on {input_file}")
-        with open(input_file) as json_file:
-            tutorial_draft = json.load(json_file)
+@cli.command("create-tutorials")
+def run_create_tutorials() -> None:
+    fb_db = auth.firebaseDB()
+    ref = fb_db.reference("v2/tutorialDrafts/")
+    tutorial_drafts = ref.get()
+
+    if tutorial_drafts is None:
+        logger.info("There are no tutorial drafts in firebase.")
+        return None
+
+    for tutorial_draft_id, tutorial_draft in tutorial_drafts.items():
+        tutorial_draft["tutorialDraftId"] = tutorial_draft_id
         project_type = tutorial_draft["projectType"]
-        tutorial = ProjectType(project_type).tutorial(tutorial_draft)
-        tutorial.create_tutorial_groups()
-        tutorial.create_tutorial_tasks()
-        tutorial.save_tutorial()
-    except Exception:
-        logger.exception("Tutorials could not be created.")
-        sentry.capture_exception()
+        project_name = tutorial_draft["name"]
+
+        try:
+            tutorial = ProjectType(project_type).tutorial(tutorial_draft)
+            tutorial.create_tutorial_groups()
+            tutorial.create_tutorial_tasks()
+            tutorial.save_tutorial()
+            send_slack_message(MessageType.SUCCESS, project_name, tutorial.projectId)
+            logger.info(f"Success: Tutorial Creation ({project_name})")
+        except CustomError:
+            ref = fb_db.reference(f"v2/tutorialDrafts/{tutorial_draft_id}")
+            ref.set({})
+            send_slack_message(MessageType.FAIL, project_name, tutorial.projectId)
+            logger.exception("Failed: Project Creation ({0}))".format(project_name))
+            sentry.capture_exception()
+        continue
 
 
 @cli.command("archive")
@@ -286,9 +296,9 @@ def run_create_tutorial(input_file) -> None:
     cls=PythonLiteralOption,
     default="[]",
     help=(
-        f"Archive multiple projects. "
-        f"Provide project id strings as a list: "
-        f"""["project_a", "project_b"]"""
+        "Archive multiple projects. "
+        "Provide project id strings as a list: "
+        """["project_a", "project_b"]"""
     ),
 )
 def run_archive_project(project_id, project_ids):
@@ -314,9 +324,9 @@ def run_archive_project(project_id, project_ids):
     cls=PythonLiteralOption,
     default="[]",
     help=(
-        f"Delete multiple projects. "
-        f"Provide project id strings as a list: "
-        f"""["project_a", "project_b"]"""
+        "Delete multiple projects. "
+        "Provide project id strings as a list: "
+        """["project_a", "project_b"]"""
     ),
 )
 def run_delete_project(project_id, project_ids):
@@ -362,6 +372,7 @@ def run(context, schedule):
     def _run():
         logger.info("start mapswipe backend workflow.")
         context.invoke(run_create_projects)
+        context.invoke(run_create_tutorials)
         project_ids = context.invoke(run_firebase_to_postgres)
         context.invoke(run_generate_stats, project_ids=project_ids)
 

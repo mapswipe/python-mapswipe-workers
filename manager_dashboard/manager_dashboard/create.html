@@ -66,6 +66,9 @@
           <a class="nav-link" href="create.html">CREATE PROJECTS</a>
         </li>
         <li class="nav-item">
+          <a class="nav-link" href="tutorial.html">CREATE TUTORIAL</a>
+        </li>
+        <li class="nav-item">
           <a class="nav-link" href="manage.html">MANAGE PROJECTS</a>
         </li>
         <li class="nav-item">
@@ -141,7 +144,7 @@
                           </li>
                           <li>
                               <label for="visibility">Visibility</label>
-                              <select name="visibility" id="visibility">
+                              <select name="visibility" id="visibility" onchange="displayTeamSettings(this.value)">
                                   <option value="public">Public</option>
                               </select>
                               <span>Choose either "public" or select the team for which this project should be displayed.</span>
@@ -160,6 +163,12 @@
                                   <option value="completeness">Completeness</option>
                               </select>
                               <span>Select the type of your project.</span>
+                          </li>
+                          <li>
+                              <label for="tutorial">Tutorial</label>
+                              <select name="tutorial" id="tutorial">
+                              </select>
+                              <span>Choose which tutorial should be used for this project. Make sure that this aligns with what you are looking for.</span>
                           </li>
                           <li>
                               <label for="projectDetails">Project Details</label>
@@ -228,6 +237,19 @@
                               <label for="inputTaskGeometries">Input Geometries File (Direct Link)</label>
                               <input type="text" name="inputTaskGeometries" id="inputTaskGeometries">
                               <span>Provide a direct link to a GeoJSON file containing your building footprint geometries.</span>
+                          </li>
+                          <li></li>
+                          </ul>
+                      </form>
+                  </div>
+                  <div class="container" id="form_team_settings">
+                      <h3>Team Settings</h3>
+                      <form class="form-style-7">
+                          <ul>
+                          <li>
+                              <label for="maxTasksPerUser">Max Tasks Per User</label>
+                              <input type="number" name="maxTasksPerUser" id="maxTasksPerUser" value="-1" min="-1">
+                              <span>How many tasks each user is allowed to work on for this project. "-1" indicates that no limit is set.</span>
                           </li>
                           <li></li>
                           </ul>
