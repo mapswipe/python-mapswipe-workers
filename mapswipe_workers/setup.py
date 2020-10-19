@@ -16,7 +16,7 @@ setup(
     author="B. Herfort, M. Schaub, M. Reinmuth",
     author_email="",
     url="www.mapswipe.org",
-    packages=find_packages(exclude=("docs")),
+    packages=find_packages(exclude=("docs", "python_scripts")),
     install_requires=requirements,
     entry_points=console_scripts,
 )
