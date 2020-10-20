@@ -18,6 +18,9 @@ class Task(BaseTask):
         super().__init__(group, taskId=task_id)
         self.geojson = featureGeometry
 
+        self.projectId = None
+        self.groupId = None
+
         # create wkt geometry from geojson
         poly = ogr.CreateGeometryFromJson(str(featureGeometry))
         wkt_geometry = poly.ExportToWkt()
