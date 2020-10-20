@@ -215,7 +215,8 @@ class BaseProject(metaclass=ABCMeta):
             c += 1
             if self.projectType in [ProjectType.FOOTPRINT.value]:
                 # we compress data for footprint project type
-                compressed_tasks = gzip_str.gzip_str(str(tasks_list))
+                string_tasks = str(tasks_list).replace(" ", "")
+                compressed_tasks = gzip_str.gzip_str(string_tasks)
                 encoded_tasks = base64.b64encode(compressed_tasks)
                 task_upload_dict[f"v2/tasks/{self.projectId}/{group_id}"] = encoded_tasks
             else:
