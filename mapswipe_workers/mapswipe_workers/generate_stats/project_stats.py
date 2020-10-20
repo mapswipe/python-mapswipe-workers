@@ -6,7 +6,7 @@ import pandas as pd
 from psycopg2 import sql
 
 from mapswipe_workers import auth
-from mapswipe_workers.definitions import DATA_PATH, logger, sentry
+from mapswipe_workers.definitions import DATA_PATH, ProjectType, logger, sentry
 from mapswipe_workers.generate_stats import (
     project_stats_by_date,
     tasking_manager_geometries,
@@ -141,6 +141,8 @@ def get_groups(filename: str, project_id: str) -> pd.DataFrame:
         logger.info(f"file {filename} already exists for {project_id}. skip download.")
         pass
     else:
+        # TODO: check how we use number_of_users_required
+        #   it can get you a wrong number, if more users finished than required
         sql_query = sql.SQL(
             """
             COPY (
@@ -374,7 +376,11 @@ def get_per_project_statistics(project_id: str, project_info: pd.Series) -> dict
         )
 
         # generate geometries for HOT Tasking Manager
-        tasking_manager_geometries.generate_tasking_manager_geometries(project_id)
+        if project_info.iloc[0]["project_type"] in [ProjectType.FOOTPRINT.value]:
+            # do not do this for ArbitraryGeometry / BuildingFootprint projects
+            logger.info(f"do NOT generate tasking manager geometries for {project_id}")
+        else:
+            tasking_manager_geometries.generate_tasking_manager_geometries(project_id)
 
         # prepare output of function
         project_stats_dict = {

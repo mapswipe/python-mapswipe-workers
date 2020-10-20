@@ -46,7 +46,7 @@ function getFormInput() {
             break;
         case "footprint":
             form_data.projectType = 2;
-            form_data.input_geometries = document.getElementById("inputTaskGeometries").value;
+            form_data.inputGeometries = document.getElementById("inputTaskGeometries").value;
             form_data.tileServer = {
               name: document.getElementById("tileServerAName").value,
               url: document.getElementById("tileServerAUrl").value,
