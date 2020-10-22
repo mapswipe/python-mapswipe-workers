@@ -7,7 +7,6 @@ from mapswipe_workers.definitions import DATA_PATH, CustomError, logger
 from mapswipe_workers.project_types.arbitrary_geometry import grouping_functions as g
 from mapswipe_workers.project_types.arbitrary_geometry.group import Group
 from mapswipe_workers.project_types.base.tile_server import BaseTileServer
-from osgeo import ogr
 from mapswipe_workers.project_types.base.project import BaseProject
 
 
@@ -145,7 +144,9 @@ class Project(BaseProject):
 
         for group_id, item in raw_groups.items():
             group = Group(self, group_id)
-            group.create_tasks(item["feature_ids"], item["feature_geometries"])
+            group.create_tasks(
+                item["feature_ids"], item["feature_geometries"], item["center_points"]
+            )
             self.groups.append(group)
 
         logger.info(
