@@ -18,8 +18,9 @@ class Task(BaseTask):
         super().__init__(group, taskId=task_id)
         self.geojson = featureGeometry
 
-        self.projectId = None
-        self.groupId = None
+        # Remove projectId and groupId for tasks of Footprint project type
+        del self.projectId
+        del self.groupId
 
         # create wkt geometry from geojson
         poly = ogr.CreateGeometryFromJson(str(featureGeometry))
