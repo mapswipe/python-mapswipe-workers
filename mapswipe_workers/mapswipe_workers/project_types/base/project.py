@@ -1,3 +1,4 @@
+import base64
 import csv
 import datetime as dt
 import json
@@ -6,12 +7,9 @@ from abc import ABCMeta, abstractmethod
 
 import ogr
 
-import base64
-
 from mapswipe_workers import auth
-from mapswipe_workers.definitions import DATA_PATH, CustomError, logger
+from mapswipe_workers.definitions import DATA_PATH, CustomError, ProjectType, logger
 from mapswipe_workers.utils import geojson_functions, gzip_str
-from mapswipe_workers.definitions import ProjectType
 
 
 class BaseProject(metaclass=ABCMeta):
@@ -215,10 +213,14 @@ class BaseProject(metaclass=ABCMeta):
             c += 1
             if self.projectType in [ProjectType.FOOTPRINT.value]:
                 # we compress tasks for footprint project type using gzip
-                json_string_tasks = json.dumps(tasks_list).replace(" ", "").replace("\n", "")
+                json_string_tasks = (
+                    json.dumps(tasks_list).replace(" ", "").replace("\n", "")
+                )
                 compressed_tasks = gzip_str.gzip_str(json_string_tasks)
                 encoded_tasks = base64.b64encode(compressed_tasks)
-                task_upload_dict[f"v2/tasks/{self.projectId}/{group_id}"] = encoded_tasks
+                task_upload_dict[
+                    f"v2/tasks/{self.projectId}/{group_id}"
+                ] = encoded_tasks
             else:
                 task_upload_dict[f"v2/tasks/{self.projectId}/{group_id}"] = tasks_list
 

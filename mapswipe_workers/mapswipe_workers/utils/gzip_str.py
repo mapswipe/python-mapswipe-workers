@@ -6,7 +6,7 @@ def gzip_str(string_: str) -> bytes:
     """Produce a complete gzip-compatible binary string."""
     out = io.BytesIO()
 
-    with gzip.GzipFile(fileobj=out, mode='w') as fo:
+    with gzip.GzipFile(fileobj=out, mode="w") as fo:
         fo.write(string_.encode())
 
     bytes_obj = out.getvalue()
