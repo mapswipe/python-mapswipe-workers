@@ -288,6 +288,8 @@ def get_vertical_slice(slice_infos, zoom, width_threshold=40):
 
 
 def adjust_overlapping_groups(groups, zoom):
+    # TODO: make sure that this does not break group size
+    #   group x size should always be even
     def groups_intersect():
         # returns True if groups intersect
         return (
@@ -334,6 +336,9 @@ def adjust_overlapping_groups(groups, zoom):
                 elif x_min <= x_maxB:  # intersection on right side
                     new_x_min = int(x_maxB) + 1
                     new_x_max = int(x_max)
+
+                x_group_size = new_x_max - new_x_min + 1
+                print(new_x_max, new_x_min, x_group_size)
 
                 # Calculate lat, lon of upper left corner of tile
                 PixelX = int(new_x_min) * 256

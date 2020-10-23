@@ -14,14 +14,6 @@ class TestGroupSizeIsEven(unittest.TestCase):
 
         self.groups_dict = t.extent_to_groups(project_extent_file, zoom, 100)
 
-    def test_group_x_size_is_even(self):
-        """Test if a group has an even number of tiles in x direction."""
-
-        for group_id, group in self.groups_dict.items():
-            # check if group size is of factor 6
-            x_group_size = int(group['xMax']) - int(group['xMin']) + 1
-            self.assertEqual(x_group_size % 2, 0)
-
     def test_group_y_size_is_three(self):
         """Test if a group has 3 tiles in y direction."""
 
@@ -29,6 +21,14 @@ class TestGroupSizeIsEven(unittest.TestCase):
             # check if group size is of factor 6
             y_group_size = int(group['yMax']) - int(group['yMin']) + 1
             self.assertEqual(y_group_size, 3)
+
+    def test_group_x_size_is_even(self):
+        """Test if a group has an even number of tiles in x direction."""
+
+        for group_id, group in self.groups_dict.items():
+            # check if group size is of factor 6
+            x_group_size = int(group['xMax']) - int(group['xMin']) + 1
+            self.assertEqual(x_group_size % 2, 0)
 
 
 if __name__ == "__main__":
