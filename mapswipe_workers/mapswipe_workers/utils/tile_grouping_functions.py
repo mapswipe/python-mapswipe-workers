@@ -199,8 +199,6 @@ def get_vertical_slice(slice_infos, zoom, width_threshold=40):
         # sometimes we get really really small polygones, skip these
         if horizontal_slice.GetArea() < 0.0000001:
             continue
-            logger.info("polygon area: %s" % horizontal_slice.GetArea())
-            logger.info("skipped this polygon")
 
         extent = horizontal_slice.GetEnvelope()
         xmin = extent[0]
@@ -221,7 +219,7 @@ def get_vertical_slice(slice_infos, zoom, width_threshold=40):
         # we don't compute tile y top and tile y botton coordinates again,
         # but get the ones from the list
         # doing so we can avoid problems due to rounding errors
-        # and resulting in wrong tile coordinates
+        # which result in wrong tile coordinates
         TileY_top = slice_infos["tile_y_top"][p]
         TileY_bottom = slice_infos["tile_y_bottom"][p]
 
@@ -233,14 +231,22 @@ def get_vertical_slice(slice_infos, zoom, width_threshold=40):
         # avoid zero division error and check if cols is smaller than zero
         if cols < 1:
             continue
+
         # how wide should the group be, calculate from total width
         # and do equally for all slices
         step_size = math.ceil(TileWidth / cols)
+
+        # the step_size should be always and even number
+        # this will make sure that there will be always 6 tasks per screen
+        if step_size % 2 == 1:
+            step_size += 1
 
         for i in range(0, cols):
             # we need to make sure that geometries are not clipped at the edge
             if i == (cols - 1):
                 step_size = TileX_right - TileX + 1
+                if step_size % 2 == 1:
+                    step_size += 1
 
             # Calculate lat, lon of upper left corner of tile
             PixelX = TileX * 256
