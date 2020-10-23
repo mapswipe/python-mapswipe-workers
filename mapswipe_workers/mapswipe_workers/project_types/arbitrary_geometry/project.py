@@ -146,7 +146,10 @@ class Project(BaseProject):
         for group_id, item in raw_groups.items():
             group = Group(self, group_id)
             group.create_tasks(item["feature_ids"], item["feature_geometries"])
-            self.groups.append(group)
+
+            # only append valid groups
+            if group.is_valid():
+                self.groups.append(group)
 
         logger.info(
             f"{self.projectId} " f"- create_groups - " f"created groups dictionary"
