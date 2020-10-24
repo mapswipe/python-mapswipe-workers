@@ -18,7 +18,7 @@ class TestGroupSizeIsEven(unittest.TestCase):
         """Test if a group has 3 tiles in y direction."""
 
         for group_id, group in self.groups_dict.items():
-            # check if group size is of factor 6
+            # check if height is 3
             y_group_size = int(group["yMax"]) - int(group["yMin"]) + 1
             self.assertEqual(y_group_size, 3)
 
@@ -26,7 +26,7 @@ class TestGroupSizeIsEven(unittest.TestCase):
         """Test if a group has an even number of tiles in x direction."""
 
         for group_id, group in self.groups_dict.items():
-            # check if group size is of factor 6
+            # check if group x size is of factor 2
             x_group_size = int(group["xMax"]) - int(group["xMin"]) + 1
             self.assertEqual(x_group_size % 2, 0)
 
