@@ -315,9 +315,7 @@ def adjust_overlapping_groups(groups, zoom):
         # Calculate lat, lon of bottom right corner of tile
         PixelX = (int(new_x_max) + 1) * 256
         PixelY = int(y_min) * 256
-        lon_right, lat_bottom = t.pixel_coords_zoom_to_lat_lon(
-            PixelX, PixelY, zoom
-        )
+        lon_right, lat_bottom = t.pixel_coords_zoom_to_lat_lon(PixelX, PixelY, zoom)
 
         # Create Geometry
         ring = ogr.Geometry(ogr.wkbLinearRing)
@@ -419,7 +417,9 @@ def extent_to_groups(infile, zoom, groupSize):
         if c == 5:
             break
 
-        groups_dict, overlaps_total = adjust_overlapping_groups(groups_dict.copy(), zoom)
+        groups_dict, overlaps_total = adjust_overlapping_groups(
+            groups_dict.copy(), zoom
+        )
 
     return groups_dict
 
