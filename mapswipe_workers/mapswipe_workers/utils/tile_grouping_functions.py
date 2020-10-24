@@ -288,8 +288,6 @@ def get_vertical_slice(slice_infos, zoom, width_threshold=40):
 
 
 def adjust_overlapping_groups(groups, zoom):
-    # TODO: make sure that this does not break group size
-    #   group x size should always be even
     def groups_intersect():
         # returns True if groups intersect
         return (
@@ -298,6 +296,48 @@ def adjust_overlapping_groups(groups, zoom):
             and (int(y_min) <= int(y_maxB))
             and (int(y_minB) <= int(y_max))
         )
+
+    def merge_groups():
+        # if two groups overlap, merge into one group
+        new_x_min = min([int(x_min), int(x_minB)])
+        new_x_max = max([int(x_max), int(x_maxB)])
+
+        # check if group_x_size is even and adjust new_x_max
+        if (new_x_max - new_x_min + 1) % 2 == 1:
+            new_x_max += 1
+
+        # Calculate lat, lon of upper left corner of tile
+        PixelX = int(new_x_min) * 256
+        PixelY = (int(y_max) + 1) * 256
+        lon_left, lat_top = t.pixel_coords_zoom_to_lat_lon(PixelX, PixelY, zoom)
+        # logging.info('lon_left: %s, lat_top: %s' % (lon_left, lat_top))
+
+        # Calculate lat, lon of bottom right corner of tile
+        PixelX = (int(new_x_max) + 1) * 256
+        PixelY = int(y_min) * 256
+        lon_right, lat_bottom = t.pixel_coords_zoom_to_lat_lon(
+            PixelX, PixelY, zoom
+        )
+
+        # Create Geometry
+        ring = ogr.Geometry(ogr.wkbLinearRing)
+        ring.AddPoint(lon_left, lat_top)
+        ring.AddPoint(lon_right, lat_top)
+        ring.AddPoint(lon_right, lat_bottom)
+        ring.AddPoint(lon_left, lat_bottom)
+        ring.AddPoint(lon_left, lat_top)
+        poly = ogr.Geometry(ogr.wkbPolygon)
+        poly.AddGeometry(ring)
+
+        new_group = {
+            "xMin": str(new_x_min),
+            "xMax": str(new_x_max),
+            "yMin": str(y_min),
+            "yMax": str(y_max),
+            "group_polygon": poly,
+        }
+
+        return new_group
 
     groups_without_overlap = {}
     overlaps_total = 0
@@ -326,50 +366,9 @@ def adjust_overlapping_groups(groups, zoom):
 
             if groups_intersect():
                 overlap_count += 1
-
-                # define new x_min and x_max
-                # add info to groups_dict
-                # depending on intersection x_min or x_max need to change
-                if x_max >= x_minB:  # intersection on left side
-                    new_x_min = int(x_min)
-                    new_x_max = int(x_minB) - 1
-                elif x_min <= x_maxB:  # intersection on right side
-                    new_x_min = int(x_maxB) + 1
-                    new_x_max = int(x_max)
-
-                x_group_size = new_x_max - new_x_min + 1
-                print(new_x_max, new_x_min, x_group_size)
-
-                # Calculate lat, lon of upper left corner of tile
-                PixelX = int(new_x_min) * 256
-                PixelY = (int(y_max) + 1) * 256
-                lon_left, lat_top = t.pixel_coords_zoom_to_lat_lon(PixelX, PixelY, zoom)
-                # logging.info('lon_left: %s, lat_top: %s' % (lon_left, lat_top))
-
-                # Calculate lat, lon of bottom right corner of tile
-                PixelX = (int(new_x_max) + 1) * 256
-                PixelY = int(y_min) * 256
-                lon_right, lat_bottom = t.pixel_coords_zoom_to_lat_lon(
-                    PixelX, PixelY, zoom
-                )
-
-                # Create Geometry
-                ring = ogr.Geometry(ogr.wkbLinearRing)
-                ring.AddPoint(lon_left, lat_top)
-                ring.AddPoint(lon_right, lat_top)
-                ring.AddPoint(lon_right, lat_bottom)
-                ring.AddPoint(lon_left, lat_bottom)
-                ring.AddPoint(lon_left, lat_top)
-                poly = ogr.Geometry(ogr.wkbPolygon)
-                poly.AddGeometry(ring)
-
-                groups_without_overlap[group_id] = {
-                    "xMin": str(new_x_min),
-                    "xMax": str(new_x_max),
-                    "yMin": str(y_min),
-                    "yMax": str(y_max),
-                    "group_polygon": poly,
-                }
+                new_group = merge_groups()
+                del groups[group_id_b]
+                groups_without_overlap[group_id] = new_group
 
         if overlap_count == 0:
             groups_without_overlap[group_id] = groups[group_id]
@@ -377,7 +376,7 @@ def adjust_overlapping_groups(groups, zoom):
         del groups[group_id]
         overlaps_total += overlap_count
 
-    print(f"overlaps_total: {overlaps_total}")
+    logger.info(f"overlaps_total: {overlaps_total}")
     return groups_without_overlap, overlaps_total
 
 
@@ -410,8 +409,17 @@ def extent_to_groups(infile, zoom, groupSize):
     raw_groups_dict = get_vertical_slice(horizontal_slice_infos, zoom, groupSize)
 
     # finally remove overlapping groups
-    # TODO: add this line once properly working
     groups_dict, overlaps_total = adjust_overlapping_groups(raw_groups_dict, zoom)
+
+    # check if there are still overlaps
+    c = 0
+    while overlaps_total > 0:
+        c += 1
+        # avoid that this runs forever
+        if c == 5:
+            break
+
+        groups_dict, overlaps_total = adjust_overlapping_groups(groups_dict.copy(), zoom)
 
     return groups_dict
 
