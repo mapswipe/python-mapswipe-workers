@@ -14,14 +14,12 @@ class TestGroupSizeIsEven(unittest.TestCase):
 
         self.groups_dict = t.extent_to_groups(project_extent_file, zoom, 100)
 
-        t.vertical_groups_as_geojson(self.groups_dict, "test_group_size.geojson")
-
     def test_group_y_size_is_three(self):
         """Test if a group has 3 tiles in y direction."""
 
         for group_id, group in self.groups_dict.items():
             # check if group size is of factor 6
-            y_group_size = int(group['yMax']) - int(group['yMin']) + 1
+            y_group_size = int(group["yMax"]) - int(group["yMin"]) + 1
             self.assertEqual(y_group_size, 3)
 
     def test_group_x_size_is_even(self):
@@ -29,7 +27,7 @@ class TestGroupSizeIsEven(unittest.TestCase):
 
         for group_id, group in self.groups_dict.items():
             # check if group size is of factor 6
-            x_group_size = int(group['xMax']) - int(group['xMin']) + 1
+            x_group_size = int(group["xMax"]) - int(group["xMin"]) + 1
             self.assertEqual(x_group_size % 2, 0)
 
 

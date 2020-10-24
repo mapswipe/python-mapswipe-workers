@@ -15,7 +15,7 @@ class TestGroupsOverlap(unittest.TestCase):
         )
 
         groups_with_overlaps = t.extent_to_groups(project_extent_file, zoom, 100)
-        self.assertEqual(len(groups_with_overlaps), 117)
+        self.assertEqual(len(groups_with_overlaps), 92)
 
 
 if __name__ == "__main__":

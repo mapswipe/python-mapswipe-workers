@@ -288,6 +288,8 @@ def get_vertical_slice(slice_infos, zoom, width_threshold=40):
 
 
 def adjust_overlapping_groups(groups, zoom):
+    """Loop through groups dict and merge overlapping groups."""
+
     def groups_intersect():
         # returns True if groups intersect
         return (
@@ -298,6 +300,13 @@ def adjust_overlapping_groups(groups, zoom):
         )
 
     def merge_groups():
+        """Merge two overlapping groups into a single group.
+
+        This can result in groups that are "longer" than
+        the groups set in the first place and they can be
+        longer than the initial groupSize defined by the project
+        manager.
+        """
         # if two groups overlap, merge into one group
         new_x_min = min([int(x_min), int(x_minB)])
         new_x_max = max([int(x_max), int(x_maxB)])
