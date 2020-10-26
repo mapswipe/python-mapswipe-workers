@@ -1,5 +1,7 @@
 from abc import ABCMeta, abstractmethod
 
+from mapswipe_workers.definitions import logger
+
 
 class BaseGroup(metaclass=ABCMeta):
     """
@@ -54,3 +56,11 @@ class BaseGroup(metaclass=ABCMeta):
         and saved to the numberOfTasks attribute of the group object.
         """
         pass
+
+    def is_valid(self):
+        """Check if a group contains any tasks"""
+        if self.numberOfTasks > 0:
+            return True
+        else:
+            logger.info(f"group is not valid: {self.groupId}")
+            return False

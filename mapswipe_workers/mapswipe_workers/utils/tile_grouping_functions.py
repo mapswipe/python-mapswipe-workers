@@ -199,8 +199,6 @@ def get_vertical_slice(slice_infos, zoom, width_threshold=40):
         # sometimes we get really really small polygones, skip these
         if horizontal_slice.GetArea() < 0.0000001:
             continue
-            logger.info("polygon area: %s" % horizontal_slice.GetArea())
-            logger.info("skipped this polygon")
 
         extent = horizontal_slice.GetEnvelope()
         xmin = extent[0]
@@ -221,7 +219,7 @@ def get_vertical_slice(slice_infos, zoom, width_threshold=40):
         # we don't compute tile y top and tile y botton coordinates again,
         # but get the ones from the list
         # doing so we can avoid problems due to rounding errors
-        # and resulting in wrong tile coordinates
+        # which result in wrong tile coordinates
         TileY_top = slice_infos["tile_y_top"][p]
         TileY_bottom = slice_infos["tile_y_bottom"][p]
 
@@ -233,14 +231,22 @@ def get_vertical_slice(slice_infos, zoom, width_threshold=40):
         # avoid zero division error and check if cols is smaller than zero
         if cols < 1:
             continue
+
         # how wide should the group be, calculate from total width
         # and do equally for all slices
         step_size = math.ceil(TileWidth / cols)
+
+        # the step_size should be always and even number
+        # this will make sure that there will be always 6 tasks per screen
+        if step_size % 2 == 1:
+            step_size += 1
 
         for i in range(0, cols):
             # we need to make sure that geometries are not clipped at the edge
             if i == (cols - 1):
                 step_size = TileX_right - TileX + 1
+                if step_size % 2 == 1:
+                    step_size += 1
 
             # Calculate lat, lon of upper left corner of tile
             PixelX = TileX * 256
@@ -281,15 +287,85 @@ def get_vertical_slice(slice_infos, zoom, width_threshold=40):
     return raw_groups
 
 
+def groups_intersect(group_a, group_b):
+    """Check if groups intersect."""
+    x_max = int(group_a["xMax"])
+    x_min = int(group_a["xMin"])
+    y_max = int(group_a["yMax"])
+    y_min = int(group_a["yMin"])
+
+    x_maxB = int(group_b["xMax"])
+    x_minB = int(group_b["xMin"])
+    y_maxB = int(group_b["yMax"])
+    y_minB = int(group_b["yMin"])
+
+    return (
+        (x_min <= x_maxB)
+        and (x_minB <= x_max)
+        and (y_min <= y_maxB)
+        and (y_minB <= y_max)
+    )
+
+
+def merge_groups(group_a, group_b, zoom):
+    """Merge two overlapping groups into a single group.
+
+    This can result in groups that are "longer" than
+    the groups set in the first place and they can be
+    longer than the initial groupSize defined by the project
+    manager.
+    """
+
+    x_max = int(group_a["xMax"])
+    x_min = int(group_a["xMin"])
+    y_max = int(group_a["yMax"])
+    y_min = int(group_a["yMin"])
+
+    x_maxB = int(group_b["xMax"])
+    x_minB = int(group_b["xMin"])
+
+    # if two groups overlap, merge into one group
+    new_x_min = min([x_min, x_minB])
+    new_x_max = max([x_max, x_maxB])
+
+    # check if group_x_size is even and adjust new_x_max
+    if (new_x_max - new_x_min + 1) % 2 == 1:
+        new_x_max += 1
+
+    # Calculate lat, lon of upper left corner of tile
+    PixelX = int(new_x_min) * 256
+    PixelY = (int(y_max) + 1) * 256
+    lon_left, lat_top = t.pixel_coords_zoom_to_lat_lon(PixelX, PixelY, zoom)
+    # logging.info('lon_left: %s, lat_top: %s' % (lon_left, lat_top))
+
+    # Calculate lat, lon of bottom right corner of tile
+    PixelX = (int(new_x_max) + 1) * 256
+    PixelY = int(y_min) * 256
+    lon_right, lat_bottom = t.pixel_coords_zoom_to_lat_lon(PixelX, PixelY, zoom)
+
+    # Create Geometry
+    ring = ogr.Geometry(ogr.wkbLinearRing)
+    ring.AddPoint(lon_left, lat_top)
+    ring.AddPoint(lon_right, lat_top)
+    ring.AddPoint(lon_right, lat_bottom)
+    ring.AddPoint(lon_left, lat_bottom)
+    ring.AddPoint(lon_left, lat_top)
+    poly = ogr.Geometry(ogr.wkbPolygon)
+    poly.AddGeometry(ring)
+
+    new_group = {
+        "xMin": str(new_x_min),
+        "xMax": str(new_x_max),
+        "yMin": str(y_min),
+        "yMax": str(y_max),
+        "group_polygon": poly,
+    }
+
+    return new_group
+
+
 def adjust_overlapping_groups(groups, zoom):
-    def groups_intersect():
-        # returns True if groups intersect
-        return (
-            (int(x_min) <= int(x_maxB))
-            and (int(x_minB) <= int(x_max))
-            and (int(y_min) <= int(y_maxB))
-            and (int(y_minB) <= int(y_max))
-        )
+    """Loop through groups dict and merge overlapping groups."""
 
     groups_without_overlap = {}
     overlaps_total = 0
@@ -300,65 +376,17 @@ def adjust_overlapping_groups(groups, zoom):
         if group_id not in groups.keys():
             continue
 
-        x_max = groups[group_id]["xMax"]
-        x_min = groups[group_id]["xMin"]
-        y_max = groups[group_id]["yMax"]
-        y_min = groups[group_id]["yMin"]
-
         overlap_count = 0
         for group_id_b in list(groups.keys()):
             # skip if it is the same group
             if group_id_b == group_id:
                 continue
 
-            y_minB = groups[group_id_b]["yMin"]
-            y_maxB = groups[group_id_b]["yMax"]
-            x_maxB = groups[group_id_b]["xMax"]
-            x_minB = groups[group_id_b]["xMin"]
-
-            if groups_intersect():
+            if groups_intersect(groups[group_id], groups[group_id_b]):
                 overlap_count += 1
-
-                # define new x_min and x_max
-                # add info to groups_dict
-                # depending on intersection x_min or x_max need to change
-                if x_max >= x_minB:  # intersection on left side
-                    new_x_min = int(x_min)
-                    new_x_max = int(x_minB) - 1
-                elif x_min <= x_maxB:  # intersection on right side
-                    new_x_min = int(x_maxB) + 1
-                    new_x_max = int(x_max)
-
-                # Calculate lat, lon of upper left corner of tile
-                PixelX = int(new_x_min) * 256
-                PixelY = (int(y_max) + 1) * 256
-                lon_left, lat_top = t.pixel_coords_zoom_to_lat_lon(PixelX, PixelY, zoom)
-                # logging.info('lon_left: %s, lat_top: %s' % (lon_left, lat_top))
-
-                # Calculate lat, lon of bottom right corner of tile
-                PixelX = (int(new_x_max) + 1) * 256
-                PixelY = int(y_min) * 256
-                lon_right, lat_bottom = t.pixel_coords_zoom_to_lat_lon(
-                    PixelX, PixelY, zoom
-                )
-
-                # Create Geometry
-                ring = ogr.Geometry(ogr.wkbLinearRing)
-                ring.AddPoint(lon_left, lat_top)
-                ring.AddPoint(lon_right, lat_top)
-                ring.AddPoint(lon_right, lat_bottom)
-                ring.AddPoint(lon_left, lat_bottom)
-                ring.AddPoint(lon_left, lat_top)
-                poly = ogr.Geometry(ogr.wkbPolygon)
-                poly.AddGeometry(ring)
-
-                groups_without_overlap[group_id] = {
-                    "xMin": str(new_x_min),
-                    "xMax": str(new_x_max),
-                    "yMin": str(y_min),
-                    "yMax": str(y_max),
-                    "group_polygon": poly,
-                }
+                new_group = merge_groups(groups[group_id], groups[group_id_b], zoom)
+                del groups[group_id_b]
+                groups_without_overlap[group_id] = new_group
 
         if overlap_count == 0:
             groups_without_overlap[group_id] = groups[group_id]
@@ -366,7 +394,7 @@ def adjust_overlapping_groups(groups, zoom):
         del groups[group_id]
         overlaps_total += overlap_count
 
-    print(f"overlaps_total: {overlaps_total}")
+    logger.info(f"overlaps_total: {overlaps_total}")
     return groups_without_overlap, overlaps_total
 
 
@@ -399,8 +427,19 @@ def extent_to_groups(infile, zoom, groupSize):
     raw_groups_dict = get_vertical_slice(horizontal_slice_infos, zoom, groupSize)
 
     # finally remove overlapping groups
-    # TODO: add this line once properly working
     groups_dict, overlaps_total = adjust_overlapping_groups(raw_groups_dict, zoom)
+
+    # check if there are still overlaps
+    c = 0
+    while overlaps_total > 0:
+        c += 1
+        # avoid that this runs forever
+        if c == 5:
+            break
+
+        groups_dict, overlaps_total = adjust_overlapping_groups(
+            groups_dict.copy(), zoom
+        )
 
     return groups_dict
 

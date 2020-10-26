@@ -5,7 +5,7 @@ import json
 import os
 from abc import ABCMeta, abstractmethod
 
-import ogr
+from osgeo import ogr
 
 from mapswipe_workers import auth
 from mapswipe_workers.definitions import DATA_PATH, CustomError, ProjectType, logger
