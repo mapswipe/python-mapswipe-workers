@@ -169,7 +169,10 @@ class Project(BaseProject):
         for group_id, slice in raw_groups.items():
             group = Group(self, group_id, slice)
             group.create_tasks(self)
-            self.groups.append(group)
+
+            # only append valid groups
+            if group.is_valid():
+                self.groups.append(group)
 
         logger.info(
             f"{self.projectId}" f" - create_groups - " f"created groups dictionary"
