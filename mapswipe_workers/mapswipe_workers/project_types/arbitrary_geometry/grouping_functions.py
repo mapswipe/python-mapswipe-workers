@@ -62,12 +62,22 @@ def group_input_geometries(input_geometries_file, group_size):
         try:
             groups[group_id_string]
         except KeyError:
-            groups[group_id_string] = {"feature_ids": [], "feature_geometries": []}
+            groups[group_id_string] = {
+                "feature_ids": [],
+                "feature_geometries": [],
+                "center_points": [],
+            }
 
         groups[group_id_string]["feature_ids"].append(feature.GetFID())
         groups[group_id_string]["feature_geometries"].append(
             json.loads(feature.GetGeometryRef().ExportToJson())
         )
+        try:
+            center_x = feature.GetFieldAsDouble("center_x")
+            center_y = feature.GetFieldAsDouble("center_y")
+            groups[group_id_string]["center_points"].append([center_x, center_y])
+        except:
+            groups[group_id_string]["center_points"].append([])
 
     return groups
 
