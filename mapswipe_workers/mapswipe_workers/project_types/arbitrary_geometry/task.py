@@ -1,7 +1,8 @@
+from typing import List
+
 from osgeo import ogr
 
 from mapswipe_workers.project_types.base.task import BaseTask
-from typing import List
 
 
 class Task(BaseTask):
