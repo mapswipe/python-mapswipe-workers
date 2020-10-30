@@ -76,7 +76,7 @@ def group_input_geometries(input_geometries_file, group_size):
             center_x = feature.GetFieldAsDouble("center_x")
             center_y = feature.GetFieldAsDouble("center_y")
             groups[group_id_string]["center_points"].append([center_x, center_y])
-        except:
+        except:  # noqa
             groups[group_id_string]["center_points"].append([])
 
     return groups
