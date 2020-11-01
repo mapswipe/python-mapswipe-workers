@@ -54,6 +54,6 @@ after_success:
 deploy:
   provider: script
   # Extent waiting time of Travis for deploy to to finish
-  script: travis_wait 20 bash deploy.sh
+  script: bash deploy.sh
   on:
     branch: dev
