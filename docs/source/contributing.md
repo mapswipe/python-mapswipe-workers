@@ -34,3 +34,10 @@ From now on `black`, `flake8` and `isort` should run automatically whenever `git
 
 When running those tools manually please make sure the right version is used. The version can be looked up in `.pre-commit-config.yaml`.
 To update to newer version please make sure to change version numbers in `.pre-commit-config.yaml`, `.travis.yml` and `requirements.txt`.
+
+
+### Tips
+
+Ignore a hook: `SKIP=flake8 git commit -m "foo"`
+Mark in code that flake8 should ignore the line: `print()  # noqa`
+
