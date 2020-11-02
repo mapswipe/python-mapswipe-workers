@@ -1,7 +1,7 @@
 import math
+from typing import Dict, List
 
 from osgeo import ogr
-from Typing import Dict, List
 
 from mapswipe_workers.definitions import logger
 from mapswipe_workers.utils import tile_functions as t
