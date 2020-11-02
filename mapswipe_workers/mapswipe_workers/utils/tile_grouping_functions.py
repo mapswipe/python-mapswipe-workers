@@ -1,6 +1,7 @@
 import math
 
 from osgeo import ogr
+from Typing import Dict, List
 
 from mapswipe_workers.definitions import logger
 from mapswipe_workers.utils import tile_functions as t
@@ -49,7 +50,7 @@ def get_geometry_from_file(infile: str):
     return extent, geomcol
 
 
-def get_horizontal_slice(extent, geomcol, zoom):
+def get_horizontal_slice(extent: List, geomcol, zoom: int):
     """
     The function slices all input geometries vertically
     using a height of max 3 tiles per geometry.
@@ -155,7 +156,7 @@ def get_horizontal_slice(extent, geomcol, zoom):
     return slice_infos
 
 
-def get_vertical_slice(slice_infos, zoom, width_threshold=40):
+def get_vertical_slice(slice_infos: Dict, zoom: int, width_threshold: int = 40):
     """
     The function slices the horizontal stripes vertically.
     Each input stripe has a height of three tiles
@@ -287,7 +288,7 @@ def get_vertical_slice(slice_infos, zoom, width_threshold=40):
     return raw_groups
 
 
-def groups_intersect(group_a, group_b):
+def groups_intersect(group_a: Dict, group_b: Dict):
     """Check if groups intersect."""
     x_max = int(group_a["xMax"])
     x_min = int(group_a["xMin"])
@@ -307,7 +308,7 @@ def groups_intersect(group_a, group_b):
     )
 
 
-def merge_groups(group_a, group_b, zoom):
+def merge_groups(group_a: Dict, group_b: Dict, zoom: int):
     """Merge two overlapping groups into a single group.
 
     This can result in groups that are "longer" than
@@ -364,7 +365,7 @@ def merge_groups(group_a, group_b, zoom):
     return new_group
 
 
-def adjust_overlapping_groups(groups, zoom):
+def adjust_overlapping_groups(groups: Dict, zoom: int):
     """Loop through groups dict and merge overlapping groups."""
 
     groups_without_overlap = {}
@@ -398,7 +399,7 @@ def adjust_overlapping_groups(groups, zoom):
     return groups_without_overlap, overlaps_total
 
 
-def extent_to_groups(infile, zoom, groupSize):
+def extent_to_groups(infile, zoom: int, groupSize):
     """
     The function to polygon geometries of a given input file
     into horizontal slices and then vertical slices.
@@ -444,7 +445,7 @@ def extent_to_groups(infile, zoom, groupSize):
     return groups_dict
 
 
-def vertical_groups_as_geojson(raw_group_infos, outfile):
+def vertical_groups_as_geojson(raw_group_infos: Dict, outfile: str):
     """
     The function to create a geojson file from the groups dictionary.
 
@@ -494,7 +495,7 @@ def vertical_groups_as_geojson(raw_group_infos, outfile):
     return True
 
 
-def horizontal_groups_as_geojson(slices_info, outfile):
+def horizontal_groups_as_geojson(slices_info: Dict, outfile: str):
 
     # Create the output Driver and out GeoJson
     outDriver = ogr.GetDriverByName("GeoJSON")
