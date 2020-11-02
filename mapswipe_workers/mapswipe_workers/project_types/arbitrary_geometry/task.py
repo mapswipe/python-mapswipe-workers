@@ -1,4 +1,4 @@
-from typing import List
+from typing import Dict, List
 
 from osgeo import ogr
 
@@ -7,7 +7,7 @@ from mapswipe_workers.project_types.base.task import BaseTask
 
 class Task(BaseTask):
     def __init__(
-        self, group: object, featureId: int, featureGeometry: dict, center: List
+        self, group: object, featureId: int, featureGeometry: Dict, center: List
     ):
         """
         Parameters
