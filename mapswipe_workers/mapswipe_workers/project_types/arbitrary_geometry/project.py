@@ -7,6 +7,7 @@ from mapswipe_workers.definitions import DATA_PATH, CustomError, logger
 from mapswipe_workers.project_types.arbitrary_geometry import grouping_functions as g
 from mapswipe_workers.project_types.arbitrary_geometry.group import Group
 from mapswipe_workers.project_types.base.project import BaseProject
+from mapswipe_workers.project_types.base.tile_server import BaseTileServer
 
 
 class Project(BaseProject):
@@ -16,7 +17,7 @@ class Project(BaseProject):
         # set group size
         self.groupSize = project_draft["groupSize"]
         self.inputGeometries = project_draft["inputGeometries"]
-        self.tileServer = self.get_tile_server(project_draft["tileServer"])
+        self.tileServer = vars(BaseTileServer(project_draft["tileServer"]))
 
     def validate_geometries(self):
         raw_input_file = (
@@ -143,8 +144,13 @@ class Project(BaseProject):
 
         for group_id, item in raw_groups.items():
             group = Group(self, group_id)
-            group.create_tasks(item["feature_ids"], item["feature_geometries"])
-            self.groups.append(group)
+            group.create_tasks(
+                item["feature_ids"], item["feature_geometries"], item["center_points"]
+            )
+
+            # only append valid groups
+            if group.is_valid():
+                self.groups.append(group)
 
         logger.info(
             f"{self.projectId} " f"- create_groups - " f"created groups dictionary"

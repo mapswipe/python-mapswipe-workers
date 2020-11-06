@@ -1,10 +1,14 @@
+from typing import Dict, List
+
 from osgeo import ogr
 
 from mapswipe_workers.project_types.base.task import BaseTask
 
 
 class Task(BaseTask):
-    def __init__(self, group: object, featureId: int, featureGeometry: dict):
+    def __init__(
+        self, group: object, featureId: int, featureGeometry: Dict, center: List
+    ):
         """
         Parameters
         ----------
@@ -17,6 +21,11 @@ class Task(BaseTask):
         task_id = f"t{featureId}"
         super().__init__(group, taskId=task_id)
         self.geojson = featureGeometry
+        self.center = center
+
+        # Remove projectId and groupId for tasks of Footprint project type
+        del self.projectId
+        del self.groupId
 
         # create wkt geometry from geojson
         poly = ogr.CreateGeometryFromJson(str(featureGeometry))

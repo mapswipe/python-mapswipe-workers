@@ -50,7 +50,7 @@ class TestGeometryValidation(unittest.TestCase):
         # results coming from the validate_geometries function
         wkt = project.validate_geometries()
         # Test that sequence first contains the same elements as second
-        self.assertCountEqual(wkt, wkt_geometry_collection)
+        self.assertEqual(wkt, wkt_geometry_collection)
 
     def test_single_geom_validation(self):
         path = "fixtures/completeness/projectDraft_single.json"

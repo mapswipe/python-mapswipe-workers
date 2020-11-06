@@ -16,3 +16,12 @@ MapSwipe utilizes a bunch of Google Cloud services:
 [Configuration](configuration.md) describes all needed configuration and credentials.
 
 [Installation](installation.md) describes step-by-step how to setup the backend for the first time.
+
+
+## Continuous deployment using Ansible and Travis
+
+Travis is setup to automatically deploy a new version of MapSwipe Back-End to the server once it run successfully.
+This is done by using Travis script deployment (https://docs.travis-ci.com/user/deployment/script/). Travis simply calls the `deploy.sh` script found at the root directory of MapSwipe Workers.
+To be able to connect to the MapSwipe server the Travis instance uses an encrypted SSH private key (Which can be found in the directory `travis/`).
+
+In the `deploy.sh` script an Ansible Playbook is run (https://docs.ansible.com/ansible/latest/index.html). Ansible is an automation tool which utilizes a SSH connection (`ansible/ansible.cfg`) to run commands defined in the Playbook (`ansible/playbook.yml`) on hosts defined in the Inventory (`ansible/inventory.yml`).
