@@ -131,7 +131,7 @@ class TestGeometryValidation(unittest.TestCase):
         project = create_project(path)
 
         # we expect that the function raises a CustomError due to the fact
-        # that the area is too large
+        # that the geojson string is not in the right format
         self.assertRaises(CustomError, project.validate_geometries)
 
 
