@@ -151,7 +151,7 @@ class Project(BaseProject):
         # for zoom level 18 this will be 5000 square kilometers
         # max zoom level is 22
         if self.zoomLevel > 22:
-            raise CustomError(f"zoom level is to large (max: 22): {self.zoomLevel}.")
+            raise CustomError(f"zoom level is too large (max: 22): {self.zoomLevel}.")
 
         max_area = (23 - int(self.zoomLevel)) * (23 - int(self.zoomLevel)) * 200
 
@@ -159,11 +159,11 @@ class Project(BaseProject):
             logger.warning(
                 f"{self.projectId}"
                 f" - validate geometry - "
-                f"Project is to large: {project_area} sqkm. "
+                f"Project is too large: {project_area} sqkm. "
                 f"Please split your projects into smaller sub-projects and resubmit"
             )
             raise CustomError(
-                f"Project is to large: {project_area} sqkm. "
+                f"Project is too large: {project_area} sqkm. "
                 f"Max area for zoom level {self.zoomLevel} = {max_area} sqkm. "
                 "You can split your project into smaller projects and resubmit."
             )
