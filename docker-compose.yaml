@@ -45,7 +45,7 @@ services:
         expose:
             - "80"
         volumes:
-            - ./nginx/manager_dashboard:/usr/share/nginx/html/manager_dashboard
+            - ./manager_dashboard/manager_dashboard:/usr/share/nginx/html/manager_dashboard
         networks:
             - manager_dashboard
 
