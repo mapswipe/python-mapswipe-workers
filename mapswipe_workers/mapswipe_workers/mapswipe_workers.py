@@ -90,10 +90,12 @@ def run_create_projects():
             project.save_project()
             send_slack_message(MessageType.SUCCESS, project_name, project.projectId)
             logger.info("Success: Project Creation ({0})".format(project_name))
-        except CustomError:
+        except CustomError as e:
             ref = fb_db.reference(f"v2/projectDrafts/{project_draft_id}")
             ref.set({})
-            send_slack_message(MessageType.FAIL, project_name, project.projectId)
+            send_slack_message(
+                MessageType.FAIL, project_name, project.projectId, str(e)
+            )
             logger.exception("Failed: Project Creation ({0}))".format(project_name))
             sentry.capture_exception()
         continue

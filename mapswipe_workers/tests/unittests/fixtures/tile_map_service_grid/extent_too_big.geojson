@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "extent_too_big",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "id": null }, "geometry": { "type": "MultiPolygon", "coordinates": [ [ [ [ 10.04978733584872, -2.730635191549172 ], [ 10.742806654242287, 5.767970134014025 ], [ 19.533209587550143, 4.673729104971557 ], [ 18.73076616625233, -3.31423040703849 ], [ 10.04978733584872, -2.730635191549172 ] ] ] ] } }
+]
+}

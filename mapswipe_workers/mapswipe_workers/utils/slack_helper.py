@@ -6,7 +6,10 @@ from mapswipe_workers.definitions import MessageType, logger
 
 
 def send_slack_message(
-    message_type: MessageType, project_name: str, project_id: str = None
+    message_type: MessageType,
+    project_name: str,
+    project_id: str = None,
+    details: str = None,
 ):
     """Initialize slack client with values provided in environment."""
     if SLACK_TOKEN is None or SLACK_CHANNEL is None:
@@ -31,7 +34,9 @@ def send_slack_message(
         message = (
             "### PROJECT CREATION FAILED ###\n"
             + f"Project Name: {project_name}\n"
-            + "Project draft is deleted."
+            + "Project draft is deleted.\n\n"
+            + "REASON:\n"
+            + f"{details}"
         )
         slack_client.chat_postMessage(channel=SLACK_CHANNEL, text=message)
     elif message_type == MessageType.NOTIFICATION_90:
