@@ -69,6 +69,7 @@ def transfer_results(project_id_list=None):
                 f"{project_id}: Firebase transaction for "
                 f"transfering results failed to commit"
             )
+            sentry.capture_exception()
 
     del fb_db
     return project_id_list

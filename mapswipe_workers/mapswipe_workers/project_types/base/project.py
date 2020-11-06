@@ -8,7 +8,13 @@ from abc import ABCMeta, abstractmethod
 from osgeo import ogr
 
 from mapswipe_workers import auth
-from mapswipe_workers.definitions import DATA_PATH, CustomError, ProjectType, logger
+from mapswipe_workers.definitions import (
+    DATA_PATH,
+    CustomError,
+    ProjectType,
+    logger,
+    sentry,
+)
 from mapswipe_workers.utils import geojson_functions, gzip_str
 
 
@@ -493,6 +499,7 @@ class BaseProject(metaclass=ABCMeta):
                     f" - set_groups_postgres - "
                     f"groups missed critical information: {e}"
                 )
+                sentry.capture_exception()
 
         groups_txt_file.close()
 
