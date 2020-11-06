@@ -83,8 +83,17 @@ class Project(BaseProject):
         geometry_collection = ogr.Geometry(ogr.wkbMultiPolygon)
         # check if the input geometry is a valid polygon
         for feature in layer:
-            feat_geom = feature.GetGeometryRef()
-            geom_name = feat_geom.GetGeometryName()
+
+            try:
+                feat_geom = feature.GetGeometryRef()
+                geom_name = feat_geom.GetGeometryName()
+            except AttributeError:
+                logger.warning(
+                    f"{self.projectId}"
+                    f" - validate geometry - "
+                    f"feature geometry is not defined. "
+                )
+                raise CustomError("feature geometry is not defined. ")
             # add geometry to geometry collection
             if geom_name == "MULTIPOLYGON":
                 for singlepart_polygon in feat_geom:
