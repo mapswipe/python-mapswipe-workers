@@ -1,3 +1,5 @@
+from typing import Optional
+
 import slack
 
 from mapswipe_workers import auth
@@ -6,13 +8,16 @@ from mapswipe_workers.definitions import MessageType, logger
 
 
 def send_slack_message(
-    message_type: MessageType, project_name: str, project_id: str = None
+    message_type: MessageType,
+    project_name: str,
+    project_id: Optional[str],
+    details: str = "no details provided",
 ):
     """Initialize slack client with values provided in environment."""
     if SLACK_TOKEN is None or SLACK_CHANNEL is None:
         logger.info(
             "No configuration for Slack was found. "
-            + "No '{0}' Slack message was sent.".format(message_type)
+            + f"No '{message_type}' Slack message was sent."
         )
         return None
 
@@ -31,7 +36,9 @@ def send_slack_message(
         message = (
             "### PROJECT CREATION FAILED ###\n"
             + f"Project Name: {project_name}\n"
-            + "Project draft is deleted."
+            + "Project draft is deleted.\n\n"
+            + "REASON:\n"
+            + f"{details}"
         )
         slack_client.chat_postMessage(channel=SLACK_CHANNEL, text=message)
     elif message_type == MessageType.NOTIFICATION_90:
@@ -56,7 +63,7 @@ def send_slack_message(
         pass
 
 
-def send_progress_notification(project_id: int):
+def send_progress_notification(project_id: str):
     """Send progress notification to project managers in Slack."""
     fb_db = auth.firebaseDB()
     progress = fb_db.reference(f"v2/projects/{project_id}/progress").get()

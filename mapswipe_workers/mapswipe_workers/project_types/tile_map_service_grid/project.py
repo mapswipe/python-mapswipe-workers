@@ -55,7 +55,11 @@ class Project(BaseProject):
                 f" - validate geometry - "
                 f"Could not get layer for datasource"
             )
-            raise CustomError("could not get layer for datasource")
+            raise CustomError(
+                "Could not get layer for datasource."
+                "Your geojson file is not correctly defined."
+                "Check if you can open the file e.g. in QGIS. "
+            )
 
         # check if layer is empty
         if layer.GetFeatureCount() < 1:
@@ -77,14 +81,29 @@ class Project(BaseProject):
             )
             raise CustomError(
                 f"Input file contains more than {MAX_INPUT_GEOMETRIES} geometries. "
+                "You can split up your project into two or more projects. "
+                "This can reduce the number of input geometries. "
             )
 
         project_area = 0
         geometry_collection = ogr.Geometry(ogr.wkbMultiPolygon)
         # check if the input geometry is a valid polygon
         for feature in layer:
-            feat_geom = feature.GetGeometryRef()
-            geom_name = feat_geom.GetGeometryName()
+
+            try:
+                feat_geom = feature.GetGeometryRef()
+                geom_name = feat_geom.GetGeometryName()
+            except AttributeError:
+                logger.warning(
+                    f"{self.projectId}"
+                    f" - validate geometry - "
+                    f"feature geometry is not defined. "
+                )
+                raise CustomError(
+                    "At least one feature geometry is not defined."
+                    "Check in your input file if all geometries are defined "
+                    "and no NULL geometries exist. "
+                )
             # add geometry to geometry collection
             if geom_name == "MULTIPOLYGON":
                 for singlepart_polygon in feat_geom:
@@ -109,7 +128,11 @@ class Project(BaseProject):
                     f"Invalid geometry type: {geom_name}. "
                     f'Please provide "POLYGON" or "MULTIPOLYGON"'
                 )
-                raise CustomError(f"Invalid geometry type: {geom_name}. ")
+                raise CustomError(
+                    f"Invalid geometry type: {geom_name}. "
+                    "Make sure that all features in your dataset"
+                    "are of type POLYGON or MULTIPOLYGON. "
+                )
 
             # check size of project make sure its smaller than  5,000 sqkm
             # for doing this we transform the geometry
@@ -128,7 +151,7 @@ class Project(BaseProject):
         # for zoom level 18 this will be 5000 square kilometers
         # max zoom level is 22
         if self.zoomLevel > 22:
-            raise CustomError(f"zoom level is to large (max: 22): {self.zoomLevel}.")
+            raise CustomError(f"zoom level is too large (max: 22): {self.zoomLevel}.")
 
         max_area = (23 - int(self.zoomLevel)) * (23 - int(self.zoomLevel)) * 200
 
@@ -136,12 +159,13 @@ class Project(BaseProject):
             logger.warning(
                 f"{self.projectId}"
                 f" - validate geometry - "
-                f"Project is to large: {project_area} sqkm. "
+                f"Project is too large: {project_area} sqkm. "
                 f"Please split your projects into smaller sub-projects and resubmit"
             )
             raise CustomError(
-                f"Project is to large: {project_area} sqkm. "
-                f"Max area for zoom level {self.zoomLevel} = {max_area} sqkm"
+                f"Project is too large: {project_area} sqkm. "
+                f"Max area for zoom level {self.zoomLevel} = {max_area} sqkm. "
+                "You can split your project into smaller projects and resubmit."
             )
 
         del datasource
