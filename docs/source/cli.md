@@ -102,6 +102,46 @@ Options:
   --help             Show this message and exit.
 ```
 
+## Archive Projects
+
+```
+Usage: mapswipe_workers archive [OPTIONS]
+
+  Archive projects in Postgres. Delete groups, tasks and results from
+  Firebase.
+
+Options:
+  -i, --project-id TEXT  Archive project with giving project id
+  --project-ids TEXT     Archive multiple projects. Provide project id strings
+                         as a list: '["project_a", "project_b"]'
+
+  --help                 Show this message and exit.
+
+```
+
+You can get the project ids for the projects to be archive either from the manager dashboard or query directly in postgres. For example:
+
+```
+SELECT project_id
+FROM projects
+WHERE status = 'finished' AND created < '2020-09-01'
+```
+
+## Delete Projects
+
+```
+Usage: mapswipe_workers delete [OPTIONS]
+
+  Delete tasks, groups, project and results.
+
+Options:
+  -i, --project-id TEXT  Delete project with giving project id
+  --project-ids TEXT     Delete multiple projects. Provide project id strings
+                         as a list: '["project_a", "project_b"]'
+
+  --help                 Show this message and exit.
+```
+
 
 ## Create Tutorial from json file (e.g. provided in sample data)
 

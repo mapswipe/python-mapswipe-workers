@@ -300,7 +300,7 @@ def run_create_tutorials() -> None:
     help=(
         "Archive multiple projects. "
         "Provide project id strings as a list: "
-        """["project_a", "project_b"]"""
+        """'["project_a", "project_b"]'"""
     ),
 )
 def run_archive_project(project_id, project_ids):
@@ -328,7 +328,7 @@ def run_archive_project(project_id, project_ids):
     help=(
         "Delete multiple projects. "
         "Provide project id strings as a list: "
-        """["project_a", "project_b"]"""
+        """'["project_a", "project_b"]'"""
     ),
 )
 def run_delete_project(project_id, project_ids):
