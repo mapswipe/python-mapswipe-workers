@@ -22,29 +22,24 @@ class TestDeleteProject(unittest.TestCase):
         delete_project.delete_project([self.project_id])
 
         fb_db = auth.firebaseDB()
-        ref = fb_db.reference("v2/results/{0}".format(self.project_id))
+        ref = fb_db.reference(f"v2/results/{self.project_id}")
         self.assertIsNone(ref.get())
-        ref = fb_db.reference("v2/tasks/{0}".format(self.project_id))
+        ref = fb_db.reference(f"v2/tasks/{self.project_id}")
         self.assertIsNone(ref.get())
-        ref = fb_db.reference("v2/groups/{0}".format(self.project_id))
+        ref = fb_db.reference(f"v2/groups/{self.project_id}")
         self.assertIsNone(ref.get())
-        ref = fb_db.reference("v2/projects/{0}".format(self.project_id))
+        ref = fb_db.reference(f"v2/projects/{self.project_id}")
         self.assertIsNone(ref.get())
 
         pg_db = auth.postgresDB()
-        sql_query = "SELECT * FROM tasks WHERE project_id = '{}'".format(
-            self.project_id
-        )
+        sql_query = f"SELECT * FROM tasks WHERE project_id = '{self.project_id}'"
+        result = pg_db.retr_query(sql_query)
+
+        self.assertEqual(result, [])
+        sql_query = f"SELECT * FROM groups WHERE project_id = '{self.project_id}'"
         result = pg_db.retr_query(sql_query)
         self.assertEqual(result, [])
-        sql_query = "SELECT * FROM groups WHERE project_id = '{}'".format(
-            self.project_id
-        )
-        result = pg_db.retr_query(sql_query)
-        self.assertEqual(result, [])
-        sql_query = "SELECT * FROM projects WHERE project_id = '{}'".format(
-            self.project_id
-        )
+        sql_query = f"SELECT * FROM projects WHERE project_id = '{self.project_id}'"
         result = pg_db.retr_query(sql_query)
         self.assertEqual(result, [])
         sql_query = "SELECT * FROM results WHERE project_id = '{}'".format(
@@ -68,24 +63,16 @@ class TestDeleteProject(unittest.TestCase):
         self.assertIsNotNone(ref.get(shallow=True))
 
         pg_db = auth.postgresDB()
-        sql_query = "SELECT * FROM tasks WHERE project_id = '{}'".format(
-            self.project_id
-        )
+        sql_query = f"SELECT * FROM tasks WHERE project_id = '{self.project_id}'"
         result = pg_db.retr_query(sql_query)
         self.assertNotEqual(result, [])
-        sql_query = "SELECT * FROM groups WHERE project_id = '{}'".format(
-            self.project_id
-        )
+        sql_query = f"SELECT * FROM groups WHERE project_id = '{self.project_id}'"
         result = pg_db.retr_query(sql_query)
         self.assertNotEqual(result, [])
-        sql_query = "SELECT * FROM projects WHERE project_id = '{}'".format(
-            self.project_id
-        )
+        sql_query = f"SELECT * FROM projects WHERE project_id = '{self.project_id}'"
         result = pg_db.retr_query(sql_query)
         self.assertNotEqual(result, [])
-        sql_query = "SELECT * FROM results WHERE project_id = '{}'".format(
-            self.project_id
-        )
+        sql_query = f"SELECT * FROM results WHERE project_id = '{self.project_id}'"
         result = pg_db.retr_query(sql_query)
         self.assertNotEqual(result, [])
 
@@ -104,24 +91,16 @@ class TestDeleteProject(unittest.TestCase):
         self.assertIsNotNone(ref.get(shallow=True))
 
         pg_db = auth.postgresDB()
-        sql_query = "SELECT * FROM tasks WHERE project_id = '{}'".format(
-            self.project_id
-        )
+        sql_query = f"SELECT * FROM tasks WHERE project_id = '{self.project_id}'"
         result = pg_db.retr_query(sql_query)
         self.assertNotEqual(result, [])
-        sql_query = "SELECT * FROM groups WHERE project_id = '{}'".format(
-            self.project_id
-        )
+        sql_query = f"SELECT * FROM groups WHERE project_id = '{self.project_id}'"
         result = pg_db.retr_query(sql_query)
         self.assertNotEqual(result, [])
-        sql_query = "SELECT * FROM projects WHERE project_id = '{}'".format(
-            self.project_id
-        )
+        sql_query = f"SELECT * FROM projects WHERE project_id = '{self.project_id}'"
         result = pg_db.retr_query(sql_query)
         self.assertNotEqual(result, [])
-        sql_query = "SELECT * FROM results WHERE project_id = '{}'".format(
-            self.project_id
-        )
+        sql_query = f"SELECT * FROM results WHERE project_id = '{self.project_id}'"
         result = pg_db.retr_query(sql_query)
         self.assertNotEqual(result, [])
 

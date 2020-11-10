@@ -17,29 +17,29 @@ def delete_test_data(project_id: str) -> None:
         )
 
     fb_db = auth.firebaseDB()
-    ref = fb_db.reference("v2/results/{0}".format(project_id))
+    ref = fb_db.reference(f"v2/results/{project_id}")
     ref.delete()
-    ref = fb_db.reference("v2/tasks/{0}".format(project_id))
+    ref = fb_db.reference(f"v2/tasks/{project_id}")
     ref.delete()
-    ref = fb_db.reference("v2/groups/{0}".format(project_id))
+    ref = fb_db.reference(f"v2/groups/{project_id}")
     ref.delete()
-    ref = fb_db.reference("v2/projects/{0}".format(project_id))
+    ref = fb_db.reference(f"v2/projects/{project_id}")
     ref.delete()
-    ref = fb_db.reference("v2/projectDrafts/{0}".format(project_id))
+    ref = fb_db.reference(f"v2/projectDrafts/{project_id}")
     ref.delete()
-    ref = fb_db.reference("v2/users/{0}".format(project_id))
+    ref = fb_db.reference(f"v2/users/{project_id}")
     ref.delete()
 
     pg_db = auth.postgresDB()
-    sql_query = "DELETE FROM results WHERE project_id = '{0}'".format(project_id)
+    sql_query = f"DELETE FROM results WHERE project_id = '{project_id}'"
     pg_db.query(sql_query)
-    sql_query = "DELETE FROM tasks WHERE project_id = '{0}'".format(project_id)
+    sql_query = f"DELETE FROM tasks WHERE project_id = '{project_id}'"
     pg_db.query(sql_query)
-    sql_query = "DELETE FROM groups WHERE project_id = '{0}'".format(project_id)
+    sql_query = f"DELETE FROM groups WHERE project_id = '{project_id}'"
     pg_db.query(sql_query)
-    sql_query = "DELETE FROM projects WHERE project_id = '{0}'".format(project_id)
+    sql_query = f"DELETE FROM projects WHERE project_id = '{project_id}'"
     pg_db.query(sql_query)
-    sql_query = "DELETE FROM users WHERE user_id = '{0}'".format(project_id)
+    sql_query = f"DELETE FROM users WHERE user_id = '{project_id}'"
     pg_db.query(sql_query)
 
 
@@ -52,13 +52,13 @@ def delete_test_user(user_ids: List) -> None:
             )
 
         fb_db = auth.firebaseDB()
-        ref = fb_db.reference("v2/users/{0}".format(user_id))
+        ref = fb_db.reference(f"v2/users/{user_id}")
         ref.delete()
 
         pg_db = auth.postgresDB()
-        sql_query = "DELETE FROM users WHERE user_id = '{0}'".format(user_id)
+        sql_query = f"DELETE FROM users WHERE user_id = '{user_id}'"
         pg_db.query(sql_query)
 
 
 if __name__ == "__main__":
-    delete_test_data("build_area")
+    delete_test_data("test_build_area")
