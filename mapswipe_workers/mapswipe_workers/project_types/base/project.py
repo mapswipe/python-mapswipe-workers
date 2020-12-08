@@ -223,7 +223,10 @@ class BaseProject(metaclass=ABCMeta):
                     json.dumps(tasks_list).replace(" ", "").replace("\n", "")
                 )
                 compressed_tasks = gzip_str.gzip_str(json_string_tasks)
-                encoded_tasks = base64.b64encode(compressed_tasks)
+                # we need to decode back, but only when using Python 3.6
+                # when using Python 3.7 it just works
+                # Unfortunately the docker image uses Python 3.7
+                encoded_tasks = base64.b64encode(compressed_tasks).decode("ascii")
                 task_upload_dict[
                     f"v2/tasks/{self.projectId}/{group_id}"
                 ] = encoded_tasks
