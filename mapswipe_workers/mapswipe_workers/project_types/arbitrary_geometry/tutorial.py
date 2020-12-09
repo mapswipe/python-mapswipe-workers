@@ -67,8 +67,6 @@ class Tutorial(BaseTutorial):
         for task in group.tasks:
             self.tasks[101].append(vars(task))
 
-        print(self.tasks)
-
         logger.info(
             f"{self.projectId}"
             f" - create_tutorial_tasks - "
