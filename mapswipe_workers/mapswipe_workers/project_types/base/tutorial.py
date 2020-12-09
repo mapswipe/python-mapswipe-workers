@@ -1,7 +1,10 @@
+import base64
+import json
 from abc import ABCMeta, abstractmethod
 
 from mapswipe_workers import auth
-from mapswipe_workers.definitions import CustomError, logger
+from mapswipe_workers.definitions import CustomError, ProjectType, logger
+from mapswipe_workers.utils import gzip_str
 
 
 class BaseTutorial(metaclass=ABCMeta):
@@ -45,6 +48,15 @@ class BaseTutorial(metaclass=ABCMeta):
                 f"""Given argument resulted in invalid Firebase Realtime Database reference.
                     Project Id is invalid: {self.projectId}"""
             )
+
+        if self.projectType in [ProjectType.FOOTPRINT.value]:
+            # we compress tasks for footprint project type using gzip
+            json_string_tasks = json.dumps(tasks).replace(" ", "").replace("\n", "")
+            compressed_tasks = gzip_str.gzip_str(json_string_tasks)
+            # we need to decode back, but only when using Python 3.6
+            # when using Python 3.7 it just works
+            # Unfortunately the docker image uses Python 3.7
+            tasks = {"101": base64.b64encode(compressed_tasks).decode("ascii")}
 
         ref.update(
             {

@@ -145,7 +145,11 @@ class Project(BaseProject):
         for group_id, item in raw_groups.items():
             group = Group(self, group_id)
             group.create_tasks(
-                item["feature_ids"], item["feature_geometries"], item["center_points"]
+                item["feature_ids"],
+                item["feature_geometries"],
+                item["center_points"],
+                item["reference"],
+                item["screen"],
             )
 
             # only append valid groups

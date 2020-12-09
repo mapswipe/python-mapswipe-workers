@@ -66,6 +66,8 @@ def group_input_geometries(input_geometries_file, group_size):
                 "feature_ids": [],
                 "feature_geometries": [],
                 "center_points": [],
+                "reference": [],
+                "screen": [],
             }
 
         groups[group_id_string]["feature_ids"].append(feature.GetFID())
@@ -78,6 +80,16 @@ def group_input_geometries(input_geometries_file, group_size):
             groups[group_id_string]["center_points"].append([center_x, center_y])
         except:  # noqa
             groups[group_id_string]["center_points"].append([])
+
+        # this is relevant for the tutorial
+        try:
+            reference = feature.GetFieldAsDouble("reference")
+            screen = feature.GetFieldAsDouble("screen")
+            groups[group_id_string]["reference"].append(reference)
+            groups[group_id_string]["screen"].append(screen)
+        except:  # noqa
+            groups[group_id_string]["reference"].append(None)
+            groups[group_id_string]["screen"].append(None)
 
     return groups
 
