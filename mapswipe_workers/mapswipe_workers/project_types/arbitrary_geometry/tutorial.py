@@ -19,7 +19,7 @@ class Tutorial(BaseTutorial):
         self.tileServer = vars(BaseTileServer(tutorial_draft["tileServer"]))
         self.tutorial_tasks = tutorial_draft["tutorialTasks"]
         self.groups = dict()
-        self.tasks = dict()
+        self.tasks = []
 
         # save tasks as geojson
         self.inputGeometries = (
@@ -61,11 +61,8 @@ class Tutorial(BaseTutorial):
                 item["screen"],
             )
 
-        self.tasks = dict()
-        self.tasks[101] = []
-
         for task in group.tasks:
-            self.tasks[101].append(vars(task))
+            self.tasks.append(vars(task))
 
         logger.info(
             f"{self.projectId}"
