@@ -49,7 +49,7 @@ class Tutorial(BaseTutorial):
         """Create the tasks dict based on provided examples in geojson file."""
 
         raw_groups = g.group_input_geometries(
-            self.inputGeometries, len(self.tutorial_tasks)
+            self.inputGeometries, len(self.tutorial_tasks) + 1
         )
         for group_id, item in raw_groups.items():
             group = Group(self, groupId=101)
@@ -62,6 +62,7 @@ class Tutorial(BaseTutorial):
             )
 
         for task in group.tasks:
+            logger.info(task)
             self.tasks.append(vars(task))
 
         logger.info(
