@@ -144,8 +144,15 @@ def run_generate_stats_all_projects() -> None:
 
 
 @cli.command("user-management")
+@click.option("--email", help="The email of the MapSwipe user.", type=str)
 @click.option(
-    "--email", help="The email of the MapSwipe user.", required=True, type=str
+    "--emails",
+    cls=PythonLiteralOption,
+    default="[]",
+    help=(
+        "The email of the MapSwipe users as a list of strings: "
+        """ '["email_a", "email_b"]' """
+    ),
 )
 @click.option("--team_id", "-i", help="The id of the team in Firebase.", type=str)
 @click.option(
@@ -160,24 +167,27 @@ def run_generate_stats_all_projects() -> None:
         ["add-manager-rights", "remove-manager-right", "add-team", "remove-team"]
     ),
 )
-def run_user_management(email, action, team_id) -> None:
+def run_user_management(email, emails, action, team_id) -> None:
     """
     Manage project manager credentials
 
     Grant or remove credentials.
     """
     try:
-        if action == "add-manager-rights":
-            user_management.set_project_manager_rights(email)
-        elif action == "remove-manager-rights":
-            user_management.remove_project_manager_rights(email)
-        elif action == "add-team":
-            if not team_id:
-                click.echo("Missing argument: --team_id")
-                return None
-            user_management.add_user_to_team(email, team_id)
-        elif action == "remove-team":
-            user_management.remove_user_from_team(email)
+        if email:
+            emails = [email]
+        for email in emails:
+            if action == "add-manager-rights":
+                user_management.set_project_manager_rights(email)
+            elif action == "remove-manager-rights":
+                user_management.remove_project_manager_rights(email)
+            elif action == "add-team":
+                if not team_id:
+                    click.echo("Missing argument: --team_id")
+                    return None
+                user_management.add_user_to_team(email, team_id)
+            elif action == "remove-team":
+                user_management.remove_user_from_team(email)
     except Exception:
         logger.exception("grant user credentials failed")
         sentry.capture_exception()
