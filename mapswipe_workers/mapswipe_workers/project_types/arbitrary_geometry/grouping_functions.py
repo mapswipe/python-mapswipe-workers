@@ -74,22 +74,26 @@ def group_input_geometries(input_geometries_file, group_size):
         groups[group_id_string]["feature_geometries"].append(
             json.loads(feature.GetGeometryRef().ExportToJson())
         )
-        try:
-            center_x = feature.GetFieldAsDouble("center_x")
-            center_y = feature.GetFieldAsDouble("center_y")
-            groups[group_id_string]["center_points"].append([center_x, center_y])
-        except:  # noqa
+
+        # from gdal documentation GetFieldAsDouble():
+        # OFTInteger fields will be cast to double.
+        # Other field types, or errors will result in a return value of zero.
+        center_x = feature.GetFieldAsDouble("center_x")
+        center_y = feature.GetFieldAsDouble("center_y")
+
+        # check if center attribute has been provided in geojson
+        # normal tasks will never have a center of 0.0, 0.0
+        # this is just in the middle of the ocean
+        if (center_x == 0.0) and (center_y == 0.0):
             groups[group_id_string]["center_points"].append(None)
+        else:
+            groups[group_id_string]["center_points"].append([center_x, center_y])
 
         # this is relevant for the tutorial
-        try:
-            reference = feature.GetFieldAsDouble("reference")
-            screen = feature.GetFieldAsDouble("screen")
-            groups[group_id_string]["reference"].append(reference)
-            groups[group_id_string]["screen"].append(screen)
-        except:  # noqa
-            groups[group_id_string]["reference"].append(None)
-            groups[group_id_string]["screen"].append(None)
+        reference = feature.GetFieldAsDouble("reference")
+        screen = feature.GetFieldAsDouble("screen")
+        groups[group_id_string]["reference"].append(reference)
+        groups[group_id_string]["screen"].append(screen)
 
     return groups
 
