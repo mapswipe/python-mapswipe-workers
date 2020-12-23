@@ -1,4 +1,4 @@
-from typing import Dict, List
+from typing import Any, Dict, List, Optional
 
 from osgeo import ogr
 
@@ -9,11 +9,11 @@ class Task(BaseTask):
     def __init__(
         self,
         group: object,
-        featureId: int,
+        featureId: Any[int, str],
         featureGeometry: Dict,
-        center: List,
-        reference: int,
-        screen: int,
+        center: Optional[List[float, float]],
+        reference: Optional[int],
+        screen: Optional[int],
     ):
         """
         Parameters
@@ -28,10 +28,12 @@ class Task(BaseTask):
         super().__init__(group, taskId=task_id)
         self.geojson = featureGeometry
 
-        if center is not None:
+        # only tasks that use Google tile map service need this
+        if center:
             self.center = center
 
-        if screen is not None:
+        # only tasks that are part of a tutorial need this
+        if screen:
             self.screen = screen
             self.reference = reference
 
@@ -41,6 +43,7 @@ class Task(BaseTask):
 
         # create wkt geometry from geojson
         # this geometry will be stored in postgres
+        # it will be remove before storing the data in firebase
         poly = ogr.CreateGeometryFromJson(str(featureGeometry))
         wkt_geometry = poly.ExportToWkt()
         self.geometry = wkt_geometry
