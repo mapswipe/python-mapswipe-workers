@@ -39,6 +39,10 @@ class Tutorial(BaseTutorial):
         group = Group(self, groupId=101)
         self.groups[101] = vars(group)
 
+        # add number of tasks for the group here
+        # this needs to be set according to the examples for the tutorial
+        self.groups[101]["numberOfTasks"] = len(self.tutorial_tasks)
+
         logger.info(
             f"{self.projectId}"
             f" - create_tutorial_groups - "
