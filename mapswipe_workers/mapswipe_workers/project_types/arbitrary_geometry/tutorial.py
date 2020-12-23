@@ -39,9 +39,9 @@ class Tutorial(BaseTutorial):
         group = Group(self, groupId=101)
         self.groups[101] = vars(group)
 
-        # add number of tasks for the group here
-        # this needs to be set according to the examples for the tutorial
-        self.groups[101]["numberOfTasks"] = len(self.tutorial_tasks)
+        # Add number of tasks for the group here. This needs to be set according to
+        # the number of features/examples in the geojson file
+        self.groups[101]["numberOfTasks"] = len(self.tutorial_tasks["features"])
 
         logger.info(
             f"{self.projectId}"

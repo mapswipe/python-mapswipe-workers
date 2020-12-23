@@ -28,8 +28,6 @@ class Task(BaseTask):
         super().__init__(group, taskId=task_id)
         self.geojson = featureGeometry
 
-        print(center)
-
         # only tasks that use Google tile map service need this
         if center:
             self.center = center
