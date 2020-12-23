@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Optional
+from typing import Dict, List, Optional, Union
 
 from osgeo import ogr
 
@@ -9,9 +9,9 @@ class Task(BaseTask):
     def __init__(
         self,
         group: object,
-        featureId: Any[int, str],
+        featureId: Union[int, str],
         featureGeometry: Dict,
-        center: Optional[List[float, float]],
+        center: Optional[List[float]],
         reference: Optional[int],
         screen: Optional[int],
     ):
