@@ -214,7 +214,8 @@ class BaseProject(metaclass=ABCMeta):
 
         logger.info(f"there are {len(groupsOfTasks)} groups for this project")
         c = 0
-        for group_id, tasks_list in groupsOfTasks.items():
+        for group_id in groupsOfTasks.keys():
+            tasks_list = groupsOfTasks[group_id]
             c += 1
             if self.projectType in [ProjectType.FOOTPRINT.value]:
                 compressed_tasks = gzip_str.compress_tasks(tasks_list)
