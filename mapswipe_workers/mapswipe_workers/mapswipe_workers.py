@@ -120,6 +120,7 @@ def run_firebase_to_postgres() -> list:
     help=(
         "Project ids for which to generate stats as a list of strings: "
         """ '["project_a", "project_b"]' """
+        "(You need the quotes.)"
     ),
 )
 def run_generate_stats(project_ids: list) -> None:
@@ -150,8 +151,9 @@ def run_generate_stats_all_projects() -> None:
     cls=PythonLiteralOption,
     default="[]",
     help=(
-        "The email of the MapSwipe users as a list of strings: "
+        "The emails of the MapSwipe users as a list of strings: "
         """ '["email_a", "email_b"]' """
+        "(You need the quotes.)"
     ),
 )
 @click.option("--team_id", "-i", help="The id of the team in Firebase.", type=str)
@@ -173,10 +175,13 @@ def run_user_management(email, emails, action, team_id) -> None:
 
     Grant or remove credentials.
     """
-    try:
-        if email:
-            emails = [email]
-        for email in emails:
+    if email:
+        email_list = [email]
+    else:
+        email_list = emails
+
+    for email in email_list:
+        try:
             if action == "add-manager-rights":
                 user_management.set_project_manager_rights(email)
             elif action == "remove-manager-rights":
@@ -188,9 +193,9 @@ def run_user_management(email, emails, action, team_id) -> None:
                 user_management.add_user_to_team(email, team_id)
             elif action == "remove-team":
                 user_management.remove_user_from_team(email)
-    except Exception:
-        logger.exception("grant user credentials failed")
-        sentry.capture_exception()
+        except Exception:
+            logger.exception("grant user credentials failed")
+            sentry.capture_exception()
 
 
 @cli.command("team-management")

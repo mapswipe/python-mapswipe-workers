@@ -40,6 +40,7 @@ class Task(BaseTask):
         del self.groupId
 
         # create wkt geometry from geojson
+        # this geometry will be stored in postgres
         poly = ogr.CreateGeometryFromJson(str(featureGeometry))
         wkt_geometry = poly.ExportToWkt()
         self.geometry = wkt_geometry

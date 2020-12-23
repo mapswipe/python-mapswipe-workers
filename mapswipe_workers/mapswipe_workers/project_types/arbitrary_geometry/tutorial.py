@@ -23,7 +23,7 @@ class Tutorial(BaseTutorial):
 
         # save tasks as geojson
         self.inputGeometries = (
-            f"{DATA_PATH}/" f"input_geometries/valid_input_{self.projectId}.geojson"
+            f"{DATA_PATH}/input_geometries/valid_input_{self.projectId}.geojson"
         )
 
         with open(self.inputGeometries, "w") as f:
