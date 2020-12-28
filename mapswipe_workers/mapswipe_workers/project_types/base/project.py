@@ -218,11 +218,17 @@ class BaseProject(metaclass=ABCMeta):
             tasks_list = groupsOfTasks[group_id]
             c += 1
             if self.projectType in [ProjectType.FOOTPRINT.value]:
+                # for tasks of a building footprint project
+                # we use compression to reduce storage size in firebase
+                # since the tasks hold geometries their storage size
+                # can get quite big otherwise
                 compressed_tasks = gzip_str.compress_tasks(tasks_list)
                 task_upload_dict[
                     f"v2/tasks/{self.projectId}/{group_id}"
                 ] = compressed_tasks
             else:
+                # for all other projects (build_area, completenesss, change detection)
+                # we just upload the tasks without compression
                 task_upload_dict[f"v2/tasks/{self.projectId}/{group_id}"] = tasks_list
 
             # we upload tasks in batches of maximum 150 groups
