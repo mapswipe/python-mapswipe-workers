@@ -27,7 +27,7 @@ def set_firebase_test_data(
         test_data = json.load(test_file)
 
     fb_db = auth.firebaseDB()
-    ref = fb_db.reference("/v2/{0}/{1}".format(data_type, identifier))
+    ref = fb_db.reference(f"/v2/{data_type}/{identifier}")
     ref.set(test_data)
 
 
@@ -67,7 +67,7 @@ def create_test_project(
 
 def create_test_results(project_type: str, fixture_name: str) -> str:
     """Create test results only in Firebase."""
-    project_id = "test_{0}".format(project_type)
+    project_id = f"test_{project_type}"
     set_firebase_test_data(project_type, "results", fixture_name, project_id)
     time.sleep(5)  # Wait for Firebase Functions to complete
     return project_id
@@ -76,7 +76,7 @@ def create_test_results(project_type: str, fixture_name: str) -> str:
 def create_test_user(project_type: str, user_id: str = None) -> str:
     """Create test user only in Firebase"""
     if not user_id:
-        user_id = "test_{0}".format(project_type)
+        user_id = f"test_{project_type}"
     set_firebase_test_data(project_type, "users", "user", user_id)
     return user_id
 
@@ -89,7 +89,7 @@ def create_test_project_draft(
     Project drafts in Firebase are create by project manager using the dashboard.
     """
     if not user_id:
-        user_id = "test_{0}".format(project_type)
+        user_id = f"test_{project_type}"
     set_firebase_test_data(project_type, "projectDrafts", fixture_name, user_id)
     return user_id
 

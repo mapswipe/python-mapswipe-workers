@@ -1,0 +1,87 @@
+{
+  "1": {
+    "hint" : {
+      "description" : "Can you see a building?",
+      "icon" : "swipe-left",
+      "title" : "You are looking for buildings."
+    },
+    "instructions" : {
+      "description" : "Tap on the yes button.",
+      "icon" : "tap",
+      "title" : "There is a part of a building here."
+    },
+    "success" : {
+      "description" : "Swipe to the next screen to look for more.",
+      "icon" : "check",
+      "title" : "You found your first building!"
+    }
+  },
+  "2": {
+    "hint" : {
+      "description" : "Check the imagery.",
+      "icon" : "swipe-left",
+      "title" : "Still looking for buildings"
+    },
+    "instructions" : {
+      "description" : "Again select 'YES' if you see a building",
+      "icon" : "tap",
+      "title" : "Building Building Buildings"
+    },
+    "success" : {
+      "description" : "Swipe to the next screen to learn more.",
+      "icon" : "check",
+      "title" : "Nice. You got it know!"
+    }
+  },
+  "3": {
+    "hint" : {
+      "description" : "Here we can't find any building",
+      "icon" : "swipe-left",
+      "title" : "There is no building?"
+    },
+    "instructions" : {
+      "description" : "Select 'No'.",
+      "icon" : "tap",
+      "title" : "Nothing to map here."
+    },
+    "success" : {
+      "description" : "Swipe to keep on going",
+      "icon" : "check",
+      "title" : "Great work!"
+    }
+  },
+  "4": {
+    "hint" : {
+      "description" : "There's no building in this screen.",
+      "icon" : "swipe-left",
+      "title" : "This is easy."
+    },
+    "instructions" : {
+      "description" : "Again select 'No'.",
+      "icon" : "tap",
+      "title" : "There’s no building in this image"
+    },
+    "success" : {
+      "description" : "Swipe to keep on going",
+      "icon" : "check",
+      "title" : "Great stuff!"
+    }
+  },
+  "5": {
+    "hint" : {
+      "description" : "This one was difficult to judge.",
+      "icon" : "swipe-left",
+      "title" : "We’ve marked the correct answers"
+    },
+    "instructions" : {
+      "description" : "Select 'Not sure' if you can't say if there is a building.",
+      "icon" : "tap",
+      "title" : "This one is difficult to decide."
+    },
+    "success" : {
+      "description" : "Swipe to practice some more.",
+      "icon" : "check",
+      "title" : "Well done, you got it right!"
+    }
+  }
+}

@@ -44,6 +44,8 @@ services:
         restart: unless-stopped
         expose:
             - "80"
+        volumes:
+            - ./manager_dashboard/manager_dashboard:/usr/share/nginx/html/manager_dashboard
         networks:
             - manager_dashboard
 

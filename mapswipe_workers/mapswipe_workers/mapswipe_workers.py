@@ -90,10 +90,12 @@ def run_create_projects():
             project.save_project()
             send_slack_message(MessageType.SUCCESS, project_name, project.projectId)
             logger.info("Success: Project Creation ({0})".format(project_name))
-        except CustomError:
+        except CustomError as e:
             ref = fb_db.reference(f"v2/projectDrafts/{project_draft_id}")
             ref.set({})
-            send_slack_message(MessageType.FAIL, project_name, project.projectId)
+            send_slack_message(
+                MessageType.FAIL, project_name, project.projectId, str(e)
+            )
             logger.exception("Failed: Project Creation ({0}))".format(project_name))
             sentry.capture_exception()
         continue
@@ -118,6 +120,7 @@ def run_firebase_to_postgres() -> list:
     help=(
         "Project ids for which to generate stats as a list of strings: "
         """ '["project_a", "project_b"]' """
+        "(You need the quotes.)"
     ),
 )
 def run_generate_stats(project_ids: list) -> None:
@@ -142,8 +145,16 @@ def run_generate_stats_all_projects() -> None:
 
 
 @cli.command("user-management")
+@click.option("--email", help="The email of the MapSwipe user.", type=str)
 @click.option(
-    "--email", help="The email of the MapSwipe user.", required=True, type=str
+    "--emails",
+    cls=PythonLiteralOption,
+    default="[]",
+    help=(
+        "The emails of the MapSwipe users as a list of strings: "
+        """ '["email_a", "email_b"]' """
+        "(You need the quotes.)"
+    ),
 )
 @click.option("--team_id", "-i", help="The id of the team in Firebase.", type=str)
 @click.option(
@@ -158,27 +169,33 @@ def run_generate_stats_all_projects() -> None:
         ["add-manager-rights", "remove-manager-right", "add-team", "remove-team"]
     ),
 )
-def run_user_management(email, action, team_id) -> None:
+def run_user_management(email, emails, action, team_id) -> None:
     """
     Manage project manager credentials
 
     Grant or remove credentials.
     """
-    try:
-        if action == "add-manager-rights":
-            user_management.set_project_manager_rights(email)
-        elif action == "remove-manager-rights":
-            user_management.remove_project_manager_rights(email)
-        elif action == "add-team":
-            if not team_id:
-                click.echo("Missing argument: --team_id")
-                return None
-            user_management.add_user_to_team(email, team_id)
-        elif action == "remove-team":
-            user_management.remove_user_from_team(email)
-    except Exception:
-        logger.exception("grant user credentials failed")
-        sentry.capture_exception()
+    if email:
+        email_list = [email]
+    else:
+        email_list = emails
+
+    for email in email_list:
+        try:
+            if action == "add-manager-rights":
+                user_management.set_project_manager_rights(email)
+            elif action == "remove-manager-rights":
+                user_management.remove_project_manager_rights(email)
+            elif action == "add-team":
+                if not team_id:
+                    click.echo("Missing argument: --team_id")
+                    return None
+                user_management.add_user_to_team(email, team_id)
+            elif action == "remove-team":
+                user_management.remove_user_from_team(email)
+        except Exception:
+            logger.exception("grant user credentials failed")
+            sentry.capture_exception()
 
 
 @cli.command("team-management")
@@ -298,7 +315,7 @@ def run_create_tutorials() -> None:
     help=(
         "Archive multiple projects. "
         "Provide project id strings as a list: "
-        """["project_a", "project_b"]"""
+        """'["project_a", "project_b"]'"""
     ),
 )
 def run_archive_project(project_id, project_ids):
@@ -326,7 +343,7 @@ def run_archive_project(project_id, project_ids):
     help=(
         "Delete multiple projects. "
         "Provide project id strings as a list: "
-        """["project_a", "project_b"]"""
+        """'["project_a", "project_b"]'"""
     ),
 )
 def run_delete_project(project_id, project_ids):

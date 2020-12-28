@@ -1,4 +1,3 @@
-import base64
 import csv
 import datetime as dt
 import json
@@ -8,7 +7,13 @@ from abc import ABCMeta, abstractmethod
 from osgeo import ogr
 
 from mapswipe_workers import auth
-from mapswipe_workers.definitions import DATA_PATH, CustomError, ProjectType, logger
+from mapswipe_workers.definitions import (
+    DATA_PATH,
+    CustomError,
+    ProjectType,
+    logger,
+    sentry,
+)
 from mapswipe_workers.utils import geojson_functions, gzip_str
 
 
@@ -209,19 +214,21 @@ class BaseProject(metaclass=ABCMeta):
 
         logger.info(f"there are {len(groupsOfTasks)} groups for this project")
         c = 0
-        for group_id, tasks_list in groupsOfTasks.items():
+        for group_id in groupsOfTasks.keys():
+            tasks_list = groupsOfTasks[group_id]
             c += 1
             if self.projectType in [ProjectType.FOOTPRINT.value]:
-                # we compress tasks for footprint project type using gzip
-                json_string_tasks = (
-                    json.dumps(tasks_list).replace(" ", "").replace("\n", "")
-                )
-                compressed_tasks = gzip_str.gzip_str(json_string_tasks)
-                encoded_tasks = base64.b64encode(compressed_tasks)
+                # for tasks of a building footprint project
+                # we use compression to reduce storage size in firebase
+                # since the tasks hold geometries their storage size
+                # can get quite big otherwise
+                compressed_tasks = gzip_str.compress_tasks(tasks_list)
                 task_upload_dict[
                     f"v2/tasks/{self.projectId}/{group_id}"
-                ] = encoded_tasks
+                ] = compressed_tasks
             else:
+                # for all other projects (build_area, completenesss, change detection)
+                # we just upload the tasks without compression
                 task_upload_dict[f"v2/tasks/{self.projectId}/{group_id}"] = tasks_list
 
             # we upload tasks in batches of maximum 150 groups
@@ -493,6 +500,7 @@ class BaseProject(metaclass=ABCMeta):
                     f" - set_groups_postgres - "
                     f"groups missed critical information: {e}"
                 )
+                sentry.capture_exception()
 
         groups_txt_file.close()
 

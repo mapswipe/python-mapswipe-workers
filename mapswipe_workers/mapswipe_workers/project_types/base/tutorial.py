@@ -1,7 +1,8 @@
 from abc import ABCMeta, abstractmethod
 
 from mapswipe_workers import auth
-from mapswipe_workers.definitions import CustomError, logger
+from mapswipe_workers.definitions import CustomError, ProjectType, logger
+from mapswipe_workers.utils import gzip_str
 
 
 class BaseTutorial(metaclass=ABCMeta):
@@ -45,6 +46,11 @@ class BaseTutorial(metaclass=ABCMeta):
                 f"""Given argument resulted in invalid Firebase Realtime Database reference.
                     Project Id is invalid: {self.projectId}"""
             )
+
+        if self.projectType in [ProjectType.FOOTPRINT.value]:
+            # we compress tasks for footprint project type using gzip
+            compressed_tasks = gzip_str.compress_tasks(tasks)
+            tasks = {"101": compressed_tasks}
 
         ref.update(
             {
