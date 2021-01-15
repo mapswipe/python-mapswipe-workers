@@ -55,6 +55,7 @@ def group_input_geometries(input_geometries_file, group_size):
     feature_count = 0
     for feature in layer:
         feature_count += 1
+        # TODO: why group_size + 1?
         if feature_count % (group_size + 1) == 0:
             group_id += 1
             group_id_string = f"g{group_id}"
