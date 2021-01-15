@@ -70,7 +70,9 @@ def group_input_geometries(input_geometries_file, group_size):
                 "screen": [],
             }
 
-        groups[group_id_string]["feature_ids"].append(feature.GetFID())
+        # we use a new id here based on the count
+        # since we are not sure that GetFID returns unique values
+        groups[group_id_string]["feature_ids"].append(feature_count)
         groups[group_id_string]["feature_geometries"].append(
             json.loads(feature.GetGeometryRef().ExportToJson())
         )
