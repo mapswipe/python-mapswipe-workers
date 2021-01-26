@@ -175,6 +175,10 @@ def results_to_file(results, projectId):
                         group_id_db = wsf_tasks_df.loc[wsf_tasks_df['task_id'] == taskId]["group_id"]
                         # log the old and new group id
                         if group_id_db != groupId:
+                            logger.info(
+                                f"group ids do not match for task {taskId}. "
+                                f"old: {groupId}, new: {group_id_db}"
+                            )
                             groupId = group_id_db
                         else:
                             pass
