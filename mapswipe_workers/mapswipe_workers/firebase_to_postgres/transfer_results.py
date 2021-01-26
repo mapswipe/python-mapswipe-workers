@@ -2,6 +2,7 @@ import csv
 import io
 
 import dateutil.parser
+import pandas as pd
 
 from mapswipe_workers import auth
 from mapswipe_workers.definitions import logger, sentry
@@ -98,6 +99,20 @@ def results_to_file(results, projectId):
     w = csv.writer(results_file, delimiter="\t", quotechar="'")
 
     logger.info(f"Got {len(results.items())} groups for project {projectId}")
+
+    # check if the group id is set correct in the app
+    # only do this for project '-MRL3frZWPOCR94ehFnp'
+    if projectId == '-MRL3frZWPOCR94ehFnp':
+        # get groups and tasks as dict for this project
+        # this will be used later to check if the group is wrong
+        pg_db = auth.postgresDB()
+        sql_query = """
+            SELECT group_id, task_id FROM tasks
+            WHERE project_id = '-MRL3frZWPOCR94ehFnp'
+        """
+        wsf_tasks_table = pg_db.retr_query(sql_query, None)
+        wsf_tasks_df = pd.DataFrame(wsf_tasks_table, columns=["group_id", "task_id"])
+
     for groupId, users in results.items():
         for userId, results in users.items():
 
@@ -154,6 +169,16 @@ def results_to_file(results, projectId):
 
             if type(results) is dict:
                 for taskId, result in results.items():
+                    # check if the group id is set correct in the app
+                    # only do this for project '-MRL3frZWPOCR94ehFnp'
+                    if projectId == '-MRL3frZWPOCR94ehFnp':
+                        group_id_db = wsf_tasks_df.loc[wsf_tasks_df['task_id'] == taskId]["group_id"]
+                        # log the old and new group id
+                        if group_id_db != groupId:
+                            groupId = group_id_db
+                        else:
+                            pass
+
                     w.writerow(
                         [
                             projectId,
