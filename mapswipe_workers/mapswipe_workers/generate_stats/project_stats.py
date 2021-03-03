@@ -378,7 +378,9 @@ def get_per_project_statistics(project_id: str, project_info: pd.Series) -> dict
                 results_df, agg_results_df
             )
             agg_results_by_user_id_df.to_csv(
-                agg_results_by_user_id_filename, index_label="idx"
+                agg_results_by_user_id_filename,
+                index_label="idx",
+                compression="gzip"
             )
             logger.info(
                 f"saved agg results for {project_id}: {agg_results_by_user_id_filename}"
