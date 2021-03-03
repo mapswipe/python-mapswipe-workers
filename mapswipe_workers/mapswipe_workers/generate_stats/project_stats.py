@@ -360,8 +360,7 @@ def get_per_project_statistics(project_id: str, project_info: pd.Series) -> dict
         agg_results_df = get_agg_results_by_task_id(results_df, tasks_df)
         agg_results_df.to_csv(
             agg_results_filename,
-            index_label="idx",
-            compression="gzip"
+            index_label="idx"
         )
 
         geojson_functions.gzipped_csv_to_gzipped_geojson(
@@ -379,8 +378,7 @@ def get_per_project_statistics(project_id: str, project_info: pd.Series) -> dict
             )
             agg_results_by_user_id_df.to_csv(
                 agg_results_by_user_id_filename,
-                index_label="idx",
-                compression="gzip"
+                index_label="idx"
             )
             logger.info(
                 f"saved agg results for {project_id}: {agg_results_by_user_id_filename}"
