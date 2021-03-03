@@ -1,6 +1,7 @@
 from abc import ABCMeta
 
 from mapswipe_workers import auth
+from mapswipe_workers.definitions import CustomError
 
 
 class BaseTileServer(metaclass=ABCMeta):
@@ -16,6 +17,13 @@ class BaseTileServer(metaclass=ABCMeta):
         )
         if self.url == "":
             self.url = auth.get_tileserver_url(tile_server_dict.get("name", "bing"))
+
+        # check if url contains the right place holders
+        if not self.check_imagery_url():
+            raise CustomError(
+                "The imagery url must contain {x}, {y} and {z} or "
+                "the {quad_key} placeholders."
+            )
 
         # set api key
         self.apiKey = tile_server_dict.get(
@@ -34,3 +42,13 @@ class BaseTileServer(metaclass=ABCMeta):
         # currently not used in client and project creation
         self.captions = tile_server_dict.get("caption", None)
         self.date = tile_server_dict.get("date", None)
+
+    def check_imagery_url(self):
+        """Check if imagery url contains xyz or quad key placeholders."""
+        if all([substring in self.url for substring in ["{x}", "{y}", "{z}"]]):
+            return True
+        elif "{quad_key}" in self.url:
+            return True
+        else:
+            return False
+
