@@ -1,6 +1,8 @@
 import datetime
 import os
 from typing import List
+import gzip
+import io
 
 import pandas as pd
 from psycopg2 import sql
@@ -31,10 +33,18 @@ def write_sql_to_csv(filename: str, sql_query: sql.SQL):
     Use the copy statement to write data from postgres to a csv file.
     """
 
+    temp_file = "temp.csv"
     pg_db = auth.postgresDB()
-    with open(filename, "w") as f:
+    with open(temp_file, "w") as f:
         pg_db.copy_expert(sql_query, f)
-    logger.info(f"wrote csv file from sql: {filename}")
+
+    with open(temp_file, 'rb') as f_in, gzip.open(filename, 'wb') as f_out:
+        f_out.writelines(f_in)
+
+    # remove temp file
+    os.remove(temp_file)
+
+    logger.info(f"wrote gzipped csv file from sql: {filename}")
 
 
 def load_df_from_csv(filename: str) -> pd.DataFrame:
@@ -44,7 +54,11 @@ def load_df_from_csv(filename: str) -> pd.DataFrame:
     """
     dtype_dict = {"project_id": str, "group_id": str, "task_id": str}
 
-    df = pd.read_csv(filename, dtype=dtype_dict)
+    df = pd.read_csv(
+        filename,
+        dtype=dtype_dict,
+        compression="gzip"
+    )
     logger.info(f"loaded pandas df from {filename}")
     return df
 
@@ -322,11 +336,11 @@ def get_per_project_statistics(project_id: str, project_info: pd.Series) -> dict
     """
 
     # set filenames
-    results_filename = f"{DATA_PATH}/api/results/results_{project_id}.csv"
-    tasks_filename = f"{DATA_PATH}/api/tasks/tasks_{project_id}.csv"
-    groups_filename = f"{DATA_PATH}/api/groups/groups_{project_id}.csv"
-    agg_results_filename = f"{DATA_PATH}/api/agg_results/agg_results_{project_id}.csv"
-    agg_results_by_user_id_filename = f"{DATA_PATH}/api/users/users_{project_id}.csv"
+    results_filename = f"{DATA_PATH}/api/results/results_{project_id}.csv.gz"
+    tasks_filename = f"{DATA_PATH}/api/tasks/tasks_{project_id}.csv.gz"
+    groups_filename = f"{DATA_PATH}/api/groups/groups_{project_id}.csv.gz"
+    agg_results_filename = f"{DATA_PATH}/api/agg_results/agg_results_{project_id}.csv.gz"
+    agg_results_by_user_id_filename = f"{DATA_PATH}/api/users/users_{project_id}.csv.gz"
     project_stats_by_date_filename = f"{DATA_PATH}/api/history/history_{project_id}.csv"
 
     # load data from postgres or local storage if already downloaded
@@ -339,11 +353,23 @@ def get_per_project_statistics(project_id: str, project_info: pd.Series) -> dict
         groups_df = get_groups(groups_filename, project_id)
         tasks_df = get_tasks(tasks_filename, project_id)
 
+        if any("maxar" in s for s in project_info["tile_server_names"]):
+            add_metadata = True
+
         # aggregate results by task id
         agg_results_df = get_agg_results_by_task_id(results_df, tasks_df)
-        agg_results_df.to_csv(agg_results_filename, index_label="idx")
+        agg_results_df.to_csv(
+            agg_results_filename,
+            index_label="idx",
+            compression="gzip"
+        )
+
+        geojson_functions.gzipped_csv_to_gzipped_geojson(
+            filename=agg_results_filename,
+            geometry_field="geom",
+            add_metadata=add_metadata
+        )
         logger.info(f"saved agg results for {project_id}: {agg_results_filename}")
-        geojson_functions.csv_to_geojson(agg_results_filename, "geom")
 
         # aggregate results by user id
         # TODO: solve memory issue for agg results by user id
@@ -361,10 +387,6 @@ def get_per_project_statistics(project_id: str, project_info: pd.Series) -> dict
             sentry.capture_exception()
             logger.info(f"failed to agg results by user id for {project_id}")
 
-        if any("maxar" in s for s in project_info["tile_server_names"]):
-            add_metadata_to_csv(agg_results_filename)
-            geojson_functions.add_metadata_to_geojson(agg_results_filename)
-
         project_stats_by_date_df = project_stats_by_date.get_project_history(
             results_df, groups_df
         )
@@ -380,7 +402,10 @@ def get_per_project_statistics(project_id: str, project_info: pd.Series) -> dict
             # do not do this for ArbitraryGeometry / BuildingFootprint projects
             logger.info(f"do NOT generate tasking manager geometries for {project_id}")
         else:
-            tasking_manager_geometries.generate_tasking_manager_geometries(project_id)
+            tasking_manager_geometries.generate_tasking_manager_geometries(
+                project_id=project_id,
+                agg_results_filename=agg_results_filename
+            )
 
         # prepare output of function
         project_stats_dict = {

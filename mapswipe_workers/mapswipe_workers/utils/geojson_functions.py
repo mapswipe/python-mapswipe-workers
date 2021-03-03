@@ -1,10 +1,65 @@
 import json
 import os
+import gzip
+import shutil
 import subprocess
 
 from osgeo import ogr, osr
 
 from mapswipe_workers.definitions import logger
+
+
+def gzipped_csv_to_gzipped_geojson(
+        filename: str,
+        geometry_field: str = "geom",
+        add_metadata: bool = False
+):
+    """Use ogr2ogr to convert csv file to GeoJSON.
+
+    Check if file is compressed.
+    """
+    csv_file = "temp.csv"
+    geojson_file = "temp.geojson"
+    outfile = filename.replace(".csv", f"_{geometry_field}.geojson")
+    filename_without_path = csv_file.split("/")[-1].replace(".csv", "")
+
+    with gzip.open(filename, 'rb') as f_in:
+        with open(csv_file, 'wb') as f_out:
+            shutil.copyfileobj(f_in, f_out)
+
+    # need to remove file here because ogr2ogr can't overwrite when choosing GeoJSON
+    if os.path.isfile(geojson_file):
+        os.remove(geojson_file)
+
+    # TODO: remove geom column from normal attributes in sql query
+    subprocess.run(
+        [
+            "ogr2ogr",
+            "-f",
+            "GeoJSON",
+            geojson_file,
+            csv_file,
+            "-sql",
+            f'SELECT *, CAST({geometry_field} as geometry) FROM "{filename_without_path}"',  # noqa E501
+        ],
+        check=True,
+    )
+    logger.info(f"converted {filename} to {outfile}.")
+
+    if add_metadata:
+        add_metadata_to_geojson(geojson_file)
+
+    cast_datatypes_for_geojson(geojson_file)
+
+    with open(geojson_file, "r") as f:
+        json_data = json.load(f)
+
+    with gzip.open(outfile, 'wt') as fout:
+        json.dump(json_data, fout)
+
+    # remove temp files
+    os.remove(csv_file)
+    os.remove(geojson_file)
 
 
 def csv_to_geojson(filename: str, geometry_field: str = "geom"):

@@ -1,4 +1,5 @@
 import csv
+import gzip
 import threading
 from queue import Queue
 
@@ -8,7 +9,7 @@ from mapswipe_workers.definitions import DATA_PATH, logger
 from mapswipe_workers.utils import geojson_functions, tile_functions
 
 
-def load_data(project_id: str, csv_file: str) -> list:
+def load_data(project_id: str, gzipped_csv_file: str) -> list:
     """
     This will load the aggregated results csv file into a list of dictionaries.
     For further steps we currently rely on task_x, task_y, task_z and yes_share and
@@ -16,7 +17,7 @@ def load_data(project_id: str, csv_file: str) -> list:
     """
 
     project_data = []
-    with open(csv_file, "r") as f:
+    with gzip.open(gzipped_csv_file, mode="rt") as f:
         reader = csv.reader(f, delimiter=",")
 
         for i, row in enumerate(reader):
@@ -416,7 +417,7 @@ def dissolve_project_data(project_data):
     return dissolved_geometry
 
 
-def generate_tasking_manager_geometries(project_id: str):
+def generate_tasking_manager_geometries(project_id: str, agg_results_filename):
     """
     This functions runs the workflow to create a GeoJSON file ready to be used in the
     HOT Tasking Manager.
@@ -428,14 +429,13 @@ def generate_tasking_manager_geometries(project_id: str):
     Finally, both data sets are saved into GeoJSON files.
     """
 
-    raw_data_filename = f"{DATA_PATH}/api/agg_results/agg_results_{project_id}.csv"
     filtered_data_filename = f"{DATA_PATH}/api/yes_maybe/yes_maybe_{project_id}.geojson"
     tasking_manager_data_filename = (
         f"{DATA_PATH}/api/hot_tm/hot_tm_{project_id}.geojson"
     )
 
     # load project data from existing files
-    results = load_data(project_id, raw_data_filename)
+    results = load_data(project_id, agg_results_filename)
 
     # filter yes and maybe results
     filtered_results = filter_data(results)
