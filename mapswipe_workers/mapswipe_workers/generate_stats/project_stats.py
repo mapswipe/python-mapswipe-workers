@@ -2,7 +2,7 @@ import datetime
 import os
 from typing import List
 import gzip
-import io
+import tempfile
 
 import pandas as pd
 from psycopg2 import sql
@@ -28,21 +28,19 @@ def add_metadata_to_csv(filename: str):
     logger.info(f"added metadata to {filename}.")
 
 
-def write_sql_to_csv(filename: str, sql_query: sql.SQL):
+def write_sql_to_gzipped_csv(filename: str, sql_query: sql.SQL):
     """
     Use the copy statement to write data from postgres to a csv file.
     """
 
-    temp_file = "temp.csv"
+    # generate temporary file which will be automatically deleted at the end
+    tmp_csv_file = os.path.join(tempfile._get_default_tempdir(), 'tmp.csv')
     pg_db = auth.postgresDB()
-    with open(temp_file, "w") as f:
+    with open(tmp_csv_file, "w") as f:
         pg_db.copy_expert(sql_query, f)
 
-    with open(temp_file, 'rb') as f_in, gzip.open(filename, 'wb') as f_out:
+    with open(tmp_csv_file, 'rb') as f_in, gzip.open(filename, 'wb') as f_out:
         f_out.writelines(f_in)
-
-    # remove temp file
-    os.remove(temp_file)
 
     logger.info(f"wrote gzipped csv file from sql: {filename}")
 
@@ -87,7 +85,7 @@ def get_results(filename: str, project_id: str) -> pd.DataFrame:
         ) TO STDOUT WITH CSV HEADER
         """
     ).format(sql.Literal(project_id))
-    write_sql_to_csv(filename, sql_query)
+    write_sql_to_gzipped_csv(filename, sql_query)
 
     df = load_df_from_csv(filename)
 
@@ -131,7 +129,7 @@ def get_tasks(filename: str, project_id: str) -> pd.DataFrame:
             ) TO STDOUT WITH CSV HEADER
             """
         ).format(sql.Literal(project_id))
-        write_sql_to_csv(filename, sql_query)
+        write_sql_to_gzipped_csv(filename, sql_query)
 
     df = load_df_from_csv(filename)
     return df
@@ -166,7 +164,7 @@ def get_groups(filename: str, project_id: str) -> pd.DataFrame:
             ) TO STDOUT WITH CSV HEADER
             """
         ).format(sql.Literal(project_id))
-        write_sql_to_csv(filename, sql_query)
+        write_sql_to_gzipped_csv(filename, sql_query)
 
     df = load_df_from_csv(filename)
     return df

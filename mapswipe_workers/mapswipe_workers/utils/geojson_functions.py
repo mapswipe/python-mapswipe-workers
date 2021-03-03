@@ -4,7 +4,6 @@ import gzip
 import shutil
 import subprocess
 import tempfile
-from pathlib import Path
 
 from osgeo import ogr, osr
 
@@ -22,7 +21,7 @@ def gzipped_csv_to_gzipped_geojson(
     Then the unzipped csv file is converted into a geojson file with ogr2ogr.
     Last, the generated geojson file is again compressed using gzip.
     """
-    # generate tempory files which will be automatically deleted at the end
+    # generate temporary files which will be automatically deleted at the end
     tmp_csv_file = os.path.join(tempfile._get_default_tempdir(), 'tmp.csv')
     tmp_geojson_file = os.path.join(tempfile._get_default_tempdir(), 'tmp.geojson')
 
