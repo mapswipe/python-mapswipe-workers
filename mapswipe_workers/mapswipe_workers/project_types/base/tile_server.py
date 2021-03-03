@@ -21,7 +21,7 @@ class BaseTileServer(metaclass=ABCMeta):
         # check if url contains the right place holders
         if not self.check_imagery_url():
             raise CustomError(
-                "The imagery url must contain {x}, {y} and {z} or "
+                f"The imagery url '{self.url}' must contain {x}, {y} and {z} or "
                 "the {quad_key} placeholders."
             )
 
