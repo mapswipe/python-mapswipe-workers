@@ -3,6 +3,8 @@ import os
 import gzip
 import shutil
 import subprocess
+import tempfile
+from pathlib import Path
 
 from osgeo import ogr, osr
 
@@ -14,52 +16,51 @@ def gzipped_csv_to_gzipped_geojson(
         geometry_field: str = "geom",
         add_metadata: bool = False
 ):
-    """Use ogr2ogr to convert csv file to GeoJSON.
+    """Convert gzipped csv file to gzipped GeoJSON.
 
-    Check if file is compressed.
+    First the gzipped files are unzipped and stored in temporary csv and geojson files.
+    Then the unzipped csv file is converted into a geojson file with ogr2ogr.
+    Last, the generated geojson file is again compressed using gzip.
     """
-    csv_file = "temp.csv"
-    geojson_file = "temp.geojson"
-    outfile = filename.replace(".csv", f"_{geometry_field}.geojson")
-    filename_without_path = csv_file.split("/")[-1].replace(".csv", "")
+    # generate tempory files which will be automatically deleted at the end
+    tmp_csv_file = os.path.join(tempfile._get_default_tempdir(), 'tmp.csv')
+    tmp_geojson_file = os.path.join(tempfile._get_default_tempdir(), 'tmp.geojson')
 
+    outfile = filename.replace(".csv", f"_{geometry_field}.geojson")
+
+    # uncompress content of zipped csv file and save to csv file
     with gzip.open(filename, 'rb') as f_in:
-        with open(csv_file, 'wb') as f_out:
+        with open(tmp_csv_file, "wb") as f_out:
             shutil.copyfileobj(f_in, f_out)
 
-    # need to remove file here because ogr2ogr can't overwrite when choosing GeoJSON
-    if os.path.isfile(geojson_file):
-        os.remove(geojson_file)
-
+    # use ogr2ogr to transform csv file into geojson file
     # TODO: remove geom column from normal attributes in sql query
     subprocess.run(
         [
             "ogr2ogr",
             "-f",
             "GeoJSON",
-            geojson_file,
-            csv_file,
+            tmp_geojson_file,
+            tmp_csv_file,
             "-sql",
-            f'SELECT *, CAST({geometry_field} as geometry) FROM "{filename_without_path}"',  # noqa E501
+            f'SELECT *, CAST({geometry_field} as geometry) FROM "tmp"',  # noqa E501
         ],
         check=True,
     )
-    logger.info(f"converted {filename} to {outfile}.")
 
     if add_metadata:
-        add_metadata_to_geojson(geojson_file)
+        add_metadata_to_geojson(tmp_geojson_file)
 
-    cast_datatypes_for_geojson(geojson_file)
+    cast_datatypes_for_geojson(tmp_geojson_file)
 
-    with open(geojson_file, "r") as f:
+    # compress geojson file with gzip
+    with open(tmp_geojson_file, "r") as f:
         json_data = json.load(f)
 
     with gzip.open(outfile, 'wt') as fout:
         json.dump(json_data, fout)
 
-    # remove temp files
-    os.remove(csv_file)
-    os.remove(geojson_file)
+    logger.info(f"converted {filename} to {outfile} with ogr2ogr.")
 
 
 def csv_to_geojson(filename: str, geometry_field: str = "geom"):
