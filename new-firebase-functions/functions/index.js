@@ -71,6 +71,7 @@ exports.resultCounter = functions.database.ref('/v2/results/{projectId}/{groupId
     const contributionTime = userContributionRef.child(context.params.groupId).once('value')
         .then((dataSnapshot) => {
             if (dataSnapshot.exists()) {
+                console.log('group contribution exists already. user: '+context.params.userId+' project: '+context.params.projectId+' group: '+context.params.groupId)
                 return null
             }
             else {
