@@ -353,6 +353,8 @@ def get_per_project_statistics(project_id: str, project_info: pd.Series) -> dict
 
         if any("maxar" in s for s in project_info["tile_server_names"]):
             add_metadata = True
+        else:
+            add_metadata = False
 
         # aggregate results by task id
         agg_results_df = get_agg_results_by_task_id(results_df, tasks_df)
