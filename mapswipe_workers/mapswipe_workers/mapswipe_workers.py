@@ -93,8 +93,15 @@ def run_create_projects():
         except CustomError as e:
             ref = fb_db.reference(f"v2/projectDrafts/{project_draft_id}")
             ref.set({})
+
+            # check if project could be initialized
+            try:
+                project_id = project.projectId
+            except UnboundLocalError:
+                project_id = None
+
             send_slack_message(
-                MessageType.FAIL, project_name, project.projectId, str(e)
+                MessageType.FAIL, project_name, project_id, str(e)
             )
             logger.exception("Failed: Project Creation ({0}))".format(project_name))
             sentry.capture_exception()

@@ -142,6 +142,27 @@ function upload_project_image(mapswipe_import) {
 
 }
 
+function check_imagery_url() {
+    // check if url A contains the placeholders when using custom imagery
+    urlA = document.getElementById("tileServerAUrl").value
+    nameA = document.getElementById("tileServerAName").value
+    if (nameA === "custom" & (!urlA.includes("{x}") | !urlA.includes("{y}") | !urlA.includes("{z}"))) {
+        alert("The imagery url A must contain {x}, {y} and {z} placeholders.")
+        return false
+    }
+
+    // check if url B contains the placeholders when using custom imagery
+    urlB = document.getElementById("tileServerBUrl").value
+    nameB = document.getElementById("tileServerBName").value
+    if (nameB === "custom" & (!urlB.includes("{x}") | !urlB.includes("{y}") | !urlB.includes("{z}"))) {
+        alert("The imagery url B must contain {x}, {y} and {z} placeholders.")
+        return false
+    }
+
+    // check passed
+    return true
+}
+
 
 function upload_to_firebase() {
     switch (currentUid) {
@@ -150,9 +171,13 @@ function upload_to_firebase() {
         default:
             // get form data
             // TODO: add checks if all input values are valid, e.g. image available
-            mapswipe_import = getFormInput()
-
-            // upload projectDraft to firebase once image has been uploaded
-            upload_project_image(mapswipe_import)
+            if (check_imagery_url() === false) {
+                console.log("could not create project due to imagery url.")
+            }
+            else {
+                mapswipe_import = getFormInput()
+                // upload projectDraft to firebase once image has been uploaded
+                upload_project_image(mapswipe_import)
+            }
     }
 }
