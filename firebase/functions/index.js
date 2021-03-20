@@ -12,6 +12,15 @@ exports.groupUsersCounter = functions.database.ref('/v2/results/{projectId}/{gro
     const promises = []  // List of promises to return
     const result = snapshot.val()
 
+    // Firebase Realtime Database references
+    const groupRef = admin.database().ref('/v2/groups/' + context.params.projectId + '/' + context.params.groupId)
+
+    // these references/values will be updated by this function
+    const groupUsersRef = admin.database().ref('/v2/groupsUsers/' + context.params.projectId + '/' + context.params.groupId)
+    const projectUsersRef = admin.database().ref('/v2/projectsUsers/' + context.params.projectId)
+    const userRef = admin.database().ref('/v2/users/' + context.params.userId)
+    const userContributionRef = userRef.child('contributionsNew/' + context.params.projectId)
+
     // if result ref does not contain all required attributes we don't updated counters
     // e.g. due to some error when uploading from client
     if (!result.hasOwnProperty('results')) {
@@ -28,27 +37,34 @@ exports.groupUsersCounter = functions.database.ref('/v2/results/{projectId}/{gro
         return null
     }
 
-    // Firebase Realtime Database references
-    const groupRef = admin.database().ref('/v2/groups/' + context.params.projectId + '/' + context.params.groupId)
-    const groupUsersRef = admin.database().ref('/v2/groupsUsers/' + context.params.projectId + '/' + context.params.groupId)
-
     // Set userId in groupUsersRef
-    const groupUsersKeys = groupUsersRef.child(context.params.userId).once('value')
+    updateValues = groupUsersRef.child(context.params.userId).once('value')
         .then((dataSnapshot) => {
             if (dataSnapshot.exists()) {
                 console.log('group contribution exists already. user: '+context.params.userId+' project: '+context.params.projectId+' group: '+context.params.groupId)
                 return null
             }
             else {
-                return groupUsersRef.child(context.params.userId).set(true)
+
+                const data = {
+                    'startTime': result['startTime'],
+                    'endTime': result['endTime']
+                }
+
+                return {
+                    userContribution: userContributionRef.child(context.params.groupId).set(data),
+                    groupUsers: groupUsersRef.child(context.params.userId).set(true),
+                    projectUsers: projectUsersRef.child(context.params.userId).set(true)
+                }
             }
         })
-    promises.push(groupUsersKeys)
+    promises.push(updateValues.userContribution)
+    promises.push(updateValues.groupUsers)
 })
 
 
 // set group finishedCount and group requiredCount.
-// Gets triggered when new userId key is written to groupsKey.
+// Gets triggered when new userId key is written to groupsUsers.
 exports.groupFinishedCountUpdater = functions.database.ref('/v2/groupsUsers/{projectId}/{groupId}/').onWrite((snapshot, context) => {
     const promises_new = []
 
@@ -60,14 +76,8 @@ exports.groupFinishedCountUpdater = functions.database.ref('/v2/groupsUsers/{pro
     const groupFinishedCountRef = admin.database().ref('/v2/groups/' + context.params.projectId + '/' + context.params.groupId + '/finishedCountNew')
     const groupRequiredCountRef = admin.database().ref('/v2/groups/' + context.params.projectId + '/' + context.params.groupId + '/requiredCountNew')
 
-    // set group finished count based on number of users that finished this group
-    groupFinishedCount = groupUsersRef.once("value")
-        .then((dataSnapshot) => {
-            return groupFinishedCountRef.set(dataSnapshot.numChildren())
-        })
-    promises_new.push(groupFinishedCount)
-
     /*
+        Set group finished count based on number of users that finished this group.
         Calculate required count based on number of userIds and verification number.
         Verification number can be defined on the project level or on the group level.
         If a verification number is defined for the group,
@@ -75,30 +85,53 @@ exports.groupFinishedCountUpdater = functions.database.ref('/v2/groupsUsers/{pro
         This will allow us to either map specific groups more often
         or less often than other groups in this project.
     */
-     groupRequiredCount = groupVerificationNumberRef.once("value")
+     groupValues = groupVerificationNumberRef.once("value")
         .then((dataSnapshot) => {
             // check if a verification number is set for this group
             if (dataSnapshot.exists()) {
                 console.log("using group verification number")
-                return dataSnapshot.val()
+                verificationNumber = dataSnapshot.val()
+                return verificationNumber
             } else {
-                console.log("using project verification number")
                 // use project verification number if it is not set for the group
-                projectVerificationNumberRef.once("value")
+                verificationNumber = projectVerificationNumberRef.once("value")
                     .then((dataSnapshot2) => {
                         return dataSnapshot2.val()
                     })
+                return verificationNumber
             }
         })
         .then((verificationNumber) => {
-            console.log(verificationNumber)
             groupUsersRef.once("value")
                 .then((dataSnapshot3) => {
-                    console.log(dataSnapshot3.numChildren())
-                    return groupRequiredCountRef.set(verificationNumber - dataSnapshot3.numChildren())
+                    return {
+                        finishedCount: groupFinishedCountRef.set(dataSnapshot3.numChildren()),
+                        requiredCount: groupRequiredCountRef.set(verificationNumber - dataSnapshot3.numChildren())
+                    }
                 })
         })
-    promises_new.push(groupRequiredCount)
+    promises_new.push(groupValues.requiredCount)
+    promises_new.push(groupValues.finishedCount)
+})
+
+
+
+// set project contributor count.
+// Gets triggered when new userId key is written to projectsUsers.
+exports.projectContributorCountUpdater = functions.database.ref('/v2/projectsUsers/{projectId}/').onWrite((snapshot, context) => {
+    const promises_new2 = []
+
+    const projectUsersRef = admin.database().ref('/v2/projectsUsers/' + context.params.projectId)
+
+    // these references/values will be updated by this function
+    const projectContributorCountRef = admin.database().ref('/v2/projects/' + context.params.projectId + '/contributorCountNew')
+
+    projectContributorCount = projectUsersRef.once("value")
+        .then((dataSnapshot) => {
+            return projectContributorCountRef.set(dataSnapshot.numChildren())
+        })
+
+    promises_new2.push(projectContributorCount)
 })
 
 
