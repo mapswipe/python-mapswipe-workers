@@ -5,6 +5,112 @@ const functions = require('firebase-functions')
 const admin = require('firebase-admin')
 admin.initializeApp()
 
+
+// Calculate number of users who finished a group and
+// Gets triggered when new results of a group are written to the database.
+exports.groupUsersCounter = functions.database.ref('/v2/results/{projectId}/{groupId}/{userId}/').onCreate((snapshot, context) => {
+    const promises = []  // List of promises to return
+    const result = snapshot.val()
+
+    // if result ref does not contain all required attributes we don't updated counters
+    // e.g. due to some error when uploading from client
+    if (!result.hasOwnProperty('results')) {
+        console.log('no results attribute for ' + snapshot.ref)
+        console.log('will not update counters')
+        return null
+    } else if (!result.hasOwnProperty('endTime')) {
+        console.log('no endTime attribute for ' + snapshot.ref)
+        console.log('will not update counters')
+        return null
+    } else if (!result.hasOwnProperty('startTime')) {
+        console.log('no startTime attribute for ' + snapshot.ref)
+        console.log('will not update counters')
+        return null
+    }
+
+    // Firebase Realtime Database references
+    const groupRef = admin.database().ref('/v2/groups/' + context.params.projectId + '/' + context.params.groupId)
+    const groupUsersRef = admin.database().ref('/v2/groupsUsers/' + context.params.projectId + '/' + context.params.groupId)
+
+    // Set userId in groupUsersRef
+    const groupUsersKeys = groupUsersRef.child(context.params.userId).once('value')
+        .then((dataSnapshot) => {
+            if (dataSnapshot.exists()) {
+                console.log('group contribution exists already. user: '+context.params.userId+' project: '+context.params.projectId+' group: '+context.params.groupId)
+                return null
+            }
+            else {
+                return groupUsersRef.child(context.params.userId).set(true)
+            }
+        })
+    promises.push(groupUsersKeys)
+})
+
+
+// set group finishedCount and group requiredCount.
+// Gets triggered when new userId key is written to groupsKey.
+exports.groupFinishedCountUpdater = functions.database.ref('/v2/groupsUsers/{projectId}/{groupId}/').onWrite((snapshot, context) => {
+    const promises_new = []
+
+    const groupUsersRef = admin.database().ref('/v2/groupsUsers/' + context.params.projectId + '/' + context.params.groupId)
+    const projectVerificationNumberRef = admin.database().ref('/v2/projects/' + context.params.projectId + '/verificationNumber')
+    const groupVerificationNumberRef = admin.database().ref('/v2/groups/' + context.params.projectId + '/' + context.params.groupId + '/verificationNumber')
+
+    // these references/values will be updated by this function
+    const groupFinishedCountRef = admin.database().ref('/v2/groups/' + context.params.projectId + '/' + context.params.groupId + '/finishedCountNew')
+    const groupRequiredCountRef = admin.database().ref('/v2/groups/' + context.params.projectId + '/' + context.params.groupId + '/requiredCountNew')
+
+    // set group finished count based on number of users that finished this group
+    groupFinishedCount = groupUsersRef.once("value")
+        .then((dataSnapshot) => {
+            return groupFinishedCountRef.set(dataSnapshot.numChildren())
+        })
+    promises_new.push(groupFinishedCount)
+
+    /*
+        Calculate required count based on number of userIds and verification number.
+        Verification number can be defined on the project level or on the group level.
+        If a verification number is defined for the group,
+        this will surpass the project verification number.
+        This will allow us to either map specific groups more often
+        or less often than other groups in this project.
+    */
+     groupRequiredCount = groupVerificationNumberRef.once("value")
+        .then((dataSnapshot) => {
+            // check if a verification number is set for this group
+            if (dataSnapshot.exists()) {
+                console.log("using group verification number")
+                return dataSnapshot.val()
+            } else {
+                console.log("using project verification number")
+                // use project verification number if it is not set for the group
+                projectVerificationNumberRef.once("value")
+                    .then((dataSnapshot2) => {
+                        return dataSnapshot2.val()
+                    })
+            }
+        })
+        .then((verificationNumber) => {
+            console.log(verificationNumber)
+            groupUsersRef.once("value")
+                .then((dataSnapshot3) => {
+                    console.log(dataSnapshot3.numChildren())
+                    return groupRequiredCountRef.set(verificationNumber - dataSnapshot3.numChildren())
+                })
+        })
+    promises_new.push(groupRequiredCount)
+})
+
+
+
+
+/*
+
+OLD CODE
+
+*/
+
+
 // Increments or decrements various counters of User and Group once new reults are pushed.
 // Gets triggered when new results of a group are written to the database.
 exports.resultCounter = functions.database.ref('/v2/results/{projectId}/{groupId}/{userId}/').onCreate((snapshot, context) => {
