@@ -333,7 +333,7 @@ def set_contributors_in_firebase(project_id: str, contributors: int):
     """Update the project contributors value in Firebase."""
 
     fb_db = auth.firebaseDB()
-    project_progress_ref = fb_db.reference(f"v2/projects/{project_id}/contributors")
+    project_progress_ref = fb_db.reference(f"v2/projects/{project_id}/contributorCount")
     project_progress_ref.set(contributors)
     logger.info(f"set contributors for project {project_id}: {contributors}")
 
