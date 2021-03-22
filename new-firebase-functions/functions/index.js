@@ -17,7 +17,6 @@ exports.groupUsersCounter = functions.database.ref('/v2/results/{projectId}/{gro
 
     // these references/values will be updated by this function
     const groupUsersRef = admin.database().ref('/v2/groupsUsers/' + context.params.projectId + '/' + context.params.groupId)
-    const projectUsersRef = admin.database().ref('/v2/projectsUsers/' + context.params.projectId)
     const userRef = admin.database().ref('/v2/users/' + context.params.userId)
     const userContributionRef = userRef.child('contributionsNew/' + context.params.projectId)
 
@@ -54,7 +53,6 @@ exports.groupUsersCounter = functions.database.ref('/v2/results/{projectId}/{gro
                 return {
                     userContribution: userContributionRef.child(context.params.groupId).set(data),
                     groupUsers: groupUsersRef.child(context.params.userId).set(true),
-                    projectUsers: projectUsersRef.child(context.params.userId).set(true)
                 }
             }
         })
@@ -112,26 +110,6 @@ exports.groupFinishedCountUpdater = functions.database.ref('/v2/groupsUsers/{pro
         })
     promises_new.push(groupValues.requiredCount)
     promises_new.push(groupValues.finishedCount)
-})
-
-
-
-// set project contributor count.
-// Gets triggered when new userId key is written to projectsUsers.
-exports.projectContributorCountUpdater = functions.database.ref('/v2/projectsUsers/{projectId}/').onWrite((snapshot, context) => {
-    const promises_new2 = []
-
-    const projectUsersRef = admin.database().ref('/v2/projectsUsers/' + context.params.projectId)
-
-    // these references/values will be updated by this function
-    const projectContributorCountRef = admin.database().ref('/v2/projects/' + context.params.projectId + '/contributorCountNew')
-
-    projectContributorCount = projectUsersRef.once("value")
-        .then((dataSnapshot) => {
-            return projectContributorCountRef.set(dataSnapshot.numChildren())
-        })
-
-    promises_new2.push(projectContributorCount)
 })
 
 
