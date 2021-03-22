@@ -320,6 +320,24 @@ def get_agg_results_by_task_id(
     return agg_results_df
 
 
+def set_progress_in_firebase(project_id: str, progress: float):
+    """Update the project progress value in Firebase."""
+
+    fb_db = auth.firebaseDB()
+    project_progress_ref = fb_db.reference(f"v2/projects/{project_id}/progress")
+    project_progress_ref.set(int(progress))
+    logger.info(f"set progress for project {project_id}: {int(progress)}")
+
+
+def set_contributors_in_firebase(project_id: str, contributors: int):
+    """Update the project contributors value in Firebase."""
+
+    fb_db = auth.firebaseDB()
+    project_progress_ref = fb_db.reference(f"v2/projects/{project_id}/contributors")
+    project_progress_ref.set(contributors)
+    logger.info(f"set contributors for project {project_id}: {contributors}")
+
+
 def get_per_project_statistics(project_id: str, project_info: pd.Series) -> dict:
     """
     The function calculates all project related statistics.
@@ -387,6 +405,7 @@ def get_per_project_statistics(project_id: str, project_info: pd.Series) -> dict
             sentry.capture_exception()
             logger.info(f"failed to agg results by user id for {project_id}")
 
+        # calculate progress and contributors over time for project
         project_stats_by_date_df = project_stats_by_date.get_project_history(
             results_df, groups_df
         )
@@ -395,6 +414,19 @@ def get_per_project_statistics(project_id: str, project_info: pd.Series) -> dict
         logger.info(
             f"saved project stats by date for {project_id}: "
             f"{project_stats_by_date_filename}"
+        )
+
+        # update progress and contributors in firebase
+        set_progress_in_firebase(
+            project_id=project_id,
+            progress=100*project_stats_by_date_df["cum_progress"][-1]
+        )
+
+        print(project_stats_by_date_df["cum_number_of_users"][-1])
+
+        set_contributors_in_firebase(
+            project_id=project_id,
+            contributors=int(project_stats_by_date_df["cum_number_of_users"][-1])
         )
 
         # generate geometries for HOT Tasking Manager
