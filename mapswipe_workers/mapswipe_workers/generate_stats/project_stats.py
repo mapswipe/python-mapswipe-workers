@@ -320,13 +320,13 @@ def get_agg_results_by_task_id(
     return agg_results_df
 
 
-def set_progress_in_firebase(project_id: str, progress: float):
+def set_progress_in_firebase(project_id: str, progress: int):
     """Update the project progress value in Firebase."""
 
     fb_db = auth.firebaseDB()
     project_progress_ref = fb_db.reference(f"v2/projects/{project_id}/progress")
-    project_progress_ref.set(int(progress))
-    logger.info(f"set progress for project {project_id}: {int(progress)}")
+    project_progress_ref.set(progress)
+    logger.info(f"set progress for project {project_id}: {progress}")
 
 
 def set_contributors_in_firebase(project_id: str, contributors: int):
@@ -419,7 +419,7 @@ def get_per_project_statistics(project_id: str, project_info: pd.Series) -> dict
         # update progress and contributors in firebase
         set_progress_in_firebase(
             project_id=project_id,
-            progress=100*project_stats_by_date_df["cum_progress"][-1]
+            progress=int(100*project_stats_by_date_df["cum_progress"][-1])
         )
 
         set_contributors_in_firebase(
