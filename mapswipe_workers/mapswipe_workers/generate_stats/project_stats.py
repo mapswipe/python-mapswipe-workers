@@ -422,8 +422,6 @@ def get_per_project_statistics(project_id: str, project_info: pd.Series) -> dict
             progress=100*project_stats_by_date_df["cum_progress"][-1]
         )
 
-        print(project_stats_by_date_df["cum_number_of_users"][-1])
-
         set_contributors_in_firebase(
             project_id=project_id,
             contributors=int(project_stats_by_date_df["cum_number_of_users"][-1])
