@@ -35,8 +35,8 @@ script:
   - isort --check --settings-file mapswipe_workers/setup.cfg mapswipe_workers
   - docker-compose up --build --detach firebase_deploy
   - docker-compose up --build --detach postgres
-  - docker-compose run mapswipe_workers python -m unittest discover --verbose --start-directory tests/unittests/
-  - docker-compose run mapswipe_workers python -m unittest discover --verbose --start-directory tests/integration/
+  - docker-compose run mapswipe_workers_creation python -m unittest discover --verbose --start-directory tests/unittests/
+  - docker-compose run mapswipe_workers_creation python -m unittest discover --verbose --start-directory tests/integration/
 
 after_success:
   # SSH setup to deploy to server after build.
