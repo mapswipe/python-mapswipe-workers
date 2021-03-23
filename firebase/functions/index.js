@@ -180,5 +180,5 @@ exports.incProjectProgress = functions.database.ref('/v2/projects/{projectId}/re
 //
 // Gets triggered when project.requiredResults gets changed.
 exports.decProjectProgress = functions.database.ref('/v2/projects/{projectId}/requiredResults/').onUpdate((projectRequiredResults, context) => {
-        return null
+    return null
 })
