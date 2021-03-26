@@ -50,7 +50,7 @@ services:
             - manager_dashboard
 
     mapswipe_workers_creation:
-        container_name: mapswipe_workers
+        container_name: mapswipe_workers_creation
         build:
             context: mapswipe_workers/
         environment:
@@ -84,7 +84,7 @@ services:
             - postgres
 
     mapswipe_workers_stats:
-        container_name: mapswipe_workers
+        container_name: mapswipe_workers_stats
         build:
             context: mapswipe_workers/
         environment:
