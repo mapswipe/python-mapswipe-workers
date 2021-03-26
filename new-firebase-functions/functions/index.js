@@ -11,6 +11,8 @@ admin.initializeApp()
     Gets triggered when new results of a group are written to the database.
     This is the basis to calculate number of users who finished a group (requiredCount and finishedCount),
     which will be handled in the groupFinishedCountUpdater function.
+
+    This function also writes to the `contributions` section in the user profile.
 */
 exports.groupUsersCounter = functions.database.ref('/v2/results/{projectId}/{groupId}/{userId}/').onCreate((snapshot, context) => {
     const promises = []  // List of promises to return
@@ -23,6 +25,7 @@ exports.groupUsersCounter = functions.database.ref('/v2/results/{projectId}/{gro
     const groupUsersRef = admin.database().ref('/v2/groupsUsers/' + context.params.projectId + '/' + context.params.groupId)
     const userRef = admin.database().ref('/v2/users/' + context.params.userId)
     const totalTaskContributionCountRef = userRef.child('taskContributionCount')
+    const totalGroupContributionCountRef = userRef.child('groupContributionCount')
     const userContributionRef = userRef.child('contributions/' + context.params.projectId)
     const taskContributionCountRef = userRef.child('contributions/' + context.params.projectId + '/taskContributionCount')
 
@@ -67,6 +70,7 @@ exports.groupUsersCounter = functions.database.ref('/v2/results/{projectId}/{gro
                     userContribution: userContributionRef.child(context.params.groupId).set(data),
                     groupUsers: groupUsersRef.child(context.params.userId).set(true),
                     totalTaskContributionCount: totalTaskContributionCountRef.transaction((currentCount) => {return currentCount + numberOfTasks}),
+                    totalGroupContributionCount: totalGroupContributionCountRef.transaction((currentCount) => {return currentCount + 1}),
                     taskContributionCount: taskContributionCountRef.transaction((currentCount) => {return currentCount + numberOfTasks})
                 }
             }
@@ -80,6 +84,7 @@ exports.groupUsersCounter = functions.database.ref('/v2/results/{projectId}/{gro
         promises.push(updateValues.userContribution)
         promises.push(updateValues.groupUsers)
         promises.push(updateValues.totalTaskContributionCount)
+        promises.push(updateValues.totalGroupContributionCount)
         promises.push(updateValues.taskContributionCount)
     }
 })
@@ -138,6 +143,24 @@ exports.groupFinishedCountUpdater = functions.database.ref('/v2/groupsUsers/{pro
         })
     promises_new.push(groupValues.requiredCount)
     promises_new.push(groupValues.finishedCount)
+})
+
+
+/*
+    Count how many projects a users has worked on at v2/users/{userId}/projectContributionCount.
+    This is based on the number of projectIds set in the `contribution` part of the user profile.
+*/
+exports.projectContributionCounter = functions.database.ref('/v2/users/{userId}/contributions/').onWrite((snapshot, context) => {
+    const promises_2 = []
+    // using after here to check the data after the write operation
+    const contributions = snapshot.after.val()
+
+    // these references/values will be updated by this function
+    const projectContributionCountRef   = admin.database().ref('/v2/users/'+context.params.userId+'/projectContributionCount')
+
+    // set number of projects a user contributed to
+    const projectContributionCount = projectContributionCountRef.set(Object.keys( contributions ).length)
+    promises_2.push(projectContributionCount)
 })
 
 
