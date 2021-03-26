@@ -6,8 +6,12 @@ const admin = require('firebase-admin')
 admin.initializeApp()
 
 
-// Calculate number of users who finished a group and
-// Gets triggered when new results of a group are written to the database.
+/*
+    Log the userIds of all users who finished a group to /v2/userGroups/{projectId}/{groupId}/.
+    Gets triggered when new results of a group are written to the database.
+    This is the basis to calculate number of users who finished a group (requiredCount and finishedCount),
+    which will be handled in the groupFinishedCountUpdater function.
+*/
 exports.groupUsersCounter = functions.database.ref('/v2/results/{projectId}/{groupId}/{userId}/').onCreate((snapshot, context) => {
     const promises = []  // List of promises to return
     const result = snapshot.val()
@@ -67,16 +71,26 @@ exports.groupUsersCounter = functions.database.ref('/v2/results/{projectId}/{gro
                 }
             }
         })
-    promises.push(updateValues.userContribution)
-    promises.push(updateValues.groupUsers)
-    promises.push(updateValues.totalTaskContributionCount)
-    promises.push(updateValues.taskContributionCount)
 
+    // Check if updateValues is null (happens when user submitted this group twice)
+    // and return null in this case.
+    if (updateValues === null) {
+        return null
+    } else {
+        promises.push(updateValues.userContribution)
+        promises.push(updateValues.groupUsers)
+        promises.push(updateValues.totalTaskContributionCount)
+        promises.push(updateValues.taskContributionCount)
+    }
 })
 
 
-// set group finishedCount and group requiredCount.
-// Gets triggered when new userId key is written to groupsUsers.
+/*
+    Set group finishedCount and group requiredCount.
+    Gets triggered when new userId key is written to v2/groupsUsers/{projectId}/{groupId}.
+    FinishedCount and requiredCount of a group are calculated based on the number of userIds
+    that are present in v2/groupsUsers/{projectId}/{groupId}.
+*/
 exports.groupFinishedCountUpdater = functions.database.ref('/v2/groupsUsers/{projectId}/{groupId}/').onWrite((snapshot, context) => {
     const promises_new = []
 
