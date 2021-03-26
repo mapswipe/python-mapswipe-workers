@@ -2,7 +2,7 @@
 # This script builds and starts all Docker container for running the Mapswipe ecosystem.
 # It is run either manually or by an Ansible Playbook after a successful Travis build.
 
-docker-compose build --no-cache postgres firebase_deploy mapswipe_workers manager_dashboard nginx api
+docker-compose build --no-cache postgres firebase_deploy mapswipe_workers_creation mapswipe_workers_stats manager_dashboard nginx api
 if [[ $? = 0 ]]; then
     echo "success"
 else
@@ -10,7 +10,7 @@ else
     exit
 fi
 
-docker-compose up -d --force-recreate postgres firebase_deploy mapswipe_workers manager_dashboard nginx api
+docker-compose up -d --force-recreate postgres firebase_deploy mapswipe_workers_creation mapswipe_workers_stats manager_dashboard nginx api
 if [[ $? = 0 ]]; then
     echo "success"
 else
