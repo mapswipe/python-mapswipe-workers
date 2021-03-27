@@ -320,24 +320,6 @@ def get_agg_results_by_task_id(
     return agg_results_df
 
 
-def set_progress_in_firebase(project_id: str, progress: int):
-    """Update the project progress value in Firebase."""
-
-    fb_db = auth.firebaseDB()
-    project_progress_ref = fb_db.reference(f"v2/projects/{project_id}/progress")
-    project_progress_ref.set(progress)
-    logger.info(f"set progress for project {project_id}: {progress}")
-
-
-def set_contributor_count_in_firebase(project_id: str, contributor_count: int):
-    """Update the project contributors value in Firebase."""
-
-    fb_db = auth.firebaseDB()
-    project_progress_ref = fb_db.reference(f"v2/projects/{project_id}/contributorCount")
-    project_progress_ref.set(contributor_count)
-    logger.info(f"set contributorCount attribute for project {project_id}: {contributor_count}")
-
-
 def get_per_project_statistics(project_id: str, project_info: pd.Series) -> dict:
     """
     The function calculates all project related statistics.
@@ -414,21 +396,6 @@ def get_per_project_statistics(project_id: str, project_info: pd.Series) -> dict
         logger.info(
             f"saved project stats by date for {project_id}: "
             f"{project_stats_by_date_filename}"
-        )
-
-        # update progress and contributors in firebase
-        # cum_progress[-1] refers to the latest value available for project progress
-        # cum_progess contains overall project progress reached at each day
-        set_progress_in_firebase(
-            project_id=project_id,
-            progress=int(100*project_stats_by_date_df["cum_progress"][-1])
-        )
-
-        # cum_number_of_users[-1] refers to the latest value available for contributorCount
-        # cum_number_of_users contains overall contributor count reached at each day
-        set_contributor_count_in_firebase(
-            project_id=project_id,
-            contributor_count=int(project_stats_by_date_df["cum_number_of_users"][-1])
         )
 
         # generate geometries for HOT Tasking Manager

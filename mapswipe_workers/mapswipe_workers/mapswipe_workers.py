@@ -115,6 +115,8 @@ def run_firebase_to_postgres() -> list:
     update_data.update_project_data()
     project_ids = transfer_results.transfer_results()
     for project_id in project_ids:
+        update_data.set_progress_in_firebase(project_id)
+        update_data.set_contributor_count_in_firebase(project_id)
         send_progress_notification(project_id)
     return project_ids
 
