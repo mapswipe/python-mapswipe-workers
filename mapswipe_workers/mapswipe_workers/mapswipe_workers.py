@@ -385,9 +385,19 @@ def run_delete_project(project_id, project_ids):
 
 
 @cli.command("run")
+@click.option(
+        "--analysis_type",
+        "-a",
+        default="all",
+        help=(
+            f"Will either execute all or just the specified functions of the analysis "
+            f"choices here"
+        ),
+        type=click.Choice(["all", "creation", "stats"]),
+    )
 @click.option("--schedule", is_flag=True, help="Schedule jobs to run every 10 minutes.")
 @click.pass_context
-def run(context, schedule):
+def run(context, analysis_type, schedule):
     """
     Run all commands.
 
@@ -402,10 +412,30 @@ def run(context, schedule):
         project_ids = context.invoke(run_firebase_to_postgres)
         context.invoke(run_generate_stats, project_ids=project_ids)
 
+    def _run_creation():
+        logger.info("start mapswipe backend workflow for creation.")
+        context.invoke(run_create_projects)
+        context.invoke(run_create_tutorials)
+
+    def _run_stats():
+        logger.info("start mapswipe backend workflow for stats.")
+        project_ids = context.invoke(run_firebase_to_postgres)
+        context.invoke(run_generate_stats, project_ids=project_ids)
+
     if schedule:
-        sched.every(10).minutes.do(_run).run()
+        if analysis_type == "all":
+            sched.every(10).minutes.do(_run).run()
+        elif analysis_type == "creation":
+            sched.every(10).minutes.do(_run_creation).run()
+        elif analysis_type == "stats":
+            sched.every(10).minutes.do(_run_stats).run()
         while True:
             sched.run_pending()
             time.sleep(1)
     else:
-        _run()
+        if analysis_type == "all":
+            sched.every(10).minutes.do(_run).run()
+        elif analysis_type == "creation":
+            sched.every(10).minutes.do(_run_creation).run()
+        elif analysis_type == "stats":
+            sched.every(10).minutes.do(_run_stats).run()
