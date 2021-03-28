@@ -157,10 +157,11 @@ def set_progress_in_firebase(project_id: str):
             from groups g
             left join 
                 (
-                -- here we get the progress for all groups
-                -- for which results have been submitted already
-                -- progress for a group can be max 100
-                -- even if more users than required submitted results
+                -- Here we get the progress for all groups
+                -- for which results have been submitted already.
+                -- Progress for a group can be max 100
+                -- even if more users than required submitted results.
+                -- The verification number of a project is used here.
                 select
                   r.group_id
                   ,r.project_id
