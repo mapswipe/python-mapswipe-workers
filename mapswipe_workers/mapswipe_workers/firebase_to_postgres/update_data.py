@@ -131,11 +131,22 @@ def set_progress_in_firebase(project_id: str):
 
     pg_db = auth.postgresDB()
     query = """
+        -- Calculate overall project progress as
+        -- the average progress for all groups.
+        -- This is not hundred percent exact, since groups can have a different number of tasks
+        -- but it is still "good enough" and gives almost correct progress.
+        -- But it is easier to compute
+        -- than considering the actual number of tasks per group.
         select
           project_id
           ,avg(group_progress)::integer as progress
         from
-        (
+        (   
+            -- Get all groups for this project and
+            -- add progress for groups that have been worked on already.
+            -- Set progress to 0 if no user has worked on this group.
+            -- For groups that no users worked on
+            -- there are no entries in the results table.
             select
               g.group_id
               ,g.project_id
@@ -146,12 +157,16 @@ def set_progress_in_firebase(project_id: str):
             from groups g
             left join 
                 (
+                -- here we get the progress for all groups
+                -- for which results have been submitted already
+                -- progress for a group can be max 100
+                -- even if more users than required submitted results
                 select
                   r.group_id
                   ,r.project_id
                   ,case
                     when count(distinct user_id) >= p.verification_number then 100
-                    else 100* count(distinct user_id) / p.verification_number
+                    else 100 * count(distinct user_id) / p.verification_number
                   end as group_progress
                 from results r, projects p
                 where r.project_id = p.project_id 
