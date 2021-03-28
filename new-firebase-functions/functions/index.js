@@ -59,15 +59,9 @@ exports.groupUsersCounter = functions.database.ref('/v2/results/{projectId}/{gro
                 return null
             }
             else {
-
-                const data = {
-                    'startTime': result['startTime'],
-                    'endTime': result['endTime']
-                }
                 const numberOfTasks = Object.keys( result['results'] ).length
-
                 return {
-                    userContribution: userContributionRef.child(context.params.groupId).set(data),
+                    userContribution: userContributionRef.child(context.params.groupId).set(true),
                     groupUsers: groupUsersRef.child(context.params.userId).set(true),
                     totalTaskContributionCount: totalTaskContributionCountRef.transaction((currentCount) => {return currentCount + numberOfTasks}),
                     totalGroupContributionCount: totalGroupContributionCountRef.transaction((currentCount) => {return currentCount + 1}),
