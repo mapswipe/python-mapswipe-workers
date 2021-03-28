@@ -122,6 +122,88 @@ def update_project_data(project_ids: list = []):
         # if project.status is not existent
         data_update_project = [project.get("status", ""), project_id]
         pg_db.query(query_update_project, data_update_project)
-        logger.info(f"Updated status for project {project_id} in postgres")
 
     logger.info("Updated project data in Postgres")
+
+
+def set_progress_in_firebase(project_id: str):
+    """Update the project progress value in Firebase."""
+
+    pg_db = auth.postgresDB()
+    query = """
+        -- Calculate overall project progress as
+        -- the average progress for all groups.
+        -- This is not hundred percent exact, since groups can have a different number of tasks
+        -- but it is still "good enough" and gives almost correct progress.
+        -- But it is easier to compute
+        -- than considering the actual number of tasks per group.
+        select
+          project_id
+          ,avg(group_progress)::integer as progress
+        from
+        (   
+            -- Get all groups for this project and
+            -- add progress for groups that have been worked on already.
+            -- Set progress to 0 if no user has worked on this group.
+            -- For groups that no users worked on
+            -- there are no entries in the results table.
+            select
+              g.group_id
+              ,g.project_id
+              ,case
+                when group_progress is null then 0
+                else group_progress
+              end as group_progress
+            from groups g
+            left join 
+                (
+                -- Here we get the progress for all groups
+                -- for which results have been submitted already.
+                -- Progress for a group can be max 100
+                -- even if more users than required submitted results.
+                -- The verification number of a project is used here.
+                select
+                  r.group_id
+                  ,r.project_id
+                  ,case
+                    when count(distinct user_id) >= p.verification_number then 100
+                    else 100 * count(distinct user_id) / p.verification_number
+                  end as group_progress
+                from results r, projects p
+                where r.project_id = p.project_id 
+                group by group_id, r.project_id, p.verification_number 
+            ) bar
+            on bar.group_id = g.group_id and bar.project_id = g.project_id
+            where g.project_id = %s 
+        ) foo	
+        group by project_id 
+    """
+    data = [project_id]
+    progress = pg_db.retr_query(query, data)[0][1]
+
+    fb_db = auth.firebaseDB()
+    project_progress_ref = fb_db.reference(f"v2/projects/{project_id}/progress")
+    project_progress_ref.set(progress)
+    logger.info(f"set progress for project {project_id}: {progress}")
+
+
+def set_contributor_count_in_firebase(project_id: str):
+    """Update the project contributors value in Firebase."""
+
+    pg_db = auth.postgresDB()
+    query = """
+        select
+          project_id
+          ,count(distinct user_id) contributor_count
+        from results r 
+        where 
+          project_id = %s 
+        group by project_id 
+    """
+    data = [project_id]
+    contributor_count = pg_db.retr_query(query, data)[0][1]
+
+    fb_db = auth.firebaseDB()
+    project_progress_ref = fb_db.reference(f"v2/projects/{project_id}/contributorCount")
+    project_progress_ref.set(contributor_count)
+    logger.info(f"set contributorCount attribute for project {project_id}: {contributor_count}")

@@ -387,6 +387,7 @@ def get_per_project_statistics(project_id: str, project_info: pd.Series) -> dict
             sentry.capture_exception()
             logger.info(f"failed to agg results by user id for {project_id}")
 
+        # calculate progress and contributors over time for project
         project_stats_by_date_df = project_stats_by_date.get_project_history(
             results_df, groups_df
         )
