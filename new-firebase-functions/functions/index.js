@@ -81,6 +81,8 @@ exports.groupUsersCounter = functions.database.ref('/v2/results/{projectId}/{gro
         promises.push(updateValues.totalGroupContributionCount)
         promises.push(updateValues.taskContributionCount)
     }
+
+    return Promise.all(promises)
 })
 
 
@@ -137,6 +139,8 @@ exports.groupFinishedCountUpdater = functions.database.ref('/v2/groupsUsers/{pro
         })
     promises_new.push(groupValues.requiredCount)
     promises_new.push(groupValues.finishedCount)
+
+    return Promise.all(promises_new)
 })
 
 
@@ -155,6 +159,8 @@ exports.projectContributionCounter = functions.database.ref('/v2/users/{userId}/
     // set number of projects a user contributed to
     const projectContributionCount = projectContributionCountRef.set(Object.keys( contributions ).length)
     promises_2.push(projectContributionCount)
+
+    return Promise.all(promises_2)
 })
 
 
