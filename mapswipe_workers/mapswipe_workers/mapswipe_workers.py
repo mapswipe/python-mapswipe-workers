@@ -112,12 +112,12 @@ def run_create_projects():
 def run_firebase_to_postgres() -> list:
     """Update users and transfer results from Firebase to Postgres."""
     update_data.update_user_data()
-    update_data.update_project_data()
     project_ids = transfer_results.transfer_results()
     for project_id in project_ids:
         update_data.set_progress_in_firebase(project_id)
         update_data.set_contributor_count_in_firebase(project_id)
         send_progress_notification(project_id)
+    update_data.update_project_data()
     return project_ids
 
 

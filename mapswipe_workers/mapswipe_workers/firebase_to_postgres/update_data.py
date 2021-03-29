@@ -1,6 +1,9 @@
 """Update users and project information from Firebase in Postgres."""
 
 import datetime as dt
+import asyncio
+import concurrent.futures
+from typing import List
 
 from mapswipe_workers import auth
 from mapswipe_workers.definitions import logger, sentry
@@ -88,42 +91,98 @@ def update_user_data(user_ids: list = []) -> None:
     logger.info("Updated user data in Potgres.")
 
 
-def update_project_data(project_ids: list = []):
-    """
-    Gets status of projects
-    from Firebase and updates them in Postgres.
+def get_project_attribute_from_firebase(project_ids: List[str], attribute: str):
+    """Use async for firebase sdk to query a project attribute.
 
-    Default behavior is to update all projects.
+    Follows a workflow describted in this blogpost:
+    https://hiranya911.medium.com/firebase-python-admin-sdk-with-asyncio-d65f39463916
+    """
+
+    async def get_project_status(project_id, event_loop):
+        ref = fb_db.reference(f"v2/projects/{project_id}/{attribute}")
+        # Blocking method is delegated to the thread pool
+        return [project_id, await event_loop.run_in_executor(executor, ref.get)]
+
+    async def get_project_status_list(project_ids, event_loop):
+        coroutines = [get_project_status(i, event_loop) for i in project_ids]
+        completed, pending = await asyncio.wait(coroutines)
+        firebase_status_dict = {}
+        for item in completed:
+            project_id, firebase_status = item.result()
+            firebase_status_dict[project_id] = firebase_status
+        return firebase_status_dict
+
+    fb_db = auth.firebaseDB()
+    executor = concurrent.futures.ThreadPoolExecutor(max_workers=20)
+    event_loop = asyncio.new_event_loop()
+    try:
+        project_attribute_dict = event_loop.run_until_complete(get_project_status_list(project_ids, event_loop))
+    finally:
+        event_loop.close()
+
+    logger.info(f"Got project attribute '{attribute}' from firebase for {len(project_ids)} projects.")
+    return project_attribute_dict
+
+
+def update_project_data(project_ids: list = []):
+    """Get status of projects from Firebase and updates them in Postgres.
+
+    Default behavior is to check all projects, which have not been archived
+    and update projects in postgres for which the status has changed.
     If called with a list of project ids as parameter
     only those projects will be updated.
     """
 
-    fb_db = auth.firebaseDB()
     pg_db = auth.postgresDB()
 
     if project_ids:
-        logger.info("update project data in postgres for selected projects")
-        projects = dict()
-        for project_id in project_ids:
-            project_ref = fb_db.reference(f"v2/projects/{project_id}")
-            projects[project_id] = project_ref.get()
-    else:
-        logger.info("update project data in postgres for all firebase projects")
-        projects_ref = fb_db.reference("v2/projects/")
-        projects = projects_ref.get()
-
-    for project_id, project in projects.items():
-        query_update_project = """
-            UPDATE projects
-            SET status=%s
-            WHERE project_id=%s;
+        # use project ids passed by user
+        query = """
+            select project_id, status from projects
+            where project_id IN %s;
         """
-        # TODO: Is there need for fallback to ''
-        # if project.status is not existent
-        data_update_project = [project.get("status", ""), project_id]
-        pg_db.query(query_update_project, data_update_project)
+        project_info = pg_db.retr_query(query, [tuple(project_ids)])
+        logger.info("got projects from postgres based on user input")
+    else:
+        # get project ids for all non-archived projects in postgres
+        query = """
+            select project_id, status from projects
+            where status != 'archived'; 
+        """
+        project_info = pg_db.retr_query(query)
+        project_ids = []
+        for project_id, attribute in project_info:
+            project_ids.append(project_id)
+        logger.info(f"Got all ({len(project_ids)}) not-archived projects from postgres.")
 
-    logger.info("Updated project data in Postgres")
+    # get project status from firebase
+    project_status_dict = get_project_attribute_from_firebase(project_ids, "status")
+
+    for i, project in enumerate(project_info):
+        # for each project we check if the status set in firebase
+        # and the status set in postgres are different
+        # we update status in postgres if value has changed
+        project_id, postgres_status = project
+        firebase_status = project_status_dict[project_id]
+        if postgres_status == firebase_status or firebase_status is None:
+            # project status did not change or
+            # project status is not available in firebase
+            pass
+        else:
+            # The status of the project has changed.
+            # The project status will be updated in postgres.
+            # Usually, project status will only change for few (<10) projects at once.
+            # Using multiple update operations seems to be okay in this scenario.
+            query_update_project = """
+                UPDATE projects
+                SET status=%s
+                WHERE project_id=%s;
+            """
+            data_update_project = [firebase_status, project_id]
+            pg_db.query(query_update_project, data_update_project)
+            logger.info(f"Updated project status in Postgres for project {project_id}")
+
+    logger.info("Finished status update projects.")
 
 
 def set_progress_in_firebase(project_id: str):
