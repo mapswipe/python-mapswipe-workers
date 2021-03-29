@@ -2,93 +2,128 @@
 
 import datetime as dt
 import asyncio
+import csv
+import io
 import concurrent.futures
-from typing import List
+from typing import List, Optional
 
 from mapswipe_workers import auth
 from mapswipe_workers.definitions import logger, sentry
 
 
-def get_last_updated_timestamp() -> str:
-    """Get the timestamp of the latest created user in Postgres."""
-    pg_db = auth.postgresDB()
-    query = """
-        SELECT created
-        FROM users
-        WHERE created IS NOT NULL
-        ORDER BY created DESC
-        LIMIT 1
-        """
-    last_updated = pg_db.retr_query(query)
+def get_user_attribute_from_firebase(user_ids: List[str], attribute: str):
+    """Use async for firebase sdk to query a user attribute.
+
+    Follows a workflow describted in this blogpost:
+    https://hiranya911.medium.com/firebase-python-admin-sdk-with-asyncio-d65f39463916
+    """
+
+    async def get_user_attribute(user_id, event_loop):
+        ref = fb_db.reference(f"v2/users/{user_id}/{attribute}")
+        # Blocking method is delegated to the thread pool
+        return [user_id, await event_loop.run_in_executor(executor, ref.get)]
+
+    async def get_user_attribute_list(user_ids, event_loop):
+        coroutines = [get_user_attribute(i, event_loop) for i in user_ids]
+        completed, pending = await asyncio.wait(coroutines)
+        firebase_attribute_dict = {}
+        for item in completed:
+            user_id, attribute_value = item.result()
+            firebase_attribute_dict[user_id] = attribute_value
+        return firebase_attribute_dict
+
+    fb_db = auth.firebaseDB()
+    executor = concurrent.futures.ThreadPoolExecutor(max_workers=20)
+    event_loop = asyncio.new_event_loop()
     try:
-        last_updated = last_updated[0][0]
-        last_updated = last_updated.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
-        logger.info("Last updated users: {0}".format(last_updated))
-    except (IndexError, AttributeError):
-        logger.exception("Could not get last timestamp of users.")
-        sentry.capture_exception()
-        last_updated = ""
-    return last_updated
+        user_attribute_dict = event_loop.run_until_complete(get_user_attribute_list(user_ids, event_loop))
+    finally:
+        event_loop.close()
+
+    logger.info(f"Got attribute '{attribute}' from firebase for {len(user_ids)} users.")
+    return user_attribute_dict
 
 
-def update_user_data(user_ids: list = []) -> None:
+def update_user_data(user_ids: Optional[List[str]] = None) -> None:
     """Copies new users from Firebase to Postgres."""
     # TODO: On Conflict
     fb_db = auth.firebaseDB()
     pg_db = auth.postgresDB()
 
-    ref = fb_db.reference("v2/users")
-    last_updated = get_last_updated_timestamp()
+    # get all user_ids from postgres
+    query = """SELECT user_id FROM users"""
+    postgres_user_info = pg_db.retr_query(query)
+    postgres_user_ids = []
+    for user_id in postgres_user_info:
+        postgres_user_ids.append(user_id[0])
+    logger.info(f"There {len(postgres_user_ids)} users in Postgres.")
 
-    if user_ids:
-        logger.info("Add custom user ids to user list, which will be updated.")
-        users = {}
-        for user_id in user_ids:
-            users[user_id] = ref.child(user_id).get()
-    elif last_updated:
-        # Get only new users from Firebase.
-        query = ref.order_by_child("created").start_at(last_updated)
-        users = query.get()
-        if len(users) == 0:
-            logger.info("there are no new users in Firebase.")
-        else:
-            # Delete first user in ordered dict (FIFO).
-            # This user is already in the database (user.created = last_updated).
-            users.popitem(last=False)
+    if not user_ids:
+        # get all user_ids from firebase
+        firebase_user_ids = list(fb_db.reference("v2/users").get(shallow=True).keys())
+        logger.info(f"There {len(firebase_user_ids)} users in Firebase.")
     else:
-        # Get all users from Firebase.
-        users = ref.get()
+        firebase_user_ids = user_ids
 
-    for user_id, user in users.items():
-        # Convert timestamp (ISO 8601) from string to a datetime object.
-        try:
-            created = dt.datetime.strptime(
-                user["created"].replace("Z", ""), "%Y-%m-%dT%H:%M:%S.%f"
-            )
-        except KeyError:
-            # If user has no "created" attribute set it to current time.
-            created = dt.datetime.utcnow().isoformat()[0:-3] + "Z"
-            logger.info(
-                "user {0} didn't have a 'created' attribute. ".format(user_id)
-                + "Set it to '{0}' now.".format(created)
-            )
-        username = user.get("username", None)
-        query_update_user = """
-            INSERT INTO users (user_id, username, created)
-            VALUES(%s, %s, %s)
-            ON CONFLICT (user_id) DO UPDATE
-            SET username=%s,
-            created=%s;
-        """
-        data_update_user = [
-            user_id,
-            username,
-            created,
-            username,
-            created,
+    # Get difference between firebase users_ids and postgres user_ids.
+    # These are new users for which data is only available in Firebase so far.
+    new_user_ids = list(set(firebase_user_ids) - set(postgres_user_ids))
+
+    if len(new_user_ids) == 0:
+        logger.info(f"There are NO new users in Firebase.")
+    else:
+        logger.info(f"There are {len(new_user_ids)} new users in Firebase.")
+        # get username and created attributes from firebase
+        firebase_usernames_dict = get_user_attribute_from_firebase(new_user_ids, "username")
+        firebase_created_dict = get_user_attribute_from_firebase(new_user_ids, "created")
+
+        # write user information to in memory file
+        users_file = io.StringIO("")
+        w = csv.writer(users_file, delimiter="\t", quotechar="'")
+
+        for i, new_user in enumerate(new_user_ids):
+            # Get username from dict.
+            # Some users might not have a username set in Firebase.
+            username = firebase_usernames_dict.get(new_user, None)
+
+            # Get created timestamp from dict.
+            # Convert timestamp (ISO 8601) from string to a datetime object.
+            # Use current timestamp if the value is not set in Firebase
+            timestamp = firebase_created_dict.get(user_id, None)
+            if timestamp:
+                created = dt.datetime.strptime(
+                    timestamp.replace("Z", ""), "%Y-%m-%dT%H:%M:%S.%f"
+                )
+            else:
+                # If user has no "created" attribute set it to current time.
+                created = dt.datetime.utcnow().isoformat()[0:-3] + "Z"
+
+            w.writerow([new_user, username, created])
+        users_file.seek(0)
+
+        # write users to users_temp table with copy from statement
+        columns = [
+            "user_id",
+            "username",
+            "created"
         ]
-        pg_db.query(query_update_user, data_update_user)
-    logger.info("Updated user data in Potgres.")
+        pg_db.copy_from(users_file, "users_temp", columns)
+        users_file.close()
+
+        # update username and created attributes in postgres
+        query_insert_results = """
+            INSERT INTO users
+                SELECT * FROM users_temp
+            ON CONFLICT (user_id)
+            DO NOTHING;
+            TRUNCATE users_temp;
+        """
+        pg_db.query(query_insert_results)
+        del pg_db
+
+        logger.info("Updated user data in Postgres.")
+
+    return new_user_ids
 
 
 def get_project_attribute_from_firebase(project_ids: List[str], attribute: str):
@@ -106,11 +141,11 @@ def get_project_attribute_from_firebase(project_ids: List[str], attribute: str):
     async def get_project_status_list(project_ids, event_loop):
         coroutines = [get_project_status(i, event_loop) for i in project_ids]
         completed, pending = await asyncio.wait(coroutines)
-        firebase_status_dict = {}
+        firebase_attribute_dict = {}
         for item in completed:
-            project_id, firebase_status = item.result()
-            firebase_status_dict[project_id] = firebase_status
-        return firebase_status_dict
+            project_id, attribute_value = item.result()
+            firebase_attribute_dict[project_id] = attribute_value
+        return firebase_attribute_dict
 
     fb_db = auth.firebaseDB()
     executor = concurrent.futures.ThreadPoolExecutor(max_workers=20)
@@ -120,7 +155,7 @@ def get_project_attribute_from_firebase(project_ids: List[str], attribute: str):
     finally:
         event_loop.close()
 
-    logger.info(f"Got project attribute '{attribute}' from firebase for {len(project_ids)} projects.")
+    logger.info(f"Got attribute '{attribute}' from firebase for {len(project_ids)} projects.")
     return project_attribute_dict
 
 
