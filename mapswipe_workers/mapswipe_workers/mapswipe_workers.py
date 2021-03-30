@@ -393,11 +393,12 @@ def run_delete_project(project_id, project_ids):
             f"Will either execute all or just the specified functions of the analysis "
             f"choices here"
         ),
-        type=click.Choice(["all", "creation", "stats"]),
+        type=click.Choice(["all", "creation", "firebase-to-postgres", "generate-stats"]),
     )
 @click.option("--schedule", is_flag=True, help="Schedule jobs to run every 10 minutes.")
+@click.option("--time_interval", type=int, default=10, help="Time interval for scheduled jobs in minutes.")
 @click.pass_context
-def run(context, analysis_type, schedule):
+def run(context, analysis_type, schedule, time_interval):
     """
     Run all commands.
 
@@ -417,25 +418,32 @@ def run(context, analysis_type, schedule):
         context.invoke(run_create_projects)
         context.invoke(run_create_tutorials)
 
+    def _run_firebase_to_postgres():
+        logger.info("start mapswipe backend workflow for stats.")
+        context.invoke(run_firebase_to_postgres)
+
     def _run_stats():
         logger.info("start mapswipe backend workflow for stats.")
-        project_ids = context.invoke(run_firebase_to_postgres)
-        context.invoke(run_generate_stats, project_ids=project_ids)
+        context.invoke(run_generate_stats, project_ids=[])
 
     if schedule:
         if analysis_type == "all":
-            sched.every(10).minutes.do(_run).run()
+            sched.every(time_interval).minutes.do(_run).run()
         elif analysis_type == "creation":
-            sched.every(10).minutes.do(_run_creation).run()
-        elif analysis_type == "stats":
-            sched.every(10).minutes.do(_run_stats).run()
+            sched.every(time_interval).minutes.do(_run_creation).run()
+        elif analysis_type == "firebase-to-postgres":
+            sched.every(time_interval).minutes.do(_run_firebase_to_postgres).run()
+        elif analysis_type == "generate-stats":
+            sched.every(time_interval).minutes.do(_run_stats).run()
         while True:
             sched.run_pending()
             time.sleep(1)
     else:
         if analysis_type == "all":
-            sched.every(10).minutes.do(_run).run()
+            _run()
         elif analysis_type == "creation":
-            sched.every(10).minutes.do(_run_creation).run()
-        elif analysis_type == "stats":
-            sched.every(10).minutes.do(_run_stats).run()
+            _run_creation()
+        elif analysis_type == "firebase-to-postgres":
+            _run_firebase_to_postgres()
+        elif analysis_type == "generate-stats":
+            _run_stats()
