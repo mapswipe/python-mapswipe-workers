@@ -1,4 +1,5 @@
 import unittest
+import time
 
 import set_up
 import tear_down
@@ -20,29 +21,37 @@ class TestArchiveProject(unittest.TestCase):
         """Test if groups, tasks and results are deleted from Firebase."""
         archive_project.archive_project([self.project_id])
 
+        time.sleep(5)  # Wait for Firebase Functions to complete
+
         fb_db = auth.firebaseDB()
-        ref = fb_db.reference("v2/groups/{0}".format(self.project_id))
+        ref = fb_db.reference(f"v2/groups/{self.project_id}")
         self.assertIsNone(ref.get())
 
-        ref = fb_db.reference("v2/tasks/{0}".format(self.project_id))
+        ref = fb_db.reference(f"v2/groupsUsers/{self.project_id}")
         self.assertIsNone(ref.get())
 
-        ref = fb_db.reference("v2/results/{0}".format(self.project_id))
+        ref = fb_db.reference(f"v2/tasks/{self.project_id}")
+        self.assertIsNone(ref.get())
+
+        ref = fb_db.reference(f"v2/results/{self.project_id}")
         self.assertIsNone(ref.get())
 
         pg_db = auth.postgresDB()
-        sql_query = "SELECT status FROM projects WHERE project_id = '{}'".format(
-            self.project_id
-        )
-        result = pg_db.retr_query(sql_query)[0][0]
+        sql_query = "SELECT status FROM projects WHERE project_id = %s"
+        result = pg_db.retr_query(sql_query, [self.project_id])[0][0]
         self.assertEqual(result, "archived")
 
     def test_project_id_not_exists(self):
         """Test for project id which does not exists."""
         archive_project.archive_project(["tuna"])
 
+        time.sleep(5)  # Wait for Firebase Functions to complete
+
         fb_db = auth.firebaseDB()
         ref = fb_db.reference("v2/groups/")
+        self.assertIsNotNone(ref.get(shallow=True))
+
+        ref = fb_db.reference("v2/groupsUsers/")
         self.assertIsNotNone(ref.get(shallow=True))
 
         ref = fb_db.reference("v2/tasks/")
