@@ -75,7 +75,7 @@ services:
             SENTRY_DSN: '${SENTRY_DSN}'
         depends_on:
             - postgres
-        command: mapswipe_workers --verbose run --analysis_type=creation --schedule --time_interval 5
+        command: mapswipe_workers --verbose run --analysis_type=creation --schedule --time_interval=5
         volumes:
             - ./mapswipe-data:/root/.local/share/mapswipe_workers
         restart: "no"
@@ -109,7 +109,7 @@ services:
             SENTRY_DSN: '${SENTRY_DSN}'
         depends_on:
             - postgres
-        command: mapswipe_workers --verbose run --analysis_type=generate-stats --schedule --time_interval 60
+        command: mapswipe_workers --verbose run --analysis_type=generate-stats --schedule --time_interval=60
         volumes:
             - ./mapswipe-data:/root/.local/share/mapswipe_workers
         restart: "no"
@@ -143,7 +143,7 @@ services:
                 SENTRY_DSN: '${SENTRY_DSN}'
             depends_on:
                 - postgres
-            command: mapswipe_workers --verbose run --analysis_type=firebase-to-postgres --schedule --time_interval 2
+            command: mapswipe_workers --verbose run --analysis_type=firebase-to-postgres --schedule --time_interval=2
             volumes:
                 - ./mapswipe-data:/root/.local/share/mapswipe_workers
             restart: "no"
