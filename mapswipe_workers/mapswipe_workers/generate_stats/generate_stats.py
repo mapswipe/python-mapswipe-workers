@@ -62,7 +62,7 @@ def generate_stats(project_id_list: Optional[List[str]] = None):
     # In this case, project ids are queried from postgres for projects
     # for which results have been submitted within the last three hours.
     if not project_id_list or len(project_id_list) == 0:
-        project_id_list = get_recent_projects()
+        project_id_list = get_recent_projects(hours=3)
 
     logger.info(f"will generate stats for: {project_id_list}")
 

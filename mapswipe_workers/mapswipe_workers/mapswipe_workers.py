@@ -414,16 +414,16 @@ def run(context, analysis_type, schedule, time_interval):
         context.invoke(run_generate_stats, project_ids=project_ids)
 
     def _run_creation():
-        logger.info("start mapswipe backend workflow for creation.")
+        logger.info("start mapswipe backend workflow to create projects and tutorials.")
         context.invoke(run_create_projects)
         context.invoke(run_create_tutorials)
 
     def _run_firebase_to_postgres():
-        logger.info("start mapswipe backend workflow for stats.")
+        logger.info("start mapswipe backend workflow to transfer results from firebase to postgres.")
         context.invoke(run_firebase_to_postgres)
 
     def _run_stats():
-        logger.info("start mapswipe backend workflow for stats.")
+        logger.info("start mapswipe backend workflow to generate stats and files.")
         context.invoke(run_generate_stats, project_ids=[])
 
     if schedule:
