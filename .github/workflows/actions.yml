@@ -34,7 +34,10 @@ jobs:
         POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
         POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
         POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
-      run: docker-compose up --build --detach postgres
+      run: |
+        # Create a mock file for wal-g setup
+        touch postgres/serviceAccountKey.json
+        docker-compose up --build --detach postgres
     - name: Test
       working-directory: ./mapswipe_workers
       env:
