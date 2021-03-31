@@ -38,7 +38,7 @@ jobs:
         # Create a mock file for wal-g setup
         touch postgres/serviceAccountKey.json
         docker-compose up --build --detach postgres
-    - name: Test
+    - name: Unittest
       working-directory: ./mapswipe_workers
       env:
         FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
@@ -46,4 +46,4 @@ jobs:
         POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
         POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
       run: |
-        pytest tests/integration/test_transfer_results.py
+        docker-compose run mapswipe_workers_creation python -m unittest discover --verbose --start-directory tests/unittests/
