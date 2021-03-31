@@ -25,8 +25,9 @@ jobs:
     - name: Code style
       working-directory: ./mapswipe_workers
       run: |
+        echo Will run code style checking here
         # black --check mapswipe_workers
-        flake8 --count --config mapswipe_workers/setup.cfg mapswipe_workers
+        # flake8 --count --config mapswipe_workers/setup.cfg mapswipe_workers
         # isort --check --settings-file mapswipe_workers/setup.cfg mapswipe_workers
     - name: Setup database
       env:
@@ -37,7 +38,7 @@ jobs:
         # Create a mock file for wal-g setup
         touch postgres/serviceAccountKey.json
         docker-compose up --build --detach postgres
-    - name: Run tests in docker containers
+    - name: Tests
       working-directory: ./mapswipe_workers
       env:
         FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
