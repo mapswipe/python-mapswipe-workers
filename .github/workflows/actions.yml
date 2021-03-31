@@ -33,7 +33,7 @@ jobs:
       env:
         PASSPHRASE: ${{ secrets.PASSPHRASE }}
       run: |
-          bash .github/scripts/decrypt_secret.sh
+        ./.github/scripts/decrypt_secret.sh
     - name: Setup database
       env:
         POSTGRES_PASSWORD: test
