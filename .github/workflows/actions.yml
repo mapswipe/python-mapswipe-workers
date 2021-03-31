@@ -30,10 +30,11 @@ jobs:
         # flake8 --count --config mapswipe_workers/setup.cfg mapswipe_workers
         # isort --check --settings-file mapswipe_workers/setup.cfg mapswipe_workers
     - name: Decrypt service account key
+      working-directory: ./
       env:
         PASSPHRASE: ${{ secrets.PASSPHRASE }}
       run: |
-        ./.github/scripts/decrypt_secret.sh
+        .github/scripts/decrypt_secret.sh
     - name: Setup database
       env:
         POSTGRES_PASSWORD: test
