@@ -39,10 +39,10 @@ jobs:
         touch postgres/serviceAccountKey.json
         docker-compose up --build --detach postgres
     - name: Decrypt service account key
-        env:
-          PASSPHRASE: ${{ secrets.PASSPHRASE }}
-        run: |
-          bash .github/scripts/decrypt_secret.sh
+      env:
+        PASSPHRASE: ${{ secrets.PASSPHRASE }}
+      run: |
+        bash .github/scripts/decrypt_secret.sh
     - name: Tests
       working-directory: ./mapswipe_workers
       env:
