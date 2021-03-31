@@ -29,6 +29,11 @@ jobs:
         # black --check mapswipe_workers
         # flake8 --count --config mapswipe_workers/setup.cfg mapswipe_workers
         # isort --check --settings-file mapswipe_workers/setup.cfg mapswipe_workers
+    - name: Decrypt service account key
+        env:
+          PASSPHRASE: ${{ secrets.PASSPHRASE }}
+        run: |
+          bash .github/scripts/decrypt_secret.sh
     - name: Setup database
       env:
         POSTGRES_PASSWORD: test
@@ -38,11 +43,6 @@ jobs:
         # Create a mock file for wal-g setup
         touch postgres/serviceAccountKey.json
         docker-compose up --build --detach postgres
-    - name: Decrypt service account key
-      env:
-        PASSPHRASE: ${{ secrets.PASSPHRASE }}
-      run: |
-        bash .github/scripts/decrypt_secret.sh
     - name: Tests
       working-directory: ./mapswipe_workers
       env:
