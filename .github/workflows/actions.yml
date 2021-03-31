@@ -22,13 +22,12 @@ jobs:
         python -m pip install --upgrade pip
         pip install pytest
         python setup.py install
-    - name: Lint with flake8
+    - name: Code style
       working-directory: ./mapswipe_workers
       run: |
-        # stop the build if there are Python syntax errors or undefined names
-        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+        black --check mapswipe_workers
+        flake8 --count --config mapswipe_workers/setup.cfg mapswipe_workers
+        isort --check --settings-file mapswipe_workers/setup.cfg mapswipe_workers
     - name: Setup database
       env:
         POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
@@ -38,7 +37,7 @@ jobs:
         # Create a mock file for wal-g setup
         touch postgres/serviceAccountKey.json
         docker-compose up --build --detach postgres
-    - name: Unittest
+    - name: Run tests in docker containers
       working-directory: ./mapswipe_workers
       env:
         FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
@@ -47,3 +46,4 @@ jobs:
         POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
       run: |
         docker-compose run mapswipe_workers_creation python -m unittest discover --verbose --start-directory tests/unittests/
+        docker-compose run mapswipe_workers_creation python -m unittest discover --verbose --start-directory tests/integration/
