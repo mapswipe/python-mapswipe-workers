@@ -28,6 +28,8 @@ class TestDeleteProject(unittest.TestCase):
         self.assertIsNone(ref.get())
         ref = fb_db.reference(f"v2/groups/{self.project_id}")
         self.assertIsNone(ref.get())
+        ref = fb_db.reference(f"v2/groupsUsers/{self.project_id}")
+        self.assertIsNone(ref.get())
         ref = fb_db.reference(f"v2/projects/{self.project_id}")
         self.assertIsNone(ref.get())
 
@@ -59,6 +61,8 @@ class TestDeleteProject(unittest.TestCase):
         self.assertIsNotNone(ref.get(shallow=True))
         ref = fb_db.reference("v2/groups")
         self.assertIsNotNone(ref.get(shallow=True))
+        ref = fb_db.reference("v2/groupsUsers")
+        self.assertIsNotNone(ref.get(shallow=True))
         ref = fb_db.reference("v2/projects")
         self.assertIsNotNone(ref.get(shallow=True))
 
@@ -86,6 +90,8 @@ class TestDeleteProject(unittest.TestCase):
         ref = fb_db.reference("v2/tasks")
         self.assertIsNotNone(ref.get(shallow=True))
         ref = fb_db.reference("v2/groups")
+        self.assertIsNotNone(ref.get(shallow=True))
+        ref = fb_db.reference("v2/groupsUsers")
         self.assertIsNotNone(ref.get(shallow=True))
         ref = fb_db.reference("v2/projects")
         self.assertIsNotNone(ref.get(shallow=True))
