@@ -39,4 +39,4 @@ jobs:
     - name: Test
       working-directory: ./mapswipe_workers
       run: |
-        pytest
+        pytest tests/integration/test_transfer_results.py
