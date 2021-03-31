@@ -31,20 +31,26 @@ jobs:
         # isort --check --settings-file mapswipe_workers/setup.cfg mapswipe_workers
     - name: Setup database
       env:
-        POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-        POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
-        POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+        POSTGRES_PASSWORD: test
+        POSTGRES_USER: test
+        POSTGRES_DB: test
       run: |
         # Create a mock file for wal-g setup
         touch postgres/serviceAccountKey.json
         docker-compose up --build --detach postgres
+    - name: Decrypt service account key
+        env:
+          PASSPHRASE: ${{ secrets.PASSPHRASE }}
+        run: |
+          bash .github/scripts/decrypt_secret.sh
     - name: Tests
       working-directory: ./mapswipe_workers
       env:
         FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
-        POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-        POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
-        POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+        FIREBASE_DB: ${{ secrets.FIREBASE_DB }}
+        POSTGRES_PASSWORD: test
+        POSTGRES_USER: test
+        POSTGRES_DB: test
       run: |
         docker-compose run mapswipe_workers_creation python -m unittest discover --verbose --start-directory tests/unittests/
         docker-compose run mapswipe_workers_creation python -m unittest discover --verbose --start-directory tests/integration/
