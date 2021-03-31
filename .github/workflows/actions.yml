@@ -32,11 +32,13 @@ jobs:
     - name: Check env
       working-directory: ./mapswipe_workers
       env:
-          FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
+          FIREBASE_API_KEY: test
       run: |
         echo hello-world
         echo $FIREBASE_API_KEY
     - name: Test
       working-directory: ./mapswipe_workers
+      env:
+        FIREBASE_API_KEY: test
       run: |
         pytest tests/integration/test_transfer_results.py
