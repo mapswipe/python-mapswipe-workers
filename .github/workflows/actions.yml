@@ -34,6 +34,7 @@ jobs:
       env:
         PASSPHRASE: ${{ secrets.PASSPHRASE }}
       run: |
+        ll
         .github/scripts/decrypt_secret.sh
     - name: Setup database
       env:
