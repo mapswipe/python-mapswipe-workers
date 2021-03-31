@@ -31,8 +31,11 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Check env
       working-directory: ./mapswipe_workers
+      env:
+          FIREBASE_DB: ${{ secrets.FIREBASE_DB }}
       run: |
         echo hello-world
+        echo $FIREBASE_DB
     - name: Test
       working-directory: ./mapswipe_workers
       run: |
