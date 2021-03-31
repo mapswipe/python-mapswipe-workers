@@ -29,9 +29,18 @@ jobs:
         flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
         # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+    - name: Setup database
+      env:
+        POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+        POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+        POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+      run: docker-compose up --build --detach postgres
     - name: Test
       working-directory: ./mapswipe_workers
       env:
         FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
+        POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+        POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+        POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
       run: |
         pytest tests/integration/test_transfer_results.py
