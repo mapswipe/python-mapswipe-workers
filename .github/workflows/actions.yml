@@ -21,8 +21,7 @@ jobs:
       env:
         PASSPHRASE: ${{ secrets.PASSPHRASE }}
       run: |
-        ls
-        .github/scripts/decrypt_secret.sh
+        bash decrypt_secret.sh
     - name: Install dependencies
       working-directory: ./mapswipe_workers
       run: |
