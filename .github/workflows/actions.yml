@@ -16,6 +16,13 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
+    - name: Decrypt service account key
+      working-directory: ./
+      env:
+        PASSPHRASE: ${{ secrets.PASSPHRASE }}
+      run: |
+        ls
+        .github/scripts/decrypt_secret.sh
     - name: Install dependencies
       working-directory: ./mapswipe_workers
       run: |
@@ -29,13 +36,6 @@ jobs:
         # black --check mapswipe_workers
         # flake8 --count --config mapswipe_workers/setup.cfg mapswipe_workers
         # isort --check --settings-file mapswipe_workers/setup.cfg mapswipe_workers
-    - name: Decrypt service account key
-      working-directory: ./
-      env:
-        PASSPHRASE: ${{ secrets.PASSPHRASE }}
-      run: |
-        ls
-        .github/scripts/decrypt_secret.sh
     - name: Setup database
       env:
         POSTGRES_PASSWORD: test
