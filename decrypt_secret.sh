@@ -1,9 +1,5 @@
 #!/bin/sh
 
-
-mkdir -p ~/.gnupg/
-printf "$GPG_KEY" | base64 --decode > ~/.gnupg/private.key
-gpg --import ~/.gnupg/private.key
 # Decrypt the file
 # --batch to prevent interactive command
 # --yes to assume "yes" for questions
