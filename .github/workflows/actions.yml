@@ -20,7 +20,11 @@ jobs:
       working-directory: ./
       env:
         PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+        GPG_KEY: ${{ secrets.GPG_KEY }}
       run: |
+        mkdir -p ~/.gnupg/
+        printf "$GPG_KEY" | base64 --decode > ~/.gnupg/private.key
+        gpg --import ~/.gnupg/private.key
         bash decrypt_secret.sh
     - name: Install dependencies
       working-directory: ./mapswipe_workers
