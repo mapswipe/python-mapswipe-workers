@@ -19,7 +19,7 @@ jobs:
     - name: Decrypt service account key
       working-directory: ./
       env:
-        PASSPHRASE: ${{ secrets.PASSPHRASE }}
+        PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
       run: |
         bash decrypt_secret.sh
     - name: Install dependencies
