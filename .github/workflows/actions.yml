@@ -16,14 +16,6 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
-    - name: Decrypt service account key
-      working-directory: ./
-      run: |
-        openssl enc -aes-256-cbc -d -K "$OPENSSL_KEY" -iv "$OPENSSL_IV" -in ci-mapswipe-63a528ed5bb0.json.enc -out mapswipe_workers/serviceAccountKey.json
-      env:
-        OPENSSL_PASSPHRASE: ${{ secrets.OPENSSL_PASSPHRASE_NEW }}
-        OPENSSL_KEY: ${{ secrets.OPENSSL_KEY_NEW }}
-        OPENSSL_IV: ${{ secrets.OPENSSL_IV_NEW }}
     - name: Install dependencies
       working-directory: ./mapswipe_workers
       run: |
@@ -52,6 +44,14 @@ jobs:
       run: |
         # Create a mock file for wal-g setup
         docker-compose up --build firebase_deploy
+    - name: Decrypt Service Account Key File
+      working-directory: ./
+      run: |
+        openssl enc -aes-256-cbc -d -K "$OPENSSL_KEY" -iv "$OPENSSL_IV" -in ci-mapswipe-firebase-adminsdk-80fzw-ebce84bd5b.json.enc -out mapswipe_workers/serviceAccountKey.json
+      env:
+        OPENSSL_PASSPHRASE: ${{ secrets.OPENSSL_PASSPHRASE }}
+        OPENSSL_KEY: ${{ secrets.OPENSSL_KEY }}
+        OPENSSL_IV: ${{ secrets.OPENSSL_IV }}
     - name: Run Tests
       working-directory: ./mapswipe_workers
       env:
