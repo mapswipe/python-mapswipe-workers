@@ -21,9 +21,9 @@ jobs:
       run: |
         openssl enc -aes-256-cbc -d -K "$OPENSSL_KEY" -iv "$OPENSSL_IV" -in ci-mapswipe-63a528ed5bb0.json.enc -out mapswipe_workers/serviceAccountKey.json
       env:
-        OPENSSL_PASSPHRASE: ${{ secrets.OPENSSL_PASSPHRASE }}
-        OPENSSL_KEY: ${{ secrets.OPENSSL_KEY }}
-        OPENSSL_IV: ${{ secrets.OPENSSL_IV }}
+        OPENSSL_PASSPHRASE: ${{ secrets.OPENSSL_PASSPHRASE_NEW }}
+        OPENSSL_KEY: ${{ secrets.OPENSSL_KEY_NEW }}
+        OPENSSL_IV: ${{ secrets.OPENSSL_IV_NEW }}
     - name: Install dependencies
       working-directory: ./mapswipe_workers
       run: |
