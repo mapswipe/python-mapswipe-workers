@@ -37,15 +37,21 @@ jobs:
         # black --check mapswipe_workers
         # flake8 --count --config mapswipe_workers/setup.cfg mapswipe_workers
         # isort --check --settings-file mapswipe_workers/setup.cfg mapswipe_workers
-    - name: Setup database
+    - name:  Setup Postgres database
       env:
-        POSTGRES_PASSWORD: test
+        FIREBASE_TOKEN: test
         POSTGRES_USER: test
         POSTGRES_DB: test
       run: |
         # Create a mock file for wal-g setup
         touch postgres/serviceAccountKey.json
         docker-compose up --build --detach postgres
+    - name: Deploy Firebase Rules and Functions
+      env:
+        FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+      run: |
+        # Create a mock file for wal-g setup
+        docker-compose up --build --detach firebase_deploy
     - name: Tests
       working-directory: ./mapswipe_workers
       env:
