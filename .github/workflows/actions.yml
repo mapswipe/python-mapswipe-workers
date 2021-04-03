@@ -48,6 +48,7 @@ jobs:
     - name: Deploy Firebase Rules and Functions
       env:
         FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+        FIREBASE_DB: ${{ secrets.FIREBASE_DB }}
       run: |
         # Create a mock file for wal-g setup
         docker-compose up --build firebase_deploy
