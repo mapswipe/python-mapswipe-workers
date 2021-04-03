@@ -19,9 +19,9 @@ jobs:
     - name: Decrypt service account key
       working-directory: ./
       env:
-        OPENSSL_PASSPHRASE: ${{ secrets.OPENSSL_PASSPHRASE }}
-        OPENSSL_KEY: ${{ secrets.OPENSSL_KEY }}
-        OPENSSL_IV: ${{ secrets.OPENSSL_IV }}
+        OPENSSL_PASSPHRASE: ${{ secrets.dev.OPENSSL_PASSPHRASE }}
+        OPENSSL_KEY: ${{ secrets.dev.OPENSSL_KEY }}
+        OPENSSL_IV: ${{ secrets.dev.OPENSSL_IV }}
       run: |
         openssl enc -aes-256-cbc -d -K $OPENSSL_KEY -iv $OPENSSL_IV -in ci-mapswipe-63a528ed5bb0.json.enc -out mapswipe_workers/serviceAccountKey.json
     - name: Install dependencies
