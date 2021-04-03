@@ -19,7 +19,8 @@ jobs:
     - name: Decrypt service account key
       working-directory: ./
       env:
-        GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+        OPENSSL_PASSPHRASE: ${{ secrets.OPENSSL_PASSPHRASE }}
+        OPENSSL_PRIVATE_KEY: ${{ secrets.OPENSSL_PRIVATE_KEY }}
       run: |
         bash decrypt_secret.sh
     - name: Install dependencies
