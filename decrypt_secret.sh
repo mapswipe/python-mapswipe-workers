@@ -1,5 +1,4 @@
 #!/bin/sh
 
 # Decrypt the file
-echo $OPENSSL_PRIVATE_KEY > github_actions_private.key
-openssl rsautl -decrypt -passin pass:$OPENSSL_PASSPHRASE -inkey github_actions_private.key -in test.json.enc -out test_decrypted.json
+openssl enc -aes-256-cbc -d -K $OPENSSL_KEY -iv $OPENSSL_IV -in ci-mapswipe-63a528ed5bb0.json.enc -out mapswipe_workers/serviceAccountKey.json

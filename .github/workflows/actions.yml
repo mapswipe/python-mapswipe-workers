@@ -20,7 +20,8 @@ jobs:
       working-directory: ./
       env:
         OPENSSL_PASSPHRASE: ${{ secrets.OPENSSL_PASSPHRASE }}
-        OPENSSL_PRIVATE_KEY: ${{ secrets.OPENSSL_PRIVATE_KEY }}
+        OPENSSL_KEY: ${{ secrets.OPENSSL_KEY }}
+        OPENSSL_IV: ${{ secrets.OPENSSL_IV }}
       run: |
         bash decrypt_secret.sh
     - name: Install dependencies
