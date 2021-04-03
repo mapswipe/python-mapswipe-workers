@@ -28,8 +28,7 @@ jobs:
       working-directory: ./mapswipe_workers
       run: |
         python -m pip install --upgrade pip
-        pip install pytest
-        python setup.py install
+        pip install flake8 black isort
     - name: Code style
       working-directory: ./mapswipe_workers
       run: |
@@ -37,7 +36,7 @@ jobs:
         # black --check mapswipe_workers
         # flake8 --count --config mapswipe_workers/setup.cfg mapswipe_workers
         # isort --check --settings-file mapswipe_workers/setup.cfg mapswipe_workers
-    - name:  Setup Postgres database
+    - name:  Setup Postgres Database Container
       env:
         FIREBASE_TOKEN: test
         POSTGRES_USER: test
@@ -51,8 +50,18 @@ jobs:
         FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
       run: |
         # Create a mock file for wal-g setup
-        docker-compose up --build --detach firebase_deploy
-    - name: Tests
+        docker-compose up --build firebase_deploy
+    - name: Build MapSwipe Workers Container
+      working-directory: ./mapswipe_workers
+      env:
+        FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
+        FIREBASE_DB: ${{ secrets.FIREBASE_DB }}
+        POSTGRES_PASSWORD: test
+        POSTGRES_USER: test
+        POSTGRES_DB: test
+      run: |
+        docker-compose --build mapswipe_workers_creation
+    - name: Run Tests
       working-directory: ./mapswipe_workers
       env:
         FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
