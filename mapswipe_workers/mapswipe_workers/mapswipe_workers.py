@@ -100,9 +100,7 @@ def run_create_projects():
             except UnboundLocalError:
                 project_id = None
 
-            send_slack_message(
-                MessageType.FAIL, project_name, project_id, str(e)
-            )
+            send_slack_message(MessageType.FAIL, project_name, project_id, str(e))
             logger.exception("Failed: Project Creation ({0}))".format(project_name))
             sentry.capture_exception()
         continue
@@ -111,7 +109,6 @@ def run_create_projects():
 @cli.command("firebase-to-postgres")
 def run_firebase_to_postgres() -> list:
     """Update users and transfer results from Firebase to Postgres."""
-    update_data.update_user_data()
     project_ids = transfer_results.transfer_results()
     for project_id in project_ids:
         update_data.set_progress_in_firebase(project_id)
@@ -386,17 +383,22 @@ def run_delete_project(project_id, project_ids):
 
 @cli.command("run")
 @click.option(
-        "--analysis_type",
-        "-a",
-        default="all",
-        help=(
-            f"Will either execute all or just the specified functions of the analysis "
-            f"choices here"
-        ),
-        type=click.Choice(["all", "creation", "firebase-to-postgres", "generate-stats"]),
-    )
+    "--analysis_type",
+    "-a",
+    default="all",
+    help=(
+        "Will either execute all or just the specified functions of the analysis "
+        "choices here"
+    ),
+    type=click.Choice(["all", "creation", "firebase-to-postgres", "generate-stats"]),
+)
 @click.option("--schedule", is_flag=True, help="Schedule jobs to run every 10 minutes.")
-@click.option("--time_interval", type=int, default=10, help="Time interval for scheduled jobs in minutes.")
+@click.option(
+    "--time_interval",
+    type=int,
+    default=10,
+    help="Time interval for scheduled jobs in minutes.",
+)
 @click.pass_context
 def run(context, analysis_type, schedule, time_interval):
     """
@@ -419,7 +421,10 @@ def run(context, analysis_type, schedule, time_interval):
         context.invoke(run_create_tutorials)
 
     def _run_firebase_to_postgres():
-        logger.info("start mapswipe backend workflow to transfer results from firebase to postgres.")
+        logger.info(
+            "start mapswipe backend workflow to transfer results "
+            "from firebase to postgres."
+        )
         context.invoke(run_firebase_to_postgres)
 
     def _run_stats():
