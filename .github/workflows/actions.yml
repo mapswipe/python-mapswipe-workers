@@ -29,7 +29,7 @@ jobs:
         isort --check --settings-file setup.cfg mapswipe_workers/
     - name:  Setup Postgres Database Container
       env:
-        FIREBASE_TOKEN: test
+        POSTGRES_PASSWORD: test
         POSTGRES_USER: test
         POSTGRES_DB: test
       run: |

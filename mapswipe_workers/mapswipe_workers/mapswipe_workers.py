@@ -100,9 +100,7 @@ def run_create_projects():
             except UnboundLocalError:
                 project_id = None
 
-            send_slack_message(
-                MessageType.FAIL, project_name, project_id, str(e)
-            )
+            send_slack_message(MessageType.FAIL, project_name, project_id, str(e))
             logger.exception("Failed: Project Creation ({0}))".format(project_name))
             sentry.capture_exception()
         continue
@@ -386,15 +384,15 @@ def run_delete_project(project_id, project_ids):
 
 @cli.command("run")
 @click.option(
-        "--analysis_type",
-        "-a",
-        default="all",
-        help=(
-            f"Will either execute all or just the specified functions of the analysis "
-            f"choices here"
-        ),
-        type=click.Choice(["all", "creation", "stats"]),
-    )
+    "--analysis_type",
+    "-a",
+    default="all",
+    help=(
+        "Will either execute all or just the specified functions of the analysis "
+        "choices here"
+    ),
+    type=click.Choice(["all", "creation", "stats"]),
+)
 @click.option("--schedule", is_flag=True, help="Schedule jobs to run every 10 minutes.")
 @click.pass_context
 def run(context, analysis_type, schedule):
