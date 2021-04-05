@@ -199,31 +199,34 @@ def update_project_data(project_ids: list = []):
         )
 
     # get project status from firebase
-    project_status_dict = get_project_attribute_from_firebase(project_ids, "status")
+    if len(project_ids) > 0:
+        project_status_dict = get_project_attribute_from_firebase(project_ids, "status")
 
-    for i, project in enumerate(project_info):
-        # for each project we check if the status set in firebase
-        # and the status set in postgres are different
-        # we update status in postgres if value has changed
-        project_id, postgres_status = project
-        firebase_status = project_status_dict[project_id]
-        if postgres_status == firebase_status or firebase_status is None:
-            # project status did not change or
-            # project status is not available in firebase
-            pass
-        else:
-            # The status of the project has changed.
-            # The project status will be updated in postgres.
-            # Usually, project status will only change for few (<10) projects at once.
-            # Using multiple update operations seems to be okay in this scenario.
-            query_update_project = """
-                UPDATE projects
-                SET status=%s
-                WHERE project_id=%s;
-            """
-            data_update_project = [firebase_status, project_id]
-            pg_db.query(query_update_project, data_update_project)
-            logger.info(f"Updated project status in Postgres for project {project_id}")
+        for i, project in enumerate(project_info):
+            # for each project we check if the status set in firebase
+            # and the status set in postgres are different
+            # we update status in postgres if value has changed
+            project_id, postgres_status = project
+            firebase_status = project_status_dict[project_id]
+            if postgres_status == firebase_status or firebase_status is None:
+                # project status did not change or
+                # project status is not available in firebase
+                pass
+            else:
+                # The status of the project has changed.
+                # The project status will be updated in postgres.
+                # Project status will only change for few (<10) projects at once.
+                # Using multiple update operations seems to be okay in this scenario.
+                query_update_project = """
+                    UPDATE projects
+                    SET status=%s
+                    WHERE project_id=%s;
+                """
+                data_update_project = [firebase_status, project_id]
+                pg_db.query(query_update_project, data_update_project)
+                logger.info(
+                    f"Updated project status in Postgres for project {project_id}"
+                )
 
     logger.info("Finished status update projects.")
 
