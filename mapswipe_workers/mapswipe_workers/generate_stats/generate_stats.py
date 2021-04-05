@@ -1,5 +1,5 @@
-from typing import Optional, List
 import datetime as dt
+from typing import List, Optional
 
 from mapswipe_workers import auth
 from mapswipe_workers.definitions import DATA_PATH, logger
@@ -15,7 +15,9 @@ def get_recent_projects(hours: int = 3):
         where start_time >= %(timestamp)s
         group by project_id
     """
-    timestamp = (dt.datetime.utcnow() - dt.timedelta(hours=hours)).isoformat()[0:-3] + "Z"
+    timestamp = (dt.datetime.utcnow() - dt.timedelta(hours=hours)).isoformat()[
+        0:-3
+    ] + "Z"
     project_info = pg_db.retr_query(query_insert_results, {"timestamp": timestamp})
     del pg_db
 

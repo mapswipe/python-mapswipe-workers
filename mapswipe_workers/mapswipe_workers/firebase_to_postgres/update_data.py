@@ -1,14 +1,14 @@
 """Update users and project information from Firebase in Postgres."""
 
-import datetime as dt
 import asyncio
-import csv
-import io
 import concurrent.futures
+import csv
+import datetime as dt
+import io
 from typing import List, Optional
 
 from mapswipe_workers import auth
-from mapswipe_workers.definitions import logger, sentry
+from mapswipe_workers.definitions import logger
 
 
 def get_user_attribute_from_firebase(user_ids: List[str], attribute: str):
@@ -36,7 +36,9 @@ def get_user_attribute_from_firebase(user_ids: List[str], attribute: str):
     executor = concurrent.futures.ThreadPoolExecutor(max_workers=20)
     event_loop = asyncio.new_event_loop()
     try:
-        user_attribute_dict = event_loop.run_until_complete(get_user_attribute_list(user_ids, event_loop))
+        user_attribute_dict = event_loop.run_until_complete(
+            get_user_attribute_list(user_ids, event_loop)
+        )
     finally:
         event_loop.close()
 
@@ -70,12 +72,16 @@ def update_user_data(user_ids: Optional[List[str]] = None) -> None:
     new_user_ids = list(set(firebase_user_ids) - set(postgres_user_ids))
 
     if len(new_user_ids) == 0:
-        logger.info(f"There are NO new users in Firebase.")
+        logger.info("There are NO new users in Firebase.")
     else:
         logger.info(f"There are {len(new_user_ids)} new users in Firebase.")
         # get username and created attributes from firebase
-        firebase_usernames_dict = get_user_attribute_from_firebase(new_user_ids, "username")
-        firebase_created_dict = get_user_attribute_from_firebase(new_user_ids, "created")
+        firebase_usernames_dict = get_user_attribute_from_firebase(
+            new_user_ids, "username"
+        )
+        firebase_created_dict = get_user_attribute_from_firebase(
+            new_user_ids, "created"
+        )
 
         # write user information to in memory file
         users_file = io.StringIO("")
@@ -102,11 +108,7 @@ def update_user_data(user_ids: Optional[List[str]] = None) -> None:
         users_file.seek(0)
 
         # write users to users_temp table with copy from statement
-        columns = [
-            "user_id",
-            "username",
-            "created"
-        ]
+        columns = ["user_id", "username", "created"]
         pg_db.copy_from(users_file, "users_temp", columns)
         users_file.close()
 
@@ -151,11 +153,15 @@ def get_project_attribute_from_firebase(project_ids: List[str], attribute: str):
     executor = concurrent.futures.ThreadPoolExecutor(max_workers=20)
     event_loop = asyncio.new_event_loop()
     try:
-        project_attribute_dict = event_loop.run_until_complete(get_project_status_list(project_ids, event_loop))
+        project_attribute_dict = event_loop.run_until_complete(
+            get_project_status_list(project_ids, event_loop)
+        )
     finally:
         event_loop.close()
 
-    logger.info(f"Got attribute '{attribute}' from firebase for {len(project_ids)} projects.")
+    logger.info(
+        f"Got attribute '{attribute}' from firebase for {len(project_ids)} projects."
+    )
     return project_attribute_dict
 
 
@@ -182,13 +188,15 @@ def update_project_data(project_ids: list = []):
         # get project ids for all non-archived projects in postgres
         query = """
             select project_id, status from projects
-            where status != 'archived'; 
+            where status != 'archived';
         """
         project_info = pg_db.retr_query(query)
         project_ids = []
         for project_id, attribute in project_info:
             project_ids.append(project_id)
-        logger.info(f"Got all ({len(project_ids)}) not-archived projects from postgres.")
+        logger.info(
+            f"Got all ({len(project_ids)}) not-archived projects from postgres."
+        )
 
     # get project status from firebase
     project_status_dict = get_project_attribute_from_firebase(project_ids, "status")
@@ -227,7 +235,8 @@ def set_progress_in_firebase(project_id: str):
     query = """
         -- Calculate overall project progress as
         -- the average progress for all groups.
-        -- This is not hundred percent exact, since groups can have a different number of tasks
+        -- This is not hundred percent exact,
+        -- since groups can have a different number of tasks
         -- but it is still "good enough" and gives almost correct progress.
         -- But it is easier to compute
         -- than considering the actual number of tasks per group.
@@ -235,7 +244,7 @@ def set_progress_in_firebase(project_id: str):
           project_id
           ,avg(group_progress)::integer as progress
         from
-        (   
+        (
             -- Get all groups for this project and
             -- add progress for groups that have been worked on already.
             -- Set progress to 0 if no user has worked on this group.
@@ -249,7 +258,7 @@ def set_progress_in_firebase(project_id: str):
                 else group_progress
               end as group_progress
             from groups g
-            left join 
+            left join
                 (
                 -- Here we get the progress for all groups
                 -- for which results have been submitted already.
@@ -264,13 +273,13 @@ def set_progress_in_firebase(project_id: str):
                     else 100 * count(distinct user_id) / p.verification_number
                   end as group_progress
                 from results r, projects p
-                where r.project_id = p.project_id 
-                group by group_id, r.project_id, p.verification_number 
+                where r.project_id = p.project_id
+                group by group_id, r.project_id, p.verification_number
             ) bar
             on bar.group_id = g.group_id and bar.project_id = g.project_id
-            where g.project_id = %s 
-        ) foo	
-        group by project_id 
+            where g.project_id = %s
+        ) foo
+        group by project_id
     """
     data = [project_id]
     progress = pg_db.retr_query(query, data)[0][1]
@@ -289,10 +298,10 @@ def set_contributor_count_in_firebase(project_id: str):
         select
           project_id
           ,count(distinct user_id) contributor_count
-        from results r 
-        where 
-          project_id = %s 
-        group by project_id 
+        from results r
+        where
+          project_id = %s
+        group by project_id
     """
     data = [project_id]
     contributor_count = pg_db.retr_query(query, data)[0][1]
@@ -300,4 +309,6 @@ def set_contributor_count_in_firebase(project_id: str):
     fb_db = auth.firebaseDB()
     project_progress_ref = fb_db.reference(f"v2/projects/{project_id}/contributorCount")
     project_progress_ref.set(contributor_count)
-    logger.info(f"set contributorCount attribute for project {project_id}: {contributor_count}")
+    logger.info(
+        f"set contributorCount attribute for project {project_id}: {contributor_count}"
+    )

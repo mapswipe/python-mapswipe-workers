@@ -51,4 +51,3 @@ class BaseTileServer(metaclass=ABCMeta):
             return True
         else:
             return False
-
