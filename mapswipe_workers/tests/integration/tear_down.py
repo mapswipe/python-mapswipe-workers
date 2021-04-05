@@ -24,7 +24,7 @@ def delete_test_data(project_id: str) -> None:
     ref.delete()
     ref = fb_db.reference(f"v2/groupsUsers/{project_id}")
     ref.delete()
-    time.sleep(5)  # Wait for Firebase Functions to complete
+    time.sleep(1)  # Wait for Firebase Functions to complete
     ref = fb_db.reference(f"v2/groups/{project_id}")
     ref.delete()
     ref = fb_db.reference(f"v2/projects/{project_id}")

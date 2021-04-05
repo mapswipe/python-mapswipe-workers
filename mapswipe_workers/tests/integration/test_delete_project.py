@@ -22,7 +22,7 @@ class TestDeleteProject(unittest.TestCase):
         """Test if tasks, groups, project and results are deleted."""
         delete_project.delete_project([self.project_id])
 
-        time.sleep(5)  # Wait for Firebase Functions to complete
+        time.sleep(1)  # Wait for Firebase Functions to complete
 
         fb_db = auth.firebaseDB()
         ref = fb_db.reference(f"v2/results/{self.project_id}")
