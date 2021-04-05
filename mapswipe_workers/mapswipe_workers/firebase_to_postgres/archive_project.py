@@ -2,6 +2,7 @@
 Archive a project.
 """
 import re
+import time
 from typing import Iterable
 
 from firebase_admin import exceptions
@@ -66,6 +67,8 @@ def archive_project(project_ids: list) -> bool:
                         {ref.path}"""
             )
         ref.delete()
+
+        time.sleep(5)  # Wait for Firebase Functions to complete
 
         ref = fb_db.reference(f"v2/groups/{project_id}")
         if not re.match(r"/v2/\w+/[-a-zA-Z0-9]+", ref.path):
