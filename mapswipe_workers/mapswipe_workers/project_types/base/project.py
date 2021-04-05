@@ -213,11 +213,14 @@ class BaseProject(metaclass=ABCMeta):
         task_upload_dict = {}
 
         logger.info(f"there are {len(groupsOfTasks)} groups for this project")
-        c = 0
-        for group_id in groupsOfTasks.keys():
-            tasks_list = groupsOfTasks[group_id]
-            c += 1
-            if self.projectType in [ProjectType.FOOTPRINT.value]:
+        group_counter = 0
+
+        if self.projectType in [ProjectType.FOOTPRINT.value]:
+            # The building footprint project type is the only one
+            # that uses tasks in Firebase.
+            for group_id in groupsOfTasks.keys():
+                tasks_list = groupsOfTasks[group_id]
+                group_counter += 1
                 # for tasks of a building footprint project
                 # we use compression to reduce storage size in firebase
                 # since the tasks hold geometries their storage size
@@ -226,21 +229,26 @@ class BaseProject(metaclass=ABCMeta):
                 task_upload_dict[
                     f"v2/tasks/{self.projectId}/{group_id}"
                 ] = compressed_tasks
-            else:
-                # for all other projects (build_area, completenesss, change detection)
-                # we just upload the tasks without compression
-                task_upload_dict[f"v2/tasks/{self.projectId}/{group_id}"] = tasks_list
 
-            # we upload tasks in batches of maximum 150 groups
-            # this is to avoid the maximum write size limit in firebase
-            if len(task_upload_dict) % 150 == 0 or c == len(groupsOfTasks):
-                ref.update(task_upload_dict)
-                logger.info(
-                    f"{self.projectId} -"
-                    f" uploaded 150 groups with tasks to firebase realtime database"
-                )
-                task_upload_dict = {}
+                # we upload tasks in batches of maximum 150 groups
+                # this is to avoid the maximum write size limit in firebase
+                if len(task_upload_dict) % 150 == 0 or group_counter == len(
+                    groupsOfTasks
+                ):
+                    ref.update(task_upload_dict)
+                    logger.info(
+                        f"{self.projectId} -"
+                        f" uploaded 150 groups with tasks to firebase realtime database"
+                    )
+                    task_upload_dict = {}
+        else:
+            # For all other projects (build_area, completeness, change detection)
+            # tasks are not needed in Firebase.
+            # The task urls are generated in the app based on the tile server
+            # information which is set in the project attributes in Firebase
+            pass
 
+        # delete project draft in Firebase once all things are in Firebase
         ref = fb_db.reference(f"v2/projectDrafts/{self.projectId}")
         ref.set({})
 
