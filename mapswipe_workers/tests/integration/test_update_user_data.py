@@ -7,7 +7,7 @@ from mapswipe_workers import auth
 from mapswipe_workers.firebase_to_postgres import update_data
 
 
-class TestArchiveProject(unittest.TestCase):
+class TestUpdateUserData(unittest.TestCase):
     def setUp(self):
         self.user_id = set_up.create_test_user("tile_map_service_grid")
         self.user_ids = [self.user_id]

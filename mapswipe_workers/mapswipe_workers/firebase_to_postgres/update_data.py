@@ -95,7 +95,7 @@ def update_user_data(user_ids: Optional[List[str]] = None) -> None:
             # Get created timestamp from dict.
             # Convert timestamp (ISO 8601) from string to a datetime object.
             # Use current timestamp if the value is not set in Firebase
-            timestamp = firebase_created_dict.get(user_id, None)
+            timestamp = firebase_created_dict.get(new_user, None)
             if timestamp:
                 created = dt.datetime.strptime(
                     timestamp.replace("Z", ""), "%Y-%m-%dT%H:%M:%S.%f"
