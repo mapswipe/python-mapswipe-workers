@@ -1,0 +1,64 @@
+name: MapSwipe Workers
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.8]
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
+      working-directory: ./mapswipe_workers
+      run: |
+        python -m pip install --upgrade pip
+        pip install flake8 black==19.10b0 isort
+    - name: Code style
+      working-directory: ./mapswipe_workers
+      run: |
+        black --check mapswipe_workers
+        flake8 --count --config setup.cfg mapswipe_workers/
+        isort --check --settings-file setup.cfg mapswipe_workers/
+    - name:  Setup Postgres Database Container
+      env:
+        POSTGRES_PASSWORD: test
+        POSTGRES_USER: test
+        POSTGRES_DB: test
+      run: |
+        # Create a mock file for wal-g setup
+        touch postgres/serviceAccountKey.json
+        docker-compose up --build --detach postgres
+    - name: Deploy Firebase Rules and Functions
+      env:
+        FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+        FIREBASE_DB: ${{ secrets.FIREBASE_DB }}
+      run: |
+        # Create a mock file for wal-g setup
+        docker-compose up --build firebase_deploy
+    - name: Decrypt Service Account Key File
+      working-directory: ./
+      run: |
+        openssl enc -aes-256-cbc -d -K "$OPENSSL_KEY" -iv "$OPENSSL_IV" -in ci-mapswipe-firebase-adminsdk-80fzw-ebce84bd5b.json.enc -out mapswipe_workers/serviceAccountKey.json
+      env:
+        OPENSSL_PASSPHRASE: ${{ secrets.OPENSSL_PASSPHRASE }}
+        OPENSSL_KEY: ${{ secrets.OPENSSL_KEY }}
+        OPENSSL_IV: ${{ secrets.OPENSSL_IV }}
+    - name: Run Tests
+      working-directory: ./mapswipe_workers
+      env:
+        FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
+        FIREBASE_DB: ${{ secrets.FIREBASE_DB }}
+        POSTGRES_PASSWORD: test
+        POSTGRES_USER: test
+        POSTGRES_DB: test
+      run: |
+        docker-compose run mapswipe_workers_creation python -m unittest discover --verbose --start-directory tests/unittests/
+        docker-compose run mapswipe_workers_creation python -m unittest discover --verbose --start-directory tests/integration/
