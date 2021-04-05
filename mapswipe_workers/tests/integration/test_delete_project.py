@@ -1,3 +1,4 @@
+import time
 import unittest
 
 import set_up
@@ -20,6 +21,8 @@ class TestDeleteProject(unittest.TestCase):
     def test_deletion(self):
         """Test if tasks, groups, project and results are deleted."""
         delete_project.delete_project([self.project_id])
+
+        time.sleep(5)  # Wait for Firebase Functions to complete
 
         fb_db = auth.firebaseDB()
         ref = fb_db.reference(f"v2/results/{self.project_id}")
@@ -54,6 +57,8 @@ class TestDeleteProject(unittest.TestCase):
         """Test for project id which does not exists."""
         delete_project.delete_project(["tuna"])
 
+        time.sleep(5)  # Wait for Firebase Functions to complete
+
         fb_db = auth.firebaseDB()
         ref = fb_db.reference("v2/results")
         self.assertIsNotNone(ref.get(shallow=True))
@@ -83,6 +88,8 @@ class TestDeleteProject(unittest.TestCase):
     def test_project_id_equals_none(self):
         """Test for project id which does not exists."""
         delete_project.delete_project([None])
+
+        time.sleep(5)  # Wait for Firebase Functions to complete
 
         fb_db = auth.firebaseDB()
         ref = fb_db.reference("v2/results")
