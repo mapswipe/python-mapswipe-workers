@@ -64,7 +64,8 @@ def get_progress_by_date(
         - sum of daily number of results up to that day
 
     progress:
-        - relative progress per day (e.g. overall progress increased by 0.15 on that day)
+        - relative progress per day
+        (e.g. overall progress increased by 0.15 on that day)
         - not used in firebase
 
     cum_progress:

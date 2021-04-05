@@ -25,3 +25,9 @@ This is done by using Travis script deployment (https://docs.travis-ci.com/user/
 To be able to connect to the MapSwipe server the Travis instance uses an encrypted SSH private key (Which can be found in the directory `travis/`).
 
 In the `deploy.sh` script an Ansible Playbook is run (https://docs.ansible.com/ansible/latest/index.html). Ansible is an automation tool which utilizes a SSH connection (`ansible/ansible.cfg`) to run commands defined in the Playbook (`ansible/playbook.yml`) on hosts defined in the Inventory (`ansible/inventory.yml`).
+
+## Continuous Deployment with Github Actions
+We use an encrypted service account key file. The file has been generated with this commands:
+
+`openssl enc -aes-256-cbc -e -p -nosalt -in=ci-mapswipe-firebase-adminsdk-80fzw-ebce84bd5b.json -out=ci-mapswipe-firebase-adminsdk-80fzw-ebce84bd5b.json.enc`
+
