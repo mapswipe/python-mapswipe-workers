@@ -58,12 +58,12 @@ def update_user_data(user_ids: Optional[List[str]] = None) -> None:
     postgres_user_ids = []
     for user_id in postgres_user_info:
         postgres_user_ids.append(user_id[0])
-    logger.info(f"There {len(postgres_user_ids)} users in Postgres.")
+    logger.info(f"There are {len(postgres_user_ids)} users in Postgres.")
 
     if not user_ids:
         # get all user_ids from firebase
         firebase_user_ids = list(fb_db.reference("v2/users").get(shallow=True).keys())
-        logger.info(f"There {len(firebase_user_ids)} users in Firebase.")
+        logger.info(f"There are {len(firebase_user_ids)} users in Firebase.")
     else:
         firebase_user_ids = user_ids
 
@@ -87,15 +87,15 @@ def update_user_data(user_ids: Optional[List[str]] = None) -> None:
         users_file = io.StringIO("")
         w = csv.writer(users_file, delimiter="\t", quotechar="'")
 
-        for i, new_user in enumerate(new_user_ids):
+        for new_user_id in new_user_ids:
             # Get username from dict.
             # Some users might not have a username set in Firebase.
-            username = firebase_usernames_dict.get(new_user, None)
+            username = firebase_usernames_dict.get(new_user_id, None)
 
             # Get created timestamp from dict.
             # Convert timestamp (ISO 8601) from string to a datetime object.
             # Use current timestamp if the value is not set in Firebase
-            timestamp = firebase_created_dict.get(new_user, None)
+            timestamp = firebase_created_dict.get(new_user_id, None)
             if timestamp:
                 created = dt.datetime.strptime(
                     timestamp.replace("Z", ""), "%Y-%m-%dT%H:%M:%S.%f"
@@ -104,7 +104,7 @@ def update_user_data(user_ids: Optional[List[str]] = None) -> None:
                 # If user has no "created" attribute set it to current time.
                 created = dt.datetime.utcnow().isoformat()[0:-3] + "Z"
 
-            w.writerow([new_user, username, created])
+            w.writerow([new_user_id, username, created])
         users_file.seek(0)
 
         # write users to users_temp table with copy from statement
@@ -202,11 +202,10 @@ def update_project_data(project_ids: list = []):
     if len(project_ids) > 0:
         project_status_dict = get_project_attribute_from_firebase(project_ids, "status")
 
-        for i, project in enumerate(project_info):
+        for project_id, postgres_status in project_info:
             # for each project we check if the status set in firebase
             # and the status set in postgres are different
             # we update status in postgres if value has changed
-            project_id, postgres_status = project
             firebase_status = project_status_dict[project_id]
             if postgres_status == firebase_status or firebase_status is None:
                 # project status did not change or
