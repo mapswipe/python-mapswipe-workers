@@ -103,6 +103,9 @@ CREATE INDEX IF NOT EXISTS results_taskid ON public.results
 CREATE INDEX IF NOT EXISTS results_userid ON public.results
     USING btree (user_id);
 
+CREATE INDEX IF NOT EXISTS results_timestamp_date_idx ON public.results (("timestamp"::DATE));
+
+
 -- create table for results import through csv
 CREATE TABLE IF NOT EXISTS results_temp (
     project_id varchar,
