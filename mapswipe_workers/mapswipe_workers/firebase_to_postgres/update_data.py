@@ -11,10 +11,10 @@ from mapswipe_workers.definitions import logger
 
 
 def get_user_attribute_from_firebase(user_ids: List[str], attribute: str):
-    """Use async for firebase sdk to query a user attribute.
+    """Use threading to query a user attribute in firebase.
 
     Follows a workflow describted in this blogpost:
-    https://hiranya911.medium.com/firebase-python-admin-sdk-with-asyncio-d65f39463916
+    https://www.digitalocean.com/community/tutorials/how-to-use-threadpoolexecutor-in-python-3
     """
 
     def get_user_attribute(_user_id, _attribute):
@@ -123,10 +123,10 @@ def update_user_data(user_ids: Optional[List[str]] = None) -> None:
 
 
 def get_project_attribute_from_firebase(project_ids: List[str], attribute: str):
-    """Use async for firebase sdk to query a project attribute.
+    """Use threading to query a project attribute in firebase.
 
     Follows a workflow describted in this blogpost:
-    https://hiranya911.medium.com/firebase-python-admin-sdk-with-asyncio-d65f39463916
+    https://www.digitalocean.com/community/tutorials/how-to-use-threadpoolexecutor-in-python-3
     """
 
     def get_project_attribute(_project_id, _attribute):
