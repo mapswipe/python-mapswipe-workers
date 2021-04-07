@@ -23,7 +23,6 @@ def get_recent_projects(hours: int = 3):
         0:-3
     ] + "Z"
     project_info = pg_db.retr_query(query_insert_results, {"timestamp": timestamp})
-    del pg_db
 
     project_ids = []
     for project_id in project_info:
@@ -67,7 +66,7 @@ def generate_stats(project_id_list: Optional[List[str]] = None):
     # the generate stats workflow should be performed.
     # In this case, project ids are queried from postgres for projects
     # for which results have been submitted within the last three hours.
-    if not project_id_list or len(project_id_list) == 0:
+    if project_id_list is None or len(project_id_list) == 0:
         project_id_list = get_recent_projects(hours=3)
 
     logger.info(f"will generate stats for: {project_id_list}")

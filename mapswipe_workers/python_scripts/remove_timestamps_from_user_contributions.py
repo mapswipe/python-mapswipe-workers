@@ -19,17 +19,15 @@ def remove_timestamps(uid):
                     user_contributions[project_id][key] = True
 
             ref.update(user_contributions)
-            logger.info(
-                f"updated user contributions for user {uid}"
-            )
+            logger.info(f"updated user contributions for user {uid}")
     except ValueError:
-        logger.info(f"could not remove timestamps for user {uid} in firebase.")
+        logger.warning(f"could not remove timestamps for user {uid} in firebase.")
 
 
 def get_all_users():
     """Get the user ids from all users in Firebase DB."""
     fb_db = firebaseDB()
-    users = fb_db.reference(f"v2/users/").get(shallow=True)
+    users = fb_db.reference("v2/users/").get(shallow=True)
     uid_list = users.keys()
     return uid_list
 

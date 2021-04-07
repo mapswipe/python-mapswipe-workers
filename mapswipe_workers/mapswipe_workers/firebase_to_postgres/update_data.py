@@ -1,6 +1,5 @@
 """Update users and project information from Firebase in Postgres."""
 
-import asyncio
 import concurrent.futures
 import csv
 import datetime as dt
@@ -18,29 +17,24 @@ def get_user_attribute_from_firebase(user_ids: List[str], attribute: str):
     https://hiranya911.medium.com/firebase-python-admin-sdk-with-asyncio-d65f39463916
     """
 
-    async def get_user_attribute(user_id, event_loop):
-        ref = fb_db.reference(f"v2/users/{user_id}/{attribute}")
-        # Blocking method is delegated to the thread pool
-        return [user_id, await event_loop.run_in_executor(executor, ref.get)]
-
-    async def get_user_attribute_list(user_ids, event_loop):
-        coroutines = [get_user_attribute(i, event_loop) for i in user_ids]
-        completed, pending = await asyncio.wait(coroutines)
-        firebase_attribute_dict = {}
-        for item in completed:
-            user_id, attribute_value = item.result()
-            firebase_attribute_dict[user_id] = attribute_value
-        return firebase_attribute_dict
+    def get_user_attribute(_user_id, _attribute):
+        ref = fb_db.reference(f"v2/users/{_user_id}/{_attribute}")
+        return [_user_id, ref.get()]
 
     fb_db = auth.firebaseDB()
-    executor = concurrent.futures.ThreadPoolExecutor(max_workers=20)
-    event_loop = asyncio.new_event_loop()
-    try:
-        user_attribute_dict = event_loop.run_until_complete(
-            get_user_attribute_list(user_ids, event_loop)
-        )
-    finally:
-        event_loop.close()
+    user_attribute_dict = {}
+    with concurrent.futures.ThreadPoolExecutor(max_workers=20) as executor:
+        futures = []
+        for user_id in user_ids:
+            futures.append(
+                executor.submit(
+                    get_user_attribute, _user_id=user_id, _attribute=attribute
+                )
+            )
+
+        for future in concurrent.futures.as_completed(futures):
+            user_id, status = future.result()
+            user_attribute_dict[user_id] = status
 
     logger.info(f"Got attribute '{attribute}' from firebase for {len(user_ids)} users.")
     return user_attribute_dict
@@ -135,29 +129,24 @@ def get_project_attribute_from_firebase(project_ids: List[str], attribute: str):
     https://hiranya911.medium.com/firebase-python-admin-sdk-with-asyncio-d65f39463916
     """
 
-    async def get_project_status(project_id, event_loop):
-        ref = fb_db.reference(f"v2/projects/{project_id}/{attribute}")
-        # Blocking method is delegated to the thread pool
-        return [project_id, await event_loop.run_in_executor(executor, ref.get)]
-
-    async def get_project_status_list(project_ids, event_loop):
-        coroutines = [get_project_status(i, event_loop) for i in project_ids]
-        completed, pending = await asyncio.wait(coroutines)
-        firebase_attribute_dict = {}
-        for item in completed:
-            project_id, attribute_value = item.result()
-            firebase_attribute_dict[project_id] = attribute_value
-        return firebase_attribute_dict
+    def get_project_attribute(_project_id, _attribute):
+        ref = fb_db.reference(f"v2/projects/{_project_id}/{_attribute}")
+        return [_project_id, ref.get()]
 
     fb_db = auth.firebaseDB()
-    executor = concurrent.futures.ThreadPoolExecutor(max_workers=20)
-    event_loop = asyncio.new_event_loop()
-    try:
-        project_attribute_dict = event_loop.run_until_complete(
-            get_project_status_list(project_ids, event_loop)
-        )
-    finally:
-        event_loop.close()
+    project_attribute_dict = {}
+    with concurrent.futures.ThreadPoolExecutor(max_workers=20) as executor:
+        futures = []
+        for project_id in project_ids:
+            futures.append(
+                executor.submit(
+                    get_project_attribute, _project_id=project_id, _attribute=attribute
+                )
+            )
+
+        for future in concurrent.futures.as_completed(futures):
+            project_id, status = future.result()
+            project_attribute_dict[project_id] = status
 
     logger.info(
         f"Got attribute '{attribute}' from firebase for {len(project_ids)} projects."
