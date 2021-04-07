@@ -1,129 +1,222 @@
 """Update users and project information from Firebase in Postgres."""
 
+import concurrent.futures
+import csv
 import datetime as dt
+import io
+from typing import List, Optional
 
 from mapswipe_workers import auth
-from mapswipe_workers.definitions import logger, sentry
+from mapswipe_workers.definitions import logger
 
 
-def get_last_updated_timestamp() -> str:
-    """Get the timestamp of the latest created user in Postgres."""
-    pg_db = auth.postgresDB()
-    query = """
-        SELECT created
-        FROM users
-        WHERE created IS NOT NULL
-        ORDER BY created DESC
-        LIMIT 1
-        """
-    last_updated = pg_db.retr_query(query)
-    try:
-        last_updated = last_updated[0][0]
-        last_updated = last_updated.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
-        logger.info("Last updated users: {0}".format(last_updated))
-    except (IndexError, AttributeError):
-        logger.exception("Could not get last timestamp of users.")
-        sentry.capture_exception()
-        last_updated = ""
-    return last_updated
+def get_user_attribute_from_firebase(user_ids: List[str], attribute: str):
+    """Use threading to query a user attribute in firebase.
+
+    Follows a workflow describted in this blogpost:
+    https://www.digitalocean.com/community/tutorials/how-to-use-threadpoolexecutor-in-python-3
+    """
+
+    def get_user_attribute(_user_id, _attribute):
+        ref = fb_db.reference(f"v2/users/{_user_id}/{_attribute}")
+        return [_user_id, ref.get()]
+
+    fb_db = auth.firebaseDB()
+    user_attribute_dict = {}
+    with concurrent.futures.ThreadPoolExecutor(max_workers=20) as executor:
+        futures = []
+        for user_id in user_ids:
+            futures.append(
+                executor.submit(
+                    get_user_attribute, _user_id=user_id, _attribute=attribute
+                )
+            )
+
+        for future in concurrent.futures.as_completed(futures):
+            user_id, status = future.result()
+            user_attribute_dict[user_id] = status
+
+    logger.info(f"Got attribute '{attribute}' from firebase for {len(user_ids)} users.")
+    return user_attribute_dict
 
 
-def update_user_data(user_ids: list = []) -> None:
+def update_user_data(user_ids: Optional[List[str]] = None) -> None:
     """Copies new users from Firebase to Postgres."""
     # TODO: On Conflict
     fb_db = auth.firebaseDB()
     pg_db = auth.postgresDB()
 
-    ref = fb_db.reference("v2/users")
-    last_updated = get_last_updated_timestamp()
+    # get all user_ids from postgres
+    query = """SELECT user_id FROM users"""
+    postgres_user_info = pg_db.retr_query(query)
+    postgres_user_ids = []
+    for user_id in postgres_user_info:
+        postgres_user_ids.append(user_id[0])
+    logger.info(f"There are {len(postgres_user_ids)} users in Postgres.")
 
-    if user_ids:
-        logger.info("Add custom user ids to user list, which will be updated.")
-        users = {}
-        for user_id in user_ids:
-            users[user_id] = ref.child(user_id).get()
-    elif last_updated:
-        # Get only new users from Firebase.
-        query = ref.order_by_child("created").start_at(last_updated)
-        users = query.get()
-        if len(users) == 0:
-            logger.info("there are no new users in Firebase.")
-        else:
-            # Delete first user in ordered dict (FIFO).
-            # This user is already in the database (user.created = last_updated).
-            users.popitem(last=False)
+    if not user_ids:
+        # get all user_ids from firebase
+        firebase_user_ids = list(fb_db.reference("v2/users").get(shallow=True).keys())
+        logger.info(f"There are {len(firebase_user_ids)} users in Firebase.")
     else:
-        # Get all users from Firebase.
-        users = ref.get()
+        firebase_user_ids = user_ids
 
-    for user_id, user in users.items():
-        # Convert timestamp (ISO 8601) from string to a datetime object.
-        try:
-            created = dt.datetime.strptime(
-                user["created"].replace("Z", ""), "%Y-%m-%dT%H:%M:%S.%f"
-            )
-        except KeyError:
-            # If user has no "created" attribute set it to current time.
-            created = dt.datetime.utcnow().isoformat()[0:-3] + "Z"
-            logger.info(
-                "user {0} didn't have a 'created' attribute. ".format(user_id)
-                + "Set it to '{0}' now.".format(created)
-            )
-        username = user.get("username", None)
-        query_update_user = """
-            INSERT INTO users (user_id, username, created)
-            VALUES(%s, %s, %s)
-            ON CONFLICT (user_id) DO UPDATE
-            SET username=%s,
-            created=%s;
+    # Get difference between firebase users_ids and postgres user_ids.
+    # These are new users for which data is only available in Firebase so far.
+    new_user_ids = list(set(firebase_user_ids) - set(postgres_user_ids))
+
+    if len(new_user_ids) == 0:
+        logger.info("There are NO new users in Firebase.")
+    else:
+        logger.info(f"There are {len(new_user_ids)} new users in Firebase.")
+        # get username and created attributes from firebase
+        firebase_usernames_dict = get_user_attribute_from_firebase(
+            new_user_ids, "username"
+        )
+        firebase_created_dict = get_user_attribute_from_firebase(
+            new_user_ids, "created"
+        )
+
+        # write user information to in memory file
+        users_file = io.StringIO("")
+        w = csv.writer(users_file, delimiter="\t", quotechar="'")
+
+        for new_user_id in new_user_ids:
+            # Get username from dict.
+            # Some users might not have a username set in Firebase.
+            username = firebase_usernames_dict.get(new_user_id, None)
+
+            # Get created timestamp from dict.
+            # Convert timestamp (ISO 8601) from string to a datetime object.
+            # Use current timestamp if the value is not set in Firebase
+            timestamp = firebase_created_dict.get(new_user_id, None)
+            if timestamp:
+                created = dt.datetime.strptime(
+                    timestamp.replace("Z", ""), "%Y-%m-%dT%H:%M:%S.%f"
+                )
+            else:
+                # If user has no "created" attribute set it to current time.
+                created = dt.datetime.utcnow().isoformat()[0:-3] + "Z"
+
+            w.writerow([new_user_id, username, created])
+        users_file.seek(0)
+
+        # write users to users_temp table with copy from statement
+        columns = ["user_id", "username", "created"]
+        pg_db.copy_from(users_file, "users_temp", columns)
+        users_file.close()
+
+        # update username and created attributes in postgres
+        query_insert_results = """
+            INSERT INTO users
+                SELECT * FROM users_temp
+            ON CONFLICT (user_id)
+            DO NOTHING;
+            TRUNCATE users_temp;
         """
-        data_update_user = [
-            user_id,
-            username,
-            created,
-            username,
-            created,
-        ]
-        pg_db.query(query_update_user, data_update_user)
-    logger.info("Updated user data in Potgres.")
+        pg_db.query(query_insert_results)
+        del pg_db
+
+        logger.info("Updated user data in Postgres.")
+
+    return new_user_ids
+
+
+def get_project_attribute_from_firebase(project_ids: List[str], attribute: str):
+    """Use threading to query a project attribute in firebase.
+
+    Follows a workflow describted in this blogpost:
+    https://www.digitalocean.com/community/tutorials/how-to-use-threadpoolexecutor-in-python-3
+    """
+
+    def get_project_attribute(_project_id, _attribute):
+        ref = fb_db.reference(f"v2/projects/{_project_id}/{_attribute}")
+        return [_project_id, ref.get()]
+
+    fb_db = auth.firebaseDB()
+    project_attribute_dict = {}
+    with concurrent.futures.ThreadPoolExecutor(max_workers=20) as executor:
+        futures = []
+        for project_id in project_ids:
+            futures.append(
+                executor.submit(
+                    get_project_attribute, _project_id=project_id, _attribute=attribute
+                )
+            )
+
+        for future in concurrent.futures.as_completed(futures):
+            project_id, status = future.result()
+            project_attribute_dict[project_id] = status
+
+    logger.info(
+        f"Got attribute '{attribute}' from firebase for {len(project_ids)} projects."
+    )
+    return project_attribute_dict
 
 
 def update_project_data(project_ids: list = []):
-    """
-    Gets status of projects
-    from Firebase and updates them in Postgres.
+    """Get status of projects from Firebase and updates them in Postgres.
 
-    Default behavior is to update all projects.
+    Default behavior is to check all projects, which have not been archived
+    and update projects in postgres for which the status has changed.
     If called with a list of project ids as parameter
     only those projects will be updated.
     """
 
-    fb_db = auth.firebaseDB()
     pg_db = auth.postgresDB()
 
     if project_ids:
-        logger.info("update project data in postgres for selected projects")
-        projects = dict()
-        for project_id in project_ids:
-            project_ref = fb_db.reference(f"v2/projects/{project_id}")
-            projects[project_id] = project_ref.get()
-    else:
-        logger.info("update project data in postgres for all firebase projects")
-        projects_ref = fb_db.reference("v2/projects/")
-        projects = projects_ref.get()
-
-    for project_id, project in projects.items():
-        query_update_project = """
-            UPDATE projects
-            SET status=%s
-            WHERE project_id=%s;
+        # use project ids passed by user
+        query = """
+            select project_id, status from projects
+            where project_id IN %s;
         """
-        # TODO: Is there need for fallback to ''
-        # if project.status is not existent
-        data_update_project = [project.get("status", ""), project_id]
-        pg_db.query(query_update_project, data_update_project)
+        project_info = pg_db.retr_query(query, [tuple(project_ids)])
+        logger.info("got projects from postgres based on user input")
+    else:
+        # get project ids for all non-archived projects in postgres
+        query = """
+            select project_id, status from projects
+            where status != 'archived';
+        """
+        project_info = pg_db.retr_query(query)
+        project_ids = []
+        for project_id, attribute in project_info:
+            project_ids.append(project_id)
+        logger.info(
+            f"Got all ({len(project_ids)}) not-archived projects from postgres."
+        )
 
-    logger.info("Updated project data in Postgres")
+    # get project status from firebase
+    if len(project_ids) > 0:
+        project_status_dict = get_project_attribute_from_firebase(project_ids, "status")
+
+        for project_id, postgres_status in project_info:
+            # for each project we check if the status set in firebase
+            # and the status set in postgres are different
+            # we update status in postgres if value has changed
+            firebase_status = project_status_dict[project_id]
+            if postgres_status == firebase_status or firebase_status is None:
+                # project status did not change or
+                # project status is not available in firebase
+                pass
+            else:
+                # The status of the project has changed.
+                # The project status will be updated in postgres.
+                # Project status will only change for few (<10) projects at once.
+                # Using multiple update operations seems to be okay in this scenario.
+                query_update_project = """
+                    UPDATE projects
+                    SET status=%s
+                    WHERE project_id=%s;
+                """
+                data_update_project = [firebase_status, project_id]
+                pg_db.query(query_update_project, data_update_project)
+                logger.info(
+                    f"Updated project status in Postgres for project {project_id}"
+                )
+
+    logger.info("Finished status update projects.")
 
 
 def set_progress_in_firebase(project_id: str):
@@ -133,7 +226,7 @@ def set_progress_in_firebase(project_id: str):
     query = """
         -- Calculate overall project progress as
         -- the average progress for all groups.
-        -- This is not hundred percent exact
+        -- This is not hundred percent exact,
         -- since groups can have a different number of tasks
         -- but it is still "good enough" and gives almost correct progress.
         -- But it is easier to compute

@@ -1,5 +1,6 @@
 """Helper functions for test tear down"""
 import re
+import time
 from typing import List
 
 from mapswipe_workers import auth
@@ -21,6 +22,9 @@ def delete_test_data(project_id: str) -> None:
     ref.delete()
     ref = fb_db.reference(f"v2/tasks/{project_id}")
     ref.delete()
+    ref = fb_db.reference(f"v2/groupsUsers/{project_id}")
+    ref.delete()
+    time.sleep(1)  # Wait for Firebase Functions to complete
     ref = fb_db.reference(f"v2/groups/{project_id}")
     ref.delete()
     ref = fb_db.reference(f"v2/projects/{project_id}")
@@ -31,16 +35,20 @@ def delete_test_data(project_id: str) -> None:
     ref.delete()
 
     pg_db = auth.postgresDB()
-    sql_query = f"DELETE FROM results WHERE project_id = '{project_id}'"
-    pg_db.query(sql_query)
-    sql_query = f"DELETE FROM tasks WHERE project_id = '{project_id}'"
-    pg_db.query(sql_query)
-    sql_query = f"DELETE FROM groups WHERE project_id = '{project_id}'"
-    pg_db.query(sql_query)
-    sql_query = f"DELETE FROM projects WHERE project_id = '{project_id}'"
-    pg_db.query(sql_query)
-    sql_query = f"DELETE FROM users WHERE user_id = '{project_id}'"
-    pg_db.query(sql_query)
+    sql_query = "DELETE FROM results WHERE project_id = %s"
+    pg_db.query(sql_query, [project_id])
+    sql_query = "DELETE FROM results_temp WHERE project_id = %s"
+    pg_db.query(sql_query, [project_id])
+    sql_query = "DELETE FROM tasks WHERE project_id = %s"
+    pg_db.query(sql_query, [project_id])
+    sql_query = "DELETE FROM groups WHERE project_id = %s"
+    pg_db.query(sql_query, [project_id])
+    sql_query = "DELETE FROM projects WHERE project_id = %s"
+    pg_db.query(sql_query, [project_id])
+    sql_query = "DELETE FROM users WHERE user_id = %s"
+    pg_db.query(sql_query, [project_id])
+    sql_query = "DELETE FROM users_temp WHERE user_id = %s"
+    pg_db.query(sql_query, [project_id])
 
 
 def delete_test_user(user_ids: List) -> None:
@@ -56,8 +64,10 @@ def delete_test_user(user_ids: List) -> None:
         ref.delete()
 
         pg_db = auth.postgresDB()
-        sql_query = f"DELETE FROM users WHERE user_id = '{user_id}'"
-        pg_db.query(sql_query)
+        sql_query = "DELETE FROM users WHERE user_id = %s"
+        pg_db.query(sql_query, [user_id])
+        sql_query = "DELETE FROM users_temp WHERE user_id = %s"
+        pg_db.query(sql_query, [user_id])
 
 
 if __name__ == "__main__":

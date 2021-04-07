@@ -66,6 +66,15 @@ CREATE TABLE IF NOT EXISTS users (
     PRIMARY KEY (user_id)
 );
 
+CREATE INDEX IF NOT EXISTS users_userid ON public.users
+    USING btree (user_id);
+
+CREATE TABLE IF NOT EXISTS users_temp (
+    user_id varchar,
+    username varchar,
+    created timestamp
+);
+
 CREATE TABLE IF NOT EXISTS results (
     project_id varchar,
     group_id varchar,
@@ -93,6 +102,10 @@ CREATE INDEX IF NOT EXISTS results_taskid ON public.results
 
 CREATE INDEX IF NOT EXISTS results_userid ON public.results
     USING btree (user_id);
+
+CREATE INDEX IF NOT EXISTS results_timestamp_date_idx
+    ON public.results ("timestamp" DESC);
+
 
 -- create table for results import through csv
 CREATE TABLE IF NOT EXISTS results_temp (

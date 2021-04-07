@@ -1,8 +1,38 @@
+import datetime as dt
+from typing import List, Optional
+
+from mapswipe_workers import auth
 from mapswipe_workers.definitions import DATA_PATH, logger
 from mapswipe_workers.generate_stats import overall_stats, project_stats
 
 
-def generate_stats(project_id_list: list):
+def get_recent_projects(hours: int = 3):
+    """Get ids for projects when results have been submitted within the last x hours."""
+    pg_db = auth.postgresDB()
+    query_insert_results = """
+        select project_id
+        from results
+        -- Using timestamp attribute here which is set for all projects
+        -- and also represents the start_time for newer projects.
+        -- "Old" projects have no start_time attribute.
+        -- There is an index defined on "timestamp".
+        where "timestamp" >= %(timestamp)s
+        group by project_id
+    """
+    timestamp = (dt.datetime.utcnow() - dt.timedelta(hours=hours)).isoformat()[
+        0:-3
+    ] + "Z"
+    project_info = pg_db.retr_query(query_insert_results, {"timestamp": timestamp})
+
+    project_ids = []
+    for project_id in project_info:
+        project_ids.append(project_id[0])
+    logger.info(f"Got {len(project_ids)} projects from postgres with recent results.")
+
+    return project_ids
+
+
+def generate_stats(project_id_list: Optional[List[str]] = None):
     """
     Query attributes for all projects from postgres projects table
     Write information on status (e.g. active, inactive, finished) and further attributes
@@ -22,7 +52,6 @@ def generate_stats(project_id_list: list):
     project_id_list: list
     """
 
-    logger.info(f"will generate stats for: {project_id_list}")
     projects_info_filename = f"{DATA_PATH}/api/projects/projects_static.csv"
     projects_df = overall_stats.get_project_static_info(projects_info_filename)
     project_id_list_postgres = projects_df["project_id"].to_list()
@@ -31,6 +60,16 @@ def generate_stats(project_id_list: list):
     projects_dynamic_df = overall_stats.load_project_info_dynamic(
         projects_info_dynamic_filename
     )
+
+    # Check if an empty project id list has been passed.
+    # This means the user did not specify for which projects
+    # the generate stats workflow should be performed.
+    # In this case, project ids are queried from postgres for projects
+    # for which results have been submitted within the last three hours.
+    if project_id_list is None or len(project_id_list) == 0:
+        project_id_list = get_recent_projects(hours=3)
+
+    logger.info(f"will generate stats for: {project_id_list}")
 
     # get per project stats and aggregate based on task_id
     for project_id in project_id_list:

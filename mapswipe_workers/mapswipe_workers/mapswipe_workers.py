@@ -109,13 +109,12 @@ def run_create_projects():
 @cli.command("firebase-to-postgres")
 def run_firebase_to_postgres() -> list:
     """Update users and transfer results from Firebase to Postgres."""
-    update_data.update_user_data()
-    update_data.update_project_data()
     project_ids = transfer_results.transfer_results()
     for project_id in project_ids:
         update_data.set_progress_in_firebase(project_id)
         update_data.set_contributor_count_in_firebase(project_id)
         send_progress_notification(project_id)
+    update_data.update_project_data()
     return project_ids
 
 
@@ -391,11 +390,17 @@ def run_delete_project(project_id, project_ids):
         "Will either execute all or just the specified functions of the analysis "
         "choices here"
     ),
-    type=click.Choice(["all", "creation", "stats"]),
+    type=click.Choice(["all", "creation", "firebase-to-postgres", "generate-stats"]),
 )
 @click.option("--schedule", is_flag=True, help="Schedule jobs to run every 10 minutes.")
+@click.option(
+    "--time_interval",
+    type=int,
+    default=10,
+    help="Time interval for scheduled jobs in minutes.",
+)
 @click.pass_context
-def run(context, analysis_type, schedule):
+def run(context, analysis_type, schedule, time_interval):
     """
     Run all commands.
 
@@ -411,29 +416,39 @@ def run(context, analysis_type, schedule):
         context.invoke(run_generate_stats, project_ids=project_ids)
 
     def _run_creation():
-        logger.info("start mapswipe backend workflow for creation.")
+        logger.info("start mapswipe backend workflow to create projects and tutorials.")
         context.invoke(run_create_projects)
         context.invoke(run_create_tutorials)
 
+    def _run_firebase_to_postgres():
+        logger.info(
+            "start mapswipe backend workflow to transfer results "
+            "from firebase to postgres."
+        )
+        context.invoke(run_firebase_to_postgres)
+
     def _run_stats():
-        logger.info("start mapswipe backend workflow for stats.")
-        project_ids = context.invoke(run_firebase_to_postgres)
-        context.invoke(run_generate_stats, project_ids=project_ids)
+        logger.info("start mapswipe backend workflow to generate stats and files.")
+        context.invoke(run_generate_stats, project_ids=[])
 
     if schedule:
         if analysis_type == "all":
-            sched.every(10).minutes.do(_run).run()
+            sched.every(time_interval).minutes.do(_run).run()
         elif analysis_type == "creation":
-            sched.every(10).minutes.do(_run_creation).run()
-        elif analysis_type == "stats":
-            sched.every(10).minutes.do(_run_stats).run()
+            sched.every(time_interval).minutes.do(_run_creation).run()
+        elif analysis_type == "firebase-to-postgres":
+            sched.every(time_interval).minutes.do(_run_firebase_to_postgres).run()
+        elif analysis_type == "generate-stats":
+            sched.every(time_interval).minutes.do(_run_stats).run()
         while True:
             sched.run_pending()
             time.sleep(1)
     else:
         if analysis_type == "all":
-            sched.every(10).minutes.do(_run).run()
+            _run()
         elif analysis_type == "creation":
-            sched.every(10).minutes.do(_run_creation).run()
-        elif analysis_type == "stats":
-            sched.every(10).minutes.do(_run_stats).run()
+            _run_creation()
+        elif analysis_type == "firebase-to-postgres":
+            _run_firebase_to_postgres()
+        elif analysis_type == "generate-stats":
+            _run_stats()
