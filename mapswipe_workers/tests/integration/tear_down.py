@@ -63,11 +63,11 @@ def delete_test_user(user_ids: List) -> None:
         ref = fb_db.reference(f"v2/users/{user_id}")
         ref.delete()
 
-        pg_db = auth.postgresDB()
-        sql_query = "DELETE FROM users WHERE user_id = %s"
-        pg_db.query(sql_query, [user_id])
-        sql_query = "DELETE FROM users_temp WHERE user_id = %s"
-        pg_db.query(sql_query, [user_id])
+    pg_db = auth.postgresDB()
+    sql_query = "DELETE FROM users WHERE user_id = ANY( %(user_ids)s );"
+    pg_db.query(sql_query, {"user_ids": user_ids})
+    sql_query = "DELETE FROM users_temp WHERE user_id = ANY( %(user_ids)s );"
+    pg_db.query(sql_query, {"user_ids": user_ids})
 
 
 if __name__ == "__main__":
