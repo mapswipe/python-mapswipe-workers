@@ -1,6 +1,6 @@
+import gzip
 import json
 import os
-import gzip
 import shutil
 import subprocess
 import tempfile
@@ -11,9 +11,7 @@ from mapswipe_workers.definitions import logger
 
 
 def gzipped_csv_to_gzipped_geojson(
-        filename: str,
-        geometry_field: str = "geom",
-        add_metadata: bool = False
+    filename: str, geometry_field: str = "geom", add_metadata: bool = False
 ):
     """Convert gzipped csv file to gzipped GeoJSON.
 
@@ -22,13 +20,13 @@ def gzipped_csv_to_gzipped_geojson(
     Last, the generated geojson file is again compressed using gzip.
     """
     # generate temporary files which will be automatically deleted at the end
-    tmp_csv_file = os.path.join(tempfile._get_default_tempdir(), 'tmp.csv')
-    tmp_geojson_file = os.path.join(tempfile._get_default_tempdir(), 'tmp.geojson')
+    tmp_csv_file = os.path.join(tempfile._get_default_tempdir(), "tmp.csv")
+    tmp_geojson_file = os.path.join(tempfile._get_default_tempdir(), "tmp.geojson")
 
     outfile = filename.replace(".csv", f"_{geometry_field}.geojson")
 
     # uncompress content of zipped csv file and save to csv file
-    with gzip.open(filename, 'rb') as f_in:
+    with gzip.open(filename, "rb") as f_in:
         with open(tmp_csv_file, "wb") as f_out:
             shutil.copyfileobj(f_in, f_out)
 
@@ -56,7 +54,7 @@ def gzipped_csv_to_gzipped_geojson(
     with open(tmp_geojson_file, "r") as f:
         json_data = json.load(f)
 
-    with gzip.open(outfile, 'wt') as fout:
+    with gzip.open(outfile, "wt") as fout:
         json.dump(json_data, fout)
 
     logger.info(f"converted {filename} to {outfile} with ogr2ogr.")

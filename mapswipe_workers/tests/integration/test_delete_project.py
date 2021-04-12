@@ -1,3 +1,4 @@
+import time
 import unittest
 
 import set_up
@@ -21,12 +22,16 @@ class TestDeleteProject(unittest.TestCase):
         """Test if tasks, groups, project and results are deleted."""
         delete_project.delete_project([self.project_id])
 
+        time.sleep(1)  # Wait for Firebase Functions to complete
+
         fb_db = auth.firebaseDB()
         ref = fb_db.reference(f"v2/results/{self.project_id}")
         self.assertIsNone(ref.get())
         ref = fb_db.reference(f"v2/tasks/{self.project_id}")
         self.assertIsNone(ref.get())
         ref = fb_db.reference(f"v2/groups/{self.project_id}")
+        self.assertIsNone(ref.get())
+        ref = fb_db.reference(f"v2/groupsUsers/{self.project_id}")
         self.assertIsNone(ref.get())
         ref = fb_db.reference(f"v2/projects/{self.project_id}")
         self.assertIsNone(ref.get())
@@ -52,12 +57,16 @@ class TestDeleteProject(unittest.TestCase):
         """Test for project id which does not exists."""
         delete_project.delete_project(["tuna"])
 
+        time.sleep(5)  # Wait for Firebase Functions to complete
+
         fb_db = auth.firebaseDB()
         ref = fb_db.reference("v2/results")
         self.assertIsNotNone(ref.get(shallow=True))
         ref = fb_db.reference("v2/tasks")
         self.assertIsNotNone(ref.get(shallow=True))
         ref = fb_db.reference("v2/groups")
+        self.assertIsNotNone(ref.get(shallow=True))
+        ref = fb_db.reference("v2/groupsUsers")
         self.assertIsNotNone(ref.get(shallow=True))
         ref = fb_db.reference("v2/projects")
         self.assertIsNotNone(ref.get(shallow=True))
@@ -80,12 +89,16 @@ class TestDeleteProject(unittest.TestCase):
         """Test for project id which does not exists."""
         delete_project.delete_project([None])
 
+        time.sleep(5)  # Wait for Firebase Functions to complete
+
         fb_db = auth.firebaseDB()
         ref = fb_db.reference("v2/results")
         self.assertIsNotNone(ref.get(shallow=True))
         ref = fb_db.reference("v2/tasks")
         self.assertIsNotNone(ref.get(shallow=True))
         ref = fb_db.reference("v2/groups")
+        self.assertIsNotNone(ref.get(shallow=True))
+        ref = fb_db.reference("v2/groupsUsers")
         self.assertIsNotNone(ref.get(shallow=True))
         ref = fb_db.reference("v2/projects")
         self.assertIsNotNone(ref.get(shallow=True))

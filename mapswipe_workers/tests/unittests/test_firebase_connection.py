@@ -10,12 +10,13 @@ class TestFirebaseConnection(unittest.TestCase):
         self.fb_db = auth.firebaseDB()
 
     def tearDown(self):
+        self.test_data_ref.delete()
         self.fb_db = None
 
     def test_connection(self):
         ref = self.fb_db.reference("/v2")
         try:
-            ref.push("test_connection")
+            self.test_data_ref = ref.push("test_connection")
         except FirebaseError as error:
             self.fail(error)
 

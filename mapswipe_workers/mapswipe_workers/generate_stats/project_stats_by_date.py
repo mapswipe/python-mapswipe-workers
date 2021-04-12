@@ -54,8 +54,23 @@ def get_progress_by_date(
 ) -> pd.DataFrame:
     """
     for each project we retrospectively generate the following attributes for a given
-    date utilizing the results:
-    number_of_results, cum_number_of_results, progress, cum_progress
+    date utilizing the results.
+
+    number_of_results:
+        - number of results that have been contributed per day
+        - not used in firebase
+
+    cum_number_of_results:
+        - sum of daily number of results up to that day
+
+    progress:
+        - relative progress per day
+        (e.g. overall progress increased by 0.15 on that day)
+        - not used in firebase
+
+    cum_progress:
+        - absolute progress up to that day
+        - refers to the project progress attribute in firebase
     """
 
     groups_df["required_results"] = (
@@ -127,7 +142,18 @@ def get_contributors_by_date(results_df: pd.DataFrame) -> pd.DataFrame:
     """
     for each project we retrospectively generate the following attributes for a given
     date utilizing the results:
-    number_of_users, number_of_new_users, cum_number_of_users
+
+    number_of_users:
+        - number of distinct users active per day
+        - not used in firebase
+
+    number_of_new_users:
+        - number of distinct users who mapped the first group in that project per day
+        - not used in firebase
+
+    cum_number_of_users:
+        - overall number of distinct users active up to that day
+        - refers to the project contributorCount attribute in firebase
     """
 
     user_first_day_df = results_df.groupby(["user_id"]).agg(

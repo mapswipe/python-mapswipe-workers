@@ -1,8 +1,8 @@
 import datetime
-import os
-from typing import List
 import gzip
+import os
 import tempfile
+from typing import List
 
 import pandas as pd
 from psycopg2 import sql
@@ -34,12 +34,12 @@ def write_sql_to_gzipped_csv(filename: str, sql_query: sql.SQL):
     """
 
     # generate temporary file which will be automatically deleted at the end
-    tmp_csv_file = os.path.join(tempfile._get_default_tempdir(), 'tmp.csv')
+    tmp_csv_file = os.path.join(tempfile._get_default_tempdir(), "tmp.csv")
     pg_db = auth.postgresDB()
     with open(tmp_csv_file, "w") as f:
         pg_db.copy_expert(sql_query, f)
 
-    with open(tmp_csv_file, 'rb') as f_in, gzip.open(filename, 'wb') as f_out:
+    with open(tmp_csv_file, "rb") as f_in, gzip.open(filename, "wb") as f_out:
         f_out.writelines(f_in)
 
     logger.info(f"wrote gzipped csv file from sql: {filename}")
@@ -52,11 +52,7 @@ def load_df_from_csv(filename: str) -> pd.DataFrame:
     """
     dtype_dict = {"project_id": str, "group_id": str, "task_id": str}
 
-    df = pd.read_csv(
-        filename,
-        dtype=dtype_dict,
-        compression="gzip"
-    )
+    df = pd.read_csv(filename, dtype=dtype_dict, compression="gzip")
     logger.info(f"loaded pandas df from {filename}")
     return df
 
@@ -337,7 +333,9 @@ def get_per_project_statistics(project_id: str, project_info: pd.Series) -> dict
     results_filename = f"{DATA_PATH}/api/results/results_{project_id}.csv.gz"
     tasks_filename = f"{DATA_PATH}/api/tasks/tasks_{project_id}.csv.gz"
     groups_filename = f"{DATA_PATH}/api/groups/groups_{project_id}.csv.gz"
-    agg_results_filename = f"{DATA_PATH}/api/agg_results/agg_results_{project_id}.csv.gz"
+    agg_results_filename = (
+        f"{DATA_PATH}/api/agg_results/agg_results_{project_id}.csv.gz"
+    )
     agg_results_by_user_id_filename = f"{DATA_PATH}/api/users/users_{project_id}.csv.gz"
     project_stats_by_date_filename = f"{DATA_PATH}/api/history/history_{project_id}.csv"
 
@@ -358,15 +356,12 @@ def get_per_project_statistics(project_id: str, project_info: pd.Series) -> dict
 
         # aggregate results by task id
         agg_results_df = get_agg_results_by_task_id(results_df, tasks_df)
-        agg_results_df.to_csv(
-            agg_results_filename,
-            index_label="idx"
-        )
+        agg_results_df.to_csv(agg_results_filename, index_label="idx")
 
         geojson_functions.gzipped_csv_to_gzipped_geojson(
             filename=agg_results_filename,
             geometry_field="geom",
-            add_metadata=add_metadata
+            add_metadata=add_metadata,
         )
         logger.info(f"saved agg results for {project_id}: {agg_results_filename}")
 
@@ -377,8 +372,7 @@ def get_per_project_statistics(project_id: str, project_info: pd.Series) -> dict
                 results_df, agg_results_df
             )
             agg_results_by_user_id_df.to_csv(
-                agg_results_by_user_id_filename,
-                index_label="idx"
+                agg_results_by_user_id_filename, index_label="idx"
             )
             logger.info(
                 f"saved agg results for {project_id}: {agg_results_by_user_id_filename}"
@@ -387,6 +381,7 @@ def get_per_project_statistics(project_id: str, project_info: pd.Series) -> dict
             sentry.capture_exception()
             logger.info(f"failed to agg results by user id for {project_id}")
 
+        # calculate progress and contributors over time for project
         project_stats_by_date_df = project_stats_by_date.get_project_history(
             results_df, groups_df
         )
@@ -403,8 +398,7 @@ def get_per_project_statistics(project_id: str, project_info: pd.Series) -> dict
             logger.info(f"do NOT generate tasking manager geometries for {project_id}")
         else:
             tasking_manager_geometries.generate_tasking_manager_geometries(
-                project_id=project_id,
-                agg_results_filename=agg_results_filename
+                project_id=project_id, agg_results_filename=agg_results_filename
             )
 
         # prepare output of function
