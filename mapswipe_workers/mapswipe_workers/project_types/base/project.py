@@ -215,9 +215,13 @@ class BaseProject(metaclass=ABCMeta):
         logger.info(f"there are {len(groupsOfTasks)} groups for this project")
         group_counter = 0
 
-        if self.projectType in [ProjectType.FOOTPRINT.value]:
-            # The building footprint project type is the only one
-            # that uses tasks in Firebase.
+        if self.projectType in [
+            ProjectType.FOOTPRINT.value,
+            ProjectType.CHANGE_DETECTION.value,
+        ]:
+            # The change detection and building footprint project types
+            # use tasks in Firebase.
+            # These tasks are compressed for building footprint type.
             for group_id in groupsOfTasks.keys():
                 tasks_list = groupsOfTasks[group_id]
                 group_counter += 1
@@ -225,10 +229,15 @@ class BaseProject(metaclass=ABCMeta):
                 # we use compression to reduce storage size in firebase
                 # since the tasks hold geometries their storage size
                 # can get quite big otherwise
-                compressed_tasks = gzip_str.compress_tasks(tasks_list)
-                task_upload_dict[
-                    f"v2/tasks/{self.projectId}/{group_id}"
-                ] = compressed_tasks
+                if self.projectType in [ProjectType.FOOTPRINT.value]:
+                    compressed_tasks = gzip_str.compress_tasks(tasks_list)
+                    task_upload_dict[
+                        f"v2/tasks/{self.projectId}/{group_id}"
+                    ] = compressed_tasks
+                else:
+                    task_upload_dict[
+                        f"v2/tasks/{self.projectId}/{group_id}"
+                    ] = tasks_list
 
                 # we upload tasks in batches of maximum 150 groups
                 # this is to avoid the maximum write size limit in firebase
