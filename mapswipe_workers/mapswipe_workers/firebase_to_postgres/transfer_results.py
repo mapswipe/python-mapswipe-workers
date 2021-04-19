@@ -21,13 +21,12 @@ def transfer_results(project_id_list=None):
     def transfer(current_results):
         if current_results is None:
             logger.info(f"{project_id}: No results in Firebase")
-            return dict()
         else:
             results_user_id_list = get_user_ids_from_results(current_results)
             update_data.update_user_data(results_user_id_list)
-            results_file = results_to_file(current_results, project_id, group_id)
+            results_file = results_to_file(current_results, project_id)
             save_results_to_postgres(results_file)
-            return dict()
+            delete_results_from_firebase(project_id, current_results)
 
     fb_db = auth.firebaseDB()
 
@@ -58,26 +57,40 @@ def transfer_results(project_id_list=None):
 
         logger.info(f"{project_id}: Start transfering results")
 
-        group_id_list = fb_db.reference(f"v2/results/{project_id}").get(shallow=True)
+        results_ref = fb_db.reference(f"v2/results/{project_id}")
         truncate_temp_results()
 
-        for group_id in group_id_list:
-            try:
-                results_ref = fb_db.reference(f"v2/results/{project_id}/{group_id}")
-                results_ref.transaction(transfer)
-                logger.info(f"{project_id}: Transferred results to postgres")
-            except fb_db.TransactionAbortedError:
-                logger.exception(
-                    f"{project_id}: Firebase transaction for "
-                    f"transfering results failed to commit"
-                )
-                sentry.capture_exception()
+        # TODO: which exceptions can happen here?
+        current_results = results_ref.get()
+        transfer(current_results)
+        logger.info(f"{project_id}: Transfered results to postgres")
 
     del fb_db
     return project_id_list
 
 
-def results_to_file(results, projectId, groupId):
+def delete_results_from_firebase(project_id, results):
+    """Delete results from Firebase using update function."""
+
+    logger.info(f"start removing results for project {project_id}")
+    fb_db = auth.firebaseDB()
+
+    # we will use a multi-location update to delete the entries
+    # therefore we create an dict with the items we want to delete
+    data = {}
+    for group_id, users in results.items():
+        for user_id, result in users.items():
+            key = f"{group_id}/{user_id}"
+            data[key] = None
+
+    results_ref = fb_db.reference(f"v2/results/{project_id}/")
+    results_ref.update(data)
+    del fb_db
+
+    logger.info(f"removed results for project {project_id}")
+
+
+def results_to_file(results, projectId):
     """
     Writes results to an in-memory file like object
     formatted as a csv using the buffer module (StringIO).
@@ -100,83 +113,62 @@ def results_to_file(results, projectId, groupId):
     w = csv.writer(results_file, delimiter="\t", quotechar="'")
 
     logger.info(f"Got {len(results.items())} groups for project {projectId}")
-    for userId, results in results.items():
+    for groupId, users in results.items():
+        for userId, results in users.items():
 
-        # check if all attributes are set,
-        # if not don't transfer the results for this group
-        try:
-            start_time = results["startTime"]
-        except KeyError as e:
-            sentry.capture_exception(e)
-            sentry.capture_message(
-                "missing attribute 'startTime' for: "
-                f"{projectId}/{groupId}/{userId}, will skip this one"
-            )
-            logger.exception(e)
-            logger.warning(
-                "missing attribute 'startTime' for: "
-                f"{projectId}/{groupId}/{userId}, will skip this one"
-            )
-            continue
-
-        try:
-            end_time = results["endTime"]
-        except KeyError as e:
-            sentry.capture_exception(e)
-            sentry.capture_message(
-                "missing attribute 'endTime' for: "
-                f"{projectId}/{groupId}/{userId}, will skip this one"
-            )
-            logger.exception(e)
-            logger.warning(
-                "missing attribute 'endTime' for: "
-                f"{projectId}/{groupId}/{userId}, will skip this one"
-            )
-            continue
-
-        try:
-            results = results["results"]
-        except KeyError as e:
-            sentry.capture_exception(e)
-            sentry.capture_message(
-                "missing attribute 'results' for: "
-                f"{projectId}/{groupId}/{userId}, will skip this one"
-            )
-            logger.exception(e)
-            logger.warning(
-                "missing attribute 'results' for: "
-                f"{projectId}/{groupId}/{userId}, will skip this one"
-            )
-            continue
-
-        start_time = dateutil.parser.parse(start_time)
-        end_time = dateutil.parser.parse(end_time)
-        timestamp = end_time
-
-        if type(results) is dict:
-            for taskId, result in results.items():
-                w.writerow(
-                    [
-                        projectId,
-                        groupId,
-                        userId,
-                        taskId,
-                        timestamp,
-                        start_time,
-                        end_time,
-                        result,
-                    ]
+            # check if all attributes are set,
+            # if not don't transfer the results for this group
+            try:
+                start_time = results["startTime"]
+            except KeyError as e:
+                sentry.capture_exception(e)
+                sentry.capture_message(
+                    "missing attribute 'startTime' for: "
+                    f"{projectId}/{groupId}/{userId}, will skip this one"
                 )
-        elif type(results) is list:
-            # TODO: optimize for performance
-            # (make sure data from firebase is always a dict)
-            # if key is a integer firebase will return a list
-            # if first key (list index) is 5
-            # list indicies 0-4 will have value None
-            for taskId, result in enumerate(results):
-                if result is None:
-                    continue
-                else:
+                logger.exception(e)
+                logger.warning(
+                    "missing attribute 'startTime' for: "
+                    f"{projectId}/{groupId}/{userId}, will skip this one"
+                )
+                continue
+
+            try:
+                end_time = results["endTime"]
+            except KeyError as e:
+                sentry.capture_exception(e)
+                sentry.capture_message(
+                    "missing attribute 'endTime' for: "
+                    f"{projectId}/{groupId}/{userId}, will skip this one"
+                )
+                logger.exception(e)
+                logger.warning(
+                    "missing attribute 'endTime' for: "
+                    f"{projectId}/{groupId}/{userId}, will skip this one"
+                )
+                continue
+
+            try:
+                results = results["results"]
+            except KeyError as e:
+                sentry.capture_exception(e)
+                sentry.capture_message(
+                    "missing attribute 'results' for: "
+                    f"{projectId}/{groupId}/{userId}, will skip this one"
+                )
+                logger.exception(e)
+                logger.warning(
+                    "missing attribute 'results' for: "
+                    f"{projectId}/{groupId}/{userId}, will skip this one"
+                )
+                continue
+
+            start_time = dateutil.parser.parse(start_time)
+            end_time = dateutil.parser.parse(end_time)
+            timestamp = end_time
+
+            if type(results) is dict:
+                for taskId, result in results.items():
                     w.writerow(
                         [
                             projectId,
@@ -189,8 +181,30 @@ def results_to_file(results, projectId, groupId):
                             result,
                         ]
                     )
-        else:
-            raise TypeError
+            elif type(results) is list:
+                # TODO: optimize for performance
+                # (make sure data from firebase is always a dict)
+                # if key is a integer firebase will return a list
+                # if first key (list index) is 5
+                # list indicies 0-4 will have value None
+                for taskId, result in enumerate(results):
+                    if result is None:
+                        continue
+                    else:
+                        w.writerow(
+                            [
+                                projectId,
+                                groupId,
+                                userId,
+                                taskId,
+                                timestamp,
+                                start_time,
+                                end_time,
+                                result,
+                            ]
+                        )
+            else:
+                raise TypeError
 
     results_file.seek(0)
     return results_file
@@ -201,7 +215,6 @@ def save_results_to_postgres(results_file):
     Saves results to a temporary table in postgres
     using the COPY Statement of Postgres
     for a more efficient import into the database.
-
     Parameters
     ----------
     results_file: io.StringIO
@@ -248,8 +261,9 @@ def get_user_ids_from_results(results):
     """
 
     user_ids = set([])
-    for user_id, results in results.items():
-        user_ids.add(user_id)
+    for groupId, users in results.items():
+        for userId, results in users.items():
+            user_ids.add(userId)
 
     return user_ids
 
