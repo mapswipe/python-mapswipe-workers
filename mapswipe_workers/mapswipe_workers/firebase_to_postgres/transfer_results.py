@@ -70,7 +70,12 @@ def transfer_results(project_id_list=None):
 
 
 def delete_results_from_firebase(project_id, results):
-    """Delete results from Firebase using update function."""
+    """Delete results from Firebase using update function.
+
+    We use the update method of firebase instead of delete.
+    Update allows to delete items at multiple locations at the same time
+    and is much faster.
+    """
 
     logger.info(f"start removing results for project {project_id}")
     fb_db = auth.firebaseDB()
