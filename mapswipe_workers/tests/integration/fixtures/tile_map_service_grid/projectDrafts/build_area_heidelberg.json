@@ -1,0 +1,32 @@
+{
+  "createdBy" : "X0zTSyvY0khDfRwc99aQfIjTEPK2",
+  "geometry" : {
+    "features" : [ {
+      "geometry" : {
+        "coordinates" : [ [ [ 8.523330688476562, 49.48998450694659 ], [ 8.507881164550781, 49.39064180513851 ], [ 8.609161376953125, 49.33116330436252 ], [ 8.714561462402344, 49.351295661692966 ], [ 8.763656616210938, 49.42281068254586 ], [ 8.768119812011719, 49.47035517151213 ], [ 8.738937377929688, 49.49801242184949 ], [ 8.614997863769531, 49.511835188835335 ], [ 8.568992614746094, 49.51161227196599 ], [ 8.523330688476562, 49.48998450694659 ] ] ],
+        "type" : "Polygon"
+      },
+      "type" : "Feature"
+    } ],
+    "type" : "FeatureCollection"
+  },
+  "groupSize" : 120,
+  "image" : "https://firebasestorage.googleapis.com/v0/b/dev-mapswipe.appspot.com/o/projectImages%2F159288.png?alt=media&token=c9d5b553-4a67-4add-8282-4518820e10b2",
+  "lookFor" : "Buildings",
+  "name" : "CI Test Project  - Heidelberg (1)\nCI",
+  "projectDetails" : "this is for ci",
+  "projectNumber" : "1",
+  "projectRegion" : "Heidelberg",
+  "projectTopic" : "CI Test Project ",
+  "projectType" : 1,
+  "requestingOrganisation" : "CI",
+  "tileServer" : {
+    "credits" : "© 2019 Microsoft Corporation, Earthstar Geographics SIO",
+    "name" : "bing",
+    "url" : "",
+    "wmtsLayerName" : ""
+  },
+  "tutorialId" : "tutorial_-MGuFzZZSwse-0acEH4a",
+  "verificationNumber" : 3,
+  "zoomLevel" : 18
+}

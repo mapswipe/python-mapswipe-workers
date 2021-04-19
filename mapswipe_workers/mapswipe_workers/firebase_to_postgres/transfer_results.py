@@ -25,7 +25,7 @@ def transfer_results(project_id_list=None):
         else:
             results_user_id_list = get_user_ids_from_results(current_results)
             update_data.update_user_data(results_user_id_list)
-            results_file = results_to_file(current_results, project_id)
+            results_file = results_to_file(current_results, project_id, group_id)
             save_results_to_postgres(results_file)
             return dict()
 
@@ -58,24 +58,26 @@ def transfer_results(project_id_list=None):
 
         logger.info(f"{project_id}: Start transfering results")
 
-        results_ref = fb_db.reference(f"v2/results/{project_id}")
+        group_id_list = fb_db.reference(f"v2/results/{project_id}").get(shallow=True)
         truncate_temp_results()
 
-        try:
-            results_ref.transaction(transfer)
-            logger.info(f"{project_id}: Transfered results to postgres")
-        except fb_db.TransactionAbortedError:
-            logger.exception(
-                f"{project_id}: Firebase transaction for "
-                f"transfering results failed to commit"
-            )
-            sentry.capture_exception()
+        for group_id in group_id_list:
+            try:
+                results_ref = fb_db.reference(f"v2/results/{project_id}/{group_id}")
+                results_ref.transaction(transfer)
+                logger.info(f"{project_id}: Transferred results to postgres")
+            except fb_db.TransactionAbortedError:
+                logger.exception(
+                    f"{project_id}: Firebase transaction for "
+                    f"transfering results failed to commit"
+                )
+                sentry.capture_exception()
 
     del fb_db
     return project_id_list
 
 
-def results_to_file(results, projectId):
+def results_to_file(results, projectId, groupId):
     """
     Writes results to an in-memory file like object
     formatted as a csv using the buffer module (StringIO).
@@ -98,62 +100,83 @@ def results_to_file(results, projectId):
     w = csv.writer(results_file, delimiter="\t", quotechar="'")
 
     logger.info(f"Got {len(results.items())} groups for project {projectId}")
-    for groupId, users in results.items():
-        for userId, results in users.items():
+    for userId, results in results.items():
 
-            # check if all attributes are set,
-            # if not don't transfer the results for this group
-            try:
-                start_time = results["startTime"]
-            except KeyError as e:
-                sentry.capture_exception(e)
-                sentry.capture_message(
-                    "missing attribute 'startTime' for: "
-                    f"{projectId}/{groupId}/{userId}, will skip this one"
-                )
-                logger.exception(e)
-                logger.warning(
-                    "missing attribute 'startTime' for: "
-                    f"{projectId}/{groupId}/{userId}, will skip this one"
-                )
-                continue
+        # check if all attributes are set,
+        # if not don't transfer the results for this group
+        try:
+            start_time = results["startTime"]
+        except KeyError as e:
+            sentry.capture_exception(e)
+            sentry.capture_message(
+                "missing attribute 'startTime' for: "
+                f"{projectId}/{groupId}/{userId}, will skip this one"
+            )
+            logger.exception(e)
+            logger.warning(
+                "missing attribute 'startTime' for: "
+                f"{projectId}/{groupId}/{userId}, will skip this one"
+            )
+            continue
 
-            try:
-                end_time = results["endTime"]
-            except KeyError as e:
-                sentry.capture_exception(e)
-                sentry.capture_message(
-                    "missing attribute 'endTime' for: "
-                    f"{projectId}/{groupId}/{userId}, will skip this one"
-                )
-                logger.exception(e)
-                logger.warning(
-                    "missing attribute 'endTime' for: "
-                    f"{projectId}/{groupId}/{userId}, will skip this one"
-                )
-                continue
+        try:
+            end_time = results["endTime"]
+        except KeyError as e:
+            sentry.capture_exception(e)
+            sentry.capture_message(
+                "missing attribute 'endTime' for: "
+                f"{projectId}/{groupId}/{userId}, will skip this one"
+            )
+            logger.exception(e)
+            logger.warning(
+                "missing attribute 'endTime' for: "
+                f"{projectId}/{groupId}/{userId}, will skip this one"
+            )
+            continue
 
-            try:
-                results = results["results"]
-            except KeyError as e:
-                sentry.capture_exception(e)
-                sentry.capture_message(
-                    "missing attribute 'results' for: "
-                    f"{projectId}/{groupId}/{userId}, will skip this one"
-                )
-                logger.exception(e)
-                logger.warning(
-                    "missing attribute 'results' for: "
-                    f"{projectId}/{groupId}/{userId}, will skip this one"
-                )
-                continue
+        try:
+            results = results["results"]
+        except KeyError as e:
+            sentry.capture_exception(e)
+            sentry.capture_message(
+                "missing attribute 'results' for: "
+                f"{projectId}/{groupId}/{userId}, will skip this one"
+            )
+            logger.exception(e)
+            logger.warning(
+                "missing attribute 'results' for: "
+                f"{projectId}/{groupId}/{userId}, will skip this one"
+            )
+            continue
 
-            start_time = dateutil.parser.parse(start_time)
-            end_time = dateutil.parser.parse(end_time)
-            timestamp = end_time
+        start_time = dateutil.parser.parse(start_time)
+        end_time = dateutil.parser.parse(end_time)
+        timestamp = end_time
 
-            if type(results) is dict:
-                for taskId, result in results.items():
+        if type(results) is dict:
+            for taskId, result in results.items():
+                w.writerow(
+                    [
+                        projectId,
+                        groupId,
+                        userId,
+                        taskId,
+                        timestamp,
+                        start_time,
+                        end_time,
+                        result,
+                    ]
+                )
+        elif type(results) is list:
+            # TODO: optimize for performance
+            # (make sure data from firebase is always a dict)
+            # if key is a integer firebase will return a list
+            # if first key (list index) is 5
+            # list indicies 0-4 will have value None
+            for taskId, result in enumerate(results):
+                if result is None:
+                    continue
+                else:
                     w.writerow(
                         [
                             projectId,
@@ -166,30 +189,8 @@ def results_to_file(results, projectId):
                             result,
                         ]
                     )
-            elif type(results) is list:
-                # TODO: optimize for performance
-                # (make sure data from firebase is always a dict)
-                # if key is a integer firebase will return a list
-                # if first key (list index) is 5
-                # list indicies 0-4 will have value None
-                for taskId, result in enumerate(results):
-                    if result is None:
-                        continue
-                    else:
-                        w.writerow(
-                            [
-                                projectId,
-                                groupId,
-                                userId,
-                                taskId,
-                                timestamp,
-                                start_time,
-                                end_time,
-                                result,
-                            ]
-                        )
-            else:
-                raise TypeError
+        else:
+            raise TypeError
 
     results_file.seek(0)
     return results_file
@@ -247,9 +248,8 @@ def get_user_ids_from_results(results):
     """
 
     user_ids = set([])
-    for groupId, users in results.items():
-        for userId, results in users.items():
-            user_ids.add(userId)
+    for user_id, results in results.items():
+        user_ids.add(user_id)
 
     return user_ids
 
