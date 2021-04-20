@@ -43,8 +43,10 @@ class TestTranserResultsProject(unittest.TestCase):
         transfer_results.transfer_results(project_id_list=[self.project_id])
 
         fb_db = auth.firebaseDB()
-        ref = fb_db.reference("v2/results/{0}".format(self.project_id))
-        self.assertDictEqual(ref.get(shallow=True), {"g115": True})
+        ref = fb_db.reference(
+            f"v2/results/{self.project_id}/g115/test_build_area/results"
+        )
+        self.assertEqual(len(ref.get(shallow=True)), 253)
 
 
 if __name__ == "__main__":
