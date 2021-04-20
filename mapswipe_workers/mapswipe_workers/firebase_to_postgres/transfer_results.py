@@ -17,12 +17,11 @@ def transfer_results(project_id_list=None):
     Will not transfer results for tutorials and
     for projects which are not set up in postgres.
     """
-    if not project_id_list:
+    if project_id_list is None:
         # get project_ids from existing results if no project ids specified
         fb_db = auth.firebaseDB()
         project_id_list = fb_db.reference("v2/results/").get(shallow=True)
-        del fb_db
-        if not project_id_list:
+        if project_id_list is None:
             project_id_list = []
             logger.info("There are no results to transfer.")
 
@@ -44,15 +43,18 @@ def transfer_results(project_id_list=None):
             )
             continue
         else:
-            transfer_results_for_project(project_id)
+            logger.info(f"{project_id}: Start transfer results")
+            fb_db = auth.firebaseDB()
+            results_ref = fb_db.reference(f"v2/results/{project_id}")
+            results = results_ref.get()
+            transfer_results_for_project(project_id, results)
 
     return project_id_list
 
 
-def transfer_results_for_project(project_id):
+def transfer_results_for_project(project_id, results):
     """Transfer the results for a specific project.
 
-    Download all results for a project from firebase.
     Save results into an in-memory file.
     Copy the results to postgres.
     Delete results in firebase.
@@ -67,6 +69,8 @@ def transfer_results_for_project(project_id):
         the update function is called again with the new current value,
         and the write will be retried."
 
+    (source: https://firebase.google.com/docs/reference/admin/python/firebase_admin.db#firebase_admin.db.Reference.transaction)  # noqa
+
     Using Firebase transaction on the group level
     has turned out to be too slow when using "normal" queries,
     e.g. without using threading. Threading should be avoided here
@@ -74,12 +78,6 @@ def transfer_results_for_project(project_id):
 
     For more details see issue #478.
     """
-    # TODO: which exceptions can happen here?
-
-    logger.info(f"{project_id}: Start transfer results")
-    fb_db = auth.firebaseDB()
-    results_ref = fb_db.reference(f"v2/results/{project_id}")
-    results = results_ref.get()
 
     if results is None:
         logger.info(f"{project_id}: No results in Firebase")
@@ -90,27 +88,25 @@ def transfer_results_for_project(project_id):
         results_user_id_list = get_user_ids_from_results(results)
         update_data.update_user_data(results_user_id_list)
 
-        try:
-            # Results are dumped into an in-memory file.
-            # This allows us to use the COPY statement to insert many
-            # results at relatively high speed.
-            results_file = results_to_file(results, project_id)
-            truncate_temp_results()
-            save_results_to_postgres(results_file)
-        except psycopg2.errors.ForeignKeyViolation as e:
-            sentry.capture_exception(e)
-            sentry.capture_message(
-                f"could not transfer results to postgres: {project_id}"
-            )
-            logger.exception(e)
-            logger.warning(f"could not transfer results to postgres: {project_id}")
-        else:
-            # It is important here that we first insert results into postgres
-            # and then delete these results from Firebase.
-            # In case something goes wrong during the insert, results in Firebase
-            # will not get deleted.
-            delete_results_from_firebase(project_id, results)
-            logger.info(f"{project_id}: Transferred results to postgres")
+    try:
+        # Results are dumped into an in-memory file.
+        # This allows us to use the COPY statement to insert many
+        # results at relatively high speed.
+        results_file = results_to_file(results, project_id)
+        truncate_temp_results()
+        save_results_to_postgres(results_file)
+    except psycopg2.errors.ForeignKeyViolation as e:
+        sentry.capture_exception(e)
+        sentry.capture_message(f"could not transfer results to postgres: {project_id}")
+        logger.exception(e)
+        logger.warning(f"could not transfer results to postgres: {project_id}")
+    else:
+        # It is important here that we first insert results into postgres
+        # and then delete these results from Firebase.
+        # In case something goes wrong during the insert, results in Firebase
+        # will not get deleted.
+        delete_results_from_firebase(project_id, results)
+        logger.info(f"{project_id}: Transferred results to postgres")
 
 
 def delete_results_from_firebase(project_id, results):
@@ -133,7 +129,6 @@ def delete_results_from_firebase(project_id, results):
 
     results_ref = fb_db.reference(f"v2/results/{project_id}/")
     results_ref.update(data)
-    del fb_db
 
     logger.info(f"removed results for project {project_id}")
 
