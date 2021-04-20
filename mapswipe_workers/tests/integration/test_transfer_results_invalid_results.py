@@ -23,6 +23,8 @@ class TestTranserResultsProject(unittest.TestCase):
 
         In this test the results contain an additional task.
         This should raise a Database error due to a foreign key violation.
+        Because results could not be stored in Postgres DB,
+        they should also NOT be deleted in Firebase.
         """
 
         test_dir = os.path.dirname(__file__)
@@ -42,7 +44,7 @@ class TestTranserResultsProject(unittest.TestCase):
 
         fb_db = auth.firebaseDB()
         ref = fb_db.reference("v2/results/{0}".format(self.project_id))
-        self.assertIsNotNone(ref.get())
+        self.assertDictEqual(ref.get(shallow=True), {"g115": True})
 
 
 if __name__ == "__main__":
