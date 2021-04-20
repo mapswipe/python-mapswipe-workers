@@ -47,6 +47,7 @@ def transfer_results(project_id_list=None):
             fb_db = auth.firebaseDB()
             results_ref = fb_db.reference(f"v2/results/{project_id}")
             results = results_ref.get()
+            del fb_db
             transfer_results_for_project(project_id, results)
 
     return project_id_list
