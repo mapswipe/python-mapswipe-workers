@@ -2,6 +2,7 @@ import csv
 import io
 
 import dateutil.parser
+import psycopg2
 
 from mapswipe_workers import auth
 from mapswipe_workers.definitions import logger, sentry
@@ -89,20 +90,27 @@ def transfer_results_for_project(project_id):
         results_user_id_list = get_user_ids_from_results(results)
         update_data.update_user_data(results_user_id_list)
 
-        # Results are dumped into an in-memory file.
-        # This allows us to use the COPY statement to insert many
-        # results at relatively high speed.
-        results_file = results_to_file(results, project_id)
-        truncate_temp_results()
-        save_results_to_postgres(results_file)
-
-        # It is important here that we first insert results into postgres
-        # and then delete these results from Firebase.
-        # In case something goes wrong during the insert, results in Firebase
-        # will not get deleted.
-        delete_results_from_firebase(project_id, results)
-        del fb_db
-        logger.info(f"{project_id}: Transferred results to postgres")
+        try:
+            # Results are dumped into an in-memory file.
+            # This allows us to use the COPY statement to insert many
+            # results at relatively high speed.
+            results_file = results_to_file(results, project_id)
+            truncate_temp_results()
+            save_results_to_postgres(results_file)
+        except psycopg2.errors.ForeignKeyViolation as e:
+            sentry.capture_exception(e)
+            sentry.capture_message(
+                f"could not transfer results to postgres: {project_id}"
+            )
+            logger.exception(e)
+            logger.warning(f"could not transfer results to postgres: {project_id}")
+        else:
+            # It is important here that we first insert results into postgres
+            # and then delete these results from Firebase.
+            # In case something goes wrong during the insert, results in Firebase
+            # will not get deleted.
+            delete_results_from_firebase(project_id, results)
+            logger.info(f"{project_id}: Transferred results to postgres")
 
 
 def delete_results_from_firebase(project_id, results):
