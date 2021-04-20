@@ -14,7 +14,6 @@ class TestTransferManyResults(unittest.TestCase):
         )
 
     def tearDown(self):
-        tear_down.delete_test_data("test_build_area")
         tear_down.delete_test_data(self.project_id)
 
     def test_transfer_results(self):
