@@ -7,7 +7,7 @@ from mapswipe_workers import auth
 from mapswipe_workers.firebase_to_postgres import transfer_results
 
 
-class TestTranserResults(unittest.TestCase):
+class TestTransferManyResults(unittest.TestCase):
     def setUp(self):
         self.project_id = set_up.create_test_project(
             "tile_map_service_grid", "build_area_heidelberg", results=True
