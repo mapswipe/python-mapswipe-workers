@@ -98,6 +98,17 @@ def transfer_results_for_project(project_id, results):
         save_results_to_postgres(results_file)
     except psycopg2.errors.ForeignKeyViolation as e:
         sentry.capture_exception(e)
+        sentry.capture_message(
+            "could not transfer results to postgres due to ForeignKeyViolation: "
+            f"{project_id}"
+        )
+        logger.exception(e)
+        logger.warning(
+            "could not transfer results to postgres due to ForeignKeyViolation: "
+            f"{project_id}"
+        )
+    except Exception as e:
+        sentry.capture_exception(e)
         sentry.capture_message(f"could not transfer results to postgres: {project_id}")
         logger.exception(e)
         logger.warning(f"could not transfer results to postgres: {project_id}")
