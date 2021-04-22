@@ -29,6 +29,7 @@ def transfer_results(project_id_list=None):
     # We will only transfer results for projects we in postgres.
     postgres_project_ids = get_projects_from_postgres()
 
+    project_id_list_transfered = []
     for project_id in project_id_list:
         if project_id not in postgres_project_ids:
             logger.info(
@@ -49,8 +50,9 @@ def transfer_results(project_id_list=None):
             results = results_ref.get()
             del fb_db
             transfer_results_for_project(project_id, results)
+            project_id_list_transfered.appen(project_id)
 
-    return project_id_list
+    return project_id_list_transfered
 
 
 def transfer_results_for_project(project_id, results):
