@@ -50,7 +50,7 @@ def transfer_results(project_id_list=None):
             results = results_ref.get()
             del fb_db
             transfer_results_for_project(project_id, results)
-            project_id_list_transfered.appen(project_id)
+            project_id_list_transfered.append(project_id)
 
     return project_id_list_transfered
 
