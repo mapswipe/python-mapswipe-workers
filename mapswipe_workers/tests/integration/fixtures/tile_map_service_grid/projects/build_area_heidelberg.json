@@ -1,0 +1,30 @@
+{
+  "contributorCount" : 0,
+  "created" : "2021-04-19T23:59:31.534947Z",
+  "createdBy" : "X0zTSyvY0khDfRwc99aQfIjTEPK2",
+  "groupMaxSize" : 0,
+  "groupSize" : 120,
+  "image" : "https://firebasestorage.googleapis.com/v0/b/dev-mapswipe.appspot.com/o/projectImages%2F159288.png?alt=media&token=d47c5378-af4d-44db-b875-f0c5e5028721",
+  "isFeatured" : false,
+  "lookFor" : "Buildings",
+  "name" : "CI Test Project  - Heidelberg (1)\nCI",
+  "progress" : 0,
+  "projectDetails" : "this is for ci",
+  "projectId" : "-MYg8CEf2k1-RitN62X0",
+  "projectNumber" : "1",
+  "projectRegion" : "Heidelberg",
+  "projectTopic" : "CI Test Project ",
+  "projectType" : 1,
+  "requestingOrganisation" : "CI",
+  "requiredResults" : 91548,
+  "resultCount" : 0,
+  "status" : "active",
+  "tileServer" : {
+    "credits" : "© 2019 Microsoft Corporation, Earthstar Geographics SIO",
+    "name" : "bing",
+    "url" : "https://ecn.t0.tiles.virtualearth.net/tiles/a{quad_key}.jpeg?g=7505&mkt=en-US&token={key}"
+  },
+  "tutorialId" : "tutorial_-MGuFzZZSwse-0acEH4a",
+  "verificationNumber" : 3,
+  "zoomLevel" : 18
+}

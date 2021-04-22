@@ -45,10 +45,16 @@ def delete_test_data(project_id: str) -> None:
     pg_db.query(sql_query, [project_id])
     sql_query = "DELETE FROM projects WHERE project_id = %s"
     pg_db.query(sql_query, [project_id])
-    sql_query = "DELETE FROM users WHERE user_id = %s"
-    pg_db.query(sql_query, [project_id])
-    sql_query = "DELETE FROM users_temp WHERE user_id = %s"
-    pg_db.query(sql_query, [project_id])
+
+    sql_query = "DELETE FROM users WHERE user_id = 'test_build_area'"
+    pg_db.query(sql_query)
+    sql_query = "DELETE FROM users_temp WHERE user_id = 'test_build_area'"
+    pg_db.query(sql_query)
+
+    sql_query = "DELETE FROM users WHERE user_id = 'test_build_area_heidelberg'"
+    pg_db.query(sql_query)
+    sql_query = "DELETE FROM users_temp WHERE user_id = 'test_build_area_heidelberg'"
+    pg_db.query(sql_query)
 
 
 def delete_test_user(user_ids: List) -> None:
@@ -72,3 +78,4 @@ def delete_test_user(user_ids: List) -> None:
 
 if __name__ == "__main__":
     delete_test_data("test_build_area")
+    delete_test_data("test_build_area_heidelberg")
