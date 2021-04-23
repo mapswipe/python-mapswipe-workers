@@ -11,7 +11,6 @@ from mapswipe_workers.firebase_to_postgres import update_data
 
 def transfer_results(project_id_list=None):
     """Transfer results for one project after the other.
-
     Will only trigger the transfer of results for projects
     that are defined in the postgres database.
     Will not transfer results for tutorials and
@@ -57,28 +56,22 @@ def transfer_results(project_id_list=None):
 
 def transfer_results_for_project(project_id, results):
     """Transfer the results for a specific project.
-
     Save results into an in-memory file.
     Copy the results to postgres.
     Delete results in firebase.
-
     We are NOT using a Firebase transaction functions here anymore.
     This has caused problems, in situations where a lot of mappers are
     uploading results to Firebase at the same time. Basically, this is
     due to the behaviour of Firebase Transaction function:
-
         "If another client writes to this location
         before the new value is successfully saved,
         the update function is called again with the new current value,
         and the write will be retried."
-
     (source: https://firebase.google.com/docs/reference/admin/python/firebase_admin.db#firebase_admin.db.Reference.transaction)  # noqa
-
     Using Firebase transaction on the group level
     has turned out to be too slow when using "normal" queries,
     e.g. without using threading. Threading should be avoided here
     as well to not run into unforeseen errors.
-
     For more details see issue #478.
     """
 
@@ -125,7 +118,6 @@ def transfer_results_for_project(project_id, results):
 
 def delete_results_from_firebase(project_id, results):
     """Delete results from Firebase using update function.
-
     We use the update method of firebase instead of delete.
     Update allows to delete items at multiple locations at the same time
     and is much faster.
