@@ -1,28 +1,27 @@
+# run with locust -f locust_files/load_testing.py
+# then set number of users and spawn rate in web interface
+# e.g. test with 100 users, and 15 users/sec
+# web interface: http://0.0.0.0:8089/
+
 import datetime
+import json
 import random
 from uuid import uuid4
 
-from locust import User, between
+from locust import HttpUser, between, task
 
+from mapswipe_workers.definitions import logger
 from mapswipe_workers.utils import user_management
 
 
-class MapSwipeUser(User):
-    wait_time = between(0.5, 10)
-
-    def __init__(self):
-        self.project_id = "-MYg8CEf2k1-RitN62X0"
-        random_string = uuid4()
-        self.email = f"test_{random_string}@mapswipe.org"
-        self.username = f"test_{random_string}"
-        self.password = "mapswipe"
-        self.user_id = None
-        self.signed_in_user = None
+class MapSwipeUser(HttpUser):
+    # assuming that users need between 30 sec and 120 sec to map a group
+    wait_time = between(30, 120)
 
     def set_up_user(self):
         # check if is already signed in
         if self.signed_in_user is None:
-            print("user is not signed in. Will create a new user.")
+            logger.info("user is not signed in. Will create a new user.")
             # create user if not exists
             user = user_management.create_user(self.email, self.username, self.password)
             self.user_id = user.uid
@@ -31,9 +30,9 @@ class MapSwipeUser(User):
             self.signed_in_user = user_management.sign_in_with_email_and_password(
                 self.email, self.password
             )
-            print("Created a new user.")
+            logger.info("Created a new user.")
         else:
-            print("user is already signed in.")
+            logger.info("user is already signed in.")
             pass
 
     def create_mock_result(self, group):
@@ -54,12 +53,20 @@ class MapSwipeUser(User):
 
         data = {
             "results": results,
-            "timestamp": end_time,
             "startTime": start_time,
             "endTime": end_time,
         }
         return data
 
+    def set_firebase_db(self, path, data, token=None):
+        request_ref = f"{path}.json?auth={token}"
+        headers = {"content-type": "application/json; charset=UTF-8"}
+        self.client.patch(
+            request_ref, headers=headers, data=json.dumps(data).encode("utf-8")
+        )
+        logger.info(f"set data in firebase for {path}.json")
+
+    @task
     def map_a_group(self):
         """Get a group from Firebase for this user.
 
@@ -104,12 +111,14 @@ class MapSwipeUser(User):
 
         # upload results in firebase
         path = f"/v2/results/{self.project_id}/{next_group_id}/{self.user_id}"
-        user_management.set_firebase_db(path, result, self.signed_in_user["idToken"])
+        self.set_firebase_db(path, result, self.signed_in_user["idToken"])
 
-
-if __name__ == "__main__":
-    mapswipe_user = MapSwipeUser()
-    mapswipe_user.set_up_user()
-    mapswipe_user.map_a_group()
-    mapswipe_user.map_a_group()
-    mapswipe_user.map_a_group()
+    def on_start(self):
+        self.project_id = "-MYg8CEf2k1-RitN62X0"
+        random_string = uuid4()
+        self.email = f"test_{random_string}@mapswipe.org"
+        self.username = f"test_{random_string}"
+        self.password = "mapswipe"
+        self.user_id = None
+        self.signed_in_user = None
+        self.set_up_user()
