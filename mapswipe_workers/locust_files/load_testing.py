@@ -1,4 +1,4 @@
-# run with locust -f locust_files/load_testing.py
+# run with "locust -f locust_files/load_testing.py"
 # then set number of users and spawn rate in web interface
 # e.g. test with 100 users, and 15 users/sec
 # web interface: http://0.0.0.0:8089/
@@ -36,6 +36,10 @@ class MapSwipeUser(HttpUser):
             pass
 
     def create_mock_result(self, group):
+        """Create a result object for a build area project.
+
+        The result values are generated randomly.
+        """
         start_time = datetime.datetime.utcnow().isoformat()[0:-3] + "Z"
         end_time = datetime.datetime.utcnow().isoformat()[0:-3] + "Z"
 
@@ -59,6 +63,7 @@ class MapSwipeUser(HttpUser):
         return data
 
     def set_firebase_db(self, path, data, token=None):
+        """Upload results to Firebase using REST api."""
         request_ref = f"{path}.json?auth={token}"
         headers = {"content-type": "application/json; charset=UTF-8"}
         self.client.patch(
@@ -68,9 +73,11 @@ class MapSwipeUser(HttpUser):
 
     @task
     def map_a_group(self):
-        """Get a group from Firebase for this user.
+        """Get a group from Firebase for this user and "map" it.
 
         Make sure that this user has not worked on this group before.
+        Get the group and create mock results.
+        Upload results to Firebse.
         """
 
         # get the groups that need to be mapped
@@ -114,6 +121,7 @@ class MapSwipeUser(HttpUser):
         self.set_firebase_db(path, result, self.signed_in_user["idToken"])
 
     def on_start(self):
+        """Set up user and define project when user starts running."""
         self.project_id = "-MYg8CEf2k1-RitN62X0"
         random_string = uuid4()
         self.email = f"test_{random_string}@mapswipe.org"

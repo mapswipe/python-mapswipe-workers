@@ -291,6 +291,7 @@ def save_results_to_postgres(results_file):
     """
     p_con.query(query_insert_results)
     del p_con
+    logger.info("copied results into postgres.")
 
 
 def truncate_temp_results():
