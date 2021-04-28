@@ -502,8 +502,19 @@ class BaseProject(metaclass=ABCMeta):
                     "project_type_specifics": dict(),
                 }
 
+                # these common attributes don't need to be written
+                # to the project_type_specifics since they are
+                # already stored in separate columns
+                common_attributes = [
+                    "projectId",
+                    "groupId",
+                    "numberOfTasks",
+                    "requiredCount",
+                    "finishedCount" "progress",
+                ]
+
                 for key in group.keys():
-                    if key not in output_dict.keys():
+                    if key not in common_attributes:
                         output_dict["project_type_specifics"][key] = group[key]
                 output_dict["project_type_specifics"] = json.dumps(
                     output_dict["project_type_specifics"]
@@ -570,8 +581,14 @@ class BaseProject(metaclass=ABCMeta):
                     "geom": task["geometry"],
                     "project_type_specifics": dict(),
                 }
+
+                # these common attributes don't need to be written
+                # to the project_type_specifics since they are
+                # already stored in separate columns
+                common_attributes = ["projectId", "groupId", "taskId", "geometry"]
+
                 for key in task.keys():
-                    if key not in output_dict.keys():
+                    if key not in common_attributes:
                         output_dict["project_type_specifics"][key] = task[key]
                 output_dict["project_type_specifics"] = json.dumps(
                     output_dict["project_type_specifics"]
