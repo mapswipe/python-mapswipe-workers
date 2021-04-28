@@ -65,12 +65,12 @@
             ||
             (root.child('/v2/projects/'+$project_id+'/teamId').val() ==
              root.child('/v2/users/'+auth.uid+'/teamId').val())
-          "
-        },
-        ".indexOn": [
-          "finishedCount",
-          "requiredCount"
-        ]
+          ",
+          ".indexOn": [
+            "finishedCount",
+            "requiredCount"
+          ]
+        }
       },
       "tasks": {
         ".write": false,
