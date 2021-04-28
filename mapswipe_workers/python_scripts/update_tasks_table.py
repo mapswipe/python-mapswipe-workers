@@ -63,5 +63,5 @@ if __name__ == "__main__":
     for i, project_id in enumerate(project_ids_list):
         update_tasks_table(project_id)
         # vacuum every 50th project
-        if i % 25 == 0 or i == len(project_ids_list):
+        if i % 50 == 0 or i == len(project_ids_list):
             run_vacuum_tasks_table()
