@@ -66,7 +66,7 @@ class MapSwipeUser(HttpUser):
         """Upload results to Firebase using REST api."""
         request_ref = f"{path}.json?auth={token}"
         headers = {"content-type": "application/json; charset=UTF-8"}
-        self.client.patch(
+        self.client.put(
             request_ref, headers=headers, data=json.dumps(data).encode("utf-8")
         )
         logger.info(f"set data in firebase for {path}.json")
