@@ -8,13 +8,10 @@ def get_project_ids_from_postgres():
     p_con = auth.postgresDB()
 
     query = """
-        SELECT project_id FROM projects
-        LIMIT 10
+        SELECT project_id FROM projects;
     """
     data = p_con.retr_query(query)
-    project_ids = []
-    for item in data:
-        project_ids.append(item[0])
+    project_ids = [item[0] for item in data]
 
     logger.info("Got projects from postgres.")
     logger.info(project_ids)
@@ -54,14 +51,6 @@ def update_groups_table(project_id: str):
 
     logger.info(f"Start process for project: '{project_id}'")
     p_con = auth.postgresDB()
-
-    # removing only the duplicated keys would be better
-    """
-    select
-        project_type_specifics::jsonb #- '{projectId}' #- '{groupId}'
-    from tasks
-    limit 10
-    """
 
     query = """
         UPDATE groups
