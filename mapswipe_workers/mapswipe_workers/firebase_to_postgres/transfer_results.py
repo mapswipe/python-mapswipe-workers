@@ -2,6 +2,7 @@ import csv
 import io
 
 import dateutil.parser
+import psycopg2
 
 from mapswipe_workers import auth
 from mapswipe_workers.definitions import logger, sentry
@@ -9,39 +10,25 @@ from mapswipe_workers.firebase_to_postgres import update_data
 
 
 def transfer_results(project_id_list=None):
+    """Transfer results for one project after the other.
+    Will only trigger the transfer of results for projects
+    that are defined in the postgres database.
+    Will not transfer results for tutorials and
+    for projects which are not set up in postgres.
     """
-    Download results from firebase,
-    saves them to postgres and then deletes the results in firebase.
-    This is implemented as a transactional operation as described in
-    the Firebase docs to avoid missing new generated results in
-    Firebase during execution of this function.
-    """
-
-    # Firebase transaction function
-    def transfer(current_results):
-        if current_results is None:
-            logger.info(f"{project_id}: No results in Firebase")
-            return dict()
-        else:
-            results_user_id_list = get_user_ids_from_results(current_results)
-            update_data.update_user_data(results_user_id_list)
-            results_file = results_to_file(current_results, project_id)
-            save_results_to_postgres(results_file)
-            return dict()
-
-    fb_db = auth.firebaseDB()
-
-    if not project_id_list:
+    if project_id_list is None:
         # get project_ids from existing results if no project ids specified
+        fb_db = auth.firebaseDB()
         project_id_list = fb_db.reference("v2/results/").get(shallow=True)
-        if not project_id_list:
+        if project_id_list is None:
             project_id_list = []
             logger.info("There are no results to transfer.")
 
-    # get all project ids from postgres,
-    # we will only transfer results for projects we have there
+    # Get all project ids from postgres.
+    # We will only transfer results for projects we in postgres.
     postgres_project_ids = get_projects_from_postgres()
 
+    project_id_list_transfered = []
     for project_id in project_id_list:
         if project_id not in postgres_project_ids:
             logger.info(
@@ -55,24 +42,101 @@ def transfer_results(project_id_list=None):
                 f"We will not transfer these"
             )
             continue
+        else:
+            logger.info(f"{project_id}: Start transfer results")
+            fb_db = auth.firebaseDB()
+            results_ref = fb_db.reference(f"v2/results/{project_id}")
+            results = results_ref.get()
+            del fb_db
+            transfer_results_for_project(project_id, results)
+            project_id_list_transfered.append(project_id)
 
-        logger.info(f"{project_id}: Start transfering results")
+    return project_id_list_transfered
 
-        results_ref = fb_db.reference(f"v2/results/{project_id}")
+
+def transfer_results_for_project(project_id, results):
+    """Transfer the results for a specific project.
+    Save results into an in-memory file.
+    Copy the results to postgres.
+    Delete results in firebase.
+    We are NOT using a Firebase transaction functions here anymore.
+    This has caused problems, in situations where a lot of mappers are
+    uploading results to Firebase at the same time. Basically, this is
+    due to the behaviour of Firebase Transaction function:
+        "If another client writes to this location
+        before the new value is successfully saved,
+        the update function is called again with the new current value,
+        and the write will be retried."
+    (source: https://firebase.google.com/docs/reference/admin/python/firebase_admin.db#firebase_admin.db.Reference.transaction)  # noqa
+    Using Firebase transaction on the group level
+    has turned out to be too slow when using "normal" queries,
+    e.g. without using threading. Threading should be avoided here
+    as well to not run into unforeseen errors.
+    For more details see issue #478.
+    """
+
+    if results is None:
+        logger.info(f"{project_id}: No results in Firebase")
+    else:
+        # First we check for new users in Firebase.
+        # The user_id is used as a key in the postgres database for the results
+        # and thus users need to be inserted before results get inserted.
+        results_user_id_list = get_user_ids_from_results(results)
+        update_data.update_user_data(results_user_id_list)
+
+    try:
+        # Results are dumped into an in-memory file.
+        # This allows us to use the COPY statement to insert many
+        # results at relatively high speed.
+        results_file = results_to_file(results, project_id)
         truncate_temp_results()
+        save_results_to_postgres(results_file)
+    except psycopg2.errors.ForeignKeyViolation as e:
+        sentry.capture_exception(e)
+        sentry.capture_message(
+            "could not transfer results to postgres due to ForeignKeyViolation: "
+            f"{project_id}"
+        )
+        logger.exception(e)
+        logger.warning(
+            "could not transfer results to postgres due to ForeignKeyViolation: "
+            f"{project_id}"
+        )
+    except Exception as e:
+        sentry.capture_exception(e)
+        sentry.capture_message(f"could not transfer results to postgres: {project_id}")
+        logger.exception(e)
+        logger.warning(f"could not transfer results to postgres: {project_id}")
+    else:
+        # It is important here that we first insert results into postgres
+        # and then delete these results from Firebase.
+        # In case something goes wrong during the insert, results in Firebase
+        # will not get deleted.
+        delete_results_from_firebase(project_id, results)
+        logger.info(f"{project_id}: Transferred results to postgres")
 
-        try:
-            results_ref.transaction(transfer)
-            logger.info(f"{project_id}: Transfered results to postgres")
-        except fb_db.TransactionAbortedError:
-            logger.exception(
-                f"{project_id}: Firebase transaction for "
-                f"transfering results failed to commit"
-            )
-            sentry.capture_exception()
 
-    del fb_db
-    return project_id_list
+def delete_results_from_firebase(project_id, results):
+    """Delete results from Firebase using update function.
+    We use the update method of firebase instead of delete.
+    Update allows to delete items at multiple locations at the same time
+    and is much faster.
+    """
+
+    fb_db = auth.firebaseDB()
+
+    # we will use a multi-location update to delete the entries
+    # therefore we create a dict with the items we want to delete
+    data = {}
+    for group_id, users in results.items():
+        for user_id, result in users.items():
+            key = f"{group_id}/{user_id}"
+            data[key] = None
+
+    results_ref = fb_db.reference(f"v2/results/{project_id}/")
+    results_ref.update(data)
+
+    logger.info(f"removed results for project {project_id}")
 
 
 def results_to_file(results, projectId):
@@ -200,7 +264,6 @@ def save_results_to_postgres(results_file):
     Saves results to a temporary table in postgres
     using the COPY Statement of Postgres
     for a more efficient import into the database.
-
     Parameters
     ----------
     results_file: io.StringIO
@@ -228,6 +291,7 @@ def save_results_to_postgres(results_file):
     """
     p_con.query(query_insert_results)
     del p_con
+    logger.info("copied results into postgres.")
 
 
 def truncate_temp_results():

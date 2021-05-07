@@ -107,14 +107,32 @@ def run_create_projects():
 
 
 @cli.command("firebase-to-postgres")
-def run_firebase_to_postgres() -> list:
+@click.option(
+    "--project_ids",
+    cls=PythonLiteralOption,
+    default="[]",
+    help=(
+        "Project ids for which to generate stats as a list of strings: "
+        """ '["project_a", "project_b"]' """
+        "(You need the quotes.)"
+    ),
+)
+def run_firebase_to_postgres(project_ids: list) -> list:
     """Update users and transfer results from Firebase to Postgres."""
-    project_ids = transfer_results.transfer_results()
-    for project_id in project_ids:
-        update_data.set_progress_in_firebase(project_id)
-        update_data.set_contributor_count_in_firebase(project_id)
-        send_progress_notification(project_id)
+
+    if len(project_ids) > 0:
+        project_ids_transferred = transfer_results.transfer_results(project_ids)
+    else:
+        project_ids_transferred = transfer_results.transfer_results()
+
+    if len(project_ids_transferred) > 0:
+        for project_id in project_ids_transferred:
+            update_data.set_progress_in_firebase(project_id)
+            update_data.set_contributor_count_in_firebase(project_id)
+            send_progress_notification(project_id)
+
     update_data.update_project_data()
+
     return project_ids
 
 
