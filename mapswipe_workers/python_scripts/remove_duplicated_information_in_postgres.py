@@ -84,7 +84,7 @@ def run_vacuum_tasks_table():
     old_isolation_level = p_con._db_connection.isolation_level
     p_con._db_connection.set_isolation_level(0)
     query = """
-            VACUUM FULL tasks
+            VACUUM tasks
         """
     p_con.query(query)
     # set isolation_level back to initial value
@@ -100,7 +100,7 @@ def run_vacuum_groups_table():
     old_isolation_level = p_con._db_connection.isolation_level
     p_con._db_connection.set_isolation_level(0)
     query = """
-            VACUUM FULL groups
+            VACUUM groups
         """
     p_con.query(query)
     # set isolation_level back to initial value
@@ -113,7 +113,5 @@ if __name__ == "__main__":
     for i, project_id in enumerate(project_ids_list):
         update_tasks_table(project_id)
         update_groups_table(project_id)
-        # vacuum every 50th project
-        if i % 50 == 0 or i == len(project_ids_list) - 1:
-            run_vacuum_tasks_table()
-            run_vacuum_groups_table()
+        run_vacuum_tasks_table()
+        run_vacuum_groups_table()
