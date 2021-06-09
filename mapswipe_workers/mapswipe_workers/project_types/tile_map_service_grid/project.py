@@ -154,10 +154,9 @@ class Project(BaseProject):
         # We calculate the max area based on zoom level.
         # This is an approximation to restrict the project size
         # in respect to the number of tasks.
-        # At zoom level 22 the max area is set to 200 square kilometers.
-        # For zoom level 18 this will result in an max area of 5000 square kilometers.
-        # (23-18) * (23-18) * 200 = 5000
-        max_area = (23 - int(self.zoomLevel)) * (23 - int(self.zoomLevel)) * 200
+        # At zoom level 22 the max area is set to 20 square kilometers.
+        # For zoom level 18 this will result in an max area of 5,120 square kilometers.
+        max_area = 5 * 4 ** (23 - self.zoomLevel)
 
         if project_area > max_area:
             logger.warning(
