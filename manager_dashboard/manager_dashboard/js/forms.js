@@ -233,7 +233,10 @@ function openFile(event) {
 
               // check project size, based on zoom level
               var zoomLevel = parseInt(document.getElementById('zoomLevel').value);
-              maxArea = (23 - zoomLevel) * (23 - zoomLevel) * 200
+              // 20,480 sqkm for zoom 17
+              //  5,120 sqkm for zooom 18
+              //  1,280 sqkm for zoom 19
+              maxArea = 5 * (4 ** (23 - zoomLevel))
               console.log('project size: ' + sumArea + ' sqkm')
 
               if (sumArea > maxArea) {
