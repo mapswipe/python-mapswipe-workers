@@ -1,0 +1,170 @@
+{ "1": {
+  "hint" : {
+    "description" : "The difference in contrast makes it harder to assess.",
+    "icon" : "swipe-left",
+    "title" : "There is NO change between the two periods."
+  },
+  "instructions" : {
+    "description" : "No need to tap. Just swipe to the next screen.",
+    "icon" : "swipe-left",
+    "title" : "There are no new settlements here."
+  },
+  "success" : {
+    "description" : "Swipe to the next screen to look for more.",
+    "icon" : "check",
+    "title" : "You correctly mapped this task!"
+  }
+},
+"2":  {
+  "hint" : {
+    "description" : "Tap once whenever you spot new settlements. Swipe to learn more.",
+    "icon" : "swipe-left",
+    "title" : "Green indicates that settlements have emerged or expanded."
+  },
+  "instructions" : {
+    "description" : "Tap the square once to mark it green indicating there are new settlements.",
+    "icon" : "tap-1",
+    "title" : "Here we easily find new small settlements."
+  },
+  "success" : {
+    "description" : "Swipe to the next screen to learn more.",
+    "icon" : "check",
+    "title" : "Nice. Use this whenever you spot new settlements."
+  }
+},
+"3": {
+  "hint" : {
+    "description" : "The new refugee reception settlement developed over the last three years is clearly visible in the post image.",
+    "icon" : "swipe-left",
+    "title" : "We've marked the task green indicating change."
+  },
+  "instructions" : {
+    "description" : "Tap once mark the tile green.",
+    "icon" : "tap-1",
+    "title" : "Look at this new large settlement."
+  },
+  "success" : {
+    "description" : "Swipe to keep on going",
+    "icon" : "check",
+    "title" : "Great work!"
+  }
+},
+"4":  {
+  "hint" : {
+    "description" : "It is a difficult to see because of size and low contrast with vegetation.",
+    "icon" : "swipe-left",
+    "title" : "Take a closer look."
+  },
+  "instructions" : {
+    "description" : "Again, just tap once.",
+    "icon" : "swipe-left",
+    "title" : "There are some small new settlements here."
+  },
+  "success" : {
+    "description" : "Swipe to the next screen to learn more.",
+    "icon" : "check",
+    "title" : "Correct!"
+  }
+},
+"5": {
+  "hint" : {
+    "description" : "The settlements is visible in both images that have grown in size over the course of 3 years.",
+    "icon" : "swipe-left",
+    "title" : "We’ve marked the correct answers"
+  },
+  "instructions" : {
+    "description" : "Also in this case tap once.",
+    "icon" : "tap-1",
+    "title" : "The existing settlement expanded."
+  },
+  "success" : {
+    "description" : "Swipe to practice some more.",
+    "icon" : "check",
+    "title" : "Well done, you found all the waste!"
+  }
+},
+"6": {
+  "hint" : {
+    "description" : "The imagery details and size of built-up features are not enough to make a confident assessment.",
+    "icon" : "swipe-left",
+    "title" : "We've marked the tile yellow."
+  },
+  "instructions" : {
+    "description" : "You can tap twice to indicate that settlements might have changed.",
+    "icon" : "tap-2",
+    "title" : "This is an example where we can't decide."
+  },
+  "success" : {
+    "description" : "Swipe for the next example.",
+    "icon" : "check",
+    "title" : "Well done, you got it right!"
+  }
+},
+"7": {
+  "hint" : {
+    "description" : "It is not clear whether there may be more land (and potentially new settlements) under the cloud-covered area",
+    "icon" : "swipe-left",
+    "title" : "The square should be marked red."
+  },
+  "instructions" : {
+    "description" : "Tap three times to indicate bad imagery.",
+    "icon" : "tap-3",
+    "title" : "There are so many clouds here."
+  },
+  "success" : {
+    "description" : "Swipe to practice some more.",
+    "icon" : "check",
+    "title" : "Good work."
+  }
+},
+"8": {
+  "hint" : {
+    "description" : "There may be new built-up areas, but they are not easy to identify.",
+    "icon" : "swipe-left",
+    "title" : "We've marked the task yellow for you."
+  },
+  "instructions" : {
+    "description" : "Use the 'maybe' option for such an example.",
+    "icon" : "tap-2",
+    "title" : "This one is hard to tell."
+  },
+  "success" : {
+    "description" : "Swipe to learn more.",
+    "icon" : "check",
+    "title" : "Great."
+  }
+},
+"9": {
+  "hint" : {
+    "description" : "New settlements are hard to identify with imagery at this resolution.",
+    "icon" : "swipe-left",
+    "title" : "You can use the 'maybe' option."
+  },
+  "instructions" : {
+    "description" : "Again, we are not really sure about it and use 'maybe'.",
+    "icon" : "tap-2",
+    "title" : "We can't really tell."
+  },
+  "success" : {
+    "description" : "You got it correct.",
+    "icon" : "check",
+    "title" : "Perfect."
+  }
+},
+"10": {
+  "hint" : {
+    "description" : "Some land clearing is visible in the before image, which is then covered with more vegetation/crops in the post image.",
+    "icon" : "swipe-left",
+    "title" : "No settlements in pre/post images."
+  },
+  "instructions" : {
+    "description" : "Always remember, if there is no change just swipe left.",
+    "icon" : "swipe-left",
+    "title" : "No settlements are visible in either image."
+  },
+  "success" : {
+    "description" : "You've reached the end of the tutorial swipe to finish.",
+    "icon" : "check",
+    "title" : "Done."
+  }
+} }
