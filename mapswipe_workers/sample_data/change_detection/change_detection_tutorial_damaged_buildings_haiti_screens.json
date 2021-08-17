@@ -1,0 +1,86 @@
+{ "1": {
+  "hint" : {
+    "description" : "Compare the building outlines in the two images.",
+    "icon" : "swipe-left",
+    "title" : "There is severe damage visible."
+  },
+  "instructions" : {
+    "description" : "Tap once whenever you spot damaged settlements. Swipe to learn more.",
+    "icon" : "tap-1",
+    "title" : "There is a destroyed building here."
+  },
+  "success" : {
+    "description" : "Swipe to the next screen to look for more.",
+    "icon" : "check",
+    "title" : "You correctly mapped this task!"
+  }
+},
+"2":  {
+  "hint" : {
+    "description" : "Tap twice whenever you are not sure.",
+    "icon" : "swipe-left",
+    "title" : "Yellow indicates that settlements might have been damaged."
+  },
+  "instructions" : {
+    "description" : "Tap the square twice to mark it yellow indicating that there might be damage.",
+    "icon" : "tap-2",
+    "title" : "This is difficult."
+  },
+  "success" : {
+    "description" : "Swipe to the next screen to learn more.",
+    "icon" : "check",
+    "title" : "Nice. Use this whenever you are not sure."
+  }
+},
+"3": {
+  "hint" : {
+    "description" : "The buildings look the same in the two images.",
+    "icon" : "swipe-left",
+    "title" : "No need to tap here."
+  },
+  "instructions" : {
+    "description" : "Just swipe left to the next screen.",
+    "icon" : "swipe-left",
+    "title" : "No building damage visible here."
+  },
+  "success" : {
+    "description" : "Swipe to keep on going",
+    "icon" : "check",
+    "title" : "Great. We can't spot damaged buildings here."
+  }
+},
+"4":  {
+  "hint" : {
+    "description" : "There might be other objects such as tents, but still the buildings are okay.",
+    "icon" : "swipe-left",
+    "title" : "Don't get distracted."
+  },
+  "instructions" : {
+    "description" : "Again, just swipe left.",
+    "icon" : "swipe-left",
+    "title" : "Spontaneous shelters but not building damage."
+  },
+  "success" : {
+    "description" : "Swipe to the next screen to learn more.",
+    "icon" : "check",
+    "title" : "Correct!"
+  }
+},
+"5": {
+  "hint" : {
+    "description" : "Only map building damage.",
+    "icon" : "swipe-left",
+    "title" : "We’ve marked the correct answers"
+  },
+  "instructions" : {
+    "description" : "If there are no buildings, just swipe left.",
+    "icon" : "swipe-left",
+    "title" : "No buildings at all"
+  },
+  "success" : {
+    "description" : "Swipe to practice some more.",
+    "icon" : "check",
+    "title" : "Well done, you got it right!"
+  }
+}
+}
