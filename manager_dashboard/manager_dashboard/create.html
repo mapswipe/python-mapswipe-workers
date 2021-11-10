@@ -192,6 +192,7 @@
                       <input type="number" name="groupSize" id="groupSize" value="120" min="10" max="200">
                       <span>How big should a mapping session be? Group size refers to the number of tasks per mapping session.</span>
                     </li>
+                    <li></li>
                   </ul>
                 </form>
               </div>
@@ -204,6 +205,7 @@
                       <input type="number" name="zoomLevel" id="zoomLevel" value="18" min="14" max="22">
                       <span>We use the Tile Map Service zoom levels. Please check for your area which zoom level is available. For example, Bing imagery is available at zoomlevel 18 for most regions. If you use a custom tile server you may be able to use even higher zoom levels.</span>
                     </li>
+                    <li></li>
                   </ul>
                 </form>
               </div>
@@ -218,22 +220,43 @@
                       <!-- <textarea name="geometry" id="geometry" onkeyup="adjust_textarea(this)"></textarea> -->
                       <input type="file" accept=".GeoJSON" id="inputAoi" onchange='openFile(event)'>
                       <div id="geometryMap"></div>
-                      <p id="geometryInfo"></p>
+                      <p class="geometryInfo"></p>
                       <p id="geometryContent"></p>
                       <span>Upload your project area as GeoJSON File (max. 1MB). Make sure that you provide a single polygon geometry.</span>
                     </li>
+                    <li></li>
                   </ul>
                 </form>
               </div>
               <div class="container" id="form_project_task_geometry">
                 <h3>Project Tasks Geometry</h3>
+                <select onchange="show_input(this)" id="geometryInputOption">
+                  <option selected disabled hidden>Choose one Input Option</option>
+                  <option value="file">Upload GeoJSON</option>
+                  <option value="link">Link to GeoJSON</option>
+                  <option value="id">Provide Tasking Manager ID</option>
+                </select>
                 <form class="form-style-7">
                   <ul>
-                    <li id="inputTaskGeometriesField">
+                    <li id="inputTaskGeometries_Link" style="display: None;">
                       <label for="inputTaskGeometries">Input Geometries File (Direct Link)</label>
                       <input type="text" name="inputTaskGeometries" id="inputTaskGeometries">
                       <span>Provide a direct link to a GeoJSON file containing your building footprint geometries.</span>
                     </li>
+                    <li id="inputTaskGeometries_File" style="display: None;">
+                      <label for="inputTaskGeometriesFile">GeoJSON File</label>
+                      <input type="file" accept=".GeoJSON" id="inputTaskGeometriesFile" onchange='openFile(event)'>
+                      <div id="geometryMapFile"></div>
+                      <p class="geometryInfo"></p>
+                      <p id="geometryContentFile"></p>
+                      <span>Upload your project area as GeoJSON File (max. 10MB). Make sure that you provide a maximum of XXX polygon geometries.</span>
+                    </li>
+                    <li id="inputTaskGeometries_ProjectId" style="display: None;">
+                      <label for="inputTaskGeometriesId">HOT Tasking Manager ProjectID</label>
+                      <input type="text" id="inputTaskGeometriesId" name="inputTaskGeometriesId" placeholder="1234">
+                      <span>Provide the ID of the HOT Tasking Manager Project (only numbers, e.g. 6526).</span>
+                    </li>
+                    <li></li>
                   </ul>
                 </form>
               </div>
@@ -246,6 +269,7 @@
                       <input type="number" name="maxTasksPerUser" id="maxTasksPerUser" value="-1" min="-1">
                       <span>How many tasks each user is allowed to work on for this project. "-1" indicates that no limit is set.</span>
                     </li>
+                    <li></li>
                   </ul>
                 </form>
               </div>
@@ -282,6 +306,7 @@
                       <input type="text" name="tileServerACredits" id="tileServerACredits" value="© 2019 Microsoft Corporation, Earthstar Geographics SIO">
                       <span>Insert appropriate imagery credits if you are using a custom tile server. For other tile server use the default credits.</span>
                     </li>
+                    <li></li>
                   </ul>
                 </form>
               </div>
@@ -318,6 +343,7 @@
                       <input type="text" name="tileServerBCredits" id="tileServerBCredits" value="© 2019 Microsoft Corporation, Earthstar Geographics SIO">
                       <span>Insert appropriate imagery credits if you are using a custom tile server. For other tile server use the default credits.</span>
                     </li>
+                    <li></li>
                   </ul>
                 </form>
               </div>
@@ -327,7 +353,7 @@
                 <h3>Let's go!</h3>
                 <form class="form-style-7"> <!--todo: what are these 2 forms here, do they have a purpose?-->
                   <input type="button" id="submit" value="Submit" onClick="upload_to_firebase()">
-                  <form class="form-style-7"> <!--todo: they are not even closed o.o-->
+                <form class="form-style-7"> <!--todo: they are not even closed o.o-->
               </div>
             </div>
           </div>

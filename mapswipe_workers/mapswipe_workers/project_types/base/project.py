@@ -107,7 +107,7 @@ class BaseProject(metaclass=ABCMeta):
         """
         logger.info(f"{self.projectId}" f" - start creating a project")
 
-        # Convert object attributes to dictonaries
+        # Convert object attributes to dictionaries
         # for saving it to firebase and postgres
         project = vars(self)
         groups = dict()

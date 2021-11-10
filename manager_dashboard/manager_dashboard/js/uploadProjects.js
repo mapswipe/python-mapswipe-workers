@@ -1,6 +1,13 @@
 var database = firebase.database();
 
 
+async function fetchProjectId(project_id){
+  const response = await fetch(`https://tasking-manager-tm4-production-api.hotosm.org/api/v2/projects/${project_id}/?as_file=false&abbreviated=false`);
+  const answer = await response.json();
+  return answer;
+ }
+
+
 function getFormInput() {
     var form_data = {
         projectRegion: document.getElementById("projectRegion").value,
@@ -15,6 +22,7 @@ function getFormInput() {
         createdBy: currentUid,
         tutorialId: document.getElementById("tutorial").value
     }
+
     form_data.name = form_data.projectTopic + ' - ' +
         form_data.projectRegion +
         ' (' + form_data.projectNumber + ')\n' +
@@ -46,7 +54,19 @@ function getFormInput() {
             break;
         case "footprint":
             form_data.projectType = 2;
-            form_data.inputGeometries = document.getElementById("inputTaskGeometries").value;
+            switch($("#geometryInputOption").val()){
+                case "link":
+                    form_data.inputGeometries = $("#inputTaskGeometries").val();
+                    break;
+                case "file":
+                    form_data.inputGeometries = "file";
+                    form_data.geometry = JSON.parse(projectAoiGeometry)
+                    break;
+                case "id":
+                    form_data.inputGeometries = $("#inputTaskGeometriesId").val();
+                    form_data.is_projectId = true
+                    break;
+            }
             form_data.tileServer = {
               name: document.getElementById("tileServerAName").value,
               url: document.getElementById("tileServerAUrl").value,
@@ -177,7 +197,16 @@ function upload_to_firebase() {
             else {
                 mapswipe_import = getFormInput()
                 // upload projectDraft to firebase once image has been uploaded
-                upload_project_image(mapswipe_import)
+                // if inputGeometries is a projectId, check if it is a valid project, only upload if it is
+                if (mapswipe_import.is_projectId == null){
+                    upload_project_image(mapswipe_import)
+                }
+                else {
+                    fetchProjectId(mapswipe_import.inputGeometries).then(answer=>{
+                    answer.Error != null ? alert(`Invalid ProjectId: ${answer.Error}`) : upload_project_image(mapswipe_import)})
+                }
             }
+
+
     }
 }

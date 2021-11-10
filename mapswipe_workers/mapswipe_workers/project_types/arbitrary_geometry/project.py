@@ -1,3 +1,4 @@
+import json
 import os
 import urllib.request
 
@@ -16,6 +17,7 @@ class Project(BaseProject):
 
         # set group size
         self.groupSize = project_draft["groupSize"]
+        self.geometry = project_draft["geometry"]
         self.inputGeometries = project_draft["inputGeometries"]
         self.tileServer = vars(BaseTileServer(project_draft["tileServer"]))
 
@@ -30,9 +32,17 @@ class Project(BaseProject):
         if not os.path.isdir("{}/input_geometries".format(DATA_PATH)):
             os.mkdir("{}/input_geometries".format(DATA_PATH))
 
-        # download file from given url
-        url = self.inputGeometries
-        urllib.request.urlretrieve(url, raw_input_file)
+
+        # self.inputGeometries can be "file", an url or an integer (project_id)
+        if self.inputGeometries == "file":
+            # write string to geom file
+            with open(raw_input_file, "w") as geom_file:
+                json.dump(self.geometry, geom_file)
+        else:
+            try:
+                project_id = int(self.inputGeometries)
+            except:
+                urllib.request.urlretrieve(self.inputGeometries, raw_input_file)
         logger.info(
             f"{self.projectId}"
             f" - __init__ - "

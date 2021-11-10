@@ -163,7 +163,7 @@ function clear_fields() {
     console.log('clear fields.')
     document.getElementById('projectNumber').value = 1
     document.getElementById('inputAoi').value = null
-    document.getElementById('geometryInfo').innerHTML = ''
+    $(".geometryInfo").each(()=>{$(this).text('')})
     document.getElementById('geometryContent').innerHTML = ''
     aoiLayer.clearLayers()
     displayProjectTypeForm("build_area")
@@ -180,9 +180,19 @@ function displayImportForm() {
 
 function openFile(event) {
     var input = event.target;
+    let maxFilesize, maxFeatures;
+
+    if(input.id=="inputAoi"){
+        maxFilesize = 1 * 1024 * 1024
+        maxFeatures = 10
+    }
+    else if (input.id=="inputTaskGeometriesFile"){
+        maxFilesize = 10 * 1024 * 1024
+        maxFeatures = 5000
+    }
 
     // clear info field
-    var info_output = document.getElementById("geometryInfo");
+    var info_output = $(input).siblings(".geometryInfo")[0];
     info_output.innerHTML = '';
     info_output.style.display = 'block'
 
@@ -191,8 +201,8 @@ function openFile(event) {
 
     // Check file size before loading
     var filesize = input.files[0].size;
-    if (filesize > 1 * 1024 * 1024) {
-      var err='filesize is too big (max 1MB): ' + filesize/(1000*1000)
+    if (filesize > maxFilesize) {
+      var err=`filesize is too big (max ${maxFilesize}MB): ${filesize/(1024*1024)}`
       info_output.innerHTML = '<b>Error reading GeoJSON file</b><br>' + err;
       info_output.style.display = 'block'
     } else {
@@ -209,7 +219,7 @@ function openFile(event) {
               numberOfFeatures = geojsonData['features'].length
 
               console.log('number of features: ' + numberOfFeatures)
-              if (numberOfFeatures > 10) {
+              if (numberOfFeatures > maxFeatures) {
                 throw 'too many features: ' + numberOfFeatures
               }
               info_output.innerHTML += 'Number of Features: ' + numberOfFeatures + '<br>';
@@ -225,9 +235,10 @@ function openFile(event) {
                 if (type !== 'Polygon' & type !== 'MultiPolygon') {
                     throw 'GeoJson contains one or more wrong geometry type(s): ' + type
                 }
-
-                info_output.innerHTML += 'Feature Type: ' + type + '<br>';
-                info_output.style.display = 'block'
+                if (input.id=="inputAoi"){
+                    info_output.innerHTML += 'Feature Type: ' + type + '<br>';
+                    info_output.style.display = 'block'
+                }
                 sumArea += turf.area(feature)/1000000 // area in square kilometers
                }
 
@@ -292,4 +303,29 @@ function closeModal() {
     modal.style.display = "none";
     var modalSuccess = document.getElementById("modalSuccess");
     modalSuccess.style.display = "none";
+}
+
+
+function show_input(select){
+    let link_div = $("#inputTaskGeometries_Link");
+    let file_div = $("#inputTaskGeometries_File");
+    let id_div = $("#inputTaskGeometries_ProjectId");
+
+    switch(select.value){
+        case "link":
+            link_div.css("display", "block");
+            file_div.css("display", "none");
+            id_div.css("display", "none");
+            break;
+        case "file":
+            link_div.css("display", "none");
+            file_div.css("display", "block");
+            id_div.css("display", "none");
+            break;
+        case "id":
+            link_div.css("display", "none");
+            file_div.css("display", "none");
+            id_div.css("display", "block");
+            break;
+    }
 }
