@@ -93,13 +93,17 @@
   <div class="section" id="signed-in-manager" style="display: none">
     <div id="uploadModal" class="modal">
       <div class="modal-content">
-        <div id="modalOngoing">
+        <div id="modalOngoing" style="display: none">
           <p><i class="fa fa-spinner fa-spin"></i> Submitting your project. Be patient.</p>
         </div>
         <div id="modalSuccess" style="display:none;">
           <p>Your project has been uploaded. It should take around 15 minutes to appear in the dashboard.</p>
           <button class="btn btn-success" onclick="closeModal()">Close</button>
         </div>
+        <div id="modalValidating">
+          <p><i class="fa fa-spinner fa-spin"></i> Validating your Inputs. Be patient.</p>
+        </div>
+
       </div>
     </div>
     <div class="container" >
@@ -220,7 +224,7 @@
                       <!-- <textarea name="geometry" id="geometry" onkeyup="adjust_textarea(this)"></textarea> -->
                       <input type="file" accept=".GeoJSON" id="inputAoi" onchange='openFile(event)'>
                       <div id="geometryMap"></div>
-                      <p class="geometryInfo"></p>
+                      <p class="inputInfo"></p>
                       <p id="geometryContent"></p>
                       <span>Upload your project area as GeoJSON File (max. 1MB). Make sure that you provide a single polygon geometry.</span>
                     </li>
@@ -230,9 +234,9 @@
               </div>
               <div class="container" id="form_project_task_geometry">
                 <h3>Project Tasks Geometry</h3>
-                <select onchange="show_input(this)" id="geometryInputOption">
+                <select onchange="showInput(this)" id="geometryInputOption">
                   <option selected disabled hidden>Choose one Input Option</option>
-                  <option value="file">Upload GeoJSON</option>
+                  <option value="aoi_file">Upload GeoJSON AOI</option>
                   <option value="link">Link to GeoJSON</option>
                   <option value="id">Provide Tasking Manager ID</option>
                 </select>
@@ -241,20 +245,42 @@
                     <li id="inputTaskGeometries_Link" style="display: None;">
                       <label for="inputTaskGeometries">Input Geometries File (Direct Link)</label>
                       <input type="text" name="inputTaskGeometries" id="inputTaskGeometries">
-                      <span>Provide a direct link to a GeoJSON file containing your building footprint geometries.</span>
+                      <span>Provide a direct link to a GeoJSON file containing your <strong>building footprint geometries</strong>.</span>
                     </li>
                     <li id="inputTaskGeometries_File" style="display: None;">
                       <label for="inputTaskGeometriesFile">GeoJSON File</label>
                       <input type="file" accept=".GeoJSON" id="inputTaskGeometriesFile" onchange='openFile(event)'>
                       <div id="geometryMapFile"></div>
-                      <p class="geometryInfo"></p>
+                      <p class="inputInfo"></p>
                       <p id="geometryContentFile"></p>
-                      <span>Upload your project area as GeoJSON File (max. 10MB). Make sure that you provide a maximum of XXX polygon geometries.</span>
+                      <span>Upload your <strong>project area</strong> as GeoJSON File (max. 1MB). Make sure that you provide a maximum of 10 polygon geometries.</span>
                     </li>
-                    <li id="inputTaskGeometries_ProjectId" style="display: None;">
+                    <li id="inputTaskGeometries_TMId" style="display: None;">
                       <label for="inputTaskGeometriesId">HOT Tasking Manager ProjectID</label>
-                      <input type="text" id="inputTaskGeometriesId" name="inputTaskGeometriesId" placeholder="1234">
-                      <span>Provide the ID of the HOT Tasking Manager Project (only numbers, e.g. 6526).</span>
+                      <div class="flex-inline-div">
+                        <input style="width: 80%;" type="text" id="inputTaskGeometriesId" name="inputTaskGeometriesId" placeholder="1234">
+                        <p style="margin-left: auto; " class="button" onclick="validateTMId(this)" id="valProjectButton">Test</p>
+                      </div>
+                      <p class="inputInfo"></p>
+                      <span>Provide the ID of a <strong>HOT Tasking Manager Project</strong> (only numbers, e.g. 6526).</span>
+                    </li>
+                    <li id="inputFilterLi" style="display: none;">
+                      <label for="inputFilter">Ohsome Filter (<a href="https://docs.ohsome.org/ohsome-api/v1/filter.html" target="_blank">help</a>)</label>
+                      <div class="flex-inline-div">
+                        <div style="width: 80%">
+                          <select id="inputFilter" onchange="toggleFilterText(this)">
+                            <option value="building=* and geometry:polygon">Buildings</option>
+                            <option value="other">Other</option>
+                          </select>
+                          <div id="inputFilterDiv" style="display:none;">
+                            <input type="text" id="inputFilterText" name="inputFilterText" placeholder="amenities=* and geometry:polygon">
+                          </div>
+                        </div>
+                        <p style="margin-left: auto; " class="button" onclick="validateFilter(this)">Test</p>
+                      </div>
+                      <p class="inputInfo"></p>
+                      <span class="ownspan">Please specify which objects should be included in your project.</span>
+
                     </li>
                     <li></li>
                   </ul>
@@ -352,7 +378,7 @@
               <div class="container">
                 <h3>Let's go!</h3>
                 <form class="form-style-7"> <!--todo: what are these 2 forms here, do they have a purpose?-->
-                  <input type="button" id="submit" value="Submit" onClick="upload_to_firebase()">
+                  <input type="button" id="submit" value="Submit" onClick="uploadToFirebase()">
                 <form class="form-style-7"> <!--todo: they are not even closed o.o-->
               </div>
             </div>
@@ -376,6 +402,7 @@
   <script src="https://www.gstatic.com/firebasejs/6.2.4/firebase-storage.js"></script>
   <script src="js/app.js"></script>
   <script src="js/ui.js"></script>
+  <script src="js/utils.js"></script>
   <script src="js/uploadProjects.js"></script>
   <script src="js/forms.js"></script>
 

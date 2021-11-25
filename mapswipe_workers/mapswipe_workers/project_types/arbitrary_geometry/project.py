@@ -9,6 +9,7 @@ from mapswipe_workers.project_types.arbitrary_geometry import grouping_functions
 from mapswipe_workers.project_types.arbitrary_geometry.group import Group
 from mapswipe_workers.project_types.base.project import BaseProject
 from mapswipe_workers.project_types.base.tile_server import BaseTileServer
+from mapswipe_workers.utils.api_calls import geojsonToFeatureCollection, ohsome
 
 
 class Project(BaseProject):
@@ -18,8 +19,48 @@ class Project(BaseProject):
         # set group size
         self.groupSize = project_draft["groupSize"]
         self.geometry = project_draft["geometry"]
-        self.inputGeometries = project_draft["inputGeometries"]
+        self.inputType = project_draft["inputType"]
         self.tileServer = vars(BaseTileServer(project_draft["tileServer"]))
+        if "filter" in project_draft.keys():
+            self.filter = project_draft["filter"]
+        if "TMId" in project_draft.keys():
+            self.TMId = project_draft["TMId"]
+
+    def handle_input_type(self, raw_input_file: str):
+        """
+        Handle different input types.
+
+        Input (inputGeometries) can be:
+        'aoi_file' -> query ohsome with aoi from geometry then write
+            result to raw_input_file
+        a Link (str) -> download geojson from link and write to raw_input_file
+        a TMId -> get project info from geometry and query ohsome
+            for objects, then write to raw_input_file.
+        """
+        if not isinstance(self.geometry, str):
+            self.geometry = geojsonToFeatureCollection(self.geometry)
+            self.geometry = json.dumps(self.geometry)
+
+        if self.inputType == "aoi_file":
+            logger.info("file detected")
+            # write string to geom file
+            ohsome_request = {"endpoint": "elements/geometry", "filter": self.filter}
+
+            result = ohsome(ohsome_request, self.geometry)
+            with open(raw_input_file, "w") as geom_file:
+                json.dump(result, geom_file)
+        elif self.inputType == "TMId":
+            logger.info("TMId detected")
+            hot_tm_project_id = int(self.TMId)
+            ohsome_request = {"endpoint": "elements/geometry", "filter": self.filter}
+            result = ohsome(ohsome_request, self.geometry)
+            result["properties"] = {}
+            result["properties"]["hot_tm_project_id"] = hot_tm_project_id
+            with open(raw_input_file, "w") as geom_file:
+                json.dump(result, geom_file)
+        elif self.inputType == "link":
+            logger.info("link detected")
+            urllib.request.urlretrieve(self.geometry, raw_input_file)
 
     def validate_geometries(self):
         raw_input_file = (
@@ -32,17 +73,11 @@ class Project(BaseProject):
         if not os.path.isdir("{}/input_geometries".format(DATA_PATH)):
             os.mkdir("{}/input_geometries".format(DATA_PATH))
 
+        # input can be file, HOT TM projectId or link to geojson, after the call,
+        # whatever the input is will be made
+        # to a geojson file containing buildings in an area in raw_input_file
+        self.handle_input_type(raw_input_file)
 
-        # self.inputGeometries can be "file", an url or an integer (project_id)
-        if self.inputGeometries == "file":
-            # write string to geom file
-            with open(raw_input_file, "w") as geom_file:
-                json.dump(self.geometry, geom_file)
-        else:
-            try:
-                project_id = int(self.inputGeometries)
-            except:
-                urllib.request.urlretrieve(self.inputGeometries, raw_input_file)
         logger.info(
             f"{self.projectId}"
             f" - __init__ - "
@@ -75,9 +110,14 @@ class Project(BaseProject):
         outLayerDefn = outLayer.GetLayerDefn()
 
         # check if raw_input_file layer is empty
-        if layer.GetFeatureCount() < 1:
+        feature_count = layer.GetFeatureCount()
+        if feature_count < 1:
             err = "empty file. No geometries provided"
             # TODO: How to user logger and exceptions?
+            logger.warning(f"{self.projectId} - check_input_geometry - {err}")
+            raise Exception(err)
+        elif feature_count > 100000:
+            err = f"Too many Geometries: {feature_count}"
             logger.warning(f"{self.projectId} - check_input_geometry - {err}")
             raise Exception(err)
 
@@ -109,7 +149,7 @@ class Project(BaseProject):
                 )
 
             # we accept only POLYGON or MULTIPOLYGON geometries
-            elif geom_name != "POLYGON" and geom_name != "MULTIPOLYGON":
+            elif geom_name not in ["POLYGON", "MULTIPOLYGON"]:
                 layer.DeleteFeature(fid)
                 logger.warning(
                     f"{self.projectId}"

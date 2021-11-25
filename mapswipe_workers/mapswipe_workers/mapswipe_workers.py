@@ -83,6 +83,7 @@ def run_create_projects():
             #  postgres expects just a string not an array
             #  validated_geometries should be called during init already
             #  for the respective project types
+
             project.geometry = project.validate_geometries()
             project.create_groups()
             project.calc_required_results()

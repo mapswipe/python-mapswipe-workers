@@ -104,7 +104,7 @@
 .form-style-7 select:focus
 {
 }
-.form-style-7 li > span{
+.form-style-7 li > span, .ownspan{
 	background: #F3F3F3;
 	display: block;
 	padding: 3px;
@@ -199,4 +199,29 @@ th.sorting_desc::after{
   color: black;
   text-decoration: none;
   cursor: pointer;
+}
+
+.button {
+  padding: 3px;
+  border-radius: 3px;
+  background-color: #6B9FFF;
+  border-bottom: 3px solid #5994FF;
+  color: white;
+  width: fit-content;
+  margin-bottom: 0px;
+}
+
+.button:hover {
+    background-color: #5994FF;
+    cursor: pointer;
+}
+
+.button:active {
+    color: #b3cdff;
+}
+
+.flex-inline-div{
+    display: inline-flex;
+    align-items: center;
+    width:100%;"
 }

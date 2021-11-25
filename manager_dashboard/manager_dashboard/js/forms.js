@@ -117,6 +117,7 @@ function displayProjectTypeForm(projectType) {
     }
 }
 
+
 function addTileServerCredits (tileServerName, which) {
     var credits = {
         "bing": "© 2019 Microsoft Corporation, Earthstar Geographics SIO",
@@ -159,42 +160,38 @@ function displayTileServer (tileServerName, which) {
     addTileServerCredits(tileServerName, which)
 }
 
+
 function clear_fields() {
     console.log('clear fields.')
     document.getElementById('projectNumber').value = 1
     document.getElementById('inputAoi').value = null
-    $(".geometryInfo").each(()=>{$(this).text('')})
+    $(".inputInfo").each(()=>{$(this).text('')})
     document.getElementById('geometryContent').innerHTML = ''
     aoiLayer.clearLayers()
     displayProjectTypeForm("build_area")
   }
+
 
 function displaySuccessMessage() {
   //document.getElementById("import-formular").style.display = "None";
   alert('Your project has been uploaded. It can take up to one hour for the project to appear in the dashboard.')
 }
 
+
 function displayImportForm() {
   document.getElementById("import-formular").style.display = "block";
 }
 
+
 function openFile(event) {
     var input = event.target;
-    let maxFilesize, maxFeatures;
-
-    if(input.id=="inputAoi"){
-        maxFilesize = 1 * 1024 * 1024
-        maxFeatures = 10
-    }
-    else if (input.id=="inputTaskGeometriesFile"){
-        maxFilesize = 10 * 1024 * 1024
-        maxFeatures = 5000
-    }
+    let maxFilesize = 1 * 1024 * 1024
+    let maxFeatures = 10
 
     // clear info field
-    var info_output = $(input).siblings(".geometryInfo")[0];
-    info_output.innerHTML = '';
-    info_output.style.display = 'block'
+    var infoOutput = $(input).siblings(".inputInfo")[0];
+    infoOutput.innerHTML = '';
+    infoOutput.style.display = 'block'
 
     // clear map layers
     aoiLayer.clearLayers()
@@ -203,11 +200,11 @@ function openFile(event) {
     var filesize = input.files[0].size;
     if (filesize > maxFilesize) {
       var err=`filesize is too big (max ${maxFilesize}MB): ${filesize/(1024*1024)}`
-      info_output.innerHTML = '<b>Error reading GeoJSON file</b><br>' + err;
-      info_output.style.display = 'block'
+      infoOutput.innerHTML = '<b>Error reading GeoJSON file</b><br>' + err;
+      infoOutput.style.display = 'block'
     } else {
-      info_output.innerHTML += 'File Size is valid <br>';
-      info_output.style.display = 'block'
+      infoOutput.innerHTML += 'File Size is valid <br>';
+      infoOutput.style.display = 'block'
 
       var reader = new FileReader();
       reader.onload = function(){
@@ -222,8 +219,8 @@ function openFile(event) {
               if (numberOfFeatures > maxFeatures) {
                 throw 'too many features: ' + numberOfFeatures
               }
-              info_output.innerHTML += 'Number of Features: ' + numberOfFeatures + '<br>';
-              info_output.style.display = 'block'
+              infoOutput.innerHTML += 'Number of Features: ' + numberOfFeatures + '<br>';
+              infoOutput.style.display = 'block'
 
               sumArea = 0
               // check input geometry type
@@ -235,10 +232,8 @@ function openFile(event) {
                 if (type !== 'Polygon' & type !== 'MultiPolygon') {
                     throw 'GeoJson contains one or more wrong geometry type(s): ' + type
                 }
-                if (input.id=="inputAoi"){
-                    info_output.innerHTML += 'Feature Type: ' + type + '<br>';
-                    info_output.style.display = 'block'
-                }
+                infoOutput.innerHTML += 'Feature Type: ' + type + '<br>';
+                infoOutput.style.display = 'block'
                 sumArea += turf.area(feature)/1000000 // area in square kilometers
                }
 
@@ -254,8 +249,8 @@ function openFile(event) {
                 throw 'project is to large: ' + sumArea + ' sqkm; ' + 'max allowed size for this zoom level: ' + maxArea + ' sqkm'
               }
 
-              info_output.innerHTML += 'Project Size: ' + sumArea + ' sqkm<br>';
-              info_output.style.display = 'block'
+              infoOutput.innerHTML += 'Project Size: ' + sumArea + ' sqkm<br>';
+              infoOutput.style.display = 'block'
 
               // add feature to map
               aoiLayer.addData(geojsonData);
@@ -263,40 +258,42 @@ function openFile(event) {
               console.log('added input geojson feature')
 
               // add text to html object
-              info_output.innerHTML += 'Project seems to be valid :)';
-              info_output.style.display = 'block'
+              infoOutput.innerHTML += 'Project seems to be valid :)';
+              infoOutput.style.display = 'block'
 
               // set project aoi geometry
               projectAoiGeometry = text
             }
             catch(err) {
-              info_output.innerHTML = '<b>Error reading GeoJSON file</b><br>' + err;
-              info_output.style.display = 'block'
+              infoOutput.innerHTML = '<b>Error reading GeoJSON file</b><br>' + err;
+              infoOutput.style.display = 'block'
             }
         };
     reader.readAsText(input.files[0]);
     }
   };
 
+
 function openImageFile(event) {
     var input = event.target;
-    element_id = event.target.id + 'File'
+    elementId = event.target.id + 'File'
 
     var reader = new FileReader();
     reader.onload = function(){
       try {
         var dataURL = reader.result;
-        var output = document.getElementById(element_id);
+        var output = document.getElementById(elementId);
         output.src = dataURL;
       }
       catch(err) {
-          element_id = event.target.id + 'Text'
-          var output = document.getElementById(element_id);
+          elementId = event.target.id + 'Text'
+          var output = document.getElementById(elementId);
           output.innerHTML = '<b>Error reading Image file</b><br>' + err;
         }
     };
     reader.readAsDataURL(input.files[0]);
   };
+
 
 function closeModal() {
     var modal = document.getElementById("uploadModal");
@@ -306,26 +303,35 @@ function closeModal() {
 }
 
 
-function show_input(select){
-    let link_div = $("#inputTaskGeometries_Link");
-    let file_div = $("#inputTaskGeometries_File");
-    let id_div = $("#inputTaskGeometries_ProjectId");
+function toggleFilterText(select){
+    $("#inputFilterDiv").toggle();
+}
+
+
+function showInput(select){
+    let linkDiv = $("#inputTaskGeometries_Link");
+    let aoi_fileDiv = $("#inputTaskGeometries_File");
+    let idDiv = $("#inputTaskGeometries_TMId");
+    let filterDiv = $("#inputFilterLi");
 
     switch(select.value){
         case "link":
-            link_div.css("display", "block");
-            file_div.css("display", "none");
-            id_div.css("display", "none");
+            linkDiv.css("display", "block");
+            aoi_fileDiv.css("display", "none");
+            idDiv.css("display", "none");
+            filterDiv.css("display", "none");
             break;
-        case "file":
-            link_div.css("display", "none");
-            file_div.css("display", "block");
-            id_div.css("display", "none");
+        case "aoi_file":
+            linkDiv.css("display", "none");
+            aoi_fileDiv.css("display", "block");
+            idDiv.css("display", "none");
+            filterDiv.css("display", "block");
             break;
         case "id":
-            link_div.css("display", "none");
-            file_div.css("display", "none");
-            id_div.css("display", "block");
+            linkDiv.css("display", "none");
+            aoi_fileDiv.css("display", "none");
+            idDiv.css("display", "block");
+            filterDiv.css("display", "block");
             break;
     }
 }
