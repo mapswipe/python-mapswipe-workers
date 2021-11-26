@@ -42,7 +42,7 @@ class Project(BaseProject):
             self.geometry = json.dumps(self.geometry)
 
         if self.inputType == "aoi_file":
-            logger.info("file detected")
+            logger.info("aoi file detected")
             # write string to geom file
             ohsome_request = {"endpoint": "elements/geometry", "filter": self.filter}
 
