@@ -31,7 +31,7 @@ class TestCreateProject(unittest.TestCase):
             query = "SELECT project_id FROM projects WHERE project_id = %s"
             result = pg_db.retr_query(query, [element])[0][0]
             self.assertEqual(result, element)
-
+            # testchange
             fb_db = auth.firebaseDB()
             ref = fb_db.reference(f"/v2/projects/{element}")
             result = ref.get(shallow=True)
