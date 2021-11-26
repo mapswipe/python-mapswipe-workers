@@ -4,7 +4,6 @@ import set_up
 import tear_down
 
 from mapswipe_workers import auth, mapswipe_workers
-from mapswipe_workers.definitions import logger
 from mapswipe_workers.utils.create_directories import create_directories
 
 
@@ -22,16 +21,12 @@ class TestCreateProject(unittest.TestCase):
             tear_down.delete_test_data(element)
 
     def test_create_footprint_project(self):
-        try:
-            mapswipe_workers.run_create_projects()
-        except BaseException as e:
-            logger.error(e, exc_info=True)
+        mapswipe_workers.run_create_projects()
         pg_db = auth.postgresDB()
         for element in self.project_id:
             query = "SELECT project_id FROM projects WHERE project_id = %s"
             result = pg_db.retr_query(query, [element])[0][0]
             self.assertEqual(result, element)
-            # testchange
             fb_db = auth.firebaseDB()
             ref = fb_db.reference(f"/v2/projects/{element}")
             result = ref.get(shallow=True)
