@@ -17,7 +17,8 @@ class TestCreateProject(unittest.TestCase):
         create_directories()
 
     def tearDown(self):
-        tear_down.delete_test_data(self.project_id)
+        for element in self.project_id:
+            tear_down.delete_test_data(element)
 
     def test_create_footprint_project(self):
         mapswipe_workers.run_create_projects()
