@@ -1,0 +1,25 @@
+{
+  "createdBy" : "Sample Admin",
+  "filter" : "building=* and geometry:polygon",
+  "geometry" : {
+    "features" : [ {
+      "geometry" : {
+        "coordinates" : [ [ [ 9.14886474609375, 48.788092642076286 ], [ 9.129638671875, 48.77316143513268 ], [ 9.171180725097656, 48.76614675936893 ], [ 9.193840026855469, 48.77451900112444 ], [ 9.192466735839844, 48.7874140472094 ], [ 9.14886474609375, 48.788092642076286 ] ] ],
+        "type" : "Polygon"
+      },
+      "type" : "Feature"
+    } ],
+    "type" : "FeatureCollection"
+  },
+  "groupSize" : 25,
+  "inputType" : "aoi_file",
+  "name" : "Test Footprint GeoJSON AOI",
+  "projectTopic" : "Test Footprint GeoJSON AOI",
+  "projectType" : 2,
+  "tileServer" : {
+    "credits" : "© 2019 Microsoft Corporation, Earthstar Geographics SIO",
+    "name" : "bing",
+    "url" : "",
+    "wmtsLayerName" : ""
+  }
+}

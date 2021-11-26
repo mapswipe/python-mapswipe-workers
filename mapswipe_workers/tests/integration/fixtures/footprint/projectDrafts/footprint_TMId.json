@@ -1,0 +1,20 @@
+{
+  "TMId" : "122",
+  "createdBy" : "Sample Admin",
+  "filter" : "building=* and geometry:polygon",
+  "geometry" : {
+    "coordinates" : [ [ [ [ 29.1465238959428, -0.982870599863187 ], [ 29.2766207959247, -0.979139499863717 ], [ 29.2761807959247, -1.25351369982555 ], [ 29.1295774959451, -1.25402109982547 ], [ 29.1286471959453, -1.04515049985454 ], [ 28.9781401959662, -1.03921789985535 ], [ 28.9778474959663, -0.915405199872588 ], [ 29.1459010959429, -0.914885499872663 ], [ 29.1465238959428, -0.982870599863187 ] ] ] ],
+    "type" : "MultiPolygon"
+  },
+  "groupSize" : 25,
+  "inputType" : "TMId",
+  "name" : "Test Footprint TMId",
+  "projectTopic" : "Test Footprint TMId",
+  "projectType" : 2,
+  "tileServer" : {
+    "credits" : "© 2019 Microsoft Corporation, Earthstar Geographics SIO",
+    "name" : "bing",
+    "url" : "",
+    "wmtsLayerName" : ""
+  }
+}

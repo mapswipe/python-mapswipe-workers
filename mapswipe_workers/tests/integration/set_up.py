@@ -82,16 +82,16 @@ def create_test_user(project_type: str, user_id: str = None) -> str:
 
 
 def create_test_project_draft(
-    project_type: str, fixture_name: str = "user", user_id: str = ""
+    project_type: str, fixture_name: str = "user", identifier: str = ""
 ) -> str:
     """
     Create test project drafts in Firebase and return project ids.
     Project drafts in Firebase are create by project manager using the dashboard.
     """
-    if not user_id:
-        user_id = f"test_{project_type}"
-    set_firebase_test_data(project_type, "projectDrafts", fixture_name, user_id)
-    return user_id
+    if not identifier:
+        identifier = f"test_{fixture_name}"
+    set_firebase_test_data(project_type, "projectDrafts", fixture_name, identifier)
+    return identifier
 
 
 if __name__ == "__main__":

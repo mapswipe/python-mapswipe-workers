@@ -9,7 +9,11 @@ from mapswipe_workers.utils.create_directories import create_directories
 
 class TestCreateProject(unittest.TestCase):
     def setUp(self):
-        self.project_id = set_up.create_test_project_draft("footprint", "footprint")
+        self.project_id = [
+            set_up.create_test_project_draft("footprint", "footprint_aoiFile"),
+            set_up.create_test_project_draft("footprint", "footprint_link"),
+            set_up.create_test_project_draft("footprint", "footprint_TMId"),
+        ]
         create_directories()
 
     def tearDown(self):
@@ -17,25 +21,25 @@ class TestCreateProject(unittest.TestCase):
 
     def test_create_footprint_project(self):
         mapswipe_workers.run_create_projects()
+        for element in self.project_id:
+            pg_db = auth.postgresDB()
+            query = "SELECT project_id FROM projects WHERE project_id = %s"
+            result = pg_db.retr_query(query, [element])[0][0]
+            self.assertEqual(result, element)
 
-        pg_db = auth.postgresDB()
-        query = "SELECT project_id FROM projects WHERE project_id = %s"
-        result = pg_db.retr_query(query, [self.project_id])[0][0]
-        self.assertEqual(result, self.project_id)
+            fb_db = auth.firebaseDB()
+            ref = fb_db.reference(f"/v2/projects/{element}")
+            result = ref.get(shallow=True)
+            self.assertIsNotNone(result)
 
-        fb_db = auth.firebaseDB()
-        ref = fb_db.reference(f"/v2/projects/{self.project_id}")
-        result = ref.get(shallow=True)
-        self.assertIsNotNone(result)
+            ref = fb_db.reference(f"/v2/groups/{element}")
+            result = ref.get(shallow=True)
+            self.assertIsNotNone(result)
 
-        ref = fb_db.reference(f"/v2/groups/{self.project_id}")
-        result = ref.get(shallow=True)
-        self.assertIsNotNone(result)
-
-        # Footprint projects have tasks in Firebase
-        ref = fb_db.reference(f"/v2/tasks/{self.project_id}")
-        result = ref.get(shallow=True)
-        self.assertIsNotNone(result)
+            # Footprint projects have tasks in Firebase
+            ref = fb_db.reference(f"/v2/tasks/{element}")
+            result = ref.get(shallow=True)
+            self.assertIsNotNone(result)
 
 
 if __name__ == "__main__":

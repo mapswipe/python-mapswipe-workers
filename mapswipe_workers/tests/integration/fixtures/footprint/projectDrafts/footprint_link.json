@@ -1,0 +1,16 @@
+{
+  "createdBy" : "Sample Admin",
+  "geometry" : "https://firebasestorage.googleapis.com/v0/b/dev-mapswipe.appspot.com/o/buildings_heidelberg.geojson?alt=media&token=1631f7d4-5fb2-4e1b-a133-2e14582d116c",
+  "groupSize" : 25,
+  "inputType" : "link",
+  "name" : "Test Footprint Link",
+  "projectDetails": "This is a template for a building by building project. We use Bing as the tile server.",
+  "projectTopic" : "Test Footprint Link",
+  "projectType" : 2,
+  "tileServer" : {
+    "credits" : "© 2019 Microsoft Corporation, Earthstar Geographics SIO",
+    "name" : "bing",
+    "url" : "",
+    "wmtsLayerName" : ""
+  }
+}
