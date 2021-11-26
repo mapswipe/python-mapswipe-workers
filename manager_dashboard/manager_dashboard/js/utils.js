@@ -37,7 +37,10 @@ async function countObjectsInFilter(bpolys, filter){
     let url = "https://api.ohsome.org/v1/elements/count"
     let data = {"bpolys": JSON.stringify(geojsonToFeatureCollection(bpolys)), "filter": filter}
     let answer = await ohsome_request(url, getFormData(data))
-
+    if (answer.status != 200){
+        answer.Error = answer.message
+        return answer;
+    }
     let count = answer.result[0].value
     if ((count != null) & (count > 0) & (count < 100000)){
         // valid result
@@ -60,7 +63,7 @@ async function validateTMIdAndFilter(TMId, filter){
     if (answer_aoi.Error != null){
         return answer_aoi;
     }
-    let answer = countObjectsInFilter(answer_aoi, filter)
+    let answer = await countObjectsInFilter(answer_aoi, filter)
     if (answer.Error != null){
         return answer;
     }

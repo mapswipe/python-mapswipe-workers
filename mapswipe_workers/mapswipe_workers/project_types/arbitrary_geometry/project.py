@@ -115,11 +115,11 @@ class Project(BaseProject):
             err = "empty file. No geometries provided"
             # TODO: How to user logger and exceptions?
             logger.warning(f"{self.projectId} - check_input_geometry - {err}")
-            raise Exception(err)
+            raise CustomError(err)
         elif feature_count > 100000:
             err = f"Too many Geometries: {feature_count}"
             logger.warning(f"{self.projectId} - check_input_geometry - {err}")
-            raise Exception(err)
+            raise CustomError(err)
 
         # get geometry as wkt
         # get the bounding box/ extent of the layer

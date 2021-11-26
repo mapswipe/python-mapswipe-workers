@@ -184,7 +184,7 @@ function checkImageryUrl() {
 }
 
 
-function uploadToFirebase() {
+async function uploadToFirebase() {
     switch (currentUid) {
         case null:
             alert("You are not logged in.");
@@ -207,25 +207,25 @@ function uploadToFirebase() {
                         uploadProjectImage(mapswipe_import)
                         break;
                     case "aoi_file":
-                    console.log("here i am rock you liek a hurricane")
                         answer = countObjectsInFilter(mapswipe_import.geometry, mapswipe_import.filter)
                         if (answer.Error != null){
                             alert(`Invalid TMId: ${answer.Error}`)
+                            modal.style.display = "none";
                         }
                         else {
                             uploadProjectImage(mapswipe_import)
                         }
                         break;
                     case "TMId":
-                        validateTMIdAndFilter(mapswipe_import.TMId, mapswipe_import.filter).then(answer=>{
+                            answer = await validateTMIdAndFilter(mapswipe_import.TMId, mapswipe_import.filter)
                             if (answer.Error != null){
                                 alert(`Invalid: ${answer.Error}`)
+                                modal.style.display = "none";
                             }
                             else {
                                 mapswipe_import.geometry = answer
                                 uploadProjectImage(mapswipe_import)
                             }
-                        })
                     break;
                 }
             }
