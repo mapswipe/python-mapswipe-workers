@@ -132,7 +132,7 @@
 	color:#fff;
 }
 
-#geometryMap { height: 300px; width: 100%}
+#geometryMap { height: 300px; width: 100%; z-index: 0;}
 #geometryChangeDetectionMap { height: 300px; width: 100%}
 #geometryCompletenessMap { height: 300px; width: 100%}
 
