@@ -1,6 +1,6 @@
 import requests
 
-from ..definitions import OHSOME_API_LINK, CustomError, logger
+from mapswipe_workers.definitions import OHSOME_API_LINK, CustomError, logger
 
 
 def geojsonToFeatureCollection(geojson):
