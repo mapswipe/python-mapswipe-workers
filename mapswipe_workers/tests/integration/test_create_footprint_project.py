@@ -2,6 +2,7 @@ import unittest
 
 import set_up
 import tear_down
+from click.testing import CliRunner
 
 from mapswipe_workers import auth, mapswipe_workers
 from mapswipe_workers.utils.create_directories import create_directories
@@ -21,7 +22,9 @@ class TestCreateProject(unittest.TestCase):
             tear_down.delete_test_data(element)
 
     def test_create_footprint_project(self):
-        mapswipe_workers.run_create_projects()
+        runner = CliRunner()
+        runner.invoke(mapswipe_workers.run_create_projects)
+
         pg_db = auth.postgresDB()
         for element in self.project_id:
             query = "SELECT project_id FROM projects WHERE project_id = %s"
