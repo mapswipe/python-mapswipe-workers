@@ -15,6 +15,7 @@ function getFormInput() {
         createdBy: currentUid,
         tutorialId: document.getElementById("tutorial").value
     }
+
     form_data.name = form_data.projectTopic + ' - ' +
         form_data.projectRegion +
         ' (' + form_data.projectNumber + ')\n' +
@@ -46,7 +47,24 @@ function getFormInput() {
             break;
         case "footprint":
             form_data.projectType = 2;
-            form_data.inputGeometries = document.getElementById("inputTaskGeometries").value;
+            switch($("#geometryInputOption").val()){
+                case "link":
+                    form_data.inputType = "link"
+                    form_data.geometry = $("#inputTaskGeometries").val();
+                    break;
+                case "aoi_file":
+                    form_data.inputType = "aoi_file";
+                    form_data.geometry = JSON.parse(projectAoiGeometry);
+                    filter_val = $("#inputFilter").val();
+                    filter_val != "other" ? form_data.filter = $("#inputFilter").val() : form_data.filter = $("#inputFilterText").val();
+                    break;
+                case "id":
+                    form_data.inputType = "TMId"
+                    filter_val = $("#inputFilter").val();
+                    filter_val != "other" ? form_data.filter = $("#inputFilter").val() : form_data.filter = $("#inputFilterText").val();
+                    form_data.TMId = $("#inputTaskGeometriesId").val();
+                    break;
+            }
             form_data.tileServer = {
               name: document.getElementById("tileServerAName").value,
               url: document.getElementById("tileServerAUrl").value,
@@ -81,9 +99,12 @@ function getFormInput() {
 }
 
 
-function upload_project_image(mapswipe_import) {
+function uploadProjectImage(mapswipe_import) {
 
     var modal = document.getElementById("uploadModal");
+    var modalValidating = document.getElementById("modalValidating");
+    modalValidating.style.display = "none";
+
     modal.style.display = "block";
     var modalOngoing = document.getElementById("modalOngoing");
     modalOngoing.style.display = "block";
@@ -136,13 +157,12 @@ function upload_project_image(mapswipe_import) {
             modal.style.display = "none";
             alert('could not upload data: ' + error);
           });
-
       });
     });
-
 }
 
-function check_imagery_url() {
+
+function checkImageryUrl() {
     // check if url A contains the placeholders when using custom imagery
     urlA = document.getElementById("tileServerAUrl").value
     nameA = document.getElementById("tileServerAName").value
@@ -164,20 +184,50 @@ function check_imagery_url() {
 }
 
 
-function upload_to_firebase() {
+async function uploadToFirebase() {
     switch (currentUid) {
         case null:
             alert("You are not logged in.");
         default:
-            // get form data
             // TODO: add checks if all input values are valid, e.g. image available
-            if (check_imagery_url() === false) {
+            if (checkImageryUrl() === false) {
                 console.log("could not create project due to imagery url.")
             }
             else {
+                 // get form data
                 mapswipe_import = getFormInput()
                 // upload projectDraft to firebase once image has been uploaded
-                upload_project_image(mapswipe_import)
+                // if inputGeometries is a TMId, check if it is a valid project, only upload if it is
+                var modal = document.getElementById("uploadModal");
+                modal.style.display = "block";
+                var modalValidating = document.getElementById("modalValidating");
+                modalValidating.style.display = "block";
+                switch(mapswipe_import.inputType){
+                    case "link":
+                        uploadProjectImage(mapswipe_import)
+                        break;
+                    case "aoi_file":
+                        answer = countObjectsInFilter(mapswipe_import.geometry, mapswipe_import.filter)
+                        if (answer.Error != null){
+                            alert(`Invalid TMId: ${answer.Error}`)
+                            modal.style.display = "none";
+                        }
+                        else {
+                            uploadProjectImage(mapswipe_import)
+                        }
+                        break;
+                    case "TMId":
+                            answer = await validateTMIdAndFilter(mapswipe_import.TMId, mapswipe_import.filter)
+                            if (answer.Error != null){
+                                alert(`Invalid: ${answer.Error}`)
+                                modal.style.display = "none";
+                            }
+                            else {
+                                mapswipe_import.geometry = answer
+                                uploadProjectImage(mapswipe_import)
+                            }
+                    break;
+                }
             }
     }
 }

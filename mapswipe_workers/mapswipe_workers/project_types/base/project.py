@@ -107,7 +107,7 @@ class BaseProject(metaclass=ABCMeta):
         """
         logger.info(f"{self.projectId}" f" - start creating a project")
 
-        # Convert object attributes to dictonaries
+        # Convert object attributes to dictionaries
         # for saving it to firebase and postgres
         project = vars(self)
         groups = dict()
@@ -230,6 +230,8 @@ class BaseProject(metaclass=ABCMeta):
                 # since the tasks hold geometries their storage size
                 # can get quite big otherwise
                 if self.projectType in [ProjectType.FOOTPRINT.value]:
+                    # todo: remove extra information from geojson
+
                     compressed_tasks = gzip_str.compress_tasks(tasks_list)
                     task_upload_dict[
                         f"v2/tasks/{self.projectId}/{group_id}"

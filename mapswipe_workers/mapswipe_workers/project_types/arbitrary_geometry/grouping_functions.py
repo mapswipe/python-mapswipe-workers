@@ -65,6 +65,7 @@ def group_input_geometries(input_geometries_file, group_size):
         try:
             groups[group_id_string]
         except KeyError:
+            # todo: change this and call feature_geoms -> geojson
             groups[group_id_string] = {
                 "feature_ids": [],
                 "feature_geometries": [],
@@ -103,6 +104,11 @@ def group_input_geometries(input_geometries_file, group_size):
     return groups
 
 
+# todo: groups should have this output formatting
+# reference is correct answer for tutorial,
+# if not tutorial reference = None
+# {"g100":[{"task_id":1, "screen": 1, "reference":0,
+# "geojson":{"valid geojson FeatureCollection Object"}}]}
 ########################################################################################
 if __name__ == "__main__":
 

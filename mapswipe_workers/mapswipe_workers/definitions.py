@@ -12,6 +12,7 @@ if not os.path.exists(DATA_PATH):
     os.makedirs(DATA_PATH)
 LOGGING_FILE_PATH = os.path.join(DATA_PATH, "mapswipe_workers.log")
 
+OHSOME_API_LINK = "https://api.ohsome.org/v1/"
 # number of geometries for project geometries
 MAX_INPUT_GEOMETRIES = 10
 

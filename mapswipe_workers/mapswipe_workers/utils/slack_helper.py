@@ -14,7 +14,7 @@ def send_slack_message(
     details: str = "no details provided",
 ):
     """Initialize slack client with values provided in environment."""
-    if SLACK_TOKEN is None or SLACK_CHANNEL is None:
+    if SLACK_TOKEN in [None, ""] or SLACK_CHANNEL in [None, ""]:
         logger.info(
             "No configuration for Slack was found. "
             + f"No '{message_type}' Slack message was sent."
