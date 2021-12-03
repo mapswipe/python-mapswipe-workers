@@ -197,7 +197,12 @@ async function uploadToFirebase() {
                  // get form data
                 mapswipe_import = getFormInput()
                 // upload projectDraft to firebase once image has been uploaded
-                // if inputGeometries is a TMId, check if it is a valid project, only upload if it is
+
+                if (document.getElementById("projectType").value != "footprint"){
+                    uploadProjectImage(mapswipe_import);
+                    return;
+                }  
+
                 var modal = document.getElementById("uploadModal");
                 modal.style.display = "block";
                 var modalValidating = document.getElementById("modalValidating");
