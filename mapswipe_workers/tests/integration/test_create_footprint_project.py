@@ -31,6 +31,18 @@ class TestCreateProject(unittest.TestCase):
             query = "SELECT project_id FROM projects WHERE project_id = %s"
             result = pg_db.retr_query(query, [element])[0][0]
             self.assertEqual(result, element)
+
+            # check if usernames made it to postgres
+            if element != "footprint_link":
+                query = """
+                    SELECT count(*)
+                    FROM tasks
+                    WHERE project_id = %s
+                        and project_type_specifics->username is not null
+                """
+                result = pg_db.retr_query(query, [element])[0][0]
+                self.assertGreater(result, 0)
+
             fb_db = auth.firebaseDB()
             ref = fb_db.reference(f"/v2/projects/{element}")
             result = ref.get(shallow=True)
