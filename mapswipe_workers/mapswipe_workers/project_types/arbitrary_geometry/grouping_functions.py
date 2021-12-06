@@ -1,25 +1,4 @@
-import argparse
 import json
-
-########################################################################################
-parser = argparse.ArgumentParser(description="Process some integers.")
-parser.add_argument(
-    "-i",
-    "--input_file",
-    required=False,
-    default=None,
-    type=str,
-    help="the input file containning the geometries as geojson",
-)
-parser.add_argument(
-    "-g",
-    "--group_size",
-    required=False,
-    default=50,
-    type=int,
-    help="the size of each group",
-)
-########################################################################################
 
 
 def group_input_geometries(input_geometries_file, group_size):
@@ -66,22 +45,6 @@ def group_input_geometries(input_geometries_file, group_size):
         # we use a new id here based on the count
         # since we are not sure that GetFID returns unique values
         groups[group_id_string]["feature_ids"].append(feature_count)
-
-        # this is relevant for the tutorial
-        if "screen" in feature.keys():
-            feature["properties"]["reference"] = int(feature["reference"])
-            feature["properties"]["screen"] = int(feature["screen"])
-
-        groups[group_id_string]["feature"].append(feature)
+        groups[group_id_string]["features"].append(feature)
 
     return groups
-
-
-########################################################################################
-if __name__ == "__main__":
-
-    args = parser.parse_args()
-
-    groups = group_input_geometries(args.input_file, args.group_size)
-
-    print(groups)

@@ -22,7 +22,7 @@ class Task(BaseTask):
         # only tasks that are part of a tutorial need this
         if "screen" in feature["properties"].keys():
             self.screen = feature["properties"]["screen"]
-            self.reference = feature["properties"]["screen"]
+            self.reference = feature["properties"]["reference"]
 
         # Remove projectId and groupId for tasks of Footprint project type
         del self.projectId

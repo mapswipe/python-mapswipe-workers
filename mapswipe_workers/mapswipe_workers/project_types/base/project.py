@@ -236,7 +236,8 @@ class BaseProject(metaclass=ABCMeta):
                 # can get quite big otherwise
                 if self.projectType in [ProjectType.FOOTPRINT.value]:
                     # removing properties from each task
-                    tasks_list = [task.pop("properties", None) for task in tasks_list]
+                    for task in tasks_list:
+                        task.pop("properties", None)
 
                     compressed_tasks = gzip_str.compress_tasks(tasks_list)
                     task_upload_dict[
@@ -606,7 +607,9 @@ class BaseProject(metaclass=ABCMeta):
                         output_dict["project_type_specifics"][key] = task[key]
                 output_dict["project_type_specifics"] = json.dumps(
                     output_dict["project_type_specifics"]
-                ).replace("'", "")
+                ).replace(
+                    "'", ""
+                )  # to prevent error: invalid token "'"
 
                 w.writerow(output_dict)
         tasks_txt_file.close()

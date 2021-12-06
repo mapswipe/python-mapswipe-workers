@@ -1,4 +1,6 @@
 import requests
+from requests.adapters import HTTPAdapter
+from requests.packages.urllib3.util.retry import Retry
 
 from mapswipe_workers.definitions import (
     OHSOME_API_LINK,
@@ -6,6 +8,13 @@ from mapswipe_workers.definitions import (
     CustomError,
     logger,
 )
+
+
+def retry_get(url, retries=3, timeout=4):
+    retry = Retry(total=retries)
+    session = requests.Session()
+    session.mount("https://", HTTPAdapter(max_retries=retry))
+    return session.get(url, timeout=timeout)
 
 
 def geojsonToFeatureCollection(geojson: dict) -> dict:
@@ -21,18 +30,8 @@ def geojsonToFeatureCollection(geojson: dict) -> dict:
 def query_osm(changeset_id: int):
     """Get data from changesetId."""
     url = OSM_API_LINK + f"changeset/{changeset_id}.json"
-    valid_response = False
-    times_timed_out = 0
-    while not valid_response:
-        try:
-            response = requests.get(url, timeout=3)
-            valid_response = True
-        except requests.exceptions.Timeout:
-            if times_timed_out > 4:
-                raise requests.exceptions.Timeout("timed out 5 times")
-            logger.warn(url)
-            logger.warn("connection timed out")
-            times_timed_out += 1
+
+    response = retry_get(url)
 
     if response.status_code != 200:
         err = f"osm request failed: {response.status_code}"
@@ -43,11 +42,22 @@ def query_osm(changeset_id: int):
     return response
 
 
+def add_to_properties(attribute: str, feature: dict, new_properties: dict):
+    """Adds attribute to new geojson properties if it is needed."""
+    if attribute != "comment":
+        new_properties[attribute.replace("@", "")] = feature["properties"][attribute]
+    else:
+        new_properties[attribute.replace("@", "")] = feature["properties"]["tags"][
+            attribute
+        ]
+    return new_properties
+
+
 def remove_noise_and_add_user_info(json: dict) -> dict:
     """Delete unwanted information from properties."""
     logger.info("starting filtering and adding extra info")
 
-    wanted_rows = ["@changesetId", "@lastEdit", "@osmId", "@version", "source"]
+    wanted_attributes = ["@changesetId", "@lastEdit", "@osmId", "@version", "source"]
     changeset_results = {}
     missing_rows = {
         "@changesetId": 0,
@@ -60,19 +70,14 @@ def remove_noise_and_add_user_info(json: dict) -> dict:
 
     for feature in json["features"]:
         new_properties = {}
-        for attribute in wanted_rows:
+        for attribute in wanted_attributes:
             try:
-                if attribute != "comment":
-                    new_properties[attribute.replace("@", "")] = feature["properties"][
-                        attribute
-                    ]
-                else:
-                    new_properties[attribute.replace("@", "")] = feature["properties"][
-                        "tags"
-                    ][attribute]
+                new_properties = add_to_properties(attribute, feature, new_properties)
             except KeyError:
                 missing_rows[attribute] += 1
         changeset_id = new_properties["changesetId"]
+
+        # if changeset_id already queried, use stored result
         if changeset_id not in changeset_results.keys():
             changeset_results[changeset_id] = query_osm(changeset_id)
         new_properties["username"] = changeset_results[changeset_id]["user"]
@@ -109,5 +114,5 @@ def ohsome(request: dict, area: str, properties=None) -> dict:
     response = response.json()
 
     if properties:
-        remove_noise_and_add_user_info(response)
+        response = remove_noise_and_add_user_info(response)
     return response
