@@ -121,8 +121,13 @@ class BaseProject(metaclass=ABCMeta):
             del group["tasks"]
             groups[group["groupId"]] = group
         del project["groups"]
+
         project.pop("inputGeometries", None)
         project.pop("validInputGeometries", None)
+        project.pop("inputType", None)
+        project.pop("filter", None)
+        project.pop("TMId", None)
+
         # Convert Date object to ISO Datetime:
         # https://www.w3.org/TR/NOTE-datetime
         project["created"] = self.created.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
@@ -230,7 +235,8 @@ class BaseProject(metaclass=ABCMeta):
                 # since the tasks hold geometries their storage size
                 # can get quite big otherwise
                 if self.projectType in [ProjectType.FOOTPRINT.value]:
-                    # todo: remove extra information from geojson
+                    # removing properties from each task
+                    tasks_list = [task.pop("properties", None) for task in tasks_list]
 
                     compressed_tasks = gzip_str.compress_tasks(tasks_list)
                     task_upload_dict[
@@ -587,14 +593,20 @@ class BaseProject(metaclass=ABCMeta):
                 # these common attributes don't need to be written
                 # to the project_type_specifics since they are
                 # already stored in separate columns
-                common_attributes = ["projectId", "groupId", "taskId", "geometry"]
+                common_attributes = [
+                    "projectId",
+                    "groupId",
+                    "taskId",
+                    "geometry",
+                    "geojson",
+                ]
 
                 for key in task.keys():
                     if key not in common_attributes:
                         output_dict["project_type_specifics"][key] = task[key]
                 output_dict["project_type_specifics"] = json.dumps(
                     output_dict["project_type_specifics"]
-                )
+                ).replace("'", "")
 
                 w.writerow(output_dict)
         tasks_txt_file.close()

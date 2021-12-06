@@ -46,14 +46,14 @@ class Project(BaseProject):
             # write string to geom file
             ohsome_request = {"endpoint": "elements/geometry", "filter": self.filter}
 
-            result = ohsome(ohsome_request, self.geometry)
+            result = ohsome(ohsome_request, self.geometry, properties="tags, metadata")
             with open(raw_input_file, "w") as geom_file:
                 json.dump(result, geom_file)
         elif self.inputType == "TMId":
             logger.info("TMId detected")
             hot_tm_project_id = int(self.TMId)
             ohsome_request = {"endpoint": "elements/geometry", "filter": self.filter}
-            result = ohsome(ohsome_request, self.geometry)
+            result = ohsome(ohsome_request, self.geometry, properties="tags, metadata")
             result["properties"] = {}
             result["properties"]["hot_tm_project_id"] = hot_tm_project_id
             with open(raw_input_file, "w") as geom_file:
@@ -194,13 +194,7 @@ class Project(BaseProject):
 
         for group_id, item in raw_groups.items():
             group = Group(self, group_id)
-            group.create_tasks(
-                item["feature_ids"],
-                item["feature_geometries"],
-                item["center_points"],
-                item["reference"],
-                item["screen"],
-            )
+            group.create_tasks(item["feature_ids"], item["feature"])
 
             # only append valid groups
             if group.is_valid():

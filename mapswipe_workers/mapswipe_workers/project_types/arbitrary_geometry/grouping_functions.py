@@ -1,8 +1,6 @@
 import argparse
 import json
 
-from osgeo import ogr
-
 ########################################################################################
 parser = argparse.ArgumentParser(description="Process some integers.")
 parser.add_argument(
@@ -43,17 +41,15 @@ def group_input_geometries(input_geometries_file, group_size):
         "feature_geometries" per group with given group id key
     """
 
-    driver = ogr.GetDriverByName("GeoJSON")
-    datasource = driver.Open(input_geometries_file, 0)
-    layer = datasource.GetLayer()
-
+    with open(input_geometries_file, "r") as infile:
+        layer = json.load(infile)
     groups = {}
 
-    # we will simply, we will start with min group id = 100
+    # we will simply start with min group id = 100
     group_id = 100
     group_id_string = f"g{group_id}"
     feature_count = 0
-    for feature in layer:
+    for feature in layer["features"]:
         feature_count += 1
         # feature count starts at 1
         # assuming group size would be 10
@@ -65,50 +61,22 @@ def group_input_geometries(input_geometries_file, group_size):
         try:
             groups[group_id_string]
         except KeyError:
-            # todo: change this and call feature_geoms -> geojson
-            groups[group_id_string] = {
-                "feature_ids": [],
-                "feature_geometries": [],
-                "center_points": [],
-                "reference": [],
-                "screen": [],
-            }
+            groups[group_id_string] = {"feature_ids": [], "feature": []}
 
         # we use a new id here based on the count
         # since we are not sure that GetFID returns unique values
         groups[group_id_string]["feature_ids"].append(feature_count)
-        groups[group_id_string]["feature_geometries"].append(
-            json.loads(feature.GetGeometryRef().ExportToJson())
-        )
-
-        # from gdal documentation GetFieldAsDouble():
-        # OFTInteger fields will be cast to double.
-        # Other field types, or errors will result in a return value of zero.
-        center_x = feature.GetFieldAsDouble("center_x")
-        center_y = feature.GetFieldAsDouble("center_y")
-
-        # check if center attribute has been provided in geojson
-        # normal tasks will never have a center of 0.0, 0.0
-        # this is just in the middle of the ocean
-        if (center_x == 0.0) and (center_y == 0.0):
-            groups[group_id_string]["center_points"].append(None)
-        else:
-            groups[group_id_string]["center_points"].append([center_x, center_y])
 
         # this is relevant for the tutorial
-        reference = feature.GetFieldAsDouble("reference")
-        screen = feature.GetFieldAsDouble("screen")
-        groups[group_id_string]["reference"].append(reference)
-        groups[group_id_string]["screen"].append(screen)
+        if "screen" in feature.keys():
+            feature["properties"]["reference"] = int(feature["reference"])
+            feature["properties"]["screen"] = int(feature["screen"])
+
+        groups[group_id_string]["feature"].append(feature)
 
     return groups
 
 
-# todo: groups should have this output formatting
-# reference is correct answer for tutorial,
-# if not tutorial reference = None
-# {"g100":[{"task_id":1, "screen": 1, "reference":0,
-# "geojson":{"valid geojson FeatureCollection Object"}}]}
 ########################################################################################
 if __name__ == "__main__":
 
