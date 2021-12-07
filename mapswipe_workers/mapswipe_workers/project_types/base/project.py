@@ -124,9 +124,6 @@ class BaseProject(metaclass=ABCMeta):
 
         project.pop("inputGeometries", None)
         project.pop("validInputGeometries", None)
-        project.pop("inputType", None)
-        project.pop("filter", None)
-        project.pop("TMId", None)
 
         # Convert Date object to ISO Datetime:
         # https://www.w3.org/TR/NOTE-datetime
