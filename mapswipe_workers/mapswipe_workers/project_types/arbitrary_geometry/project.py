@@ -139,7 +139,8 @@ class Project(BaseProject):
         for feature in layer:
             feat_geom = feature.GetGeometryRef()
             geom_name = feat_geom.GetGeometryName()
-            fid = feature.GetFID
+            fid = feature.GetFID()
+
             if not feat_geom.IsValid():
                 layer.DeleteFeature(fid)
                 logger.warning(
@@ -194,7 +195,7 @@ class Project(BaseProject):
 
         for group_id, item in raw_groups.items():
             group = Group(self, group_id)
-            group.create_tasks(item["feature_ids"], item["feature"])
+            group.create_tasks(item["feature_ids"], item["features"])
 
             # only append valid groups
             if group.is_valid():

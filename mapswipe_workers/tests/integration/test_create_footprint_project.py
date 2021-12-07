@@ -33,12 +33,12 @@ class TestCreateProject(unittest.TestCase):
             self.assertEqual(result, element)
 
             # check if usernames made it to postgres
-            if element != "footprint_link":
+            if element != "test_footprint_link":
                 query = """
                     SELECT count(*)
                     FROM tasks
                     WHERE project_id = %s
-                        and project_type_specifics->username is not null
+                        and project_type_specifics->'properties'->'username' is not null
                 """
                 result = pg_db.retr_query(query, [element])[0][0]
                 self.assertGreater(result, 0)
