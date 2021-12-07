@@ -8,14 +8,7 @@ class Group(BaseGroup):
     def __init__(self, project: object, groupId: int) -> None:
         super().__init__(project, groupId)
 
-    def create_tasks(
-        self,
-        feature_ids: List,
-        feature_geometries: List,
-        center_points: List,
-        reference: List,
-        screen: List,
-    ) -> None:
+    def create_tasks(self, feature_ids: List, features: List,) -> None:
         """Create tasks for a group
 
         feature_geometries is a list of geometries or feature in geojson format.
@@ -23,14 +16,7 @@ class Group(BaseGroup):
         Coordinates of four two pair coordinates.
         Every coordinate pair is a vertex.
         """
-        for i in range(0, len(feature_ids)):
-            task = Task(
-                self,
-                feature_ids[i],
-                feature_geometries[i],
-                center_points[i],
-                reference[i],
-                screen[i],
-            )
+        for i, feature_id in enumerate(feature_ids):
+            task = Task(self, feature_id, features[i])
             self.tasks.append(task)
         self.numberOfTasks = len(self.tasks)

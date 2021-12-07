@@ -10,7 +10,7 @@ class BaseTask(object):
 
     def __init__(self, group, taskId):
         """
-            The Constructor Method for a task instance
+        The Constructor Method for a task instance
 
         Parameters
         ----------
