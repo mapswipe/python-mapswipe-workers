@@ -57,7 +57,14 @@ def remove_noise_and_add_user_info(json: dict) -> dict:
     """Delete unwanted information from properties."""
     logger.info("starting filtering and adding extra info")
 
-    wanted_attributes = ["@changesetId", "@lastEdit", "@osmId", "@version", "source"]
+    wanted_attributes = [
+        "@changesetId",
+        "@lastEdit",
+        "@osmId",
+        "@version",
+        "source",
+        "comment",
+    ]
     changeset_results = {}
     missing_rows = {
         "@changesetId": 0,
