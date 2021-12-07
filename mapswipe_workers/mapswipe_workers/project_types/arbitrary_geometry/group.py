@@ -17,6 +17,6 @@ class Group(BaseGroup):
         Every coordinate pair is a vertex.
         """
         for i, feature_id in enumerate(feature_ids):
-            task = Task(self, feature_id, features[i],)
+            task = Task(self, feature_id, features[i])
             self.tasks.append(task)
         self.numberOfTasks = len(self.tasks)
