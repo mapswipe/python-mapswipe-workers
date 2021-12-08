@@ -52,7 +52,7 @@ def remove_noise_and_add_user_info(json: dict) -> dict:
         "@lastEdit": 0,
         "@osmId": 0,
         "@version": 0,
-        "source": 0,
+        "created_by": 0,
         "hashtags": 0,
     }
 
@@ -79,6 +79,13 @@ def remove_noise_and_add_user_info(json: dict) -> dict:
             ]
         except KeyError:
             missing_rows["hashtags"] += 1
+
+        try:
+            new_properties["created_by"] = changeset_results[changeset_id]["tags"][
+                "created_by"
+            ]
+        except KeyError:
+            missing_rows["created_by"] += 1
 
         feature["properties"] = new_properties
     logger.info("finished filtering and adding extra info")
