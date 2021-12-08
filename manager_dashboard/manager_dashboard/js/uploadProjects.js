@@ -115,7 +115,7 @@ function uploadProjectImage(mapswipe_import) {
     var file = document.getElementById('image').files[0]
     console.log(file)
     if (file === undefined){
-        alert("Please upload an image, before retrying to upload the project.")ä
+        alert("Please upload an image, before retrying to upload the project.")
         modalOngoing.style.display = "none";
         modal.style.display = "none";
         return
