@@ -42,29 +42,10 @@ def query_osm(changeset_id: int):
     return response
 
 
-def add_to_properties(attribute: str, feature: dict, new_properties: dict):
-    """Adds attribute to new geojson properties if it is needed."""
-    if attribute != "comment":
-        new_properties[attribute.replace("@", "")] = feature["properties"][attribute]
-    else:
-        new_properties[attribute.replace("@", "")] = feature["properties"]["tags"][
-            attribute
-        ]
-    return new_properties
-
-
 def remove_noise_and_add_user_info(json: dict) -> dict:
     """Delete unwanted information from properties."""
     logger.info("starting filtering and adding extra info")
 
-    wanted_attributes = [
-        "@changesetId",
-        "@lastEdit",
-        "@osmId",
-        "@version",
-        "source",
-        "comment",
-    ]
     changeset_results = {}
     missing_rows = {
         "@changesetId": 0,
@@ -72,16 +53,19 @@ def remove_noise_and_add_user_info(json: dict) -> dict:
         "@osmId": 0,
         "@version": 0,
         "source": 0,
-        "comment": 0,
+        "hashtags": 0,
     }
 
     for feature in json["features"]:
         new_properties = {}
-        for attribute in wanted_attributes:
+        for attribute in missing_rows.keys():
             try:
-                new_properties = add_to_properties(attribute, feature, new_properties)
+                new_properties[attribute.replace("@", "")] = feature["properties"][
+                    attribute
+                ]
             except KeyError:
-                missing_rows[attribute] += 1
+                if attribute != "hashtags":
+                    missing_rows[attribute] += 1
         changeset_id = new_properties["changesetId"]
 
         # if changeset_id already queried, use stored result
@@ -89,6 +73,13 @@ def remove_noise_and_add_user_info(json: dict) -> dict:
             changeset_results[changeset_id] = query_osm(changeset_id)
         new_properties["username"] = changeset_results[changeset_id]["user"]
         new_properties["userid"] = changeset_results[changeset_id]["uid"]
+        try:
+            new_properties["hashtags"] = changeset_results[changeset_id]["tags"][
+                "hashtags"
+            ]
+        except KeyError:
+            missing_rows["hashtags"] += 1
+
         feature["properties"] = new_properties
     logger.info("finished filtering and adding extra info")
     if any(x > 0 for x in missing_rows.values()):
