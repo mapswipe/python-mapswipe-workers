@@ -114,6 +114,12 @@ function uploadProjectImage(mapswipe_import) {
 
     var file = document.getElementById('image').files[0]
     console.log(file)
+    if (file === undefined){
+        alert("Please upload an image, before retrying to upload the project.")ä
+        modalOngoing.style.display = "none";
+        modal.style.display = "none";
+        return
+    }
     var filename = file.name
     console.log(filename)
     // Create a reference to the image
