@@ -29,21 +29,6 @@ def geojsonToFeatureCollection(geojson: dict) -> dict:
     return geojson
 
 
-def add_to_properties(attribute: str, feature: dict, new_properties: dict):
-    """Adds attribute to new geojson properties if it is needed."""
-    if attribute != "comment":
-        new_properties[attribute.replace("@", "")] = feature["properties"][attribute]
-    elif attribute != "@changesetId":
-        new_properties[attribute.replace("@", "")] = int(
-            feature["properties"][attribute]
-        )
-    else:
-        new_properties[attribute.replace("@", "")] = feature["properties"]["tags"][
-            attribute
-        ]
-    return new_properties
-
-
 osm_results = {}
 
 
@@ -77,16 +62,31 @@ def query_osm(changeset_ids: list):
         id = changeset.attrib["id"]
         username = changeset.attrib["user"]
         userid = changeset.attrib["uid"]
-        hashtags = None
+        hashtags = created_by = None
         for tag in changeset.iter("tag"):
             if tag.attrib["k"] == "hashtags":
                 hashtags = tag.attrib["v"]
+            if tag.attrib["k"] == "created_by":
+                created_by = tag.attrib["v"]
+
         osm_results[int(id)] = {
             "username": username,
             "userid": userid,
             "hashtags": hashtags,
+            "created_by": created_by,
         }
     return
+
+
+def add_to_properties(attribute: str, feature: dict, new_properties: dict):
+    """Adds attribute to new geojson properties if it is needed."""
+    if attribute != "comment":
+        new_properties[attribute.replace("@", "")] = feature["properties"][attribute]
+    else:
+        new_properties[attribute.replace("@", "")] = feature["properties"]["tags"][
+            attribute
+        ]
+    return new_properties
 
 
 def remove_noise_and_add_user_info(json: dict) -> dict:
@@ -94,35 +94,28 @@ def remove_noise_and_add_user_info(json: dict) -> dict:
     logger.info("starting filtering and adding extra info")
     osm_results.clear()
 
-    wanted_attributes = [
-        "@changesetId",
-        "@lastEdit",
-        "@osmId",
-        "@version",
-        "source",
-        "comment",
-    ]
     missing_rows = {
         "@changesetId": 0,
         "@lastEdit": 0,
         "@osmId": 0,
         "@version": 0,
-        "source": 0,
-        "comment": 0,
     }
 
     for feature in json["features"]:
         new_properties = {}
-        for attribute in wanted_attributes:
+        for attribute in missing_rows.keys():
             try:
-                new_properties = add_to_properties(attribute, feature, new_properties)
+                new_properties[attribute.replace("@", "")] = feature["properties"][
+                    attribute
+                ]
             except KeyError:
                 missing_rows[attribute] += 1
         osm_results[new_properties["changesetId"]] = None
         feature["properties"] = new_properties
+
     logger.info(
         f"""{len(osm_results.keys())} changesets will
-         be queried in roughly {int(len(osm_results.keys())/100) +1} batches"""
+         be queried in roughly {int(len(osm_results.keys()) / 100) + 1} batches"""
     )
     chunk_list = chunks(list(osm_results.keys()), 100)
     for subset in chunk_list:
@@ -133,6 +126,7 @@ def remove_noise_and_add_user_info(json: dict) -> dict:
         feature["properties"]["username"] = changeset["username"]
         feature["properties"]["userid"] = changeset["userid"]
         feature["properties"]["hashtags"] = changeset["hashtags"]
+        feature["properties"]["created_by"] = changeset["created_by"]
 
     logger.info("finished filtering and adding extra info")
     if any(x > 0 for x in missing_rows.values()):
