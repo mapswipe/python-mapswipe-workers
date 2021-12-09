@@ -29,9 +29,6 @@ def geojsonToFeatureCollection(geojson: dict) -> dict:
     return geojson
 
 
-osm_results = {}
-
-
 def chunks(_list, n_objects):
     return [
         _list[i * n_objects : (i + 1) * n_objects]
@@ -39,7 +36,7 @@ def chunks(_list, n_objects):
     ]
 
 
-def query_osm(changeset_ids: list):
+def query_osm(changeset_ids: list, osm_results):
     """Get data from changesetId."""
     id_string = ""
     for id in changeset_ids:
@@ -76,7 +73,7 @@ def query_osm(changeset_ids: list):
             "comment": comment,
             "created_by": created_by,
         }
-    return
+    return osm_results
 
 
 def add_to_properties(attribute: str, feature: dict, new_properties: dict):
@@ -93,7 +90,7 @@ def add_to_properties(attribute: str, feature: dict, new_properties: dict):
 def remove_noise_and_add_user_info(json: dict) -> dict:
     """Delete unwanted information from properties."""
     logger.info("starting filtering and adding extra info")
-    osm_results.clear()
+    osm_results = {}
 
     missing_rows = {
         "@changesetId": 0,
@@ -121,7 +118,7 @@ def remove_noise_and_add_user_info(json: dict) -> dict:
     )
     chunk_list = chunks(list(osm_results.keys()), 100)
     for i, subset in enumerate(chunk_list):
-        query_osm(subset)
+        osm_results = query_osm(subset, osm_results)
         logger.info(
             f"finished query {i}/{len(chunk_list)},{round(i/len(chunk_list), 1)}%"
         )
