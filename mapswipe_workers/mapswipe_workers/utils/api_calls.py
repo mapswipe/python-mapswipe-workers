@@ -29,10 +29,10 @@ def geojsonToFeatureCollection(geojson: dict) -> dict:
     return geojson
 
 
-def chunks(_list, n_objects):
+def chunks(arr, n_objects):
     return [
-        _list[i * n_objects : (i + 1) * n_objects]
-        for i in range((len(_list) + n_objects - 1) // n_objects)
+        arr[i * n_objects : (i + 1) * n_objects]
+        for i in range((len(arr) + n_objects - 1) // n_objects)
     ]
 
 
