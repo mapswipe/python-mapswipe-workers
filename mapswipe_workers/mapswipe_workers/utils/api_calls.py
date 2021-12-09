@@ -1,5 +1,3 @@
-import queue
-import threading
 from xml.etree import ElementTree
 
 import requests
@@ -35,6 +33,10 @@ def add_to_properties(attribute: str, feature: dict, new_properties: dict):
     """Adds attribute to new geojson properties if it is needed."""
     if attribute != "comment":
         new_properties[attribute.replace("@", "")] = feature["properties"][attribute]
+    elif attribute != "@changesetId":
+        new_properties[attribute.replace("@", "")] = int(
+            feature["properties"][attribute]
+        )
     else:
         new_properties[attribute.replace("@", "")] = feature["properties"]["tags"][
             attribute
@@ -42,8 +44,6 @@ def add_to_properties(attribute: str, feature: dict, new_properties: dict):
     return new_properties
 
 
-# startblock for osm changesets threading
-q = queue.Queue()
 osm_results = {}
 
 
@@ -63,6 +63,7 @@ def query_osm(changeset_ids: list):
     id_string = id_string[:-1]
 
     url = OSM_API_LINK + f"changesets?changesets={id_string}"
+    logger.info(url)
     response = retry_get(url)
 
     if response.status_code != 200:
@@ -71,52 +72,27 @@ def query_osm(changeset_ids: list):
         logger.warning(response.json())
         raise CustomError(err)
     tree = ElementTree.fromstring(response.content)
-    for changeset in tree:
+
+    for changeset in tree.iter("changeset"):
         id = changeset.attrib["id"]
         username = changeset.attrib["user"]
         userid = changeset.attrib["uid"]
         hashtags = None
-        for tag in changeset:
+        for tag in changeset.iter("tag"):
             if tag.attrib["k"] == "hashtags":
                 hashtags = tag.attrib["v"]
-        osm_results[id] = {"username": username, "userid": userid, "hashtags": hashtags}
+        osm_results[int(id)] = {
+            "username": username,
+            "userid": userid,
+            "hashtags": hashtags,
+        }
     return
-
-
-def worker():
-    while True:
-        item = q.get()
-        if item is None:
-            break
-        query_osm(item)
-        logger.info("worker finished")
-        q.task_done()
-
-
-def start_workers(worker_pool=2):
-    threads = []
-    for i in range(worker_pool):
-        t = threading.Thread(target=worker)
-        t.daemon = True
-        t.start()
-        threads.append(t)
-    return threads
-
-
-def stop_workers(threads):
-    # stop workers
-    for i in threads:
-        q.put(None)
-    for t in threads:
-        t.join()
-
-
-# endblock for osm changesets threading
 
 
 def remove_noise_and_add_user_info(json: dict) -> dict:
     """Delete unwanted information from properties."""
     logger.info("starting filtering and adding extra info")
+    osm_results.clear()
 
     wanted_attributes = [
         "@changesetId",
@@ -126,7 +102,6 @@ def remove_noise_and_add_user_info(json: dict) -> dict:
         "source",
         "comment",
     ]
-    changeset_ids = []
     missing_rows = {
         "@changesetId": 0,
         "@lastEdit": 0,
@@ -143,33 +118,21 @@ def remove_noise_and_add_user_info(json: dict) -> dict:
                 new_properties = add_to_properties(attribute, feature, new_properties)
             except KeyError:
                 missing_rows[attribute] += 1
-        changeset_id = new_properties["changesetId"]
-        if changeset_id not in changeset_ids:
-            changeset_ids.append(changeset_id)
+        osm_results[new_properties["changesetId"]] = None
         feature["properties"] = new_properties
     logger.info(
-        f"""{len(changeset_ids)} changesets will
-         be queried in roughly {int(len(changeset_ids)/99) +1} batches"""
+        f"""{len(osm_results.keys())} changesets will
+         be queried in roughly {int(len(osm_results.keys())/100) +1} batches"""
     )
-    chunk_list = chunks(changeset_ids, 99)
+    chunk_list = chunks(list(osm_results.keys()), 100)
     for subset in chunk_list:
-        q.put(subset)
-    q.put([100, 2002])
-    assert len(changeset_ids) == sum([len(arr) for arr in chunk_list])
-    workers = start_workers(worker_pool=2)  # more could lead to ban from osm api
-
-    q.join()
-    stop_workers(workers)
-    assert len(changeset_ids) == len(osm_results.keys()) - 2
+        query_osm(subset)
 
     for feature in json["features"]:
-        try:
-            changeset = osm_results[feature["properties"]["changesetId"]]
-            feature["properties"]["username"] = changeset["username"]
-            feature["properties"]["userid"] = changeset["userid"]
-            feature["properties"]["hashtags"] = changeset["hashtags"]
-        except KeyError:
-            logger.info(feature["properties"]["changesetId"])
+        changeset = osm_results[feature["properties"]["changesetId"]]
+        feature["properties"]["username"] = changeset["username"]
+        feature["properties"]["userid"] = changeset["userid"]
+        feature["properties"]["hashtags"] = changeset["hashtags"]
 
     logger.info("finished filtering and adding extra info")
     if any(x > 0 for x in missing_rows.values()):
