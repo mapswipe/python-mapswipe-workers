@@ -12,6 +12,13 @@ from mapswipe_workers.definitions import (
 )
 
 
+def remove_troublesome_chars(string: str):
+    troublesome_chars = {'"': "", "'": "", "\n": ""}
+    for k, v in troublesome_chars.items():
+        string = string.replace(k, v)
+    return string
+
+
 def retry_get(url, retries=3, timeout=4):
     retry = Retry(total=retries)
     session = requests.Session()
@@ -55,13 +62,13 @@ def query_osm(changeset_ids: list, changeset_results):
 
     for changeset in tree.iter("changeset"):
         id = changeset.attrib["id"]
-        username = changeset.attrib["user"]
+        username = remove_troublesome_chars(changeset.attrib["user"])
         userid = changeset.attrib["uid"]
         comment = created_by = None
         for tag in changeset.iter("tag"):
             if tag.attrib["k"] == "comment":
                 try:
-                    comment = tag.attrib["v"].replace("\n", " ")
+                    comment = remove_troublesome_chars(tag.attrib["v"])
                 except AttributeError:
                     pass
             if tag.attrib["k"] == "created_by":
@@ -74,17 +81,6 @@ def query_osm(changeset_ids: list, changeset_results):
             "created_by": created_by,
         }
     return changeset_results
-
-
-def add_to_properties(attribute: str, feature: dict, new_properties: dict):
-    """Adds attribute to new geojson properties if it is needed."""
-    if attribute != "comment":
-        new_properties[attribute.replace("@", "")] = feature["properties"][attribute]
-    else:
-        new_properties[attribute.replace("@", "")] = feature["properties"]["tags"][
-            attribute
-        ]
-    return new_properties
 
 
 def remove_noise_and_add_user_info(json: dict) -> dict:
