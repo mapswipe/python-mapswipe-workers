@@ -62,17 +62,17 @@ def query_osm(changeset_ids: list):
         id = changeset.attrib["id"]
         username = changeset.attrib["user"]
         userid = changeset.attrib["uid"]
-        hashtags = created_by = None
+        comment = created_by = None
         for tag in changeset.iter("tag"):
-            if tag.attrib["k"] == "hashtags":
-                hashtags = tag.attrib["v"]
+            if tag.attrib["k"] == "comment":
+                comment = tag.attrib["v"]
             if tag.attrib["k"] == "created_by":
                 created_by = tag.attrib["v"]
 
         osm_results[int(id)] = {
             "username": username,
             "userid": userid,
-            "hashtags": hashtags,
+            "comment": comment,
             "created_by": created_by,
         }
     return
@@ -125,7 +125,7 @@ def remove_noise_and_add_user_info(json: dict) -> dict:
         changeset = osm_results[feature["properties"]["changesetId"]]
         feature["properties"]["username"] = changeset["username"]
         feature["properties"]["userid"] = changeset["userid"]
-        feature["properties"]["hashtags"] = changeset["hashtags"]
+        feature["properties"]["comment"] = changeset["comment"]
         feature["properties"]["created_by"] = changeset["created_by"]
 
     logger.info("finished filtering and adding extra info")
