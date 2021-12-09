@@ -111,19 +111,23 @@ def remove_noise_and_add_user_info(json: dict) -> dict:
         osm_results[new_properties["changesetId"]] = None
         feature["properties"] = new_properties
 
+    len_osm = len(osm_results.keys())
+    batches = int(len(osm_results.keys()) / 100) + 1
     logger.info(
-        f"""{len(osm_results.keys())} changesets will
-         be queried in roughly {int(len(osm_results.keys()) / 100) + 1} batches"""
+        f"""{len_osm} changesets will be queried in roughly {batches} batches"""
     )
     chunk_list = chunks(list(osm_results.keys()), 100)
-    for subset in chunk_list:
+    for i, subset in enumerate(chunk_list):
         query_osm(subset)
+        logger.info(
+            "finished query {i}/{len(chunk_list)},{round(i/len(chunk_list), 1)}%"
+        )
 
     for feature in json["features"]:
         changeset = osm_results[feature["properties"]["changesetId"]]
         feature["properties"]["username"] = changeset["username"]
         feature["properties"]["userid"] = changeset["userid"]
-        feature["properties"]["comment"] = changeset["comment"]
+        feature["properties"]["comment"] = changeset["comment"].replace("\n", "")
         feature["properties"]["created_by"] = changeset["created_by"]
 
     logger.info("finished filtering and adding extra info")
