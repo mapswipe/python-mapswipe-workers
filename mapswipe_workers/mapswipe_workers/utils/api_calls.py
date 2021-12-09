@@ -13,6 +13,7 @@ from mapswipe_workers.definitions import (
 
 
 def remove_troublesome_chars(string: str):
+    """Remove chars that cause trouble when pushed into postgres."""
     if type(string) is not str:
         return string
     troublesome_chars = {'"': "", "'": "", "\n": ""}
@@ -22,6 +23,7 @@ def remove_troublesome_chars(string: str):
 
 
 def retry_get(url, retries=3, timeout=4):
+    """Retry a query for a variable amount of tries."""
     retry = Retry(total=retries)
     with requests.Session() as session:
         session.mount("https://", HTTPAdapter(max_retries=retry))
@@ -29,6 +31,7 @@ def retry_get(url, retries=3, timeout=4):
 
 
 def geojsonToFeatureCollection(geojson: dict) -> dict:
+    """Take a GeoJson and wrap it in a FeatureCollection."""
     if geojson["type"] != "FeatureCollection":
         collection = {
             "type": "FeatureCollection",
@@ -39,6 +42,7 @@ def geojsonToFeatureCollection(geojson: dict) -> dict:
 
 
 def chunks(arr, n_objects):
+    """Return a list of list with n_objects in each sublist."""
     return [
         arr[i * n_objects : (i + 1) * n_objects]
         for i in range((len(arr) + n_objects - 1) // n_objects)
@@ -130,9 +134,7 @@ def remove_noise_and_add_user_info(json: dict) -> dict:
 
 
 def ohsome(request: dict, area: str, properties=None) -> dict:
-    """
-    Request data from Ohsome API.
-    """
+    """Request data from Ohsome API."""
     url = OHSOME_API_LINK + request["endpoint"]
     data = {"bpolys": area, "filter": request["filter"]}
     if properties:
