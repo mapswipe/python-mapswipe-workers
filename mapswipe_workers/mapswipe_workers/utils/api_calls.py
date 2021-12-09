@@ -51,11 +51,7 @@ def chunks(arr, n_objects):
 
 def query_osm(changeset_ids: list, changeset_results):
     """Get data from changesetId."""
-    id_string = ""
-    for id in changeset_ids:
-        id_string += f"{id},"
-
-    id_string = id_string[:-1]
+    id_string = ",".join(map(str, changeset_ids))
 
     url = OSM_API_LINK + f"changesets?changesets={id_string}"
     response = retry_get(url)
