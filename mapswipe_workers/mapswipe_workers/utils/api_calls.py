@@ -36,7 +36,7 @@ def chunks(arr, n_objects):
     ]
 
 
-def query_osm(changeset_ids: list, osm_results):
+def query_osm(changeset_ids: list, changeset_results):
     """Get data from changesetId."""
     id_string = ""
     for id in changeset_ids:
@@ -67,13 +67,13 @@ def query_osm(changeset_ids: list, osm_results):
             if tag.attrib["k"] == "created_by":
                 created_by = tag.attrib["v"]
 
-        osm_results[int(id)] = {
+        changeset_results[int(id)] = {
             "username": username,
             "userid": userid,
             "comment": comment,
             "created_by": created_by,
         }
-    return osm_results
+    return changeset_results
 
 
 def add_to_properties(attribute: str, feature: dict, new_properties: dict):
@@ -90,7 +90,7 @@ def add_to_properties(attribute: str, feature: dict, new_properties: dict):
 def remove_noise_and_add_user_info(json: dict) -> dict:
     """Delete unwanted information from properties."""
     logger.info("starting filtering and adding extra info")
-    osm_results = {}
+    changeset_results = {}
 
     missing_rows = {
         "@changesetId": 0,
@@ -108,23 +108,23 @@ def remove_noise_and_add_user_info(json: dict) -> dict:
                 ]
             except KeyError:
                 missing_rows[attribute] += 1
-        osm_results[new_properties["changesetId"]] = None
+        changeset_results[new_properties["changesetId"]] = None
         feature["properties"] = new_properties
 
-    len_osm = len(osm_results.keys())
-    batches = int(len(osm_results.keys()) / 100) + 1
+    len_osm = len(changeset_results.keys())
+    batches = int(len(changeset_results.keys()) / 100) + 1
     logger.info(
         f"""{len_osm} changesets will be queried in roughly {batches} batches"""
     )
-    chunk_list = chunks(list(osm_results.keys()), 100)
+    chunk_list = chunks(list(changeset_results.keys()), 100)
     for i, subset in enumerate(chunk_list):
-        osm_results = query_osm(subset, osm_results)
+        changeset_results = query_osm(subset, changeset_results)
         logger.info(
             f"finished query {i}/{len(chunk_list)},{round(i/len(chunk_list), 1)}%"
         )
 
     for feature in json["features"]:
-        changeset = osm_results[feature["properties"]["changesetId"]]
+        changeset = changeset_results[feature["properties"]["changesetId"]]
         feature["properties"]["username"] = changeset["username"]
         feature["properties"]["userid"] = changeset["userid"]
         feature["properties"]["comment"] = changeset["comment"]
