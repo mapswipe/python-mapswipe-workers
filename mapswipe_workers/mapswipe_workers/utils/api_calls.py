@@ -120,7 +120,7 @@ def remove_noise_and_add_user_info(json: dict) -> dict:
     for i, subset in enumerate(chunk_list):
         changeset_results = query_osm(subset, changeset_results)
         logger.info(
-            f"finished query {i}/{len(chunk_list)},{round(i/len(chunk_list), 1)}%"
+            f"finished query {i}/{len(chunk_list)}, {100*round(i/len(chunk_list), 2)}%"
         )
 
     for feature in json["features"]:
