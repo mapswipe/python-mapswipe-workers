@@ -125,10 +125,11 @@ def remove_noise_and_add_user_info(json: dict) -> dict:
 
     for feature in json["features"]:
         changeset = changeset_results[feature["properties"]["changesetId"]]
-        feature["properties"]["username"] = changeset["username"]
+        # we need to replace " as this will cause problems when importing to postgres
+        feature["properties"]["username"] = changeset["username"].replace('"', "")
         feature["properties"]["userid"] = changeset["userid"]
-        feature["properties"]["comment"] = changeset["comment"]
-        feature["properties"]["created_by"] = changeset["created_by"]
+        feature["properties"]["comment"] = changeset["comment"].replace('"', "")
+        feature["properties"]["created_by"] = changeset["created_by"].replace('"', "")
 
     logger.info("finished filtering and adding extra info")
     if any(x > 0 for x in missing_rows.values()):
