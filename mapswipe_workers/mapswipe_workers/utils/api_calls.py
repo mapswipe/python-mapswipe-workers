@@ -48,9 +48,7 @@ def query_osm(changeset_ids: list):
     id_string = id_string[:-1]
 
     url = OSM_API_LINK + f"changesets?changesets={id_string}"
-    logger.info(url)
     response = retry_get(url)
-
     if response.status_code != 200:
         err = f"osm request failed: {response.status_code}"
         logger.warning(f"{err}")
