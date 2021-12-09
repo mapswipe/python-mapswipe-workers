@@ -13,6 +13,8 @@ from mapswipe_workers.definitions import (
 
 
 def remove_troublesome_chars(string: str):
+    if type(string) is not str:
+        return string
     troublesome_chars = {'"': "", "'": "", "\n": ""}
     for k, v in troublesome_chars.items():
         string = string.replace(k, v)
@@ -21,9 +23,9 @@ def remove_troublesome_chars(string: str):
 
 def retry_get(url, retries=3, timeout=4):
     retry = Retry(total=retries)
-    session = requests.Session()
-    session.mount("https://", HTTPAdapter(max_retries=retry))
-    return session.get(url, timeout=timeout)
+    with requests.Session() as session:
+        session.mount("https://", HTTPAdapter(max_retries=retry))
+        return session.get(url, timeout=timeout)
 
 
 def geojsonToFeatureCollection(geojson: dict) -> dict:
@@ -67,18 +69,15 @@ def query_osm(changeset_ids: list, changeset_results):
         comment = created_by = None
         for tag in changeset.iter("tag"):
             if tag.attrib["k"] == "comment":
-                try:
-                    comment = remove_troublesome_chars(tag.attrib["v"])
-                except AttributeError:
-                    pass
+                comment = tag.attrib["v"]
             if tag.attrib["k"] == "created_by":
                 created_by = tag.attrib["v"]
 
         changeset_results[int(id)] = {
-            "username": username,
+            "username": remove_troublesome_chars(username),
             "userid": userid,
-            "comment": comment,
-            "created_by": created_by,
+            "comment": remove_troublesome_chars(comment),
+            "created_by": remove_troublesome_chars(created_by),
         }
     return changeset_results
 
@@ -115,22 +114,13 @@ def remove_noise_and_add_user_info(json: dict) -> dict:
     chunk_list = chunks(list(changeset_results.keys()), 100)
     for i, subset in enumerate(chunk_list):
         changeset_results = query_osm(subset, changeset_results)
-        logger.info(
-            f"finished query {i}/{len(chunk_list)}, {100*round(i/len(chunk_list), 2)}%"
-        )
+        progress = round(100 * ((i + 1) / len(chunk_list)), 1)
+        logger.info(f"finished query {i+1}/{len(chunk_list)}, {progress}")
 
     for feature in json["features"]:
         changeset = changeset_results[feature["properties"]["changesetId"]]
-        feature["properties"]["userid"] = changeset["userid"]
-        for attribute_name in ["username", "comment", "created_by"]:
-            # we need to replace " as this will cause problems
-            # when importing to postgres
-            try:
-                feature["properties"][attribute_name] = changeset[
-                    attribute_name
-                ].replace('"', "")
-            except AttributeError:
-                pass
+        for attribute_name in ["username", "comment", "created_by", "userid"]:
+            feature["properties"][attribute_name] = changeset[attribute_name]
 
     logger.info("finished filtering and adding extra info")
     if any(x > 0 for x in missing_rows.values()):
