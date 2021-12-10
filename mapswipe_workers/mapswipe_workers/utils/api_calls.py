@@ -16,7 +16,7 @@ def remove_troublesome_chars(string: str):
     """Remove chars that cause trouble when pushed into postgres."""
     if type(string) is not str:
         return string
-    troublesome_chars = {'"': "", "'": "", "\n": ""}
+    troublesome_chars = {'"': "", "'": "", "\n": " "}
     for k, v in troublesome_chars.items():
         string = string.replace(k, v)
     return string
