@@ -1,12 +1,11 @@
-from xml.etree import ElementTree
-
 import requests
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
 
 from mapswipe_workers.definitions import (
     OHSOME_API_LINK,
-    OSM_API_LINK,
+    OSMCHA_API_KEY,
+    OSMCHA_API_LINK,
     CustomError,
     logger,
 )
@@ -27,7 +26,8 @@ def retry_get(url, retries=3, timeout=4):
     retry = Retry(total=retries)
     with requests.Session() as session:
         session.mount("https://", HTTPAdapter(max_retries=retry))
-        return session.get(url, timeout=timeout)
+        headers = {"Authorization": OSMCHA_API_KEY}
+        return session.get(url, timeout=timeout, headers=headers)
 
 
 def geojsonToFeatureCollection(geojson: dict) -> dict:
@@ -49,36 +49,30 @@ def chunks(arr, n_objects):
     ]
 
 
-def query_osm(changeset_ids: list, changeset_results):
+def query_osmcha(changeset_ids: list, changeset_results):
     """Get data from changesetId."""
     id_string = ",".join(map(str, changeset_ids))
 
-    url = OSM_API_LINK + f"changesets?changesets={id_string}"
+    url = OSMCHA_API_LINK + f"changesets/?ids={id_string}"
+    logger.info(url)
+    logger.info(len(changeset_ids))
     response = retry_get(url)
     if response.status_code != 200:
-        err = f"osm request failed: {response.status_code}"
+        err = f"osmcha request failed: {response.status_code}"
         logger.warning(f"{err}")
         logger.warning(response.json())
         raise CustomError(err)
-    tree = ElementTree.fromstring(response.content)
-
-    for changeset in tree.iter("changeset"):
-        id = changeset.attrib["id"]
-        username = remove_troublesome_chars(changeset.attrib["user"])
-        userid = changeset.attrib["uid"]
-        comment = created_by = None
-        for tag in changeset.iter("tag"):
-            if tag.attrib["k"] == "comment":
-                comment = tag.attrib["v"]
-            if tag.attrib["k"] == "created_by":
-                created_by = tag.attrib["v"]
-
-        changeset_results[int(id)] = {
-            "username": remove_troublesome_chars(username),
-            "userid": userid,
-            "comment": remove_troublesome_chars(comment),
-            "created_by": remove_troublesome_chars(created_by),
+    response = response.json()
+    logger.info(response)
+    for feature in response["features"]:
+        logger.info(feature)
+        changeset_results[int(feature["id"])] = {
+            "username": remove_troublesome_chars(feature["properties"]["user"]),
+            "userid": feature["properties"]["uid"],
+            "comment": remove_troublesome_chars(feature["properties"]["comment"]),
+            "editor": remove_troublesome_chars(feature["properties"]["editor"]),
         }
+
     return changeset_results
 
 
@@ -111,15 +105,16 @@ def remove_noise_and_add_user_info(json: dict) -> dict:
     logger.info(
         f"""{len_osm} changesets will be queried in roughly {batches} batches"""
     )
-    chunk_list = chunks(list(changeset_results.keys()), 100)
+    chunk_list = chunks(list(changeset_results.keys()), 50)
     for i, subset in enumerate(chunk_list):
-        changeset_results = query_osm(subset, changeset_results)
+        changeset_results = query_osmcha(subset, changeset_results)
         progress = round(100 * ((i + 1) / len(chunk_list)), 1)
         logger.info(f"finished query {i+1}/{len(chunk_list)}, {progress}")
 
     for feature in json["features"]:
-        changeset = changeset_results[feature["properties"]["changesetId"]]
-        for attribute_name in ["username", "comment", "created_by", "userid"]:
+        changeset = changeset_results[int(feature["properties"]["changesetId"])]
+        logger.warn(changeset)
+        for attribute_name in ["username", "comment", "editor", "userid"]:
             feature["properties"][attribute_name] = changeset[attribute_name]
 
     logger.info("finished filtering and adding extra info")
