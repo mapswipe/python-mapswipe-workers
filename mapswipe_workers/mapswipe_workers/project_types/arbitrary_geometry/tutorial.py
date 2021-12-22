@@ -57,13 +57,7 @@ class Tutorial(BaseTutorial):
         )
         for group_id, item in raw_groups.items():
             group = Group(self, groupId=101)
-            group.create_tasks(
-                item["feature_ids"],
-                item["feature_geometries"],
-                item["center_points"],
-                item["reference"],
-                item["screen"],
-            )
+            group.create_tasks(item["feature_ids"], item["features"])
 
         for task in group.tasks:
             logger.info(task)
