@@ -1,7 +1,7 @@
 import json
 
 
-def group_input_geometries(input_geometries_file, group_size):
+def group_input_geometries(input_geometries_file, group_size, tutorial=False):
     """
     The function to create groups of input geometries using the given size (number of
     features) per group
@@ -12,6 +12,8 @@ def group_input_geometries(input_geometries_file, group_size):
         the path to the GeoJSON file containing the input geometries
     group_size : int
         the maximum number of features per group
+    tutorial: boolean
+        if this function is called to create the grouping within a tutorial
 
     Returns
     -------
@@ -44,7 +46,15 @@ def group_input_geometries(input_geometries_file, group_size):
 
         # we use a new id here based on the count
         # since we are not sure that GetFID returns unique values
-        groups[group_id_string]["feature_ids"].append(feature_count)
+        if not tutorial:
+            groups[group_id_string]["feature_ids"].append(feature_count)
+        else:
+            # In the tutorial the feature id is defined by the "screen" attribute.
+            # We do this so that we can sort by the feature id later and
+            # get the screens displayed in the right order on the app.
+            groups[group_id_string]["feature_ids"].append(
+                feature["properties"]["screen"]
+            )
         groups[group_id_string]["features"].append(feature)
 
     return groups
