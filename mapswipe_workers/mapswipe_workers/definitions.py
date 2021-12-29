@@ -13,6 +13,7 @@ if not os.path.exists(DATA_PATH):
 LOGGING_FILE_PATH = os.path.join(DATA_PATH, "mapswipe_workers.log")
 
 OHSOME_API_LINK = "https://api.ohsome.org/v1/"
+OSM_API_LINK = "https://www.openstreetmap.org/api/0.6/"
 OSMCHA_API_LINK = "https://osmcha.org/api/v1/"
 OSMCHA_API_KEY = os.environ["OSMCHA_API_KEY"]
 
