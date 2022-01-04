@@ -118,11 +118,19 @@ def get_tasks(filename: str, project_id: str) -> pd.DataFrame:
 
         sql_query = sql.SQL(
             """
-            COPY (
-                SELECT project_id, group_id, task_id, ST_AsText(geom) as geom
-                FROM tasks
-                WHERE project_id = {}
-            ) TO STDOUT WITH CSV HEADER
+COPY (
+    SELECT project_id, group_id, task_id, ST_AsText(geom) as geom,
+     (project_type_specifics->'properties'->'osmId')::text as osmId,
+     (project_type_specifics->'properties'->'changesetId')::text::int as changesetId,
+     (project_type_specifics->'properties'->'version')::text::smallint as version,
+     (project_type_specifics->'properties'->'userid')::text::int as userid,
+     (project_type_specifics->'properties'->'username')::text as username,
+     (project_type_specifics->'properties'->'editor')::text as editor,
+     (project_type_specifics->'properties'->'comment')::text as comment,
+     (project_type_specifics->'properties'->'lastEdit')::text::timestamp as lastEdit
+    FROM tasks
+    WHERE project_id = {}
+) TO STDOUT WITH CSV HEADER
             """
         ).format(sql.Literal(project_id))
         write_sql_to_gzipped_csv(filename, sql_query)
@@ -304,7 +312,22 @@ def get_agg_results_by_task_id(
 
     # add task geometry using left join
     agg_results_df = results_by_task_id_df.merge(
-        tasks_df[["geom", "task_id"]], left_on="task_id", right_on="task_id"
+        tasks_df[
+            [
+                "geom",
+                "task_id",
+                "osmId",
+                "changesetId",
+                "version",
+                "userid",
+                "username",
+                "editor",
+                "comment",
+                "lastEdit",
+            ]
+        ],
+        left_on="task_id",
+        right_on="task_id",
     )
     logger.info("added geometry to aggregated results")
 
