@@ -165,7 +165,10 @@ def remove_noise_and_add_user_info(json: dict) -> dict:
     for feature in json["features"]:
         changeset = changeset_results[int(feature["properties"]["changesetId"])]
         for attribute_name in ["username", "comment", "editor", "userid"]:
-            feature["properties"][attribute_name] = changeset[attribute_name]
+            if attribute_name == "userid":
+                feature["properties"][attribute_name] = int(changeset[attribute_name])
+            else:
+                feature["properties"][attribute_name] = changeset[attribute_name]
 
     logger.info("finished filtering and adding extra info")
     if any(x > 0 for x in missing_rows.values()):
