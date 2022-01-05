@@ -316,14 +316,14 @@ def get_agg_results_by_task_id(
             [
                 "geom",
                 "task_id",
-                "osmId",
-                "changesetId",
+                "osmid",
+                "changesetid",
                 "version",
                 "userid",
                 "username",
                 "editor",
                 "comment",
-                "lastEdit",
+                "lastedit",
             ]
         ],
         left_on="task_id",
