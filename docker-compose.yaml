@@ -73,6 +73,7 @@ services:
             SLACK_TOKEN: '${SLACK_TOKEN}'
             SLACK_CHANNEL: '${SLACK_CHANNEL}'
             SENTRY_DSN: '${SENTRY_DSN}'
+            OSMCHA_API_KEY: '${OSMCHA_API_KEY}'
         depends_on:
             - postgres
         command: mapswipe_workers --verbose run --analysis_type=creation --schedule --time_interval=5
@@ -107,6 +108,7 @@ services:
             SLACK_TOKEN: '${SLACK_TOKEN}'
             SLACK_CHANNEL: '${SLACK_CHANNEL}'
             SENTRY_DSN: '${SENTRY_DSN}'
+            OSMCHA_API_KEY: '${OSMCHA_API_KEY}'
         depends_on:
             - postgres
         command: mapswipe_workers --verbose run --analysis_type=generate-stats --schedule --time_interval=60
@@ -141,6 +143,7 @@ services:
             SLACK_TOKEN: '${SLACK_TOKEN}'
             SLACK_CHANNEL: '${SLACK_CHANNEL}'
             SENTRY_DSN: '${SENTRY_DSN}'
+            OSMCHA_API_KEY: '${OSMCHA_API_KEY}'
         depends_on:
             - postgres
         command: mapswipe_workers --verbose run --analysis_type=firebase-to-postgres --schedule --time_interval=2
