@@ -30,7 +30,7 @@ def retry_get(url, retries=3, timeout=4, to_osmcha: bool = False):
     with requests.Session() as session:
         session.mount("https://", HTTPAdapter(max_retries=retry))
         if to_osmcha:
-            headers = {"Authorization": OSMCHA_API_KEY}
+            headers = {"Authorization": f"Token {OSMCHA_API_KEY}"}
             return session.get(url, timeout=timeout, headers=headers)
         else:
             return session.get(url, timeout=timeout)
