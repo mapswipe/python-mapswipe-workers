@@ -52,15 +52,14 @@ function getFormInput() {
             };
             break;
     }
-
     form_data.screens = JSON.parse(screens)
     form_data.tutorialTasks = JSON.parse(tutorialTasks)
 
     return form_data
 }
 
-function upload_project_image(id) {
 
+function uploadProjectImage(id) {
     var file = document.getElementById(id).files[0]
     console.log(file)
     var filename = file.name
@@ -98,11 +97,10 @@ function upload_project_image(id) {
         }
       });
     });
-
-
 }
 
-function upload_to_firebase() {
+
+function uploadToFirebase() {
     switch (currentUid) {
         case null:
             alert("You are not logged in.");
@@ -119,9 +117,8 @@ function upload_to_firebase() {
             // TODO: add checks if all input values are valid, e.g. image available
             mapswipe_import = getFormInput()
 
-            upload_project_image("image1")
-            upload_project_image("image2")
-
+            uploadProjectImage("image1")
+            uploadProjectImage("image2")
 
             // TODO: this should be implemented better...
             setTimeout(function() {

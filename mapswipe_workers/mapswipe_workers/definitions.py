@@ -12,6 +12,11 @@ if not os.path.exists(DATA_PATH):
     os.makedirs(DATA_PATH)
 LOGGING_FILE_PATH = os.path.join(DATA_PATH, "mapswipe_workers.log")
 
+OHSOME_API_LINK = "https://api.ohsome.org/v1/"
+OSM_API_LINK = "https://www.openstreetmap.org/api/0.6/"
+OSMCHA_API_LINK = "https://osmcha.org/api/v1/"
+OSMCHA_API_KEY = os.environ["OSMCHA_API_KEY"]
+
 # number of geometries for project geometries
 MAX_INPUT_GEOMETRIES = 10
 
@@ -65,7 +70,7 @@ sentry = sentry_sdk
 IMAGE_URLS = {
     "bing": (
         "https://ecn.t0.tiles.virtualearth.net"
-        + "/tiles/a{quad_key}.jpeg?g=7505&mkt=en-US&token={key}"
+        + "/tiles/a{quad_key}.jpeg?g=1&token={key}"
     ),
     "mapbox": (
         "https://d.tiles.mapbox.com"

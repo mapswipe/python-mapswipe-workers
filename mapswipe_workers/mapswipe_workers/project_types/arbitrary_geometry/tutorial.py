@@ -1,5 +1,7 @@
 import json
 
+import numpy as np
+
 from mapswipe_workers.definitions import DATA_PATH, logger
 from mapswipe_workers.project_types.arbitrary_geometry import grouping_functions as g
 from mapswipe_workers.project_types.arbitrary_geometry.group import Group
@@ -53,17 +55,23 @@ class Tutorial(BaseTutorial):
         """Create the tasks dict based on provided examples in geojson file."""
 
         raw_groups = g.group_input_geometries(
-            self.inputGeometries, len(self.tutorial_tasks) + 1
+            self.inputGeometries,
+            len(self.tutorial_tasks["features"]) + 1,
+            tutorial=True,
         )
+
         for group_id, item in raw_groups.items():
             group = Group(self, groupId=101)
-            group.create_tasks(
-                item["feature_ids"],
-                item["feature_geometries"],
-                item["center_points"],
-                item["reference"],
-                item["screen"],
-            )
+
+            # Make sure that we sort the tasks.
+            # For the tutorial the feature_id represents the number of the screen.
+            # The group_input_geometries functions doesn't return
+            # the screens in the right order.
+            sorted_idx = np.array(item["feature_ids"]).argsort()
+            sorted_feature_ids = [item["feature_ids"][x] for x in sorted_idx]
+            sorted_features = [item["features"][x] for x in sorted_idx]
+
+            group.create_tasks(sorted_feature_ids, sorted_features)
 
         for task in group.tasks:
             logger.info(task)

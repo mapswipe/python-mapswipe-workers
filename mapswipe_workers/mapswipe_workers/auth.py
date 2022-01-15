@@ -45,7 +45,7 @@ def firebaseDB() -> object:
 
 
 class postgresDB(object):
-    """Helper calss for Postgres interactions"""
+    """Helper class for Postgres interactions"""
 
     _db_connection = None
     _db_cur = None

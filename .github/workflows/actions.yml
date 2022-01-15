@@ -59,6 +59,7 @@ jobs:
         POSTGRES_PASSWORD: test
         POSTGRES_USER: test
         POSTGRES_DB: test
+        OSMCHA_API_KEY: ${{ secrets.OSMCHA_API_KEY }}
       run: |
         docker-compose run mapswipe_workers_creation python -m unittest discover --verbose --start-directory tests/unittests/
         docker-compose run mapswipe_workers_creation python -m unittest discover --verbose --start-directory tests/integration/
