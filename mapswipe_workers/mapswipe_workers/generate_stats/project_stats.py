@@ -31,6 +31,7 @@ def add_metadata_to_csv(filename: str):
 
 
 def normalize_project_type_specifics(path):
+    """Explode nested json column project_type_specifics and drop empty columns."""
     df = pd.read_csv(path)
 
     if "project_type_specifics" in df.columns.tolist() and not is_numeric_dtype(
@@ -146,12 +147,12 @@ def get_tasks(filename: str, project_id: str) -> pd.DataFrame:
 
         sql_query = sql.SQL(
             """
-                COPY (
-                    SELECT project_id, group_id, task_id, ST_AsText(geom) as geom,
-                    project_type_specifics
-                    FROM tasks
-                    WHERE project_id = {}
-                ) TO STDOUT WITH CSV HEADER
+            COPY (
+                SELECT project_id, group_id, task_id, ST_AsText(geom) as geom,
+                project_type_specifics
+                FROM tasks
+                WHERE project_id = {}
+            ) TO STDOUT WITH CSV HEADER
             """
         ).format(sql.Literal(project_id))
         write_sql_to_gzipped_csv(filename, sql_query)
