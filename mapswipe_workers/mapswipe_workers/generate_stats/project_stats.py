@@ -37,9 +37,9 @@ def normalize_project_type_specifics(path):
     if "project_type_specifics" in df.columns.tolist() and not is_numeric_dtype(
         df["project_type_specifics"]
     ):
+        # convert json string to json dict
         df["project_type_specifics"] = df["project_type_specifics"].map(json.loads)
 
-        df = df.reset_index()
         normalized = pd.json_normalize(df["project_type_specifics"])
         normalized.index = df.index
         df = pd.concat([df, normalized], axis=1).drop(
