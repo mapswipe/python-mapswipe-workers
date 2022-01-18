@@ -1,10 +1,12 @@
 import datetime
 import gzip
+import json
 import os
 import tempfile
 from typing import List
 
 import pandas as pd
+from pandas.api.types import is_numeric_dtype
 from psycopg2 import sql
 
 from mapswipe_workers import auth
@@ -28,6 +30,30 @@ def add_metadata_to_csv(filename: str):
     logger.info(f"added metadata to {filename}.")
 
 
+def normalize_project_type_specifics(path):
+    df = pd.read_csv(path)
+
+    if "project_type_specifics" in df.columns.tolist() and not is_numeric_dtype(
+        df["project_type_specifics"]
+    ):
+        df["project_type_specifics"] = df["project_type_specifics"].map(json.loads)
+
+        df = df.reset_index()
+        normalized = pd.json_normalize(df["project_type_specifics"])
+        normalized.index = df.index
+        df = pd.concat([df, normalized], axis=1).drop(
+            columns=["project_type_specifics"]
+        )
+        for column in list(normalized.columns):
+            if "properties" in column:
+                df.rename(
+                    columns={column: column.replace("properties.", "")}, inplace=True
+                )
+
+    df.dropna(inplace=True, axis=0)
+    df.to_csv(path)
+
+
 def write_sql_to_gzipped_csv(filename: str, sql_query: sql.SQL):
     """
     Use the copy statement to write data from postgres to a csv file.
@@ -38,6 +64,8 @@ def write_sql_to_gzipped_csv(filename: str, sql_query: sql.SQL):
     pg_db = auth.postgresDB()
     with open(tmp_csv_file, "w") as f:
         pg_db.copy_expert(sql_query, f)
+
+    normalize_project_type_specifics(tmp_csv_file)
 
     with open(tmp_csv_file, "rb") as f_in, gzip.open(filename, "wb") as f_out:
         f_out.writelines(f_in)
@@ -118,19 +146,12 @@ def get_tasks(filename: str, project_id: str) -> pd.DataFrame:
 
         sql_query = sql.SQL(
             """
-COPY (
-    SELECT project_id, group_id, task_id, ST_AsText(geom) as geom,
-     (project_type_specifics->'properties'->'osmId')::text as osmId,
-     (project_type_specifics->'properties'->'changesetId')::text::int as changesetId,
-     (project_type_specifics->'properties'->'version')::text::smallint as version,
-     (project_type_specifics->'properties'->'userid')::text::int as userid,
-     (project_type_specifics->'properties'->'username')::text as username,
-     (project_type_specifics->'properties'->'editor')::text as editor,
-     (project_type_specifics->'properties'->'comment')::text as comment,
-     (project_type_specifics->'properties'->'lastEdit')::text::timestamp as lastEdit
-    FROM tasks
-    WHERE project_id = {}
-) TO STDOUT WITH CSV HEADER
+                COPY (
+                    SELECT project_id, group_id, task_id, ST_AsText(geom) as geom,
+                    project_type_specifics
+                    FROM tasks
+                    WHERE project_id = {}
+                ) TO STDOUT WITH CSV HEADER
             """
         ).format(sql.Literal(project_id))
         write_sql_to_gzipped_csv(filename, sql_query)
@@ -311,23 +332,9 @@ def get_agg_results_by_task_id(
     )
 
     # add task geometry using left join
+    tasks_df.drop(columns=["project_id", "group_id"], inplace=True)
     agg_results_df = results_by_task_id_df.merge(
-        tasks_df[
-            [
-                "geom",
-                "task_id",
-                "osmid",
-                "changesetid",
-                "version",
-                "userid",
-                "username",
-                "editor",
-                "comment",
-                "lastedit",
-            ]
-        ],
-        left_on="task_id",
-        right_on="task_id",
+        tasks_df, left_on="task_id", right_on="task_id",
     )
     logger.info("added geometry to aggregated results")
 
