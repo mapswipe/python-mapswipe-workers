@@ -18,3 +18,21 @@ Now you are inside the docker container and can login to firebase. You need to i
 Finally you can deploy your changes for cloud functions and database rules individually.
 * `firebase deploy --only functions`
 * `firebase deploy --only database:rules`
+
+## Notes on OAuth (OSM login)
+
+The main notes are in the app repository (/docs/osm_login.md).
+
+Some specifics about the related functions:
+ - get a service-account.json file from firebase which allows the OAuth functions to access the database and call
+   external URLs (this last point only works on a firebase Blaze plan)
+- Before deploying, set the required firebase config values with:
+- `firebase functions:config:set osm.client_id="" osm.client_secret=""`
+- Deploy the functions as explained above
+
+- Expose the functions publicly through firebase hosting
+
+
+We store the user's OSM access token in the database, which right now does not do anything, but would be needed if we
+want our backend to do something in OSM on behalf of the user. If we want the app to do this, we could simply store the
+token in the app's storage. The database access rules are set to only allow the owner of a token to access them.
