@@ -198,6 +198,6 @@ services:
         environment:
             FIREBASE_TOKEN: '${FIREBASE_TOKEN}'
             FIREBASE_DB: '${FIREBASE_DB}'
-        command: sh -c "firebase use $FIREBASE_DB && firebase deploy --token $FIREBASE_TOKEN --only functions,database:rules"
+        command: sh -c "firebase use $FIREBASE_DB && firebase functions:config:set osm.client_id=\"${OSM_OAUTH_CLIENT_ID}\" osm.client_secret=\"${OSM_OAUTH_CLIENT_SECRET}\" && firebase deploy --token $FIREBASE_TOKEN --only functions,database:rules"
         volumes:
             - ./firebase:/firebase
