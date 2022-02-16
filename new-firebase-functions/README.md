@@ -21,7 +21,7 @@ Finally you can deploy your changes for cloud functions and database rules indiv
 
 ## Notes on OAuth (OSM login)
 
-The main notes are in the app repository (/docs/osm_login.md).
+Refer to [the notes in the app repository](https://github.com/mapswipe/mapswipe/blob/master/docs/osm_login.md).
 
 Some specifics about the related functions:
  - get a service-account.json file from firebase which allows the OAuth functions to access the database and call
