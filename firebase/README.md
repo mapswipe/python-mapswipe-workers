@@ -29,10 +29,10 @@ Some specifics about the related functions:
 - Before deploying, set the required firebase config values with:
 - `firebase functions:config:set osm.client_id="" osm.client_secret=""`
 - Deploy the functions as explained above
-
-- Expose the functions publicly through firebase hosting
+- Expose the functions publicly through firebase hosting, this is done in `/firebase/firebase.json` under the `hosting`
+  key.
 
 
 We store the user's OSM access token in the database, which right now does not do anything, but would be needed if we
-want our backend to do something in OSM on behalf of the user. If we want the app to do this, we could simply store the
-token in the app's storage. The database access rules are set to only allow the owner of a token to access them.
+want our backend to do something in OSM on behalf of the user. The database access rules are set to only allow the owner
+of a token to access them.
