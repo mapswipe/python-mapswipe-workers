@@ -26,8 +26,13 @@ Refer to [the notes in the app repository](https://github.com/mapswipe/mapswipe/
 Some specifics about the related functions:
  - get a service-account.json file from firebase which allows the OAuth functions to access the database and call
    external URLs (this last point only works on a firebase Blaze plan)
-- Before deploying, set the required firebase config values with:
-- `firebase functions:config:set osm.client_id="" osm.client_secret=""`
+- Before deploying, set the required firebase config values in environment:
+  - OSM_OAUTH_REDIRECT_URI: 'devmapswipe://login/osm' or 'mapswipe://login/osm'
+  - OSM_OAUTH_API_URL: 'https://master.apis.dev.openstreetmap.org/' or 'https://www.openstreetmap.org/' (include the
+    trailing slash)
+  - OSM_OAUTH_CLIENT_ID: find it on the OSM application page
+  - OSM_OAUTH_CLIENT_SECRET: same as above. Note that this can only be seen once when the application is created. Do not
+    lose it!
 - Deploy the functions as explained above
 - Expose the functions publicly through firebase hosting, this is done in `/firebase/firebase.json` under the `hosting`
   key.
