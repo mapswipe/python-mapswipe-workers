@@ -162,6 +162,11 @@ exports.token = functions.https.onRequest(async (req, res) => {
             // get the OSM user id and display_name
             const { id, display_name } = await getOSMProfile(accessToken);
             functions.logger.log('osmuser:', id, display_name);
+            if (id === undefined) {
+                // this should not happen, but help guard against creating
+                // invalid accounts
+                throw "Could not obtain an account id from OSM"
+            }
 
             // Create a Firebase account and get the Custom Auth Token.
             const firebaseToken = await createFirebaseAccount(
