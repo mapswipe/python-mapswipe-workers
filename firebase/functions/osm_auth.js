@@ -215,6 +215,17 @@ async function createFirebaseAccount(osmID, displayName, accessToken) {
         .ref(`v2/OSMAccessToken/${uid}`)
         .set(accessToken);
 
+    const profileTask = admin
+        .database()
+        .ref(`v2/users/${uid}/`)
+        .set({
+            created: new Date().toISOString(),
+            groupContributionCount: 0,
+            projectContributionCount: 0,
+            taskContributionCount: 0,
+            displayName,
+        });
+
     // Create or update the firebase user account.
     // This does not login the user on the app, it just ensures that a firebase
     // user account (linked to the OSM account) exists.
