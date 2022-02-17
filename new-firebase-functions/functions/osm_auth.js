@@ -25,14 +25,14 @@ admin.initializeApp({
 // this redirect_uri MUST match the one set in the app on OSM OAuth, or you
 // will get a cryptic error about the server not being able to continue
 // TODO: adjust the prefix based on which deployment is done (prod/dev)
-const OAUTH_REDIRECT_URI = 'devmapswipe://login/osm';
+const OAUTH_REDIRECT_URI = functions.config().osm.redirect_uri;
 
 // the scope is taken from https://wiki.openstreetmap.org/wiki/OAuth#OAuth_2.0
 // at least one seems to be required for the auth workflow to complete
 const OAUTH_SCOPES = 'read_prefs';
 
 // The URL to the OSM API, which is different for production vs OSM development
-const OSM_API_URL = 'https://master.apis.dev.openstreetmap.org/';
+const OSM_API_URL = functions.config().osm.api_url;
 
 /**
  * Creates a configured simple-oauth2 client for OSM.
