@@ -1,4 +1,4 @@
-# Testing and Travis
+# Testing
 
 ## Tests
 * run tests locally during development
