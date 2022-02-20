@@ -11,12 +11,13 @@ The MapSwipe back end currently supports 3 **project types**. Each project type 
 | Name | ID | Description | Screenshot |
 | ---- | -- | ----------- | ---------- |
 | BuildArea | 1 | A 6 squares layout is used for this project type. By tapping you can classify a tile of satellite imagery as *yes*, *maybe* or *bad_imagery*. Project managers can define which objects to look for, e.g. "buildings". Furthermore, they can specify the tile server of the background satellite imagery, e.g. "bing" or a custom tile server. | <img src="_static/img/BuildArea_screenshot.png" width="250px"> |
-| Footprint | 2 | add description. | <img src="_static/img/Footprint_screenshot.png" width="250px"> |
+| Footprint | 2 | An image with a footprint overlay. The question is whether this footprint is correctly approximating a structure on the shown image, which can be answered with *yes*, *no* or *Not sure*. Additionally, a button is shown which hides the footprint overlay. | <img src="_static/img/footprint_screenshot.jpeg" width="250px"> |
 | ChangeDetection | 3 | add description. | <img src="_static/img/ChangeDetection_screenshot.png" width="250px"> |
 
 
 ## Data Model
-This way of formulating the overall crowdsourcing challenge and it's sub components shapes the **data model** we use. The data model is depicted in *Figure 1* and consists of the following parts:
+This way of formulating the overall crowdsourcing challenge and it's sub components shapes the **data model** we use. 
+The data model is depicted in *Figure 1* and consists of the following parts:
 
 * project drafts
 * projects
@@ -27,10 +28,11 @@ This way of formulating the overall crowdsourcing challenge and it's sub compone
 * users
 
 
-| <img src="_static/img/entity_relationship_diagram-postgres_desired.png"> |
+| <img src="_static/img/entity_relationship_diagram-postgres_desired.PNG"> |
 
 ### Project Drafts
-After project managers defined their mapping challenges in the very first step, they can generate **project drafts** through the manager dashboard. The project drafts contain all information about your mapping challenge that you need to initialize a project in MapSwipe. For instance, the project draft defines which area you want to get mapped and how many users should work on each task.
+After project managers defined their mapping challenges in the very first step, they can generate **project drafts** through the manager dashboard. The project drafts contain all information about your mapping challenge that you need to initialize a project in MapSwipe. 
+For instance, the project draft defines which area you want to get mapped and how many users should work on each task.
 
 | Parameter | Description |
 | --- | --- |
@@ -45,7 +47,9 @@ After project managers defined their mapping challenges in the very first step, 
 | _Project Type Specific Information_ | There will be varying parameters defined by the individual project types. You can find this information at the page for each project type. |
 
 ### Projects
-The **project** holds all information provided by the project drafts, but adds additional information which are needed for the MapSwipe app such as progress and number of users who contributed. A project consists of several groups.
+The **project** holds all information provided by the project drafts, 
+but adds additional information which are needed for the MapSwipe app such as progress and number of users who contributed. 
+A project consists of several groups.
 
 | Parameter | Description |
 | --- | --- |
@@ -67,7 +71,9 @@ The **project** holds all information provided by the project drafts, but adds a
 | *Project Type Specific Information* | There will be varying parameters defined by the individual project types. You can find this information at the page for each project type. |
 
 ### Groups
-The **groups** are an intermediary between projects and tasks. Each group belongs to a single project and consists of several tasks. Groups are the key to distribute tasks to MapSwipe users in a way that we can ensure that everything gets mapped as often as required in an efficient manner.
+The **groups** are an intermediary between projects and tasks. 
+Each group belongs to a single project and consists of several tasks. 
+Groups are the key to distribute tasks to MapSwipe users in a way that we can ensure that everything gets mapped as often as required in an efficient manner.
 
 | Parameter | Description |
 | --- | --- |
@@ -81,7 +87,10 @@ The **groups** are an intermediary between projects and tasks. Each group belong
 | *Project Type Specific Information* | There will be varying parameters defined by the individual project types. You can find this information at the page for each project type. |
 
 ### Tasks
-The **tasks** are the smallest component in our data model. Each task formulates an easy and quick to solve mapping challenge. In many cases this challenge can be put into a simple question, e.g. *Can you see a building in this satellite imagery tile*. Tasks always belong to a specific group and project.
+The **tasks** are the smallest component in our data model. 
+Each task formulates an easy and quick to solve mapping challenge. 
+In many cases this challenge can be put into a simple question, e.g. *Can you see a building in this satellite imagery tile*. 
+Tasks always belong to a specific group and project.
 
 | Parameter | Description |
 | --- | --- |
@@ -93,20 +102,23 @@ The **tasks** are the smallest component in our data model. Each task formulates
 
 
 ### Results
-The **results** hold the information you wanted in the very beginning. For each task you will receive several results by different users. A result is the simple answer to your initial question. For instance, it's a simple "yes" to the question "can you see a building in this satellite imagery tile".
+The **results** hold the information you wanted in the very beginning. 
+For each task you will receive several results by different users. 
+A result is the simple answer to your initial question. 
+For instance, it's a simple "yes" to the question "can you see a building in this satellite imagery tile".
 
 | Parameter | Description |
 | --- | --- |
-| timestamp             |      |
-| startTime             |      |
-| endTime               |      |
-| result |              |      |
+| timestamp            |      |
+| startTime            |      |
+| endTime              |      |
+| result               |      |
 
-
-timestamptimestampstartTimetimestampendTimetimestamp
 
 ### Users
-The **users** provide the results to your tasks. They are the key to solve your mapping challenge. For each user we generate mapping related statistics, e.g. the number of projects a user has been worked on.
+The **users** provide the results to your tasks. 
+They are the key to solve your mapping challenge. 
+For each user we generate mapping related statistics, e.g. the number of projects a user has been worked on.
 
 | Parameter | Description |
 | --- | --- |

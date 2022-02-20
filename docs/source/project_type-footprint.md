@@ -5,49 +5,86 @@
 
 ## Import structure
 
+Footprint projects can be supplied with geometries in three seperate ways. 
+1. by specifying a HOT Tasking Manager Project ID and an object [filter](https://docs.ohsome.org/ohsome-api/v1/filter.html)
+2. by specifying an url to the data (e.g. an [ohsomeAPI](https://docs.ohsome.org/ohsome-api/v1/) call)
+3. by uploading an aoi and an object [filter](https://docs.ohsome.org/ohsome-api/v1/filter.html)
+
+
+Import structure example for a footprint project which was initialized with an aoi and a filter:
 ```json
 {
-  "inputGeometries" : "https://heibox.uni-heidelberg.de/f/7a61e549b6/?dl=1",
-  "project" : {
-    "image" : "http://www.fragosus.com/test/Javita.jpg",
-    "lookFor" : "Buildings",
-    "name" : "Mapping to end FGM in North Monduli",
-    "projectDetails" : "Swipe slowly through the satellite imagery and mark anything that looks like it could be a building or village. This area has high levels of girls being subjected to FGM and child marriage.",
-    "verificationCount" : "3"
+  "createdBy" : "Sample Admin",
+  "filter" : "building=* and geometry:polygon",
+  "geometry" : {
+    "type": "FeatureCollection",
+    "features": [
+      {
+        "type": "Feature",
+        "properties": {},
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [[[9.18032169342041, 48.790552471542284],[9.187102317810059,48.790552471542284],[9.187102317810059,48.79407236257656],[9.18032169342041,48.79407236257656],[9.18032169342041,48.790552471542284]]]}
+      }
+    ]
   },
+  "groupSize" : 25,
+  "lookFor": "Buildings",
+  "image": "http://www.fragosus.com/test/Javita.jpg",
+  "projectDetails": "This is a template for a GeoJSON AOI project. We use Bing as the tile server.",
+  "inputType" : "aoi_file",
+  "name" : "Test Footprint GeoJSON AOI",
+  "projectTopic" : "Test Footprint GeoJSON AOI",
   "projectType" : 2,
-  "tileServer" : "bing"
+  "verificationNumber": 3,
+  "tileServer" : {
+    "credits" : "© 2019 Microsoft Corporation, Earthstar Geographics SIO",
+    "name" : "bing",
+    "url" : "",
+    "wmtsLayerName" : ""
+  }
 }
+
 ```
-
-The `tileserver` attribute can have the following values: `bing`, `custom`. If a custom tileserver is chosen, you need to provide a `custom_tileserver_url` attribute which links to a TMS using x, y, z placeholders.
-
-Imports which have been imported successfully will have a `complete` attribute set to `true`.
-
+Examples for the other initialization options can be found in the mapswipe-backend repository at mapswipe_workers/tests/integration/fixtures/footprint/projectDrafts.
 
 ## Project structure
 
+Project Structure example for a project which was created via HOT Tasking Manager Project ID.
 ```json
 {
-  "contributors" : 0,
-  "groupAverage" : 0,
-  "id" : 13564,
-  "image" : "http://www.fragosus.com/test/Javita.jpg",
-  "importKey" : "-LNOgRd0szBM2HJBX27B",
-  "info" : {
-    "api_key" : "your_bing_api_key",
-    "group_size" : 50,
-    "input_geometries_file" : "data/valid_geometries_13564.geojson",
-    "tileserver" : "bing"
-  },
+  "TMId" : "11193",
+  "contributorCount" : 1,
+  "created" : "2021-12-10T18:05:26.090515Z",
+  "createdBy" : "X0zTSyvY0khDfRwc99aQfIjTEPK2",
+  "filter" : "building=* and geometry:polygon",
+  "groupMaxSize" : 0,
+  "groupSize" : 30,
+  "image" : "https://firebasestorage.googleapis.com/v0/b/dev-mapswipe.appspot.com/o/projectImages%2Fimage.jpeg?alt=media&token=c57beac5-6c6f-4d8f-85e5-9543e5bbeeab",
+  "inputType" : "TMId",
   "isFeatured" : false,
   "lookFor" : "Buildings",
-  "name" : "Mapping to end FGM in North Monduli",
+  "name" : "OSM Building Validation - Indonesia (1)\nAmerican Red Cross",
   "progress" : 0,
-  "projectDetails" : "Swipe slowly through the satellite imagery and mark anything that looks like it could be a building or village. This area has high levels of girls being subjected to FGM and child marriage.",
+  "projectDetails" : "The Red Cross Climate Centre, Indonesian Red Cross (Palang Merah Indonesia/PMI), IFRC, British Red Cross and Australian Red Cross are implementing a programme where the data contributed will be used by the Red Cross to assist in forecasting future disaster impacts, by knowing in advance what is likely to be impacted and its exposure and vulnerability. The information will help implementation of early action activities to take place before a disaster strikes, contributing to reduce risk, prepare for effective response and ultimately to strengthen community resilience.",
+  "projectId" : "-Mq_IVluLteQRS75gWej",
+  "projectNumber" : "1",
+  "projectRegion" : "Indonesia",
+  "projectTopic" : "OSM Building Validation",
   "projectType" : 2,
-  "state" : 3,
-  "verificationCount" : 3
+  "requestingOrganisation" : "American Red Cross",
+  "requiredResults" : 286302,
+  "resultCount" : 0,
+  "status" : "private_active",
+  "teamId" : "-Mq_EQlzqmYytCspuFSq",
+  "tileServer" : {
+    "apiKey" : "ca613e76-811f-46e7-9e1d-84f6795441c2",
+    "credits" : "© 2019 Maxar",
+    "name" : "maxar_premium",
+    "url" : "https://services.digitalglobe.com/earthservice/tmsaccess/tms/1.0.0/DigitalGlobe%3AImageryTileService@EPSG%3A3857@jpg/{z}/{x}/{y}.jpg?connectId={key}"
+  },
+  "tutorialId" : "tutorial_-MO3ky5z--RY8PC1lONa",
+  "verificationNumber" : 3
 }
 ```
 
@@ -56,16 +93,15 @@ Imports which have been imported successfully will have a `complete` attribute s
 
 ```
 {
-  "completedCount" : 0,
-  "count" : 50,
-  "id" : 100,
-  "neededCount" : 3,
-  "project_id" : 13564,
-  "tasks" : {...}
+  "finishedCount" : 0,
+  "groupId" : "g289",
+  "numberOfTasks" : 31,
+  "progress" : 0,
+  "projectId" : "-Mq_IVluLteQRS75gWej",
+  "requiredCount" : 3
 }
 
 ```
-
 
 ## Task structure
 
@@ -77,7 +113,7 @@ Imports which have been imported successfully will have a `complete` attribute s
     "type" : "Polygon"
   },
   "id" : "13564_100_0",
-  "project_id" : 13564
+  "properties": "feature_geometries, e.g. attributes from osm"
 }
 ```
 

@@ -13,36 +13,38 @@ Welcome to MapSwipe Back-End's documentation!
 
    readme_link
    overview
-   contributing
+   data
+   dev_setup
+   testing
+
 
 .. toctree::
    :maxdepth: 2
-   :caption: Using:
+   :caption: Project Types:
+
+   project_type
+   project_type-buildArea
+   project_type-changeDetection
+   project_type-footprint
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Usage:
 
    for_mapswipe_managers
    use_cases
    tile_size
-   data
 
 
 .. toctree::
    :maxdepth: 2
    :caption: Deployment:
 
-   deployment_overview
    configuration
    installation
    cli
    debugging
    backup
-
-
-.. toctree::
-   :maxdepth: 2
-   :caption: Development:
-
-   dev_setup
-   testing_and_travis
 
 
 Indices and tables
