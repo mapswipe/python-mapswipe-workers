@@ -6,21 +6,15 @@ A working Firebase Project (Including Firebase Functions and Database Rules) is 
 Get in touch with the MapSwipe team (e.g. in Slack) to get access to an existing Firebase Instance for development purposes.
 
 Check list:
-1. Clone repo from GitHub.
-2. Install GDAL/OGR and GDAL for Python on your machine.
-3. Set environment variables and get a Service Account Key File.
-4. Set up local Postgres database using Docker.
-5. Install MapSwipe Workers Python package.
+1. Github: Clone repo from GitHub.
+2. Requirements: Install GDAL/OGR and GDAL for Python on your machine.
+3. Configuration: Set environment variables and get a Service Account Key File.
+4. Database: Set up local Postgres database using Docker.
+5. Python-Package: Install MapSwipe Workers Python package.
 6. Run MapSwipe Workers.
 
 
 ## Installation
-
-### Requirements
-
-MapSwipe Workers requires GDAL/OGR (`gdal-bin`) and GDAL for Python (`libgdal-dev`, `python-gdal`) to be installed. 
-Furthermore, we rely on Docker to set up Postgres.
-
 
 ### Clone from GitHub
 
@@ -32,25 +26,17 @@ cd python-mapswipe-workers
 git checkout dev
 ```
 
+### Requirements
+
+MapSwipe Workers requires GDAL/OGR (`gdal-bin`) and GDAL for Python (`libgdal-dev`, `python-gdal`) to be [installed](https://mothergeo-py.readthedocs.io/en/latest/development/how-to/gdal-ubuntu-pkg.html). 
+Furthermore, we rely on Docker to set up Postgres.
+
 
 ### Configuration
 
 All configurations values are stored in environment variables. Please refer to the documentation on [Configuration](configuration.html) for further details.
 
-
-### Directories
-
-MapSwipe Workers needs access to a data directory for logs and data for data for the API:
-
-To create this directories run:
-```
-mkdir --parents ~/.local/share/mapswipe_workers
-```
-
-> Note: XDG Base Directory Specification is respected
-
-
-### Service Account Key
+#### Service Account Key
 
 The MapSwipe Workers requires a Service Account Key (`serviceAccountKey.json`) to access Firebase database. 
 Request yours from the MapSwipe working group.
@@ -60,8 +46,19 @@ The path to the Service Account Key is defined in the `GOOGLE_APPLICATION_CREDEN
 You could also set up your own Firebase instance. However, this is not recommended. 
 If you still want to do it, get your Service Account Key from Firebase from [Google Cloud Service Accounts](https://console.cloud.google.com/iam-admin/serviceaccounts).
 
+#### Directories
 
-### Postgres
+MapSwipe Workers needs access to a data directory for logs and data for the API:
+
+To create this directories run:
+```
+mkdir --parents ~/.local/share/mapswipe_workers
+```
+
+> Note: XDG Base Directory Specification is respected
+
+
+### Database
 
 Setup a local Postgres instance for MapSwipe Workers using the Dockerfile provided for development purposes (`postgres/Dockerfile-dev`). 
 The Dockerfile for production (`postgres/Dockerfile`) does need additional setup for build-in backup to Google Cloud Storage, which is not needed for local development. That is why a simplified Dockerfile for development is provided.
@@ -75,7 +72,7 @@ docker run -d -p 5432:5432 --name mapswipe_postgres -e POSTGRES_DB="$POSTGRES_DB
 Or set up Postgres using the `initdb.sql` file in the `postgres/` folder.
 
 
-### Install MapSwipe Workers Python Package
+### Mapswipe-Workers Python Package
 
 1. Export environment variables to current shell.
 2. Create a Python virtual environment with `system-site-packages` option enabled to get access to GDAL/OGR Python packages
@@ -94,11 +91,12 @@ mapswipe_workers --help
 
 > Yeah! If you reached this point, you are ready to get into coding. Below you find some more information on Logging, Firebase Functions and Database Backup. However, you don't need this to get started for now.
 
+# Further Information
 
 ## Logging
 
 Mapswipe workers logs are generated using the Python logging module of the standard library (See [Official docs](https://docs.python.org/3/library/logging.html) or this [Tutorial](https://realpython.com/python-logging/#the-logging-module). 
-To use the logger object import the it from the `definitions` module:
+To use the logger object import it from the `definitions` module:
 
 ```python
 from mapswipe_workers.definitions import logger
@@ -144,6 +142,7 @@ The use of those functions also reduces the data-transfer between the Firebase R
 On how to setup the development environment and how to deploy functions to the Firebase instance please refer to the official [Guide on Cloud Function for Firebase](https://firebase.google.com/docs/functions/get-started).
 For more information refer to the official [Reference on Cloud Function for Firebase](https://firebase.google.com/docs/reference/functions/). 
 For example function take a look at this [GitHub repository](https://github.com/firebase/functions-samples).
+
 
 ## Database Backup
 
