@@ -53,7 +53,9 @@ Files:
 | agreement | float | This is defined as [Scott's Pi](https://en.wikipedia.org/wiki/Scott%27s_Pi) and gives you an understanding of inter-rater reliability. The value is 1.0 if all users agree, e.g. all users classify as "building". If users disagree this value will be lower. |
 | geom | string | The geometry of this task as WKT geometry. |
  
+Additionally, project type specific data can be found here. E.g. footprint projects which were created based on OSM data, will have data describing the original OSM object included.
  
+
 ## HOT Tasking Manager Geometries
 This gives you filtered MapSwipe data ready to be imported to the HOT Tasking Manager. Currently, the geometries in this dataset consist of maximum 15 MapSwipe Tasks, where at least 35% of all users indicated the presence of a building by classifying as "yes" or "maybe". 
  
@@ -67,4 +69,15 @@ This gives you filtered MapSwipe data ready to be imported to the HOT Tasking Ma
 
 <img src="_static/img/tasking_manager_geometries_example.png" width="600px">
  
- 
+## Users
+
+This gives you data on the users which contributed to a project.
+
+| Name                      | Type    | Description                                                                                                                                                      |
+|---------------------------|---------|------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| idx                       | integer | -                                                                                                                                                                |
+| groups_completed          | integer | Number of groups completed                                                                                                                                       |
+| total_contributions       | integer | Number of tasks completed                                                                                                                                        |
+| agreeing_contributions    | integer | Tasks with the same result as the final result (e.g. Tile has buildings).                                                                                        |
+| disagreeing_contributions | integer | Tasks with other result as the final result.                                                                                                                     |
+| simple_agreement_score    | float   | Share of tasks which had the same result as the final result. E.g. 0.8 would mean that the user labeled 80% of the tiles the same way as the majority of voters. |
