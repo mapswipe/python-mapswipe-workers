@@ -32,6 +32,7 @@ Welcome to MapSwipe Back-End's documentation!
    :caption: Usage:
 
    for_mapswipe_managers
+   cli
    use_cases
    tile_size
 
@@ -42,7 +43,6 @@ Welcome to MapSwipe Back-End's documentation!
 
    configuration
    installation
-   cli
    debugging
    backup
 
