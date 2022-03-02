@@ -113,6 +113,8 @@ class MessageType(Enum):
     FAIL = 2
     NOTIFICATION_90 = 3
     NOTIFICATION_100 = 4
+    PROJECT_STATUS_FINISHED = 5
+    PROJECT_STATUS_ACTIVE = 6
 
 
 class ProjectType(Enum):

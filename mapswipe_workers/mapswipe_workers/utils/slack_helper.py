@@ -58,6 +58,24 @@ def send_slack_message(
             + "and activate another one."
         )
         slack_client.chat_postMessage(channel="mapswipe_managers", text=message)
+    elif message_type == MessageType.PROJECT_STATUS_FINISHED:
+        message = (
+            "### SET PROJECT STATUS TO FINISHED ###\n"
+            + f"Project Name: {project_name}\n"
+            + f"Project Id: {project_id}\n\n"
+            + "The status of the project has been set to 'finished' "
+            + "by MapSwipe's backend workers."
+        )
+        slack_client.chat_postMessage(channel=SLACK_CHANNEL, text=message)
+    elif message_type == MessageType.PROJECT_STATUS_ACTIVE:
+        message = (
+            "### SET PROJECT STATUS TO ACTIVE ###\n"
+            + f"Project Name: {project_name}\n"
+            + f"Project Id: {project_id}\n\n"
+            + "The status of the project has been set to 'active' "
+            + "by MapSwipe's backend workers."
+        )
+        slack_client.chat_postMessage(channel=SLACK_CHANNEL, text=message)
     else:
         # TODO: Raise an Exception
         pass
