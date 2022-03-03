@@ -19,12 +19,12 @@ def get_projects(status):
 
 
 def filter_projects_by_name_and_progress(projects, filter_string, progress_threshold):
-    """Load 'active' projects from Firebase."""
+    """Filter projects by name (lowercase) and progress."""
     selected_project_ids = []
     for project_id in projects.keys():
         name = projects[project_id]["name"]
         progress = projects[project_id]["progress"]
-        if filter_string in name and progress >= progress_threshold:
+        if filter_string.lower() in name.lower() and progress >= progress_threshold:
             selected_project_ids.append(project_id)
 
     logger.info(
@@ -78,7 +78,9 @@ def run_update_project_status(filter_string):
 
 
 if __name__ == "__main__":
-    """Check if project status should be updated and change value in Firebase."""
+    """Use this command to run in docker container.
+    docker-compose run -d mapswipe_workers_creation python3 python_scripts/update_project_status.py "test" 30  # noqa
+    """
     try:
         filter_string = sys.argv[1]
         time_interval = int(sys.argv[2])
