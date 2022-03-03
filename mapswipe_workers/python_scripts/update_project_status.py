@@ -1,6 +1,6 @@
 import sys
 import time
-from typing import List
+from typing import List, OrderedDict
 
 import schedule as sched
 
@@ -9,7 +9,7 @@ from mapswipe_workers.definitions import MessageType, logger
 from mapswipe_workers.utils.slack_helper import send_slack_message
 
 
-def get_projects(status: str) -> dict:
+def get_projects(status: str) -> OrderedDict:
     """Load 'active' projects from Firebase."""
     fb_db = firebaseDB()
     projects = (
@@ -20,7 +20,7 @@ def get_projects(status: str) -> dict:
 
 
 def filter_projects_by_name_and_progress(
-    projects: dict, filter_string: str, progress_threshold: int
+    projects: OrderedDict, filter_string: str, progress_threshold: int
 ) -> List[str]:
     """Filter projects by name (lowercase) and progress."""
     selected_project_ids = []
@@ -62,6 +62,12 @@ def run_update_project_status(filter_string: str) -> None:
     )
 
     inactive_projects = get_projects(status="inactive")
+    # We sort projects by their attribute "projectNumber" to ensure that
+    # always the lowest one will be set to "status=active" next.
+    inactive_projects = OrderedDict(
+        sorted(inactive_projects.items(), key=lambda x: x[1]["projectNumber"])
+    )
+
     new_active_projects = filter_projects_by_name_and_progress(
         inactive_projects, filter_string, progress_threshold=0,
     )[0 : len(finished_projects)]
