@@ -109,6 +109,8 @@ class CustomError(Exception):
 
 
 class MessageType(Enum):
+    """The different types of messages sent via Slack."""
+
     SUCCESS = 1
     FAIL = 2
     NOTIFICATION_90 = 3

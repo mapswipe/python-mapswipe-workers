@@ -1,5 +1,6 @@
 import sys
 import time
+from typing import List
 
 import schedule as sched
 
@@ -8,7 +9,7 @@ from mapswipe_workers.definitions import MessageType, logger
 from mapswipe_workers.utils.slack_helper import send_slack_message
 
 
-def get_projects(status):
+def get_projects(status: str) -> dict:
     """Load 'active' projects from Firebase."""
     fb_db = firebaseDB()
     projects = (
@@ -18,7 +19,9 @@ def get_projects(status):
     return projects
 
 
-def filter_projects_by_name_and_progress(projects, filter_string, progress_threshold):
+def filter_projects_by_name_and_progress(
+    projects: dict, filter_string: str, progress_threshold: int
+) -> List[str]:
     """Filter projects by name (lowercase) and progress."""
     selected_project_ids = []
     for project_id in projects.keys():
@@ -34,7 +37,7 @@ def filter_projects_by_name_and_progress(projects, filter_string, progress_thres
     return selected_project_ids
 
 
-def set_status_in_firebase(project_id, project_name, new_status):
+def set_status_in_firebase(project_id: str, project_name: str, new_status: str) -> None:
     """Change status of a project in Firebase."""
     # change status in firebase
     fb_db = firebaseDB()
@@ -50,7 +53,7 @@ def set_status_in_firebase(project_id, project_name, new_status):
         send_slack_message(MessageType.PROJECT_STATUS_ACTIVE, project_name, project_id)
 
 
-def run_update_project_status(filter_string):
+def run_update_project_status(filter_string: str) -> None:
     """Run the workflow to update project status for all filtered projects."""
     logger.info("### Start update project status workflow ###")
     active_projects = get_projects(status="active")
@@ -80,6 +83,14 @@ def run_update_project_status(filter_string):
 if __name__ == "__main__":
     """Use this command to run in docker container.
     docker-compose run -d mapswipe_workers_creation python3 python_scripts/update_project_status.py "test" 30  # noqa
+    
+    You can two arguments to the script
+    - filter string, e.g. "test"
+    - time interval in minutes, e.g. 30
+    
+    Make sure that you don't run this script too frequently as it pulls data from firebase and
+    this will have implications on costs. Running this script once every 15-30 minutes should be totally fine.
+    This means that there can be a "delay" in setting a project to finished about roughly the same time.
     """
     try:
         filter_string = sys.argv[1]
