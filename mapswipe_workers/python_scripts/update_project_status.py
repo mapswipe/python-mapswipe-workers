@@ -90,7 +90,7 @@ if __name__ == "__main__":
     """Use this command to run in docker container.
     docker-compose run -d mapswipe_workers_creation python3 python_scripts/update_project_status.py "test" 30  # noqa
     
-    You can two arguments to the script
+    You need to use two arguments for the script
     - filter string, e.g. "test"
     - time interval in minutes, e.g. 30
     
