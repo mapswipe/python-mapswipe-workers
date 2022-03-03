@@ -13,7 +13,7 @@ The MapSwipe Back-End consists of a number of components:
 Please refer to the documentation for more information: https://mapswipe-workers.readthedocs.io/
 
 
-## Ressources
+## Resources
 
 - MapSwipe Back-End: https://github.com/mapswipe/python-mapswipe-workers
 - MapSwipe App https://github.com/mapswipe/mapswipe
