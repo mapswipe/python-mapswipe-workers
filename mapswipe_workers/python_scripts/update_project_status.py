@@ -65,7 +65,7 @@ def run_update_project_status(filter_string: str) -> None:
     # We sort projects by their attribute "projectNumber" to ensure that
     # always the lowest one will be set to "status=active" next.
     inactive_projects = OrderedDict(
-        sorted(inactive_projects.items(), key=lambda x: x[1]["projectNumber"])
+        sorted(inactive_projects.items(), key=lambda x: int(x[1]["projectNumber"]))
     )
 
     new_active_projects = filter_projects_by_name_and_progress(
