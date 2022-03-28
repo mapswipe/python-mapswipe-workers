@@ -2,81 +2,105 @@
 
 ![Build Area](_static/img/data_structure-firebase-1.svg)
 
-| Name | ID | Description | Screenshot |
-| ---- | -- | ----------- | ---------- |
-| BuildArea | 1 | A 6 squares layout is used for this project type. By tapping you can classify a tile of satellite imagery as *yes*, *maybe* or *bad_imagery*. Project managers can define which objects to look for, e.g. "buildings". Furthermore, they can specify the tile server of the background satellite imagery, e.g. "bing" or a custom tile server. | <img src="_static/img/BuildArea_screenshot.png" width="250px"> |
-
-
-## Data Model
-The MapSwipe crowdsourcing workflow is designed following an approach already presented by [Albuquerque et al. (2016)](http://www.mdpi.com/2072-4292/8/10/859). Five concepts are important in the following:
-* project drafts
-* projects
-* groups
-* tasks
-* results.
-
-| <img src="_static/img/mapswipe_data_model.png">
-
-As a project manager you have to care about the **Project Drafts** only. The information you provide through the **Manager Dashboard** will be used to set up your project. You should provide the following information.
-
 ### Project Drafts
-The project drafts contain all information needed to set up your project. Only MapSwipe user accounts with dedicated project manager role can create projects. Make sure to get the rights before submitting project drafts.
 
-| Parameter | Description |
-| --- | --- |
-| _Basic Project Information_ |
-| **Name** |  The name of your project (25 chars max) |
-| **Look For** | What should the users look for (e.g. buildings, cars, trees)? (15 chars max). |
-| **Project Type** | Is `1` for all Build Area projects. |
-| **Direct Image Link** | An url to an image. Make sure you have the rights to use this image. It should end with .jpg or .png. |
-| **Project Details** |  The description for your project. (3-5 sentences).  |
-| **Verification Number** | How many people do you want to see every tile before you consider it finished? (default is 3 - more is recommended for harder tasks, but this will also make project take longer) |
-| **Group Size** | How big should a mapping session be? Group size refers to the number of tasks per mapping session. |
-| _Project Type Specific Information_ |
-| **Zoom Level** | We use the Tile Map Service zoom levels. Please check for your area which zoom level is available. For example, Bing imagery is available at zoomlevel 18 for most regions. If you use a custom tile server you may be able to use even higher zoom levels. |
-| **KML file Content** | The content of a KML file. Make sure that you provide a single polygon geometry. |
-| **Tile Server Name** | Select the tile server providing satellite imagery tiles for your project. Make sure you have permission. You can choose: `Bing`, `Digital Globe`, `Sinergise`,  `Custom` |
-| **Custom Tile Server URL** (optional) | A custom tile server URL that uses {z}, {x} and {y} as placeholders and that already includes the api key. This is only needed if you choose `Custom` as the _Tile Server Name_ |
-| **WMTS Layer Name** (optional) | Enter the name of the layer of the Web Map Tile Service (WMTS). This is only needed if you choose `Sinergise` as the _Tile Server Name_. |
-| **API Key required** (optional) | Do you need an api key for the imagery? |
-| **API Key** (optional)| Insert the api key if required. |
+To initialize a Build Area Project as a Project Manager you only need to upload a bounding polygon as well as fill in some information about your mission.
+Details on the basic information you need to fill in to describe you mission can be found on the [main project type site](project_type.html).
 
+```json
+{
+  "createdBy": "TestCreator",
+  "geometry": {
+    "type": "FeatureCollection",
+    "features": [{
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [34.975833892822266, -15.899098066386088],
+            [35.089302062988274, -15.899098066386088],
+            [35.089302062988274, -15.820002241903946],
+            [34.975833892822266, -15.820002241903946],
+            [34.975833892822266, -15.899098066386088]
+          ]
+        ]
+      },
+      "properties": {}
+    }]
+  },
+  "image": "",
+  "lookFor": "buildings",
+  "name": "test - Malawi (1)\ntest",
+  "projectDetails": "This is a test project",
+  "verificationNumber": 3,
+  "groupSize": 120,
+  "tileServer": {
+    "name": "bing",
+    "credits": "© 2019 Microsoft Corporation, Earthstar Geographics SIO"
+  },
+  "projectType": 1
+}
+```
 
 ### Projects
-Projects get created from _Project Drafts_ by the Mapswipe workers. The workers extend the information by the following parameters.
+Below you can find an example for a created Build Area project in firebase.
 
-
+```json
+{
+	"contributorCount": 1,
+	"created": "2021-12-23T13:47:27.346088Z",
+	"createdBy": "X0zTSyvY0khDfRwc99aQfIjTEPK2",
+	"groupMaxSize": 0,
+	"groupSize": 25,
+	"image": "https://firebasestorage.googleapis.com/v0/b/dev-mapswipe.appspot.com/o/projectImages%2Fbuildarea.png?alt=media&token=07505c0e-0f80-454c-b446-9b82a73d9d3e",
+	"isFeatured": false,
+	"lookFor": "Buildings",
+	"name": "Build Area with Bing Imagery Z18 - Kenya (1)\nMapSwipe Devs",
+	"progress": 0,
+	"projectDetails": "This is a \"normal\" Build Area project. The project uses Bing Imagery at zoom level 18",
+	"projectId": "-MrbXgHx8YJDt6cTIyGA",
+	"projectNumber": "1",
+	"projectRegion": "Kenya",
+	"projectTopic": "Build Area with Bing Imagery Z18",
+	"projectType": 1,
+	"requestingOrganisation": "MapSwipe Devs",
+	"requiredResults": 148158,
+	"resultCount": 0,
+	"status": "active",
+	"tileServer": {
+		"apiKey": "AopsdXjtTu-IwNoCTiZBtgRJ1g7yPkzAi65nXplc-eLJwZHYlAIf2yuSY_Kjg3Wn",
+		"credits": "imagery credits of project",
+		"name": "bing",
+		"url": "https://ecn.t0.tiles.virtualearth.net/tiles/a{quad_key}.jpeg?g=1&token={key}"
+	},
+	"tutorialId": "tutorial_-MnNaUEShyefFtMG6_5-",
+	"verificationNumber": 3,
+	"zoomLevel": 18
+}
+```
 ### Tasks
-To create a new mapping task, the overall project extent is split up into many single tasks. Tasks are the smallest unit in the MapSwipe data model. They are derived from the area of interest by gridding it into many small equal-sized rectangular polygons. Each task corresponds to a specific tile coordinate from a tile map service (TMS) using a web Mercator projection as its geographical reference system. Therefore, each task is characterized by a geometry and its tile coordinates, which describe its x, y and z position. For the projects analysed in this project, the tiles for all tasks are generated at zoom level 18. Taking the latitude of each task location into account the satellite imagery has a maximum spatial resolution of ~ 0.6 meter at the equator.
 
-| Parameter | Description |
-| --- | --- |
-| **Id** | Each task can be identified by its Id. The Id is a composition of its position in the corresponding tile map system, which can be described by the x, y and z coordinates. |
-| **Tile Z** | The z coordinate of the tile defines the zoom level. Greater values for z will correspond to higher spatial resolution of the corresponding image. For most regions Bing provides images up to zoom level 18. For aerial imagery or images captured by UAVs even higher z values are valid. |
-| **Tile X**| The x coordinate characterises the longitudinal position of the tile in the overall tile map system taken the zoom level into account. The x coordinates increase from west to east starting at a longitude of -180 degrees. |
-| **Tile Y** | The y coordinate characterises the latitudinal position of the tile in the overall tile map system taken the zoom level into account. The latitude is clipped to range from circa -85 to 85 degrees. The y coordinates increase from north to south starting at a latitude of around 85 degrees. |
-| **Geometry** | Each task has a polygon geometry, which can be generated by its x, y and z coordinates. At the equator the task geometry is a square with an edge length of around 150 metres covering circa 0.0225 square kilometres. Due to the web Mercator projector the task geometry will be clinched with increasing distance to the equator. At the same time the area per task will decrease. |
-| **Tile URL** | The tile URL points to the specific tile image described by the x, y, and z coordinates. Usually, the image has a resolution of 256 x 256 pixels. However, some providers also generate image tiles with higher resolution (e.g. 512 x 512 pixels). |
+| Parameter                           | Description                                                                                                                                                                                                                                                                                                                                                                            |
+|-------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| *Project Type Specific Information* |                                                                                                                                                                                                                                                                                                                                                                                        |
+| **Tile Z**                          | The z coordinate of the tile defines the zoom level. Greater values for z will correspond to higher spatial resolution of the corresponding image. For most regions Bing provides images up to zoom level 18. For aerial imagery or images captured by UAVs even higher z values are valid.                                                                                            |
+| **Tile X**                          | The x coordinate characterises the longitudinal position of the tile in the overall tile map system taken the zoom level into account. The x coordinates increase from west to east starting at a longitude of -180 degrees.                                                                                                                                                           |
+| **Tile Y**                          | The y coordinate characterises the latitudinal position of the tile in the overall tile map system taken the zoom level into account. The latitude is clipped to range from circa -85 to 85 degrees. The y coordinates increase from north to south starting at a latitude of around 85 degrees.                                                                                       |
+| **Geometry**                        | Each task has a polygon geometry, which can be generated by its x, y and z coordinates. At the equator the task geometry is a square with an edge length of around 150 metres covering circa 0.0225 square kilometres. Due to the web Mercator projector the task geometry will be clinched with increasing distance to the equator. At the same time the area per task will decrease. |
+| **Tile URL**                        | The tile URL points to the specific tile image described by the x, y, and z coordinates. Usually, the image has a resolution of 256 x 256 pixels. However, some providers also generate image tiles with higher resolution (e.g. 512 x 512 pixels).                                                                                                                                    |
 
 ### Groups
 
-Single MapSwipe projects can contain up to several hundred thousand tasks. This can pose a challenge to fast and performant communication between clients and server if many volunteers contribute data at the same time. Therefore, groups have been introduced to reduce the amount of client requests on the backend server. Groups consists of several tasks, that will be shown to the user in one mapping session. The grouping algorithm uses the extent of a project as an input and generates chunks of tasks lying next to each other. Each group has a height of three tasks and a width of approximately 40 tasks.
+The grouping algorithm uses the extent of a project as an input and generates chunks of tasks lying next to each other. 
+Each group has a height of three tasks and a width of approximately 40 tasks.
 
-| Parameter | Description |
-| --- | --- |
-| **Id** | Each group can be identified by its Id. |
-| **Tasks** | Each group contains several tasks. The information for all tasks of the group will be stored in an array. |
-| **Geometry** | The group geometry is defined by the union of all assigned task geometries. |
-| **Completed Count** |	Once a group has been completely mapped by a volunteer the completed count of the corresponding group will be raised by one. The completed count of the group is used to assess the overall progress of each project. For doing so the completed count is compared to the redundancy required (see Table 2). During the mapping process groups will be served in ascending completed count order. Thus, groups with low completed count will be served first. |
+| Parameter    | Description                                                                                          |
+|--------------|------------------------------------------------------------------------------------------------------|
+| **Geometry** | The Build Area groups save the bounding box coordinates in fields labeled xMax, xMin, yMax and yMin. |
 
 ### Results
 
-Results contain information on the user classifications. However, only “Yes”, “Maybe” and “Bad Imagery” classifications are stored as results. Whenever users indicate “No building” by just swiping to the next set of tasks, no data entry is created. “No Building” classifications can only be modelled retrospectively for groups where a user also submitted at least one “Yes”, “Maybe” or “Bad Imagery” classification.
-
-| Parameter | Description |
-| --- | --- |
-| **Id** | Each result can be identified by its Id. The Id is a combination of task Id and user Id. |
-| **Task Id** | Each result corresponds to a specific task, which can be described by its Id. |
-| **User Id** | Each result is contributed by a specific user. Users can be identified by their Id. |
-| **Timestamp** | The timestamp (in milliseconds since 01-01-1970) provides information on the time the user completed the group and uploaded the result data. Results within the same group are assigned the same timestamp. |
-| **Result** | This parameter describes the given answer. 1 corresponds to “Yes”, 2 corresponds to “Maybe” and 3 corresponds to “Bad Imagery”. Each user can only submit one result per task. |
+Results contain information on the user classifications. However, only “Yes” (1), “Maybe” (2) and “Bad Imagery” (3) classifications are stored as results. 
+Whenever users indicate “No building” by just swiping to the next set of tasks, no data entry is created.
+“No Building” classifications can only be modelled retrospectively for groups where a user also submitted at least one “Yes”, “Maybe” or “Bad Imagery” classification.

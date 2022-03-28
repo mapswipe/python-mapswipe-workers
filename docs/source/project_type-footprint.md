@@ -1,9 +1,6 @@
 # Footprint
 
-![Footprint](_static/img/data_structure-firebase-2.svg)
-
-
-## Import structure
+## Project Draft
 
 Footprint projects can be supplied with geometries in three seperate ways. 
 1. by specifying a HOT Tasking Manager Project ID and an object [filter](https://docs.ohsome.org/ohsome-api/v1/filter.html)
@@ -11,7 +8,7 @@ Footprint projects can be supplied with geometries in three seperate ways.
 3. by uploading an aoi and an object [filter](https://docs.ohsome.org/ohsome-api/v1/filter.html)
 
 
-Import structure example for a footprint project which was initialized with an aoi and a filter:
+Project Draft example for a footprint project which was initialized with an aoi and a filter:
 ```json
 {
   "createdBy" : "Sample Admin",
@@ -44,7 +41,6 @@ Import structure example for a footprint project which was initialized with an a
     "wmtsLayerName" : ""
   }
 }
-
 ```
 Examples for the other initialization options can be found in the mapswipe-backend repository at mapswipe_workers/tests/integration/fixtures/footprint/projectDrafts.
 
@@ -91,17 +87,7 @@ Project Structure example for a project which was created via HOT Tasking Manage
 
 ## Group structure
 
-```
-{
-  "finishedCount" : 0,
-  "groupId" : "g289",
-  "numberOfTasks" : 31,
-  "progress" : 0,
-  "projectId" : "-Mq_IVluLteQRS75gWej",
-  "requiredCount" : 3
-}
-
-```
+The footprint groups follow the standard group structure.
 
 ## Task structure
 
@@ -118,7 +104,7 @@ Project Structure example for a project which was created via HOT Tasking Manage
 ```
 
 ## Result Structure
-```
+```json
 {"OzDyJJ8su8TQtctYVIg9w5tplaX2":
   {"data":
     {"device":"6a39e920622c4fbb",
