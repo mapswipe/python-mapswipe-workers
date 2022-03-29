@@ -47,8 +47,8 @@ exports.groupUsersCounter = functions.database.ref('/v2/results/{projectId}/{gro
 
     // check if these results are likely to be vandalism
     const numberOfTasks = Object.keys( result['results'] ).length
-    const startTime = Date.parse(result['startTime'])
-    const endTime = Date.parse(result['endTime'])
+    const startTime = Date.parse(result['startTime']) / 1000
+    const endTime = Date.parse(result['endTime']) / 1000
     const mappingSpeed = (endTime - startTime) / numberOfTasks
     console.log(startTime)
     console.log(endTime)
