@@ -28,6 +28,7 @@ exports.groupUsersCounter = functions.database.ref('/v2/results/{projectId}/{gro
     const totalGroupContributionCountRef = userRef.child('groupContributionCount')
     const userContributionRef = userRef.child('contributions/' + context.params.projectId)
     const taskContributionCountRef = userRef.child('contributions/' + context.params.projectId + '/taskContributionCount')
+    const thisResultRef = admin.database().ref('/v2/results/' + context.params.projectId + '/' + context.params.groupId + '/' + context.params.userId )
 
     // if result ref does not contain all required attributes we don't updated counters
     // e.g. due to some error when uploading from client
@@ -50,15 +51,11 @@ exports.groupUsersCounter = functions.database.ref('/v2/results/{projectId}/{gro
     const startTime = Date.parse(result['startTime']) / 1000
     const endTime = Date.parse(result['endTime']) / 1000
     const mappingSpeed = (endTime - startTime) / numberOfTasks
-    console.log(startTime)
-    console.log(endTime)
-    console.log('number of tasks ' + numberOfTasks)
-    console.log('mapping speed ' + mappingSpeed)
 
     if (mappingSpeed < 0.15) {
         console.log('unlikely high mapping speed: ' + mappingSpeed)
-        console.log('will not update counters')
-        return null
+        console.log('will remote this result and not update counters')
+        return Promise.all([thisResultRef.remove()])
     }
 
     /*
