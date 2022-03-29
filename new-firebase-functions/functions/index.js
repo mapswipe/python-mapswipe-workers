@@ -61,6 +61,18 @@ exports.groupUsersCounter = functions.database.ref('/v2/results/{projectId}/{gro
         return null
     }
 
+    // check if these results are likely to be vandalism
+    const numberOfTasks = Object.keys( result['results'] ).length
+    const startTime = Date.parse(result['startTime'])
+    const endTime = Date.parse(result['endTime'])
+    const mappingSpeed = (endTime - startTime) / numberOfTasks
+
+    if (mappingSpeed < 0.15) {
+        console.log('unlikely high mapping speed: ' + mappingSpeed)
+        console.log('will not update counters')
+        return null
+    }
+
     /*
         Check if this user has submitted a results for this group already.
         If no result has been submitted yet, set userId in v2/groupsUsers.
