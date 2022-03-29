@@ -13,15 +13,24 @@ In following chapters configuration values and keys are discussed for each part 
 All configuration values for MapSwipe Workers are stored in environment variables.
 
 Required environment variables are:
+### Firebase
 - FIREBASE_API_KEY
 - FIREBASE_DB
+- FIREBASE_TOKEN
+- GOOGLE_APPLICATION_CREDENTIALS
+
+### Postgres DB
 - POSTGRES_DB
 - POSTGRES_HOST
 - POSTGRES_PASSWORD
 - POSTGRES_PORT
 - POSTGRES_USER
 
-Optional environment variables are:
+### OSMCha
+
+- OSMCHA_API_KEY
+
+### Optional environment variables:
 - SLACK_CHANNEL
 - SLACK_TOKEN
 - SENTRY_DSN
@@ -34,18 +43,15 @@ For satellite imagery access to at least one provider is needed. Define the API 
 - IMAGE_ESRI_API_KEY
 - IMAGE_ESRI_BETA_API_KEY
 
-In addition to get access to Firebase a Service Account Key is required.
-The path the Service Account Key is defined in:
-- GOOGLE_APPLICATION_CREDENTIALS
-
 > Notes: When deploying using `docker` or `docker-compose` `POSTGRES_HOST` should have the value `postgres` and the Service Account Key (`serviceAccountKey.json`) should be copied to `mapswipe_workers/serviceAccountKey.json` so that during the build of the image the file can by copied by Docker.
-
 
 ### Elaboration
 
 **Firebase**: MapSwipe Workers use the Firebase Python SDK and the Firebase REST API. Both require the database name (`FIREBASE_DB`) and the API-Key from the Firebase instance. The Firebase Python SDK does also need a Service Account Key. The path to this file is set in the `GOOGLE_APPLICATION_CREDENTIALS` environment variable.
 
 **Postgres**: MapSwipe Workers writes data to a Postgres database and generate files for the API based data in Postgres.
+
+**OSMCha**: MapSwipe Workers enriches some Projects with data from OSM changelogs which are requested from OSMCha. Create an account, you will find you api key in your profile e.g. `Token 589adf125234a`
 
 **Sentry (optional)**: MapSwipe workers use sentry to capture exceptions. You can find your project’s DSN in the “Client Keys” section of your “Project Settings” in Sentry. Check [Sentry's documentation](https://docs.sentry.io/error-reporting/configuration/?platform=python) for more information.
 
@@ -80,12 +86,25 @@ The Service Account Key (`serviceAccountKey.json`) should be saved to `postgres/
 
 ## Manager Dashboard
 
+Please refer to the official [documentation](https://firebase.google.com/docs/web/learn-more#config-object) if you set up your own firebase. 
+Otherwise you can request guidance on the settings from the mapswipe team. The structure of your app.js should look like below.
+
 `manager_dashboard/manager_dashboard/js/app.js`
 
 ```
-TODO
+// Your web app's Firebase configuration
+var firebaseConfig = {
+    apiKey: "",
+    authDomain: "",
+    databaseURL: "",
+    projectId: "",
+    storageBucket: "",
+    messagingSenderId: "",
+    appId: ""
+};
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
 ```
-
 
 ## NGINX
 
