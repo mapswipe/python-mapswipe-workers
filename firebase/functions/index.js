@@ -50,7 +50,10 @@ exports.groupUsersCounter = functions.database.ref('/v2/results/{projectId}/{gro
     const startTime = Date.parse(result['startTime'])
     const endTime = Date.parse(result['endTime'])
     const mappingSpeed = (endTime - startTime) / numberOfTasks
-    console.log(mappingSpeed)
+    console.log(startTime)
+    console.log(endTime)
+    console.log('number of tasks ' + numberOfTasks)
+    console.log('mapping speed ' + mappingSpeed)
 
     if (mappingSpeed < 0.15) {
         console.log('unlikely high mapping speed: ' + mappingSpeed)
