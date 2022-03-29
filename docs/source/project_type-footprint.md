@@ -56,7 +56,7 @@ Project Structure example for a project which was created via HOT Tasking Manage
   "filter" : "building=* and geometry:polygon",
   "groupMaxSize" : 0,
   "groupSize" : 30,
-  "image" : "https://firebasestorage.googleapis.com/v0/b/dev-mapswipe.appspot.com/o/projectImages%2Fimage.jpeg?alt=media&token=c57beac5-6c6f-4d8f-85e5-9543e5bbeeab",
+  "image" : "https://firebasestorage.googleapis.com/v0/b/dev-mapswipe.appspot.com/o/projectImages%2Fimage.jpeg?alt=media",
   "inputType" : "TMId",
   "isFeatured" : false,
   "lookFor" : "Buildings",
@@ -88,8 +88,23 @@ Project Structure example for a project which was created via HOT Tasking Manage
 ## Group structure
 
 The footprint groups follow the standard group structure.
+```json
+{
+  "finishedCount" : 0,
+  "groupId" : "g100",
+  "numberOfTasks" : 30,
+  "progress" : 0,
+  "projectId" : "-Mq_FxTdV2QJHsxQcvFk",
+  "requiredCount" : 3
+}
+```
 
 ## Task structure
+
+| Parameter                           | Description                                                                            |
+|-------------------------------------|----------------------------------------------------------------------------------------|
+| *Project Type Specific Information* |                                                                                        |
+| **GeoJSON**                         | Each task has a polygon geometry, which usually outlines a building or another object. |
 
 ```json
 {
@@ -104,17 +119,5 @@ The footprint groups follow the standard group structure.
 ```
 
 ## Result Structure
-```json
-{"OzDyJJ8su8TQtctYVIg9w5tplaX2":
-  {"data":
-    {"device":"6a39e920622c4fbb",
-     "id":"13555_105_298",
-     "item":"Buildings",
-     "projectId":13555,
-     "result":1,
-     "timestamp":1544613097198,
-     "user":"OzDyJJ8su8TQtctYVIg9w5tplaX2"
-     }
-  }
-}
-```
+
+The Result for a footprint project are explicitly given via the "yes", "no" and "not sure" buttons.

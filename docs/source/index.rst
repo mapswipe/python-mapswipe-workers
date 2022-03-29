@@ -45,11 +45,3 @@ Welcome to MapSwipe Back-End's documentation!
    installation
    debugging
    backup
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`

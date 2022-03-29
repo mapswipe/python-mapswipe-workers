@@ -61,7 +61,7 @@ Project Structure example for a project which was created via HOT Tasking Manage
   "resultCount" : 0,
   "status" : "inactive",
   "tileServer" : {
-    "apiKey" : "f57b8754-0d70-4439-bdb4-641beea5c2ec",
+    "apiKey" : "",
     "credits" : "© 2019 Maxar",
     "name" : "maxar_premium",
     "url" : "https://services.digitalglobe.com/earthservice/tmsaccess/tms/1.0.0/DigitalGlobe%3AImageryTileService@EPSG%3A3857@jpg/{z}/{x}/{y}.jpg?connectId={key}"
@@ -69,7 +69,7 @@ Project Structure example for a project which was created via HOT Tasking Manage
   "tileServerB" : {
     "credits" : "© Maxar, MapBox",
     "name" : "custom",
-    "url" : "https://api.mapbox.com/v4/mapboxsatellite.haiti-post-2021/{z}/{x}/{y}.webp?sku=101Fw3jtBuWI5&access_token=pk.eyJ1IjoibWFwYm94c2F0ZWxsaXRlIiwiYSI6ImNqZWZ0MHg0djFqZWoyeG9kN3ZiMmkyd3cifQ.y2HNjGo7FcKQ7psI_BfGqQ"
+    "url" : "https://api.mapbox.com/v4/mapboxsatellite.haiti-post-2021/{z}/{x}/{y}.webp?sku=101Fw3jtBuWI5"
   },
   "tutorialId" : "tutorial_-MhJtd9ePFOw8Vs6xwZ2",
   "verificationNumber" : 3,
@@ -77,15 +77,28 @@ Project Structure example for a project which was created via HOT Tasking Manage
 }
 ```
 
-
 ## Group structure
 
 | Parameter    | Description                                                                                                |
 |--------------|------------------------------------------------------------------------------------------------------------|
 | **Geometry** | The Change Detection groups save the bounding box coordinates in fields labeled xMax, xMin, yMax and yMin. |
 
-## Task structure
+```json
+{
+  "finishedCount" : 0,
+  "groupId" : "g101",
+  "numberOfTasks" : 24,
+  "progress" : 0,
+  "projectId" : "-Mrbd5ArF4lb_GoYG2I5",
+  "requiredCount" : 3,
+  "xMax" : "154722",
+  "xMin" : "154715",
+  "yMax" : "235151",
+  "yMin" : "235149"
+}
+```
 
+## Task structure
 
 | Parameter                           | Description                                                                                                                                                                                                                                                                                                                                                                            |
 |-------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -96,19 +109,19 @@ Project Structure example for a project which was created via HOT Tasking Manage
 | **URL**                             | Image for the tile at timestamp A. The tile URL points to the specific tile image described by the x, y, and z coordinates.                                                                                                                                                                                                                                                            |
 | **URL 2**                           | Image for the tile after timestamp A. The tile URL points to the specific tile image described by the x, y, and z coordinates.                                                                                                                                                                                                                                                         |
 
-
-## Result Structure
 ```json
-{"OzDyJJ8su8TQtctYVIg9w5tplaX2":
-  {"data":
-    {"device":"6a39e920622c4fbb",
-     "id":"13555_105_298",
-     "item":"Buildings",
-     "projectId":13555,
-     "result":1,
-     "timestamp":1544613097198,
-     "user":"OzDyJJ8su8TQtctYVIg9w5tplaX2"
-     }
-  }
+{
+  "groupId" : "g101",
+  "projectId" : "-Mrbd5ArF4lb_GoYG2I5",
+  "taskId" : "19-154715-235149",
+  "taskX" : "154715",
+  "taskY" : "235149",
+  "url" : "https://services.digitalglobe.com/earthservice/tmsaccess/tms/1.0.0/DigitalGlobe%3AImageryTileService@EPSG%3A3857@jpg/19/154715/289138.jpg",
+  "urlB" : "https://api.mapbox.com/v4/mapboxsatellite.haiti-post-2021/19/154715/235149.webp?sku=101Fw3jtBuWI5"
 }
 ```
+
+## Result Structure
+
+Results contain information on the user classifications. However, only “Yes” (1), “Maybe” (2) and “Bad Imagery” (3) classifications are stored as results. 
+Whenever users indicate “No Change” by just swiping to the next task, no data entry is created.
