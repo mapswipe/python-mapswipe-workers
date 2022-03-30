@@ -63,6 +63,7 @@ exports.groupUsersCounter = functions.database.ref('/v2/results/{projectId}/{gro
     }
 
     // check for specific user ids which have been identified as problematic
+    // these users have repeatedly uploaded harmful results
     const userIds = [
        'AzQlXOtktBOwxJ1fZwYFoLDG3b12', 'Iak07i1KDDfYeLtMfrpcMchquJ12',
        'YSvOaakTyYMs2e5dbSjaqfAhYIk1', '5ch7OvaTXxVK8MvOi2FtgRyQeUy1',
@@ -77,7 +78,6 @@ exports.groupUsersCounter = functions.database.ref('/v2/results/{projectId}/{gro
        '7YrAXAqhNXgMDgscfnHm64shB222', 'W7mgqBGsEieFIM4zm0fTBNSH1p73',
        'jDMDTCr0T9MzGcy2D08QWsohB262', 'vYAXN9lySuPciwqopgQs1zczRPW2',
        'CTVZyRQrvZPS9Ud1nDPg21remtv2', 'JIOLdqAJfUPlNhDvZ1MlFWQ7mHu1',
-       'osm:12485'
     ]
     if ( userIds.includes(context.params.userId) ) {
         console.log('suspicious user: ' + context.params.userId)
