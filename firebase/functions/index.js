@@ -46,15 +46,40 @@ exports.groupUsersCounter = functions.database.ref('/v2/results/{projectId}/{gro
         return null
     }
 
+    // check for specific user ids which have been identified as problematic
+    const userIds = [
+       'AzQlXOtktBOwxJ1fZwYFoLDG3b12', 'Iak07i1KDDfYeLtMfrpcMchquJ12',
+       'YSvOaakTyYMs2e5dbSjaqfAhYIk1', '5ch7OvaTXxVK8MvOi2FtgRyQeUy1',
+       'HAVL5iWTfNftTavRYVNdIBFzYU43', 'TTkAJtvVwEdekVrRASyKuw1dWoS2',
+       'eXipbCqGTzeoJPAWZFxrdJRjZa83', 'wrYTAN2vVBQdgjfulZza3P6N4pV2',
+       '9m50r9NOSuNX40e5ys5Vkv0ibYr1', 'NbQ1HLm6hxTnkKOhfruiZKGxxPR2',
+       'Ym4cT7EJejSc3w5M9QXIzBD2bXo1', 'WAkFLSU1U3WdYLPW0YiAWxXtSWe2',
+       'w44vtuc1wpVbyAGiiJOWX1Yuwjo1', 'reCuRbdmeVgg0M9D0eykeATZbsL2',
+       '0ELGkiW8OggQKHhk1JgjZnX4uBi2', 'udll4hsHCmRISmPYvQv99TrkmBE2',
+       'lv4yamN1KcYvL6o54iFcy1j3KM43', 'MWIk7z2kM3M96DbuYWYtbgPGeFn2',
+       'MV60DRj0ghfApN0geSZIu7INxey2', 'jRvt91Rtqygf9Og19mZg4NTgrWz1',
+       '7YrAXAqhNXgMDgscfnHm64shB222', 'W7mgqBGsEieFIM4zm0fTBNSH1p73',
+       'jDMDTCr0T9MzGcy2D08QWsohB262', 'vYAXN9lySuPciwqopgQs1zczRPW2',
+       'CTVZyRQrvZPS9Ud1nDPg21remtv2', 'JIOLdqAJfUPlNhDvZ1MlFWQ7mHu1',
+       'osm:12485'
+    ]
+    if ( userIds.includes(context.params.userId) ) {
+        console.log('suspicious user: ' + context.params.userId)
+        console.log('will remove this result and not update counters')
+        return Promise.all([thisResultRef.remove()])
+    }
+
     // check if these results are likely to be vandalism
+    // mapping speed is defined by the average time needed per task in seconds
     const numberOfTasks = Object.keys( result['results'] ).length
     const startTime = Date.parse(result['startTime']) / 1000
     const endTime = Date.parse(result['endTime']) / 1000
     const mappingSpeed = (endTime - startTime) / numberOfTasks
 
-    if (mappingSpeed < 0.15) {
+    if (mappingSpeed < 0.125) {
+        // this about 8-times faster than the average time needed per task
         console.log('unlikely high mapping speed: ' + mappingSpeed)
-        console.log('will remote this result and not update counters')
+        console.log('will remove this result and not update counters')
         return Promise.all([thisResultRef.remove()])
     }
 
