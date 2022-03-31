@@ -70,7 +70,8 @@ Currently, the geometries in this dataset consist of maximum 15 MapSwipe Tasks, 
 | geometry | geometry | A polygon geometry representing the selected MapSwipe tasks. In our GIS workflow we further aggregate and simplify the geometry, hence they kind of look like easter eggs. |
 
 <img src="_static/img/tasking_manager_geometries_example.png" width="600px">
- 
+
+
 ## Users
 
 This gives you data on the users which contributed to a project.
