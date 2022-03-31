@@ -3,12 +3,10 @@ Swiping is just the beginning -- MapSwipe data is created by our users and acces
 
 ## Projects
 
-Files:
+#### Files:
 - [projects.csv](https://apps.mapswipe.org/api/projects/projects.csv)
 - [projects_geom.geojson](https://apps.mapswipe.org/api/projects/projects_geom.geojson)
 - [projects_centroid.geojson](https://apps.mapswipe.org/api/projects/projects_centroid.geojson)
-
-Attributes:
 
 | Name                       | Type    | Description                                                                                                                                                                                                                   |
 |----------------------------|---------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -33,7 +31,7 @@ Attributes:
 ## Aggregated Results
 This gives you the unfiltered MapSwipe results. This is most suited if you want to apply some custom data processing with the MapSwipe data, e.g. select only specific tasks for machine learning. If you want to use MapSwipe data in the Tasking Manager you might look for the data described below.
 
-Files:
+#### Files:
 - `aggregated_results_{project_id}.csv`, e.g. [agg\_results\_-M56eeMCZ5VeOHjJN4Bx.csv](https://apps.mapswipe.org/api/agg_results/agg_results_-M56eeMCZ5VeOHjJN4Bx.csv)
 - `aggregated_results_{project_id}.geojson`, e.g. [agg\_results\_-M56eeMCZ5VeOHjJN4Bx.geojson](https://apps.mapswipe.org/api/agg_results/agg_results_-M56eeMCZ5VeOHjJN4Bx.geojson)
 
@@ -52,18 +50,15 @@ Files:
 | 3_share     | float    | 3_count divived by total_count. This gives you the share of all users who marked as 3.                                                                                                                                                                         |
 | agreement   | float    | This is defined as [Scott's Pi](https://en.wikipedia.org/wiki/Scott%27s_Pi) and gives you an understanding of inter-rater reliability. The value is 1.0 if all users agree, e.g. all users classify as "building". If users disagree this value will be lower. |
 | geom        | string   | The geometry of this task as WKT geometry.                                                                                                                                                                                                                     |
- 
+
+
 Additionally, project type specific data can be found here. E.g. footprint projects which were created based on OSM data, will have data describing the original OSM object included.
- 
 
 ## HOT Tasking Manager Geometries
-
-
 This gives you filtered MapSwipe data ready to be imported to the HOT Tasking Manager.
 Currently, the geometries in this dataset consist of maximum 15 MapSwipe Tasks, where at least 35% of all users indicated the presence of a building by classifying as "yes" or "maybe".
 
-
-Files:
+#### Files:
 - `hot_tm_{project_id}.geojson`, e.g. [hot\_tm\_-M56eeMCZ5VeOHjJN4Bx.geojson](https://apps.mapswipe.org/api/hot_tm/hot_tm_-M56eeMCZ5VeOHjJN4Bx.geojson)
 
 
