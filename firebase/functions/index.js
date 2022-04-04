@@ -57,8 +57,6 @@ exports.groupUsersCounter = functions.database.ref('/v2/results/{projectId}/{gro
         'TTkAJtvVwEdekVrRASyKuw1dWoS2',
         'eXipbCqGTzeoJPAWZFxrdJRjZa83',
         'wrYTAN2vVBQdgjfulZza3P6N4pV2',
-        '9m50r9NOSuNX40e5ys5Vkv0ibYr1',
-        'NbQ1HLm6hxTnkKOhfruiZKGxxPR2',
         'Ym4cT7EJejSc3w5M9QXIzBD2bXo1',
         'WAkFLSU1U3WdYLPW0YiAWxXtSWe2',
         'w44vtuc1wpVbyAGiiJOWX1Yuwjo1',
