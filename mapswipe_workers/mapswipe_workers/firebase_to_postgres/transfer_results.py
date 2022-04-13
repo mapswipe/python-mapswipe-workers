@@ -92,6 +92,7 @@ def transfer_results_for_project(project_id, results, filter_mode: bool = False)
         truncate_temp_results()
         save_results_to_postgres(results_file, project_id, filter_mode=filter_mode)
     except psycopg2.errors.ForeignKeyViolation as e:
+
         sentry.capture_exception(e)
         sentry.capture_message(
             "could not transfer results to postgres due to ForeignKeyViolation: "
@@ -102,6 +103,12 @@ def transfer_results_for_project(project_id, results, filter_mode: bool = False)
             "could not transfer results to postgres due to ForeignKeyViolation: "
             f"{project_id}; filter_mode={filter_mode}"
         )
+
+        # There is an exception where additional invalid tasks are in a group.
+        # If that happens we arrive here and add the flag filtermode=true
+        # to this function, which could solve the issue in save_results_to_postgres.
+        # If it does not solve the issue we arrive again but
+        # since filtermode is already true, we will not try to transfer results again.
         if not filter_mode:
             transfer_results_for_project(project_id, results, filter_mode=True)
     except Exception as e:
