@@ -206,7 +206,11 @@ def create_geojson_file_from_dict(final_groups_dict, outfile):
 
     dataSource = driver.CreateDataSource(outfile_temp)
     # create layer
-    layer = dataSource.CreateLayer(outfile_temp, srs, geom_type=ogr.wkbPolygon,)
+    layer = dataSource.CreateLayer(
+        outfile_temp,
+        srs,
+        geom_type=ogr.wkbPolygon,
+    )
 
     # create fields
     field_id = ogr.FieldDefn("group_id", ogr.OFTInteger)
@@ -295,7 +299,11 @@ def create_geojson_file(geometries, outfile):
 
     dataSource = driver.CreateDataSource(outfile_temp)
     # create layer
-    layer = dataSource.CreateLayer(outfile_temp, srs, geom_type=ogr.wkbPolygon,)
+    layer = dataSource.CreateLayer(
+        outfile_temp,
+        srs,
+        geom_type=ogr.wkbPolygon,
+    )
 
     # create fields
     field_id = ogr.FieldDefn("id", ogr.OFTInteger)
