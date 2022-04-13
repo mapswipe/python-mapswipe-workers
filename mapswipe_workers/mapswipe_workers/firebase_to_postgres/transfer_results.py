@@ -297,19 +297,19 @@ def save_results_to_postgres(results_file, project_id, filter_mode: bool):
     if filter_mode:
         logger.warn(f"trying to remove invalid tasks from {project_id}.")
 
-        filter_query = f"""
+        filter_query = """
             DELETE FROM results_temp
             where task_id in (
                 select task_id from results_temp where task_id not in (
                     select r.task_id from results_temp r join (
-                        select * from tasks where project_id = '{project_id}'
+                        select * from tasks where project_id = %(project_id)s
                     ) as t
                     on r.group_id = t.group_id
                     and r.task_id = t.task_id
                 )
             )
         """
-        p_con.query(filter_query)
+        p_con.query(filter_query, {"project_id": project_id})
 
     query_insert_results = """
         INSERT INTO results
