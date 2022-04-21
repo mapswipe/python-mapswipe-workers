@@ -271,10 +271,10 @@ def save_results_to_postgres(results_file):
 
     p_con = auth.postgresDB()
     columns = [
-        "project_id",
-        "group_id",
-        "user_id",
-        "task_id",
+        "firebase_project_id",
+        "firebase_group_id",
+        "firebase_user_id",
+        "firebase_task_id",
         "timestamp",
         "start_time",
         "end_time",
@@ -283,9 +283,97 @@ def save_results_to_postgres(results_file):
     p_con.copy_from(results_file, "results_temp", columns)
     results_file.close()
 
+    # todo: this change actually makes the extra workflow
+    # todo: from the last pr unnecessary right?
+
     query_insert_results = """
-        INSERT INTO results
-            SELECT * FROM results_temp
+        drop table firebase_id_to_pg_id
+        create temp table firebase_id_to_pg_id as (
+            select
+                project_id,
+                rt.firebase_project_id,
+                group_id,
+                rt.firebase_project_id,
+                user_id,
+                rt.firebase_user_id,
+                task_id,
+                rt.task_id
+            from
+                results_temp rt
+            join
+                tasks t
+            on t.firebase_project_id = rt.firebase_project_id
+            and t.firebase_group_id = rt.firebase_group_id
+            and t.firebase_task_id = rt.firebase_task_id
+            join
+                users u
+            on
+                u.firebase_user_id = rt.firebase_user_id
+        );
+        create index temp_firebase_id_to_pg_id_idx on firebase_id_to_pg_id
+        (firebase_project_id, firebase_group_id, firebase_task_id);
+
+        create index temp_id_to_pg_id_idx on firebase_id_to_pg_id
+        (project_id, group_id, task_id);
+
+        INSERT INTO group_results (
+            project_id,
+            group_id,
+            user_id,
+            timestamp,
+            session_length,
+            result_count
+        )
+            select
+                project_id,
+                group_id,
+                user_id,
+                timestamp,
+                (end_time - start_time) as session_length,
+                count(*) as result_count
+            from
+                results_temp rt
+            join
+                firebase_id_to_pg_id converter
+            on
+                rt.firebase_user_id = converter.firebase_user_id
+            and rt.firebase_project_id = converter.firebase_project_id
+            and rt.firebase_group_id = converter.firebase_group_id
+            group by
+                rt.user_id,
+                rt.project_id,
+                rt.group_id,
+                rt.starttime,
+                rt.endtime,
+                rt.timestamp
+        ON CONFLICT (project_id,group_id,user_id)
+        DO NOTHING;
+
+
+        INSERT INTO results (
+            result,
+            task_id,
+            result_id
+        )
+            SELECT
+                rt.result,
+                rt.task_id
+                gr.result_id
+            FROM results_temp rt
+            join
+                firebase_id_to_pg_id converter
+            on
+                rt.firebase_user_id = converter.firebase_user_id
+            and rt.firebase_project_id = converter.firebase_project_id
+            and rt.firebase_group_id = converter.firebase_group_id
+            and rt.firebase_task_id = converter.firebase_task_id
+            join
+                group_results gr
+            on
+                gr.firebase_user_id = converter.user_id
+            and gr.firebase_project_id = converter.project_id
+            and gr.firebase_group_id = converter.group_id
+
         ON CONFLICT (project_id,group_id,user_id,task_id)
         DO NOTHING;
     """
