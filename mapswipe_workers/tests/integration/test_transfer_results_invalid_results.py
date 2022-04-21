@@ -46,7 +46,7 @@ class TestTranserResultsProject(unittest.TestCase):
         ref = fb_db.reference(
             f"v2/results/{self.project_id}/g115/test_build_area/results"
         )
-        self.assertEqual(len(ref.get(shallow=True)), 253)
+        self.assertIsNone(ref.get(shallow=True))
 
 
 if __name__ == "__main__":

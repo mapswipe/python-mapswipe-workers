@@ -86,7 +86,7 @@ def create_test_project_draft(
 ) -> str:
     """
     Create test project drafts in Firebase and return project ids.
-    Project drafts in Firebase are create by project manager using the dashboard.
+    Project drafts in Firebase are created by project manager using the dashboard.
     """
     if not identifier:
         identifier = f"test_{fixture_name}"
