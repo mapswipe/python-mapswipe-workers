@@ -21,8 +21,8 @@ class BaseTileServer(metaclass=ABCMeta):
         # check if url contains the right place holders
         if not self.check_imagery_url():
             raise CustomError(
-                f"The imagery url {self.url} must contain {{x}}, {{y}} and {{z}} or "
-                "the {quad_key} placeholders."
+                f"The imagery url {self.url} must contain {{x}}, {{y}} (or {{-y}}) "
+                "and {{z}} or the {quad_key} placeholders."
             )
 
         # set api key
@@ -46,6 +46,8 @@ class BaseTileServer(metaclass=ABCMeta):
     def check_imagery_url(self):
         """Check if imagery url contains xyz or quad key placeholders."""
         if all([substring in self.url for substring in ["{x}", "{y}", "{z}"]]):
+            return True
+        elif all([substring in self.url for substring in ["{x}", "{-y}", "{z}"]]):
             return True
         elif "{quad_key}" in self.url:
             return True
