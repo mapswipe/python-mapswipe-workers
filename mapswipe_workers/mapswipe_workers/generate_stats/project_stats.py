@@ -335,7 +335,9 @@ def get_agg_results_by_task_id(
     # add task geometry using left join
     tasks_df.drop(columns=["project_id", "group_id"], inplace=True)
     agg_results_df = results_by_task_id_df.merge(
-        tasks_df, left_on="task_id", right_on="task_id",
+        tasks_df,
+        left_on="task_id",
+        right_on="task_id",
     )
     logger.info("added geometry to aggregated results")
 

@@ -172,16 +172,18 @@ function checkImageryUrl() {
     // check if url A contains the placeholders when using custom imagery
     urlA = document.getElementById("tileServerAUrl").value
     nameA = document.getElementById("tileServerAName").value
-    if (nameA === "custom" & (!urlA.includes("{x}") | !urlA.includes("{y}") | !urlA.includes("{z}"))) {
-        alert("The imagery url A must contain {x}, {y} and {z} placeholders.")
+    if (nameA === "custom" & (!urlA.includes("{z}") | !urlA.includes("{x}") | (!urlA.includes("{y}") & !urlA.includes("{-y}")))) {
+        alert("The imagery url A must contain {x}, {y} (or {-y}) and {z} placeholders." + urlA)
         return false
     }
+
+    console.log(urlA.includes("{x}"))
 
     // check if url B contains the placeholders when using custom imagery
     urlB = document.getElementById("tileServerBUrl").value
     nameB = document.getElementById("tileServerBName").value
-    if (nameB === "custom" & (!urlB.includes("{x}") | !urlB.includes("{y}") | !urlB.includes("{z}"))) {
-        alert("The imagery url B must contain {x}, {y} and {z} placeholders.")
+    if (nameB === "custom" & (!urlB.includes("{z}") | !urlB.includes("{x}") | (!urlB.includes("{y}") & !urlB.includes("{-y}")))) {
+        alert("The imagery url B must contain {x}, {y} (or {-y}) and {z} placeholders." + urlB)
         return false
     }
 

@@ -54,7 +54,7 @@ def transfer_results(project_id_list=None):
     return project_id_list_transfered
 
 
-def transfer_results_for_project(project_id, results):
+def transfer_results_for_project(project_id, results, filter_mode: bool = False):
     """Transfer the results for a specific project.
     Save results into an in-memory file.
     Copy the results to postgres.
@@ -90,18 +90,27 @@ def transfer_results_for_project(project_id, results):
         # results at relatively high speed.
         results_file = results_to_file(results, project_id)
         truncate_temp_results()
-        save_results_to_postgres(results_file)
+        save_results_to_postgres(results_file, project_id, filter_mode=filter_mode)
     except psycopg2.errors.ForeignKeyViolation as e:
+
         sentry.capture_exception(e)
         sentry.capture_message(
             "could not transfer results to postgres due to ForeignKeyViolation: "
-            f"{project_id}"
+            f"{project_id}; filter_mode={filter_mode}"
         )
         logger.exception(e)
         logger.warning(
             "could not transfer results to postgres due to ForeignKeyViolation: "
-            f"{project_id}"
+            f"{project_id}; filter_mode={filter_mode}"
         )
+
+        # There is an exception where additional invalid tasks are in a group.
+        # If that happens we arrive here and add the flag filtermode=true
+        # to this function, which could solve the issue in save_results_to_postgres.
+        # If it does not solve the issue we arrive again but
+        # since filtermode is already true, we will not try to transfer results again.
+        if not filter_mode:
+            transfer_results_for_project(project_id, results, filter_mode=True)
     except Exception as e:
         sentry.capture_exception(e)
         sentry.capture_message(f"could not transfer results to postgres: {project_id}")
@@ -259,7 +268,7 @@ def results_to_file(results, projectId):
     return results_file
 
 
-def save_results_to_postgres(results_file):
+def save_results_to_postgres(results_file, project_id, filter_mode: bool):
     """
     Saves results to a temporary table in postgres
     using the COPY Statement of Postgres
@@ -267,6 +276,8 @@ def save_results_to_postgres(results_file):
     Parameters
     ----------
     results_file: io.StringIO
+    filter_mode: boolean
+        If true, try to filter out invalid results.
     """
 
     p_con = auth.postgresDB()
@@ -282,6 +293,23 @@ def save_results_to_postgres(results_file):
     ]
     p_con.copy_from(results_file, "results_temp", columns)
     results_file.close()
+
+    if filter_mode:
+        logger.warn(f"trying to remove invalid tasks from {project_id}.")
+
+        filter_query = """
+            DELETE FROM results_temp
+            where task_id in (
+                select task_id from results_temp where task_id not in (
+                    select r.task_id from results_temp r join (
+                        select * from tasks where project_id = %(project_id)s
+                    ) as t
+                    on r.group_id = t.group_id
+                    and r.task_id = t.task_id
+                )
+            )
+        """
+        p_con.query(filter_query, {"project_id": project_id})
 
     query_insert_results = """
         INSERT INTO results

@@ -1,4 +1,5 @@
 import unittest
+
 from mapswipe_workers.firebase_to_postgres import update_data
 
 
@@ -7,7 +8,7 @@ class TestUpdateProjectData(unittest.TestCase):
         self.project_ids = [
             "-MRuCvru6yfFrJZxWn_z",
             "-MOXET8nkuvw2AqGpQDQ",
-            "-MCGa66fcuFS6fi9M8-M"
+            "-MCGa66fcuFS6fi9M8-M",
         ]
 
     def test_custom_project_ids(self):

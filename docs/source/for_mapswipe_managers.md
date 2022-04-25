@@ -22,7 +22,10 @@ For BuildArea and ChangeDetection projects:
 For Footprint projects:
 * The GeoJSON file should contain only simple Polygons. We currently don't support complex Multipolygon geometries (e.g. [polygon with holes](https://developers.google.com/maps/documentation/javascript/examples/polygon-hole)) 
 
-Once you submit, the task should appear relatively quickly in the manager dashboard. You will receive a message in Slack. But it's still not active and not visible to the MapSwipe app users. You need to set the project status to `active` through the manager dashboard. Just click on the respective button. If the new project does not appear in the app after about 1 hour, check Slack for an error message, and see Troubleshooting below.
+Once you submit, the task should appear relatively quickly in the manager dashboard. You will receive a message in Slack. 
+But it's still not active and not visible to the MapSwipe app users. 
+You need to set the project status to `active` through the manager dashboard. Just click on the respective button. 
+If the new project does not appear in the app after about 1 hour, check Slack for an error message, and see Troubleshooting below.
 
 ![Project Management](_static/img/manager_dashboard_manage_screenshot.png)
  
