@@ -298,16 +298,34 @@ def save_results_to_postgres(results_file, project_id, filter_mode: bool):
         logger.warn(f"trying to remove invalid tasks from {project_id}.")
 
         filter_query = """
-            DELETE FROM results_temp
-            where task_id in (
-                select task_id from results_temp where task_id not in (
-                    select r.task_id from results_temp r join (
-                        select * from tasks where project_id = %(project_id)s
-                    ) as t
-                    on r.group_id = t.group_id
-                    and r.task_id = t.task_id
-                )
+            with project_tasks as (
+                select
+                    task_id
+                    ,group_id
+                from tasks
+                where project_id = %(project_id)s
+            ),
+            -- Results for which we can't join a task from the tasks table
+            -- are invalid. For these invalid results the group_id set by the app
+            -- is not correct. Hence, we delete these results from the
+            -- results_temp table.
+            results_to_delete as (
+                select
+                    r.task_id
+                    ,r.group_id
+                    ,r.user_id
+                from results_temp r
+                left join project_tasks t on
+                    r.task_id = t.task_id and
+                    r.group_id = t.group_id
+                where t.task_id is null or t.group_id is null
             )
+            delete from results_temp r1
+            using results_to_delete r2
+            where
+                r1.task_id = r2.task_id and
+                r1.group_id = r2.group_id and
+                r1.user_id = r2.user_id
         """
         p_con.query(filter_query, {"project_id": project_id})
 
