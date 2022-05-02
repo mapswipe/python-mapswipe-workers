@@ -305,6 +305,10 @@ def save_results_to_postgres(results_file, project_id, filter_mode: bool):
                 from tasks
                 where project_id = %(project_id)s
             ),
+            -- Results for which we can't join a task from the tasks table
+            -- are invalid. For these invalid results the group_id set by the app
+            -- is not correct. Hence, we delete these results from the
+            -- results_temp table.
             results_to_delete as (
                 select
                     r.task_id
