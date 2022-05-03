@@ -299,8 +299,12 @@ def save_results_to_postgres(results_file):
             from
                 results_temp rt
             join
+                projects p on
+            on
+                p.firebase_project_id = rt.firebase_project_id
+            join
                 groups as g
-            on g.firebase_project_id = rt.firebase_project_id
+            on g.firebase_project_id = p.firebase_project_id
             and g.firebase_group_id = rt.firebase_group_id
             join
                 users u
