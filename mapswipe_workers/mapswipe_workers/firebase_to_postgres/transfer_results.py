@@ -274,7 +274,7 @@ def save_results_to_postgres(results_file):
         "firebase_project_id",
         "firebase_group_id",
         "firebase_user_id",
-        "firebase_task_id",
+        "task_id",
         "timestamp",
         "start_time",
         "end_time",
