@@ -293,28 +293,25 @@ def save_results_to_postgres(results_file):
                 project_id,
                 rt.firebase_project_id,
                 group_id,
-                rt.firebase_project_id,
+                rt.firebase_group_id,
                 user_id,
                 rt.firebase_user_id,
-                task_id,
-                rt.task_id
             from
                 results_temp rt
             join
-                tasks t
-            on t.firebase_project_id = rt.firebase_project_id
-            and t.firebase_group_id = rt.firebase_group_id
-            and t.firebase_task_id = rt.firebase_task_id
+                groups as g
+            on g.firebase_project_id = rt.firebase_project_id
+            and g.firebase_group_id = rt.firebase_group_id
             join
                 users u
             on
                 u.firebase_user_id = rt.firebase_user_id
         );
         create index temp_firebase_id_to_pg_id_idx on firebase_id_to_pg_id
-        (firebase_project_id, firebase_group_id, firebase_task_id);
+        (firebase_project_id, firebase_group_id);
 
         create index temp_id_to_pg_id_idx on firebase_id_to_pg_id
-        (project_id, group_id, task_id);
+        (project_id, group_id);
 
         INSERT INTO group_results (
             project_id,
@@ -366,7 +363,6 @@ def save_results_to_postgres(results_file):
                 rt.firebase_user_id = converter.firebase_user_id
             and rt.firebase_project_id = converter.firebase_project_id
             and rt.firebase_group_id = converter.firebase_group_id
-            and rt.firebase_task_id = converter.firebase_task_id
             join
                 group_results gr
             on
@@ -374,7 +370,7 @@ def save_results_to_postgres(results_file):
             and gr.firebase_project_id = converter.project_id
             and gr.firebase_group_id = converter.group_id
 
-        ON CONFLICT (project_id,group_id,user_id,task_id)
+        ON CONFLICT (task_id, result_id)
         DO NOTHING;
     """
     p_con.query(query_insert_results)

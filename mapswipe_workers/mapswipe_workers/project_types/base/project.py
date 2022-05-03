@@ -403,7 +403,7 @@ class BaseProject(metaclass=ABCMeta):
             CREATE TABLE raw_tasks (
                 firebase_project_id varchar,
                 firebase_group_id varchar,
-                firebase_task_id varchar,
+                task_id varchar,
                 geom varchar,
                 project_type_specifics json
             );
@@ -413,14 +413,14 @@ class BaseProject(metaclass=ABCMeta):
             INSERT INTO tasks (
                 project_id,
                 group_id,
-                firebase_task_id,
+                task_id,
                 geom,
                 project_type_specifics
             )
             SELECT
               project_id,
               group_id,
-              firebase_task_id,
+              task_id,
               ST_Force2D(ST_Multi(ST_GeomFromText(raw_tasks.geom, 4326))),
               raw_tasks.project_type_specifics
             FROM raw_tasks

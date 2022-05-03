@@ -44,8 +44,7 @@ CREATE INDEX IF NOT EXISTS groups_goupid ON public.groups
 CREATE TABLE IF NOT EXISTS tasks (
     project_id int,
     group_id int,
-    task_id int,
-    firebase_task_id varchar,
+    task_id varchar,
     geom geometry(MULTIPOLYGON, 4326),
     project_type_specifics json,
     PRIMARY KEY (project_id, group_id, task_id),
@@ -80,12 +79,12 @@ CREATE TABLE IF NOT EXISTS users_temp (
 );
 
 CREATE TABLE IF NOT EXISTS results (
-    task_id int,
+    task_id varchar,
     result_id int,
     result int,
     PRIMARY KEY (result_id, task_id),
-    FOREIGN KEY (result_id) REFERENCES group_results (result_id)
-    FOREIGN KEY (task_id) REFERENCES tasks (task_id)
+    FOREIGN KEY (result_id) REFERENCES group_results (result_id),
+    FOREIGN KEY (project_id, group_id, task_id) REFERENCES tasks (project_id, group_id, task_id)
 );
 
 CREATE TABLE IF NOT EXISTS group_results (
@@ -96,26 +95,16 @@ CREATE TABLE IF NOT EXISTS group_results (
     "timestamp" timestamp,
     session_length INTERVAL DEFAULT NULL,
     result_count int,
-    PRIMARY KEY (project_id, group_id, task_id, user_id),
+    PRIMARY KEY (project_id, group_id, user_id),
     FOREIGN KEY (project_id) REFERENCES projects (project_id),
     FOREIGN KEY (project_id, group_id) REFERENCES groups (project_id, group_id),
-    FOREIGN KEY (project_id, group_id, task_id) REFERENCES tasks (project_id, group_id, task_id),
     FOREIGN KEY (user_id) REFERENCES users (user_id)
 );
 
-CREATE INDEX IF NOT EXISTS results_projectid ON public.results
-    USING btree (project_id);
+CREATE INDEX IF NOT EXISTS group_results_result_id ON public.group_results
+    USING btree (result_id);
 
-CREATE INDEX IF NOT EXISTS results_groupid ON public.results
-    USING btree (group_id);
-
-CREATE INDEX IF NOT EXISTS results_taskid ON public.results
-    USING btree (task_id);
-
-CREATE INDEX IF NOT EXISTS results_userid ON public.results
-    USING btree (user_id);
-
-CREATE INDEX IF NOT EXISTS results_timestamp_date_idx
+CREATE INDEX IF NOT EXISTS group_results_timestamp_date_idx
     ON public.results ("timestamp" DESC);
 
 
