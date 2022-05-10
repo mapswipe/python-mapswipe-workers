@@ -57,7 +57,7 @@ function osmOAuth2Client() {
 
 /**
  * Redirects the User to the OSM authentication consent screen.
- * Also the 'state' cookie is set for later state verification.
+ * Also the '__session' cookie is set for later state verification.
  * This function MUST be executed from the user's phone web browser,
  * NOT a webview inside MapSwipe, as this would break the promise of
  * OAuth that we do not touch their OSM credentials
@@ -69,7 +69,10 @@ exports.redirect = functions.https.onRequest((req, res) => {
         const state =
             req.cookies.state || crypto.randomBytes(20).toString('hex');
         functions.logger.log('Setting verification state:', state);
-        res.cookie('state', state.toString(), {
+        // the cookie MUST be called __session for hosted functions not to
+        // strip it from incoming requests
+        // (https://firebase.google.com/docs/hosting/manage-cache#using_cookies)
+        res.cookie('__session', state.toString(), {
             // cookie is valid for 1 hour
             maxAge: 3600000,
             secure: true,
@@ -117,7 +120,7 @@ exports.token = functions.https.onRequest(async (req, res) => {
         return cookieParser()(req, res, async () => {
             functions.logger.log(
                 'Received verification state:',
-                req.cookies.state,
+                req.cookies.__session,
             );
             functions.logger.log('Received state:', req.query.state);
             // FIXME: For security, we need to check the cookie that was set
@@ -129,9 +132,9 @@ exports.token = functions.https.onRequest(async (req, res) => {
             // is no info about it :(
             // cross site cookies don't seem to be the issue
             // WE just need to make sure the domain set on the cookies is right
-            if (!req.cookies.state) {
+            if (!req.cookies.__session) {
                 throw new Error('State cookie not set or expired. Maybe you took too long to authorize. Please try again.');
-            } else if (req.cookies.state !== req.query.state) {
+            } else if (req.cookies.__session !== req.query.state) {
                 throw new Error('State validation failed');
             }
             functions.logger.log('Received auth code:', req.query.code);
