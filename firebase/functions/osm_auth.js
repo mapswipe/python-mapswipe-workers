@@ -1,7 +1,8 @@
 // Firebase cloud functions to allow authentication with OpenStreet Map
 //
 // There are really 2 functions, which must be publicly accessible via
-// an https endpoint. They can be hosted on firebase under a domain to define.
+// an https endpoint. They can be hosted on firebase under a domain like
+// dev-auth.mapswipe.org or auth.mapswipe.org.
 // These 2 functions are used in this order.
 // - `redirect`: initiates the OAuth flow, to be exposed as /redirect
 // - `token`: which gets a token from OSM and then firebase, to be exposed as /token
@@ -15,12 +16,12 @@ const cookieParser = require('cookie-parser');
 const crypto = require('crypto');
 
 // Firebase Setup
-const admin = require('firebase-admin');
-const serviceAccount = require('./service-account.json');
-admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
-    databaseURL: `https://${process.env.GCLOUD_PROJECT}.firebaseio.com`,
-});
+// const admin = require('firebase-admin');
+// const serviceAccount = require('./service-account.json');
+// admin.initializeApp({
+//     // credential: admin.credential.cert(serviceAccount),
+//     // databaseURL: `https://${process.env.GCLOUD_PROJECT}.firebaseio.com`,
+// });
 
 // this redirect_uri MUST match the one set in the app on OSM OAuth, or you
 // will get a cryptic error about the server not being able to continue
@@ -127,13 +128,15 @@ exports.token = functions.https.onRequest(async (req, res) => {
             // firebase docs mention the need for a cookie middleware, but there
             // is no info about it :(
             // cross site cookies don't seem to be the issue
-            // if (!req.cookies.state) {
-            //   throw new Error('State cookie not set or expired. Maybe you took too long to authorize. Please try again.');
-            // } else if (req.cookies.state !== req.query.state) {
-            //   throw new Error('State validation failed');
-            // }
+            // WE just need to make sure the domain set on the cookies is right
+            if (!req.cookies.state) {
+                throw new Error('State cookie not set or expired. Maybe you took too long to authorize. Please try again.');
+            } else if (req.cookies.state !== req.query.state) {
+                throw new Error('State validation failed');
+            }
             functions.logger.log('Received auth code:', req.query.code);
             let results;
+
             try {
                 // TODO: try adding auth data to request headers if
                 // this doesn't work
