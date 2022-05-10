@@ -7,15 +7,16 @@
     "rules": "database.rules.json"
   },
   "hosting": {
+    "target": "devauth",
     "public": "public",
     "rewrites": [
       {
         "source": "/redirect",
-        "function": "redirect"
+        "function": "osmAuth-redirect"
       },
       {
         "source": "/token",
-        "function": "token"
+        "function": "osmAuth-token"
       }
     ]
   }

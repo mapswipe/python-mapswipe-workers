@@ -5,6 +5,10 @@ const functions = require('firebase-functions')
 const admin = require('firebase-admin')
 admin.initializeApp()
 
+// all functions are bundled together. It's less than ideal, but it does not
+// seem possible to split them using the split system for multiple sites from
+// https://firebase.google.com/docs/hosting/multisites
+exports.osmAuth = require('./osm_auth')
 
 /*
     Log the userIds of all users who finished a group to /v2/userGroups/{projectId}/{groupId}/.

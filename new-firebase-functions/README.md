@@ -15,8 +15,9 @@ Then run the container interactively and open a bash shell.
 Now you are inside the docker container and can login to firebase. You need to insert an authorization code into the terminal during that process.
 * `firebase login --no-localhost`
 
-Finally you can deploy your changes for cloud functions and database rules individually.
-* `firebase deploy --only functions`
+Finally you can deploy your changes for cloud functions and database rules individually. Hosting must be done as well to
+expose the authentication functions publicly.
+* `firebase deploy --only functions,hosting`
 * `firebase deploy --only database:rules`
 
 ## Notes on OAuth (OSM login)
@@ -37,6 +38,20 @@ Some specifics about the related functions:
 - Expose the functions publicly through firebase hosting, this is done in `/firebase/firebase.json` under the `hosting`
   key.
 
+The functions must be publicly exposed to allow anyone to run them without authentication, after they have first been
+deployed:
+- in firebase console, open the [list of cloud
+  functions](https://console.cloud.google.com/functions/list?project=dev-mapswipe&authuser=0&hl=en&tab=permissions)
+- "allow unauthenticated" is not visible in the "authentication" column, then
+    - select the auth functions by checking the box to the left side of them in the list
+    - click "permissions" near the top, then "Add principal"
+    - under "new principal" pick "allUsers"
+    - under "select a role, choose "Cloud Function Invoker" and save.
+    - Confirm all the warnings
+
+See https://firebase.google.com/docs/functions/http-events#invoke_an_http_function for the full story (and
+https://cloud.google.com/functions/docs/securing/managing-access-iam#allowing_unauthenticated_http_function_invocation).
+If you don't do this, you will get an HTTP 403 error saying you don't have permission to access the function.
 
 We store the user's OSM access token in the database, which right now does not do anything, but would be needed if we
 want our backend to do something in OSM on behalf of the user. The database access rules are set to only allow the owner
