@@ -8,7 +8,11 @@ class Group(BaseGroup):
     def __init__(self, project: object, groupId: int) -> None:
         super().__init__(project, groupId)
 
-    def create_tasks(self, feature_ids: List, features: List,) -> None:
+    def create_tasks(
+        self,
+        feature_ids: List,
+        features: List,
+    ) -> None:
         """Create tasks for a group
 
         feature_geometries is a list of geometries or feature in geojson format.

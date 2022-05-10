@@ -1,22 +1,20 @@
 # Development Setup
 
-In this document some tips and workflows for development are loosely collected. Those are independent of the production setup using Docker-Compose. A working Firebase Project (Including Firebase Functions and Database Rules) is presupposed. Get in touch with the MapSwipe team (e.g. in Slack) to get access to an existing Firebase Instance for development purposes.
+In this document some tips and workflows for development are loosely collected. 
+Those are independent of the production setup using Docker-Compose. 
+A working Firebase Project (Including Firebase Functions and Database Rules) is presupposed. 
+Get in touch with the MapSwipe team (e.g. in Slack) to get access to an existing Firebase Instance for development purposes.
 
 Check list:
-1. Clone repo from GitHub.
-2. Install GDAL/OGR and GDAL for Python on your machine.
-3. Set environment variables and get a Service Account Key File.
-4. Set up local Postgres database using Docker.
-5. Install MapSwipe Workers Python package.
+1. Github: Clone repo from GitHub.
+2. Requirements: Install GDAL/OGR and GDAL for Python on your machine.
+3. Configuration: Set environment variables and get a Service Account Key File.
+4. Database: Set up local Postgres database using Docker.
+5. Python-Package: Install MapSwipe Workers Python package.
 6. Run MapSwipe Workers.
 
 
 ## Installation
-
-### Requirements
-
-MapSwipe Workers requires GDAL/OGR (`gdal-bin`) and GDAL for Python (`libgdal-dev`, `python-gdal`) to be installed. Furthermore, we rely on Docker to set up Postgres.
-
 
 ### Clone from GitHub
 
@@ -28,15 +26,29 @@ cd python-mapswipe-workers
 git checkout dev
 ```
 
+### Requirements
+
+MapSwipe Workers requires GDAL/OGR (`gdal-bin`) and GDAL for Python (`libgdal-dev`, `python-gdal`) to be [installed](https://mothergeo-py.readthedocs.io/en/latest/development/how-to/gdal-ubuntu-pkg.html). 
+Furthermore, we rely on Docker to set up Postgres.
+
 
 ### Configuration
 
 All configurations values are stored in environment variables. Please refer to the documentation on [Configuration](configuration.html) for further details.
 
+#### Service Account Key
 
-### Directories
+The MapSwipe Workers requires a Service Account Key (`serviceAccountKey.json`) to access Firebase database. 
+Request yours from the MapSwipe working group.
 
-MapSwipe Workers needs access to a data directory for logs and data for data for the API:
+The path to the Service Account Key is defined in the `GOOGLE_APPLICATION_CREDENTIALS` environment variable.
+
+You could also set up your own Firebase instance. However, this is not recommended. 
+If you still want to do it, get your Service Account Key from Firebase from [Google Cloud Service Accounts](https://console.cloud.google.com/iam-admin/serviceaccounts).
+
+#### Directories
+
+MapSwipe Workers needs access to a data directory for logs and data for the API:
 
 To create this directories run:
 ```
@@ -46,18 +58,10 @@ mkdir --parents ~/.local/share/mapswipe_workers
 > Note: XDG Base Directory Specification is respected
 
 
-### Service Account Key
+### Database
 
-The MapSwipe Workers requires a Service Account Key (`serviceAccountKey.json`) to access Firebase database. Request yours from the MapSwipe working group.
-
-The path the Service Account Key is defined in the `GOOGLE_APPLICATION_CREDENTIALS` environment variable.
-
-You could also set up your own Firebase instance. However, this is not recommended. If you still want to do it, get your Service Account Key from Firebase from [Google Cloud Service Accounts](https://console.cloud.google.com/iam-admin/serviceaccounts).
-
-
-### Postgres
-
-Setup a local Postgres instance for MapSwipe Workers using the Dockerfile provided for development purposes (`postgres/Dockerfile-dev`). The Dockerfile for production (`postgres/Dockerfile`) does need additional setup for build-in backup to Google Cloud Storage, which is not needed for local development. That is why a simplified Dockerfile for development is provided.
+Setup a local Postgres instance for MapSwipe Workers using the Dockerfile provided for development purposes (`postgres/Dockerfile-dev`). 
+The Dockerfile for production (`postgres/Dockerfile`) does need additional setup for build-in backup to Google Cloud Storage, which is not needed for local development. That is why a simplified Dockerfile for development is provided.
 Make sure that the specified port is not in use already. If so, adjust the port (also in the `.env` file).
 
 ```bash
@@ -68,7 +72,7 @@ docker run -d -p 5432:5432 --name mapswipe_postgres -e POSTGRES_DB="$POSTGRES_DB
 Or set up Postgres using the `initdb.sql` file in the `postgres/` folder.
 
 
-### Install MapSwipe Workers Python Package
+### Mapswipe-Workers Python Package
 
 1. Export environment variables to current shell.
 2. Create a Python virtual environment with `system-site-packages` option enabled to get access to GDAL/OGR Python packages
@@ -87,10 +91,12 @@ mapswipe_workers --help
 
 > Yeah! If you reached this point, you are ready to get into coding. Below you find some more information on Logging, Firebase Functions and Database Backup. However, you don't need this to get started for now.
 
+# Further Information
 
 ## Logging
 
-Mapswipe workers logs are generated using the Python logging module of the standard library (See [Official docs](https://docs.python.org/3/library/logging.html) or this [Tutorial](https://realpython.com/python-logging/#the-logging-module). To use the logger object import the it from the `definitions` module:
+Mapswipe workers logs are generated using the Python logging module of the standard library (See [Official docs](https://docs.python.org/3/library/logging.html) or this [Tutorial](https://realpython.com/python-logging/#the-logging-module). 
+To use the logger object import it from the `definitions` module:
 
 ```python
 from mapswipe_workers.definitions import logger
@@ -104,9 +110,11 @@ except Exception:
     logger.exception('Additional information.')
 ```
 
-Default logging level is Info. To change the logging level edit the logging configuration which is found in the module `definitions.py`. Logs are written to STDOUT and `~/.local/share/mapswipe_workers/mapswipe_workers.log`.
+Default logging level is Info. To change the logging level edit the logging configuration which is found in the module `definitions.py`. 
+Logs are written to STDOUT and `~/.local/share/mapswipe_workers/mapswipe_workers.log`.
 
-Per default logging of third-party packages is disabled. To change this edit the definition module (`mapswipe_workers/defintions.py`). Set the `disable_existing_loggers` parameter of the `logging.config.fileConfig()` function to `False`.
+Per default logging of third-party packages is disabled. To change this edit the definition module (`mapswipe_workers/defintions.py`). 
+Set the `disable_existing_loggers` parameter of the `logging.config.fileConfig()` function to `False`.
 
 
 ## Firebase Functions
@@ -128,37 +136,12 @@ Firebase functions are used to increment/decrement or calculate various attribut
 
 Those functions will be directly or indirectly triggered by incoming results from the MapSwipe App.
 
-By using Firebase functions those attributes can be calculated in real-time and be accessed by users immediately. The use of those functions also reduces the data-transfer between the Firebase Realtime Database and MapSwipe Workers.
+By using Firebase functions those attributes can be calculated in real-time and be accessed by users immediately. 
+The use of those functions also reduces the data-transfer between the Firebase Realtime Database and MapSwipe Workers.
 
-On how to setup development environment and how to deploy functions to the Firebase instance please refer to the official [Guide on Cloud Function for Firebase](https://firebase.google.com/docs/functions/get-started).
-For more information refer to the official [Reference on Cloud Function for Firebase](https://firebase.google.com/docs/reference/functions/). For example function take a look at this [GitHub repository](https://github.com/firebase/functions-samples).
-
-
-## Travis Setup
-
-A Travis instance is used to build MapSwipe Workers and run tests.
-There exists a Firebase instance only for Travis.
-For the configuration of Travis following environment variables are used:
-
-- FIREBASE_API_KEY
-- FIREBASE_DB
-- FIREBASE_TOKEN
-- POSTGRES_DB
-- POSTGRES_HOST
-- POSTGRES_PASSWORD
-- POSTGRES_PASSWORD
-- POSTGRES_USER
-- WALG_GS_PREFIX: empty
-- GOOGLE_APPLICATION_CREDENTIALS: mapswipe_workers/serviceAccountKey.json
-
-Those variables can be definied directly in the repository settings of Travis. For more inofmration refer to: https://docs.travis-ci.com/user/environment-variables/#defining-variables-in-repository-settings
-
-Additionaly a Service Account Key in JSON format is encrypted and added to the GitHub repository using the travis CLI. Once Travis runs it will decrypt the Service Account Key. Read more on that process in the Travis docs: https://docs.travis-ci.com/user/encrypting-files/
-
-Once a Travis build succeeds Travis executes an Ansible Playbook to deploy MapSwipe Workers to an already installed and configured server.
-For this to work an SSH-Key (with access rights to the server) is also encrypted and added to the GitHub repository. Travis will decrypt the key and Ansible will use it to execute commands defined in the Playbook on the server.
-
-All files encrypted for Travis (Service Account Key, SSH-Key) are stored in the `travis` directory.
+On how to setup the development environment and how to deploy functions to the Firebase instance please refer to the official [Guide on Cloud Function for Firebase](https://firebase.google.com/docs/functions/get-started).
+For more information refer to the official [Reference on Cloud Function for Firebase](https://firebase.google.com/docs/reference/functions/). 
+For example function take a look at this [GitHub repository](https://github.com/firebase/functions-samples).
 
 
 ## Database Backup
