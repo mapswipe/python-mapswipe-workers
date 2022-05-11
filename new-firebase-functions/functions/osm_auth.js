@@ -145,7 +145,7 @@ exports.token = functions.https.onRequest(async (req, res) => {
                     state: req.query.state,
                 });
             } catch (error) {
-                functions.logger.log('Auth token error', error);
+                functions.logger.log('Auth token error', error, error.data.res.req);
             }
             // why is token called twice?
             functions.logger.log(
@@ -247,7 +247,7 @@ async function createFirebaseAccount(osmID, displayName, accessToken) {
         });
 
     // Wait for all async task to complete then generate and return a custom auth token.
-    await Promise.all([userCreationTask, databaseTask]);
+    await Promise.all([userCreationTask, databaseTask, profileTask]);
     // Create a Firebase custom auth token.
     const token = await admin.auth().createCustomToken(uid);
     functions.logger.log('Created Custom token for UID "', uid);
