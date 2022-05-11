@@ -22,8 +22,11 @@ const axios = require('axios');
 // TODO: adjust the prefix based on which deployment is done (prod/dev)
 const OAUTH_REDIRECT_URI = functions.config().osm.redirect_uri;
 
+const APP_OSM_LOGIN_DEEPLINK = functions.config().osm.app_login_link;
+
 // the scope is taken from https://wiki.openstreetmap.org/wiki/OAuth#OAuth_2.0
-// at least one seems to be required for the auth workflow to complete
+// at least one seems to be required for the auth workflow to complete.
+// Only use the minimum authorizations required.
 const OAUTH_SCOPES = 'read_prefs';
 
 // The URL to the OSM API, which is different for production vs OSM development
@@ -180,7 +183,7 @@ exports.token = functions.https.onRequest(async (req, res) => {
             );
             // build a deep link so we can send the token back to the app
             // from the browser
-            const signinUrl = `${OAUTH_REDIRECT_URI}?token=${firebaseToken}`;
+            const signinUrl = `${APP_OSM_LOGIN_DEEPLINK}?token=${firebaseToken}`;
             functions.logger.log('redirecting user to', signinUrl);
             res.redirect(signinUrl);
         });
