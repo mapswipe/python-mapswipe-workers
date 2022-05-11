@@ -28,11 +28,13 @@ Some specifics about the related functions:
  - get a service-account.json file from firebase which allows the OAuth functions to access the database and call
    external URLs (this last point only works on a firebase Blaze plan)
 - Before deploying, set the required firebase config values in environment:
-  - OSM_OAUTH_REDIRECT_URI: 'devmapswipe://login/osm' or 'mapswipe://login/osm'
-  - OSM_OAUTH_API_URL: 'https://master.apis.dev.openstreetmap.org/' or 'https://www.openstreetmap.org/' (include the
+FIXME: replace env vars with config value names
+  - `osm.redirect_uri`: `https://dev-auth.mapswipe.org/token` or `https://auth.mapswipe.org/token`
+  - `osm.app_login_link`: 'devmapswipe://login/osm' or 'mapswipe://login/osm'
+  - `osm.api_url`: 'https://master.apis.dev.openstreetmap.org/' or 'https://www.openstreetmap.org/' (include the
     trailing slash)
-  - OSM_OAUTH_CLIENT_ID: find it on the OSM application page
-  - OSM_OAUTH_CLIENT_SECRET: same as above. Note that this can only be seen once when the application is created. Do not
+  - `osm.client_id`: find it on the OSM application page
+  - `osm.client_secret`: same as above. Note that this can only be seen once when the application is created. Do not
     lose it!
 - Deploy the functions as explained above
 - Expose the functions publicly through firebase hosting, this is done in `/firebase/firebase.json` under the `hosting`
@@ -52,6 +54,11 @@ deployed:
 See https://firebase.google.com/docs/functions/http-events#invoke_an_http_function for the full story (and
 https://cloud.google.com/functions/docs/securing/managing-access-iam#allowing_unauthenticated_http_function_invocation).
 If you don't do this, you will get an HTTP 403 error saying you don't have permission to access the function.
+
+You also need to enable the "IAM service account credentials API" by going to
+https://console.cloud.google.com/apis/api/iamcredentials.googleapis.com/credentials?project=dev-mapswipe.
+
+Finally, you need to figure out the service account used by the cloud functions (it apparently is `PROJECT_NAME@appspot.gserviceaccount.com` by default) and grant it the right to sign blobs, see https://firebase.google.com/docs/auth/admin/create-custom-tokens#service_account_does_not_have_required_permissions.
 
 We store the user's OSM access token in the database, which right now does not do anything, but would be needed if we
 want our backend to do something in OSM on behalf of the user. The database access rules are set to only allow the owner
