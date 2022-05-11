@@ -16,6 +16,7 @@ const cookieParser = require('cookie-parser');
 const crypto = require('crypto');
 const simpleOAuth2 = require('simple-oauth2');
 const axios = require('axios');
+const admin = require('firebase-admin')
 
 // this redirect_uri MUST match the one set in the app on OSM OAuth, or you
 // will get a cryptic error about the server not being able to continue
@@ -109,6 +110,8 @@ async function getOSMProfile(accessToken) {
  * token are sent back to the app via a deeplink redirect.
  */
 exports.token = functions.https.onRequest(async (req, res) => {
+    admin.initializeApp()
+
     const oauth2 = osmOAuth2Client();
 
     try {
