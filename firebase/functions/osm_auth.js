@@ -15,14 +15,6 @@ const functions = require('firebase-functions');
 const cookieParser = require('cookie-parser');
 const crypto = require('crypto');
 
-// Firebase Setup
-// const admin = require('firebase-admin');
-// const serviceAccount = require('./service-account.json');
-// admin.initializeApp({
-//     // credential: admin.credential.cert(serviceAccount),
-//     // databaseURL: `https://${process.env.GCLOUD_PROJECT}.firebaseio.com`,
-// });
-
 // this redirect_uri MUST match the one set in the app on OSM OAuth, or you
 // will get a cryptic error about the server not being able to continue
 // TODO: adjust the prefix based on which deployment is done (prod/dev)
