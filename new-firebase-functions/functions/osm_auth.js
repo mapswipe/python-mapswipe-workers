@@ -16,7 +16,6 @@ const cookieParser = require('cookie-parser');
 const crypto = require('crypto');
 const simpleOAuth2 = require('simple-oauth2');
 const axios = require('axios');
-const admin = require('firebase-admin')
 
 // this redirect_uri MUST match the one set in the app on OSM OAuth, or you
 // will get a cryptic error about the server not being able to continue
@@ -60,7 +59,7 @@ function osmOAuth2Client() {
  * NOT a webview inside MapSwipe, as this would break the promise of
  * OAuth that we do not touch their OSM credentials
  */
-exports.redirect = functions.https.onRequest((req, res) => {
+exports.redirect = (req, res) => {
     const oauth2 = osmOAuth2Client();
 
     cookieParser()(req, res, () => {
@@ -84,7 +83,7 @@ exports.redirect = functions.https.onRequest((req, res) => {
         functions.logger.log('Redirecting to:', redirectUri);
         res.redirect(redirectUri);
     });
-});
+};
 
 /**
  * The OSM OAuth endpoing does not give us any info about the user,
@@ -109,9 +108,7 @@ async function getOSMProfile(accessToken) {
  * The Firebase custom auth token, display name, photo URL and OSM access
  * token are sent back to the app via a deeplink redirect.
  */
-exports.token = functions.https.onRequest(async (req, res) => {
-    admin.initializeApp()
-
+exports.token = async (req, res, admin) => {
     const oauth2 = osmOAuth2Client();
 
     try {
@@ -197,7 +194,7 @@ exports.token = functions.https.onRequest(async (req, res) => {
         // back into the app to allow the user to take action
         return res.json({ error: error.toString() });
     }
-});
+};
 
 /**
  * Creates a Firebase account with the given user profile and returns a custom

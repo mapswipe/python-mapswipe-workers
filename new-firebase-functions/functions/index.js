@@ -8,7 +8,19 @@ admin.initializeApp()
 // all functions are bundled together. It's less than ideal, but it does not
 // seem possible to split them using the split system for multiple sites from
 // https://firebase.google.com/docs/hosting/multisites
-exports.osmAuth = require('./osm_auth')
+const osmAuthFuncs = require('./osm_auth')
+
+exports.osmAuth = {}
+
+// expose HTTP expossed functions here so that we can pass the admin object
+// to them and only instantiate/initialize it once
+exports.osmAuth.redirect = functions.https.onRequest((req, res) => {
+    osmAuthFuncs.redirect(req, res);
+});
+
+exports.osmAuth.token = functions.https.onRequest((req, res) => {
+    osmAuthFuncs.token(req, res, admin);
+});
 
 /*
     Log the userIds of all users who finished a group to /v2/userGroups/{projectId}/{groupId}/.
