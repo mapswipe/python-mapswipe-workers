@@ -171,6 +171,7 @@ exports.token = functions.https.onRequest(async (req, res) => {
 
             // Create a Firebase account and get the Custom Auth Token.
             const firebaseToken = await createFirebaseAccount(
+                admin,
                 id,
                 display_name,
                 accessToken,
@@ -202,7 +203,7 @@ exports.token = functions.https.onRequest(async (req, res) => {
  *
  * @returns {Promise<string>} The Firebase custom auth token in a promise.
  */
-async function createFirebaseAccount(osmID, displayName, accessToken) {
+async function createFirebaseAccount(admin, osmID, displayName, accessToken) {
     // The UID we'll assign to the user.
     // The format of these identifiers should NOT change once set
     // The osmID is an integer which does not change for a given account,
