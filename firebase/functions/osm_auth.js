@@ -211,12 +211,14 @@ async function createFirebaseAccount(admin, osmID, displayName, accessToken) {
     // with a variable length.
     const uid = `osm:${osmID}`;
 
+    functions.logger.log('In createFirebaseAccount', admin);
     // Save the access token to the Firebase Realtime Database.
     const databaseTask = admin
         .database()
         .ref(`v2/OSMAccessToken/${uid}`)
         .set(accessToken);
 
+    functions.logger.log('In createFirebaseAccount: set profile');
     const profileTask = admin
         .database()
         .ref(`v2/users/${uid}/`)
@@ -228,6 +230,7 @@ async function createFirebaseAccount(admin, osmID, displayName, accessToken) {
             displayName,
         });
 
+    functions.logger.log('In createFirebaseAccount: set createUser');
     // Create or update the firebase user account.
     // This does not login the user on the app, it just ensures that a firebase
     // user account (linked to the OSM account) exists.
@@ -247,9 +250,11 @@ async function createFirebaseAccount(admin, osmID, displayName, accessToken) {
             throw error;
         });
 
+    functions.logger.log('In createFirebaseAccount: await all');
     // Wait for all async task to complete then generate and return a custom auth token.
     await Promise.all([userCreationTask, databaseTask, profileTask]);
     // Create a Firebase custom auth token.
+    functions.logger.log('In createFirebaseAccount: createCustomToken');
     const token = await admin.auth().createCustomToken(uid);
     functions.logger.log('Created Custom token for UID "', uid);
     return token;
