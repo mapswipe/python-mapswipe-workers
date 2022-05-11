@@ -14,6 +14,8 @@
 const functions = require('firebase-functions');
 const cookieParser = require('cookie-parser');
 const crypto = require('crypto');
+const simpleOAuth2 = require('simple-oauth2');
+const axios = require('axios');
 
 // this redirect_uri MUST match the one set in the app on OSM OAuth, or you
 // will get a cryptic error about the server not being able to continue
@@ -44,7 +46,7 @@ function osmOAuth2Client() {
             authorizePath: '/oauth2/authorize',
         },
     };
-    return require('simple-oauth2').create(credentials);
+    return simpleOAuth2.create(credentials);
 }
 
 /**
@@ -85,8 +87,6 @@ exports.redirect = functions.https.onRequest((req, res) => {
  * so we need to get the user profile from this endpoint
  */
 async function getOSMProfile(accessToken) {
-    const axios = require('axios');
-
     const url = `${OSM_API_URL}/api/0.6/user/details`;
 
     const result = await axios.get(url, {
