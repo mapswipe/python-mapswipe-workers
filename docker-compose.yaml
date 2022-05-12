@@ -207,7 +207,7 @@ services:
           sh -c "firebase use $FIREBASE_DB &&
           firebase functions:config:set
           osm.redirect_uri=\"$OSM_OAUTH_REDIRECT_URI\"
-          osm.app_login_link=\"OSM_OAUTH_APP_LOGIN_LINK\"
+          osm.app_login_link=\"$OSM_OAUTH_APP_LOGIN_LINK\"
           osm.api_url=\"$OSM_OAUTH_API_URL\"
           osm.client_id=\"$OSM_OAUTH_CLIENT_ID\"
           osm.client_secret=\"$OSM_OAUTH_CLIENT_SECRET\" &&
