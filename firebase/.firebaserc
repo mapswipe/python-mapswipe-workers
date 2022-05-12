@@ -5,7 +5,7 @@
   "targets": {
     "dev-mapswipe": {
       "hosting": {
-        "devauth": [
+        "auth": [
           "dev-auth-mapswipe"
         ]
       }
