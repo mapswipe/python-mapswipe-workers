@@ -29,12 +29,12 @@ Some specifics about the related functions:
    external URLs (this last point only works on a firebase Blaze plan)
 - Before deploying, set the required firebase config values in environment:
 FIXME: replace env vars with config value names
-  - `osm.redirect_uri`: `https://dev-auth.mapswipe.org/token` or `https://auth.mapswipe.org/token`
-  - `osm.app_login_link`: 'devmapswipe://login/osm' or 'mapswipe://login/osm'
-  - `osm.api_url`: 'https://master.apis.dev.openstreetmap.org/' or 'https://www.openstreetmap.org/' (include the
+  - OSM_OAUTH_REDIRECT_URI `osm.redirect_uri`: `https://dev-auth.mapswipe.org/token` or `https://auth.mapswipe.org/token`
+  - OSM_OAUTH_APP_LOGIN_LINK `osm.app_login_link`: 'devmapswipe://login/osm' or 'mapswipe://login/osm'
+  - OSM_OAUTH_API_URL `osm.api_url`: 'https://master.apis.dev.openstreetmap.org/' or 'https://www.openstreetmap.org/' (include the
     trailing slash)
-  - `osm.client_id`: find it on the OSM application page
-  - `osm.client_secret`: same as above. Note that this can only be seen once when the application is created. Do not
+  - OSM_OAUTH_CLIENT_ID `osm.client_id`: find it on the OSM application page
+  - OSM_OAUTH_CLIENT_SECRET `osm.client_secret`: same as above. Note that this can only be seen once when the application is created. Do not
     lose it!
 - Deploy the functions as explained above
 - Expose the functions publicly through firebase hosting, this is done in `/firebase/firebase.json` under the `hosting`
