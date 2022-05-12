@@ -205,6 +205,7 @@ services:
             OSM_OAUTH_CLIENT_SECRET: '${OSM_OAUTH_CLIENT_SECRET}'
         command: >-
           sh -c "firebase use $FIREBASE_DB &&
+          firebase target:apply hosting auth \"$FIREBASE_AUTH_SITE\" &&
           firebase functions:config:set
           osm.redirect_uri=\"$OSM_OAUTH_REDIRECT_URI\"
           osm.app_login_link=\"$OSM_OAUTH_APP_LOGIN_LINK\"
