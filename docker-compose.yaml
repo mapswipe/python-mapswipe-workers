@@ -212,5 +212,3 @@ services:
           osm.client_id=\"$OSM_OAUTH_CLIENT_ID\"
           osm.client_secret=\"$OSM_OAUTH_CLIENT_SECRET\" &&
           firebase deploy --token $FIREBASE_TOKEN --only functions,hosting,database:rules"
-        volumes:
-            - ./firebase:/firebase
