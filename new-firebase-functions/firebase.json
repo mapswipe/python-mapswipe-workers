@@ -7,7 +7,7 @@
     "rules": "database.rules.json"
   },
   "hosting": {
-    "target": "devauth",
+    "target": "auth",
     "public": "public",
     "rewrites": [
       {
