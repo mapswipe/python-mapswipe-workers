@@ -198,6 +198,7 @@ services:
         environment:
             FIREBASE_TOKEN: '${FIREBASE_TOKEN}'
             FIREBASE_DB: '${FIREBASE_DB}'
+            FIREBASE_AUTH_SITE: '${FIREBASE_AUTH_SITE}'
             OSM_OAUTH_REDIRECT_URI: '${OSM_OAUTH_REDIRECT_URI}'
             OSM_OAUTH_APP_LOGIN_LINK: '${OSM_OAUTH_APP_LOGIN_LINK}'
             OSM_OAUTH_API_URL: '${OSM_OAUTH_API_URL}'
