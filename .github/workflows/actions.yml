@@ -40,8 +40,8 @@ jobs:
       env:
         FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
         FIREBASE_DB: ${{ secrets.FIREBASE_DB }}
+        FIREBASE_AUTH_SITE: ${{{ secrets.FIREBASE_AUTH_SITE }}
       run: |
-        # Create a mock file for wal-g setup
         docker-compose up --build firebase_deploy
     - name: Decrypt Service Account Key File
       working-directory: ./
