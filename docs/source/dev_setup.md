@@ -143,6 +143,9 @@ On how to setup the development environment and how to deploy functions to the F
 For more information refer to the official [Reference on Cloud Function for Firebase](https://firebase.google.com/docs/reference/functions/). 
 For example function take a look at this [GitHub repository](https://github.com/firebase/functions-samples).
 
+### OSM OAuth 2
+Firebase functions are also used to allow users to login to MapSwipe with their OpenStreetMap account. Refer to [the notes in the app repository](https://github.com/mapswipe/mapswipe/blob/master/docs/osm_login.md) for more information.
+
 
 ## Database Backup
 
