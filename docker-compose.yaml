@@ -198,6 +198,19 @@ services:
         environment:
             FIREBASE_TOKEN: '${FIREBASE_TOKEN}'
             FIREBASE_DB: '${FIREBASE_DB}'
-        command: sh -c "firebase use $FIREBASE_DB && firebase deploy --token $FIREBASE_TOKEN --only functions,database:rules"
-        volumes:
-            - ./firebase:/firebase
+            FIREBASE_AUTH_SITE: '${FIREBASE_AUTH_SITE}'
+            OSM_OAUTH_REDIRECT_URI: '${OSM_OAUTH_REDIRECT_URI}'
+            OSM_OAUTH_APP_LOGIN_LINK: '${OSM_OAUTH_APP_LOGIN_LINK}'
+            OSM_OAUTH_API_URL: '${OSM_OAUTH_API_URL}'
+            OSM_OAUTH_CLIENT_ID: '${OSM_OAUTH_CLIENT_ID}'
+            OSM_OAUTH_CLIENT_SECRET: '${OSM_OAUTH_CLIENT_SECRET}'
+        command: >-
+          sh -c "firebase use $FIREBASE_DB &&
+          firebase target:apply hosting auth \"$FIREBASE_AUTH_SITE\" &&
+          firebase functions:config:set
+          osm.redirect_uri=\"$OSM_OAUTH_REDIRECT_URI\"
+          osm.app_login_link=\"$OSM_OAUTH_APP_LOGIN_LINK\"
+          osm.api_url=\"$OSM_OAUTH_API_URL\"
+          osm.client_id=\"$OSM_OAUTH_CLIENT_ID\"
+          osm.client_secret=\"$OSM_OAUTH_CLIENT_SECRET\" &&
+          firebase deploy --token $FIREBASE_TOKEN --only functions,hosting,database:rules"

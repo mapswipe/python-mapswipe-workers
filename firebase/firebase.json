@@ -5,5 +5,19 @@
   },
   "database": {
     "rules": "database.rules.json"
+  },
+  "hosting": {
+    "target": "auth",
+    "public": "public",
+    "rewrites": [
+      {
+        "source": "/redirect",
+        "function": "osmAuth-redirect"
+      },
+      {
+        "source": "/token",
+        "function": "osmAuth-token"
+      }
+    ]
   }
 }
