@@ -271,9 +271,9 @@ def save_results_to_postgres(results_file):
 
     p_con = auth.postgresDB()
     columns = [
-        "firebase_project_id",
-        "firebase_group_id",
-        "firebase_user_id",
+        "project_id",
+        "group_id",
+        "user_id",
         "task_id",
         "timestamp",
         "start_time",
