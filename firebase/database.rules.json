@@ -137,6 +137,12 @@
           "created",
           "teamId"
         ]
+      },
+      "OSMAccessToken": {
+        "$uid": {
+          ".read": "auth.uid === $uid",
+          ".write": "auth.uid === $uid"
+        }
       }
     },
     // leaving this here, since version before v2 pull data from there

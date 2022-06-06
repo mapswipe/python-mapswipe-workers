@@ -331,7 +331,10 @@ def run_create_tutorials() -> None:
 
 @cli.command("archive")
 @click.option(
-    "--project-id", "-i", help=("Archive project with giving project id"), type=str,
+    "--project-id",
+    "-i",
+    help=("Archive project with giving project id"),
+    type=str,
 )
 @click.option(
     "--project-ids",
@@ -359,7 +362,10 @@ def run_archive_project(project_id, project_ids):
 
 @cli.command("delete")
 @click.option(
-    "--project-id", "-i", help=("Delete project with giving project id"), type=str,
+    "--project-id",
+    "-i",
+    help=("Delete project with giving project id"),
+    type=str,
 )
 @click.option(
     "--project-ids",

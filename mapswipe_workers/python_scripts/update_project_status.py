@@ -58,7 +58,9 @@ def run_update_project_status(filter_string: str) -> None:
     logger.info("### Start update project status workflow ###")
     active_projects = get_projects(status="active")
     finished_projects = filter_projects_by_name_and_progress(
-        active_projects, filter_string, progress_threshold=100,
+        active_projects,
+        filter_string,
+        progress_threshold=100,
     )
 
     inactive_projects = get_projects(status="inactive")
@@ -69,7 +71,9 @@ def run_update_project_status(filter_string: str) -> None:
     )
 
     new_active_projects = filter_projects_by_name_and_progress(
-        inactive_projects, filter_string, progress_threshold=0,
+        inactive_projects,
+        filter_string,
+        progress_threshold=0,
     )[0 : len(finished_projects)]
 
     # Here we check that there is at least one inactive project
@@ -89,11 +93,11 @@ def run_update_project_status(filter_string: str) -> None:
 if __name__ == "__main__":
     """Use this command to run in docker container.
     docker-compose run -d mapswipe_workers_creation python3 python_scripts/update_project_status.py "test" 30  # noqa
-    
+
     You need to use two arguments for the script
     - filter string, e.g. "test"
     - time interval in minutes, e.g. 30
-    
+
     Make sure that you don't run this script too frequently as it pulls data from firebase and
     this will have implications on costs. Running this script once every 15-30 minutes should be totally fine.
     This means that there can be a "delay" in setting a project to finished about roughly the same time.

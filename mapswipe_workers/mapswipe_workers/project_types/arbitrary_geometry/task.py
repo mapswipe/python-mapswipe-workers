@@ -7,7 +7,10 @@ from mapswipe_workers.project_types.base.task import BaseTask
 
 class Task(BaseTask):
     def __init__(
-        self, group: object, featureId: Union[int, str], feature: Dict,
+        self,
+        group: object,
+        featureId: Union[int, str],
+        feature: Dict,
     ):
         """
         Parameters

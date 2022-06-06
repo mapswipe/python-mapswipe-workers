@@ -1,5 +1,14 @@
 {
   "projects": {
     "default": "dev-mapswipe"
+  },
+  "targets": {
+    "dev-mapswipe": {
+      "hosting": {
+        "auth": [
+          "dev-auth-mapswipe"
+        ]
+      }
+    }
   }
 }
