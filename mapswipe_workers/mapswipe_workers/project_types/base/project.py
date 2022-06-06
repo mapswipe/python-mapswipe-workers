@@ -354,7 +354,7 @@ class BaseProject(metaclass=ABCMeta):
             if key not in project_attributes:
                 project_type_specifics[key] = value
         data_project.append(json.dumps(project_type_specifics))
-        # todo: do we need raw groups?
+
         query_recreate_raw_groups = """
             DROP TABLE IF EXISTS raw_groups CASCADE;
             CREATE TABLE raw_groups (
@@ -369,23 +369,15 @@ class BaseProject(metaclass=ABCMeta):
             """
 
         query_insert_raw_groups = """
-            INSERT INTO groups (
-                project_id,
-                id,
-                number_of_tasks,
-                finished_count,
-                required_count,
-                progress,
-                project_type_specifics
-            )
+            INSERT INTO groups
             SELECT
               project_id,
               group_id,
               number_of_tasks,
               finished_count,
               required_count,
-              raw_groups.progress,
-              raw_groups.project_type_specifics
+              progress,
+              project_type_specifics
             FROM raw_groups
             DROP TABLE IF EXISTS raw_groups CASCADE;
             """
@@ -393,8 +385,8 @@ class BaseProject(metaclass=ABCMeta):
         query_recreate_raw_tasks = """
             DROP TABLE IF EXISTS raw_tasks CASCADE;
             CREATE TABLE raw_tasks (
-                firebase_project_id varchar,
-                firebase_group_id varchar,
+                project_id varchar,
+                group_id varchar,
                 task_id varchar,
                 geom varchar,
                 project_type_specifics json
@@ -402,28 +394,14 @@ class BaseProject(metaclass=ABCMeta):
             """
 
         query_insert_raw_tasks = """
-            INSERT INTO tasks (
-                project_id,
-                group_id,
-                task_id,
-                geom,
-                project_type_specifics
-            )
+            INSERT INTO tasks
             SELECT
               project_id,
               group_id,
               task_id,
-              ST_Force2D(ST_Multi(ST_GeomFromText(raw_tasks.geom, 4326))),
-              raw_tasks.project_type_specifics
-            FROM raw_tasks
-            join (
-                select group_id, firebase_group_id, project_id,
-                from groups where firebase_project_id = (
-                    select distinct project_id
-                    from raw_groups
-                )
-            ) as sub_groups
-            on raw_tasks.firebase_group_id = sub_groups.firebase_group_id
+              ST_Force2D(ST_Multi(ST_GeomFromText(geom, 4326))),
+              project_type_specifics
+            FROM raw_tasks;
             DROP TABLE IF EXISTS raw_tasks CASCADE;
             """
 
