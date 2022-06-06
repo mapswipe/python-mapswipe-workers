@@ -108,9 +108,9 @@ def update_user_data(user_ids: Optional[List[str]] = None) -> None:
 
         # update username and created attributes in postgres
         query_insert_results = """
-            INSERT INTO users
-                SELECT * FROM users_temp
-            ON CONFLICT (user_id)
+            INSERT INTO users (user_id, username, create)
+                SELECT user_id, username, create FROM users_temp
+            ON CONFLICT (firebase_user_id)
             DO NOTHING;
             TRUNCATE users_temp;
         """

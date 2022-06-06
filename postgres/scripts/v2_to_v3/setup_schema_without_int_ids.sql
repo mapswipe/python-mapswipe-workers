@@ -1,6 +1,6 @@
--- noinspection SqlNoDataSourceInspectionForFile
-CREATE EXTENSION postgis;
+create schema if not exists without_int_id;
 
+set search_path = without_int_id, public;
 
 CREATE TABLE IF NOT EXISTS projects (
     project_id varchar,
@@ -72,11 +72,11 @@ CREATE TABLE IF NOT EXISTS group_results (
     FOREIGN KEY (user_id) REFERENCES users (user_id)
 );
 
-CREATE INDEX IF NOT EXISTS group_results_result_id ON group_results
+CREATE INDEX IF NOT EXISTS without_int_group_results_result_id ON without_int_id.group_results
     USING btree (result_id);
 
-CREATE INDEX IF NOT EXISTS  group_results_timestamp_date_idx
-    ON group_results ("timestamp" DESC);
+CREATE INDEX IF NOT EXISTS  without_int_group_results_timestamp_date_idx
+    ON without_int_id.group_results ("timestamp" DESC);
 
 CREATE TABLE IF NOT EXISTS results (
     task_id varchar,

@@ -11,7 +11,7 @@ def get_recent_projects(hours: int = 3):
     pg_db = auth.postgresDB()
     query_insert_results = """
         select project_id
-        from results
+        from group_results
         -- Using timestamp attribute here which is set for all projects
         -- and also represents the start_time for newer projects.
         -- "Old" projects have no start_time attribute.

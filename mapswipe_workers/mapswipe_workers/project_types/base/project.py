@@ -276,7 +276,7 @@ class BaseProject(metaclass=ABCMeta):
 
         query_insert_project = """
             INSERT INTO projects (
-                firebase_project_id,
+                project_id,
                 created,
                 created_by,
                 geometry,
@@ -354,12 +354,12 @@ class BaseProject(metaclass=ABCMeta):
             if key not in project_attributes:
                 project_type_specifics[key] = value
         data_project.append(json.dumps(project_type_specifics))
-
+        # todo: do we need raw groups?
         query_recreate_raw_groups = """
             DROP TABLE IF EXISTS raw_groups CASCADE;
             CREATE TABLE raw_groups (
-              firebase_project_id varchar,
-              firebase_group_id varchar,
+              project_id varchar,
+              group_id varchar,
               number_of_tasks int,
               finished_count int,
               required_count int,
@@ -371,7 +371,7 @@ class BaseProject(metaclass=ABCMeta):
         query_insert_raw_groups = """
             INSERT INTO groups (
                 project_id,
-                firebase_group_id,
+                id,
                 number_of_tasks,
                 finished_count,
                 required_count,
@@ -380,21 +380,13 @@ class BaseProject(metaclass=ABCMeta):
             )
             SELECT
               project_id,
-              firebase_group_id,
+              group_id,
               number_of_tasks,
               finished_count,
               required_count,
               raw_groups.progress,
               raw_groups.project_type_specifics
             FROM raw_groups
-            join (
-                select project_id
-                from projects
-                where firebase_project_id = (
-                    select distinct firebase_project_id
-                    from raw_groups
-                )
-            ) as sub_projects;
             DROP TABLE IF EXISTS raw_groups CASCADE;
             """
 

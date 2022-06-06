@@ -104,9 +104,17 @@ def get_results(filename: str, project_id: str) -> pd.DataFrame:
     sql_query = sql.SQL(
         """
         COPY (
-            SELECT *
-            FROM results
-            WHERE project_id = {}
+            SELECT
+                gr.*,
+                r.result,
+                r.task_id
+            FROM (
+                SELECT *
+                FROM group_results
+                WHERE project_id = {}
+            ) gr
+            JOIN results r
+            ON gr.result_id = r.result_id
         ) TO STDOUT WITH CSV HEADER
         """
     ).format(sql.Literal(project_id))
