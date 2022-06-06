@@ -110,7 +110,7 @@ def update_user_data(user_ids: Optional[List[str]] = None) -> None:
         query_insert_results = """
             INSERT INTO users (user_id, username, create)
                 SELECT user_id, username, create FROM users_temp
-            ON CONFLICT (firebase_user_id)
+            ON CONFLICT (user_id)
             DO NOTHING;
             TRUNCATE users_temp;
         """
