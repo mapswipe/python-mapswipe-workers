@@ -21,7 +21,7 @@ class TestArchiveProject(unittest.TestCase):
         """Test if groups, tasks and results are deleted from Firebase."""
         archive_project.archive_project([self.project_id])
 
-        time.sleep(1)  # Wait for Firebase Functions to complete
+        time.sleep(5)  # Wait for Firebase Functions to complete
 
         fb_db = auth.firebaseDB()
         ref = fb_db.reference(f"v2/groups/{self.project_id}")
