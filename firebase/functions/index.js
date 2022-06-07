@@ -46,73 +46,10 @@ exports.groupUsersCounter = functions.database.ref('/v2/results/{projectId}/{gro
         return null
     }
 
-    // check for specific user ids which have been identified as problematic
-    // these users have repeatedly uploaded harmful results
-    const userIds = [
-        'AzQlXOtktBOwxJ1fZwYFoLDG3b12',
-        'Iak07i1KDDfYeLtMfrpcMchquJ12',
-        'YSvOaakTyYMs2e5dbSjaqfAhYIk1',
-        '5ch7OvaTXxVK8MvOi2FtgRyQeUy1',
-        'HAVL5iWTfNftTavRYVNdIBFzYU43',
-        'TTkAJtvVwEdekVrRASyKuw1dWoS2',
-        'eXipbCqGTzeoJPAWZFxrdJRjZa83',
-        'wrYTAN2vVBQdgjfulZza3P6N4pV2',
-        'Ym4cT7EJejSc3w5M9QXIzBD2bXo1',
-        'WAkFLSU1U3WdYLPW0YiAWxXtSWe2',
-        'w44vtuc1wpVbyAGiiJOWX1Yuwjo1',
-        'reCuRbdmeVgg0M9D0eykeATZbsL2',
-        '0ELGkiW8OggQKHhk1JgjZnX4uBi2',
-        'udll4hsHCmRISmPYvQv99TrkmBE2',
-        'lv4yamN1KcYvL6o54iFcy1j3KM43',
-        'MWIk7z2kM3M96DbuYWYtbgPGeFn2',
-        'MV60DRj0ghfApN0geSZIu7INxey2',
-        'jRvt91Rtqygf9Og19mZg4NTgrWz1',
-        '7YrAXAqhNXgMDgscfnHm64shB222',
-        'W7mgqBGsEieFIM4zm0fTBNSH1p73',
-        'jDMDTCr0T9MzGcy2D08QWsohB262',
-        'vYAXN9lySuPciwqopgQs1zczRPW2',
-        'CTVZyRQrvZPS9Ud1nDPg21remtv2',
-        'JIOLdqAJfUPlNhDvZ1MlFWQ7mHu1',
-        'ABCPptEoTbZtzVgOWq9iUHPTlmD3',
-        'ziwGrEoro7axqwqvy7PjRnf4M733',
-        'oEAbCqYCG7Upx58AjXEj0Ld9koi2',
-        'e4Z9OJEtOuQeSUkiVCRYKctKU7g1',
-        '6KWtFRHtKWQvNgWU53iFazNNeDb2',
-        'OKU6AcHs0DO15aWorZgYipHwHdC3',
-        '7wKfEG6xwNO9BkRVVTa7nEHdBtn2',
-        'dBvrdM10sDX75jRHF6Ahfjy8SzF2',
-        'Vyg0v3wtYmgox1gdjlBDkGSwcUH3',
-        'wBORzlj5YeRgcwAZLfMXLOSrAPA3',
-        '90cCwpwgPyaykQAx4J1hHAfUNXV2',
-        'JSf9kZTOwzgDIagfjNXnLxjNJ5I2',
-        'UezKETCiTlfkQyTb58vIyt4w97c2',
-        'gVNaskKXBmRPwk3xNTUqqdNxTRq1',
-        'Ny02x9krCVd7A14zJtxGUXNuhdu2',
-        'JkRSOX7IHwdU5R0fceQ8OJ4Qlxv2',
-        '70d9gYUMUFb4KGEhqYXLzwNe7fs2',
-        'kwlfart7s4Wq510NFVu75Py7FdO2',
-        'pWJhre1FRjcgb5IftrqhLcTL74z1',
-        'aAMMEL9iMcgFMfeY1AQWioVnjBx2',
-        'OBasOgdBmoYz9pjsCPbBw1d9DXo2',
-        'CTBWMVHFE5TSB4YRwh8mUokxWnf2',
-        'uc1P5nW4SvgBOcIEXNjWdGTOmkJ2',
-        'CybJgBgHchMJwKgzQqsH0ipFV4u2',
-        'RBEn2gBwmLPyT6U2m9TXW4QQswS2',
-        'kSSZ7k3DbBhnbvkkyhTzewT8R452',
-        'M0aFGicS0oQZBH7QRlGPXKHHQ8l1',
-        'V4WngoYDCSbRmBnTVeR3cUVUCtD2',
-        'HUOsSR6ROrVJb1uPjqtqLzdhvjQ2',
-        'yVzUqNzCWZPPaWjvLE9Iq4UoDxI3',
-        '4Cfq2Yjff2eJv7w39fg7AwBinWD3',
-        'JnO0NdUGiQQvKjjMGL1hdH9pIqG2',
-        'D0M7pXIPwlNUykQoAy96oexZ6Xg1',
-        'j56Kz2bpVcWpNumvIbDIt56aeQ83',
-        'lGuAkNgSU9cPlb0PsqRvuG4MJ6h1',
-        'rwBH2olAxkdAt7C2ZECj8j2paR92',
-        'wae2b09yfJUNAAlifLCsNptvyrq2',
-        'WE3NoTznvdcwDtov8VSnZ0whxfv2',
-        '7fcqGV9kfmW2meFcbhH7lLyu17g2'
-    ]
+    // Check for specific user ids which have been identified as problematic.
+    // These users have repeatedly uploaded harmful results.
+    // Add new user ids to this list if needed.
+    const userIds = []
     if ( userIds.includes(context.params.userId) ) {
         console.log('suspicious user: ' + context.params.userId)
         console.log('will remove this result and not update counters')
