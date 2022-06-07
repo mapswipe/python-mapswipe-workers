@@ -5,6 +5,7 @@ import set_up
 import tear_down
 
 from mapswipe_workers import auth
+from mapswipe_workers.config import FIREBASE_DB
 from mapswipe_workers.firebase_to_postgres import archive_project
 
 
@@ -17,11 +18,17 @@ class TestArchiveProject(unittest.TestCase):
     def tearDown(self):
         tear_down.delete_test_data(self.project_id)
 
+    # This test is unreliable when running in Github Actions.
+    # You should run this test locally.
+    @unittest.skipIf(
+        FIREBASE_DB == "ci-mapswipe",
+        "Test is unreliable when running in Github Actions",
+    )
     def test_changes(self):
         """Test if groups, tasks and results are deleted from Firebase."""
         archive_project.archive_project([self.project_id])
 
-        time.sleep(5)  # Wait for Firebase Functions to complete
+        time.sleep(1)  # Wait for Firebase Functions to complete
 
         fb_db = auth.firebaseDB()
         ref = fb_db.reference(f"v2/groups/{self.project_id}")
