@@ -2,6 +2,7 @@
 
 import ast
 import time
+from typing import List, Optional
 
 import click
 import schedule as sched
@@ -424,7 +425,9 @@ def run_delete_project(project_id, project_ids):
     ),
 )
 @click.option("--api-key", help="the new api key to use", type=str, required=True)
-def run_set_tileserver_api_key(project_id, project_ids, api_key) -> None:
+def run_set_tileserver_api_key(
+    project_id: str, project_ids: Optional[List[str]], api_key: str
+) -> None:
     """Change the imagery API key for a project in Firebase."""
     if not project_ids and not project_id:
         click.echo("Missing argument")
