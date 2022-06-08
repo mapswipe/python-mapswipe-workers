@@ -2,6 +2,7 @@
 
 import ast
 import time
+from typing import List, Optional
 
 import click
 import schedule as sched
@@ -364,7 +365,7 @@ def run_archive_project(project_id, project_ids):
 @click.option(
     "--project-id",
     "-i",
-    help=("Delete project with giving project id"),
+    help="Delete project with given project id.",
     type=str,
 )
 @click.option(
@@ -404,6 +405,38 @@ def run_delete_project(project_id, project_ids):
         click.echo("Abort!")
     else:
         click.echo("Invalid input")
+
+
+@cli.command("set-tileserver-api-key")
+@click.option(
+    "--project-id",
+    "-i",
+    help="Set api key for project with given project id",
+    type=str,
+)
+@click.option(
+    "--project-ids",
+    cls=PythonLiteralOption,
+    default="[]",
+    help=(
+        "Set api key for multiple projects. "
+        "Provide project id strings as a list: "
+        """'["project_a", "project_b"]'"""
+    ),
+)
+@click.option("--api-key", help="the new api key to use", type=str, required=True)
+def run_set_tileserver_api_key(
+    project_id: str, project_ids: Optional[List[str]], api_key: str
+) -> None:
+    """Change the imagery API key for a project in Firebase."""
+    if not project_ids and not project_id:
+        click.echo("Missing argument")
+        return None
+    elif not project_ids:
+        project_ids = [project_id]
+
+    for project_id in project_ids:
+        update_data.set_tileserver_api_key(project_id, api_key)
 
 
 @cli.command("run")
