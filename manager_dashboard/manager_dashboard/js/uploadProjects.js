@@ -21,14 +21,16 @@ function getFormInput() {
         ' (' + form_data.projectNumber + ')\n' +
         form_data.requestingOrganisation
 
-    // add teamId if visibility is not set to public
-    visibility = document.getElementById("visibility").value
-    if (visibility !== "public") {
-        form_data.teamId = visibility
-        maxTasksPerUser = document.getElementById("maxTasksPerUser").value
+    // add limit how many tasks a user can work on
+    maxTasksPerUser = document.getElementById("maxTasksPerUser").value
         if (maxTasksPerUser > 0) {
             form_data.maxTasksPerUser = maxTasksPerUser
         }
+
+    visibility = document.getElementById("visibility").value
+    // add teamId if visibility is not set to public
+    if (visibility !== "public") {
+        form_data.teamId = visibility
     }
 
     // add project type specific attributes

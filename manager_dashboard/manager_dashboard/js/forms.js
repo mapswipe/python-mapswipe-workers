@@ -82,7 +82,7 @@ function displayProjectTypeForm(projectType) {
             document.getElementById("form_tile_server_a").style.display = "block";
             document.getElementById("form_tile_server_b").style.display = "None";
             setTimeout(function(){ ProjectAoiMap.invalidateSize()}, 400);
-            document.getElementById("form_team_settings").style.display = "None";
+            document.getElementById("form_team_settings").style.display = "block";
             break;
         case "footprint":
             initTutorials(FOOTPRINT_TYPE);
@@ -93,7 +93,7 @@ function displayProjectTypeForm(projectType) {
             document.getElementById("form_zoom_level").style.display = "None";
             document.getElementById("form_tile_server_a").style.display = "block";
             document.getElementById("form_tile_server_b").style.display = "None";
-            document.getElementById("form_team_settings").style.display = "None";
+            document.getElementById("form_team_settings").style.display = "block";
             break;
         case "change_detection":
         case "completeness":
@@ -112,7 +112,7 @@ function displayProjectTypeForm(projectType) {
             document.getElementById("form_tile_server_a").style.display = "block";
             document.getElementById("form_tile_server_b").style.display = "block";
             setTimeout(function(){ ProjectAoiMap.invalidateSize()}, 400);
-            document.getElementById("form_team_settings").style.display = "None";
+            document.getElementById("form_team_settings").style.display = "block";
             break;
     }
 }
@@ -135,7 +135,7 @@ function addTileServerCredits (tileServerName, which) {
 function displayTeamSettings (teamId) {
     switch (teamId) {
         case "public":
-            document.getElementById("form_team_settings").style.display = "None";
+            document.getElementById("form_team_settings").style.display = "block";
             break;
         default:
             document.getElementById("form_team_settings").style.display = "block";
