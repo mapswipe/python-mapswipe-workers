@@ -303,3 +303,14 @@ def set_contributor_count_in_firebase(project_id: str):
     logger.info(
         f"set contributorCount attribute for project {project_id}: {contributor_count}"
     )
+
+
+def set_tileserver_api_key(project_id: str, api_key: str) -> None:
+    """Set the tileserver api key value in Firebase."""
+
+    fb_db = auth.firebaseDB()
+    project_progress_ref = fb_db.reference(
+        f"v2/projects/{project_id}/tileServer/apiKey"
+    )
+    project_progress_ref.set(api_key)
+    logger.info(f"set tileServer/apiKey attribute for project: {project_id}")

@@ -10,8 +10,13 @@
     "logs": "firebase functions:log"
   },
   "dependencies": {
-    "firebase-admin": "^8.6.0",
-    "firebase-functions": "^3.2.0"
+    "axios": "^0.25.0",
+    "cookie-parser": "^1.4.4",
+    "firebase-admin": "^10.0.0",
+    "firebase-functions": "^3.16.0",
+    "request": "^2.88.2",
+    "request-promise-native": "^1.0.8",
+    "simple-oauth2": "^3.3.0"
   },
   "devDependencies": {
     "eslint": "^5.12.0",
@@ -19,7 +24,7 @@
     "eslint-utils": "^1.4.1"
   },
   "engines": {
-    "node": "10"
+    "node": "12"
   },
   "private": true
 }

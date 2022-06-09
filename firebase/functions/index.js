@@ -5,6 +5,22 @@ const functions = require('firebase-functions')
 const admin = require('firebase-admin')
 admin.initializeApp()
 
+// all functions are bundled together. It's less than ideal, but it does not
+// seem possible to split them using the split system for multiple sites from
+// https://firebase.google.com/docs/hosting/multisites
+const osmAuthFuncs = require('./osm_auth')
+
+exports.osmAuth = {}
+
+// expose HTTP expossed functions here so that we can pass the admin object
+// to them and only instantiate/initialize it once
+exports.osmAuth.redirect = functions.https.onRequest((req, res) => {
+    osmAuthFuncs.redirect(req, res);
+});
+
+exports.osmAuth.token = functions.https.onRequest((req, res) => {
+    osmAuthFuncs.token(req, res, admin);
+});
 
 /*
     Log the userIds of all users who finished a group to /v2/userGroups/{projectId}/{groupId}/.
@@ -28,6 +44,7 @@ exports.groupUsersCounter = functions.database.ref('/v2/results/{projectId}/{gro
     const totalGroupContributionCountRef = userRef.child('groupContributionCount')
     const userContributionRef = userRef.child('contributions/' + context.params.projectId)
     const taskContributionCountRef = userRef.child('contributions/' + context.params.projectId + '/taskContributionCount')
+    const thisResultRef = admin.database().ref('/v2/results/' + context.params.projectId + '/' + context.params.groupId + '/' + context.params.userId )
 
     // if result ref does not contain all required attributes we don't updated counters
     // e.g. due to some error when uploading from client
@@ -43,6 +60,30 @@ exports.groupUsersCounter = functions.database.ref('/v2/results/{projectId}/{gro
         console.log('no startTime attribute for ' + snapshot.ref)
         console.log('will not update counters')
         return null
+    }
+
+    // Check for specific user ids which have been identified as problematic.
+    // These users have repeatedly uploaded harmful results.
+    // Add new user ids to this list if needed.
+    const userIds = []
+    if ( userIds.includes(context.params.userId) ) {
+        console.log('suspicious user: ' + context.params.userId)
+        console.log('will remove this result and not update counters')
+        return Promise.all([thisResultRef.remove()])
+    }
+
+    // check if these results are likely to be vandalism
+    // mapping speed is defined by the average time needed per task in seconds
+    const numberOfTasks = Object.keys( result['results'] ).length
+    const startTime = Date.parse(result['startTime']) / 1000
+    const endTime = Date.parse(result['endTime']) / 1000
+    const mappingSpeed = (endTime - startTime) / numberOfTasks
+
+    if (mappingSpeed < 0.125) {
+        // this about 8-times faster than the average time needed per task
+        console.log('unlikely high mapping speed: ' + mappingSpeed)
+        console.log('will remove this result and not update counters')
+        return Promise.all([thisResultRef.remove()])
     }
 
     /*
