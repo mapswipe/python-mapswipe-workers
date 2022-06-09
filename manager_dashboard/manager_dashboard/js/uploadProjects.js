@@ -23,9 +23,9 @@ function getFormInput() {
 
     // add limit how many tasks a user can work on
     maxTasksPerUser = document.getElementById("maxTasksPerUser").value
-        if (maxTasksPerUser > 0) {
-            form_data.maxTasksPerUser = maxTasksPerUser
-        }
+    if (maxTasksPerUser > 0) {
+        form_data.maxTasksPerUser = maxTasksPerUser
+    }
 
     visibility = document.getElementById("visibility").value
     // add teamId if visibility is not set to public
