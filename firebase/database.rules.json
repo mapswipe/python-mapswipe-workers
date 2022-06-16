@@ -143,6 +143,10 @@
           ".read": "auth.uid === $uid",
           ".write": "auth.uid === $uid"
         }
+      },
+      "userGroups": {
+        ".read": true,
+        ".write": "auth.token.projectManager === true",
       }
     },
     // leaving this here, since version before v2 pull data from there
