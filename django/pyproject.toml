@@ -1,0 +1,30 @@
+[tool.poetry]
+name = "mapswipe-django"
+version = "0.1.0"
+description = ""
+authors = ["Mapswipe <info@mapswipe.org>"]
+license = "Apache License 2.0"
+
+[tool.poetry.dependencies]
+python = "^3.10.4"  # Same as .python-version
+Django = "^4.0.5"
+django-environ = "*"
+django-cors-headers = "*"
+psycopg2 = "^2.9.3"
+factory-boy = "^3.2.1"
+gunicorn = "^20.1.0"
+strawberry-graphql-django = "==0.3"
+strawberry-graphql = "^0.114.1"
+strawberry-django-plus = "^1.14.1"
+starlette = "^0.20.3"
+
+[tool.poetry.dev-dependencies]
+pytest-profiling = "*"
+pytest-ordering = "*"
+pytest-django = "*"
+pytest-icdiff = "*"
+ipython = "*"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
