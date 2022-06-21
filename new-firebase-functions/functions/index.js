@@ -206,6 +206,21 @@ exports.projectContributionCounter = functions.database.ref('/v2/users/{userId}/
 
 
 /*
+* Generates update commands for PSQL db
+* Gets triggered when new user group is created, update or deleted
+*/
+exports.userGroupWrite = functions.database.ref('/v2/userGroups/{userGroupId}/').onWrite((snapshot, context) => {
+    const userGroupId = context.params.userGroupId;
+
+    if (userGroupId) {
+        return admin.database().ref('/v2/updates/userGroups/').child(userGroupId).set(true);
+    }
+
+    return null;
+});
+
+
+/*
 
 OLD CODE
 
