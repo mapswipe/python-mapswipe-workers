@@ -61,7 +61,7 @@
         "$project_id": {
           ".read": "
             // everyone can read groups for public projects
-          	(root.child('/v2/projects/'+$project_id).hasChild('teamId') === false)
+            (root.child('/v2/projects/'+$project_id).hasChild('teamId') === false)
             ||
             (root.child('/v2/projects/'+$project_id+'/teamId').val() ==
              root.child('/v2/users/'+auth.uid+'/teamId').val())
@@ -78,7 +78,7 @@
         "$project_id": {
           ".read": "
             // everyone can read groups for public projects
-          	(root.child('/v2/projects/'+$project_id).hasChild('teamId') === false)
+            (root.child('/v2/projects/'+$project_id).hasChild('teamId') === false)
             ||
             (root.child('/v2/projects/'+$project_id+'/teamId').val() ==
              root.child('/v2/users/'+auth.uid+'/teamId').val())
@@ -133,6 +133,9 @@
             ".write": "auth != null && auth.uid == $uid"
           }
         },
+        "userGroups": {
+          ".write": "auth != null"
+        },
         ".indexOn": [
           "created",
           "teamId"
@@ -145,8 +148,16 @@
         }
       },
       "userGroups": {
-        ".read": true,
-        ".write": "auth.token.projectManager === true",
+        ".write": false,
+        ".read": "auth != null",
+        "$usergroup_id": {
+          // Project managers can create new User Groups
+          ".write": "auth.token.projectManager === true",
+          "users": {
+            // Logged in users can join group
+            ".write": "auth != null"
+          }
+        }
       }
     },
     // leaving this here, since version before v2 pull data from there
