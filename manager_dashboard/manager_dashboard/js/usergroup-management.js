@@ -43,7 +43,8 @@ function submitNewUserGroup() {
     try {
       key = encodeStringToKey(name);
     } catch {
-      alert('Failed to encode name into a key, please make sure that the user group name does not contain any invalid characters. Any unicode characters are considered invalid.');
+      // This should never occur
+      alert('Failed to encode name into a key, please make sure that the user group name does not contain any invalid characters.');
     }
 
     if (key) {
@@ -61,8 +62,8 @@ function submitNewUserGroup() {
             hideUserGroupLoading();
 
             if (error) {
-              alert('Failed to add new user');
-              console.info(error);
+              alert('Failed to add new user! Please make sure you have an active internet connection and that you have enough permission to perform this action.');
+              console.error(error);
             } else {
               alert('Successfully added new user group');
               window.location.reload();
