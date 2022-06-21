@@ -1,57 +1,86 @@
+// Clear input values when modal is to be shown
 $("#add-usergroup-modal").on('show.bs.modal', function() {
   $('#usergroup-name').val('');
   $('#usergroup-description').val('');
-})
+});
 
+// Shows loading message in the modal and disables the inputs
+function showUserGroupLoading() {
+  $('#add-usergroup-modal-loading-message-container').removeClass('hidden');
+  $('#usergroup-name').attr('disabled', true);
+  $('#usergroup-description').attr('disabled', true);
+}
+
+// Hides loading message in the modal and enables the inputs
+function hideUserGroupLoading() {
+  $('#usergroup-name').attr('disabled', false);
+  $('#usergroup-description').attr('disabled', false);
+  $('#add-usergroup-modal-loading-message-container').addClass('hidden');
+}
+
+// Encodes the given string to the firebase key compatible string
+function encodeStringToKey(string) {
+  return encodeURIComponent(string).replace(/\./g, '%2E');
+}
+
+// Gets triggered when user hits submit button in add usergroup modal
 function submitNewUserGroup() {
-  var nameInput = $('#usergroup-name');
-  var name = (nameInput.val() || '').trim();
-  var descriptionInput = $('#usergroup-description');
-  var description = (descriptionInput.val() || '').trim();
+  const nameInput = $('#usergroup-name');
+  const name = (nameInput.val() || '').trim();
+  const descriptionInput = $('#usergroup-description');
+  const description = (descriptionInput.val() || '').trim();
 
-  if (name && name.length <= 50) {
-    $('#add-usergroup-modal-loading-message-container').removeClass('hidden');
-    nameInput.attr('disabled', true);
-    descriptionInput.attr('disabled', true);
-
-    firebase.database().ref('v2/userGroups/' + name).once("value", function(snapshot) {
-      if (snapshot.exists()) {
-        $('#add-usergroup-modal-loading-message-container').addClass('hidden');
-        nameInput.attr('disabled', false);
-        descriptionInput.attr('disabled', false);
-        alert('A group with this name already exists');
-      } else {
-        var updates = {};
-        updates['/v2/userGroups/' + name] = {
-          userGroupName: name,
-          description,
-        };
-        firebase.database().ref().update(updates, function(error) {
-          $('#add-usergroup-modal-loading-message-container').addClass('hidden');
-          nameInput.attr('disabled', false);
-          descriptionInput.attr('disabled', false);
-
-          if (error) {
-            alert('Failed to add new user');
-            console.info(error);
-          } else {
-            alert('Successfully added new user group');
-            window.location.reload();
-          }
-        });
-      }
-    });
+  if (name && name.length > 30) {
+    hideUserGroupLoading();
+    alert('User group name is required and should be less than 30 characters');
+  } else if (description && description.length > 100) {
+    hideUserGroupLoading();
+    alert('User group description is should be less than 100 characters');
   } else {
-    nameInput.attr('disabled', false);
-    descriptionInput.attr('disabled', false);
-    $('#add-usergroup-modal-loading-message-container').addClass('hidden');
-    alert('User group name is required and should be less than 50 characters');
+    showUserGroupLoading();
+
+    var key;
+    try {
+      key = encodeStringToKey(name);
+    } catch {
+      alert('Failed to encode name into a key, please make sure that the user group name does not contain any invalid characters. Any unicode characters are considered invalid.');
+    }
+
+    if (key) {
+      firebase.database().ref('v2/userGroups/' + key).once("value", function(snapshot) {
+        if (snapshot.exists()) {
+          hideUserGroupLoading();
+          alert('A group with this name already exists');
+        } else {
+          var updates = {};
+          updates['/v2/userGroups/' + key] = {
+            name,
+            description,
+          };
+          firebase.database().ref().update(updates, function(error) {
+            hideUserGroupLoading();
+
+            if (error) {
+              alert('Failed to add new user');
+              console.info(error);
+            } else {
+              alert('Successfully added new user group');
+              window.location.reload();
+            }
+          });
+        }
+      });
+    } else {
+      hideUserGroupLoading();
+    }
   }
 }
 
 
+// Populates the table to list the user groups
+// Gets called once at the begining
 function addUserGroupsToTable() {
-  var tableRef = $("#userGroupsTable").DataTable();
+  var tableRef = $("#user-groups-table").DataTable();
   var rows = [];
 
   var userGroupsRef = firebase.database().ref("v2/userGroups");
@@ -59,7 +88,7 @@ function addUserGroupsToTable() {
     if (snapshot.exists()) {
       snapshot.forEach(function(data) {
         row_array = [];
-        row_array.push(data.val().userGroupName);
+        row_array.push(data.val().name);
         row_array.push(data.val().description);
         var usersLength = Object.keys(data.val().users || {}).length;
 
@@ -83,33 +112,38 @@ function addUserGroupsToTable() {
   })
 }
 
+// Populates the table to list members in a user group
+// Gets triggered when getUserGroupMembers button is clicked on user group table
 function addUsersForSelectedUserGroupToTable() {
   const userGroup = JSON.parse(this.getAttribute('data-usergroup'));
-  var groupId = this.id;
-  var usersLength = Object.keys(userGroup.users || {}).length;
+  const groupId = this.id;
 
-  var tableRef = $("#groupMembersTable").DataTable();
-  // remove all existing rows
+  $('#user-group-members-title').text(`User Group Members: ${userGroup.name}`);
+  const tableRef = $("#group-members-table").DataTable();
   tableRef.clear();
-  var rows = []
+  const rows = []
 
-  var ref = firebase.database().ref("v2/users").orderByChild(`userGroups/${userGroup.userGroupName}`).limitToLast(usersLength);
-  ref.once('value', function(snapshot){
-    if(snapshot.exists()){
-      snapshot.forEach(function(data){
-        const user = data.val();
+  const usersRef = firebase.database().ref('v2/users');
+  Object.keys(userGroup.users).forEach((key) => {
+    const userRef = usersRef.child(key);
+    userRef.once('value', (snapshot) => {
+      if (snapshot.exists()) {
+        const user = snapshot.val();
         row_array = []
-        row_array.push(data.key)
+        row_array.push(snapshot.key)
         row_array.push(user.username)
         row_array.push(user.projectContributionCount || 0)
         row_array.push(user.groupContributionCount || 0)
         row_array.push(user.taskContributionCount || 0)
         rows.push(row_array)
         tableRef.row.add(row_array).draw( false )
-      })
-    }
-  })
+      }
+    });
+  });
 }
 
+// Populate table to list user groups
 addUserGroupsToTable();
-$("#userGroupsTable").on('click', '.get-user-groups-members', addUsersForSelectedUserGroupToTable);
+
+// Attach handler for getUserGroupMembers button click
+$("#user-groups-table").on('click', '.get-user-groups-members', addUsersForSelectedUserGroupToTable);
