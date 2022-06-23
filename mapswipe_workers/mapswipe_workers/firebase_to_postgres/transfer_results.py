@@ -82,15 +82,29 @@ def transfer_results_for_project(project_id, results, filter_mode: bool = False)
         # The user_id is used as a key in the postgres database for the results
         # and thus users need to be inserted before results get inserted.
         results_user_id_list = get_user_ids_from_results(results)
+        results_user_group_id_list = set(
+            [
+                user_group_id
+                for _, users in results.items()
+                for _, results in users.items()
+                for user_group_id, is_selected in results.get("userGroups", {}).items()
+                if is_selected
+            ]
+        )
         update_data.update_user_data(results_user_id_list)
+        update_data.update_user_group_data(results_user_group_id_list)
 
     try:
         # Results are dumped into an in-memory file.
         # This allows us to use the COPY statement to insert many
         # results at relatively high speed.
-        results_file = results_to_file(results, project_id)
+        results_file, user_group_results_file = results_to_file(results, project_id)
         truncate_temp_results()
+        truncate_temp_user_groups_results()
         save_results_to_postgres(results_file, project_id, filter_mode=filter_mode)
+        save_user_group_results_to_postgres(
+            user_group_results_file, project_id, filter_mode=filter_mode
+        )
     except psycopg2.errors.ForeignKeyViolation as e:
 
         sentry.capture_exception(e)
@@ -167,17 +181,21 @@ def results_to_file(results, projectId):
     # If csv file is a file object, it should be opened with newline=''
 
     results_file = io.StringIO("")
+    user_group_results_file = io.StringIO("")
 
     w = csv.writer(results_file, delimiter="\t", quotechar="'")
+    user_group_results_csv = csv.writer(
+        user_group_results_file, delimiter="\t", quotechar="'"
+    )
 
     logger.info(f"Got {len(results.items())} groups for project {projectId}")
     for groupId, users in results.items():
-        for userId, results in users.items():
+        for userId, result in users.items():
 
             # check if all attributes are set,
             # if not don't transfer the results for this group
             try:
-                start_time = results["startTime"]
+                start_time = result["startTime"]
             except KeyError as e:
                 sentry.capture_exception(e)
                 sentry.capture_message(
@@ -192,7 +210,7 @@ def results_to_file(results, projectId):
                 continue
 
             try:
-                end_time = results["endTime"]
+                end_time = result["endTime"]
             except KeyError as e:
                 sentry.capture_exception(e)
                 sentry.capture_message(
@@ -207,7 +225,7 @@ def results_to_file(results, projectId):
                 continue
 
             try:
-                results = results["results"]
+                result_results = result["results"]
             except KeyError as e:
                 sentry.capture_exception(e)
                 sentry.capture_message(
@@ -221,12 +239,20 @@ def results_to_file(results, projectId):
                 )
                 continue
 
+            user_group_ids = [
+                user_group_id
+                for user_group_id, is_selected in result.get("userGroups", {}).items()
+                if is_selected
+            ]
             start_time = dateutil.parser.parse(start_time)
             end_time = dateutil.parser.parse(end_time)
             timestamp = end_time
+            results_added = False
 
-            if type(results) is dict:
-                for taskId, result in results.items():
+            if type(result_results) is dict:
+                if result_results:
+                    results_added = True
+                for taskId, result in result_results.items():
                     w.writerow(
                         [
                             projectId,
@@ -239,13 +265,15 @@ def results_to_file(results, projectId):
                             result,
                         ]
                     )
-            elif type(results) is list:
+            elif type(result_results) is list:
                 # TODO: optimize for performance
                 # (make sure data from firebase is always a dict)
                 # if key is a integer firebase will return a list
                 # if first key (list index) is 5
                 # list indicies 0-4 will have value None
-                for taskId, result in enumerate(results):
+                if result_results:
+                    results_added = True
+                for taskId, result in enumerate(result_results):
                     if result is None:
                         continue
                     else:
@@ -264,8 +292,23 @@ def results_to_file(results, projectId):
             else:
                 raise TypeError
 
+            if results_added:
+                user_group_results_csv.writerows(
+                    [
+                        [
+                            # Not using taskId as it is included by projectId-groupId
+                            projectId,
+                            groupId,
+                            userId,
+                            user_group_id,
+                        ]
+                        for user_group_id in user_group_ids
+                    ]
+                )
+
     results_file.seek(0)
-    return results_file
+    user_group_results_file.seek(0)
+    return results_file, user_group_results_file
 
 
 def save_results_to_postgres(results_file, project_id, filter_mode: bool):
@@ -340,6 +383,79 @@ def save_results_to_postgres(results_file, project_id, filter_mode: bool):
     logger.info("copied results into postgres.")
 
 
+def save_user_group_results_to_postgres(
+    user_group_results_file,
+    project_id,
+    filter_mode: bool,
+):
+    """
+    Saves results to a temporary table in postgres
+    using the COPY Statement of Postgres
+    for a more efficient import into the database.
+    Parameters
+    ----------
+    user_group_results_file: io.StringIO
+    filter_mode: boolean
+        If true, try to filter out invalid results.
+    """
+
+    p_con = auth.postgresDB()
+    columns = [
+        "project_id",
+        "group_id",
+        "user_id",
+        "user_group_id",
+    ]
+    user_group_results_file.seek(0)
+    p_con.copy_from(user_group_results_file, "results_user_groups_temp", columns)
+    user_group_results_file.close()
+
+    if filter_mode:
+        logger.warn(f"trying to remove invalid tasks from {project_id}.")
+
+        filter_query = """
+            WITH project_groups AS (
+                SELECT
+                    group_id
+                FROM groups
+                WHERE project_id = %(project_id)s
+            ),
+            -- Results for which we can't join a group from the groups table
+            -- are invalid. For these invalid results the group_id set by the app
+            -- is not correct. Hence, we delete these results from the
+            -- results_user_groups_temp table.
+            user_group_results_to_delete AS (
+                SELECT
+                    R.group_id,
+                    R.user_id
+                FROM results_user_groups_temp R
+                    LEFT join project_groups T on R.group_id = T.group_id
+                    LEFT join users U on R.user_id = U.user_id
+                    LEFT join user_groups UG on R.user_group_id = UG.user_group_id
+                WHERE T.group_id is NULL
+                    OR U.user_id is NULL
+                    OR UG.user_group_id is NULL
+            )
+            DELETE FROM results_user_groups_temp R1
+            USING user_group_results_to_delete R2
+            WHERE
+                R1.group_id = R2.group_id
+                AND R1.user_id = R2.user_id
+        """
+        p_con.query(filter_query, {"project_id": project_id})
+
+    query_insert_results = """
+        INSERT INTO results_user_groups
+            SELECT * FROM results_user_groups_temp
+        ON CONFLICT (project_id, group_id, user_id, user_group_id)
+        DO NOTHING;
+        -- TRUNCATE results_user_groups_temp; ??
+    """
+    p_con.query(query_insert_results)
+    del p_con
+    logger.info("copied user_groups_results into postgres.")
+
+
 def truncate_temp_results():
     p_con = auth.postgresDB()
     query_truncate_temp_results = """
@@ -348,6 +464,13 @@ def truncate_temp_results():
     p_con.query(query_truncate_temp_results)
     del p_con
 
+    return
+
+
+def truncate_temp_user_groups_results():
+    p_con = auth.postgresDB()
+    p_con.query("TRUNCATE results_user_groups_temp")
+    del p_con
     return
 
 

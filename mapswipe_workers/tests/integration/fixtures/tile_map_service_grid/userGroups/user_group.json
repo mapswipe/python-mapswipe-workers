@@ -1,0 +1,14 @@
+{
+    "T-user-group-1": {
+        "name": "User Group 1",
+        "descriptions": "User Group 1 descriptions"
+    },
+    "T-user-group-2": {
+        "name": "User Group 2",
+        "descriptions": "User Group 2 descriptions"
+    },
+    "T-user-group-3": {
+        "name": "User Group 3",
+        "descriptions": "User Group 3 descriptions"
+    }
+}

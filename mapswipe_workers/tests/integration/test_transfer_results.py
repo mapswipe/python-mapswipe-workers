@@ -20,6 +20,14 @@ class TestTranserResultsProject(unittest.TestCase):
 
     def tearDown(self):
         tear_down.delete_test_data(self.project_id)
+        tear_down.delete_test_user_group(
+            [
+                # Append T- for test only.
+                "T-user-group-1",
+                "T-user-group-2",
+                "T-user-group-4",
+            ]
+        )
 
     def test_changes_given_project_id(self):
         """Test if results are deleted from Firebase for given project id."""
@@ -185,6 +193,40 @@ class TestTranserResultsProject(unittest.TestCase):
         # check if new results for the group 'g115' are still in Firebase
         ref = fb_db.reference(f"v2/results/{self.project_id}/g115/new_user/results")
         self.assertEqual(len(ref.get(shallow=True)), 252)
+
+    def test_results_with_user_groups(self):
+        pg_db = auth.postgresDB()
+
+        # run transfer results function
+        transfer_results()
+
+        UG_QUERY = "SELECT user_group_id FROM user_groups ORDER BY user_group_id"
+        RUG_QUERY = (
+            "SELECT user_group_id FROM results_user_groups ORDER BY user_group_id"
+        )
+        for query, expected_value in [
+            (
+                UG_QUERY,
+                [
+                    ("T-user-group-1",),
+                    ("T-user-group-2",),
+                    ("T-user-group-4",),  # NOTE: This is a non existing group.
+                ],
+            ),
+            (
+                RUG_QUERY,
+                [
+                    ("T-user-group-1",),
+                    ("T-user-group-2",),
+                    ("T-user-group-4",),  # NOTE: This is a non existing group.
+                ],
+            ),
+        ]:
+            self.assertEqual(
+                expected_value,
+                pg_db.retr_query(UG_QUERY),
+                query,
+            )
 
 
 if __name__ == "__main__":
