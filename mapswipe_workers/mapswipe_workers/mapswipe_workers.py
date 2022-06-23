@@ -108,6 +108,29 @@ def run_create_projects():
         continue
 
 
+@cli.command("create-user-groups")
+def run_create_user_groups():
+    """
+    Create user_groups/user_groups_memberships from submitted user_groups/users
+
+    Get user_groups changed diff from Firebase.
+    Create user_groups with user memberships.
+    Save created user_groups, memberships Postgres
+    Remove changed diff from Firebase.
+    """
+    fb_db = auth.firebaseDB()
+    ref = fb_db.reference("v2/updates/userGroups")
+    changed_user_groups_id = ref.get(shallow=True).keys()
+
+    # Update changed user groups data in postgres.
+    update_data.update_user_group_full_data(changed_user_groups_id)
+
+    # Finally delete used records using multi-location update
+    fb_db.reference("v2/updates/userGroups").update(
+        {_id: None for _id in changed_user_groups_id}
+    )
+
+
 @cli.command("firebase-to-postgres")
 @click.option(
     "--project_ids",
@@ -470,6 +493,7 @@ def run(context, analysis_type, schedule, time_interval):
         logger.info("start mapswipe backend workflow.")
         context.invoke(run_create_projects)
         context.invoke(run_create_tutorials)
+        context.invoke(run_create_user_groups)
         project_ids = context.invoke(run_firebase_to_postgres)
         context.invoke(run_generate_stats, project_ids=project_ids)
 
@@ -477,6 +501,7 @@ def run(context, analysis_type, schedule, time_interval):
         logger.info("start mapswipe backend workflow to create projects and tutorials.")
         context.invoke(run_create_projects)
         context.invoke(run_create_tutorials)
+        context.invoke(run_create_user_groups)
 
     def _run_firebase_to_postgres():
         logger.info(

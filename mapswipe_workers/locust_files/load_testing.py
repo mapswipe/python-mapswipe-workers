@@ -37,7 +37,6 @@ class MapSwipeUser(HttpUser):
 
     def create_mock_result(self, group):
         """Create a result object for a build area project.
-
         The result values are generated randomly.
         """
         start_time = datetime.datetime.utcnow().isoformat()[0:-3] + "Z"

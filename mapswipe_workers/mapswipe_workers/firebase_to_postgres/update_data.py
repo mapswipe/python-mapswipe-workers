@@ -122,6 +122,177 @@ def update_user_data(user_ids: Optional[List[str]] = None) -> None:
     return new_user_ids
 
 
+def update_user_group_data(user_group_ids: Optional[List[str]] = None) -> List[str]:
+    """Copies new user_groups from Firebase to Postgres."""
+    pg_db = auth.postgresDB()
+
+    # get all user_group_ids from postgres
+    query = """SELECT user_group_id FROM user_groups"""
+    postgres_user_group_info = pg_db.retr_query(query)
+    postgres_user_group_ids = [
+        user_group_id for user_group_id, *_ in postgres_user_group_info
+    ]
+    logger.info(f"There are {len(postgres_user_group_ids)} user groups in Postgres.")
+
+    if not user_group_ids:
+        fb_db = auth.firebaseDB()
+        # get all user_group_ids from firebase
+        firebase_user_group_ids = list(
+            fb_db.reference("v2/userGroups").get(shallow=True).keys()
+        )
+        logger.info(
+            f"There are {len(firebase_user_group_ids)} user groups in Firebase."
+        )
+    else:
+        # FIXME: Make sure user_groups_ids are also in firebase?
+        firebase_user_group_ids = user_group_ids
+
+    # Get difference between firebase user_groups_ids and postgres user_group_ids.
+    # These are new user_groups for which data is only available in Firebase so far.
+    new_user_group_ids = list(
+        set(firebase_user_group_ids) - set(postgres_user_group_ids)
+    )
+
+    if len(new_user_group_ids) == 0:
+        logger.info("There are NO new user groups in Firebase.")
+    else:
+        logger.info(f"There are {len(new_user_group_ids)} new user groups in Firebase.")
+
+        # write user group information to in memory file
+        user_groups_file = io.StringIO("")
+        w = csv.writer(user_groups_file, delimiter="\t", quotechar="'")
+        w.writerows([[_id] for _id in new_user_group_ids])
+        user_groups_file.seek(0)
+
+        # write user_groups to user_groups_temp table with copy from statement
+        columns = ["user_group_id"]
+        pg_db.copy_from(user_groups_file, "user_groups_temp", columns)
+        user_groups_file.close()
+
+        # update username and created attributes in postgres
+        query_insert_results = """
+            INSERT INTO user_groups
+                SELECT * FROM user_groups_temp
+            ON CONFLICT (user_group_id)
+            DO NOTHING;
+            TRUNCATE user_groups_temp;
+        """
+        pg_db.query(query_insert_results)
+        del pg_db
+
+        logger.info("Updated user_group data in Postgres.")
+
+    return new_user_group_ids
+
+
+def update_user_group_full_data(user_group_ids: List[str]):
+    fb_db = auth.firebaseDB()
+
+    user_group_file = io.StringIO("")
+    user_group_membership_file = io.StringIO("")
+    ug_w = csv.writer(user_group_file, delimiter="\t", quotechar="'")
+    ugm_w = csv.writer(user_group_membership_file, delimiter="\t", quotechar="'")
+    for _id in user_group_ids:
+        ug = fb_db.reference(f"v2/userGroups/{_id}").get()
+        if ug is None:  # userGroup doesn't exists in FB
+            continue
+        # New/Updated user group
+        ug_w.writerow(
+            [
+                _id,
+                ug["name"],
+                ug["description"],
+            ]
+        )
+        members = ug.get("users") or {}
+        # New/Updated user group memberships
+        if members:
+            ugm_w.writerows(
+                [
+                    [
+                        _id,  # user-group-id
+                        user_id,
+                    ]
+                    for user_id, is_selected in members.items()
+                    if is_selected
+                ]
+            )
+
+    user_group_file.seek(0)
+    user_group_membership_file.seek(0)
+
+    pg_db = auth.postgresDB()
+
+    # ---- User Group Data
+    # Clear old temp data
+    pg_db.query("TRUNCATE user_groups_temp")
+    # Copy user group data to temp table
+    columns = ["user_group_id", "name", "description"]
+    pg_db.copy_from(user_group_file, "user_groups_temp", columns)
+    user_group_file.close()
+
+    # update user_group data from temp table
+    query_insert_results = """
+        INSERT INTO user_groups
+            SELECT * FROM user_groups_temp
+        ON CONFLICT (user_group_id) DO UPDATE
+        SET
+          name = excluded.name,
+          description = excluded.description;
+        TRUNCATE user_groups_temp;
+    """
+    pg_db.query(query_insert_results)
+    logger.info("Updated user_group data in Postgres.")
+
+    # ---- User Group Membership Data
+    # Clear old temp data
+    pg_db.query("TRUNCATE user_groups_user_memberships_temp")
+    # Copy user group membership data to temp table
+    columns = ["user_group_id", "user_id"]
+    pg_db.copy_from(
+        user_group_membership_file,
+        "user_groups_user_memberships_temp",
+        columns,
+    )
+    user_group_membership_file.close()
+
+    # Add missing users id.
+    query_missing_users = """
+        SELECT DISTINCT(ug_temp.user_id)
+        FROM user_groups_user_memberships_temp ug_temp
+            LEFT JOIN users u USING (user_id)
+        WHERE u.user_id is NULL
+    """
+    missing_users_id = [_id for _id, *_ in pg_db.retr_query(query_missing_users)]
+    if missing_users_id:
+        update_user_data(user_ids=missing_users_id)
+
+    # Remove users which don't exist (For users which are not added by update_user_data)
+    delete_memberships_for_non_existing_users = """
+        DELETE FROM user_groups_user_memberships_temp WHERE user_id not in (
+            SELECT user_id FROM users
+        )
+    """
+    pg_db.query(delete_memberships_for_non_existing_users)
+
+    # Update user_group membership data from temp table
+    query_insert_results = """
+        -- Clear all existing membership data for selected user_groups
+        DELETE FROM user_groups_user_memberships WHERE user_group_id in (
+            SELECT DISTINCT(user_group_id) FROM user_groups_user_memberships_temp
+        );
+        -- Clear current membership data
+        INSERT INTO user_groups_user_memberships
+            SELECT * FROM user_groups_user_memberships_temp
+        ON CONFLICT (user_group_id, user_id) DO NOTHING;
+        -- Clear temp table data
+        TRUNCATE user_groups_user_memberships_temp;
+    """
+    pg_db.query(query_insert_results)
+    logger.info("Updated user_group membership data in Postgres.")
+    del pg_db
+
+
 def get_project_attribute_from_firebase(project_ids: List[str], attribute: str):
     """Use threading to query a project attribute in firebase.
 
