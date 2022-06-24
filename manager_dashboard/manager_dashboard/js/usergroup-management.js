@@ -18,11 +18,6 @@ function hideUserGroupLoading() {
   $('#add-usergroup-modal-loading-message-container').addClass('hidden');
 }
 
-// Encodes the given string to the firebase key compatible string
-function encodeStringToKey(string) {
-  return encodeURIComponent(string).replace(/\./g, '%2E');
-}
-
 // Gets triggered when user hits submit button in add usergroup modal
 function submitNewUserGroup() {
   const nameInput = $('#usergroup-name');
@@ -39,41 +34,34 @@ function submitNewUserGroup() {
   } else {
     showUserGroupLoading();
 
-    var key;
-    try {
-      key = encodeStringToKey(name);
-    } catch {
-      // This should never occur
-      alert('Failed to encode name into a key, please make sure that the user group name does not contain any invalid characters.');
-    }
+    const nameKey = name.toLowerCase();
 
-    if (key) {
-      firebase.database().ref('v2/userGroups/' + key).once("value", function(snapshot) {
-        if (snapshot.exists()) {
+    // Check if there's existing user group with same name
+    firebase.database().ref('v2/userGroups/').orderByChild('nameKey').equalTo(nameKey).once("value", function(snapshot) {
+      if (snapshot.exists()) {
+        hideUserGroupLoading();
+        alert('A group with this name already exists');
+      } else {
+        const postUserGroupRef = firebase.database().ref('v2/userGroups/');
+        const newUserGroupRef = postUserGroupRef.push();
+        newUserGroupRef.set({
+          name,
+          description,
+          // We store name key seperately to check case-insensitive uniqueness
+          nameKey,
+        }, function(error) {
           hideUserGroupLoading();
-          alert('A group with this name already exists');
-        } else {
-          var updates = {};
-          updates['/v2/userGroups/' + key] = {
-            name,
-            description,
-          };
-          firebase.database().ref().update(updates, function(error) {
-            hideUserGroupLoading();
 
-            if (error) {
-              alert('Failed to add new user! Please make sure you have an active internet connection and that you have enough permission to perform this action.');
-              console.error(error);
-            } else {
-              alert('Successfully added new user group');
-              window.location.reload();
-            }
-          });
-        }
-      });
-    } else {
-      hideUserGroupLoading();
-    }
+          if (error) {
+            alert('Failed to add new user! Please make sure you have an active internet connection and that you have enough permission to perform this action.');
+            console.error(error);
+          } else {
+            alert('Successfully added new user group');
+            window.location.reload();
+          }
+        });
+      }
+    });
   }
 }
 
