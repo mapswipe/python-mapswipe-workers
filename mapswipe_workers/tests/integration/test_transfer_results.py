@@ -3,8 +3,9 @@ import os
 import unittest
 
 import set_up
-import tear_down
+# import tear_down
 
+from base import BaseTestCase
 from mapswipe_workers import auth
 from mapswipe_workers.firebase_to_postgres.transfer_results import (
     transfer_results,
@@ -12,21 +13,11 @@ from mapswipe_workers.firebase_to_postgres.transfer_results import (
 )
 
 
-class TestTranserResultsProject(unittest.TestCase):
+class TestTranserResultsProject(BaseTestCase):
     def setUp(self):
+        super().setUp()
         self.project_id = set_up.create_test_project(
             "tile_map_service_grid", "build_area", results=True
-        )
-
-    def tearDown(self):
-        tear_down.delete_test_data(self.project_id)
-        tear_down.delete_test_user_group(
-            [
-                # Append T- for test only.
-                "T-user-group-1",
-                "T-user-group-2",
-                "T-user-group-4",
-            ]
         )
 
     def test_changes_given_project_id(self):
@@ -208,17 +199,17 @@ class TestTranserResultsProject(unittest.TestCase):
             (
                 UG_QUERY,
                 [
-                    ("T-user-group-1",),
-                    ("T-user-group-2",),
-                    ("T-user-group-4",),  # NOTE: This is a non existing group.
+                    ("user-group-1",),
+                    ("user-group-2",),
+                    ("user-group-4",),  # NOTE: This is a non existing group.
                 ],
             ),
             (
                 RUG_QUERY,
                 [
-                    ("T-user-group-1",),
-                    ("T-user-group-2",),
-                    ("T-user-group-4",),  # NOTE: This is a non existing group.
+                    ("user-group-1",),
+                    ("user-group-2",),
+                    ("user-group-4",),  # NOTE: This is a non existing group.
                 ],
             ),
         ]:

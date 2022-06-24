@@ -47,17 +47,20 @@ def firebaseDB() -> object:
 class postgresDB(object):
     """Helper class for Postgres interactions"""
 
-    _db_connection = None
+    __db_connection = None
     _db_cur = None
 
-    def __init__(self):
-        self._db_connection = psycopg2.connect(
-            database=POSTGRES_DB,
-            host=POSTGRES_HOST,
-            password=POSTGRES_PASSWORD,
-            port=POSTGRES_PORT,
-            user=POSTGRES_USER,
-        )
+    @property
+    def _db_connection(self):
+        if self.__db_connection is None:
+            self.__db_connection = psycopg2.connect(
+                database=POSTGRES_DB,
+                host=POSTGRES_HOST,
+                password=POSTGRES_PASSWORD,
+                port=POSTGRES_PORT,
+                user=POSTGRES_USER,
+            )
+        return self.__db_connection
 
     def query(self, query, data=None):
         self._db_cur = self._db_connection.cursor()
@@ -86,4 +89,5 @@ class postgresDB(object):
         return content
 
     def __del__(self):
-        self._db_connection.close()
+        if self._db_connection and not self._db_connection.closed:
+            self._db_connection.close()
