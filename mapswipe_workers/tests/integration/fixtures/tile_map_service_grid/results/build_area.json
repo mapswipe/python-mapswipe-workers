@@ -3,10 +3,10 @@
     "test_build_area" : {
       "endTime" : "2020-02-03T15:39:39.332Z",
       "userGroups" : {
-          "T-user-group-1": true,
-          "T-user-group-2": true,
-          "T-user-group-3": false,
-          "T-user-group-4": true
+          "user-group-1": true,
+          "user-group-2": true,
+          "user-group-3": false,
+          "user-group-4": true
       },
       "results" : {
         "18-156540-142783" : 1,
