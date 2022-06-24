@@ -10,19 +10,18 @@
 // for the 2 main functions.
 
 'use strict';
-
-const functions = require('firebase-functions');
-const cookieParser = require('cookie-parser');
-const crypto = require('crypto');
-const simpleOAuth2 = require('simple-oauth2');
-const axios = require('axios');
+import * as functions from 'firebase-functions';
+import * as crypto from 'crypto';
+import * as cookieParser from 'cookie-parser';
+import * as simpleOAuth2 from 'simple-oauth2';
+import axios from 'axios';
 
 // this redirect_uri MUST match the one set in the app on OSM OAuth, or you
 // will get a cryptic error about the server not being able to continue
 // TODO: adjust the prefix based on which deployment is done (prod/dev)
-const OAUTH_REDIRECT_URI = functions.config().osm.redirect_uri;
+const OAUTH_REDIRECT_URI = functions.config().osm?.redirect_uri;
 
-const APP_OSM_LOGIN_DEEPLINK = functions.config().osm.app_login_link;
+const APP_OSM_LOGIN_DEEPLINK = functions.config().osm?.app_login_link;
 
 // the scope is taken from https://wiki.openstreetmap.org/wiki/OAuth#OAuth_2.0
 // at least one seems to be required for the auth workflow to complete.
@@ -30,7 +29,7 @@ const APP_OSM_LOGIN_DEEPLINK = functions.config().osm.app_login_link;
 const OAUTH_SCOPES = 'read_prefs';
 
 // The URL to the OSM API, which is different for production vs OSM development
-const OSM_API_URL = functions.config().osm.api_url;
+const OSM_API_URL = functions.config().osm?.api_url;
 
 /**
  * Creates a configured simple-oauth2 client for OSM.
@@ -40,8 +39,8 @@ const OSM_API_URL = functions.config().osm.api_url;
 function osmOAuth2Client() {
     const credentials = {
         client: {
-            id: functions.config().osm.client_id,
-            secret: functions.config().osm.client_secret,
+            id: functions.config().osm?.client_id,
+            secret: functions.config().osm?.client_secret,
         },
         auth: {
             tokenHost: OSM_API_URL,
@@ -59,7 +58,7 @@ function osmOAuth2Client() {
  * NOT a webview inside MapSwipe, as this would break the promise of
  * OAuth that we do not touch their OSM credentials
  */
-exports.redirect = (req, res) => {
+export const redirect = (req: any, res: any) => {
     const oauth2 = osmOAuth2Client();
 
     cookieParser()(req, res, () => {
@@ -89,7 +88,7 @@ exports.redirect = (req, res) => {
  * The OSM OAuth endpoing does not give us any info about the user,
  * so we need to get the user profile from this endpoint
  */
-async function getOSMProfile(accessToken) {
+async function getOSMProfile(accessToken: string) {
     const url = `${OSM_API_URL}/api/0.6/user/details`;
 
     const result = await axios.get(url, {
@@ -108,7 +107,7 @@ async function getOSMProfile(accessToken) {
  * The Firebase custom auth token, display name, photo URL and OSM access
  * token are sent back to the app via a deeplink redirect.
  */
-exports.token = async (req, res, admin) => {
+export const token = async (req: any, res: any, admin: any) => {
     const oauth2 = osmOAuth2Client();
 
     try {
@@ -144,7 +143,7 @@ exports.token = async (req, res, admin) => {
                     scope: OAUTH_SCOPES,
                     state: req.query.state,
                 });
-            } catch (error) {
+            } catch (error: any) {
                 functions.logger.log('Auth token error', error, error.data.res.req);
             }
             // why is token called twice?
@@ -154,7 +153,7 @@ exports.token = async (req, res, admin) => {
             );
 
             // We have an OSM access token and the user identity now.
-            const accessToken = results.access_token;
+            const accessToken = results && results.access_token;
             if (accessToken === undefined) {
                 throw new Error(
                     'Could not get an access token from OpenStreetMap',
@@ -166,7 +165,7 @@ exports.token = async (req, res, admin) => {
             if (id === undefined) {
                 // this should not happen, but help guard against creating
                 // invalid accounts
-                throw "Could not obtain an account id from OSM"
+                throw 'Could not obtain an account id from OSM';
             }
 
             // Create a Firebase account and get the Custom Auth Token.
@@ -182,7 +181,7 @@ exports.token = async (req, res, admin) => {
             functions.logger.log('redirecting user to', signinUrl);
             res.redirect(signinUrl);
         });
-    } catch (error) {
+    } catch (error: any) {
         // FIXME: this should show up in the user's browser as a bit of text
         // We should figure out the various error codes available and feed them
         // back into the app to allow the user to take action
@@ -197,7 +196,7 @@ exports.token = async (req, res, admin) => {
  *
  * @returns {Promise<string>} The Firebase custom auth token in a promise.
  */
-async function createFirebaseAccount(admin, osmID, displayName, accessToken) {
+async function createFirebaseAccount(admin: any, osmID: any, displayName: any, accessToken: any) {
     // The UID we'll assign to the user.
     // The format of these identifiers should NOT change once set
     // The osmID is an integer which does not change for a given account,
@@ -230,7 +229,7 @@ async function createFirebaseAccount(admin, osmID, displayName, accessToken) {
         .updateUser(uid, {
             displayName: displayName,
         })
-        .catch(error => {
+        .catch((error: any) => {
             // If user does not exists we create it.
             if (error.code === 'auth/user-not-found') {
                 return admin.auth().createUser({
@@ -249,7 +248,7 @@ async function createFirebaseAccount(admin, osmID, displayName, accessToken) {
     try {
         token = await admin.auth().createCustomToken(uid);
     } catch (error) {
-        functions.logger.error("Failed to create custom FB token", error);
+        functions.logger.error('Failed to create custom FB token', error);
     }
     functions.logger.log('Created Custom token for UID:', uid);
     return token;
