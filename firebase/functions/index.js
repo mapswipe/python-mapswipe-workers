@@ -31,61 +31,53 @@ exports.osmAuth.token = functions.https.onRequest((req, res) => {
     This function also writes to the `contributions` section in the user profile.
 */
 exports.groupUsersCounter = functions.database.ref('/v2/results/{projectId}/{groupId}/{userId}/').onCreate((snapshot, context) => {
-    const promises = []  // List of promises to return
-    const result = snapshot.val()
-
-    // Firebase Realtime Database references
-    const groupRef = admin.database().ref('/v2/groups/' + context.params.projectId + '/' + context.params.groupId)
-
     // these references/values will be updated by this function
-    const groupUsersRef = admin.database().ref('/v2/groupsUsers/' + context.params.projectId + '/' + context.params.groupId)
-    const userRef = admin.database().ref('/v2/users/' + context.params.userId)
-    const totalTaskContributionCountRef = userRef.child('taskContributionCount')
-    const totalGroupContributionCountRef = userRef.child('groupContributionCount')
-    const userContributionRef = userRef.child('contributions/' + context.params.projectId)
-    const taskContributionCountRef = userRef.child('contributions/' + context.params.projectId + '/taskContributionCount')
-    const thisResultRef = admin.database().ref('/v2/results/' + context.params.projectId + '/' + context.params.groupId + '/' + context.params.userId )
-
-    // if result ref does not contain all required attributes we don't updated counters
-    // e.g. due to some error when uploading from client
-    if (!result.hasOwnProperty('results')) {
-        console.log('no results attribute for ' + snapshot.ref)
-        console.log('will not update counters')
-        return null
-    } else if (!result.hasOwnProperty('endTime')) {
-        console.log('no endTime attribute for ' + snapshot.ref)
-        console.log('will not update counters')
-        return null
-    } else if (!result.hasOwnProperty('startTime')) {
-        console.log('no startTime attribute for ' + snapshot.ref)
-        console.log('will not update counters')
-        return null
-    }
-
+    const groupUsersRef = admin.database().ref('/v2/groupsUsers/' + context.params.projectId + '/' + context.params.groupId);
+    const userRef = admin.database().ref('/v2/users/' + context.params.userId);
+    const totalTaskContributionCountRef = userRef.child('taskContributionCount');
+    const totalGroupContributionCountRef = userRef.child('groupContributionCount');
+    const userContributionRef = userRef.child('contributions/' + context.params.projectId);
+    const taskContributionCountRef = userRef.child('contributions/' + context.params.projectId + '/taskContributionCount');
+    const thisResultRef = admin.database().ref('/v2/results/' + context.params.projectId + '/' + context.params.groupId + '/' + context.params.userId);
     // Check for specific user ids which have been identified as problematic.
     // These users have repeatedly uploaded harmful results.
     // Add new user ids to this list if needed.
-    const userIds = []
-    if ( userIds.includes(context.params.userId) ) {
-        console.log('suspicious user: ' + context.params.userId)
-        console.log('will remove this result and not update counters')
-        return Promise.all([thisResultRef.remove()])
+    const userIds = [];
+    if (userIds.includes(context.params.userId)) {
+        console.log('suspicious user: ' + context.params.userId);
+        console.log('will remove this result and not update counters');
+        return thisResultRef.remove();
     }
-
+    const result = snapshot.val();
+    // if result ref does not contain all required attributes we don't updated counters
+    // e.g. due to some error when uploading from client
+    if (!Object.prototype.hasOwnProperty.call(result, 'results')) {
+        console.log('no results attribute for ' + snapshot.ref);
+        console.log('will not update counters');
+        return null;
+    }
+    else if (!Object.prototype.hasOwnProperty.call(result, 'endTime')) {
+        console.log('no endTime attribute for ' + snapshot.ref);
+        console.log('will not update counters');
+        return null;
+    }
+    else if (!Object.prototype.hasOwnProperty.call(result, 'startTime')) {
+        console.log('no startTime attribute for ' + snapshot.ref);
+        console.log('will not update counters');
+        return null;
+    }
     // check if these results are likely to be vandalism
     // mapping speed is defined by the average time needed per task in seconds
-    const numberOfTasks = Object.keys( result['results'] ).length
-    const startTime = Date.parse(result['startTime']) / 1000
-    const endTime = Date.parse(result['endTime']) / 1000
-    const mappingSpeed = (endTime - startTime) / numberOfTasks
-
+    const numberOfTasks = Object.keys(result['results']).length;
+    const startTime = Date.parse(result['startTime']) / 1000;
+    const endTime = Date.parse(result['endTime']) / 1000;
+    const mappingSpeed = (endTime - startTime) / numberOfTasks;
     if (mappingSpeed < 0.125) {
         // this about 8-times faster than the average time needed per task
-        console.log('unlikely high mapping speed: ' + mappingSpeed)
-        console.log('will remove this result and not update counters')
-        return Promise.all([thisResultRef.remove()])
+        console.log('unlikely high mapping speed: ' + mappingSpeed);
+        console.log('will remove this result and not update counters');
+        return thisResultRef.remove();
     }
-
     /*
         Check if this user has submitted a results for this group already.
         If no result has been submitted yet, set userId in v2/groupsUsers.
@@ -93,37 +85,32 @@ exports.groupUsersCounter = functions.database.ref('/v2/results/{projectId}/{gro
         Update overall taskContributionCount and project taskContributionCount in the user profile
         based on the number of results submitted and the existing count values.
     */
-    updateValues = groupUsersRef.child(context.params.userId).once('value')
+    return groupUsersRef.child(context.params.userId).once('value')
         .then((dataSnapshot) => {
-            if (dataSnapshot.exists()) {
-                console.log('group contribution exists already. user: '+context.params.userId+' project: '+context.params.projectId+' group: '+context.params.groupId)
-                return null
-            }
-            else {
-                const numberOfTasks = Object.keys( result['results'] ).length
-                return {
-                    userContribution: userContributionRef.child(context.params.groupId).set(true),
-                    groupUsers: groupUsersRef.child(context.params.userId).set(true),
-                    totalTaskContributionCount: totalTaskContributionCountRef.transaction((currentCount) => {return currentCount + numberOfTasks}),
-                    totalGroupContributionCount: totalGroupContributionCountRef.transaction((currentCount) => {return currentCount + 1}),
-                    taskContributionCount: taskContributionCountRef.transaction((currentCount) => {return currentCount + numberOfTasks})
-                }
-            }
-        })
+        if (dataSnapshot.exists()) {
+            console.log('group contribution exists already. user: ' + context.params.userId + ' project: ' + context.params.projectId + ' group: ' + context.params.groupId);
+            return null;
+        }
+        const numberOfTasks = Object.keys(result['results']).length;
+        return Promise.all([
+            userContributionRef.child(context.params.groupId).set(true),
+            groupUsersRef.child(context.params.userId).set(true),
+            totalTaskContributionCountRef.transaction((currentCount) => {
+                return currentCount + numberOfTasks;
+            }),
+            totalGroupContributionCountRef.transaction((currentCount) => {
+                return currentCount + 1;
+            }),
+            taskContributionCountRef.transaction((currentCount) => {
+                return currentCount + numberOfTasks;
+            }),
 
-    // Check if updateValues is null (happens when user submitted this group twice)
-    // and return null in this case.
-    if (updateValues === null) {
-        return null
-    } else {
-        promises.push(updateValues.userContribution)
-        promises.push(updateValues.groupUsers)
-        promises.push(updateValues.totalTaskContributionCount)
-        promises.push(updateValues.totalGroupContributionCount)
-        promises.push(updateValues.taskContributionCount)
-    }
-
-    return Promise.all(promises)
+            // Tag userGroups of the user in the result
+            userRef.child('userGroups').once('value').then((usergroupSnapshot) => {
+                return thisResultRef.child('userGroups').set(usergroupSnapshot.val());
+            }),
+        ]);
+    });
 })
 
 
@@ -134,16 +121,12 @@ exports.groupUsersCounter = functions.database.ref('/v2/results/{projectId}/{gro
     that are present in v2/groupsUsers/{projectId}/{groupId}.
 */
 exports.groupFinishedCountUpdater = functions.database.ref('/v2/groupsUsers/{projectId}/{groupId}/').onWrite((snapshot, context) => {
-    const promises_new = []
-
-    const groupUsersRef = admin.database().ref('/v2/groupsUsers/' + context.params.projectId + '/' + context.params.groupId)
-    const projectVerificationNumberRef = admin.database().ref('/v2/projects/' + context.params.projectId + '/verificationNumber')
-    const groupVerificationNumberRef = admin.database().ref('/v2/groups/' + context.params.projectId + '/' + context.params.groupId + '/verificationNumber')
-
+    const groupUsersRef = admin.database().ref('/v2/groupsUsers/' + context.params.projectId + '/' + context.params.groupId);
+    const projectVerificationNumberRef = admin.database().ref('/v2/projects/' + context.params.projectId + '/verificationNumber');
+    const groupVerificationNumberRef = admin.database().ref('/v2/groups/' + context.params.projectId + '/' + context.params.groupId + '/verificationNumber');
     // these references/values will be updated by this function
-    const groupFinishedCountRef = admin.database().ref('/v2/groups/' + context.params.projectId + '/' + context.params.groupId + '/finishedCount')
-    const groupRequiredCountRef = admin.database().ref('/v2/groups/' + context.params.projectId + '/' + context.params.groupId + '/requiredCount')
-
+    const groupFinishedCountRef = admin.database().ref('/v2/groups/' + context.params.projectId + '/' + context.params.groupId + '/finishedCount');
+    const groupRequiredCountRef = admin.database().ref('/v2/groups/' + context.params.projectId + '/' + context.params.groupId + '/requiredCount');
     /*
         Set group finished count based on number of users that finished this group.
         Calculate required count based on number of userIds and verification number.
@@ -153,35 +136,30 @@ exports.groupFinishedCountUpdater = functions.database.ref('/v2/groupsUsers/{pro
         This will allow us to either map specific groups more often
         or less often than other groups in this project.
     */
-     groupValues = groupVerificationNumberRef.once("value")
+    return groupVerificationNumberRef.once('value')
         .then((dataSnapshot) => {
-            // check if a verification number is set for this group
-            if (dataSnapshot.exists()) {
-                console.log("using group verification number")
-                verificationNumber = dataSnapshot.val()
-                return verificationNumber
-            } else {
-                // use project verification number if it is not set for the group
-                verificationNumber = projectVerificationNumberRef.once("value")
-                    .then((dataSnapshot2) => {
-                        return dataSnapshot2.val()
-                    })
-                return verificationNumber
-            }
-        })
+        // check if a verification number is set for this group
+        if (dataSnapshot.exists()) {
+            console.log('using group verification number');
+            const verificationNumber = dataSnapshot.val();
+            return verificationNumber;
+        }
+        // use project verification number if it is not set for the group
+        const verificationNumber = projectVerificationNumberRef.once('value')
+            .then((dataSnapshot2) => {
+            return dataSnapshot2.val();
+        });
+        return verificationNumber;
+    })
         .then((verificationNumber) => {
-            groupUsersRef.once("value")
-                .then((dataSnapshot3) => {
-                    return {
-                        finishedCount: groupFinishedCountRef.set(dataSnapshot3.numChildren()),
-                        requiredCount: groupRequiredCountRef.set(verificationNumber - dataSnapshot3.numChildren())
-                    }
-                })
-        })
-    promises_new.push(groupValues.requiredCount)
-    promises_new.push(groupValues.finishedCount)
-
-    return Promise.all(promises_new)
+        return groupUsersRef.once('value')
+            .then((dataSnapshot3) => {
+            return Promise.all([
+                groupFinishedCountRef.set(dataSnapshot3.numChildren()),
+                groupRequiredCountRef.set(verificationNumber - dataSnapshot3.numChildren()),
+            ]);
+        });
+    });
 })
 
 
@@ -190,18 +168,12 @@ exports.groupFinishedCountUpdater = functions.database.ref('/v2/groupsUsers/{pro
     This is based on the number of projectIds set in the `contribution` part of the user profile.
 */
 exports.projectContributionCounter = functions.database.ref('/v2/users/{userId}/contributions/').onWrite((snapshot, context) => {
-    const promises_2 = []
     // using after here to check the data after the write operation
-    const contributions = snapshot.after.val()
-
+    const contributions = snapshot.after.val();
     // these references/values will be updated by this function
-    const projectContributionCountRef   = admin.database().ref('/v2/users/'+context.params.userId+'/projectContributionCount')
-
+    const projectContributionCountRef = admin.database().ref('/v2/users/' + context.params.userId + '/projectContributionCount');
     // set number of projects a user contributed to
-    const projectContributionCount = projectContributionCountRef.set(Object.keys( contributions ).length)
-    promises_2.push(projectContributionCount)
-
-    return Promise.all(promises_2)
+    return projectContributionCountRef.set(Object.keys(contributions).length);
 })
 
 
@@ -211,12 +183,10 @@ exports.projectContributionCounter = functions.database.ref('/v2/users/{userId}/
 */
 exports.userGroupWrite = functions.database.ref('/v2/userGroups/{userGroupId}/').onWrite((snapshot, context) => {
     const userGroupId = context.params.userGroupId;
-
-    if (userGroupId) {
-        return admin.database().ref('/v2/updates/userGroups/').child(userGroupId).set(true);
+    if (!userGroupId) {
+        return null;
     }
-
-    return null;
+    return admin.database().ref('/v2/updates/userGroups/').child(userGroupId).set(true);
 });
 
 
