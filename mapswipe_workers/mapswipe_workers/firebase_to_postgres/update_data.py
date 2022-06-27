@@ -277,10 +277,6 @@ def update_user_group_full_data(user_group_ids: List[str]):
 
     # Update user_group membership data from temp table
     query_insert_results = """
-        -- Clear all existing membership data for selected user_groups
-        DELETE FROM user_groups_user_memberships WHERE user_group_id in (
-            SELECT DISTINCT(user_group_id) FROM user_groups_user_memberships_temp
-        );
         -- Clear current membership data
         INSERT INTO user_groups_user_memberships
             SELECT * FROM user_groups_user_memberships_temp

@@ -196,6 +196,8 @@ class TestUpdateProjectData(BaseTestCase):
                     ("user-group-1", "user-2"),
                     ("user-group-1", "user-3"),
                     ("user-group-2", "user-1"),
+                    ("user-group-2", "user-2"),
+                    ("user-group-2", "user-4"),
                     ("user-group-2", "user-8"),
                     ("user-group-3", "user-2"),
                     ("user-group-4", "user-1"),
