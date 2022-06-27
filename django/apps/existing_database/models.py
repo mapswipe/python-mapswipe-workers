@@ -16,13 +16,22 @@ class User(models.Model):
 
 class UserGroup(models.Model):
     user_group_id = models.CharField(primary_key=True, max_length=-1)
-    name = models.CharField(max_length=-1)
+    name = models.CharField(max_length=-1, null=True)
     description = models.TextField(blank=True, null=True)
 
     class Meta:
         managed = False
         db_table = 'user_groups'
         app_label = settings.MAPSWIPE_EXISTING_DB
+
+    def users(self):
+        return User.objects.filter(
+            user_id__in=UserGroupUserMembership.objects.filter(
+                user_group_id=self.user_group_id
+            ).values('user_id')
+        ).annotate(
+            selected_user_group=models.Value(self.user_group_id),
+        )
 
 
 class UserGroupUserMembership(models.Model):

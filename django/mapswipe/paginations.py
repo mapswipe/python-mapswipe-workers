@@ -6,7 +6,10 @@ from strawberry_django import utils
 from strawberry_django.fields.field import StrawberryDjangoField
 
 from strawberry.arguments import UNSET
-from strawberry_django.pagination import StrawberryDjangoPagination
+from strawberry_django.pagination import (
+    StrawberryDjangoPagination,
+    OffsetPaginationInput,
+)
 from strawberry_django.pagination import apply as apply_pagination
 
 from django.db.models import QuerySet
@@ -21,6 +24,7 @@ class CountBeforePaginationMonkeyPatch(StrawberryDjangoPagination):
 
 
 StrawberryDjangoPagination.get_queryset = CountBeforePaginationMonkeyPatch.get_queryset
+OffsetPaginationInput.limit = 1  # TODO: This is not working
 
 E = TypeVar("E")
 
@@ -55,6 +59,5 @@ class StrawberryDjangoCountList(StrawberryDjangoField):
         qs = super().resolver(info, source, **kwargs)
         return CountList[self._base_type](
             count=self.count,
-            # items=qs,
             items=list(qs),  # FIXME:
         )
