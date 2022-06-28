@@ -1,9 +1,10 @@
 # from django.contrib import admin
-from django.conf import settings
-from django.urls import path
-from django.conf.urls.static import static
-from mapswipe.graphql import CustomAsyncGraphQLView, schema as graphql_schema
+from mapswipe.graphql import CustomAsyncGraphQLView
+from mapswipe.graphql import schema as graphql_schema
 
+from django.conf import settings
+from django.conf.urls.static import static
+from django.urls import path
 
 urlpatterns = [
     path(

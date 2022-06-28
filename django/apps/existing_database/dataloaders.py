@@ -1,15 +1,15 @@
-from typing import List
 from collections import defaultdict
+from typing import List
 
 from asgiref.sync import sync_to_async
 from strawberry.dataloader import DataLoader
-from django.db import connections
+
 from django.conf import settings
+from django.db import connections
 from django.utils.functional import cached_property
 
-from .models import UserGroupResult, Result
+from .models import Result, UserGroupResult
 from .types import SwipeStatType
-
 
 DEFAULT_STAT = SwipeStatType(
     total_swipe=0,

@@ -19,6 +19,7 @@ BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 class TestDbTransactionMixin():
     test_db_name = None
     db_con = None
+    db = None
     db_patcher = None
     postgresDB = None
 
@@ -106,30 +107,35 @@ class TestDbTransactionMixin():
 
         # XXX: Force overwrite main postgres DB helper methods.
         #   (To use newly creatd test db)
+        cls.original_auth_db_connection = auth.postgresDB._db_connection
+        cls.original_auth__del__ = auth.postgresDB.__del__
         auth.postgresDB._db_connection = cls.db_con
         auth.postgresDB.__del__ = cls.no_op
         cls.db = auth.postgresDB()
 
     @classmethod
     def _drop_test_db(cls):
+        # Revert auth.postgresDB overwrite
+        auth.postgresDB._db_connection = cls.original_auth_db_connection
+        auth.postgresDB.__del__ = cls.original_auth__del__
         # Close and Drop test db.
+        del cls.db
         if cls.db_con:
             cls.db_con.close()
-            # Connect without db and drop
-            # NOTE: Not using context manager because it will start a transaction.
-            # https://stackoverflow.com/a/68112827/3436502
-            con = psycopg2.connect(
-                host=POSTGRES_HOST,
-                password=POSTGRES_PASSWORD,
-                port=POSTGRES_PORT,
-                user=POSTGRES_USER,
-            )
-            con.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
-            with con.cursor() as cursor:
-                cursor.execute(f"DROP DATABASE IF EXISTS {cls.test_db_name};")
-            con.commit()
-            con.close()
-        del cls.db
+        # Connect without db and drop
+        # NOTE: Not using context manager because it will start a transaction.
+        # https://stackoverflow.com/a/68112827/3436502
+        con = psycopg2.connect(
+            host=POSTGRES_HOST,
+            password=POSTGRES_PASSWORD,
+            port=POSTGRES_PORT,
+            user=POSTGRES_USER,
+        )
+        con.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
+        with con.cursor() as cursor:
+            cursor.execute(f"DROP DATABASE IF EXISTS {cls.test_db_name};")
+        con.commit()
+        con.close()
 
 
 class BaseTestCase(TestDbTransactionMixin, unittest.TestCase):

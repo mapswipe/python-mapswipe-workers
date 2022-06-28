@@ -1,24 +1,19 @@
 import strawberry
+import strawberry_django
+from mapswipe.paginations import CountList, StrawberryDjangoCountList
 from strawberry.types import Info
 
-from mapswipe.paginations import CountList, StrawberryDjangoCountList
-
 from .filters import UserFilter
-from .models import (
-    Project,
-    User,
-    UserGroup,
-    UserGroupUserMembership,
-)
+from .models import Project, User, UserGroup, UserGroupUserMembership
 
 
-@strawberry.django.type(User)
+@strawberry_django.type(User)
 class UserType:
     user_id: strawberry.ID
     username: strawberry.auto
 
 
-@strawberry.django.type(Project)
+@strawberry_django.type(Project)
 class ProjectType:
     project_id: strawberry.ID
     created: strawberry.auto
@@ -38,7 +33,7 @@ class SwipeStatType:
     total_swipe_time: float
 
 
-@strawberry.django.type(UserGroupUserMembership)
+@strawberry_django.type(UserGroupUserMembership)
 class UserGroupUserMembershipType:
     user: UserType
     is_active: strawberry.auto
@@ -52,7 +47,7 @@ class UserGroupUserMembershipType:
         )
 
 
-@strawberry.django.type(UserGroup)
+@strawberry_django.type(UserGroup)
 class UserGroupType:
     user_group_id: strawberry.ID
     name: strawberry.auto

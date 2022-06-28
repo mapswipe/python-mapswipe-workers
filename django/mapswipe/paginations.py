@@ -1,14 +1,14 @@
 from __future__ import annotations
-from typing import List, TypeVar, Generic, Any
-import strawberry
 
+from typing import Any, Generic, List, TypeVar
+
+import strawberry
+from strawberry.arguments import UNSET
 from strawberry_django import utils
 from strawberry_django.fields.field import StrawberryDjangoField
-
-from strawberry.arguments import UNSET
 from strawberry_django.pagination import (
-    StrawberryDjangoPagination,
     OffsetPaginationInput,
+    StrawberryDjangoPagination,
 )
 from strawberry_django.pagination import apply as apply_pagination
 
