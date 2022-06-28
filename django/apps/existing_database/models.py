@@ -10,8 +10,11 @@ class User(models.Model):
 
     class Meta:
         managed = False
-        db_table = 'users'
+        db_table = "users"
         app_label = settings.MAPSWIPE_EXISTING_DB
+
+    def __str__(self):
+        return self.user_id
 
 
 class UserGroup(models.Model):
@@ -21,28 +24,31 @@ class UserGroup(models.Model):
 
     class Meta:
         managed = False
-        db_table = 'user_groups'
+        db_table = "user_groups"
         app_label = settings.MAPSWIPE_EXISTING_DB
 
-    def users(self):
-        return User.objects.filter(
-            user_id__in=UserGroupUserMembership.objects.filter(
-                user_group_id=self.user_group_id
-            ).values('user_id')
-        ).annotate(
-            selected_user_group=models.Value(self.user_group_id),
-        )
+    def __str__(self):
+        return self.user_group_id
+
+    def user_memberships(self):
+        return UserGroupUserMembership.objects.filter(
+            user_group_id=self.user_group_id
+        ).select_related("user")
 
 
 class UserGroupUserMembership(models.Model):
-    user_group = models.ForeignKey(UserGroup, models.DO_NOTHING)
-    user = models.ForeignKey(User, models.DO_NOTHING)
+    user_group = models.ForeignKey(UserGroup, models.DO_NOTHING, primary_key=True)
+    user = models.ForeignKey(User, models.DO_NOTHING, primary_key=True)
+    is_active = models.BooleanField(null=True, blank=True)
 
     class Meta:
         managed = False
-        db_table = 'user_groups_user_memberships'
-        unique_together = (('user_group', 'user'),)
+        db_table = "user_groups_user_memberships"
+        unique_together = (("user_group", "user"),)
         app_label = settings.MAPSWIPE_EXISTING_DB
+
+    def __str__(self):
+        return f"UG:{self.user_group_id}-U:{self.user_id}"
 
 
 class Project(models.Model):
@@ -66,13 +72,16 @@ class Project(models.Model):
 
     class Meta:
         managed = False
-        db_table = 'projects'
+        db_table = "projects"
         app_label = settings.MAPSWIPE_EXISTING_DB
+
+    def __str__(self):
+        return self.project_id
 
 
 class Group(models.Model):
     # NOTE: Primary Key: project_id, group_id
-    project = models.ForeignKey('Project', models.DO_NOTHING, primary_key=True)
+    project = models.ForeignKey("Project", models.DO_NOTHING, primary_key=True)
     group_id = models.CharField(max_length=-1)
     number_of_tasks = models.IntegerField(blank=True, null=True)
     finished_count = models.IntegerField(blank=True, null=True)
@@ -83,12 +92,13 @@ class Group(models.Model):
 
     class Meta:
         managed = False
-        db_table = 'groups'
-        unique_together = (('project', 'group_id'),)
+        db_table = "groups"
+        unique_together = (("project", "group_id"),)
         app_label = settings.MAPSWIPE_EXISTING_DB
 
+    def __str__(self):
+        return f"P:{self.project_id}-G:{self.group_id}"
 
-# Multiple columns primary keys objects
 
 class Task(models.Model):
     # NOTE: Primary Key: project_id, group_id, tasks_id
@@ -101,15 +111,18 @@ class Task(models.Model):
 
     class Meta:
         managed = False
-        db_table = 'tasks'
-        unique_together = (('project', 'group_id', 'task_id'),)
+        db_table = "tasks"
+        unique_together = (("project", "group_id", "task_id"),)
         app_label = settings.MAPSWIPE_EXISTING_DB
 
     @property
     def group(self):
-        return Group.objects\
-            .filter(project=self.project, group_id=self.group_id)\
-            .first()
+        return Group.objects.filter(
+            project=self.project, group_id=self.group_id
+        ).first()
+
+    def __str__(self):
+        return f"P:{self.project_id}-G:{self.group_id}-T:{self.task_id}"
 
 
 class Result(models.Model):
@@ -125,28 +138,29 @@ class Result(models.Model):
 
     class Meta:
         managed = False
-        db_table = 'results'
-        unique_together = (('project', 'group_id', 'task_id', 'user'),)
+        db_table = "results"
+        unique_together = (("project", "group_id", "task_id", "user"),)
         app_label = settings.MAPSWIPE_EXISTING_DB
+
+    def __str__(self):
+        return (
+            f"P:{self.project_id}-G:{self.group_id}-T:{self.task_id}-U:{self.user_id}"
+        )
 
     @property
     def group(self):
-        return Group.objects\
-            .filter(
-                project=self.project,
-                group_id=self.group_id,
-            )\
-            .first()
+        return Group.objects.filter(
+            project=self.project,
+            group_id=self.group_id,
+        ).first()
 
     @property
     def task(self):
-        return Task.objects\
-            .filter(
-                project=self.project,
-                group_id=self.group_id,
-                task_id=self.task_id,
-            )\
-            .first()
+        return Task.objects.filter(
+            project=self.project,
+            group_id=self.group_id,
+            task_id=self.task_id,
+        ).first()
 
 
 class UserGroupResult(models.Model):
@@ -154,19 +168,24 @@ class UserGroupResult(models.Model):
     group_id = models.CharField(max_length=-1, primary_key=True)
     user = models.ForeignKey(User, on_delete=models.DO_NOTHING, primary_key=True)
     user_group = models.ForeignKey(
-        UserGroup, on_delete=models.DO_NOTHING, primary_key=True)
+        UserGroup, on_delete=models.DO_NOTHING, primary_key=True
+    )
 
     class Meta:
         managed = False
-        db_table = 'results_user_groups'
-        unique_together = (('project', 'group_id', 'user_id', 'user_group'),)
+        db_table = "results_user_groups"
+        unique_together = (("project", "group_id", "user_id", "user_group"),)
         app_label = settings.MAPSWIPE_EXISTING_DB
+
+    def __str__(self):
+        return (
+            f"P:{self.project_id}-G:{self.group_id}"
+            "-UG:{self.user_group_id}-U:{self.user_id}"
+        )
 
     @property
     def group(self):
-        return Group.objects\
-            .filter(
-                project=self.project,
-                group_id=self.group_id,
-            )\
-            .first()
+        return Group.objects.filter(
+            project=self.project,
+            group_id=self.group_id,
+        ).first()

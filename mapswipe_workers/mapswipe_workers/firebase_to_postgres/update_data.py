@@ -277,14 +277,19 @@ def update_user_group_full_data(user_group_ids: List[str]):
 
     # Update user_group membership data from temp table
     query_insert_results = """
-        -- Clear current membership data
+        -- Set all memberships as inactive for selected user-group-ids
+        UPDATE user_groups_user_memberships
+        SET is_active = FALSE
+        WHERE user_group_id = ANY(%s);
+        -- Add/Set active for active memberships
         INSERT INTO user_groups_user_memberships
-            SELECT * FROM user_groups_user_memberships_temp
-        ON CONFLICT (user_group_id, user_id) DO NOTHING;
+            SELECT *, TRUE FROM user_groups_user_memberships_temp
+        ON CONFLICT (user_group_id, user_id) DO UPDATE
+            SET is_active = excluded.is_active;
         -- Clear temp table data
         TRUNCATE user_groups_user_memberships_temp;
     """
-    pg_db.query(query_insert_results)
+    pg_db.query(query_insert_results, [user_group_ids])
     logger.info("Updated user_group membership data in Postgres.")
     del pg_db
 

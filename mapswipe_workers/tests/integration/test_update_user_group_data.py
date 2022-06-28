@@ -101,7 +101,7 @@ class TestUpdateProjectData(BaseTestCase):
             """
         UGM_QUERY = """
             SELECT
-                user_group_id, user_id
+                user_group_id, user_id, is_active
             FROM user_groups_user_memberships
             ORDER BY user_group_id, user_id
             """
@@ -126,13 +126,13 @@ class TestUpdateProjectData(BaseTestCase):
             (
                 UGM_QUERY,
                 [
-                    ("user-group-1", "user-1"),
-                    ("user-group-1", "user-2"),
-                    ("user-group-1", "user-3"),
-                    ("user-group-2", "user-1"),
-                    ("user-group-2", "user-2"),
-                    ("user-group-2", "user-4"),
-                    ("user-group-3", "user-2"),
+                    ("user-group-1", "user-1", True),
+                    ("user-group-1", "user-2", True),
+                    ("user-group-1", "user-3", True),
+                    ("user-group-2", "user-1", True),
+                    ("user-group-2", "user-2", True),
+                    ("user-group-2", "user-4", True),
+                    ("user-group-3", "user-2", True),
                 ],
             ),
             (T_UGM_QUERY, []),
@@ -192,15 +192,15 @@ class TestUpdateProjectData(BaseTestCase):
             (
                 UGM_QUERY,
                 [
-                    ("user-group-1", "user-1"),
-                    ("user-group-1", "user-2"),
-                    ("user-group-1", "user-3"),
-                    ("user-group-2", "user-1"),
-                    ("user-group-2", "user-2"),
-                    ("user-group-2", "user-4"),
-                    ("user-group-2", "user-8"),
-                    ("user-group-3", "user-2"),
-                    ("user-group-4", "user-1"),
+                    ("user-group-1", "user-1", True),
+                    ("user-group-1", "user-2", True),
+                    ("user-group-1", "user-3", True),
+                    ("user-group-2", "user-1", True),
+                    ("user-group-2", "user-2", False),
+                    ("user-group-2", "user-4", False),
+                    ("user-group-2", "user-8", True),
+                    ("user-group-3", "user-2", True),
+                    ("user-group-4", "user-1", True),
                 ],
             ),
             (T_UGM_QUERY, []),

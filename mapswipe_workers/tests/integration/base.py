@@ -70,25 +70,26 @@ class TestDbTransactionMixin():
 
     @classmethod
     def _create_new_test_db(cls):
-        # Run at start of each TestCaseClass
-        super().setUpClass()
         cls.test_db_name = f"{POSTGRES_DB}_testdb".lower()
 
         # Connect with database
-        with psycopg2.connect(
+        # NOTE: Not using context manager because it will start a transaction.
+        # https://stackoverflow.com/a/68112827/3436502
+        con = psycopg2.connect(
             host=POSTGRES_HOST,
             password=POSTGRES_PASSWORD,
             port=POSTGRES_PORT,
             user=POSTGRES_USER,
-        ) as con:
-            # Create a new db. Drop if already exists.
-            # TODO: Don't drop here, just clear the data.
-            #   and DROP after all TestClass are done.
-            con.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
-            with con.cursor() as cursor:
-                cursor.execute(f"DROP DATABASE IF EXISTS {cls.test_db_name};")
-                cursor.execute(f"CREATE DATABASE {cls.test_db_name};")
-            con.commit()
+        )
+        # Create a new db. Drop if already exists.
+        # TODO: Don't drop here, just clear the data.
+        #   and DROP after all TestClass are done.
+        con.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
+        with con.cursor() as cursor:
+            cursor.execute(f"DROP DATABASE IF EXISTS {cls.test_db_name};")
+            cursor.execute(f"CREATE DATABASE {cls.test_db_name};")
+        con.commit()
+        con.close()
 
         # Connect to newly created DB
         cls.db_con = psycopg2.connect(
@@ -115,23 +116,27 @@ class TestDbTransactionMixin():
         if cls.db_con:
             cls.db_con.close()
             # Connect without db and drop
-            with psycopg2.connect(
+            # NOTE: Not using context manager because it will start a transaction.
+            # https://stackoverflow.com/a/68112827/3436502
+            con = psycopg2.connect(
                 host=POSTGRES_HOST,
                 password=POSTGRES_PASSWORD,
                 port=POSTGRES_PORT,
                 user=POSTGRES_USER,
-            ) as con:
-                con.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
-                with con.cursor() as cursor:
-                    cursor.execute(f"DROP DATABASE IF EXISTS {cls.test_db_name};")
-                con.commit()
+            )
+            con.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
+            with con.cursor() as cursor:
+                cursor.execute(f"DROP DATABASE IF EXISTS {cls.test_db_name};")
+            con.commit()
+            con.close()
         del cls.db
-        super().tearDownClass()
 
 
 class BaseTestCase(TestDbTransactionMixin, unittest.TestCase):
     @classmethod
     def setUpClass(cls):
+        # Run at start of each TestCaseClass
+        super().setUpClass()
         cls._create_new_test_db()
 
     def setUp(self):
@@ -141,4 +146,5 @@ class BaseTestCase(TestDbTransactionMixin, unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
+        super().tearDownClass()
         cls._drop_test_db()
