@@ -1,15 +1,15 @@
-import strawberry
 from typing import Any, Optional, Union
 
-from strawberry.django.views import AsyncGraphQLView
+import strawberry
+from apps.existing_database.query import Query as ExistingDatabaseQuery
 from starlette.requests import Request
-from starlette.websockets import WebSocket
 from starlette.responses import Response
+from starlette.websockets import WebSocket
+from strawberry.django.views import AsyncGraphQLView
+
+from .dataloaders import GobalDataLoader
 
 # from strawberry_django_plus.optimizer import DjangoOptimizerExtension
-
-from apps.existing_database.query import Query as ExistingDatabaseQuery
-from .dataloaders import GobalDataLoader
 
 
 class CustomAsyncGraphQLView(AsyncGraphQLView):

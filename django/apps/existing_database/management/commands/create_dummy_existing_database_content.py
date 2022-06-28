@@ -1,16 +1,5 @@
 import datetime
-from django.core.management.base import BaseCommand
 
-from apps.existing_database.models import (
-    Group,
-    Project,
-    Result,
-    Task,
-    User,
-    UserGroup,
-    UserGroupUserMembership,
-    UserGroupResult,
-)
 from apps.existing_database.factories import (
     GroupFactory,
     ProjectFactory,
@@ -21,6 +10,18 @@ from apps.existing_database.factories import (
     UserGroupMembershipFactory,
     UserGroupResultFactory,
 )
+from apps.existing_database.models import (
+    Group,
+    Project,
+    Result,
+    Task,
+    User,
+    UserGroup,
+    UserGroupResult,
+    UserGroupUserMembership,
+)
+
+from django.core.management.base import BaseCommand
 
 
 class Command(BaseCommand):

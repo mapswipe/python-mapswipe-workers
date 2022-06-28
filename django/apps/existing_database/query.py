@@ -1,15 +1,9 @@
 import strawberry
-
+import strawberry_django
 from mapswipe.paginations import CountList, StrawberryDjangoCountList
 
-from .types import (
-    ProjectType,
-    UserGroupType,
-)
-from .filters import (
-    ProjectFilter,
-    UserGroupFilter,
-)
+from .filters import ProjectFilter, UserGroupFilter
+from .types import ProjectType, UserGroupType
 
 
 @strawberry.type
@@ -24,4 +18,4 @@ class Query:
         filters=UserGroupFilter,
     )
 
-    user_group: UserGroupType = strawberry.django.field()
+    user_group: UserGroupType = strawberry_django.field()

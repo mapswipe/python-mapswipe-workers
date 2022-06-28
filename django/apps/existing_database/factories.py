@@ -2,14 +2,14 @@ import factory
 from factory.django import DjangoModelFactory
 
 from .models import (
+    Group,
+    Project,
+    Result,
+    Task,
     User,
     UserGroup,
-    UserGroupUserMembership,
-    Project,
-    Group,
-    Task,
-    Result,
     UserGroupResult,
+    UserGroupUserMembership,
 )
 
 
