@@ -20,7 +20,7 @@ class CustomAsyncGraphQLView(AsyncGraphQLView):
     ) -> Any:
         return {
             'request': request,
-            'dl': GobalDataLoader,
+            'dl': GobalDataLoader(),
         }
 
 

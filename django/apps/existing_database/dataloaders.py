@@ -5,6 +5,7 @@ from asgiref.sync import sync_to_async
 from strawberry.dataloader import DataLoader
 from django.db import connections
 from django.conf import settings
+from django.utils.functional import cached_property
 
 from .models import UserGroupResult, Result
 from .types import SwipeStatType
@@ -118,6 +119,10 @@ def load_user_group_user_stats(keys: List[List[str]]):
 
 
 class ExistingDatabaseDataLoader():
-    load_user_group_stats = DataLoader(load_fn=sync_to_async(load_user_group_stats))
-    load_user_group_user_stats = DataLoader(
-        load_fn=sync_to_async(load_user_group_user_stats))
+    @cached_property
+    def load_user_group_stats(self):
+        return DataLoader(load_fn=sync_to_async(load_user_group_stats))
+
+    @cached_property
+    def load_user_group_user_stats(self):
+        return DataLoader(load_fn=sync_to_async(load_user_group_user_stats))
