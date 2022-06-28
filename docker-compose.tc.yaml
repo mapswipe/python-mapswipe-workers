@@ -36,7 +36,7 @@ x-mapswipe-workers: &base_mapswipe_workers
   depends_on:
     - postgres
   volumes:
-    - ./mapswipe_workers/mapswipe_workers:/usr/local/lib/python3.8/dist-packages/mapswipe_workers/:ro
+    - ./mapswipe_workers/mapswipe_workers:/usr/local/lib/python3.10/dist-packages/mapswipe_workers/:ro
     - ./mapswipe_workers/tests:/root/tests/:ro
     - ./mapswipe-data:/root/.local/share/mapswipe_workers
   restart: "no"
@@ -112,7 +112,6 @@ services:
       DJANGO_DB_PWD: '${POSTGRES_PASSWORD:-postgres}'
       DJANGO_DB_HOST: '${POSTGRES_HOST:-postgres}'
       DJANGO_DB_PORT: '${POSTGRES_PORT:-5432}'
-      DJANGO_CORS_ALLOWED_ORIGINS: '*'
       DJANGO_TIME_ZONE: 'Asia/Kathmandu'
     volumes:
       - ./django:/code

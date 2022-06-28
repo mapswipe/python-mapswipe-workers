@@ -17,7 +17,7 @@ DEFAULT_STAT = SwipeStatType(
 )
 
 
-USER_GROUP_SWIPE_STAT_QUERY = f'''
+USER_GROUP_SWIPE_STAT_QUERY = f"""
     WITH
         -- Group by project_id, group_id, user_id and user_group_id to get
         -- Max start_time and end_time as they are repeated for each task,
@@ -44,10 +44,10 @@ USER_GROUP_SWIPE_STAT_QUERY = f'''
         ) as total_time
     From user_group_grouped_data
     GROUP BY user_group_id
-'''
+"""
 
 
-USER_GROUP_USER_SWIPE_STAT_QUERY = f'''
+USER_GROUP_USER_SWIPE_STAT_QUERY = f"""
     WITH
         user_group_grouped_data AS (
             SELECT
@@ -75,7 +75,7 @@ USER_GROUP_USER_SWIPE_STAT_QUERY = f'''
         ) as total_time
     From user_group_grouped_data
     GROUP BY user_group_id, user_id
-'''
+"""
 
 
 def load_user_group_stats(keys: List[str]):
@@ -108,17 +108,17 @@ def load_user_group_user_stats(keys: List[List[str]]):
             cursor.execute(USER_GROUP_USER_SWIPE_STAT_QUERY, [user_group_id, users_id])
             aggregate_results = cursor.fetchall()
             for _, user_id, count, time in aggregate_results:
-                _map[f'{user_group_id}-{user_id}'] = SwipeStatType(
+                _map[f"{user_group_id}-{user_id}"] = SwipeStatType(
                     total_swipe=count or 0,
                     total_swipe_time=time or 0,
                 )
     return [
-        _map.get(f'{user_group_id}-{user_id}', DEFAULT_STAT)
+        _map.get(f"{user_group_id}-{user_id}", DEFAULT_STAT)
         for user_group_id, user_id in keys
     ]
 
 
-class ExistingDatabaseDataLoader():
+class ExistingDatabaseDataLoader:
     @cached_property
     def load_user_group_stats(self):
         return DataLoader(load_fn=sync_to_async(load_user_group_stats))

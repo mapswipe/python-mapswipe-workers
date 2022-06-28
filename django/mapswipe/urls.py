@@ -7,10 +7,11 @@ from mapswipe.graphql import CustomAsyncGraphQLView, schema as graphql_schema
 
 urlpatterns = [
     path(
-        "graphql/", CustomAsyncGraphQLView.as_view(
+        "graphql/",
+        CustomAsyncGraphQLView.as_view(
             schema=graphql_schema,
             graphiql=False,
-        )
+        ),
     ),
 ]
 

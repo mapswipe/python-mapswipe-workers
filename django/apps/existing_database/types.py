@@ -8,6 +8,7 @@ from .models import (
     Project,
     User,
     UserGroup,
+    UserGroupUserMembership,
 )
 
 
@@ -37,17 +38,18 @@ class SwipeStatType:
     total_swipe_time: float
 
 
-@strawberry.django.type(User)
-class UserGroupUserType:
-    user_id: strawberry.ID
-    username: strawberry.auto
+@strawberry.django.type(UserGroupUserMembership)
+class UserGroupUserMembershipType:
+    user: UserType
+    is_active: strawberry.auto
 
     @strawberry.field
-    async def stats(self, info: Info, root: User) -> SwipeStatType:
-        return await info.context['dl']\
-            .existing_database\
-            .load_user_group_user_stats\
-            .load((root.selected_user_group, root.user_id))
+    async def stats(self, info: Info, root: UserGroupUserMembership) -> SwipeStatType:
+        return await info.context[
+            "dl"
+        ].existing_database.load_user_group_user_stats.load(
+            (root.user_group_id, root.user_id)
+        )
 
 
 @strawberry.django.type(UserGroup)
@@ -57,13 +59,15 @@ class UserGroupType:
     description: strawberry.auto
 
     # XXX: N+1
-    users: CountList[UserGroupUserType] = StrawberryDjangoCountList(
-        pagination=True, filters=UserFilter,
+    user_memberships: CountList[
+        UserGroupUserMembershipType
+    ] = StrawberryDjangoCountList(
+        pagination=True,
+        filters=UserFilter,
     )
 
     @strawberry.field
     async def stats(self, info: Info, root: UserGroup) -> SwipeStatType:
-        return await info.context['dl']\
-            .existing_database\
-            .load_user_group_stats\
-            .load(root.user_group_id)
+        return await info.context["dl"].existing_database.load_user_group_stats.load(
+            root.user_group_id
+        )

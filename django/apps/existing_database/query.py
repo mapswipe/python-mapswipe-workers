@@ -15,9 +15,13 @@ from .filters import (
 @strawberry.type
 class Query:
     projects: CountList[ProjectType] = StrawberryDjangoCountList(
-        pagination=True, filters=ProjectFilter,
+        pagination=True,
+        filters=ProjectFilter,
     )
 
     user_groups: CountList[UserGroupType] = StrawberryDjangoCountList(
-        pagination=True, filters=UserGroupFilter,
+        pagination=True,
+        filters=UserGroupFilter,
     )
+
+    user_group: UserGroupType = strawberry.django.field()

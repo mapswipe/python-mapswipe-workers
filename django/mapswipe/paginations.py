@@ -19,8 +19,9 @@ class CountBeforePaginationMonkeyPatch(StrawberryDjangoPagination):
     def get_queryset(self, queryset: QuerySet[Any], info, pagination=UNSET, **kwargs):
         self.count = queryset.count()
         queryset = apply_pagination(pagination, queryset)
-        return super(StrawberryDjangoPagination, self)\
-            .get_queryset(queryset, info, **kwargs)
+        return super(StrawberryDjangoPagination, self).get_queryset(
+            queryset, info, **kwargs
+        )
 
 
 StrawberryDjangoPagination.get_queryset = CountBeforePaginationMonkeyPatch.get_queryset
@@ -45,9 +46,7 @@ class StrawberryDjangoCountList(StrawberryDjangoField):
         # Hack to get the nested type of `CountList` to register
         # as the type of this field
         items_type = [
-            f.type
-            for f in self.type._type_definition._fields
-            if f.name == 'items'
+            f.type for f in self.type._type_definition._fields if f.name == "items"
         ]
         if len(items_type) > 0:
             type_ = utils.unwrap_type(items_type[0])

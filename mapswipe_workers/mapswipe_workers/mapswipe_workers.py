@@ -120,7 +120,7 @@ def run_create_user_groups():
     """
     fb_db = auth.firebaseDB()
     ref = fb_db.reference("v2/updates/userGroups")
-    changed_user_groups_id = ref.get(shallow=True).keys()
+    changed_user_groups_id = (ref.get(shallow=True) or {}).keys()
 
     # Update changed user groups data in postgres.
     update_data.update_user_group_full_data(changed_user_groups_id)

@@ -137,6 +137,7 @@ CREATE TABLE IF NOT EXISTS user_groups_temp (
 CREATE TABLE IF NOT EXISTS user_groups_user_memberships (
     user_group_id varchar,
     user_id varchar,
+    is_active boolean,
     PRIMARY KEY (user_group_id, user_id),
     FOREIGN KEY (user_id) REFERENCES users (user_id),
     FOREIGN KEY (user_group_id) REFERENCES user_groups (user_group_id)
