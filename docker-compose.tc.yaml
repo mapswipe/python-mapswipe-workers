@@ -37,6 +37,8 @@ x-mapswipe-workers: &base_mapswipe_workers
     - postgres
   volumes:
     - ./mapswipe_workers/mapswipe_workers:/usr/local/lib/python3.10/dist-packages/mapswipe_workers/:ro
+    - ./mapswipe_workers/mapswipe_workers:/usr/local/lib/python3.8/dist-packages/mapswipe_workers/:ro
+    - ./mapswipe_workers/mapswipe_workers:/root/mapswipe_workers/:ro
     - ./mapswipe_workers/tests:/root/tests/:ro
     - ./mapswipe-data:/root/.local/share/mapswipe_workers
   restart: "no"
@@ -70,15 +72,15 @@ services:
 
   mapswipe_workers_creation:
     <<: *base_mapswipe_workers
-    command: mapswipe_workers --verbose run --analysis_type=creation --schedule --time_interval=5
+    command: mapswipe_workers --verbose run --analysis_type=creation --schedule --time_interval=1
 
   # mapswipe_workers_stats:
   #   <<: *base_mapswipe_workers
   #   command: mapswipe_workers --verbose run --analysis_type=generate-stats --schedule --time_interval=60
 
-  # mapswipe_workers_firebase_to_postgres:
-  #   <<: *base_mapswipe_workers
-  #   command: mapswipe_workers --verbose run --analysis_type=firebase-to-postgres --schedule --time_interval=2
+  mapswipe_workers_firebase_to_postgres:
+    <<: *base_mapswipe_workers
+    command: mapswipe_workers --verbose run --analysis_type=firebase-to-postgres --schedule --time_interval=1
 
   postgres:
     build:
