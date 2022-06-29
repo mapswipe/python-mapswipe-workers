@@ -2,11 +2,10 @@ from collections import defaultdict
 from typing import List
 
 from asgiref.sync import sync_to_async
-from strawberry.dataloader import DataLoader
-
 from django.conf import settings
 from django.db import connections
 from django.utils.functional import cached_property
+from strawberry.dataloader import DataLoader
 
 from .models import Result, UserGroupResult
 from .types import SwipeStatType

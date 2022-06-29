@@ -3,8 +3,9 @@ import strawberry_django
 from mapswipe.paginations import CountList, StrawberryDjangoCountList
 from strawberry.types import Info
 
-from .filters import UserFilter
+from .filters import UserMembershipFilter
 from .models import Project, User, UserGroup, UserGroupUserMembership
+from .ordering import UserGroupUserMembershipOrder
 
 
 @strawberry_django.type(User)
@@ -58,7 +59,8 @@ class UserGroupType:
         UserGroupUserMembershipType
     ] = StrawberryDjangoCountList(
         pagination=True,
-        filters=UserFilter,
+        filters=UserMembershipFilter,
+        order=UserGroupUserMembershipOrder,
     )
 
     @strawberry.field
@@ -66,3 +68,7 @@ class UserGroupType:
         return await info.context["dl"].existing_database.load_user_group_stats.load(
             root.user_group_id
         )
+
+    def get_queryset(self, queryset, info, **kwargs):
+        # Filter out user group without name. They aren't sync yet.
+        return UserGroup.objects.exclude(name__isnull=True).all()

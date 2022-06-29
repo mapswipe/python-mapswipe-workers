@@ -3,9 +3,8 @@ import os
 import unittest
 
 import set_up
-# import tear_down
-
 from base import BaseTestCase
+
 from mapswipe_workers import auth
 from mapswipe_workers.firebase_to_postgres.transfer_results import (
     transfer_results,
@@ -199,17 +198,17 @@ class TestTranserResultsProject(BaseTestCase):
             (
                 UG_QUERY,
                 [
-                    ("user-group-1",),
-                    ("user-group-2",),
-                    ("user-group-4",),  # NOTE: This is a non existing group.
+                    ("dummy-user-group-1",),
+                    ("dummy-user-group-2",),
+                    ("dummy-user-group-4",),  # NOTE: This is a non existing group.
                 ],
             ),
             (
                 RUG_QUERY,
                 [
-                    ("user-group-1",),
-                    ("user-group-2",),
-                    ("user-group-4",),  # NOTE: This is a non existing group.
+                    ("dummy-user-group-1",),
+                    ("dummy-user-group-2",),
+                    ("dummy-user-group-4",),  # NOTE: This is a non existing group.
                 ],
             ),
         ]:

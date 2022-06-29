@@ -3,6 +3,7 @@ import strawberry_django
 from mapswipe.paginations import CountList, StrawberryDjangoCountList
 
 from .filters import ProjectFilter, UserGroupFilter
+from .ordering import UserGroupOrder
 from .types import ProjectType, UserGroupType
 
 
@@ -16,6 +17,7 @@ class Query:
     user_groups: CountList[UserGroupType] = StrawberryDjangoCountList(
         pagination=True,
         filters=UserGroupFilter,
+        order=UserGroupOrder,
     )
 
     user_group: UserGroupType = strawberry_django.field()

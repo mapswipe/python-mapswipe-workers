@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Any, Generic, List, TypeVar
 
 import strawberry
+from django.db.models import QuerySet
 from strawberry.arguments import UNSET
 from strawberry_django import utils
 from strawberry_django.fields.field import StrawberryDjangoField
@@ -11,8 +12,6 @@ from strawberry_django.pagination import (
     StrawberryDjangoPagination,
 )
 from strawberry_django.pagination import apply as apply_pagination
-
-from django.db.models import QuerySet
 
 
 class CountBeforePaginationMonkeyPatch(StrawberryDjangoPagination):
@@ -60,3 +59,11 @@ class StrawberryDjangoCountList(StrawberryDjangoField):
             count=self.count,
             items=list(qs),  # FIXME:
         )
+
+    def get_queryset(self, queryset, info, order=UNSET, **kwargs):
+        type_ = self._base_type or self.child.type
+        type_ = utils.unwrap_type(type_)
+        get_queryset = getattr(type_, "get_queryset", None)
+        if get_queryset:
+            queryset = get_queryset(self, queryset, info, **kwargs)
+        return super().get_queryset(queryset, info, order=order, **kwargs)

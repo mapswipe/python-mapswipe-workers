@@ -34,6 +34,19 @@ def delete_test_data(project_id: str) -> None:
     ref = fb_db.reference(f"v2/users/{project_id}")
     ref.delete()
 
+    # Clear out the user-group used in test.
+    # XXX: Use a firebase simulator for running test.
+    # For CI/CD, use a real firebase with scope using commit hash,
+    # and clear all data at the end.
+    for user_group_id in [
+        "dummy-user-group-1",
+        "dummy-user-group-2",
+        "dummy-user-group-3",
+        "dummy-user-group-4",
+    ]:
+        ref = fb_db.reference(f"v2/userGroups/{user_group_id}")
+        ref.delete()
+
     pg_db = auth.postgresDB()
     sql_query = "DELETE FROM results WHERE project_id = %s"
     pg_db.query(sql_query, [project_id])

@@ -1,7 +1,7 @@
 import strawberry
 import strawberry_django
 
-from .models import Project, User, UserGroup
+from .models import Project, User, UserGroup, UserGroupUserMembership
 
 
 @strawberry_django.filters.filter(User, lookups=True)
@@ -39,5 +39,18 @@ class UserGroupFilter:
         if self.search:
             queryset = queryset.filter(
                 name__icontains=self.search,
+            )
+        return queryset
+
+
+@strawberry_django.filters.filter(UserGroupUserMembership, lookups=True)
+class UserMembershipFilter:
+    user_id: strawberry.auto
+    search: str | None
+
+    def filter_search(self, queryset):
+        if self.search:
+            queryset = queryset.filter(
+                user__username__icontains=self.search,
             )
         return queryset
