@@ -11,14 +11,19 @@ poetry install
 ```
 
 
-### Adding new app in django
+### Add new app in django
 ```
 poetry shell
 django-admin startapp <app-name>
 ```
 
 
-### Adding dependencies.
+### Add dependencies.
 ```
 poetry add package
+```
+
+### Update lock file.
+```
+poetry update --lock
 ```

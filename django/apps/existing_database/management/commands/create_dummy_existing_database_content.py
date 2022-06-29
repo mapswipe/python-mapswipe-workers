@@ -20,7 +20,6 @@ from apps.existing_database.models import (
     UserGroupResult,
     UserGroupUserMembership,
 )
-
 from django.core.management.base import BaseCommand
 
 

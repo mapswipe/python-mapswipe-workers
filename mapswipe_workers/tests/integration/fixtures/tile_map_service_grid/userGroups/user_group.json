@@ -1,13 +1,13 @@
 {
-    "user-group-1": {
+    "dummy-user-group-1": {
         "name": "User Group 1",
         "description": "User Group 1 descriptions"
     },
-    "user-group-2": {
+    "dummy-user-group-2": {
         "name": "User Group 2",
         "description": "User Group 2 descriptions"
     },
-    "user-group-3": {
+    "dummy-user-group-3": {
         "name": "User Group 3",
         "description": "User Group 3 descriptions"
     }

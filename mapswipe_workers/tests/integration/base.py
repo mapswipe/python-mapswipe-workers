@@ -1,8 +1,10 @@
 import os
 import unittest
+
 import psycopg2
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 
+from mapswipe_workers import auth
 from mapswipe_workers.config import (
     POSTGRES_DB,
     POSTGRES_HOST,
@@ -10,13 +12,11 @@ from mapswipe_workers.config import (
     POSTGRES_PORT,
     POSTGRES_USER,
 )
-from mapswipe_workers import auth
-
 
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 
 
-class TestDbTransactionMixin():
+class TestDbTransactionMixin:
     test_db_name = None
     db_con = None
     db = None
@@ -30,7 +30,7 @@ class TestDbTransactionMixin():
     @classmethod
     def __db_query(cls, query):
         if cls.db_con is None:
-            raise Exception('cls.db_con needs to be set.')
+            raise Exception("cls.db_con needs to be set.")
         assert cls.db_con.info.dbname == cls.test_db_name
         with cls.db_con.cursor() as cursor:
             cursor.execute(query)
@@ -40,14 +40,15 @@ class TestDbTransactionMixin():
     @classmethod
     def __db_rollback(cls):
         if cls.db_con is None:
-            raise Exception('cls.db_con needs to be set.')
+            raise Exception("cls.db_con needs to be set.")
         assert cls.db_con.info.dbname == cls.test_db_name
         cls.db_con.rollback()
 
     @classmethod
     def _clear_all_data(cls):
         try:
-            cls.__db_query('''
+            cls.__db_query(
+                """
                 -- temp tables
                 TRUNCATE TABLE results_temp;
                 TRUNCATE TABLE results_user_groups_temp;
@@ -63,7 +64,8 @@ class TestDbTransactionMixin():
                 TRUNCATE TABLE groups CASCADE;
                 TRUNCATE TABLE projects CASCADE;
                 TRUNCATE TABLE users CASCADE;
-            ''')
+            """
+            )
         except psycopg2.errors.InFailedSqlTransaction:
             # Retry with rollback
             cls.__db_rollback()
@@ -102,7 +104,7 @@ class TestDbTransactionMixin():
         )
 
         # Setup newly created DB
-        with open(os.path.join(BASE_DIR, 'set_up_db.sql')) as fp:
+        with open(os.path.join(BASE_DIR, "set_up_db.sql")) as fp:
             cls.__db_query(fp.read())
 
         # XXX: Force overwrite main postgres DB helper methods.

@@ -24,9 +24,9 @@ jobs:
     - name: Code style
       working-directory: ./mapswipe_workers
       run: |
-        black --check mapswipe_workers
-        flake8 --count --config setup.cfg mapswipe_workers/
-        isort --check --settings-file setup.cfg mapswipe_workers/
+        black --check mapswipe_workers ../django
+        flake8 --count --config setup.cfg mapswipe_workers/ ../django/
+        isort --check --settings-file setup.cfg mapswipe_workers/ ../django/
     - name:  Setup Postgres Database Container
       env:
         POSTGRES_PASSWORD: test
