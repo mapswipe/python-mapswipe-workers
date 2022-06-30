@@ -57,6 +57,8 @@ function submitNewUserGroup() {
             console.error(error);
           } else {
             alert('Successfully added new user group');
+
+            // We can probably just call addUserGroupsToTable
             window.location.reload();
           }
         });
@@ -70,6 +72,7 @@ function submitNewUserGroup() {
 // Gets called once at the begining
 function addUserGroupsToTable() {
   var tableRef = $("#user-groups-table").DataTable();
+  tableRef.clear();
   var rows = [];
 
   var userGroupsRef = firebase.database().ref("v2/userGroups");
@@ -78,7 +81,7 @@ function addUserGroupsToTable() {
       snapshot.forEach(function(data) {
         row_array = [];
         row_array.push(data.val().name);
-        row_array.push(data.val().description);
+        row_array.push(data.val().description ?? '-');
         var usersLength = Object.keys(data.val().users || {}).length;
 
         if (usersLength > 0) {
