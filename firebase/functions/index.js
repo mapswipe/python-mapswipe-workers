@@ -107,7 +107,15 @@ exports.groupUsersCounter = functions.database.ref('/v2/results/{projectId}/{gro
 
             // Tag userGroups of the user in the result
             userRef.child('userGroups').once('value').then((usergroupSnapshot) => {
-                return thisResultRef.child('userGroups').set(usergroupSnapshot.val());
+                if (usergroupSnapshot.exists()) {
+                    const keys = Object.keys(usergroupSnapshot.val());
+                    const userGroups = keys.reduce((acc, key) => {
+                        acc[key] = true;
+                        return acc;
+                    }, {});
+
+                    return thisResultRef.child('userGroups').set(userGroups);
+                }
             }),
         ]);
     });
