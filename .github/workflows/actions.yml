@@ -41,7 +41,7 @@ jobs:
         FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
         FIREBASE_DB: ${{ secrets.FIREBASE_DB }}
       run: |
-        docker-compose run firebase_deploy sh -c "firebase use $FIREBASE_DB && firebase deploy --token $FIREBASE_TOKEN --only database:rules"
+        docker-compose run firebase_deploy sh -c "firebase use $FIREBASE_DB && firebase deploy --token $FIREBASE_TOKEN --only database"
     - name: Decrypt Service Account Key File
       working-directory: ./
       run: |
