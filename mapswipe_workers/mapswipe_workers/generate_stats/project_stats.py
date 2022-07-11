@@ -148,8 +148,23 @@ def get_tasks(filename: str, project_id: str) -> pd.DataFrame:
         sql_query = sql.SQL(
             """
             COPY (
-                SELECT project_id, group_id, task_id, ST_AsText(geom) as geom,
-                project_type_specifics
+                SELECT
+                    project_id
+                    ,group_id
+                    ,case
+                        when project_type_specifics -> 'taskX' is not null
+                        then split_part(task_id, '-', 1)::int
+                    end as tile_z
+                    ,case
+                        when project_type_specifics -> 'taskX' is not null
+                        then split_part(task_id, '-', 2)::int
+                    end as tile_x
+                    ,case
+                        when project_type_specifics -> 'taskY' is not null
+                        then split_part(task_id, '-', 3)::int
+                    end as tile_y
+                    ,ST_AsText(geom) as geom
+                    ,project_type_specifics
                 FROM tasks
                 WHERE project_id = {}
             ) TO STDOUT WITH CSV HEADER
