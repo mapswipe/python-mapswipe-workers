@@ -213,4 +213,4 @@ services:
           osm.api_url=\"$OSM_OAUTH_API_URL\"
           osm.client_id=\"$OSM_OAUTH_CLIENT_ID\"
           osm.client_secret=\"$OSM_OAUTH_CLIENT_SECRET\" &&
-          firebase deploy --token $FIREBASE_TOKEN --only functions,hosting,database:rules"
+          firebase deploy --token $FIREBASE_TOKEN --only functions,hosting,database"
