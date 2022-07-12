@@ -151,6 +151,7 @@ def get_tasks(filename: str, project_id: str) -> pd.DataFrame:
                 SELECT
                     project_id
                     ,group_id
+                    ,task_id
                     ,case
                         when project_type_specifics -> 'taskX' is not null
                         then split_part(task_id, '-', 1)::int
