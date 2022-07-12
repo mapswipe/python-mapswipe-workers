@@ -65,6 +65,7 @@ INSTALLED_APPS = [
     "django.contrib.postgres",
     # External apps
     "corsheaders",
+    "strawberry.django",
     # Internal apps
     "apps.existing_database",
 ]
