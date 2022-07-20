@@ -1,0 +1,38 @@
+{
+    "compilerOptions": {
+        "isolatedModules": true,
+        "jsx": "react",
+        "module": "esnext",
+        "noEmit": true,
+        "rootDir": ".",
+        "target": "esnext",
+
+        "strict": true,
+
+        "allowSyntheticDefaultImports": true,
+        "baseUrl": ".",
+        "esModuleInterop": true,
+        "moduleResolution": "node",
+
+        "paths": {
+            "#generated/*": ["./generated/*"],
+            "#components/*": ["./app/components/*"],
+            "#views/*": ["./app/views/*"],
+            "#base/*": ["./app/Base/*"],
+        },
+
+        "noFallthroughCasesInSwitch": true,
+        "noImplicitReturns": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
+
+        "forceConsistentCasingInFileNames": true,
+        "resolveJsonModule": true,
+        "skipLibCheck": true
+    },
+    "include": [
+        "./app/index.tsx",
+        "./app/declarations",
+        "./generated/types.tsx"
+    ]
+}

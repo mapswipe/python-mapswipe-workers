@@ -1,0 +1,29 @@
+.base {
+    display: flex;
+    flex-direction: column;
+    width: 100vw;
+    height: 100vh;
+    font-size: var(--dui-font-size-medium);
+
+    .navbar {
+        flex-shrink: 0;
+
+        &.hidden {
+            display: none;
+        }
+    }
+
+    .view,
+    .init {
+        flex-grow: 1;
+        overflow: auto;
+    }
+
+    .alert-container {
+        position: fixed;
+        top: var(--dui-spacing-large);
+        right: var(--dui-spacing-large);
+        z-index: 1;
+        width: 20rem;
+    }
+}

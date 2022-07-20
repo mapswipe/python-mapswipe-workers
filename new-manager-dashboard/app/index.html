@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en" translate="no">
+    <head>
+        <title><%= process.env.MY_APP_NAME %></title>
+        <style>
+            html, body {
+                position: relative;
+                margin: 0;
+                padding: 0;
+                font-family: 'Source Sans Pro', sans-serif;
+            }
+
+            * {
+                box-sizing: border-box;
+                scrollbar-color: var(--dui-color-foreground-scrollbar) var(--dui-color-background-scrollbar);
+                scrollbar-width: thin;
+            }
+
+            ::-webkit-scrollbar {
+                background-color: var(--dui-color-background-scrollbar);
+                width: var(--dui-width-scrollbar);
+                height: var(--dui-width-scrollbar);
+                background-color: var(--dui-color-background-scrollbar);
+            }
+
+            ::-webkit-scrollbar-track {
+                background-color: var(--dui-color-background-scrollbar);
+            }
+
+            ::-webkit-scrollbar-thumb {
+                border-radius: var(--dui-radius-scrollbar-border);
+                background-color: var(--dui-color-foreground-scrollbar);
+            }
+
+            #app-container {
+                position: relative;
+                width: 100vw;
+                height: 100vh;
+            }
+        </style>
+        <style id="anti-click-jacking">
+            body {
+                display:none !important;
+            }
+        </style>
+    </head>
+
+    <body>
+        <noscript>
+            <%= process.env.MY_APP_NAME %> needs JS.
+        </noscript>
+        <div id="app-container"></div>
+
+        <link href="https://fonts.googleapis.com/css?family=Oxygen+Mono|Source+Sans+Pro:300,400,600" rel="stylesheet">
+
+        <!-- Start of anti-click-jacking -->
+        <script type="text/javascript">
+            if (self === top) {
+                var antiClickjack = document.getElementById("anti-click-jacking");
+                antiClickjack.parentNode.removeChild(antiClickjack);
+            } else {
+                top.location = self.location;
+            }
+        </script>
+        <!-- End of anti-click-jacking -->
+
+        <!-- Start of service-worker -->
+        <script>
+            if ('serviceWorker' in navigator && '<%= process.env.NODE_ENV %>' === 'production') {
+                window.addEventListener('load', () => {
+                    navigator.serviceWorker
+                        .register('/service-worker.js')
+                        .then((registration) => {
+                            console.info('SW registered: ', registration);
+                            registration.onupdatefound = () => {
+                                const installingWorker = registration.installing;
+                                installingWorker.onstatechange = () => {
+                                    switch (installingWorker.state) {
+                                        case 'installed':
+                                            if (navigator.serviceWorker.controller) {
+                                                // New update is available
+                                                console.info('SW: New update is available!');
+                                                const shouldUpdate = window.confirm('New update is available. Do you want to update now?');
+                                                if (shouldUpdate) {
+                                                    window.location.reload(true);
+                                                }
+                                            } else {
+                                                // No new update
+                                                console.info('SW: No new updates!');
+                                            }
+                                            break;
+                                        default:
+                                            break;
+                                    }
+                                };
+                            };
+                        })
+                        .catch((registrationError) => {
+                            console.error('SW registration failed: ', registrationError);
+                        });
+                });
+            }
+        </script>
+        <!-- End of service-worker -->
+    </body>
+</html>

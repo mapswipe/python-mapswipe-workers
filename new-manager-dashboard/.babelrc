@@ -1,0 +1,43 @@
+{
+    "presets": [
+        "@babel/preset-env",
+        "@babel/preset-react",
+        "@babel/preset-typescript",
+    ],
+    "plugins": [
+        // Reuse babel's injected headers
+        "@babel/plugin-transform-runtime",
+
+        // Handle absolute imports
+        ["babel-plugin-module-resolver", {
+            "root": ["."],
+            "extensions": [".js", ".jsx", ".ts", ".tsx"],
+            "alias": {
+                "#generated": "./generated",
+                "#components": "./app/components",
+                "#views": "./app/views",
+                "#base": "./app/Base",
+            },
+        }],
+
+        // Extends javascript support
+        "@babel/plugin-syntax-dynamic-import",
+        "@babel/plugin-proposal-do-expressions",
+
+        // Extends react support
+        "@babel/plugin-transform-react-constant-elements",
+        // "@babel/plugin-transform-react-inline-elements",
+
+        // Extends graphql support
+        'babel-plugin-graphql-tag',
+
+        // NOTE: we may not need to install these as well
+        // Polyfill
+        ["polyfill-corejs3", {
+            "method": "usage-global",
+        }],
+        ["polyfill-regenerator", {
+            "method": "usage-global",
+        }],
+    ],
+}

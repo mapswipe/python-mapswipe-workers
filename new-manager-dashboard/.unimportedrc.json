@@ -1,0 +1,21 @@
+{
+    "entry": ["./app/index.tsx"],
+    "ignorePatterns": ["**/node_modules/**", "build/**", "jest/**", "generated/**"],
+    "ignoreUnimported": [
+        "postcss.config.js",
+        "stylelint.config.js",
+        "webpack.config.js",
+        "jest.config.js",
+        "type.template.tsx",
+        "**/*.d.ts",
+        "**/*.test.ts"
+    ],
+    "ignoreUnused": ["core-js"],
+    "extensions": [".ts", ".js", ".tsx", ".jsx"],
+    "aliases": {
+        "#generated/*": ["./generated/*"],
+        "#components/*": ["./app/components/*"],
+        "#views/*": ["./app/views/*"],
+        "#base/*": ["./app/Base/*"]
+    }
+}

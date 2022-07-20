@@ -1,0 +1,62 @@
+.navbar {
+    display: flex;
+    position: relative;
+    align-items: center;
+    border-bottom: var(--dui-width-separator-thin) solid var(--dui-color-separator);
+    background-color: var(--dui-color-foreground);
+    padding: 0 calc(var(--dui-spacing-super-large) - var(--dui-spacing-large));
+    overflow: auto;
+    color: var(--dui-color-text);
+
+    .app-brand {
+        display: flex;
+        align-items: center;
+        flex-shrink: 0;
+        padding: var(--dui-spacing-medium) var(--dui-spacing-large);
+        color: var(--dui-color-brand);
+
+        .logo {
+            font-size: var(--dui-font-size-extra-large);
+        }
+    }
+
+    .main {
+        display: flex;
+        align-self: stretch;
+        flex-grow: 1;
+        overflow: auto;
+
+        .nav-links {
+            display: flex;
+            flex-grow: 1;
+            justify-content: flex-start;
+            padding: 0 calc(var(--dui-spacing-super-large) - var(--dui-spacing-large));
+            overflow: hidden;
+            font-size: var(--dui-font-size-large);
+
+            .link {
+                margin: 0 var(--dui-spacing-large);
+            }
+        }
+    }
+
+    .actions {
+        display: flex;
+        align-items: center;
+        flex-shrink: 0;
+        padding: 0 calc(var(--dui-spacing-large) - var(--dui-spacing-small));
+
+        >* {
+            margin: 0 var(--dui-spacing-small);
+        }
+    }
+
+    .user-display {
+        display: flex;
+        align-items: stretch;
+        flex-shrink: 0;
+        padding: 0 var(--dui-spacing-large);
+        color: var(--dui-color-text-message);
+        font-weight: var(--dui-font-weight-bold);
+    }
+}
