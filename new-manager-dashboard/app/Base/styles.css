@@ -3,7 +3,6 @@
     flex-direction: column;
     width: 100vw;
     height: 100vh;
-    font-size: var(--dui-font-size-medium);
 
     .navbar {
         flex-shrink: 0;
@@ -18,12 +17,16 @@
         flex-grow: 1;
         overflow: auto;
     }
+}
 
-    .alert-container {
-        position: fixed;
-        top: var(--dui-spacing-large);
-        right: var(--dui-spacing-large);
-        z-index: 1;
-        width: 20rem;
-    }
+:root {
+    --spacing-small: 0.3rem;
+    --spacing-medium: 0.6rem;
+    --spacing-large: 1rem;
+
+    --color-primary: #0d1949;
+    --color-text-on-light: #ffffff;
+
+    --font-size-medium: 1rem;
+    --font-size-large: 1.2rem;
 }

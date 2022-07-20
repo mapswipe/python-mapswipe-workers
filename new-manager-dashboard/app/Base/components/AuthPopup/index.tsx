@@ -1,5 +1,6 @@
 import React from 'react';
-import { Modal, Button } from '@the-deep/deep-ui';
+import Modal from '#components/Modal';
+import Button from '#components/Button';
 
 import useAuthSync from '#base/hooks/useAuthSync';
 import styles from './styles.css';

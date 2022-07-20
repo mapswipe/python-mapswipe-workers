@@ -7,20 +7,18 @@ import styles from './styles.css';
 
 interface Props {
     className?: string;
-    name: string;
 }
 
-function Template(props: Props) {
+function Login(props: Props) {
     const {
         className,
-        name,
     } = props;
 
     return (
-        <PageContent className={_cs(styles.template, className)}>
-            {name}
+        <PageContent className={_cs(styles.login, className)}>
+            Login
         </PageContent>
     );
 }
 
-export default Template;
+export default Login;

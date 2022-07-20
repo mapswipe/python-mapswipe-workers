@@ -29,15 +29,21 @@ function Routes(props: Props) {
                 </Route>
                 <Route
                     exact
-                    path={routes.myProfile.path}
-                >
-                    {routes.myProfile.load({ className })}
-                </Route>
-                <Route
-                    exact
                     path={routes.login.path}
                 >
                     {routes.login.load({ className })}
+                </Route>
+                <Route
+                    exact
+                    path={routes.projects.path}
+                >
+                    {routes.projects.load({ className })}
+                </Route>
+                <Route
+                    exact
+                    path={routes.teams.path}
+                >
+                    {routes.teams.load({ className })}
                 </Route>
                 <Route
                     exact

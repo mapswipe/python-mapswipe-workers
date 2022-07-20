@@ -13,41 +13,48 @@ const fourHundredFour = wrap({
     visibility: 'is-anything',
     navbarVisibility: true,
 });
+
 const login = wrap({
     path: '/login/',
     title: 'Login',
     navbarVisibility: false,
-    component: lazy(() => import('#views/Template')),
-    componentProps: {
-        name: 'Login Page',
-    },
+    component: lazy(() => import('#views/Login')),
+    componentProps: {},
     visibility: 'is-not-authenticated',
 });
+
 const home = wrap({
     path: '/',
     title: 'Home',
     navbarVisibility: true,
-    component: lazy(() => import('#views/Template')),
-    componentProps: {
-        name: 'Home Page',
-    },
+    component: lazy(() => import('#views/Home')),
+    componentProps: {},
     visibility: 'is-authenticated',
 });
-const myProfile = wrap({
-    path: '/my-profile/',
-    title: 'My Profile',
+
+const projects = wrap({
+    path: '/projects/',
+    title: 'Projects',
     navbarVisibility: true,
-    component: lazy(() => import('#views/Template')),
-    componentProps: {
-        name: 'My Profile Page',
-    },
+    component: lazy(() => import('#views/Projects')),
+    componentProps: {},
+    visibility: 'is-authenticated',
+});
+
+const teams = wrap({
+    path: '/teams/',
+    title: 'Teams',
+    navbarVisibility: true,
+    component: lazy(() => import('#views/Teams')),
+    componentProps: {},
     visibility: 'is-authenticated',
 });
 
 const routes = {
     login,
     home,
-    myProfile,
+    projects,
+    teams,
     fourHundredFour,
 };
 export default routes;

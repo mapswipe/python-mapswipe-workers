@@ -1,0 +1,53 @@
+.button {
+    --color-text: transparent;
+    --color-background: transparent;
+    --border-color: transparent;
+    --padding: var(--spacing-small);
+
+    display: flex;
+    position: relative;
+    align-items: center;
+    justify-content: space-around;
+    border: var(--width-separator-thin) solid var(--border-color);
+    border-radius: var(--radius-button);
+    background-color: var(--color-background);
+    cursor: pointer;
+    padding: var(--padding);
+    overflow: hidden;
+    color: var(--color-text);
+    font-family: inherit;
+    font-weight: var(--font-weight-bold);
+
+    &.compact {
+        padding: var(--spacing-extra-small);
+    }
+
+    .icons {
+        display: flex;
+        align-items: center;
+        padding: 0 var(--spacing-extra-small);
+    }
+
+    .actions {
+        display: flex;
+        align-items: center;
+        padding: 0 var(--spacing-extra-small);
+    }
+
+    .children {
+        display: flex;
+        align-items: center;
+        padding: 0 var(--spacing-extra-small);
+    }
+
+
+    &.transparent {
+        --border-color: transparent;
+        --color-background: transparent;
+    }
+
+    &.disabled {
+        opacity: var(--opacity-disabled-element);
+        cursor: not-allowed;
+    }
+}

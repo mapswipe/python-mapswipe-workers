@@ -1,8 +1,8 @@
 {
-    "name": "base-react-app",
-    "longName": "Base React App",
+    "name": "mapswipe-manager-dashboard",
+    "longName": "MapSwipe Manager Dashboard",
     "version": "1.0.0",
-    "description": "Base application configured with React, Typescript, Graphql, Sentry, Google Analytics",
+    "description": "Manager Dashboard for MapSwipe",
     "scripts": {
         "test": "jest",
         "test:coverage": "jest --coverage",
@@ -21,26 +21,22 @@
         "prebuild": "yarn initialize",
         "prestart": "yarn initialize"
     },
-    "sideEffects": [
-        "@the-deep/deep-ui/build/index.css"
-    ],
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/togglecorp/base-react-app.git"
+        "url": "git+https://github.com/mapswipe/manager-dashboard.git"
     },
     "keywords": [],
     "author": "",
     "license": "ISC",
     "bugs": {
-        "url": "https://github.com/togglecorp/base-react-app/issues"
+        "url": "https://github.com/mapswipe/manager-dashboard/issues"
     },
-    "homepage": "https://github.com/togglecorp/base-react-app#readme",
+    "homepage": "https://github.com/mapswipe/manager-dashboard#readme",
     "dependencies": {
         "@apollo/client": "^3.3.21",
         "@babel/runtime": "^7.11.2",
         "@sentry/react": "^6.9.0",
         "@sentry/tracing": "^6.9.0",
-        "@the-deep/deep-ui": "^1.5.12",
         "@togglecorp/fujs": "^1.9.2",
         "@togglecorp/toggle-form": "^1.2.1",
         "apollo-link": "^1.2.14",

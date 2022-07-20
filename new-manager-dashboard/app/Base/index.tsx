@@ -1,12 +1,9 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { Router } from 'react-router-dom';
 import { init, ErrorBoundary, setUser as setUserOnSentry } from '@sentry/react';
-import { unique, _cs } from '@togglecorp/fujs';
-import { AlertContainer, AlertContext, AlertOptions } from '@the-deep/deep-ui';
+import { _cs } from '@togglecorp/fujs';
 import { ApolloClient, ApolloProvider } from '@apollo/client';
 import ReactGA from 'react-ga';
-
-import '@the-deep/deep-ui/build/index.css';
 
 import Init from '#base/components/Init';
 import PreloadMessage from '#base/components/PreloadMessage';
@@ -93,67 +90,6 @@ function Base() {
         [navbarVisibility, setNavbarVisibility],
     );
 
-    const [alerts, setAlerts] = React.useState<AlertOptions[]>([]);
-
-    const addAlert = React.useCallback(
-        (alert: AlertOptions) => {
-            setAlerts((prevAlerts) => unique(
-                [...prevAlerts, alert],
-                (a) => a.name,
-            ) ?? prevAlerts);
-        },
-        [setAlerts],
-    );
-
-    const removeAlert = React.useCallback(
-        (name: string) => {
-            setAlerts((prevAlerts) => {
-                const i = prevAlerts.findIndex((a) => a.name === name);
-                if (i === -1) {
-                    return prevAlerts;
-                }
-
-                const newAlerts = [...prevAlerts];
-                newAlerts.splice(i, 1);
-
-                return newAlerts;
-            });
-        },
-        [setAlerts],
-    );
-
-    const updateAlertContent = React.useCallback(
-        (name: string, children: React.ReactNode) => {
-            setAlerts((prevAlerts) => {
-                const i = prevAlerts.findIndex((a) => a.name === name);
-                if (i === -1) {
-                    return prevAlerts;
-                }
-
-                const updatedAlert = {
-                    ...prevAlerts[i],
-                    children,
-                };
-
-                const newAlerts = [...prevAlerts];
-                newAlerts.splice(i, 1, updatedAlert);
-
-                return newAlerts;
-            });
-        },
-        [setAlerts],
-    );
-
-    const alertContext = React.useMemo(
-        () => ({
-            alerts,
-            addAlert,
-            updateAlertContent,
-            removeAlert,
-        }),
-        [alerts, addAlert, updateAlertContent, removeAlert],
-    );
-
     return (
         <div className={styles.base}>
             <ErrorBoundary
@@ -168,25 +104,22 @@ function Base() {
                 <ApolloProvider client={apolloClient}>
                     <UserContext.Provider value={userContext}>
                         <NavbarContext.Provider value={navbarContext}>
-                            <AlertContext.Provider value={alertContext}>
-                                <AuthPopup />
-                                <AlertContainer className={styles.alertContainer} />
-                                <Router history={browserHistory}>
-                                    <Init
-                                        className={styles.init}
-                                    >
-                                        <Navbar
-                                            className={_cs(
-                                                styles.navbar,
-                                                !navbarVisibility && styles.hidden,
-                                            )}
-                                        />
-                                        <Routes
-                                            className={styles.view}
-                                        />
-                                    </Init>
-                                </Router>
-                            </AlertContext.Provider>
+                            <AuthPopup />
+                            <Router history={browserHistory}>
+                                <Init
+                                    className={styles.init}
+                                >
+                                    <Navbar
+                                        className={_cs(
+                                            styles.navbar,
+                                            !navbarVisibility && styles.hidden,
+                                        )}
+                                    />
+                                    <Routes
+                                        className={styles.view}
+                                    />
+                                </Init>
+                            </Router>
                         </NavbarContext.Provider>
                     </UserContext.Provider>
                 </ApolloProvider>
