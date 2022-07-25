@@ -1,8 +1,12 @@
 import React from 'react';
 import { _cs } from '@togglecorp/fujs';
+import { getAuth } from 'firebase/auth';
 
 import SmartNavLink from '#base/components/SmartNavLink';
 import route from '#base/configs/routes';
+import { UserContext } from '#base/context/UserContext';
+
+import Button from '#components/Button';
 
 import mapSwipeLogo from '#resources/images/mapswipe-logo.svg';
 
@@ -14,6 +18,20 @@ interface Props {
 
 function Navbar(props: Props) {
     const { className } = props;
+    const {
+        user,
+        setUser,
+    } = React.useContext(UserContext);
+
+    const handleLogoutClick = React.useCallback(async () => {
+        const auth = getAuth();
+        try {
+            await auth.signOut();
+            setUser(undefined);
+        } catch (error) {
+            console.error('Failed to sign out', error);
+        }
+    }, []);
 
     return (
         <nav className={_cs(className, styles.navbar)}>
@@ -30,19 +48,33 @@ function Navbar(props: Props) {
                         exact
                         route={route.home}
                         className={styles.link}
+                        activeClassName={styles.active}
                     />
                     <SmartNavLink
                         exact
                         route={route.projects}
                         className={styles.link}
+                        activeClassName={styles.active}
                     />
                     <SmartNavLink
                         exact
                         route={route.teams}
                         className={styles.link}
+                        activeClassName={styles.active}
                     />
                 </div>
             </div>
+            { user && (
+                <div className={styles.userDetails}>
+                    {user.displayName}
+                    <Button
+                        name={undefined}
+                        onClick={handleLogoutClick}
+                    >
+                        Logout
+                    </Button>
+                </div>
+            )}
         </nav>
     );
 }

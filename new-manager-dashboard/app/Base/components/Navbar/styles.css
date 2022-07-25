@@ -3,7 +3,6 @@
     position: relative;
     align-items: center;
     background-color: var(--color-primary);
-    padding: var(--spacing-medium);
     color: var(--color-text-on-light);
     gap: var(--spacing-medium);
 
@@ -32,7 +31,13 @@
             gap: var(--spacing-medium);
 
             .link {
+                border-bottom: 3px solid transparent;
                 padding: var(--spacing-medium);
+                color: var(--color-text-on-light);
+
+                &.active {
+                    border-bottom-color: var(--color-text-on-light);
+                }
             }
         }
     }

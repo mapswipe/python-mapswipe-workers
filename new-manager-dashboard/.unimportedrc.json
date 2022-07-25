@@ -16,6 +16,7 @@
         "#generated/*": ["./generated/*"],
         "#components/*": ["./app/components/*"],
         "#views/*": ["./app/views/*"],
+        "#hooks/*": ["./app/hooks/*"],
         "#resources/*": ["./app/resources/*"],
         "#base/*": ["./app/Base/*"]
     }

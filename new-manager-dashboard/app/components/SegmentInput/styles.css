@@ -1,0 +1,10 @@
+.segment-input {
+    display: flex;
+    gap: var(--spacing-medium);
+
+    .segment {
+        &.active {
+            color: var(--color-accent);
+        }
+    }
+}

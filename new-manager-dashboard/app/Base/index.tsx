@@ -1,9 +1,16 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { Router } from 'react-router-dom';
-import { init, ErrorBoundary, setUser as setUserOnSentry } from '@sentry/react';
+import {
+    init,
+    ErrorBoundary,
+    setUser as setUserOnSentry,
+    User as SentryUser,
+} from '@sentry/react';
 import { _cs } from '@togglecorp/fujs';
-import { ApolloClient, ApolloProvider } from '@apollo/client';
-import ReactGA from 'react-ga';
+import {
+    ApolloClient,
+    ApolloProvider,
+} from '@apollo/client';
 
 import Init from '#base/components/Init';
 import PreloadMessage from '#base/components/PreloadMessage';
@@ -17,7 +24,7 @@ import Navbar from '#base/components/Navbar';
 import Routes from '#base/components/Routes';
 import { User } from '#base/types/user';
 import apolloConfig from '#base/configs/apollo';
-import { trackingId, gaConfig } from '#base/configs/googleAnalytics';
+import { initFirebaseApp } from '#base/configs/firebase';
 
 import styles from './styles.css';
 
@@ -25,40 +32,36 @@ if (sentryConfig) {
     init(sentryConfig);
 }
 
-if (trackingId) {
-    ReactGA.initialize(trackingId, gaConfig);
-    browserHistory.listen((location) => {
-        const page = location.pathname ?? window.location.pathname;
-        ReactGA.set({ page });
-        ReactGA.pageview(page);
-    });
-}
-
 const apolloClient = new ApolloClient(apolloConfig);
+initFirebaseApp();
 
 function Base() {
     const [user, setUser] = useState<User | undefined>();
-
     const [navbarVisibility, setNavbarVisibility] = useState(false);
 
     const authenticated = !!user;
-
     const setUserWithSentry: typeof setUser = useCallback(
         (u) => {
             if (typeof u === 'function') {
                 setUser((oldUser) => {
                     const newUser = u(oldUser);
 
-                    const sanitizedUser = newUser;
+                    const sanitizedUser: SentryUser | null = newUser ? ({
+                        id: newUser.id,
+                        username: newUser.displayName,
+                    }) : null;
                     sync(!!sanitizedUser, sanitizedUser?.id);
-                    setUserOnSentry(sanitizedUser ?? null);
+                    setUserOnSentry(sanitizedUser);
 
                     return newUser;
                 });
             } else {
-                const sanitizedUser = u;
+                const sanitizedUser: SentryUser | null = u ? ({
+                    id: u.id,
+                    username: u.displayName,
+                }) : null;
                 sync(!!sanitizedUser, sanitizedUser?.id);
-                setUserOnSentry(sanitizedUser ?? null);
+                setUserOnSentry(sanitizedUser);
                 setUser(u);
             }
         },
@@ -106,9 +109,7 @@ function Base() {
                         <NavbarContext.Provider value={navbarContext}>
                             <AuthPopup />
                             <Router history={browserHistory}>
-                                <Init
-                                    className={styles.init}
-                                >
+                                <Init preloadClassName={styles.init}>
                                     <Navbar
                                         className={_cs(
                                             styles.navbar,

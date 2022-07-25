@@ -1,7 +1,7 @@
 import React, { ReactNode } from 'react';
 import { _cs } from '@togglecorp/fujs';
 
-import RawButton, { RawButtonProps } from '../RawButton';
+import RawButton, { Props as RawButtonProps } from '../RawButton';
 
 import styles from './styles.css';
 
@@ -14,7 +14,7 @@ export type ButtonVariant = (
     | 'warning'
 );
 
-export interface ButtonProps<N extends number | string | undefined> extends RawButtonProps<N> {
+export interface Props<N> extends RawButtonProps<N> {
     /**
     * Variant of the button
     */
@@ -65,7 +65,7 @@ export interface ButtonProps<N extends number | string | undefined> extends RawB
 type ButtonFeatureKeys = 'variant' | 'className' | 'actionsClassName' | 'iconsClassName' | 'childrenClassName' | 'transparent' | 'children' | 'icons' | 'actions' | 'compact' | 'disabled';
 
 export function useButtonFeatures(
-    props: Pick<ButtonProps<string>, ButtonFeatureKeys>,
+    props: Pick<Props<string>, ButtonFeatureKeys>,
 ) {
     const {
         variant = 'default',

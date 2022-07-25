@@ -1,3 +1,34 @@
 .projects {
+    display: flex;
+    justify-content: center;
     padding: var(--spacing-medium);
+
+    .container {
+        display: flex;
+        max-width: 60rem;
+        overflow: auto;
+        gap: var(--spacing-large);
+
+        .tab-list {
+            flex-direction: column;
+            flex-shrink: 0;
+            width: 12rem;
+        }
+
+        .tab-details {
+            flex-grow: 1;
+            overflow: auto;
+        }
+    }
+
+    .loading {
+        padding: var(--spacing-medium);
+    }
+
+    .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--spacing-medium);
+    }
+
 }

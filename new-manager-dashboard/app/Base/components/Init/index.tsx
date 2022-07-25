@@ -1,81 +1,58 @@
-import React, { useContext, useState, useMemo, useEffect } from 'react';
-
-import { UserContext } from '#base/context/UserContext';
-import PreloadMessage from '#base/components/PreloadMessage';
-
+import React, { useState, useEffect } from 'react';
+import ReactDOM from 'react-dom';
 import {
-    ProjectContext,
-    ProjectContextInterface,
-} from '#base/context/ProjectContext';
-import { Project } from '#base/types/project';
+    getAuth,
+    onAuthStateChanged,
+} from 'firebase/auth';
+
+import PreloadMessage from '#base/components/PreloadMessage';
+import { UserContext } from '#base/context/UserContext';
 
 interface Props {
-    className?: string;
+    preloadClassName?: string;
     children: React.ReactNode;
 }
 function Init(props: Props) {
     const {
-        className,
+        preloadClassName,
         children,
     } = props;
 
+    const { setUser } = React.useContext(UserContext);
     const [ready, setReady] = useState(false);
     const [errored, setErrored] = useState(false);
-    const [project, setProject] = useState<Project | undefined>(undefined);
 
-    const {
-        setUser,
-    } = useContext(UserContext);
-    /*
-
-    useQuery<MeQuery>(ME, {
-        fetchPolicy: 'network-only',
-        onCompleted: (data) => {
-            const safeMe = removeNull(data.me);
-            if (safeMe) {
-                setUser(safeMe);
-                setProject(safeMe.lastActiveProject ?? undefined);
-            } else {
-                setUser(undefined);
-                setProject(undefined);
-            }
-            setReady(true);
-        },
-        onError: (error) => {
-            const { graphQLErrors } = error;
-            const authError = checkErrorCode(
-                graphQLErrors,
-                ['me'],
-                '401',
-            );
-
-            setErrored(!authError);
-            setReady(true);
-        },
-    });
-    */
     useEffect(
         () => {
-            setUser({ id: '1', displayName: 'Ram' });
-            setProject({ id: '1', title: 'Ramayan', allowedPermissions: [] });
-            setErrored(false);
-            setReady(true);
+            const auth = getAuth();
+            const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+                if (currentUser) {
+                    ReactDOM.unstable_batchedUpdates(() => {
+                        setUser({
+                            id: currentUser.uid,
+                            displayName: currentUser.displayName ?? 'Anonymous User',
+                            displayPictureUrl: currentUser.photoURL,
+                            email: currentUser.email,
+                        });
+                        setErrored(false);
+                        setReady(true);
+                    });
+                } else {
+                    setUser(undefined);
+                    setErrored(false);
+                    setReady(true);
+                }
+            });
+
+            return unsubscribe;
         },
         [setUser],
-    );
-
-    const projectContext: ProjectContextInterface = useMemo(
-        () => ({
-            project,
-            setProject,
-        }),
-        [project],
     );
 
     if (errored) {
         return (
             <PreloadMessage
-                className={className}
+                className={preloadClassName}
                 heading="Oh no!"
                 content="Some error occurred"
             />
@@ -84,16 +61,16 @@ function Init(props: Props) {
     if (!ready) {
         return (
             <PreloadMessage
-                className={className}
+                className={preloadClassName}
                 content="Checking user session..."
             />
         );
     }
 
     return (
-        <ProjectContext.Provider value={projectContext}>
+        <>
             {children}
-        </ProjectContext.Provider>
+        </>
     );
 }
 export default Init;

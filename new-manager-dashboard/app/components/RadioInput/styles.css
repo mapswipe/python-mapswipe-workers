@@ -1,0 +1,31 @@
+.radio-input {
+    --spacing: var(--tui-spacing-small);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing);
+
+    .input-label {
+        color: var(--tui-color-text-label);
+        font-size: var(--tui-font-size-small);
+        font-weight: var(--tui-font-weight-bold);
+
+        &.disabled {
+            opacity: var(--tui-opacity-disabled-element);
+        }
+    }
+
+    .input-error {
+        color: var(--tui-color-negative);
+        font-size: var(--tui-font-size-small);
+    }
+
+    .input-hint {
+        color: var(--tui-color-text-label);
+        font-size: var(--tui-font-size-small);
+    }
+
+    .radio-list-container {
+        display: flex;
+        flex-wrap: wrap;
+    }
+}

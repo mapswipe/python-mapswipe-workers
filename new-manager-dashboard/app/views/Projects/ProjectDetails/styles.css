@@ -1,0 +1,50 @@
+.project-details {
+    display: flex;
+    flex-direction: column;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    padding: var(--spacing-large);
+    gap: var(--spacing-medium);
+
+    .header {
+        display: flex;
+        align-items: flex-start;
+        gap: var(--spacing-small);
+
+        .heading {
+            flex-grow: 1;
+            margin : 0;
+            color: var(--color-text-dark);
+            font-size: var(--font-size-large);
+        }
+
+        .progress-bar {
+            display: flex;
+            align-items: center;
+            flex-shrink: 0;
+            gap: var(--spacing-medium);
+
+            .track {
+                position: relative;
+                background-color: rgba(0, 0, 0, .2);
+                width: 10rem;
+                height: 0.5rem;
+
+                .progress-amount {
+                    position: absolute;
+                    left: 0;
+                    background-color: var(--color-primary);
+                    height: 100%;
+                }
+            }
+        }
+    }
+
+    .description {
+        color: var(--color-text-light);
+    }
+
+    .actions {
+        display: flex;
+        gap: var(--spacing-large);
+    }
+}
