@@ -6,12 +6,11 @@ import RawButton, { Props as RawButtonProps } from '../RawButton';
 import styles from './styles.css';
 
 export type ButtonVariant = (
-    'accent'
-    | 'danger'
-    | 'default'
+    'default'
     | 'primary'
-    | 'success'
-    | 'warning'
+    | 'secondary'
+    | 'action'
+    | 'transparent'
 );
 
 export interface Props<N> extends RawButtonProps<N> {
@@ -44,10 +43,6 @@ export interface Props<N> extends RawButtonProps<N> {
      */
     disabled?: boolean;
     /**
-     * Makes the background of the button transparent
-     */
-    transparent?: boolean;
-    /**
     * Content before main content of the button
     */
     icons?: ReactNode;
@@ -55,14 +50,11 @@ export interface Props<N> extends RawButtonProps<N> {
     * Content after main content of the button
     */
     actions?: ReactNode;
-    /**
-     * Makes the button compact, i.e. with low padding
-     */
-    compact?: boolean;
+
     childrenContainerClassName?: string;
 }
 
-type ButtonFeatureKeys = 'variant' | 'className' | 'actionsClassName' | 'iconsClassName' | 'childrenClassName' | 'transparent' | 'children' | 'icons' | 'actions' | 'compact' | 'disabled';
+type ButtonFeatureKeys = 'variant' | 'className' | 'actionsClassName' | 'iconsClassName' | 'childrenClassName' | 'children' | 'icons' | 'actions' | 'disabled';
 
 export function useButtonFeatures(
     props: Pick<Props<string>, ButtonFeatureKeys>,
@@ -74,20 +66,18 @@ export function useButtonFeatures(
         iconsClassName,
         childrenClassName,
         disabled,
-        transparent = false,
         children,
         icons,
         actions,
-        compact,
     } = props;
 
     const buttonClassName = _cs(
         classNameFromProps,
         styles.button,
-        variant,
-        styles[variant],
-        transparent && styles.transparent,
-        compact && styles.compact,
+        variant === 'primary' && styles.primary,
+        variant === 'secondary' && styles.secondary,
+        variant === 'transparent' && styles.transparent,
+        variant === 'action' && styles.action,
         disabled && styles.disabled,
     );
 
@@ -121,20 +111,17 @@ export function useButtonFeatures(
 /**
  * Basic button component
  */
-function Button<N extends number | string | undefined>(props: ButtonProps<N>) {
+function Button<N extends number | string | undefined>(props: Props<N>) {
     const {
         variant,
         className,
         actionsClassName,
         iconsClassName,
         childrenClassName,
-        transparent = false,
         children,
         icons,
         actions,
         disabled,
-        compact,
-
         type = 'button',
         ...otherProps
     } = props;
@@ -145,11 +132,9 @@ function Button<N extends number | string | undefined>(props: ButtonProps<N>) {
         actionsClassName,
         iconsClassName,
         childrenClassName,
-        transparent,
         children,
         icons,
         actions,
-        compact,
         disabled,
     });
 

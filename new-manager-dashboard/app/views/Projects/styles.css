@@ -1,22 +1,38 @@
 .projects {
     display: flex;
-    justify-content: center;
-    padding: var(--spacing-medium);
+    align-items: center;
+    flex-direction: column;
+    background-color: var(--color-background);
+
+    .heading-container {
+        flex-shrink: 0;
+        width: 100%;
+        max-width: 70rem;
+
+        .heading {
+            margin: 0;
+            padding: var(--spacing-large) var(--spacing-medium);
+        }
+    }
 
     .container {
         display: flex;
-        max-width: 60rem;
+        flex-grow: 1;
+        width: 100%;
+        max-width: 70rem;
         overflow: auto;
         gap: var(--spacing-large);
 
-        .tab-list {
+        .filters {
             flex-direction: column;
             flex-shrink: 0;
+            padding: var(--spacing-medium);
             width: 12rem;
         }
 
-        .tab-details {
+        .project-list {
             flex-grow: 1;
+            background-color: var(--color-foreground);
             overflow: auto;
         }
     }

@@ -1,0 +1,23 @@
+.new-project {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    background-color: var(--color-background);
+
+    .container {
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-medium);
+        padding: var(--spacing-large);
+        width: 100%;
+        max-width: 70rem;
+        overflow: auto;
+    }
+
+    .actions {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: var(--spacing-medium);
+    }
+}

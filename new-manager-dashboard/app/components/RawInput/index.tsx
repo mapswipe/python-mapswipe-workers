@@ -3,7 +3,7 @@ import { _cs } from '@togglecorp/fujs';
 
 import styles from './styles.css';
 
-export interface RawInputProps<N> extends Omit<React.HTMLProps<HTMLInputElement>, 'ref' | 'onChange' | 'value' | 'name'> {
+export interface Props<N> extends Omit<React.HTMLProps<HTMLInputElement>, 'ref' | 'onChange' | 'value' | 'name'> {
     /**
     * Style for the input
     */
@@ -42,7 +42,7 @@ function RawInput<N>(
         disabled,
         readOnly,
         ...otherProps
-    }: RawInputProps<N>,
+    }: Props<N>,
 ) {
     const handleChange = React.useCallback(
         (e: React.FormEvent<HTMLInputElement>) => {

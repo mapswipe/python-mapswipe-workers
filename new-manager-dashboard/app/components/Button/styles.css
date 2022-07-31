@@ -1,6 +1,12 @@
 .button {
-    border: 1px solid rgba(0, 0, 0, 0.3);
+    border: var(--width-separator-thin) solid rgba(0, 0, 0, 0.3);
     border-radius: 1rem;
     padding: var(--spacing-small) var(--spacing-large);
     color: rgba(0, 0, 0, 0.8);
+
+    &.action {
+        border: none;
+        padding: 0;
+        font-size: var(--font-size-medium);
+    }
 }

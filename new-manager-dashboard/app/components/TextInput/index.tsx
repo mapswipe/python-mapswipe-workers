@@ -1,10 +1,10 @@
 import React from 'react';
 
 import InputContainer, { Props as InputContainerProps } from '../InputContainer';
-import RawInput, { RawInputProps } from '../RawInput';
+import RawInput, { Props as RawInputProps } from '../RawInput';
 
 export type TextInputProps<N> = Omit<InputContainerProps, 'input'>
-    & RawInputProps<N>;
+    & Omit<RawInputProps<N>, 'containerRef' | 'inputSectionRef'>;
 
 function TextInput<N>(props: TextInputProps<N>) {
     const {
@@ -26,13 +26,13 @@ function TextInput<N>(props: TextInputProps<N>) {
         ...textInputProps
     } = props;
 
-    const containerRef = React.useRef<HTMLDivElement>(null);
-    const inputSectionRef = React.useRef<HTMLDivElement>(null);
+    // const containerRef = React.useRef<HTMLDivElement>(null);
+    // const inputSectionRef = React.useRef<HTMLDivElement>(null);
 
     return (
         <InputContainer
-            containerRef={containerRef}
-            inputSectionRef={inputSectionRef}
+            // containerRef={containerRef}
+            // inputSectionRef={inputSectionRef}
             actions={actions}
             actionsContainerClassName={actionsContainerClassName}
             className={className}

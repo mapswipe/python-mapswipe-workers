@@ -1,0 +1,16 @@
+.input-section {
+    display: flex;
+    flex-direction: column;
+
+    .header {
+        padding: 0 var(--spacing-large);
+    }
+
+    .content {
+        display: flex;
+        flex-direction: column;
+        background-color: var(--color-foreground);
+        padding: var(--spacing-large);
+        gap: var(--spacing-medium);
+    }
+}

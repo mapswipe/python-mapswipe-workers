@@ -5,6 +5,13 @@ import styles from './styles.css';
 import SegmentInput from '#components/SegmentInput';
 import Checkbox from '#components/Checkbox';
 
+const projectTypeLabelMap = {
+    1: 'Build Area',
+    2: 'Footprint',
+    3: 'Change Detection',
+    4: 'Completeness',
+};
+
 export interface Project {
     contributorCount: number;
     created: string;
@@ -26,7 +33,7 @@ export interface Project {
     requestingOrganization: string;
     requiredResults: number;
     resultCount: number;
-    status: 'active' | 'inactive' | 'completed' | 'archived';
+    status: 'active' | 'inactive' | 'finished' | 'archived';
     tileServer: {
         apiKey: string;
         credits: string;
@@ -37,14 +44,19 @@ export interface Project {
     verificationNumber: number;
 }
 
-const projectStatusOptions: {
-    value: string;
+export const projectStatusOptions: {
+    value: 'active' | 'inactive' | 'finished' | 'archived';
     label: string;
 }[] = [
     { value: 'active', label: 'Active' },
     { value: 'inactive', label: 'Inactive' },
     { value: 'finished', label: 'Finished' },
+    { value: 'archived', label: 'Archived' },
 ];
+
+const noOp = () => {
+    console.info('No operation');
+};
 
 interface Props {
     className?: string;
@@ -79,16 +91,30 @@ function ProjectDetails(props: Props) {
             <div className={styles.description}>
                 {data.projectDetails}
             </div>
+            <div className={styles.metaData}>
+                <div className={styles.textOutput}>
+                    <div className={styles.label}>
+                        Type:
+                    </div>
+                    <div className={styles.value}>
+                        {projectTypeLabelMap[data.projectType]}
+                    </div>
+                </div>
+            </div>
             <div className={styles.actions}>
                 <Checkbox
+                    name={undefined}
                     label="Featured"
                     value={data.isFeatured}
+                    onChange={noOp}
                 />
                 <SegmentInput
+                    name={undefined}
                     options={projectStatusOptions}
                     value={data.status}
                     keySelector={(statusOption) => statusOption.value}
                     labelSelector={(statusOption) => statusOption.label}
+                    onChange={noOp}
                 />
             </div>
         </div>

@@ -35,46 +35,51 @@ function Navbar(props: Props) {
 
     return (
         <nav className={_cs(className, styles.navbar)}>
-            <div className={styles.appBrand}>
-                <img
-                    className={styles.logo}
-                    src={mapSwipeLogo}
-                    alt="MapSwipe"
-                />
-            </div>
-            <div className={styles.main}>
-                <div className={styles.navLinks}>
-                    <SmartNavLink
-                        exact
-                        route={route.home}
-                        className={styles.link}
-                        activeClassName={styles.active}
-                    />
-                    <SmartNavLink
-                        exact
-                        route={route.projects}
-                        className={styles.link}
-                        activeClassName={styles.active}
-                    />
-                    <SmartNavLink
-                        exact
-                        route={route.teams}
-                        className={styles.link}
-                        activeClassName={styles.active}
+            <div className={styles.container}>
+                <div className={styles.appBrand}>
+                    <img
+                        className={styles.logo}
+                        src={mapSwipeLogo}
+                        alt="MapSwipe"
                     />
                 </div>
-            </div>
-            { user && (
-                <div className={styles.userDetails}>
-                    {user.displayName}
-                    <Button
-                        name={undefined}
-                        onClick={handleLogoutClick}
-                    >
-                        Logout
-                    </Button>
+                <div className={styles.main}>
+                    <div className={styles.navLinks}>
+                        <SmartNavLink
+                            exact
+                            route={route.home}
+                            className={styles.link}
+                            activeClassName={styles.active}
+                        />
+                        <SmartNavLink
+                            exact
+                            route={route.projects}
+                            className={styles.link}
+                            activeClassName={styles.active}
+                        />
+                        <SmartNavLink
+                            exact
+                            route={route.teams}
+                            className={styles.link}
+                            activeClassName={styles.active}
+                        />
+                    </div>
                 </div>
-            )}
+                { user && (
+                    <div className={styles.userDetails}>
+                        <div>
+                            {user.displayName}
+                        </div>
+                        <Button
+                            className={styles.logoutButton}
+                            name={undefined}
+                            onClick={handleLogoutClick}
+                        >
+                            Logout
+                        </Button>
+                    </div>
+                )}
+            </div>
         </nav>
     );
 }

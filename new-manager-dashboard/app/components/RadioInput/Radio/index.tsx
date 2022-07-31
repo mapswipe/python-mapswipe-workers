@@ -1,8 +1,5 @@
 import React from 'react';
-import {
-    _cs,
-    isDefined,
-} from '@togglecorp/fujs';
+import { _cs } from '@togglecorp/fujs';
 import {
     IoRadioButtonOn,
     IoRadioButtonOff,
@@ -12,7 +9,7 @@ import styles from './styles.css';
 
 export interface Props<N> {
     className?: string;
-    inputName?: string | number;
+    inputName?: string;
     label?: React.ReactNode;
     name: N;
     onClick: (name: N) => void;
@@ -21,7 +18,7 @@ export interface Props<N> {
     readOnly?: boolean;
 }
 
-function Radio<N extends string | number>(props: Props<N>) {
+function Radio<N>(props: Props<N>) {
     const {
         name,
         label,
@@ -50,21 +47,19 @@ function Radio<N extends string | number>(props: Props<N>) {
                 readOnly && styles.readOnly,
             )}
         >
-            <div className={styles.icons}>
-                {value ? (
-                    <IoRadioButtonOn className={styles.icon} />
-                ) : (
-                    <IoRadioButtonOff className={styles.icon} />
-                )}
-            </div>
-            <div className={styles.content}>
+            {value ? (
+                <IoRadioButtonOn className={styles.icon} />
+            ) : (
+                <IoRadioButtonOff className={styles.icon} />
+            )}
+            <div className={styles.labelContainer}>
                 {label}
             </div>
             <input
                 className={styles.input}
                 type="radio"
-                name={isDefined(inputName) ? String(inputName) : undefined}
-                checked={value}
+                name={inputName}
+                defaultChecked={value}
                 onClick={handleClick}
                 disabled={disabled}
             />

@@ -1,0 +1,4 @@
+.generic-option {
+    padding: var(--spacing-small) var(--spacing-medium);
+    text-align: left;
+}

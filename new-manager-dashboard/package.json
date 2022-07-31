@@ -39,6 +39,7 @@
         "@sentry/tracing": "^6.9.0",
         "@togglecorp/fujs": "^1.9.2",
         "@togglecorp/toggle-form": "^1.2.1",
+        "@turf/turf": "^6.5.0",
         "apollo-link": "^1.2.14",
         "apollo-link-batch-http": "^1.2.14",
         "apollo-link-rest": "^0.8.0-beta.0",
@@ -48,6 +49,7 @@
         "firebase": "^9.9.0",
         "graphql": "^15.5.1",
         "graphql-anywhere": "^4.2.7",
+        "leaflet": "^1.8.0",
         "react": "^17.0.2",
         "react-dom": "^17.0.2",
         "react-icons": "^4.3.1"
@@ -69,6 +71,7 @@
         "@pmmmwh/react-refresh-webpack-plugin": "^0.4.3",
         "@types/apollo-upload-client": "^14.1.0",
         "@types/jest": "^27.4.0",
+        "@types/leaflet": "^1.7.11",
         "@types/react": "^17.0.14",
         "@types/react-dom": "^17.0.9",
         "@types/react-router-dom": "^5.1.8",

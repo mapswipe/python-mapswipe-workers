@@ -1,0 +1,39 @@
+.file-input {
+    .input {
+        display: none;
+    }
+
+    .label {
+        display: flex;
+        cursor: pointer;
+
+        .content {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-small);
+        }
+    }
+
+    .status {
+        color: var(--color-text-light);
+    }
+}
+
+.no-preview {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-medium);
+    width: 100%;
+    max-width: 40rem;
+    height: 26rem;
+}
+
+.preview {
+    background-color: var(--color-background);
+    width: 100%;
+    max-width: 40rem;
+    height: 26rem;
+    object-fit: contain;
+    object-position: center center;
+}

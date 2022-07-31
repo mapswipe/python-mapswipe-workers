@@ -1,10 +1,27 @@
 .segment-input {
-    display: flex;
-    gap: var(--spacing-medium);
+    .segment-container {
+        display: flex;
 
-    .segment {
-        &.active {
-            color: var(--color-accent);
+        .segment {
+            display: flex;
+            align-items: center;
+            border: var(--width-separator-thin) solid var(--color-separator);
+            padding: var(--spacing-small) var(--spacing-large);
+
+            &.active {
+                background-color: var(--color-accent);
+                color: var(--color-text-on-light);
+            }
+
+            &:first-child {
+                border-top-left-radius: 1rem;
+                border-bottom-left-radius: 1rem;
+            }
+
+            &:last-child {
+                border-top-right-radius: 1rem;
+                border-bottom-right-radius: 1rem;
+            }
         }
     }
 }

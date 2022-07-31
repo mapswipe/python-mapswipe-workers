@@ -1,43 +1,60 @@
 .navbar {
     display: flex;
-    position: relative;
-    align-items: center;
+    justify-content: center;
     background-color: var(--color-primary);
     color: var(--color-text-on-light);
-    gap: var(--spacing-medium);
 
-    .app-brand {
+    .container {
         display: flex;
+        position: relative;
         align-items: center;
-        flex-shrink: 0;
-        padding: var(--spacing-medium);
-
-        .logo {
-            height: 2.6rem;
-        }
-    }
-
-    .main {
-        display: flex;
-        align-self: stretch;
         flex-grow: 1;
-        overflow: auto;
+        max-width: 76rem;
+        gap: var(--spacing-large);
 
-        .nav-links {
+        .app-brand {
             display: flex;
+            align-items: center;
+            flex-shrink: 0;
+            padding: var(--spacing-large);
+
+            .logo {
+                height: 2.6rem;
+            }
+        }
+
+        .main {
+            display: flex;
+            align-self: stretch;
             flex-grow: 1;
-            justify-content: flex-start;
-            font-size: var(--font-size-large);
+            overflow: auto;
+
+            .nav-links {
+                display: flex;
+                flex-grow: 1;
+                justify-content: flex-start;
+                font-size: var(--font-size-large);
+                gap: var(--spacing-medium);
+
+                .link {
+                    border-bottom: 3px solid transparent;
+                    padding: var(--spacing-large);
+                    color: var(--color-text-on-light);
+
+                    &.active {
+                        border-bottom-color: var(--color-text-on-light);
+                    }
+                }
+            }
+        }
+
+        .user-details {
+            display: flex;
+            align-items: center;
             gap: var(--spacing-medium);
 
-            .link {
-                border-bottom: 3px solid transparent;
-                padding: var(--spacing-medium);
+            .logout-button {
                 color: var(--color-text-on-light);
-
-                &.active {
-                    border-bottom-color: var(--color-text-on-light);
-                }
             }
         }
     }

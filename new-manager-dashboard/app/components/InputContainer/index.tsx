@@ -62,7 +62,7 @@ export interface Props {
     /**
     * Input error
     */
-    error?: string;
+    error?: React.ReactNode;
 
     /**
      * Is input disabled?
@@ -79,6 +79,10 @@ export interface Props {
     invalid?: boolean;
     inputSectionRef?: React.RefObject<HTMLDivElement>;
     containerRef?: React.RefObject<HTMLDivElement>;
+
+    withoutInputSectionBorder?: boolean;
+    description?: React.ReactNode;
+    descriptionContainerClassName?: string;
 }
 
 /**
@@ -105,6 +109,9 @@ function InputContainer(props: Props) {
         error,
         inputSectionRef,
         invalid,
+        withoutInputSectionBorder,
+        description,
+        descriptionContainerClassName,
     } = props;
 
     const containerRef = containerRefFromProps;
@@ -118,6 +125,7 @@ function InputContainer(props: Props) {
                 disabled && styles.disabled,
                 readOnly && styles.readOnly,
                 (invalid || !!error) && styles.errored,
+                !withoutInputSectionBorder && styles.withInputSectionBorder,
             )}
         >
             {label && (
@@ -143,12 +151,17 @@ function InputContainer(props: Props) {
                     </div>
                 )}
             </div>
+            {description && (
+                <div className={descriptionContainerClassName}>
+                    {description}
+                </div>
+            )}
             {error && (
                 <div className={_cs(styles.error, errorContainerClassName)}>
                     {error}
                 </div>
             )}
-            {!error && hint && (
+            {hint && (
                 <div className={_cs(styles.hint, hintContainerClassName)}>
                     {hint}
                 </div>
