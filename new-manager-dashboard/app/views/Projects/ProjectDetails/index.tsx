@@ -17,10 +17,18 @@ import Button from '#components/Button';
 import SegmentInput from '#components/SegmentInput';
 import Checkbox from '#components/Checkbox';
 import PendingMessage from '#components/PendingMessage';
+import { labelSelector, valueSelector } from '#utils/common';
 
 import styles from './styles.css';
 
-const projectTypeLabelMap = {
+type ProjectType = 1 | 2 | 3 | 4;
+type ProjectInputType = 'aoi_file' | 'link' | 'TMId';
+type TileServerType = 'bing' | 'mapbox' | 'maxar_standard' | 'maxar_premium' | 'esri' | 'esri_beta' | 'sinergise' | 'custom';
+type ProjectStatus = 'active' | 'inactive' | 'finished' | 'archived';
+
+const projectTypeLabelMap: {
+    [key in ProjectType]: string
+} = {
     1: 'Build Area',
     2: 'Footprint',
     3: 'Change Detection',
@@ -34,7 +42,7 @@ export interface Project {
     filter: string;
     groupMaxSize: number;
     image: string;
-    inputType: string;
+    inputType: ProjectInputType;
     isFeatured: boolean;
     lookFor: string;
     name: string;
@@ -44,15 +52,15 @@ export interface Project {
     projectNumber: string;
     projectRegion: string;
     projectTopic: string;
-    projectType: 1 | 2 | 3;
+    projectType: ProjectType;
     requestingOrganization: string;
     requiredResults: number;
     resultCount: number;
-    status: 'active' | 'inactive' | 'finished' | 'archived';
+    status: ProjectStatus;
     tileServer: {
         apiKey: string;
         credits: string;
-        name: string;
+        name: TileServerType;
         url: string;
     },
     tutorialId: string;
@@ -60,7 +68,7 @@ export interface Project {
 }
 
 export const projectStatusOptions: {
-    value: 'active' | 'inactive' | 'finished' | 'archived';
+    value: ProjectStatus;
     label: string;
 }[] = [
     { value: 'active', label: 'Active' },
@@ -68,10 +76,6 @@ export const projectStatusOptions: {
     { value: 'finished', label: 'Finished' },
     { value: 'archived', label: 'Archived' },
 ];
-
-const noOp = () => {
-    console.info('No operation');
-};
 
 interface Props {
     className?: string;
@@ -84,13 +88,14 @@ function ProjectDetails(props: Props) {
         data,
     } = props;
 
-    const [showDetails, setShowDetails] = React.useState(false);
+    const [detailsShown, setDetailsShown] = React.useState(false);
     const [statusUpdatePending, setStatusUpdatePending] = React.useState(false);
     const [featuredUpdatePending, setFeaturedUpdatePending] = React.useState(false);
+
     const mountedRef = useMountedRef();
 
     const updateStatus = React.useCallback(
-        async (newStatus: string) => {
+        async (newStatus: ProjectStatus) => {
             setStatusUpdatePending(true);
             const db = getDatabase();
             const updates = {
@@ -105,6 +110,7 @@ function ProjectDetails(props: Props) {
                     setStatusUpdatePending(false);
                 }
             } catch (updateError) {
+                // eslint-disable-next-line no-console
                 console.error(updateError);
                 if (mountedRef.current) {
                     setStatusUpdatePending(false);
@@ -130,6 +136,7 @@ function ProjectDetails(props: Props) {
                     setFeaturedUpdatePending(false);
                 }
             } catch (updateError) {
+                // eslint-disable-next-line no-console
                 console.error(updateError);
                 if (mountedRef.current) {
                     setFeaturedUpdatePending(false);
@@ -181,7 +188,7 @@ function ProjectDetails(props: Props) {
                         {projectTypeLabelMap[data.projectType]}
                     </div>
                 </div>
-                {showDetails && (
+                {detailsShown && (
                     <>
                         <div className={styles.textOutput}>
                             <div className={styles.label}>
@@ -210,7 +217,7 @@ function ProjectDetails(props: Props) {
                     </>
                 )}
             </div>
-            {showDetails && (
+            {detailsShown && (
                 <div className={styles.description}>
                     {data.projectDetails}
                 </div>
@@ -228,19 +235,19 @@ function ProjectDetails(props: Props) {
                         name={undefined}
                         options={projectStatusOptions}
                         value={data.status}
-                        keySelector={(statusOption) => statusOption.value}
-                        labelSelector={(statusOption) => statusOption.label}
+                        keySelector={valueSelector}
+                        labelSelector={labelSelector}
                         onChange={setShowStatusUpdateConfirmationTrue}
                         disabled={featuredUpdatePending || statusUpdatePending}
                     />
                 </div>
                 <Button
                     className={styles.detailsToggleButton}
-                    name={!showDetails}
-                    onClick={setShowDetails}
-                    actions={showDetails ? <MdOutlineExpandLess /> : <MdOutlineExpandMore />}
+                    name={!detailsShown}
+                    onClick={setDetailsShown}
+                    actions={detailsShown ? <MdOutlineExpandLess /> : <MdOutlineExpandMore />}
                 >
-                    {showDetails ? 'Show less details' : 'View more details'}
+                    {detailsShown ? 'Show less details' : 'View more details'}
                 </Button>
             </div>
             {statusUpdatePending && (

@@ -106,6 +106,9 @@ function NewProject(props: Props) {
     const {
         teamOptions,
         tutorialOptions,
+        // FIXME: use pending states
+        // teamsPending,
+        // tutorialsPending,
     } = useProjectOptions(value?.projectType);
 
     const [
@@ -118,6 +121,7 @@ function NewProject(props: Props) {
         [formError],
     );
 
+    // FIXME: use wrapped handler instead of useEffect
     React.useEffect(
         () => {
             if (isNotDefined(value?.projectTopic)
@@ -141,6 +145,7 @@ function NewProject(props: Props) {
         ],
     );
 
+    // FIXME: use wrapped handler instead of useEffect
     React.useEffect(
         () => {
             if (value?.projectType !== PROJECT_TYPE_FOOTPRINT) {
@@ -155,6 +160,7 @@ function NewProject(props: Props) {
         [setFieldValue, value?.projectType, value?.inputType],
     );
 
+    // FIXME: use wrapped handler instead of useEffect
     React.useEffect(
         () => {
             if (isNotDefined(value?.projectType)) {
@@ -179,7 +185,7 @@ function NewProject(props: Props) {
 
     const handleFormSubmission = React.useCallback((finalValues: PartialProjectFormType) => {
         if (!user) {
-            // TODO: probably show an error message
+            // FIXME: probably show an error message
             return;
         }
 
@@ -187,42 +193,47 @@ function NewProject(props: Props) {
 
         async function submitToFirebase() {
             const projectImage = finalValues?.projectImage as File | undefined;
-            if (projectImage) {
-                const storage = getStorage();
-                const uploadedImageRef = storageRef(storage, `projectImages/${projectImage.name}`);
+            if (!projectImage) {
+                // FIXME: log console
+                return;
+            }
 
-                setProjectSubmissionStatus('imageUpload');
-                try {
-                    const uploadTask = await uploadBytes(uploadedImageRef, projectImage);
+            const storage = getStorage();
+            const uploadedImageRef = storageRef(storage, `projectImages/${projectImage.name}`);
 
-                    const downloadUrl = await getDownloadURL(uploadTask.ref);
-                    const uploadData = {
-                        ...finalValues,
-                        image: downloadUrl,
+            // FIXME: use useMountedRef here
+            setProjectSubmissionStatus('imageUpload');
+            try {
+                const uploadTask = await uploadBytes(uploadedImageRef, projectImage);
 
-                        // TODO: check if user session still exist
-                        createdBy: user?.id,
-                    };
+                const downloadUrl = await getDownloadURL(uploadTask.ref);
+                const uploadData = {
+                    ...finalValues,
+                    image: downloadUrl,
 
-                    delete uploadData.projectImage;
+                    // TODO: check if user session still exist
+                    createdBy: user?.id,
+                };
 
-                    const database = getDatabase();
-                    const projectDraftsRef = databaseRef(database, 'v2/projectDrafts/');
-                    const newProjectDraftsRef = await pushToDatabase(projectDraftsRef);
-                    const newKey = newProjectDraftsRef.key;
+                delete uploadData.projectImage;
 
-                    if (newKey) {
-                        setProjectSubmissionStatus('projectSubmit');
-                        const newProjectRef = databaseRef(database, `v2/projectDrafts/${newKey}`);
-                        await setToDatabase(newProjectRef, uploadData);
-                        setProjectSubmissionStatus('success');
-                    } else {
-                        setProjectSubmissionStatus('failed');
-                    }
-                } catch (submissionError) {
+                const database = getDatabase();
+                const projectDraftsRef = databaseRef(database, 'v2/projectDrafts/');
+                const newProjectDraftsRef = await pushToDatabase(projectDraftsRef);
+                const newKey = newProjectDraftsRef.key;
+
+                if (newKey) {
+                    setProjectSubmissionStatus('projectSubmit');
+                    const newProjectRef = databaseRef(database, `v2/projectDrafts/${newKey}`);
+                    await setToDatabase(newProjectRef, uploadData);
+                    setProjectSubmissionStatus('success');
+                } else {
                     setProjectSubmissionStatus('failed');
-                    console.error(submissionError);
                 }
+            } catch (submissionError) {
+                // eslint-disable-next-line no-console
+                console.error(submissionError);
+                setProjectSubmissionStatus('failed');
             }
         }
 
@@ -257,6 +268,7 @@ function NewProject(props: Props) {
                         keySelector={valueSelector}
                         labelSelector={labelSelector}
                         error={error?.projectType}
+                        disabled={submissionPending}
                     />
                     <div className={styles.inputGroup}>
                         <TextInput
@@ -266,6 +278,7 @@ function NewProject(props: Props) {
                             error={error?.projectTopic}
                             label="Project Topic"
                             hint="Enter the topic of your project (50 char max)."
+                            disabled={submissionPending}
                         />
                         <TextInput
                             name={'projectRegion' as const}
@@ -274,6 +287,7 @@ function NewProject(props: Props) {
                             label="Project Region"
                             hint="Enter name of your project Region (50 chars max)"
                             error={error?.projectRegion}
+                            disabled={submissionPending}
                         />
                     </div>
                     <div className={styles.inputGroup}>
@@ -284,6 +298,7 @@ function NewProject(props: Props) {
                             label="Project Number"
                             hint="Is this project part of a bigger campaign with multiple projects?"
                             error={error?.projectNumber}
+                            disabled={submissionPending}
                         />
                         <TextInput
                             name={'requestingOrganization' as const}
@@ -292,6 +307,7 @@ function NewProject(props: Props) {
                             error={error?.requestingOrganization}
                             label="Requesting Organization"
                             hint="Which group, institution or community is requesting this project?"
+                            disabled={submissionPending}
                         />
                     </div>
                     <TextInput
@@ -302,6 +318,7 @@ function NewProject(props: Props) {
                         readOnly
                         placeholder="[Project Topic] - [Project Region]([Task Number]) [Requesting Organization]"
                         // error={error?.name}
+                        disabled={submissionPending}
                     />
                     <div className={styles.inputGroup}>
                         <SelectInput
@@ -314,6 +331,7 @@ function NewProject(props: Props) {
                             label="Visibility"
                             hint="Choose either 'public' or select the team for which this project should be displayed"
                             error={error?.visibility}
+                            disabled={submissionPending}
                         />
                         <TextInput
                             name={'lookFor' as const}
@@ -322,6 +340,7 @@ function NewProject(props: Props) {
                             error={error?.lookFor}
                             label="Look for"
                             hint="What should the users look for (e.g. buildings, cars, trees)? (15 chars max)"
+                            disabled={submissionPending}
                         />
                     </div>
                     <TextArea
@@ -331,6 +350,7 @@ function NewProject(props: Props) {
                         error={error?.projectDetails}
                         label="Project Details"
                         hint="Enter the description for your project. (3-5 sentences)."
+                        disabled={submissionPending}
                     />
                     <div className={styles.inputGroup}>
                         <FileInput
@@ -343,6 +363,7 @@ function NewProject(props: Props) {
                             showPreview
                             accept="image/png, image/jpeg"
                             error={error?.projectImage}
+                            disabled={submissionPending}
                         />
                         <div className={styles.verticalInputGroup}>
                             <SelectInput
@@ -355,6 +376,7 @@ function NewProject(props: Props) {
                                 error={error?.tutorialId}
                                 keySelector={valueSelector}
                                 labelSelector={labelSelector}
+                                disabled={submissionPending}
                             />
                             <NumberInput
                                 name={'verificationNumber' as const}
@@ -363,6 +385,7 @@ function NewProject(props: Props) {
                                 label="Verification Number"
                                 hint="How many people do you want to see every tile before you consider it finished? (default is 3 - more is recommended for harder tasks, but this will also make project take longer)"
                                 error={error?.verificationNumber}
+                                disabled={submissionPending}
                             />
                             <NumberInput
                                 name={'groupSize' as const}
@@ -371,6 +394,7 @@ function NewProject(props: Props) {
                                 label="Group Size"
                                 hint="How big should a mapping session be? Group size refers to the number of tasks per mapping session."
                                 error={error?.groupSize}
+                                disabled={submissionPending}
                             />
                         </div>
                     </div>
@@ -388,6 +412,7 @@ function NewProject(props: Props) {
                             label="Zoom Level"
                             hint="We use the Tile Map Service zoom levels. Please check for your area which zoom level is available. For example, Bing imagery is available at zoomlevel 18 for most regions. If you use a custom tile server you may be able to use even higher zoom levels."
                             error={error?.zoomLevel}
+                            disabled={submissionPending}
                         />
                     </InputSection>
                 )}
@@ -404,6 +429,7 @@ function NewProject(props: Props) {
                             label="Project AOI Geometry"
                             hint="Upload your project area as GeoJSON File (max. 1MB). Make sure that you provide a single polygon geometry."
                             error={error?.geometry}
+                            disabled={submissionPending}
                         />
                     </InputSection>
                 )}
@@ -420,6 +446,7 @@ function NewProject(props: Props) {
                             keySelector={valueSelector}
                             labelSelector={labelSelector}
                             error={error?.inputType}
+                            disabled={submissionPending}
                         />
                         {value?.inputType === PROJECT_INPUT_TYPE_LINK && (
                             <TextInput
@@ -428,6 +455,7 @@ function NewProject(props: Props) {
                                 label="Input Geometries File (Direct Link)"
                                 hint="Provide a direct link to a GeoJSON file containing your building footprint geometries."
                                 error={error?.geometry}
+                                disabled={submissionPending}
                             />
                         )}
                         {value?.inputType === PROJECT_INPUT_TYPE_UPLOAD && (
@@ -438,6 +466,7 @@ function NewProject(props: Props) {
                                 label="GeoJSON File"
                                 hint="Upload your project area as GeoJSON File (max. 1MB). Make sure that you provide a maximum of 10 polygon geometries."
                                 error={error?.geometry}
+                                disabled={submissionPending}
                             />
                         )}
                         {value?.inputType === PROJECT_INPUT_TYPE_TASKING_MANAGER_ID && (
@@ -447,10 +476,11 @@ function NewProject(props: Props) {
                                 label="HOT Tasking Manager ProjectID"
                                 hint="Provide the ID of a HOT Tasking Manager Project (only numbers, e.g. 6526)."
                                 error={error?.TMId}
+                                disabled={submissionPending}
                             />
                         )}
                         {(value?.inputType === PROJECT_INPUT_TYPE_UPLOAD
-                                || value?.inputType === PROJECT_INPUT_TYPE_TASKING_MANAGER_ID
+                            || value?.inputType === PROJECT_INPUT_TYPE_TASKING_MANAGER_ID
                         ) && (
                             <SegmentInput
                                 name={'filter' as const}
@@ -462,6 +492,7 @@ function NewProject(props: Props) {
                                 error={error?.filter}
                                 keySelector={valueSelector}
                                 labelSelector={labelSelector}
+                                disabled={submissionPending}
                             />
                         )}
                     </InputSection>
@@ -477,6 +508,7 @@ function NewProject(props: Props) {
                         label="Max Tasks Per User"
                         hint="How many tasks each user is allowed to work on for this project. '-1' indicates that no limit is set."
                         error={error?.maxTasksPerUser}
+                        disabled={submissionPending}
                     />
                 </InputSection>
 
@@ -488,6 +520,7 @@ function NewProject(props: Props) {
                         value={value?.tileServer}
                         error={error?.tileServer}
                         onChange={setFieldValue}
+                        disabled={submissionPending}
                     />
                 </InputSection>
 
@@ -501,6 +534,7 @@ function NewProject(props: Props) {
                             value={value?.tileServerB}
                             error={error?.tileServerB}
                             onChange={setFieldValue}
+                            disabled={submissionPending}
                         />
                     </InputSection>
                 )}

@@ -52,23 +52,25 @@ interface Tutorial {
 }
 
 function useProjectOptions(selectedProjectType: number | undefined) {
-    const [
-        teamsQuery,
-        tutorialQuery,
-    ] = React.useMemo(
+    const teamsQuery = React.useMemo(
         () => {
             const db = getDatabase();
-            return [
-                query(
-                    ref(db, '/v2/teams'),
-                    orderByChild('teamName'),
-                ),
-                query(
-                    ref(db, '/v2/projects'),
-                    orderByChild('status'),
-                    equalTo('tutorial'),
-                ),
-            ];
+            return query(
+                ref(db, '/v2/teams'),
+                orderByChild('teamName'),
+            );
+        },
+        [],
+    );
+
+    const tutorialQuery = React.useMemo(
+        () => {
+            const db = getDatabase();
+            return query(
+                ref(db, '/v2/projects'),
+                orderByChild('status'),
+                equalTo('tutorial'),
+            );
         },
         [],
     );
@@ -90,17 +92,17 @@ function useProjectOptions(selectedProjectType: number | undefined) {
     const teamOptions = React.useMemo(
         () => ([
             { value: 'public', label: 'Public' },
-            ...(Object.keys(teams ?? {})
-                .map((teamId) => ({
+            ...((teams ? Object.entries(teams) : [])
+                .map(([teamId, team]) => ({
                     value: teamId,
-                    label: teams?.[teamId].teamName ?? '??',
+                    label: team.teamName,
                 }))),
         ]),
         [teams],
     );
 
     const tutorialOptions = React.useMemo(
-        () => Object.values(tutorials ?? {})
+        () => (tutorials ? Object.values(tutorials) : [])
             .filter((tutorial) => tutorial.projectType === selectedProjectType)
             .map((tutorial) => ({
                 value: tutorial.projectId,

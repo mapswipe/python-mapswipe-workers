@@ -33,6 +33,7 @@ interface Props<Name extends string | number> {
     value: TileServerInputValue;
     error: Error<TileServerInputValue>;
     onChange: (value: SetValueArg<TileServerInputValue> | undefined, name: Name) => void;
+    disabled?: boolean;
 }
 
 function TileServerInput<Name extends string | number>(props: Props<Name>) {
@@ -41,11 +42,13 @@ function TileServerInput<Name extends string | number>(props: Props<Name>) {
         value,
         error: formError,
         onChange,
+        disabled,
     } = props;
 
     const setFieldValue = useFormObject(name, onChange, defaultValue);
     const error = getErrorObject(formError);
 
+    // FIXME: Let's remove this useEffect and define a handler instead
     React.useEffect(() => {
         const tileServerName = value?.name;
 
@@ -66,6 +69,7 @@ function TileServerInput<Name extends string | number>(props: Props<Name>) {
                 keySelector={valueSelector}
                 labelSelector={labelSelector}
                 error={error?.name}
+                disabled={disabled}
             />
             {value?.name === TILE_SERVER_CUSTOM && (
                 <>
@@ -76,6 +80,7 @@ function TileServerInput<Name extends string | number>(props: Props<Name>) {
                         hint="Make sure you have permission. Add a custom tile server URL that uses {z}, {x} and {y} as placeholders and that already includes the api key."
                         error={error?.url}
                         onChange={setFieldValue}
+                        disabled={disabled}
                     />
                     <TextInput
                         name={'wmtsLayerName' as const}
@@ -84,6 +89,7 @@ function TileServerInput<Name extends string | number>(props: Props<Name>) {
                         hint="Enter the name of the layer of the WMTS offered by Sinergise."
                         error={error?.wmtsLayerName}
                         onChange={setFieldValue}
+                        disabled={disabled}
                     />
                 </>
             )}
@@ -94,6 +100,7 @@ function TileServerInput<Name extends string | number>(props: Props<Name>) {
                 hint="Insert appropriate imagery credits if you are using a custom tile server. For other tile server use the default credits."
                 onChange={setFieldValue}
                 error={error?.credits}
+                disabled={disabled}
             />
         </>
     );

@@ -17,6 +17,10 @@ import {
 
 import { FeatureCollection } from '#components/GeoJsonPreview';
 
+type ProjectType = 1 | 2 | 3 | 4;
+type ProjectInputType = 'aoi_file' | 'link' | 'TMId';
+export type TileServerType = 'bing' | 'mapbox' | 'maxar_standard' | 'maxar_premium' | 'esri' | 'esri_beta' | 'sinergise' | 'custom';
+
 export const PROJECT_TYPE_BUILD_AREA = 1;
 export const PROJECT_TYPE_FOOTPRINT = 2;
 export const PROJECT_TYPE_CHANGE_DETECTION = 3;
@@ -34,8 +38,6 @@ export const TILE_SERVER_ESRI_BETA = 'esri_beta';
 export const TILE_SERVER_SINERGISE = 'sinergise';
 export const TILE_SERVER_CUSTOM = 'custom';
 
-export type TileServerType = 'bing' | 'mapbox' | 'maxar_standard' | 'maxar_premium' | 'esri' | 'esri_beta' | 'sinergise' | 'custom';
-
 export interface TileServer {
     name: TileServerType;
     url?: string;
@@ -45,7 +47,7 @@ export interface TileServer {
 
 export interface ProjectFormType {
     projectTopic: string;
-    projectType: number;
+    projectType: ProjectType;
     projectRegion: string;
     projectNumber: number;
     requestingOrganization: string;
@@ -59,7 +61,7 @@ export interface ProjectFormType {
     groupSize: number;
     zoomLevel: number;
     geometry?: FeatureCollection | string;
-    inputType?: string;
+    inputType?: ProjectInputType;
     TMId?: string;
     filter?: string;
     maxTasksPerUser: number;
@@ -67,7 +69,10 @@ export interface ProjectFormType {
     tileServerB?: TileServer;
 }
 
-export const projectTypeOptions = [
+export const projectTypeOptions: {
+    value: ProjectType;
+    label: string;
+}[] = [
     { value: PROJECT_TYPE_BUILD_AREA, label: 'Build Area' },
     { value: PROJECT_TYPE_FOOTPRINT, label: 'Footprint' },
     { value: PROJECT_TYPE_CHANGE_DETECTION, label: 'Change Detection' },
@@ -78,7 +83,10 @@ export const PROJECT_INPUT_TYPE_UPLOAD = 'aoi_file';
 export const PROJECT_INPUT_TYPE_LINK = 'link';
 export const PROJECT_INPUT_TYPE_TASKING_MANAGER_ID = 'TMId';
 
-export const projectInputTypeOptions = [
+export const projectInputTypeOptions: {
+    value: ProjectInputType;
+    label: string;
+}[] = [
     { value: PROJECT_INPUT_TYPE_UPLOAD, label: 'Upload GeoJSON AOI' },
     { value: PROJECT_INPUT_TYPE_LINK, label: 'Link to GeoJSON' },
     { value: PROJECT_INPUT_TYPE_TASKING_MANAGER_ID, label: 'Provide Tasking Manager Id' },
@@ -118,6 +126,7 @@ export const filterOptions = [
     { value: FILTER_OTHERS, label: 'Other' },
 ];
 
+// FIXME: let's move this to utils
 export function getNoMoreThanNCharacterCondition(maxCharacters: number) {
     return (value: string | undefined) => {
         if (!isDefined(value) || value.length <= maxCharacters) {
@@ -128,11 +137,13 @@ export function getNoMoreThanNCharacterCondition(maxCharacters: number) {
     };
 }
 
+// FIXME: we should not need to use omit on geometry
 export type PartialProjectFormType = PartialForm<
     Omit<ProjectFormType, 'geometry'>
 > & {
     geometry?: FeatureCollection | undefined;
 };
+
 type ProjectFormSchema = ObjectSchema<PartialProjectFormType>;
 type ProjectFormSchemaFields = ReturnType<ProjectFormSchema['fields']>;
 
@@ -170,7 +181,8 @@ function validGeometryCondition(
             (feature) => getFeatureType(feature),
         );
 
-        const unsupportedTypeList = Object.keys(invalidFeatureMap).map((featureKey) => `${invalidFeatureMap[featureKey].length} ${featureKey}`);
+        const unsupportedTypeList = Object.entries(invalidFeatureMap)
+            .map(([featureKey, feature]) => `${feature.length} ${featureKey}`);
         const unsupportedFeatureTypes = unsupportedTypeList.join(', ');
 
         return `GeoJson contains ${unsupportedFeatureTypes} features. These are currently not supported. Please make sure the it only contains Polygon or MultiPolygons`;
@@ -181,13 +193,13 @@ function validGeometryCondition(
             (feature) => getFeatureArea(feature),
         ).filter((num) => isDefined(num) && !Number.isNaN(num)),
     );
+    const totalAreaInSqKm = totalArea / 1000000;
 
     const zoomLevel = allValue?.zoomLevel;
     const maxArea = isDefined(zoomLevel)
         ? (5 * (4 ** (23 - zoomLevel)))
         : DEFAULT_MAX_AREA;
 
-    const totalAreaInSqKm = totalArea / 1000000;
     if (maxArea < totalAreaInSqKm) {
         return `Area covered by GeoJson (${totalAreaInSqKm.toFixed(2)} sqkm) is too large, max allowed area for selected zoom level is ${maxArea} sqkm`;
     }

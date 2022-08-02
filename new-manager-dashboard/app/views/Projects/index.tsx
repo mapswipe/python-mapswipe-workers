@@ -60,17 +60,16 @@ function Projects(props: Props) {
         query: projectQuery,
     });
 
-    const projectList = React.useMemo(() => Object.values(projects ?? {}), [projects]);
+    const projectList = React.useMemo(
+        () => (projects ? Object.values(projects) : []),
+        [projects],
+    );
     const filteredProjectList = React.useMemo(
-        () => {
-            const filteredList = rankedSearchOnList(
-                projectList,
-                searchText,
-                (project) => project.name,
-            );
-
-            return filteredList;
-        },
+        () => rankedSearchOnList(
+            projectList,
+            searchText,
+            (project) => project.name,
+        ),
         [projectList, searchText],
     );
 
@@ -117,23 +116,17 @@ function Projects(props: Props) {
                             className={styles.loading}
                         />
                     )}
-                    {!pending && filteredProjectList.map((project) => {
-                        if (!project) {
-                            return null;
-                        }
-
-                        return (
-                            <ProjectDetails
-                                key={project.projectId}
-                                data={project}
-                            />
-                        );
-                    })}
                     {!pending && filteredProjectList.length === 0 && (
                         <div className={styles.emptyMessage}>
                             No projects found
                         </div>
                     )}
+                    {!pending && filteredProjectList.map((project) => (
+                        <ProjectDetails
+                            key={project.projectId}
+                            data={project}
+                        />
+                    ))}
                 </div>
             </div>
         </div>
