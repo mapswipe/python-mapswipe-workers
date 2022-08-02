@@ -4,16 +4,14 @@ import {
     getDatabase,
     ref,
 } from 'firebase/database';
-import {
-    MdSearch,
-} from 'react-icons/md';
+import { MdSearch } from 'react-icons/md';
 
 import useFirebaseDatabase from '#hooks/useFirebaseDatabase';
 import useInputState from '#hooks/useInputState';
 import TextInput from '#components/TextInput';
 import PendingMessage from '#components/PendingMessage';
 
-import TeamItem, { Team } from './TeamItem';
+import UserGroupItem, { UserGroup } from './UserGroupItem';
 
 import styles from './styles.css';
 
@@ -21,35 +19,35 @@ interface Props {
     className?: string;
 }
 
-function Teams(props: Props) {
+function UserGroups(props: Props) {
     const {
         className,
     } = props;
 
     const [searchText, setSearchText] = useInputState<string | undefined>(undefined);
 
-    const teamsQuery = React.useMemo(
+    const userGroupsQuery = React.useMemo(
         () => {
             const db = getDatabase();
-            return ref(db, '/v2/teams');
+            return ref(db, '/v2/userGroups');
         },
         [],
     );
 
     const {
-        data: teams,
+        data: userGroups,
         pending,
-    } = useFirebaseDatabase<Team>({
-        query: teamsQuery,
+    } = useFirebaseDatabase<UserGroup>({
+        query: userGroupsQuery,
     });
 
-    const teamList = Object.entries(teams ?? {});
+    const userGroupList = Object.entries(userGroups ?? {});
 
     return (
-        <div className={_cs(styles.teams, className)}>
+        <div className={_cs(styles.userGroups, className)}>
             <div className={styles.headingContainer}>
                 <h2 className={styles.heading}>
-                    Teams
+                    User Groups
                 </h2>
                 <div className={styles.actions}>
                     <TextInput
@@ -63,25 +61,24 @@ function Teams(props: Props) {
                 </div>
             </div>
             <div className={styles.container}>
-                <div className={_cs(styles.teamList, className)}>
+                <div className={_cs(styles.userGroupList, className)}>
                     {pending && (
                         <PendingMessage
                             className={styles.loading}
                         />
                     )}
-                    {!pending && teamList.length === 0 && (
+                    {!pending && userGroupList.length === 0 && (
                         <div className={styles.emptyMessage}>
-                            No teams found
+                            No userGroups found
                         </div>
                     )}
-                    {!pending && teamList.map((teamKeyAndItem) => {
-                        const [teamKey, team] = teamKeyAndItem;
+                    {!pending && userGroupList.map((userGroupKeyAndItem) => {
+                        const [userGroupKey, userGroup] = userGroupKeyAndItem;
 
                         return (
-                            <TeamItem
-                                teamId={teamKey}
-                                data={team}
-                                key={teamKey}
+                            <UserGroupItem
+                                data={userGroup}
+                                key={userGroupKey}
                             />
                         );
                     })}
@@ -91,4 +88,4 @@ function Teams(props: Props) {
     );
 }
 
-export default Teams;
+export default UserGroups;

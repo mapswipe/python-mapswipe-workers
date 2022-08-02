@@ -47,6 +47,12 @@ function Routes(props: Props) {
                 </Route>
                 <Route
                     exact
+                    path={routes.userGroups.path}
+                >
+                    {routes.userGroups.load({ className })}
+                </Route>
+                <Route
+                    exact
                     path={routes.newProject.path}
                 >
                     {routes.newProject.load({ className })}

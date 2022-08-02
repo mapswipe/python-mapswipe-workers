@@ -1,4 +1,4 @@
-.teams {
+.user-groups {
     display: flex;
     align-items: center;
     flex-direction: column;
@@ -31,7 +31,7 @@
         overflow: auto;
         gap: var(--spacing-large);
 
-        .team-list {
+        .user-group-list {
             display: flex;
             flex-direction: column;
             flex-grow: 1;

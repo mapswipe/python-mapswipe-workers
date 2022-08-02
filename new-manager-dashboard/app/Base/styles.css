@@ -1,5 +1,5 @@
 html {
-    font-size: 13px;
+    font-size: 14px;
 }
 
 .base {
@@ -46,10 +46,11 @@ p {
     --color-backdrop-light: rgba(255, 255, 255, .7);
 
     --color-scrollbar-foreground: rgba(0, 0, 0, .2);
-    --color-scrollbar-background: rgba(0, 0, 0, .02);
+    --color-scrollbar-background: rgba(0, 0, 0, .01);
 
     --color-primary: #0d1949;
     --color-text-on-light: #ffffff;
+    --color-text-watermark: rgba(0, 0, 0, .4);
     --color-text: rgba(0, 0, 0, 0.8);
     --color-text-dark: rgba(0, 0, 0, 1);
     --color-text-light: rgba(0, 0, 0, 0.6);
@@ -61,6 +62,7 @@ p {
 
     --color-input-border: rgba(0, 0, 0, 0.2);
     --color-active-input-border: var(--color-accent);
+    --color-hover-background: rgba(0, 0, 0, 0.03);
 
     --font-size-small: 0.85rem;
     --font-size-medium: 1rem;

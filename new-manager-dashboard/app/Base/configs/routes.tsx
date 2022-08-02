@@ -50,6 +50,15 @@ const teams = wrap({
     visibility: 'is-authenticated',
 });
 
+const userGroups = wrap({
+    path: '/userGroups/',
+    title: 'User Groups',
+    navbarVisibility: true,
+    component: lazy(() => import('#views/UserGroups')),
+    componentProps: {},
+    visibility: 'is-authenticated',
+});
+
 const newProject = wrap({
     path: '/new-project/',
     title: 'New Project',
@@ -64,6 +73,7 @@ const routes = {
     home,
     projects,
     teams,
+    userGroups,
     newProject,
     fourHundredFour,
 };

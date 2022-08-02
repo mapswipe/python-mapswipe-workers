@@ -63,6 +63,12 @@ function Navbar(props: Props) {
                             className={styles.link}
                             activeClassName={styles.active}
                         />
+                        <SmartNavLink
+                            exact
+                            route={route.userGroups}
+                            className={styles.link}
+                            activeClassName={styles.active}
+                        />
                     </div>
                 </div>
                 { user && (
