@@ -5,6 +5,7 @@
     background-color: transparent;
     padding: 0;
     width: 100%;
+    line-height: inherit;
     color: inherit;
     font-family: inherit;
     font-size: inherit;

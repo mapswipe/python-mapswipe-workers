@@ -25,15 +25,15 @@
     justify-content: center;
     padding: var(--spacing-medium);
     width: 100%;
-    max-width: 40rem;
-    height: 26rem;
+    max-width: 30rem;
+    height: 20rem;
 }
 
 .preview {
     background-color: var(--color-background);
     width: 100%;
-    max-width: 40rem;
-    height: 26rem;
+    max-width: 30rem;
+    height: 20rem;
     object-fit: contain;
     object-position: center center;
 }

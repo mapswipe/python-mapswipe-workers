@@ -2,6 +2,7 @@ import React from 'react';
 import {
     _cs,
     isNotDefined,
+    isDefined,
 } from '@togglecorp/fujs';
 import {
     useForm,
@@ -9,7 +10,27 @@ import {
     createSubmitHandler,
     analyzeErrors,
 } from '@togglecorp/toggle-form';
+import {
+    getStorage,
+    ref as storageRef,
+    uploadBytes,
+    getDownloadURL,
+} from 'firebase/storage';
+import {
+    getDatabase,
+    ref as databaseRef,
+    push as pushToDatabase,
+    set as setToDatabase,
+} from 'firebase/database';
+import {
+    MdSwipe,
+    MdOutlinePublishedWithChanges,
+    MdOutlineUnpublished,
+} from 'react-icons/md';
+import { Link } from 'react-router-dom';
 
+import UserContext from '#base/context/UserContext';
+import Modal from '#components/Modal';
 import SelectInput from '#components/SelectInput';
 import TextInput from '#components/TextInput';
 import TextArea from '#components/TextArea';
@@ -20,6 +41,10 @@ import GeoJsonFileInput from '#components/GeoJsonFileInput';
 import InputSection from '#components/InputSection';
 import Button from '#components/Button';
 import { FeatureCollection } from '#components/GeoJsonPreview';
+import {
+    valueSelector,
+    labelSelector,
+} from '#utils/common';
 
 import TileServerInput from './TileServerInput';
 
@@ -29,8 +54,6 @@ import {
     projectTypeOptions,
     projectInputTypeOptions,
     filterOptions,
-    valueSelector,
-    labelSelector,
     PROJECT_TYPE_BUILD_AREA,
     PROJECT_TYPE_FOOTPRINT,
     PROJECT_TYPE_COMPLETENESS,
@@ -70,6 +93,8 @@ function NewProject(props: Props) {
         className,
     } = props;
 
+    const { user } = React.useContext(UserContext);
+
     const {
         setFieldValue,
         value,
@@ -82,6 +107,11 @@ function NewProject(props: Props) {
         teamOptions,
         tutorialOptions,
     } = useProjectOptions(value?.projectType);
+
+    const [
+        projectSubmissionStatus,
+        setProjectSubmissionStatus,
+    ] = React.useState<'started' | 'imageUpload' | 'projectSubmit' | 'success' | 'failed' | undefined>();
 
     const error = React.useMemo(
         () => getErrorObject(formError),
@@ -148,8 +178,56 @@ function NewProject(props: Props) {
     );
 
     const handleFormSubmission = React.useCallback((finalValues: PartialProjectFormType) => {
-        console.info(finalValues);
-    }, []);
+        if (!user) {
+            // TODO: probably show an error message
+            return;
+        }
+
+        setProjectSubmissionStatus('started');
+
+        async function submitToFirebase() {
+            const projectImage = finalValues?.projectImage as File | undefined;
+            if (projectImage) {
+                const storage = getStorage();
+                const uploadedImageRef = storageRef(storage, `projectImages/${projectImage.name}`);
+
+                setProjectSubmissionStatus('imageUpload');
+                try {
+                    const uploadTask = await uploadBytes(uploadedImageRef, projectImage);
+
+                    const downloadUrl = await getDownloadURL(uploadTask.ref);
+                    const uploadData = {
+                        ...finalValues,
+                        image: downloadUrl,
+
+                        // TODO: check if user session still exist
+                        createdBy: user?.id,
+                    };
+
+                    delete uploadData.projectImage;
+
+                    const database = getDatabase();
+                    const projectDraftsRef = databaseRef(database, 'v2/projectDrafts/');
+                    const newProjectDraftsRef = await pushToDatabase(projectDraftsRef);
+                    const newKey = newProjectDraftsRef.key;
+
+                    if (newKey) {
+                        setProjectSubmissionStatus('projectSubmit');
+                        const newProjectRef = databaseRef(database, `v2/projectDrafts/${newKey}`);
+                        await setToDatabase(newProjectRef, uploadData);
+                        setProjectSubmissionStatus('success');
+                    } else {
+                        setProjectSubmissionStatus('failed');
+                    }
+                } catch (submissionError) {
+                    setProjectSubmissionStatus('failed');
+                    console.error(submissionError);
+                }
+            }
+        }
+
+        submitToFirebase();
+    }, [user]);
 
     const handleSubmitButtonClick = React.useMemo(
         () => createSubmitHandler(validate, setError, handleFormSubmission),
@@ -161,20 +239,14 @@ function NewProject(props: Props) {
         [error],
     );
 
+    const submissionPending = projectSubmissionStatus === 'started' || projectSubmissionStatus === 'imageUpload' || projectSubmissionStatus === 'projectSubmit';
+
     return (
         <div className={_cs(styles.newProject, className)}>
             <div className={styles.container}>
                 <InputSection
                     heading="Basic Project Information"
                 >
-                    <TextInput
-                        name={'projectTopic' as const}
-                        value={value?.projectTopic}
-                        onChange={setFieldValue}
-                        error={error?.projectTopic}
-                        label="Project Topic"
-                        hint="Enter the topic of your project (50 char max)."
-                    />
                     <SegmentInput
                         name={'projectType' as const}
                         onChange={setFieldValue}
@@ -186,30 +258,42 @@ function NewProject(props: Props) {
                         labelSelector={labelSelector}
                         error={error?.projectType}
                     />
-                    <TextInput
-                        name={'projectRegion' as const}
-                        value={value?.projectRegion}
-                        onChange={setFieldValue}
-                        label="Project Region"
-                        hint="Enter name of your project Region (50 chars max)"
-                        error={error?.projectRegion}
-                    />
-                    <NumberInput
-                        name={'projectNumber' as const}
-                        value={value?.projectNumber}
-                        onChange={setFieldValue}
-                        label="Project Number"
-                        hint="Is this project part of a bigger campaign with multiple projects?"
-                        error={error?.projectNumber}
-                    />
-                    <TextInput
-                        name={'requestingOrganization' as const}
-                        value={value?.requestingOrganization}
-                        onChange={setFieldValue}
-                        error={error?.requestingOrganization}
-                        label="Requesting Organization"
-                        hint="Which group, institution or community is requesting this project?"
-                    />
+                    <div className={styles.inputGroup}>
+                        <TextInput
+                            name={'projectTopic' as const}
+                            value={value?.projectTopic}
+                            onChange={setFieldValue}
+                            error={error?.projectTopic}
+                            label="Project Topic"
+                            hint="Enter the topic of your project (50 char max)."
+                        />
+                        <TextInput
+                            name={'projectRegion' as const}
+                            value={value?.projectRegion}
+                            onChange={setFieldValue}
+                            label="Project Region"
+                            hint="Enter name of your project Region (50 chars max)"
+                            error={error?.projectRegion}
+                        />
+                    </div>
+                    <div className={styles.inputGroup}>
+                        <NumberInput
+                            name={'projectNumber' as const}
+                            value={value?.projectNumber}
+                            onChange={setFieldValue}
+                            label="Project Number"
+                            hint="Is this project part of a bigger campaign with multiple projects?"
+                            error={error?.projectNumber}
+                        />
+                        <TextInput
+                            name={'requestingOrganization' as const}
+                            value={value?.requestingOrganization}
+                            onChange={setFieldValue}
+                            error={error?.requestingOrganization}
+                            label="Requesting Organization"
+                            hint="Which group, institution or community is requesting this project?"
+                        />
+                    </div>
                     <TextInput
                         name={'name' as const}
                         value={value?.name}
@@ -219,36 +303,27 @@ function NewProject(props: Props) {
                         placeholder="[Project Topic] - [Project Region]([Task Number]) [Requesting Organization]"
                         // error={error?.name}
                     />
-                    <SelectInput
-                        name={'visibility' as const}
-                        value={value?.visibility}
-                        onChange={setFieldValue}
-                        keySelector={valueSelector}
-                        labelSelector={labelSelector}
-                        options={teamOptions}
-                        label="Visibility"
-                        hint="Choose either 'public' or select the team for which this project should be displayed"
-                        error={error?.visibility}
-                    />
-                    <TextInput
-                        name={'lookFor' as const}
-                        value={value?.lookFor}
-                        onChange={setFieldValue}
-                        error={error?.lookFor}
-                        label="Look for"
-                        hint="What should the users look for (e.g. buildings, cars, trees)? (15 chars max)"
-                    />
-                    <SelectInput
-                        label="Tutorial"
-                        hint="Choose which tutorial should be used for this project. Make sure that this aligns with what you are looking for."
-                        name={'tutorialId' as const}
-                        value={value?.tutorialId}
-                        onChange={setFieldValue}
-                        options={tutorialOptions}
-                        error={error?.tutorialId}
-                        keySelector={valueSelector}
-                        labelSelector={labelSelector}
-                    />
+                    <div className={styles.inputGroup}>
+                        <SelectInput
+                            name={'visibility' as const}
+                            value={value?.visibility}
+                            onChange={setFieldValue}
+                            keySelector={valueSelector}
+                            labelSelector={labelSelector}
+                            options={teamOptions}
+                            label="Visibility"
+                            hint="Choose either 'public' or select the team for which this project should be displayed"
+                            error={error?.visibility}
+                        />
+                        <TextInput
+                            name={'lookFor' as const}
+                            value={value?.lookFor}
+                            onChange={setFieldValue}
+                            error={error?.lookFor}
+                            label="Look for"
+                            hint="What should the users look for (e.g. buildings, cars, trees)? (15 chars max)"
+                        />
+                    </div>
                     <TextArea
                         name={'projectDetails' as const}
                         value={value?.projectDetails}
@@ -257,33 +332,48 @@ function NewProject(props: Props) {
                         label="Project Details"
                         hint="Enter the description for your project. (3-5 sentences)."
                     />
-                    <FileInput
-                        name={'projectImage' as const}
-                        // FIXME: figure out why cast is needed here
-                        value={value?.projectImage as (File | undefined)}
-                        onChange={setFieldValue}
-                        label="Upload Project Image"
-                        hint="Make sure you have the rights to use the image. It should end with .jpg or .png."
-                        showPreview
-                        accept="image/png, image/jpeg"
-                        error={error?.projectImage}
-                    />
-                    <NumberInput
-                        name={'verificationNumber' as const}
-                        value={value?.verificationNumber}
-                        onChange={setFieldValue}
-                        label="Verification Number"
-                        hint="How many people do you want to see every tile before you consider it finished? (default is 3 - more is recommended for harder tasks, but this will also make project take longer)"
-                        error={error?.verificationNumber}
-                    />
-                    <NumberInput
-                        name={'groupSize' as const}
-                        value={value?.groupSize}
-                        onChange={setFieldValue}
-                        label="Group Size"
-                        hint="How big should a mapping session be? Group size refers to the number of tasks per mapping session."
-                        error={error?.groupSize}
-                    />
+                    <div className={styles.inputGroup}>
+                        <FileInput
+                            name={'projectImage' as const}
+                            // FIXME: figure out why cast is needed here
+                            value={value?.projectImage as (File | undefined)}
+                            onChange={setFieldValue}
+                            label="Upload Project Image"
+                            hint="Make sure you have the rights to use the image. It should end with .jpg or .png."
+                            showPreview
+                            accept="image/png, image/jpeg"
+                            error={error?.projectImage}
+                        />
+                        <div className={styles.verticalInputGroup}>
+                            <SelectInput
+                                label="Tutorial"
+                                hint="Choose which tutorial should be used for this project. Make sure that this aligns with what you are looking for."
+                                name={'tutorialId' as const}
+                                value={value?.tutorialId}
+                                onChange={setFieldValue}
+                                options={tutorialOptions}
+                                error={error?.tutorialId}
+                                keySelector={valueSelector}
+                                labelSelector={labelSelector}
+                            />
+                            <NumberInput
+                                name={'verificationNumber' as const}
+                                value={value?.verificationNumber}
+                                onChange={setFieldValue}
+                                label="Verification Number"
+                                hint="How many people do you want to see every tile before you consider it finished? (default is 3 - more is recommended for harder tasks, but this will also make project take longer)"
+                                error={error?.verificationNumber}
+                            />
+                            <NumberInput
+                                name={'groupSize' as const}
+                                value={value?.groupSize}
+                                onChange={setFieldValue}
+                                label="Group Size"
+                                hint="How big should a mapping session be? Group size refers to the number of tasks per mapping session."
+                                error={error?.groupSize}
+                            />
+                        </div>
+                    </div>
                 </InputSection>
                 {(value?.projectType === PROJECT_TYPE_BUILD_AREA
                     || value?.projectType === PROJECT_TYPE_CHANGE_DETECTION
@@ -416,17 +506,78 @@ function NewProject(props: Props) {
                 )}
                 {hasErrors && (
                     <div className={styles.errorMessage}>
-                        Please correct all the errors above before submission
+                        Please correct all the errors above before submission!
                     </div>
                 )}
                 <div className={styles.actions}>
                     <Button
                         name={undefined}
                         onClick={handleSubmitButtonClick}
+                        disabled={submissionPending}
                     >
                         Submit
                     </Button>
                 </div>
+                {isDefined(projectSubmissionStatus) && (
+                    <Modal
+                        className={styles.submissionStatusModal}
+                        heading="Creating a Draft Project"
+                        closeButtonHidden
+                        bodyClassName={styles.body}
+                        footerClassName={styles.actions}
+                        footer={(
+                            <>
+                                {projectSubmissionStatus === 'success' && (
+                                    <Link
+                                        to="/projects"
+                                    >
+                                        Go to Projects
+                                    </Link>
+                                )}
+                                {projectSubmissionStatus === 'failed' && (
+                                    <Button
+                                        name={undefined}
+                                        onClick={setProjectSubmissionStatus}
+                                    >
+                                        Okay
+                                    </Button>
+                                )}
+                            </>
+                        )}
+                    >
+                        {submissionPending && (
+                            <MdSwipe className={styles.swipeIcon} />
+                        )}
+                        {projectSubmissionStatus === 'success' && (
+                            <MdOutlinePublishedWithChanges className={styles.successIcon} />
+                        )}
+                        {projectSubmissionStatus === 'failed' && (
+                            <MdOutlineUnpublished className={styles.failureIcon} />
+                        )}
+                        {projectSubmissionStatus === 'imageUpload' && (
+                            <div className={styles.message}>
+                                Uploading cover image...
+                            </div>
+                        )}
+                        {projectSubmissionStatus === 'projectSubmit' && (
+                            <div className={styles.message}>
+                                Submitting project...
+                            </div>
+                        )}
+                        {projectSubmissionStatus === 'success' && (
+                            <div className={styles.postSubmissionMessage}>
+                                Project submitted successfully!
+                                It should take around 15 minutes to appear in the dashboard
+                            </div>
+                        )}
+                        {projectSubmissionStatus === 'failed' && (
+                            <div className={styles.postSubmissionMessage}>
+                                Cannot submit Project at the moment!
+                                Please try again later!
+                            </div>
+                        )}
+                    </Modal>
+                )}
             </div>
         </div>
     );

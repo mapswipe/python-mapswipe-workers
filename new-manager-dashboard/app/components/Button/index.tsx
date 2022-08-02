@@ -111,7 +111,7 @@ export function useButtonFeatures(
 /**
  * Basic button component
  */
-function Button<N extends number | string | undefined>(props: Props<N>) {
+function Button<N>(props: Props<N>) {
     const {
         variant,
         className,

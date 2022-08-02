@@ -1,5 +1,7 @@
 .geo-json-preview {
+    position: relative;
     flex-shrink: 0;
+    z-index: 0;
     width: 100%;
     max-width: 30rem;
     height: 20rem;

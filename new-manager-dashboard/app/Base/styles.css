@@ -1,3 +1,7 @@
+html {
+    font-size: 13px;
+}
+
 .base {
     display: flex;
     flex-direction: column;
@@ -20,15 +24,29 @@
     }
 }
 
+h1, h2, h3, h4, h5, h6 {
+    margin: 0;
+}
+
+p {
+    margin: 0;
+}
+
 :root {
     --spacing-extra-small: 0.2rem;
     --spacing-small: 0.4rem;
-    --spacing-medium: 0.6rem;
-    --spacing-large: 1rem;
-    --spacing-extra-large: 1.5rem;
+    --spacing-medium: 0.8rem;
+    --spacing-large: 1.3rem;
+    --spacing-extra-large: 2rem;
+    --spacing-super-large: 3rem;
 
     --color-background: #f3f3f3;
     --color-foreground: #ffffff;
+    --color-backdrop: rgba(0, 0, 0, .7);
+    --color-backdrop-light: rgba(255, 255, 255, .7);
+
+    --color-scrollbar-foreground: rgba(0, 0, 0, .2);
+    --color-scrollbar-background: rgba(0, 0, 0, .02);
 
     --color-primary: #0d1949;
     --color-text-on-light: #ffffff;
@@ -37,13 +55,14 @@
     --color-text-light: rgba(0, 0, 0, 0.6);
     --color-accent: #4746f6;
     --color-danger: #e04656;
+    --color-success: #53b391;
     --color-separator: rgba(0, 0, 0, 0.1);
     --color-shadow: rgba(0, 0, 0, 0.5);
 
     --color-input-border: rgba(0, 0, 0, 0.2);
     --color-active-input-border: var(--color-accent);
 
-    --font-size-small: 0.8rem;
+    --font-size-small: 0.85rem;
     --font-size-medium: 1rem;
     --font-size-large: 1.2rem;
 
@@ -53,7 +72,14 @@
     --opacity-disabled-element: 0.5;
 
     --width-separator-thin: 1px;
+    --width-scrollbar: 0.75rem;
+    --width-page-content-max: 70rem;
+    --width-navbar-content-max: 76rem;
 
     --radius-popup-border: 0.25rem;
+    --radius-scrollbar-border: 0.25rem;
     --radius-blur-shadow: 5px;
+    --radius-modal: 0.25rem;
+    --radius-button-border: 1.5rem;
+
 }

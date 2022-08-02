@@ -1,16 +1,17 @@
 .input-section {
     display: flex;
     flex-direction: column;
+    gap: var(--spacing-medium);
 
     .header {
-        padding: 0 var(--spacing-large);
+        padding: 0 var(--spacing-extra-large);
     }
 
     .content {
         display: flex;
         flex-direction: column;
         background-color: var(--color-foreground);
-        padding: var(--spacing-large);
-        gap: var(--spacing-medium);
+        padding: var(--spacing-extra-large);
+        gap: var(--spacing-extra-large);
     }
 }

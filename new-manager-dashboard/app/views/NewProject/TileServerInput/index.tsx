@@ -10,13 +10,15 @@ import {
 
 import TextInput from '#components/TextInput';
 import RadioInput from '#components/RadioInput';
+import {
+    valueSelector,
+    labelSelector,
+} from '#utils/common';
 
 import {
     tileServerNameOptions,
     TILE_SERVER_BING,
     TILE_SERVER_CUSTOM,
-    valueSelector,
-    labelSelector,
     TileServer,
     tileServerDefaultCredits,
 } from '../utils';

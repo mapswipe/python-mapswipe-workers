@@ -4,6 +4,7 @@
     background-color: transparent;
     cursor: pointer;
     padding: 0;
+    line-height: inherit;
     color: inherit;
     font-family: inherit;
     font-size: inherit;

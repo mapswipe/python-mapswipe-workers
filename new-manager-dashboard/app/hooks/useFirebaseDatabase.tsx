@@ -2,6 +2,7 @@ import React from 'react';
 import {
     Query,
     onValue,
+    DataSnapshot,
 } from 'firebase/database';
 
 function useFirebaseDatabase<T = unknown>({
@@ -15,17 +16,24 @@ function useFirebaseDatabase<T = unknown>({
     const [data, setData] = React.useState<Record<string, T>>();
 
     React.useEffect(() => {
-        if (!skip) {
-            onValue(query, (snapshot) => {
-                setPending(false);
-
-                if (!snapshot.exists()) {
-                    return;
-                }
-
-                setData(snapshot.val() as Record<string, T>);
-            }, { onlyOnce: true });
+        if (skip) {
+            return undefined;
         }
+
+        setPending(true);
+        const handleQueryDone = (snapshot: DataSnapshot) => {
+            setPending(false);
+
+            if (!snapshot.exists()) {
+                return;
+            }
+
+            setData(snapshot.val() as Record<string, T>);
+        };
+
+        const unsubscribe = onValue(query, handleQueryDone);
+
+        return unsubscribe;
     }, [query, skip]);
 
     const returnValue = React.useMemo(() => ({

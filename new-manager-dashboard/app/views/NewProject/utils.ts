@@ -67,14 +67,6 @@ export interface ProjectFormType {
     tileServerB?: TileServer;
 }
 
-export function valueSelector<T>(item: { value: T }) {
-    return item.value;
-}
-
-export function labelSelector<T>(item: { label: T }) {
-    return item.label;
-}
-
 export const projectTypeOptions = [
     { value: PROJECT_TYPE_BUILD_AREA, label: 'Build Area' },
     { value: PROJECT_TYPE_FOOTPRINT, label: 'Footprint' },
@@ -226,12 +218,15 @@ export const projectFormSchema: ProjectFormSchema = {
             projectType: [requiredCondition],
             projectRegion: [requiredStringCondition],
             projectNumber: [requiredCondition],
-            projectImage: [requiredCondition],
             requestingOrganization: [requiredStringCondition],
             name: [requiredStringCondition],
             visibility: [requiredCondition],
             lookFor: [requiredStringCondition],
+            projectDetails: [requiredCondition],
             tutorialId: [requiredCondition],
+            projectImage: [requiredCondition],
+            verificationNumber: [requiredCondition],
+            groupSize: [requiredCondition],
             zoomLevel: [forceNullType],
             geometry: [forceNullType],
             filter: [forceNullType],

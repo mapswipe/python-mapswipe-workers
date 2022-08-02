@@ -7,10 +7,20 @@ import {
     query,
     orderByChild,
 } from 'firebase/database';
+import { MdSearch } from 'react-icons/md';
+import { Link } from 'react-router-dom';
 
 import useFirebaseDatabase from '#hooks/useFirebaseDatabase';
 import useInputState from '#hooks/useInputState';
 import RadioInput from '#components/RadioInput';
+import TextInput from '#components/TextInput';
+import PendingMessage from '#components/PendingMessage';
+import { rankedSearchOnList } from '#components/SelectInput/utils';
+
+import {
+    valueSelector,
+    labelSelector,
+} from '#utils/common';
 
 import ProjectDetails, {
     Project,
@@ -29,6 +39,7 @@ function Projects(props: Props) {
     } = props;
 
     const [selectedProjectStat, setSelectedProjectStat] = useInputState<string>('active');
+    const [searchText, setSearchText] = useInputState<string | undefined>(undefined);
 
     const projectQuery = React.useMemo(
         () => {
@@ -49,7 +60,19 @@ function Projects(props: Props) {
         query: projectQuery,
     });
 
-    const projectKeys = Object.keys(projects ?? {});
+    const projectList = React.useMemo(() => Object.values(projects ?? {}), [projects]);
+    const filteredProjectList = React.useMemo(
+        () => {
+            const filteredList = rankedSearchOnList(
+                projectList,
+                searchText,
+                (project) => project.name,
+            );
+
+            return filteredList;
+        },
+        [projectList, searchText],
+    );
 
     return (
         <div className={_cs(styles.projects, className)}>
@@ -57,41 +80,60 @@ function Projects(props: Props) {
                 <h2 className={styles.heading}>
                     Projects
                 </h2>
-            </div>
-            <div className={styles.container}>
-                <div className={styles.filters}>
-                    <RadioInput
-                        label="Project Status"
+                <div className={styles.actions}>
+                    <TextInput
+                        icons={<MdSearch />}
                         name={undefined}
-                        options={projectStatusOptions}
-                        value={selectedProjectStat}
-                        onChange={setSelectedProjectStat}
-                        keySelector={(statOption) => statOption.value}
-                        labelSelector={(statOption) => statOption.label}
+                        value={searchText}
+                        onChange={setSearchText}
+                        placeholder="Search by title"
                     />
                 </div>
-                <div className={_cs(styles.projectList, className)}>
+            </div>
+            <div className={styles.container}>
+                <div className={styles.sidebar}>
+                    {/* FIXME: use router */}
+                    <Link to="/new-project/">
+                        Add new Project
+                    </Link>
+                    <div className={styles.filters}>
+                        <RadioInput
+                            label="Project Status"
+                            name={undefined}
+                            options={projectStatusOptions}
+                            value={selectedProjectStat}
+                            onChange={setSelectedProjectStat}
+                            keySelector={valueSelector}
+                            labelSelector={labelSelector}
+                        />
+                    </div>
+                </div>
+                <div
+                    className={_cs(styles.projectList, className)}
+                    key={selectedProjectStat}
+                >
                     {pending && (
-                        <div className={styles.loading}>
-                            Loading...
+                        <PendingMessage
+                            className={styles.loading}
+                        />
+                    )}
+                    {!pending && filteredProjectList.map((project) => {
+                        if (!project) {
+                            return null;
+                        }
+
+                        return (
+                            <ProjectDetails
+                                key={project.projectId}
+                                data={project}
+                            />
+                        );
+                    })}
+                    {!pending && filteredProjectList.length === 0 && (
+                        <div className={styles.emptyMessage}>
+                            No projects found
                         </div>
                     )}
-                    <div>
-                        {projectKeys.map((projectKey) => {
-                            const project = projects?.[projectKey];
-
-                            if (!project) {
-                                return null;
-                            }
-
-                            return (
-                                <ProjectDetails
-                                    key={projectKey}
-                                    data={project}
-                                />
-                            );
-                        })}
-                    </div>
                 </div>
             </div>
         </div>

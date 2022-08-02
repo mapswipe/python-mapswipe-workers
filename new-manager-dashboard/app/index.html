@@ -12,30 +12,31 @@
                 position: relative;
                 width: 100vw;
                 height: 100vh;
-                font-family: 'Lato', sans-serif;
+                font-family: 'Noto Sans', sans-serif;
                 color: var(--color-text);
+                line-height: 1.5;
             }
 
             * {
                 box-sizing: border-box;
-                scrollbar-color: var(--color-foreground-scrollbar) var(--color-background-scrollbar);
+                scrollbar-color: var(--color-scrollbar-foreground) var(--color-scrollbar-background);
                 scrollbar-width: thin;
             }
 
             ::-webkit-scrollbar {
-                background-color: var(--color-background-scrollbar);
+                background-color: var(--color-scrollbar-background);
                 width: var(--width-scrollbar);
                 height: var(--width-scrollbar);
-                background-color: var(--color-background-scrollbar);
+                background-color: var(--color-scrollbar-background);
             }
 
             ::-webkit-scrollbar-track {
-                background-color: var(--color-background-scrollbar);
+                background-color: var(--color-scrollbar-background);
             }
 
             ::-webkit-scrollbar-thumb {
                 border-radius: var(--radius-scrollbar-border);
-                background-color: var(--color-foreground-scrollbar);
+                background-color: var(--color-scrollbar-foreground);
             }
 
             #app-container {
@@ -59,7 +60,7 @@
 
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;700&display=swap" rel="stylesheet">
 
 
         <!-- Start of anti-click-jacking -->

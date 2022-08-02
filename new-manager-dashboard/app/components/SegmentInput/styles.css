@@ -6,7 +6,7 @@
             display: flex;
             align-items: center;
             border: var(--width-separator-thin) solid var(--color-separator);
-            padding: var(--spacing-small) var(--spacing-large);
+            padding: var(--spacing-extra-small) var(--spacing-large);
 
             &.active {
                 background-color: var(--color-accent);
@@ -14,13 +14,13 @@
             }
 
             &:first-child {
-                border-top-left-radius: 1rem;
-                border-bottom-left-radius: 1rem;
+                border-top-left-radius: var(--radius-button-border);
+                border-bottom-left-radius: var(--radius-button-border);
             }
 
             &:last-child {
-                border-top-right-radius: 1rem;
-                border-bottom-right-radius: 1rem;
+                border-top-right-radius: var(--radius-button-border);
+                border-bottom-right-radius: var(--radius-button-border);
             }
         }
     }
