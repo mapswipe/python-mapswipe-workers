@@ -29,9 +29,10 @@ function Navbar(props: Props) {
             await auth.signOut();
             setUser(undefined);
         } catch (error) {
+            // eslint-disable-next-line no-console
             console.error('Failed to sign out', error);
         }
-    }, []);
+    }, [setUser]);
 
     return (
         <nav className={_cs(className, styles.navbar)}>

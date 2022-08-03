@@ -14,11 +14,12 @@ import {
     getType as getFeatureType,
     area as getFeatureArea,
 } from '@turf/turf';
+import { getNoMoreThanNCharacterCondition } from '#utils/common';
 
 import { FeatureCollection } from '#components/GeoJsonPreview';
 
-type ProjectType = 1 | 2 | 3 | 4;
-type ProjectInputType = 'aoi_file' | 'link' | 'TMId';
+export type ProjectType = 1 | 2 | 3 | 4;
+export type ProjectInputType = 'aoi_file' | 'link' | 'TMId';
 export type TileServerType = 'bing' | 'mapbox' | 'maxar_standard' | 'maxar_premium' | 'esri' | 'esri_beta' | 'sinergise' | 'custom';
 
 export const PROJECT_TYPE_BUILD_AREA = 1;
@@ -56,7 +57,7 @@ export interface ProjectFormType {
     lookFor: string;
     tutorialId: string;
     projectDetails: string;
-    projectImage: File | undefined;
+    projectImage?: File;
     verificationNumber: number;
     groupSize: number;
     zoomLevel: number;
@@ -126,23 +127,11 @@ export const filterOptions = [
     { value: FILTER_OTHERS, label: 'Other' },
 ];
 
-// FIXME: let's move this to utils
-export function getNoMoreThanNCharacterCondition(maxCharacters: number) {
-    return (value: string | undefined) => {
-        if (!isDefined(value) || value.length <= maxCharacters) {
-            return undefined;
-        }
-
-        return `Max ${maxCharacters} characters allowed`;
-    };
-}
-
-// FIXME: we should not need to use omit on geometry
 export type PartialProjectFormType = PartialForm<
-    Omit<ProjectFormType, 'geometry'>
-> & {
-    geometry?: FeatureCollection | undefined;
-};
+    ProjectFormType,
+    // NOTE: we do not want to change File and FeatureCollection to partials
+    'geometry' | 'projectImage'
+>;
 
 type ProjectFormSchema = ObjectSchema<PartialProjectFormType>;
 type ProjectFormSchemaFields = ReturnType<ProjectFormSchema['fields']>;
@@ -152,9 +141,12 @@ type TileServerSchema = ObjectSchema<PartialForm<TileServerInputType>, PartialPr
 type TileServerFields = ReturnType<TileServerSchema['fields']>;
 
 function validGeometryCondition(
-    featureCollection: FeatureCollection | undefined,
+    featureCollection: FeatureCollection | string | undefined,
     allValue: PartialProjectFormType,
 ) {
+    if (typeof featureCollection === 'string') {
+        return undefined;
+    }
     if (!featureCollection) {
         return undefined;
     }

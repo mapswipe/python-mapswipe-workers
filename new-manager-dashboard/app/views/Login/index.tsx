@@ -33,8 +33,6 @@ function Login(props: Props) {
     const [email, setEmail] = useInputState<string | undefined>('');
     const [password, setPassword] = useInputState<string | undefined>('');
 
-    // FIXME: we may need to manually batch setState
-    // functions inside async function
     const handleLoginClick = React.useCallback(async () => {
         if (!email || !password) {
             // eslint-disable-next-line no-console

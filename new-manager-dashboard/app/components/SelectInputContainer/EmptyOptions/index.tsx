@@ -18,7 +18,7 @@ function EmptyOptions(props: DefaultEmptyComponentProps) {
     } = props;
 
     if (pending) {
-        // FIXME: use loading
+        // FIXME: use Loading component
         return (
             <div className={styles.empty}>
                 Fetching options...

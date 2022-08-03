@@ -1,7 +1,7 @@
 import React from 'react';
 import {
     _cs,
-    isNotDefined,
+    isFalsyString,
     isDefined,
 } from '@togglecorp/fujs';
 import {
@@ -9,6 +9,7 @@ import {
     getErrorObject,
     createSubmitHandler,
     analyzeErrors,
+    EntriesAsList,
 } from '@togglecorp/toggle-form';
 import {
     getStorage,
@@ -30,6 +31,7 @@ import {
 import { Link } from 'react-router-dom';
 
 import UserContext from '#base/context/UserContext';
+import useMountedRef from '#hooks/useMountedRef';
 import Modal from '#components/Modal';
 import SelectInput from '#components/SelectInput';
 import TextInput from '#components/TextInput';
@@ -50,6 +52,8 @@ import TileServerInput from './TileServerInput';
 
 import {
     projectFormSchema,
+    ProjectType,
+    ProjectInputType,
     PartialProjectFormType,
     projectTypeOptions,
     projectInputTypeOptions,
@@ -84,6 +88,39 @@ const defaultProjectFormValue: PartialProjectFormType = {
     filter: FILTER_BUILDINGS,
 };
 
+function generateProjectName(
+    projectTopic: string | undefined | null,
+    projectNumber: number | undefined | null,
+    projectRegion: string | undefined | null,
+    requestingOrganization: string | undefined | null,
+) {
+    if (
+        isFalsyString(projectTopic)
+        || isDefined(projectNumber)
+        || isFalsyString(projectRegion)
+        || isFalsyString(requestingOrganization)
+    ) {
+        return undefined;
+    }
+
+    return `${projectTopic} - ${projectRegion}(${projectNumber}) ${requestingOrganization}`;
+}
+
+function getGroupSize(projectType: ProjectType | undefined) {
+    if (projectType === PROJECT_TYPE_BUILD_AREA) {
+        return 120;
+    }
+
+    if (projectType === PROJECT_TYPE_FOOTPRINT || projectType === PROJECT_TYPE_CHANGE_DETECTION) {
+        return 25;
+    }
+
+    if (projectType === PROJECT_TYPE_COMPLETENESS) {
+        return 80;
+    }
+    return undefined;
+}
+
 interface Props {
     className?: string;
 }
@@ -95,20 +132,22 @@ function NewProject(props: Props) {
 
     const { user } = React.useContext(UserContext);
 
+    const mountedRef = useMountedRef();
+
     const {
         setFieldValue,
         value,
         error: formError,
         validate,
         setError,
+        setValue,
     } = useForm(projectFormSchema, defaultProjectFormValue);
 
     const {
         teamOptions,
         tutorialOptions,
-        // FIXME: use pending states
-        // teamsPending,
-        // tutorialsPending,
+        teamsPending,
+        tutorialsPending,
     } = useProjectOptions(value?.projectType);
 
     const [
@@ -121,116 +160,123 @@ function NewProject(props: Props) {
         [formError],
     );
 
-    // FIXME: use wrapped handler instead of useEffect
-    React.useEffect(
-        () => {
-            if (isNotDefined(value?.projectTopic)
-                || isNotDefined(value?.projectNumber)
-                || isNotDefined(value?.projectRegion)
-                || isNotDefined(value?.requestingOrganization)
-            ) {
-                setFieldValue(undefined, 'name');
-                return;
-            }
-
-            const projectName = `${value?.projectTopic} - ${value?.projectRegion}(${value?.projectNumber}) ${value?.requestingOrganization}`;
-            setFieldValue(projectName, 'name');
+    const setFieldValueWithName = React.useCallback(
+        (...entries: EntriesAsList<PartialProjectFormType>) => {
+            setValue((oldValue) => {
+                const [val, key] = entries;
+                const newValue: typeof oldValue = {
+                    ...oldValue,
+                    // NOTE: this may not be type-safe
+                    [key]: val,
+                };
+                const name = generateProjectName(
+                    newValue.projectTopic,
+                    newValue.projectNumber,
+                    newValue.projectRegion,
+                    newValue.requestingOrganization,
+                );
+                return {
+                    ...newValue,
+                    name,
+                };
+            }, true);
         },
-        [
-            setFieldValue,
-            value?.projectTopic,
-            value?.projectRegion,
-            value?.projectNumber,
-            value?.requestingOrganization,
-        ],
+        [setValue],
     );
 
-    // FIXME: use wrapped handler instead of useEffect
-    React.useEffect(
-        () => {
-            if (value?.projectType !== PROJECT_TYPE_FOOTPRINT) {
-                return;
-            }
-
-            // The geometry type might be set to geoson
-            if (value?.inputType === PROJECT_INPUT_TYPE_LINK) {
-                setFieldValue(undefined, 'geometry');
-            }
+    const handleProjectTypeChange = React.useCallback(
+        (projectType: ProjectType | undefined) => {
+            setValue((oldVal) => ({
+                ...oldVal,
+                projectType,
+                // We are un-setting geometry because geometry
+                // can be string or FeatureCollection
+                geometry: undefined,
+                groupSize: getGroupSize(projectType),
+            }), true);
         },
-        [setFieldValue, value?.projectType, value?.inputType],
+        [setValue],
     );
 
-    // FIXME: use wrapped handler instead of useEffect
-    React.useEffect(
-        () => {
-            if (isNotDefined(value?.projectType)) {
-                return;
-            }
-
-            if (value.projectType === PROJECT_TYPE_BUILD_AREA) {
-                setFieldValue(120, 'groupSize');
-            }
-
-            if (value.projectType === PROJECT_TYPE_FOOTPRINT
-                || value.projectType === PROJECT_TYPE_CHANGE_DETECTION) {
-                setFieldValue(25, 'groupSize');
-            }
-
-            if (value.projectType === PROJECT_TYPE_COMPLETENESS) {
-                setFieldValue(80, 'groupSize');
-            }
+    const handleInputTypeChange = React.useCallback(
+        (inputType: ProjectInputType | undefined) => {
+            setValue((oldVal) => ({
+                ...oldVal,
+                inputType,
+                // We are un-setting geometry because geometry
+                // can be string or FeatureCollection
+                geometry: undefined,
+            }), true);
         },
-        [setFieldValue, value?.projectType],
+        [setValue],
     );
 
     const handleFormSubmission = React.useCallback((finalValues: PartialProjectFormType) => {
-        if (!user) {
-            // FIXME: probably show an error message
+        const userId = user?.id;
+
+        if (!userId) {
+            // eslint-disable-next-line no-console
+            console.error('Cannot submit form because user is not defined');
             return;
         }
 
         setProjectSubmissionStatus('started');
 
         async function submitToFirebase() {
-            const projectImage = finalValues?.projectImage as File | undefined;
+            if (!mountedRef.current) {
+                return;
+            }
+            const projectImage = finalValues?.projectImage;
             if (!projectImage) {
-                // FIXME: log console
+                // eslint-disable-next-line no-console
+                console.error('Cannot submit to firebase because project is not defined');
                 return;
             }
 
             const storage = getStorage();
             const uploadedImageRef = storageRef(storage, `projectImages/${projectImage.name}`);
 
-            // FIXME: use useMountedRef here
             setProjectSubmissionStatus('imageUpload');
             try {
                 const uploadTask = await uploadBytes(uploadedImageRef, projectImage);
-
+                if (!mountedRef.current) {
+                    return;
+                }
                 const downloadUrl = await getDownloadURL(uploadTask.ref);
+                if (!mountedRef.current) {
+                    return;
+                }
+
                 const uploadData = {
                     ...finalValues,
                     image: downloadUrl,
-
-                    // TODO: check if user session still exist
-                    createdBy: user?.id,
+                    createdBy: userId,
                 };
-
                 delete uploadData.projectImage;
 
                 const database = getDatabase();
                 const projectDraftsRef = databaseRef(database, 'v2/projectDrafts/');
                 const newProjectDraftsRef = await pushToDatabase(projectDraftsRef);
+                if (!mountedRef.current) {
+                    return;
+                }
                 const newKey = newProjectDraftsRef.key;
 
                 if (newKey) {
                     setProjectSubmissionStatus('projectSubmit');
                     const newProjectRef = databaseRef(database, `v2/projectDrafts/${newKey}`);
                     await setToDatabase(newProjectRef, uploadData);
+                    if (!mountedRef.current) {
+                        return;
+                    }
                     setProjectSubmissionStatus('success');
                 } else {
                     setProjectSubmissionStatus('failed');
                 }
             } catch (submissionError) {
+                if (!mountedRef.current) {
+                    return;
+                }
                 // eslint-disable-next-line no-console
                 console.error(submissionError);
                 setProjectSubmissionStatus('failed');
@@ -238,7 +284,7 @@ function NewProject(props: Props) {
         }
 
         submitToFirebase();
-    }, [user]);
+    }, [user, mountedRef]);
 
     const handleSubmitButtonClick = React.useMemo(
         () => createSubmitHandler(validate, setError, handleFormSubmission),
@@ -250,7 +296,13 @@ function NewProject(props: Props) {
         [error],
     );
 
-    const submissionPending = projectSubmissionStatus === 'started' || projectSubmissionStatus === 'imageUpload' || projectSubmissionStatus === 'projectSubmit';
+    const submissionPending = (
+        teamsPending
+        || tutorialsPending
+        || projectSubmissionStatus === 'started'
+        || projectSubmissionStatus === 'imageUpload'
+        || projectSubmissionStatus === 'projectSubmit'
+    );
 
     return (
         <div className={_cs(styles.newProject, className)}>
@@ -260,7 +312,7 @@ function NewProject(props: Props) {
                 >
                     <SegmentInput
                         name={'projectType' as const}
-                        onChange={setFieldValue}
+                        onChange={handleProjectTypeChange}
                         value={value?.projectType}
                         label="Project Type"
                         hint="Select the type of your project."
@@ -274,7 +326,7 @@ function NewProject(props: Props) {
                         <TextInput
                             name={'projectTopic' as const}
                             value={value?.projectTopic}
-                            onChange={setFieldValue}
+                            onChange={setFieldValueWithName}
                             error={error?.projectTopic}
                             label="Project Topic"
                             hint="Enter the topic of your project (50 char max)."
@@ -283,7 +335,7 @@ function NewProject(props: Props) {
                         <TextInput
                             name={'projectRegion' as const}
                             value={value?.projectRegion}
-                            onChange={setFieldValue}
+                            onChange={setFieldValueWithName}
                             label="Project Region"
                             hint="Enter name of your project Region (50 chars max)"
                             error={error?.projectRegion}
@@ -294,7 +346,7 @@ function NewProject(props: Props) {
                         <NumberInput
                             name={'projectNumber' as const}
                             value={value?.projectNumber}
-                            onChange={setFieldValue}
+                            onChange={setFieldValueWithName}
                             label="Project Number"
                             hint="Is this project part of a bigger campaign with multiple projects?"
                             error={error?.projectNumber}
@@ -303,7 +355,7 @@ function NewProject(props: Props) {
                         <TextInput
                             name={'requestingOrganization' as const}
                             value={value?.requestingOrganization}
-                            onChange={setFieldValue}
+                            onChange={setFieldValueWithName}
                             error={error?.requestingOrganization}
                             label="Requesting Organization"
                             hint="Which group, institution or community is requesting this project?"
@@ -355,8 +407,7 @@ function NewProject(props: Props) {
                     <div className={styles.inputGroup}>
                         <FileInput
                             name={'projectImage' as const}
-                            // FIXME: figure out why cast is needed here
-                            value={value?.projectImage as (File | undefined)}
+                            value={value?.projectImage}
                             onChange={setFieldValue}
                             label="Upload Project Image"
                             hint="Make sure you have the rights to use the image. It should end with .jpg or .png."
@@ -440,7 +491,7 @@ function NewProject(props: Props) {
                         <SegmentInput
                             label="Select an option for Project Task Geometry"
                             name={'inputType' as const}
-                            onChange={setFieldValue}
+                            onChange={handleInputTypeChange}
                             value={value?.inputType}
                             options={projectInputTypeOptions}
                             keySelector={valueSelector}

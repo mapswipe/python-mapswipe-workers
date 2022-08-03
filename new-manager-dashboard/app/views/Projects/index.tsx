@@ -8,9 +8,11 @@ import {
     orderByChild,
 } from 'firebase/database';
 import { MdSearch } from 'react-icons/md';
-import { Link } from 'react-router-dom';
 
+import route from '#base/configs/routes';
+import SmartLink from '#base/components/SmartLink';
 import useFirebaseDatabase from '#hooks/useFirebaseDatabase';
+
 import useInputState from '#hooks/useInputState';
 import RadioInput from '#components/RadioInput';
 import TextInput from '#components/TextInput';
@@ -91,10 +93,11 @@ function Projects(props: Props) {
             </div>
             <div className={styles.container}>
                 <div className={styles.sidebar}>
-                    {/* FIXME: use router */}
-                    <Link to="/new-project/">
+                    <SmartLink
+                        route={route.newProject}
+                    >
                         Add new Project
-                    </Link>
+                    </SmartLink>
                     <div className={styles.filters}>
                         <RadioInput
                             label="Project Status"

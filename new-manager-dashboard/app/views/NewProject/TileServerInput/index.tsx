@@ -1,5 +1,4 @@
 import React from 'react';
-import { isDefined } from '@togglecorp/fujs';
 import {
     useFormObject,
     getErrorObject,
@@ -20,6 +19,7 @@ import {
     TILE_SERVER_BING,
     TILE_SERVER_CUSTOM,
     TileServer,
+    TileServerType,
     tileServerDefaultCredits,
 } from '../utils';
 
@@ -48,14 +48,24 @@ function TileServerInput<Name extends string | number>(props: Props<Name>) {
     const setFieldValue = useFormObject(name, onChange, defaultValue);
     const error = getErrorObject(formError);
 
-    // FIXME: Let's remove this useEffect and define a handler instead
-    React.useEffect(() => {
-        const tileServerName = value?.name;
-
-        if (isDefined(tileServerName)) {
-            setFieldValue(tileServerDefaultCredits[tileServerName], 'credits');
-        }
-    }, [setFieldValue, value?.name]);
+    const handleTileServerChange = React.useCallback(
+        (val: TileServerType | undefined) => {
+            onChange(
+                (oldValue) => {
+                    const credits = val
+                        ? tileServerDefaultCredits[val]
+                        : undefined;
+                    return {
+                        ...oldValue,
+                        name: val,
+                        credits,
+                    };
+                },
+                name,
+            );
+        },
+        [onChange, name],
+    );
 
     return (
         <>
@@ -63,7 +73,7 @@ function TileServerInput<Name extends string | number>(props: Props<Name>) {
                 label="Tile Server Name"
                 hint="Select the tile server providing satellite imagery tiles for your project. Make sure you have permission."
                 name={'name' as const}
-                onChange={setFieldValue}
+                onChange={handleTileServerChange}
                 value={value?.name}
                 options={tileServerNameOptions}
                 keySelector={valueSelector}

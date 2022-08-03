@@ -106,15 +106,16 @@ function ProjectDetails(props: Props) {
                 await update(ref(db), updates);
                 // Note: we need to check if the component is still mounted
                 // before setting state because of the async function above
-                if (mountedRef.current) {
-                    setStatusUpdatePending(false);
+                if (!mountedRef.current) {
+                    return;
                 }
             } catch (updateError) {
+                if (!mountedRef.current) {
+                    return;
+                }
                 // eslint-disable-next-line no-console
                 console.error(updateError);
-                if (mountedRef.current) {
-                    setStatusUpdatePending(false);
-                }
+                setStatusUpdatePending(false);
             }
         },
         [data.projectId, mountedRef],
@@ -132,15 +133,17 @@ function ProjectDetails(props: Props) {
                 await update(ref(db), updates);
                 // Note: we need to check if the component is still mounted
                 // before setting state because of the async function above
-                if (mountedRef.current) {
-                    setFeaturedUpdatePending(false);
+                if (!mountedRef.current) {
+                    return;
                 }
+                setFeaturedUpdatePending(false);
             } catch (updateError) {
+                if (!mountedRef.current) {
+                    return;
+                }
                 // eslint-disable-next-line no-console
                 console.error(updateError);
-                if (mountedRef.current) {
-                    setFeaturedUpdatePending(false);
-                }
+                setFeaturedUpdatePending(false);
             }
         },
         [data.projectId, mountedRef],

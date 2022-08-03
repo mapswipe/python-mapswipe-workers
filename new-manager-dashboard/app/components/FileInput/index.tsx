@@ -128,10 +128,11 @@ function FileInput<Name>(props: Props<Name>) {
     const handleChange = React.useCallback((
         _: string | undefined,
         __: Name,
-        e?: React.ChangeEvent<HTMLInputElement>,
+        e?: React.FormEvent<HTMLInputElement>,
     ) => {
         if (e) {
-            handleFiles(e.target.files);
+            // React.FormEvent<HTMLInputElement> does not have target.files
+            handleFiles((e as React.ChangeEvent<HTMLInputElement>).target.files);
         }
     }, [handleFiles]);
 
