@@ -29,14 +29,9 @@ env = environ.Env(
     DJANGO_DB_HOST=str,
     DJANGO_DB_PORT=int,
     DJANGO_CORS_ORIGIN_REGEX_WHITELIST=(list, []),
-    DJANGO_TIME_ZONE=str,
     # Static, Media configs
-    DJANGO_STATIC_URL=(str, "/static/"),
-    DJANGO_MEDIA_URL=(str, "/media/"),
-    DJANGO_STATIC_ROOT=(str, os.path.join(BASE_DIR, "staticfiles")),
-    DJANGO_MEDIA_ROOT=(str, os.path.join(BASE_DIR, "media")),
-    DJANGO_STATICFILES_LOCATION=(str, "static"),
-    DJANGO_MEDIAFILES_LOCATION=(str, "media"),
+    DJANGO_STATIC_ROOT=(str, os.path.join(BASE_DIR, "assets/static")),  # Where to store
+    DJANGO_MEDIA_ROOT=(str, os.path.join(BASE_DIR, "assets/media")),  # Where to store
 )
 
 
@@ -154,7 +149,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = env("DJANGO_TIME_ZONE")
+TIME_ZONE = "UTC"
 
 USE_I18N = True
 
@@ -164,7 +159,12 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.0/howto/static-files/
 
-STATIC_URL = "static/"
+STATIC_ROOT = env("DJANGO_STATIC_ROOT")
+STATIC_URL = "/static/"
+
+MEDIA_ROOT = env("DJANGO_MEDIA_ROOT")
+MEDIA_URL = "/media/"
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
