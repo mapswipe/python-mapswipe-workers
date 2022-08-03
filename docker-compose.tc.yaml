@@ -114,7 +114,6 @@ services:
       DJANGO_DB_PWD: '${POSTGRES_PASSWORD:-postgres}'
       DJANGO_DB_HOST: '${POSTGRES_HOST:-postgres}'
       DJANGO_DB_PORT: '${POSTGRES_PORT:-5432}'
-      DJANGO_TIME_ZONE: 'Asia/Kathmandu'
     volumes:
       - ./django:/code
       - ipython_data_local:/root/.ipython/profile_default   # persist ipython data, including ipython history
