@@ -43,6 +43,8 @@ import GeoJsonFileInput from '#components/GeoJsonFileInput';
 import InputSection from '#components/InputSection';
 import Button from '#components/Button';
 import { FeatureCollection } from '#components/GeoJsonPreview';
+import AnimatedSwipeIcon from '#components/AnimatedSwipeIcon';
+
 import {
     valueSelector,
     labelSelector,
@@ -631,7 +633,7 @@ function NewProject(props: Props) {
                         )}
                     >
                         {submissionPending && (
-                            <MdSwipe className={styles.swipeIcon} />
+                            <AnimatedSwipeIcon className={styles.swipeIcon} />
                         )}
                         {projectSubmissionStatus === 'success' && (
                             <MdOutlinePublishedWithChanges className={styles.successIcon} />

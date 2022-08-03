@@ -1,3 +1,80 @@
 .home {
-    padding: var(--spacing-medium);
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    background-color: var(--color-background);
+
+    .container {
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+        padding: var(--spacing-large) 0;
+        width: 100%;
+        max-width: var(--width-page-content-max);
+        gap: var(--spacing-large);
+
+        .introduction {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-medium);
+            background-color: var(--color-foreground);
+            padding: var(--spacing-extra-large);
+
+            .greetings {
+                .welcome {
+                    font-size: var(--font-size-large);
+                }
+
+                .appName {
+                    color: var(--color-primary);
+                    font-size: var(--font-size-super-large);
+                    font-weight: var(--font-weight-bold);
+                }
+            }
+
+            .description {
+                color: var(--color-text-light);
+            }
+        }
+
+        .organization-container {
+            display: flex;
+            flex-direction: column;
+            background-color: var(--color-foreground);
+            padding: var(--spacing-large);
+            gap: var(--spacing-medium);
+
+            .header {
+                display: flex;
+
+                .heading {
+                    flex-grow: 1;
+                }
+
+                .add-button {
+                    flex-shrink: 0;
+                }
+            }
+        }
+
+        .tutorials-container {
+            display: flex;
+            flex-direction: column;
+            background-color: var(--color-foreground);
+            padding: var(--spacing-large);
+            gap: var(--spacing-medium);
+
+            .header {
+                display: flex;
+
+                .heading {
+                    flex-grow: 1;
+                }
+
+                .add-button {
+                    flex-shrink: 0;
+                }
+            }
+        }
+    }
 }

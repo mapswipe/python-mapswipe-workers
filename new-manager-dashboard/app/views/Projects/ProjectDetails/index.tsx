@@ -6,9 +6,9 @@ import {
     update,
 } from 'firebase/database';
 import {
-    MdOutlineExpandMore,
-    MdOutlineExpandLess,
-} from 'react-icons/md';
+    IoChevronDown,
+    IoChevronUp,
+} from 'react-icons/io5';
 
 import useConfirmation from '#hooks/useConfirmation';
 import useMountedRef from '#hooks/useMountedRef';
@@ -248,9 +248,9 @@ function ProjectDetails(props: Props) {
                     className={styles.detailsToggleButton}
                     name={!detailsShown}
                     onClick={setDetailsShown}
-                    actions={detailsShown ? <MdOutlineExpandLess /> : <MdOutlineExpandMore />}
+                    variant="action"
                 >
-                    {detailsShown ? 'Show less details' : 'View more details'}
+                    {detailsShown ? <IoChevronUp /> : <IoChevronDown />}
                 </Button>
             </div>
             {statusUpdatePending && (

@@ -51,7 +51,7 @@ const teams = wrap({
 });
 
 const userGroups = wrap({
-    path: '/userGroups/',
+    path: '/user-groups/',
     title: 'User Groups',
     navbarVisibility: true,
     component: lazy(() => import('#views/UserGroups')),

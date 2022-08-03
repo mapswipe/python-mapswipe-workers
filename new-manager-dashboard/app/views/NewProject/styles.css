@@ -61,7 +61,6 @@
         gap: var(--spacing-large);
 
         .swipe-icon {
-            animation: wiggle 1s ease-in-out infinite;
             color: var(--color-text-light);
             font-size: 10rem;
         }
@@ -92,17 +91,5 @@
     .actions {
         display: flex;
         justify-content: flex-end;
-    }
-}
-
-@keyframes wiggle {
-    0% {
-        transform: rotate(0deg) translateX(0);
-    }
-    25% {
-        transform: rotateY(30deg) rotate(-10deg) translateX(-50px);
-    }
-    100% {
-        transform: rotate(0deg) translateX(0);
     }
 }

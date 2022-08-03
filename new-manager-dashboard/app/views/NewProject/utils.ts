@@ -14,9 +14,9 @@ import {
     getType as getFeatureType,
     area as getFeatureArea,
 } from '@turf/turf';
-import { getNoMoreThanNCharacterCondition } from '#utils/common';
 
 import { FeatureCollection } from '#components/GeoJsonPreview';
+import { getNoMoreThanNCharacterCondition } from '#utils/common';
 
 export type ProjectType = 1 | 2 | 3 | 4;
 export type ProjectInputType = 'aoi_file' | 'link' | 'TMId';

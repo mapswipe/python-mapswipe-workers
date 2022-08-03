@@ -1,6 +1,4 @@
-import {
-    isDefined,
-} from '@togglecorp/fujs';
+import { isDefined } from '@togglecorp/fujs';
 
 export function valueSelector<T>(item: { value: T }) {
     return item.value;
