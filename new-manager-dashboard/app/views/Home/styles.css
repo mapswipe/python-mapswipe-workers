@@ -3,12 +3,12 @@
     align-items: center;
     flex-direction: column;
     background-color: var(--color-background);
+    padding: var(--spacing-large);
 
     .container {
         display: flex;
         flex-direction: column;
         flex-grow: 1;
-        padding: var(--spacing-large) 0;
         width: 100%;
         max-width: var(--width-page-content-max);
         gap: var(--spacing-large);
@@ -25,7 +25,7 @@
                     font-size: var(--font-size-large);
                 }
 
-                .appName {
+                .app-name {
                     color: var(--color-primary);
                     font-size: var(--font-size-super-large);
                     font-weight: var(--font-weight-bold);
@@ -54,6 +54,12 @@
                 .add-button {
                     flex-shrink: 0;
                 }
+            }
+
+            .organization-list {
+                border-top: var(--width-separator-thin) solid var(--color-separator);
+                border-bottom: var(--width-separator-thin) solid var(--color-separator);
+                padding: var(--spacing-medium) 0;
             }
         }
 

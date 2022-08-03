@@ -182,42 +182,77 @@ function ProjectDetails(props: Props) {
                     </div>
                 </div>
             </div>
-            <div>
-                <div className={styles.textOutput}>
-                    <div className={styles.label}>
-                        Type:
+            <div className={styles.metaData}>
+                <div className={styles.metaList}>
+                    <div className={styles.textOutput}>
+                        <div className={styles.label}>
+                            Type:
+                        </div>
+                        <div className={styles.value}>
+                            {projectTypeLabelMap[data.projectType]}
+                        </div>
                     </div>
-                    <div className={styles.value}>
-                        {projectTypeLabelMap[data.projectType]}
-                    </div>
+                    {detailsShown && (
+                        <>
+                            <div className={styles.textOutput}>
+                                <div className={styles.label}>
+                                    Look for:
+                                </div>
+                                <div className={styles.value}>
+                                    {data.lookFor}
+                                </div>
+                            </div>
+                            <div className={styles.textOutput}>
+                                <div className={styles.label}>
+                                    Region:
+                                </div>
+                                <div className={styles.value}>
+                                    {data.projectRegion}
+                                </div>
+                            </div>
+                            <div className={styles.textOutput}>
+                                <div className={styles.label}>
+                                    Required results:
+                                </div>
+                                <div className={styles.value}>
+                                    {data.requiredResults}
+                                </div>
+                            </div>
+                            <div className={styles.textOutput}>
+                                <div className={styles.label}>
+                                    Group Max Size:
+                                </div>
+                                <div className={styles.value}>
+                                    {data.groupMaxSize}
+                                </div>
+                            </div>
+                            <div className={styles.textOutput}>
+                                <div className={styles.label}>
+                                    Verification Number
+                                </div>
+                                <div className={styles.value}>
+                                    {data.verificationNumber}
+                                </div>
+                            </div>
+                            <div className={styles.textOutput}>
+                                <div className={styles.label}>
+                                    Number of Contributors
+                                </div>
+                                <div className={styles.value}>
+                                    {data.contributorCount}
+                                </div>
+                            </div>
+                        </>
+                    )}
                 </div>
                 {detailsShown && (
-                    <>
-                        <div className={styles.textOutput}>
-                            <div className={styles.label}>
-                                Look for:
-                            </div>
-                            <div className={styles.value}>
-                                {data.lookFor}
-                            </div>
-                        </div>
-                        <div className={styles.textOutput}>
-                            <div className={styles.label}>
-                                Region:
-                            </div>
-                            <div className={styles.value}>
-                                {data.projectRegion}
-                            </div>
-                        </div>
-                        <div className={styles.textOutput}>
-                            <div className={styles.label}>
-                                Required results:
-                            </div>
-                            <div className={styles.value}>
-                                {data.requiredResults}
-                            </div>
-                        </div>
-                    </>
+                    <div className={styles.imageContainer}>
+                        <img
+                            className={styles.coverImage}
+                            src={data.image}
+                            alt="MapSwipe"
+                        />
+                    </div>
                 )}
             </div>
             {detailsShown && (

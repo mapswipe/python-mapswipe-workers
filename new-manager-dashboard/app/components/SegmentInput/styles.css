@@ -6,7 +6,7 @@
             display: flex;
             align-items: center;
             border: var(--width-separator-thin) solid var(--color-separator);
-            padding: var(--spacing-extra-small) var(--spacing-large);
+            padding: var(--spacing-small) var(--spacing-large);
 
             &.active {
                 background-color: var(--color-accent);

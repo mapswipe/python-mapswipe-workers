@@ -4,7 +4,7 @@
     flex-direction: column;
     background-color: var(--color-foreground);
     padding: var(--spacing-large);
-    gap: var(--spacing-medium);
+    gap: var(--spacing-large);
 
     .pending-message {
         display: flex;
@@ -55,16 +55,43 @@
         }
     }
 
-    .text-output {
+    .meta-data {
         display: flex;
-        gap: var(--spacing-medium);
 
-        .label {
-            color: var(--color-text-light);
+        .meta-list {
+            display: flex;
+            flex-basis: 0;
+            flex-direction: column;
+            flex-grow: 1;
+            justify-content: center;
+            gap: var(--spacing-small);
+
+            .text-output {
+                display: flex;
+                gap: var(--spacing-medium);
+
+                .label {
+                    color: var(--color-text-light);
+                }
+
+                .value {
+                    color: var(--color-text-dark);
+                }
+            }
         }
 
-        .value {
-            color: var(--color-text-dark);
+        .image-container {
+            flex-basis: 0;
+            flex-grow: 1;
+            height: 16rem;
+
+            .cover-image {
+                background-color: var(--color-background);
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                object-position: center center;
+            }
         }
     }
 

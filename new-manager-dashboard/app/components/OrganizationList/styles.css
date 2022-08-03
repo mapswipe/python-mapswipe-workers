@@ -1,0 +1,15 @@
+.organization-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-medium);
+
+    .organization {
+        .name {
+            font-weight: var(--font-weight-bold);
+        }
+
+        .description {
+            color: var(--color-text-light);
+        }
+    }
+}

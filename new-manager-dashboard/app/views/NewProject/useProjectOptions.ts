@@ -9,6 +9,13 @@ import {
 
 import useFirebaseDatabase from '#hooks/useFirebaseDatabase';
 
+// FIXME: these typings are reusable
+interface Organization {
+    name: string;
+    nameKey: string;
+    description?: string;
+}
+
 interface Team {
     teamName: string;
     teamToken: string;
@@ -75,6 +82,14 @@ function useProjectOptions(selectedProjectType: number | undefined) {
         [],
     );
 
+    const organizationQuery = React.useMemo(
+        () => {
+            const db = getDatabase();
+            return ref(db, '/v2/organizations');
+        },
+        [],
+    );
+
     const {
         data: teams,
         pending: teamsPending,
@@ -87,6 +102,13 @@ function useProjectOptions(selectedProjectType: number | undefined) {
         pending: tutorialsPending,
     } = useFirebaseDatabase<Tutorial>({
         query: tutorialQuery,
+    });
+
+    const {
+        data: organizations,
+        pending: organizationsPending,
+    } = useFirebaseDatabase<Organization>({
+        query: organizationQuery,
     });
 
     const teamOptions = React.useMemo(
@@ -111,14 +133,32 @@ function useProjectOptions(selectedProjectType: number | undefined) {
         [tutorials, selectedProjectType],
     );
 
+    const organizationOptions = React.useMemo(
+        () => (organizations ? Object.values(organizations) : [])
+            .map((organization) => ({
+                value: organization.name,
+                label: organization.name,
+            })),
+        [organizations],
+    );
+
     const options = React.useMemo(
         () => ({
             teamOptions,
             tutorialOptions,
             teamsPending,
             tutorialsPending,
+            organizationsPending,
+            organizationOptions,
         }),
-        [teamOptions, tutorialOptions, teamsPending, tutorialsPending],
+        [
+            teamOptions,
+            tutorialOptions,
+            teamsPending,
+            tutorialsPending,
+            organizationsPending,
+            organizationOptions,
+        ],
     );
 
     return options;

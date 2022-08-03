@@ -36,32 +36,32 @@ import { getNoMoreThanNCharacterCondition } from '#utils/common';
 
 import styles from './styles.css';
 
-interface UserGroupFormFields {
+interface OrganizationFormFields {
     name?: string | undefined;
     description?: string | undefined;
 }
 
-type UserGroupFormSchema = ObjectSchema<UserGroupFormFields>;
-type UserGroupFormSchemaFields = ReturnType<UserGroupFormSchema['fields']>
+type OrganizationFormSchema = ObjectSchema<OrganizationFormFields>;
+type OrganizationFormSchemaFields = ReturnType<OrganizationFormSchema['fields']>
 
 const MAX_CHARS_NAME = 30;
 const MAX_CHARS_DESCRIPTION = 100;
 
-const userGroupFormSchema: UserGroupFormSchema = {
-    fields: (): UserGroupFormSchemaFields => ({
+const organizationFormSchema: OrganizationFormSchema = {
+    fields: (): OrganizationFormSchemaFields => ({
         name: [requiredCondition, getNoMoreThanNCharacterCondition(MAX_CHARS_NAME)],
         description: [getNoMoreThanNCharacterCondition(MAX_CHARS_DESCRIPTION)],
     }),
 };
 
-const defaultUserGroupFormValue: UserGroupFormFields = {};
+const defaultOrganizationFormValue: OrganizationFormFields = {};
 
 interface Props {
     className?: string;
     onCloseButtonClick?: () => void;
 }
 
-function UserGroupFormModal(props: Props) {
+function OrganizationFormModal(props: Props) {
     const {
         className,
         onCloseButtonClick,
@@ -72,28 +72,28 @@ function UserGroupFormModal(props: Props) {
         value,
         validate,
         setError,
-    } = useForm(userGroupFormSchema, defaultUserGroupFormValue);
+    } = useForm(organizationFormSchema, defaultOrganizationFormValue);
 
     const error = getErrorObject(formError);
     const [submissionStatus, setSubmissionStatus] = React.useState<'pending' | 'success' | 'failed' | undefined>(undefined);
     const [nonFieldError, setNonFieldError] = React.useState<string | undefined>();
 
-    const handleFormSubmission = React.useCallback((finalValues: UserGroupFormFields) => {
+    const handleFormSubmission = React.useCallback((finalValues: OrganizationFormFields) => {
         async function submitToFirebase() {
             setSubmissionStatus('pending');
             try {
                 const db = getDatabase();
-                const userGroupsRef = databaseRef(db, 'v2/userGroups/');
+                const organizationsRef = databaseRef(db, 'v2/organizations/');
                 const nameKey = finalValues?.name?.toLowerCase() as string;
 
-                const prevUserGroupQuery = query(
-                    userGroupsRef,
+                const prevOrganizationQuery = query(
+                    organizationsRef,
                     orderByChild('nameKey'),
                     equalTo(nameKey),
                 );
 
                 onValue(
-                    prevUserGroupQuery,
+                    prevOrganizationQuery,
                     async (snapshot) => {
                         if (snapshot.exists()) {
                             setError((prevValue) => ({
@@ -104,8 +104,8 @@ function UserGroupFormModal(props: Props) {
                             return;
                         }
 
-                        const newUserGroupRef = await pushToDatabase(userGroupsRef);
-                        const newKey = newUserGroupRef.key;
+                        const newOrganizationRef = await pushToDatabase(organizationsRef);
+                        const newKey = newOrganizationRef.key;
 
                         if (newKey) {
                             const uploadData = {
@@ -113,11 +113,11 @@ function UserGroupFormModal(props: Props) {
                                 nameKey,
                             };
 
-                            const putUserGroupRef = databaseRef(db, `v2/userGroups/${newKey}`);
-                            await setToDatabase(putUserGroupRef, uploadData);
+                            const putOrganizationRef = databaseRef(db, `v2/organizations/${newKey}`);
+                            await setToDatabase(putOrganizationRef, uploadData);
                             setSubmissionStatus('success');
                         } else {
-                            setNonFieldError('Failed to push new key for user group');
+                            setNonFieldError('Failed to push new key for organization');
                             setSubmissionStatus('failed');
                         }
                     },
@@ -141,8 +141,8 @@ function UserGroupFormModal(props: Props) {
 
     return (
         <Modal
-            className={_cs(styles.userGroupFormModal, className)}
-            heading="New User Group"
+            className={_cs(styles.organizationFormModal, className)}
+            heading="New Organization"
             footer={(
                 <>
                     {isNotDefined(submissionStatus) && (
@@ -197,7 +197,7 @@ function UserGroupFormModal(props: Props) {
                         value={value?.name}
                         onChange={setFieldValue}
                         error={error?.name}
-                        hint={`Enter the name of new user group that you want to create (${MAX_CHARS_NAME} chars max)`}
+                        hint={`Enter the name of new organization that you want to create (${MAX_CHARS_NAME} chars max)`}
                         disabled={submissionStatus === 'pending'}
                     />
                     <TextInput
@@ -206,7 +206,7 @@ function UserGroupFormModal(props: Props) {
                         value={value?.description}
                         onChange={setFieldValue}
                         error={error?.description}
-                        hint={`Enter a short description for the user group (${MAX_CHARS_DESCRIPTION} chars max)`}
+                        hint={`Enter a short description for the organization (${MAX_CHARS_DESCRIPTION} chars max)`}
                         disabled={submissionStatus === 'pending'}
                     />
                 </>
@@ -217,7 +217,7 @@ function UserGroupFormModal(props: Props) {
                         <>
                             <AnimatedSwipeIcon className={styles.swipeIcon} />
                             <div className={styles.message}>
-                                Submitting User Group...
+                                Submitting Organization...
                             </div>
                         </>
                     )}
@@ -225,7 +225,7 @@ function UserGroupFormModal(props: Props) {
                         <>
                             <MdOutlinePublishedWithChanges className={styles.successIcon} />
                             <div className={styles.postSubmissionMessage}>
-                                User Group added successfully!
+                                Organization added successfully!
                             </div>
                         </>
                     )}
@@ -233,7 +233,7 @@ function UserGroupFormModal(props: Props) {
                         <>
                             <MdOutlineUnpublished className={styles.failureIcon} />
                             <div className={styles.postSubmissionMessage}>
-                                Failed to add the User Group!
+                                Failed to add the Organization!
                                 Please make sure that you have an active internet connection
                                 and enough permission to perform this action
                             </div>
@@ -245,4 +245,4 @@ function UserGroupFormModal(props: Props) {
     );
 }
 
-export default UserGroupFormModal;
+export default OrganizationFormModal;

@@ -4,7 +4,6 @@
     align-items: center;
     outline: none;
     padding: var(--spacing-small) var(--spacing-medium);
-    text-transform: uppercase;
     text-decoration: none;
     color: var(--color-text);
     font-weight: var(--font-weight-bold);
@@ -14,6 +13,6 @@
     }
 
     &:hover {
-        background-color: var(--color-background-hover);
+        background-color: var(--color-hover-background);
     }
 }

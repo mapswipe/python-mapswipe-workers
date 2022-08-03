@@ -1,9 +1,16 @@
 import React from 'react';
 import { _cs } from '@togglecorp/fujs';
 import { Link } from 'react-router-dom';
-import { IoChevronDown } from 'react-icons/io5';
+import {
+    IoChevronDown,
+    IoChevronUp,
+} from 'react-icons/io5';
+
+import useBooleanState from '#hooks/useBooleanState';
 
 import Button from '#components/Button';
+import OrganizationFormModal from '#components/OrganizationFormModal';
+import OrganizationList from '#components/OrganizationList';
 
 import styles from './styles.css';
 
@@ -13,6 +20,15 @@ interface Props {
 
 function Home(props: Props) {
     const { className } = props;
+
+    const [
+        showOrganizationFormModal,
+        setShowOrganizationFormModalTrue,
+        setShowOrganizationFormModalFalse,
+    ] = useBooleanState(false);
+
+    const [showOrganizationList, setShowOrganizationList] = React.useState(false);
+
     return (
         <div className={_cs(styles.home, className)}>
             <div className={styles.container}>
@@ -48,16 +64,21 @@ function Home(props: Props) {
                         <Button
                             className={styles.addButton}
                             name={undefined}
+                            onClick={setShowOrganizationFormModalTrue}
                         >
                             Add New Organization
                         </Button>
                     </div>
+                    {showOrganizationList && (
+                        <OrganizationList className={styles.organizationList} />
+                    )}
                     <Button
-                        name={undefined}
-                        actions={<IoChevronDown />}
+                        name={!showOrganizationList}
+                        actions={showOrganizationList ? <IoChevronUp /> : <IoChevronDown />}
+                        onClick={setShowOrganizationList}
                         variant="action"
                     >
-                        View Organizations
+                        {showOrganizationList ? 'Hide Organizations' : 'View Organizations'}
                     </Button>
                 </div>
                 <div className={styles.tutorialsContainer}>
@@ -81,6 +102,11 @@ function Home(props: Props) {
                     </Button>
                 </div>
             </div>
+            {showOrganizationFormModal && (
+                <OrganizationFormModal
+                    onCloseButtonClick={setShowOrganizationFormModalFalse}
+                />
+            )}
         </div>
     );
 }

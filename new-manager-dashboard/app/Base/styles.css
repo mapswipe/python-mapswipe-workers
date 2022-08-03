@@ -49,6 +49,7 @@ p {
     --color-scrollbar-background: rgba(0, 0, 0, .01);
 
     --color-primary: #0d1949;
+    --color-primary-light: #2d5989;
     --color-text-on-light: #ffffff;
     --color-text-watermark: rgba(0, 0, 0, .4);
     --color-text: rgba(0, 0, 0, 0.8);

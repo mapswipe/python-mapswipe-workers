@@ -2,6 +2,7 @@
     display: flex;
     justify-content: center;
     background-color: var(--color-primary);
+    padding: var(--spacing-medium);
     color: var(--color-text-on-light);
 
     .container {
@@ -9,6 +10,7 @@
         position: relative;
         align-items: center;
         flex-grow: 1;
+        flex-wrap: wrap;
         max-width: var(--width-navbar-content-max);
         gap: var(--spacing-large);
 
@@ -27,6 +29,7 @@
             display: flex;
             align-self: stretch;
             flex-grow: 1;
+            padding: var(--spacing-small) var(--spacing-large);
             overflow: auto;
 
             .nav-links {
@@ -37,12 +40,12 @@
                 gap: var(--spacing-medium);
 
                 .link {
-                    border-bottom: 3px solid transparent;
-                    padding: var(--spacing-large);
+                    padding: var(--spacing-medium) var(--spacing-large);
+                    text-transform: none;
                     color: var(--color-text-on-light);
 
                     &.active {
-                        border-bottom-color: var(--color-text-on-light);
+                        background-color: var(--color-accent);
                     }
                 }
             }
@@ -52,6 +55,7 @@
             display: flex;
             align-items: center;
             gap: var(--spacing-medium);
+            padding: var(--spacing-small) var(--spacing-large);
 
             .logout-button {
                 color: var(--color-text-on-light);

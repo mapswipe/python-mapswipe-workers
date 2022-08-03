@@ -24,7 +24,6 @@ import {
     set as setToDatabase,
 } from 'firebase/database';
 import {
-    MdSwipe,
     MdOutlinePublishedWithChanges,
     MdOutlineUnpublished,
 } from 'react-icons/md';
@@ -150,6 +149,8 @@ function NewProject(props: Props) {
         tutorialOptions,
         teamsPending,
         tutorialsPending,
+        organizationOptions,
+        organizationsPending,
     } = useProjectOptions(value?.projectType);
 
     const [
@@ -300,6 +301,7 @@ function NewProject(props: Props) {
 
     const submissionPending = (
         teamsPending
+        || organizationsPending
         || tutorialsPending
         || projectSubmissionStatus === 'started'
         || projectSubmissionStatus === 'imageUpload'
@@ -354,14 +356,17 @@ function NewProject(props: Props) {
                             error={error?.projectNumber}
                             disabled={submissionPending}
                         />
-                        <TextInput
+                        <SelectInput
                             name={'requestingOrganization' as const}
                             value={value?.requestingOrganization}
+                            options={organizationOptions}
                             onChange={setFieldValueWithName}
                             error={error?.requestingOrganization}
                             label="Requesting Organization"
                             hint="Which group, institution or community is requesting this project?"
                             disabled={submissionPending}
+                            keySelector={valueSelector}
+                            labelSelector={labelSelector}
                         />
                     </div>
                     <TextInput
