@@ -182,7 +182,7 @@ function ProjectDetails(props: Props) {
                     </div>
                 </div>
             </div>
-            <div className={styles.metaData}>
+            <div>
                 <div className={styles.textOutput}>
                     <div className={styles.label}>
                         Type:

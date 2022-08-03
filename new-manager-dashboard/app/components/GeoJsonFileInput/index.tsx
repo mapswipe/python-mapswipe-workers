@@ -54,6 +54,7 @@ function GeoJsonFileInput<N>(props: Props<N>) {
                     onChange(featureCollection, name);
                     setInternalErrorMessage(undefined);
                 } catch (err) {
+                    // eslint-disable-next-line no-console
                     console.error(err);
                     setInternalErrorMessage('Failed to read the GeoJson file');
                     // setGeoJson(undefined);

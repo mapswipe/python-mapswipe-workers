@@ -155,7 +155,7 @@ function UserGroupItem(props: Props) {
                             className={styles.pendingMessage}
                         />
                     )}
-                    <div className={styles.actions}>
+                    <div>
                         <Button
                             name={undefined}
                             disabled

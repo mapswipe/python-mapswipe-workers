@@ -52,7 +52,7 @@ function Radio<N>(props: Props<N>) {
             ) : (
                 <IoRadioButtonOff className={styles.icon} />
             )}
-            <div className={styles.labelContainer}>
+            <div>
                 {label}
             </div>
             <input

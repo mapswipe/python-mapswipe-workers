@@ -112,7 +112,6 @@ function FileInput<Name>(props: Props<Name>) {
 
     const handleFiles = React.useCallback(
         (files: FileList | null) => {
-            // eslint-disable-next-line react/destructuring-assignment
             if (!files || !onChange) {
                 return;
             }

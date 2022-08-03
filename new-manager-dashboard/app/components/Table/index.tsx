@@ -11,7 +11,6 @@ export interface Column<Datum> {
     columnClassName?: string;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export interface Props<Datum, Key extends number | string | boolean> {
     className?: string;
     keySelector: (item: Datum, index: number, data: Datum[]) => Key;
@@ -19,7 +18,6 @@ export interface Props<Datum, Key extends number | string | boolean> {
     data: Datum[] | undefined | null;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function Table<Datum, Key extends string | number | boolean>(
     props: Props<Datum, Key>,
 ) {
@@ -43,7 +41,10 @@ function Table<Datum, Key extends string | number | boolean>(
                     return (
                         <col
                             key={id}
-                            className={_cs(styles.column, columnClassName)}
+                            className={_cs(
+                                // styles.column,
+                                columnClassName,
+                            )}
                         />
                     );
                 })}

@@ -13,6 +13,20 @@
         font-size: 1.2em;
     }
 
+    .children {
+        opacity: 1;
+    }
+
+    &.primary {
+        opacity: 1;
+    }
+    &.secondary {
+        opacity: 1;
+    }
+    &.transparent {
+        opacity: 1;
+    }
+
     &.action {
         border: none;
         padding: 0;

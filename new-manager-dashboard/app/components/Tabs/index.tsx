@@ -14,6 +14,7 @@ export interface TabContextProps<T> {
 const TabContext = React.createContext<TabContextProps<unknown>>({
     activeTab: undefined,
     setActiveTab: () => {
+        // eslint-disable-next-line no-console
         console.warn('setActiveTab called before it was initialized');
     },
 });
@@ -46,7 +47,6 @@ export function Tab<T>(props: TabProps<T>) {
             onClick={setActiveTab}
             name={name}
             role="tab"
-            // eslint-disable-next-line react/jsx-props-no-spreading
             {...otherProps}
         />
     );
@@ -95,7 +95,6 @@ export function TabPanel(props: TabPanelProps) {
 
     return (
         <div
-            // eslint-disable-next-line react/jsx-props-no-spreading
             {...otherProps}
             role="tabpanel"
             ref={elementRef}

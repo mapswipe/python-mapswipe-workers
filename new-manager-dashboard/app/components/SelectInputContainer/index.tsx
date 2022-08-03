@@ -244,6 +244,7 @@ function SelectInputContainer<OK extends OptionKey, N extends string, O extends 
 
     const groupRendererParams = useCallback(
         (_: string | number, __: number, values: O[]) => ({
+            // eslint-disable-next-line react/destructuring-assignment
             title: props.grouped ? props.groupLabelSelector(values[0]) : '?',
         }),
         // FIXME: disabling because linter is not smart enough
@@ -282,6 +283,7 @@ function SelectInputContainer<OK extends OptionKey, N extends string, O extends 
                 grouped
                 groupRenderer={Group}
                 groupRendererParams={groupRendererParams}
+                // eslint-disable-next-line react/destructuring-assignment
                 groupKeySelector={props.groupKeySelector}
             />
         );

@@ -246,8 +246,11 @@ function SearchSelectInput<
 
     const handleClear = useCallback(
         () => {
+            // eslint-disable-next-line react/destructuring-assignment
             if (!props.nonClearable) {
-                props.onChange(undefined, name);
+                // eslint-disable-next-line react/destructuring-assignment
+                const changeHandler = props.onChange;
+                changeHandler(undefined, name);
             }
         },
         // eslint-disable-next-line react/destructuring-assignment
@@ -264,7 +267,7 @@ function SearchSelectInput<
             optionKeySelector={keySelector}
             optionRenderer={Option}
             optionRendererParams={optionRendererParams}
-            optionContainerClassName={styles.optionContainer}
+            // optionContainerClassName={styles.optionContainer}
             onOptionClick={handleOptionClick}
             valueDisplay={valueDisplay}
             onClear={handleClear}

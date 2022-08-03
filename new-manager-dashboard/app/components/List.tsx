@@ -37,12 +37,10 @@ interface NoGroupOptions {
     grouped?: false;
 }
 
-// eslint-disable-next-line max-len
 export type ListProps<D, P, K extends OptionKey, GP, GK extends OptionKey> = (
     BaseProps<D, P, K> & (GroupOptions<D, GP, GK> | NoGroupOptions)
 );
 
-// eslint-disable-next-line max-len
 export type GroupedListProps<D, P, K extends OptionKey, GP, GK extends OptionKey> = (
     BaseProps<D, P, K> & GroupOptions<D, GP, GK>
 );

@@ -91,7 +91,7 @@ function Login(props: Props) {
                 type="password"
                 disabled={pending}
             />
-            <div className={styles.actions}>
+            <div>
                 <Button
                     name={undefined}
                     onClick={handleLoginClick}
@@ -101,7 +101,7 @@ function Login(props: Props) {
                 </Button>
             </div>
             {errorMessage && (
-                <div className={styles.errorMessage}>
+                <div>
                     {errorMessage}
                 </div>
             )}
