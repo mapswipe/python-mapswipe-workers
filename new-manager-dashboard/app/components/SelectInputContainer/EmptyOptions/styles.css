@@ -1,4 +1,4 @@
 .empty {
-    padding: var(--tui-spacing-large);
-    color: var(--tui-color-text-disabled-light);
+    padding: var(--spacing-large);
+    color: var(--color-text-watermark);
 }

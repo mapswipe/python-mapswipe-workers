@@ -263,13 +263,6 @@ function ProjectDetails(props: Props) {
             )}
             <div className={styles.actions}>
                 <div className={styles.dbActions}>
-                    <Checkbox
-                        name={undefined}
-                        label="Featured"
-                        value={data.isFeatured}
-                        onChange={setShowFeaturedUpdateConfirmationTrue}
-                        disabled={featuredUpdatePending || statusUpdatePending}
-                    />
                     <SegmentInput
                         name={undefined}
                         options={projectStatusOptions}
@@ -277,6 +270,13 @@ function ProjectDetails(props: Props) {
                         keySelector={valueSelector}
                         labelSelector={labelSelector}
                         onChange={setShowStatusUpdateConfirmationTrue}
+                        disabled={featuredUpdatePending || statusUpdatePending}
+                    />
+                    <Checkbox
+                        name={undefined}
+                        label="Featured"
+                        value={data.isFeatured}
+                        onChange={setShowFeaturedUpdateConfirmationTrue}
                         disabled={featuredUpdatePending || statusUpdatePending}
                     />
                 </div>

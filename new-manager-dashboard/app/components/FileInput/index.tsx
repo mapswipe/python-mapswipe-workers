@@ -108,7 +108,7 @@ function FileInput<Name>(props: Props<Name>) {
         childrenClassName: styles.content,
     });
 
-    const status = value?.name ?? 'No file choosen';
+    const status = value?.name ?? 'No file chosen';
 
     const handleFiles = React.useCallback(
         (files: FileList | null) => {
@@ -157,7 +157,7 @@ function FileInput<Name>(props: Props<Name>) {
                 </>
             )}
             iconsContainerClassName={iconsContainerClassName}
-            inputSectionClassName={inputSectionClassName}
+            inputSectionClassName={_cs(styles.inputSection, inputSectionClassName)}
             inputContainerClassName={styles.status}
             label={label}
             labelContainerClassName={labelContainerClassName}

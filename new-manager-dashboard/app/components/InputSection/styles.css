@@ -4,14 +4,15 @@
     gap: var(--spacing-medium);
 
     .header {
-        padding: 0 var(--spacing-extra-large);
+        padding: 0;
     }
 
     .content {
         display: flex;
         flex-direction: column;
+        border-radius: var(--radius-card);
         background-color: var(--color-foreground);
-        padding: var(--spacing-extra-large);
+        padding: var(--spacing-large);
         gap: var(--spacing-extra-large);
     }
 }

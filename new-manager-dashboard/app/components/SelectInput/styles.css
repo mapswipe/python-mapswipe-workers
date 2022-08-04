@@ -1,6 +1,7 @@
 .option {
     display: flex;
     align-items: center;
+    gap: var(--spacing-small);
     overflow: auto;
 
     .icon {
@@ -8,12 +9,11 @@
         align-items: center;
         flex-shrink: 0;
         opacity: 0;
-        padding: 0 var(--spacing-small);
+        font-size: 1.2em;
     }
 
     .label {
         flex-grow: 1;
-        padding: 0 var(--spacing-small);
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;

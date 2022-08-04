@@ -9,8 +9,7 @@
             padding: var(--spacing-small) var(--spacing-large);
 
             &.active {
-                background-color: var(--color-accent);
-                color: var(--color-text-on-light);
+                background-color: var(--color-background-accent-hint);
             }
 
             &:first-child {

@@ -19,9 +19,9 @@ function InputSection(props: Props) {
     return (
         <div className={_cs(styles.inputSection, className)}>
             <div className={styles.header}>
-                <h3>
+                <h2>
                     {heading}
-                </h3>
+                </h2>
             </div>
             <div className={styles.content}>
                 {children}

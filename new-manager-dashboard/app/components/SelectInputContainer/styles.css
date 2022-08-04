@@ -1,6 +1,6 @@
 .popup {
-    padding-top: calc(var(--spacing-large) - var(--spacing-medium));
-    padding-bottom: calc(var(--spacing-large) - var(--spacing-medium));
+    padding-top: var(--spacing-medium);
+    padding-bottom: var(--spacing-medium);
 
     .popup-content {
         display: flex;
@@ -12,7 +12,7 @@
             flex-grow: 1;
 
             .group-header {
-                padding: calc(var(--spacing-large) - var(--spacing-small));
+                padding: var(--spacing-small);
                 overflow: hidden;
                 text-overflow: ellipsis;
                 white-space: nowrap;
@@ -28,6 +28,10 @@
 
         .list-item {
             flex-shrink: 0;
+
+            &:hover {
+                background-color: var(--color-background-accent-hint);
+            }
         }
     }
 }

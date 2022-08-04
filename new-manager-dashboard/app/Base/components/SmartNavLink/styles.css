@@ -3,10 +3,8 @@
     position: relative;
     align-items: center;
     outline: none;
-    padding: var(--spacing-small) var(--spacing-medium);
     text-decoration: none;
     color: var(--color-text);
-    font-weight: var(--font-weight-bold);
 
     &.active {
         color: var(--color-accent);

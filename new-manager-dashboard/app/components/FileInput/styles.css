@@ -17,6 +17,11 @@
     .status {
         color: var(--color-text-light);
     }
+
+    .input-section {
+        display: flex;
+        gap: var(--spacing-large);
+    }
 }
 
 .no-preview {
@@ -27,10 +32,12 @@
     width: 100%;
     max-width: 30rem;
     height: 20rem;
+    color: var(--color-text-watermark);
+    font-size: var(--font-size-large);
 }
 
 .preview {
-    background-color: var(--color-background);
+    background-color: var(--color-input-background);
     width: 100%;
     max-width: 30rem;
     height: 20rem;

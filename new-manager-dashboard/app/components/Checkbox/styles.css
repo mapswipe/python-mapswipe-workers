@@ -4,7 +4,7 @@
     align-items: center;
     cursor: pointer;
     user-select: none;
-    gap: var(--spacing-medium);
+    gap: var(--spacing-small);
 
     .checkmark {
         flex-shrink: 0;

@@ -5,7 +5,7 @@ import {
     unique,
     isDefined,
 } from '@togglecorp/fujs';
-import { MdCheck } from 'react-icons/md';
+import { IoCheckmark } from 'react-icons/io5';
 import SelectInputContainer, { SelectInputContainerProps } from '../SelectInputContainer';
 import { rankedSearchOnList } from './utils';
 
@@ -22,7 +22,7 @@ function Option(props: OptionProps) {
     return (
         <>
             <div className={styles.icon}>
-                <MdCheck />
+                <IoCheckmark />
             </div>
             <div className={styles.label}>
                 { children }

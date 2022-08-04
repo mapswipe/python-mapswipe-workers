@@ -11,7 +11,7 @@
         flex-direction: column;
         width: 100%;
         max-width: 70rem;
-        gap: var(--spacing-super-large);
+        gap: var(--spacing-large);
 
         .input-group {
             display: flex;

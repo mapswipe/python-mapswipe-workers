@@ -6,19 +6,22 @@
     .input-section {
         display: flex;
         align-items: center;
-        gap: var(--spacing-medium);
         border-bottom: var(--width-separator-thin) solid transparent;
+        gap: var(--spacing-medium);
 
         .input {
             flex-grow: 1;
-            padding: var(--spacing-extra-small) 0;
+            padding: var(--spacing-small) 0;
         }
 
     }
 
     &.with-input-section-border {
         .input-section {
+            border-radius: var(--radius-input-border);
             border-bottom-color: var(--color-input-border);
+            background-color: var(--color-input-background);
+            padding: 0 var(--spacing-small);
 
             &:focus-within {
                 border-bottom-color: var(--color-active-input-border);
@@ -58,12 +61,17 @@
     .icons,
     .actions {
         display: flex;
-        gap: var(--spacing-small);
+        align-items: center;
         font-size: 1.2em;
+        gap: var(--spacing-small);
     }
 
     &.read-only {
-        opacity: 1;
+        &.with-input-section-border {
+            .input-section {
+                border-bottom-color: transparent;
+            }
+        }
     }
 
     &.disabled {
