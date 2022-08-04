@@ -17,13 +17,14 @@ import Button from '#components/Button';
 import SegmentInput from '#components/SegmentInput';
 import Checkbox from '#components/Checkbox';
 import PendingMessage from '#components/PendingMessage';
+import { TileServerType } from '#components/TileServerInput';
 import { labelSelector, valueSelector } from '#utils/common';
 
 import styles from './styles.css';
 
+// FIXME: these are common types
 type ProjectType = 1 | 2 | 3 | 4;
 type ProjectInputType = 'aoi_file' | 'link' | 'TMId';
-type TileServerType = 'bing' | 'mapbox' | 'maxar_standard' | 'maxar_premium' | 'esri' | 'esri_beta' | 'sinergise' | 'custom';
 type ProjectStatus = 'active' | 'inactive' | 'finished' | 'archived';
 
 const projectTypeLabelMap: {

@@ -125,6 +125,7 @@ function OrganizationFormModal(props: Props) {
                 );
             } catch (submissionError) {
                 setSubmissionStatus('failed');
+                // eslint-disable-next-line no-console
                 console.error(submissionError);
             }
         }

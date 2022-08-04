@@ -1,0 +1,99 @@
+import {
+    ObjectSchema,
+    PartialForm,
+    requiredCondition,
+    requiredStringCondition,
+    forceNullType,
+} from '@togglecorp/toggle-form';
+import {
+    TileServer,
+    tileServerFieldsSchema,
+} from '#components/TileServerInput';
+
+import { FeatureCollection } from '#components/GeoJsonPreview';
+import { getNoMoreThanNCharacterCondition } from '#utils/common';
+
+// FIXME: these are common types
+export type ProjectType = 1 | 2 | 3 | 4;
+export type ProjectInputType = 'aoi_file' | 'link' | 'TMId';
+export const PROJECT_TYPE_BUILD_AREA = 1;
+export const PROJECT_TYPE_FOOTPRINT = 2;
+export const PROJECT_TYPE_CHANGE_DETECTION = 3;
+export const PROJECT_TYPE_COMPLETENESS = 4;
+export const projectTypeOptions: {
+    value: ProjectType;
+    label: string;
+}[] = [
+    { value: PROJECT_TYPE_BUILD_AREA, label: 'Build Area' },
+    { value: PROJECT_TYPE_FOOTPRINT, label: 'Footprint' },
+    { value: PROJECT_TYPE_CHANGE_DETECTION, label: 'Change Detection' },
+    { value: PROJECT_TYPE_COMPLETENESS, label: 'Completeness' },
+];
+
+// FIXME: include here
+export interface TutorialFormType {
+    lookFor: string;
+    name: string;
+    tileServer: TileServer,
+    screens?: FeatureCollection; // FIXME: this is not FeatureCollection
+    tutorialTasks?: FeatureCollection;
+    exampleImage1: File;
+    exampleImage2: File;
+    projectType: ProjectType;
+
+    tileServerB?: TileServer,
+    zoomLevel?: number;
+}
+
+export type PartialTutorialFormType = PartialForm<
+    Omit<TutorialFormType, 'exampleImage1' | 'exampleImage2'> & {
+        exampleImage1?: File;
+        exampleImage2?: File;
+    },
+    // NOTE: we do not want to change File and FeatureCollection to partials
+    'screens' | 'tutorialTasks' | 'exampleImage1' | 'exampleImage2'
+>;
+
+type TutorialFormSchema = ObjectSchema<PartialTutorialFormType>;
+type TutorialFormSchemaFields = ReturnType<TutorialFormSchema['fields']>;
+
+export const tutorialFormSchema: TutorialFormSchema = {
+    fields: (value): TutorialFormSchemaFields => {
+        const baseSchema: TutorialFormSchemaFields = {
+            projectType: [requiredCondition],
+            lookFor: [requiredStringCondition, getNoMoreThanNCharacterCondition(15)],
+            name: [requiredStringCondition],
+            tileServer: {
+                fields: tileServerFieldsSchema,
+            },
+            screens: [requiredCondition],
+            // FIXME: add validation for tutorialTasks (geojson)
+            tutorialTasks: [requiredCondition],
+            exampleImage1: [requiredCondition],
+            exampleImage2: [requiredCondition],
+
+            tileServerB: [forceNullType],
+            zoomLevel: [forceNullType],
+        };
+
+        if (value?.projectType === PROJECT_TYPE_BUILD_AREA) {
+            return {
+                ...baseSchema,
+                zoomLevel: [requiredCondition],
+            };
+        }
+
+        if (value?.projectType === PROJECT_TYPE_CHANGE_DETECTION
+            || value?.projectType === PROJECT_TYPE_COMPLETENESS) {
+            return {
+                ...baseSchema,
+                zoomLevel: [requiredCondition],
+                tileServerB: {
+                    fields: tileServerFieldsSchema,
+                },
+            };
+        }
+
+        return baseSchema;
+    },
+};

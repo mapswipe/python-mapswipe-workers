@@ -3,6 +3,7 @@ import {
     _cs,
     isFalsyString,
     isDefined,
+    isNotDefined,
 } from '@togglecorp/fujs';
 import {
     useForm,
@@ -39,6 +40,10 @@ import NumberInput from '#components/NumberInput';
 import SegmentInput from '#components/SegmentInput';
 import FileInput from '#components/FileInput';
 import GeoJsonFileInput from '#components/GeoJsonFileInput';
+import TileServerInput, {
+    TILE_SERVER_BING,
+    tileServerDefaultCredits,
+} from '#components/TileServerInput';
 import InputSection from '#components/InputSection';
 import Button from '#components/Button';
 import { FeatureCollection } from '#components/GeoJsonPreview';
@@ -49,12 +54,11 @@ import {
     labelSelector,
 } from '#utils/common';
 
-import TileServerInput from './TileServerInput';
-
 import {
     projectFormSchema,
     ProjectType,
     ProjectInputType,
+    ProjectFormType,
     PartialProjectFormType,
     projectTypeOptions,
     projectInputTypeOptions,
@@ -66,7 +70,6 @@ import {
     PROJECT_INPUT_TYPE_UPLOAD,
     PROJECT_INPUT_TYPE_LINK,
     PROJECT_INPUT_TYPE_TASKING_MANAGER_ID,
-    TILE_SERVER_BING,
     FILTER_BUILDINGS,
 } from './utils';
 import useProjectOptions from './useProjectOptions';
@@ -80,11 +83,13 @@ const defaultProjectFormValue: PartialProjectFormType = {
     zoomLevel: 18,
     tileServer: {
         name: TILE_SERVER_BING,
+        credits: tileServerDefaultCredits[TILE_SERVER_BING],
     },
     tileServerB: {
         name: TILE_SERVER_BING,
+        credits: tileServerDefaultCredits[TILE_SERVER_BING],
     },
-    maxTasksPerUser: -1,
+    // maxTasksPerUser: -1,
     inputType: PROJECT_INPUT_TYPE_UPLOAD,
     filter: FILTER_BUILDINGS,
 };
@@ -97,7 +102,7 @@ function generateProjectName(
 ) {
     if (
         isFalsyString(projectTopic)
-        || isDefined(projectNumber)
+        || isNotDefined(projectNumber)
         || isFalsyString(projectRegion)
         || isFalsyString(requestingOrganization)
     ) {
@@ -118,6 +123,65 @@ function getGroupSize(projectType: ProjectType | undefined) {
 
     if (projectType === PROJECT_TYPE_COMPLETENESS) {
         return 80;
+    }
+    return undefined;
+}
+
+function getFormData(obj: {
+    [key: string]: string;
+}) {
+    return Object.keys(obj).reduce((formData, key) => {
+        formData.append(key, obj[key]);
+        return formData;
+    }, new FormData());
+}
+
+async function validateObjectsCount(
+    geometries: FeatureCollection | string | undefined | null,
+    filter: string | undefined | null,
+) {
+    if (isNotDefined(geometries) || typeof geometries === 'string') {
+        return 'Invalid Area of Interest';
+    }
+    if (isNotDefined(filter)) {
+        return 'Invalid filter for Area of Interest';
+    }
+    const url = 'https://api.ohsome.org/v1/elements/count';
+    const data = {
+        bpolys: JSON.stringify(geometries),
+        filter,
+    };
+
+    const response = await fetch(url, {
+        method: 'POST',
+        body: getFormData(data),
+    });
+
+    const answer = await response.json() as {
+        status: number | undefined;
+        message: string | undefined;
+
+        result: {
+            value: number | null | undefined,
+            timestamp: string | null | undefined,
+        }[] | undefined;
+    };
+
+    if (answer.status !== 200) {
+        return answer.message ?? 'Could not find the count of objects in given Area of Interest';
+    }
+    const count = answer.result?.[0].value;
+
+    if (isNotDefined(count)) {
+        return 'Could not find the count of objects in given Area of Interest';
+    }
+
+    if (count <= 0) {
+        return 'Area of Interest does not contain objects from filter.';
+    }
+
+    if (count > 100000) {
+        return `Area of Interest contains more than 100 000 objects. -> ${count}`;
     }
     return undefined;
 }
@@ -214,8 +278,11 @@ function NewProject(props: Props) {
         [setValue],
     );
 
-    const handleFormSubmission = React.useCallback((finalValues: PartialProjectFormType) => {
+    const handleFormSubmission = React.useCallback((
+        finalValuesFromProps: PartialProjectFormType,
+    ) => {
         const userId = user?.id;
+        const finalValues = finalValuesFromProps as ProjectFormType;
 
         if (!userId) {
             // eslint-disable-next-line no-console
@@ -229,10 +296,28 @@ function NewProject(props: Props) {
             if (!mountedRef.current) {
                 return;
             }
-            const projectImage = finalValues?.projectImage;
-            if (!projectImage) {
+            const {
+                projectImage,
+                visibility,
+                ...valuesToCopy
+            } = finalValues;
+
+            if (finalValues.projectType === PROJECT_TYPE_FOOTPRINT && finalValues.inputType === 'aoi_file') {
+                const err = await validateObjectsCount(finalValues.geometry, finalValues.filter);
+                if (!mountedRef.current) {
+                    return;
+                }
+                if (err) {
+                    // eslint-disable-next-line no-console
+                    console.error(err);
+                    // FIXME: show proper error
+                    setProjectSubmissionStatus('failed');
+                    return;
+                }
+            } else if (finalValues.projectType === PROJECT_TYPE_FOOTPRINT && finalValues.inputType === 'TMId') {
                 // eslint-disable-next-line no-console
-                console.error('Cannot submit to firebase because project is not defined');
+                console.error('Do something here');
+                setProjectSubmissionStatus('failed');
                 return;
             }
 
@@ -250,13 +335,6 @@ function NewProject(props: Props) {
                     return;
                 }
 
-                const uploadData = {
-                    ...finalValues,
-                    image: downloadUrl,
-                    createdBy: userId,
-                };
-                delete uploadData.projectImage;
-
                 const database = getDatabase();
                 const projectDraftsRef = databaseRef(database, 'v2/projectDrafts/');
                 const newProjectDraftsRef = await pushToDatabase(projectDraftsRef);
@@ -268,6 +346,13 @@ function NewProject(props: Props) {
                 if (newKey) {
                     setProjectSubmissionStatus('projectSubmit');
                     const newProjectRef = databaseRef(database, `v2/projectDrafts/${newKey}`);
+
+                    const uploadData = {
+                        ...valuesToCopy,
+                        image: downloadUrl,
+                        createdBy: userId,
+                        teamId: visibility === 'public' ? undefined : visibility,
+                    };
                     await setToDatabase(newProjectRef, uploadData);
                     if (!mountedRef.current) {
                         return;
@@ -564,7 +649,7 @@ function NewProject(props: Props) {
                         value={value?.maxTasksPerUser}
                         onChange={setFieldValue}
                         label="Max Tasks Per User"
-                        hint="How many tasks each user is allowed to work on for this project. '-1' indicates that no limit is set."
+                        hint="How many tasks each user is allowed to work on for this project. Empty indicates that no limit is set."
                         error={error?.maxTasksPerUser}
                         disabled={submissionPending}
                     />

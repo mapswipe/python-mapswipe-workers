@@ -98,6 +98,11 @@ function Projects(props: Props) {
                     >
                         Add new Project
                     </SmartLink>
+                    <SmartLink
+                        route={route.newTutorial}
+                    >
+                        Add new Tutorial
+                    </SmartLink>
                     <div className={styles.filters}>
                         <RadioInput
                             label="Project Status"

@@ -68,6 +68,15 @@ const newProject = wrap({
     visibility: 'is-authenticated',
 });
 
+const newTutorial = wrap({
+    path: '/new-tutorial/',
+    title: 'New Tutorial',
+    navbarVisibility: true,
+    component: lazy(() => import('#views/NewTutorial')),
+    componentProps: {},
+    visibility: 'is-authenticated',
+});
+
 const routes = {
     login,
     home,
@@ -75,6 +84,7 @@ const routes = {
     teams,
     userGroups,
     newProject,
+    newTutorial,
     fourHundredFour,
 };
 export default routes;

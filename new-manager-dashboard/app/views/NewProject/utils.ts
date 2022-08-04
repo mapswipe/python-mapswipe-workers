@@ -14,37 +14,21 @@ import {
     getType as getFeatureType,
     area as getFeatureArea,
 } from '@turf/turf';
+import {
+    TileServer,
+    tileServerFieldsSchema,
+} from '#components/TileServerInput';
 
 import { FeatureCollection } from '#components/GeoJsonPreview';
 import { getNoMoreThanNCharacterCondition } from '#utils/common';
 
+// FIXME: these are common types
 export type ProjectType = 1 | 2 | 3 | 4;
 export type ProjectInputType = 'aoi_file' | 'link' | 'TMId';
-export type TileServerType = 'bing' | 'mapbox' | 'maxar_standard' | 'maxar_premium' | 'esri' | 'esri_beta' | 'sinergise' | 'custom';
-
 export const PROJECT_TYPE_BUILD_AREA = 1;
 export const PROJECT_TYPE_FOOTPRINT = 2;
 export const PROJECT_TYPE_CHANGE_DETECTION = 3;
 export const PROJECT_TYPE_COMPLETENESS = 4;
-
-const DEFAULT_MAX_FEATURES = 10;
-const DEFAULT_MAX_AREA = 20;
-
-export const TILE_SERVER_BING = 'bing';
-export const TILE_SERVER_MAPBOX = 'mapbox';
-export const TILE_SERVER_MAXAR_STANDARD = 'maxar_standard';
-export const TILE_SERVER_MAXAR_PREMIUM = 'maxar_premium';
-export const TILE_SERVER_ESRI = 'esri';
-export const TILE_SERVER_ESRI_BETA = 'esri_beta';
-export const TILE_SERVER_SINERGISE = 'sinergise';
-export const TILE_SERVER_CUSTOM = 'custom';
-
-export interface TileServer {
-    name: TileServerType;
-    url?: string;
-    wmtsLayerName?: string;
-    credits: string;
-}
 
 export interface ProjectFormType {
     projectTopic: string;
@@ -57,7 +41,7 @@ export interface ProjectFormType {
     lookFor: string;
     tutorialId: string;
     projectDetails: string;
-    projectImage?: File;
+    projectImage: File; // image
     verificationNumber: number;
     groupSize: number;
     zoomLevel: number;
@@ -93,32 +77,7 @@ export const projectInputTypeOptions: {
     { value: PROJECT_INPUT_TYPE_TASKING_MANAGER_ID, label: 'Provide Tasking Manager Id' },
 ];
 
-export const tileServerNameOptions: {
-    value: TileServerType,
-    label: string;
-}[] = [
-    { value: TILE_SERVER_BING, label: 'Bing' },
-    { value: TILE_SERVER_MAPBOX, label: 'Mapbox' },
-    { value: TILE_SERVER_MAXAR_STANDARD, label: 'Maxar Standard' },
-    { value: TILE_SERVER_MAXAR_PREMIUM, label: 'Maxar Premium' },
-    { value: TILE_SERVER_ESRI, label: 'Esri World Imagery' },
-    { value: TILE_SERVER_ESRI_BETA, label: 'Esri World Imagery (Clarity) Beta' },
-    { value: TILE_SERVER_SINERGISE, label: 'Sinergise' },
-    { value: TILE_SERVER_CUSTOM, label: 'Custom' },
-];
-
-export const tileServerDefaultCredits: Record<TileServerType, string> = {
-    [TILE_SERVER_BING]: '© 2019 Microsoft Corporation, Earthstar Geographics SIO',
-    [TILE_SERVER_MAXAR_PREMIUM]: '© 2019 Maxar',
-    [TILE_SERVER_MAXAR_STANDARD]: '© 2019 Maxar',
-    [TILE_SERVER_ESRI]: '© 2019 ESRI',
-    [TILE_SERVER_ESRI_BETA]: '© 2019 ESRI',
-    [TILE_SERVER_MAPBOX]: '© 2019 MapBox',
-    [TILE_SERVER_SINERGISE]: '© 2019 Sinergise',
-    [TILE_SERVER_CUSTOM]: 'Please add imagery credits here.',
-};
-
-export const FILTER_BUILDINGS = 'buildings=* and geometry:polygon';
+export const FILTER_BUILDINGS = 'building=* and geometry:polygon';
 export const FILTER_OTHERS = 'amenities=* and geometry:polygon';
 
 export const filterOptions = [
@@ -128,7 +87,7 @@ export const filterOptions = [
 ];
 
 export type PartialProjectFormType = PartialForm<
-    ProjectFormType,
+    Omit<ProjectFormType, 'projectImage'> & { projectImage?: File },
     // NOTE: we do not want to change File and FeatureCollection to partials
     'geometry' | 'projectImage'
 >;
@@ -136,10 +95,9 @@ export type PartialProjectFormType = PartialForm<
 type ProjectFormSchema = ObjectSchema<PartialProjectFormType>;
 type ProjectFormSchemaFields = ReturnType<ProjectFormSchema['fields']>;
 
-type TileServerInputType = PartialForm<TileServer>;
-type TileServerSchema = ObjectSchema<PartialForm<TileServerInputType>, PartialProjectFormType>;
-type TileServerFields = ReturnType<TileServerSchema['fields']>;
-
+// FIXME: break this into multiple geometry conditions
+const DEFAULT_MAX_FEATURES = 10;
+const DEFAULT_MAX_AREA = 20;
 function validGeometryCondition(
     featureCollection: FeatureCollection | string | undefined,
     allValue: PartialProjectFormType,
@@ -199,22 +157,6 @@ function validGeometryCondition(
     return undefined;
 }
 
-function tileServerFieldsSchema(value: TileServerInputType | undefined): TileServerFields {
-    if (value?.name === TILE_SERVER_CUSTOM) {
-        return {
-            name: [requiredStringCondition],
-            credits: [requiredStringCondition],
-            url: [requiredCondition],
-            wmtsLayerName: [requiredCondition],
-        };
-    }
-
-    return {
-        name: [requiredStringCondition],
-        credits: [requiredStringCondition],
-    };
-}
-
 export const projectFormSchema: ProjectFormSchema = {
     fields: (value): ProjectFormSchemaFields => {
         const baseSchema: ProjectFormSchemaFields = {
@@ -225,8 +167,8 @@ export const projectFormSchema: ProjectFormSchema = {
             requestingOrganization: [requiredStringCondition],
             name: [requiredStringCondition],
             visibility: [requiredCondition],
-            lookFor: [requiredStringCondition],
-            projectDetails: [requiredCondition],
+            lookFor: [requiredStringCondition, getNoMoreThanNCharacterCondition(15)],
+            projectDetails: [requiredStringCondition],
             tutorialId: [requiredCondition],
             projectImage: [requiredCondition],
             verificationNumber: [requiredCondition],
@@ -289,6 +231,5 @@ export const projectFormSchema: ProjectFormSchema = {
     },
     fieldDependencies: () => ({
         geometry: ['zoomLevel'],
-        name: ['projectTopic', 'projectRegion', 'projectNumber', 'requestingOrganization'],
     }),
 };
