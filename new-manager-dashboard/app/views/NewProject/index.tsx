@@ -1,7 +1,6 @@
 import React from 'react';
 import {
     _cs,
-    isFalsyString,
     isDefined,
     isNotDefined,
 } from '@togglecorp/fujs';
@@ -11,6 +10,7 @@ import {
     createSubmitHandler,
     analyzeErrors,
     EntriesAsList,
+    internal,
 } from '@togglecorp/toggle-form';
 import {
     getStorage,
@@ -71,6 +71,11 @@ import {
     PROJECT_INPUT_TYPE_LINK,
     PROJECT_INPUT_TYPE_TASKING_MANAGER_ID,
     FILTER_BUILDINGS,
+    FILTER_OTHERS,
+    generateProjectName,
+    getGroupSize,
+    validateAoiOnOhsome,
+    validateProjectIdOnHotTaskingManager,
 } from './utils';
 import useProjectOptions from './useProjectOptions';
 import styles from './styles.css';
@@ -93,98 +98,6 @@ const defaultProjectFormValue: PartialProjectFormType = {
     inputType: PROJECT_INPUT_TYPE_UPLOAD,
     filter: FILTER_BUILDINGS,
 };
-
-function generateProjectName(
-    projectTopic: string | undefined | null,
-    projectNumber: number | undefined | null,
-    projectRegion: string | undefined | null,
-    requestingOrganization: string | undefined | null,
-) {
-    if (
-        isFalsyString(projectTopic)
-        || isNotDefined(projectNumber)
-        || isFalsyString(projectRegion)
-        || isFalsyString(requestingOrganization)
-    ) {
-        return undefined;
-    }
-
-    return `${projectTopic} - ${projectRegion}(${projectNumber}) ${requestingOrganization}`;
-}
-
-function getGroupSize(projectType: ProjectType | undefined) {
-    if (projectType === PROJECT_TYPE_BUILD_AREA) {
-        return 120;
-    }
-
-    if (projectType === PROJECT_TYPE_FOOTPRINT || projectType === PROJECT_TYPE_CHANGE_DETECTION) {
-        return 25;
-    }
-
-    if (projectType === PROJECT_TYPE_COMPLETENESS) {
-        return 80;
-    }
-    return undefined;
-}
-
-function getFormData(obj: {
-    [key: string]: string;
-}) {
-    return Object.keys(obj).reduce((formData, key) => {
-        formData.append(key, obj[key]);
-        return formData;
-    }, new FormData());
-}
-
-async function validateObjectsCount(
-    geometries: FeatureCollection | string | undefined | null,
-    filter: string | undefined | null,
-) {
-    if (isNotDefined(geometries) || typeof geometries === 'string') {
-        return 'Invalid Area of Interest';
-    }
-    if (isNotDefined(filter)) {
-        return 'Invalid filter for Area of Interest';
-    }
-    const url = 'https://api.ohsome.org/v1/elements/count';
-    const data = {
-        bpolys: JSON.stringify(geometries),
-        filter,
-    };
-
-    const response = await fetch(url, {
-        method: 'POST',
-        body: getFormData(data),
-    });
-
-    const answer = await response.json() as {
-        status: number | undefined;
-        message: string | undefined;
-
-        result: {
-            value: number | null | undefined,
-            timestamp: string | null | undefined,
-        }[] | undefined;
-    };
-
-    if (answer.status !== 200) {
-        return answer.message ?? 'Could not find the count of objects in given Area of Interest';
-    }
-    const count = answer.result?.[0].value;
-
-    if (isNotDefined(count)) {
-        return 'Could not find the count of objects in given Area of Interest';
-    }
-
-    if (count <= 0) {
-        return 'Area of Interest does not contain objects from filter.';
-    }
-
-    if (count > 100000) {
-        return `Area of Interest contains more than 100 000 objects. -> ${count}`;
-    }
-    return undefined;
-}
 
 interface Props {
     className?: string;
@@ -216,6 +129,8 @@ function NewProject(props: Props) {
         organizationOptions,
         organizationsPending,
     } = useProjectOptions(value?.projectType);
+
+    const [testPending, setTestPending] = React.useState(false);
 
     const [
         projectSubmissionStatus,
@@ -278,6 +193,70 @@ function NewProject(props: Props) {
         [setValue],
     );
 
+    const handleTestAoi = React.useCallback((
+    ) => {
+        const finalValues = value;
+        async function submitToFirebase() {
+            if (!mountedRef.current) {
+                return;
+            }
+            const {
+                filter,
+                filterText,
+                projectType,
+                inputType,
+                geometry,
+                TMId,
+            } = finalValues;
+
+            const finalFilter = filter === FILTER_OTHERS
+                ? filterText
+                : filter;
+
+            setTestPending(true);
+
+            if (projectType === PROJECT_TYPE_FOOTPRINT && inputType === 'aoi_file') {
+                const res = await validateAoiOnOhsome(geometry, finalFilter);
+                if (!mountedRef.current) {
+                    return;
+                }
+                if (res.errored) {
+                    setError((err) => ({
+                        ...getErrorObject(err),
+                        geometry: res.error,
+                    }));
+                } else {
+                    setError((err) => ({
+                        ...getErrorObject(err),
+                        geometry: res.message,
+                    }));
+                }
+            } else if (projectType === PROJECT_TYPE_FOOTPRINT && inputType === 'TMId') {
+                const res = await validateProjectIdOnHotTaskingManager(
+                    TMId,
+                    finalFilter,
+                );
+                if (!mountedRef.current) {
+                    return;
+                }
+                if (res.errored) {
+                    setError((err) => ({
+                        ...getErrorObject(err),
+                        TMId: res.error,
+                    }));
+                } else {
+                    setError((err) => ({
+                        ...getErrorObject(err),
+                        TMId: res.message,
+                    }));
+                }
+            }
+
+            setTestPending(false);
+        }
+        submitToFirebase();
+    }, [mountedRef, setError, value]);
+
     const handleFormSubmission = React.useCallback((
         finalValuesFromProps: PartialProjectFormType,
     ) => {
@@ -285,8 +264,11 @@ function NewProject(props: Props) {
         const finalValues = finalValuesFromProps as ProjectFormType;
 
         if (!userId) {
-            // eslint-disable-next-line no-console
-            console.error('Cannot submit form because user is not defined');
+            setError((err) => ({
+                ...getErrorObject(err),
+                [internal]: 'Cannot submit form because user is not defined',
+            }));
+            setProjectSubmissionStatus('failed');
             return;
         }
 
@@ -299,26 +281,44 @@ function NewProject(props: Props) {
             const {
                 projectImage,
                 visibility,
+                filter,
+                filterText,
                 ...valuesToCopy
             } = finalValues;
 
-            if (finalValues.projectType === PROJECT_TYPE_FOOTPRINT && finalValues.inputType === 'aoi_file') {
-                const err = await validateObjectsCount(finalValues.geometry, finalValues.filter);
+            const finalFilter = filter === FILTER_OTHERS
+                ? filterText
+                : filter;
+
+            if (valuesToCopy.projectType === PROJECT_TYPE_FOOTPRINT && valuesToCopy.inputType === 'aoi_file') {
+                const res = await validateAoiOnOhsome(valuesToCopy.geometry, finalFilter);
                 if (!mountedRef.current) {
                     return;
                 }
-                if (err) {
-                    // eslint-disable-next-line no-console
-                    console.error(err);
-                    // FIXME: show proper error
+                if (res.errored) {
+                    setError((err) => ({
+                        ...getErrorObject(err),
+                        geometry: res.error,
+                    }));
                     setProjectSubmissionStatus('failed');
                     return;
                 }
-            } else if (finalValues.projectType === PROJECT_TYPE_FOOTPRINT && finalValues.inputType === 'TMId') {
-                // eslint-disable-next-line no-console
-                console.error('Do something here');
-                setProjectSubmissionStatus('failed');
-                return;
+            } else if (valuesToCopy.projectType === PROJECT_TYPE_FOOTPRINT && valuesToCopy.inputType === 'TMId') {
+                const res = await validateProjectIdOnHotTaskingManager(
+                    valuesToCopy.TMId,
+                    finalFilter,
+                );
+                if (!mountedRef.current) {
+                    return;
+                }
+                if (res.errored) {
+                    setError((err) => ({
+                        ...getErrorObject(err),
+                        TMId: res.error,
+                    }));
+                    setProjectSubmissionStatus('failed');
+                    return;
+                }
             }
 
             const storage = getStorage();
@@ -349,6 +349,7 @@ function NewProject(props: Props) {
 
                     const uploadData = {
                         ...valuesToCopy,
+                        filter: finalFilter,
                         image: downloadUrl,
                         createdBy: userId,
                         teamId: visibility === 'public' ? undefined : visibility,
@@ -361,18 +362,33 @@ function NewProject(props: Props) {
                 } else {
                     setProjectSubmissionStatus('failed');
                 }
-            } catch (submissionError) {
+            } catch (submissionError: unknown) {
                 if (!mountedRef.current) {
                     return;
                 }
                 // eslint-disable-next-line no-console
                 console.error(submissionError);
+                setError((err) => ({
+                    ...getErrorObject(err),
+                    [internal]: 'Some error occurred',
+                }));
                 setProjectSubmissionStatus('failed');
             }
         }
 
         submitToFirebase();
-    }, [user, mountedRef]);
+    }, [user, mountedRef, setError]);
+
+    /*
+    const handleTest = React.useCallback(
+        () => {
+            async function testSettings() {
+            }
+            testSettings();
+        },
+        [],
+    );
+    */
 
     const handleSubmitButtonClick = React.useMemo(
         () => createSubmitHandler(validate, setError, handleFormSubmission),
@@ -409,7 +425,7 @@ function NewProject(props: Props) {
                         keySelector={valueSelector}
                         labelSelector={labelSelector}
                         error={error?.projectType}
-                        disabled={submissionPending}
+                        disabled={submissionPending || testPending}
                     />
                     <div className={styles.inputGroup}>
                         <TextInput
@@ -589,7 +605,7 @@ function NewProject(props: Props) {
                             keySelector={valueSelector}
                             labelSelector={labelSelector}
                             error={error?.inputType}
-                            disabled={submissionPending}
+                            disabled={submissionPending || testPending}
                         />
                         {value?.inputType === PROJECT_INPUT_TYPE_LINK && (
                             <TextInput
@@ -598,7 +614,7 @@ function NewProject(props: Props) {
                                 label="Input Geometries File (Direct Link)"
                                 hint="Provide a direct link to a GeoJSON file containing your building footprint geometries."
                                 error={error?.geometry}
-                                disabled={submissionPending}
+                                disabled={submissionPending || testPending}
                             />
                         )}
                         {value?.inputType === PROJECT_INPUT_TYPE_UPLOAD && (
@@ -609,34 +625,56 @@ function NewProject(props: Props) {
                                 label="GeoJSON File"
                                 hint="Upload your project area as GeoJSON File (max. 1MB). Make sure that you provide a maximum of 10 polygon geometries."
                                 error={error?.geometry}
-                                disabled={submissionPending}
+                                disabled={submissionPending || testPending}
                             />
                         )}
                         {value?.inputType === PROJECT_INPUT_TYPE_TASKING_MANAGER_ID && (
                             <TextInput
                                 name={'TMId' as const}
                                 value={value?.TMId}
+                                onChange={setFieldValue}
                                 label="HOT Tasking Manager ProjectID"
                                 hint="Provide the ID of a HOT Tasking Manager Project (only numbers, e.g. 6526)."
                                 error={error?.TMId}
-                                disabled={submissionPending}
+                                disabled={submissionPending || testPending}
                             />
                         )}
                         {(value?.inputType === PROJECT_INPUT_TYPE_UPLOAD
                             || value?.inputType === PROJECT_INPUT_TYPE_TASKING_MANAGER_ID
                         ) && (
-                            <SegmentInput
-                                name={'filter' as const}
-                                value={value?.filter}
-                                onChange={setFieldValue}
-                                label="Ohsome Filter"
-                                hint="Please specify which objects should be included in your project."
-                                options={filterOptions}
-                                error={error?.filter}
-                                keySelector={valueSelector}
-                                labelSelector={labelSelector}
-                                disabled={submissionPending}
-                            />
+                            <>
+                                <SegmentInput
+                                    name={'filter' as const}
+                                    value={value?.filter}
+                                    onChange={setFieldValue}
+                                    label="Ohsome Filter"
+                                    hint="Please specify which objects should be included in your project."
+                                    options={filterOptions}
+                                    error={error?.filter}
+                                    keySelector={valueSelector}
+                                    labelSelector={labelSelector}
+                                    disabled={submissionPending || testPending}
+                                />
+                                {value?.filter === FILTER_OTHERS && (
+                                    <TextInput
+                                        name={'filterText' as const}
+                                        value={value?.filterText}
+                                        onChange={setFieldValueWithName}
+                                        error={error?.filterText}
+                                        label="Custom Filter"
+                                        disabled={submissionPending || testPending}
+                                        placeholder="amenities=* and geometry:polygon"
+                                    />
+                                )}
+                                <Button
+                                    className={styles.testButton}
+                                    name={undefined}
+                                    onClick={handleTestAoi}
+                                    disabled={submissionPending || testPending}
+                                >
+                                    Test
+                                </Button>
+                            </>
                         )}
                     </InputSection>
                 )}
@@ -743,8 +781,8 @@ function NewProject(props: Props) {
                         )}
                         {projectSubmissionStatus === 'success' && (
                             <div className={styles.postSubmissionMessage}>
-                                Project submitted successfully!
-                                It should take around 15 minutes to appear in the dashboard
+                                Your project has been uploaded. It can take up
+                                to one hour for the project to appear in the dashboard.
                             </div>
                         )}
                         {projectSubmissionStatus === 'failed' && (

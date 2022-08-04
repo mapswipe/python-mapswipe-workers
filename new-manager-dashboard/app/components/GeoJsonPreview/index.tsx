@@ -10,22 +10,8 @@ import { _cs } from '@togglecorp/fujs';
 
 import styles from './styles.css';
 
-export interface Feature {
-    type: 'Feature',
-    bbox?: [number, number, number, number],
-    id: number;
-    geometry: {
-        type: string;
-        coordinates: unknown[];
-    }
-    properties: Record<string, unknown>;
-}
-
-export interface FeatureCollection {
-    type: 'FeatureCollection',
-    bbox?: [number, number, number, number],
-    features: Feature[];
-}
+export type FeatureCollection = GeoJSON.FeatureCollection;
+export type Feature = GeoJSON.Feature;
 
 interface Props {
     className?: string;

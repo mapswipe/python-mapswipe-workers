@@ -2,6 +2,8 @@ import {
     isDefined,
     sum,
     listToGroupList,
+    isNotDefined,
+    isFalsyString,
 } from '@togglecorp/fujs';
 import {
     ObjectSchema,
@@ -49,6 +51,7 @@ export interface ProjectFormType {
     inputType?: ProjectInputType;
     TMId?: string;
     filter?: string;
+    filterText?: string;
     maxTasksPerUser: number;
     tileServer: TileServer;
     tileServerB?: TileServer;
@@ -74,14 +77,14 @@ export const projectInputTypeOptions: {
 }[] = [
     { value: PROJECT_INPUT_TYPE_UPLOAD, label: 'Upload GeoJSON AOI' },
     { value: PROJECT_INPUT_TYPE_LINK, label: 'Link to GeoJSON' },
-    { value: PROJECT_INPUT_TYPE_TASKING_MANAGER_ID, label: 'Provide Tasking Manager Id' },
+    { value: PROJECT_INPUT_TYPE_TASKING_MANAGER_ID, label: 'Provide HOT Tasking Manager Id' },
+
 ];
 
 export const FILTER_BUILDINGS = 'building=* and geometry:polygon';
-export const FILTER_OTHERS = 'amenities=* and geometry:polygon';
+export const FILTER_OTHERS = 'other'; // 'amenities=* and geometry:polygon';
 
 export const filterOptions = [
-    // NOTE: is it okay to expose these filters?
     { value: FILTER_BUILDINGS, label: 'Buildings' },
     { value: FILTER_OTHERS, label: 'Other' },
 ];
@@ -176,6 +179,7 @@ export const projectFormSchema: ProjectFormSchema = {
             zoomLevel: [forceNullType],
             geometry: [forceNullType],
             filter: [forceNullType],
+            filterText: [forceNullType],
             TMId: [forceNullType],
             tileServer: {
                 fields: tileServerFieldsSchema,
@@ -202,11 +206,18 @@ export const projectFormSchema: ProjectFormSchema = {
                     || value?.inputType === PROJECT_INPUT_TYPE_UPLOAD)
                     ? [requiredCondition]
                     : [forceNullType],
+                filterText: (
+                    value?.inputType === PROJECT_INPUT_TYPE_TASKING_MANAGER_ID
+                    || value?.inputType === PROJECT_INPUT_TYPE_UPLOAD
+                ) && value?.filter === FILTER_OTHERS
+                    ? [requiredCondition]
+                    : [forceNullType],
                 geometry: (value?.inputType === PROJECT_INPUT_TYPE_LINK
                     || value?.inputType === PROJECT_INPUT_TYPE_UPLOAD)
                     ? [requiredCondition]
                     : [forceNullType],
                 TMId: value?.inputType === PROJECT_INPUT_TYPE_TASKING_MANAGER_ID
+                    // FIXME: number string condition
                     ? [requiredCondition]
                     : [forceNullType],
             };
@@ -233,3 +244,167 @@ export const projectFormSchema: ProjectFormSchema = {
         geometry: ['zoomLevel'],
     }),
 };
+
+export function generateProjectName(
+    projectTopic: string | undefined | null,
+    projectNumber: number | undefined | null,
+    projectRegion: string | undefined | null,
+    requestingOrganization: string | undefined | null,
+) {
+    if (
+        isFalsyString(projectTopic)
+        || isNotDefined(projectNumber)
+        || isFalsyString(projectRegion)
+        || isFalsyString(requestingOrganization)
+    ) {
+        return undefined;
+    }
+
+    return `${projectTopic} - ${projectRegion}(${projectNumber}) ${requestingOrganization}`;
+}
+
+export function getGroupSize(projectType: ProjectType | undefined) {
+    if (projectType === PROJECT_TYPE_BUILD_AREA) {
+        return 120;
+    }
+
+    if (projectType === PROJECT_TYPE_FOOTPRINT || projectType === PROJECT_TYPE_CHANGE_DETECTION) {
+        return 25;
+    }
+
+    if (projectType === PROJECT_TYPE_COMPLETENESS) {
+        return 80;
+    }
+    return undefined;
+}
+
+// FIXME: move this to utils
+function getFormData(obj: {
+    [key: string]: string;
+}) {
+    return Object.keys(obj).reduce((formData, key) => {
+        formData.append(key, obj[key]);
+        return formData;
+    }, new FormData());
+}
+
+export async function validateAoiOnOhsome(
+    featureCollection: FeatureCollection | string | undefined | null,
+    filter: string | undefined | null,
+): (
+    Promise<{ errored: true, error: string } | { errored: false, message: string }>
+) {
+    if (isNotDefined(featureCollection)) {
+        return { errored: true, error: 'AOI is not defined' };
+    }
+    if (typeof featureCollection === 'string') {
+        return { errored: true, error: 'AOI is invalid.' };
+    }
+    if (isNotDefined(filter)) {
+        return { errored: true, error: 'Filter is not defined' };
+    }
+    let response;
+    try {
+        response = await fetch('https://api.ohsome.org/v1/elements/count', {
+            method: 'POST',
+            body: getFormData({
+                bpolys: JSON.stringify(featureCollection),
+                filter,
+            }),
+        });
+    } catch {
+        return { errored: true, error: 'Could not find the no. of objects in given AOI' };
+    }
+    if (!response.ok) {
+        return { errored: true, error: 'Could not find the no. of objects in given AOI' };
+    }
+
+    const answer = await response.json() as {
+        result: {
+            value: number | null | undefined,
+            timestamp: string | null | undefined,
+        }[] | undefined;
+    };
+
+    const count = answer.result?.[0].value;
+
+    if (isNotDefined(count)) {
+        return { errored: true, error: 'Could not find the count of objects in given AOI' };
+    }
+
+    if (count <= 0) {
+        return { errored: true, error: 'AOI does not contain objects from filter.' };
+    }
+
+    if (count > 100000) {
+        return { errored: true, error: `AOI contains more than 100 000 objects. -> ${count}` };
+    }
+    return {
+        errored: false,
+        message: `AOI is valid. It contains ${count} object(s)`,
+    };
+}
+
+async function fetchAoiFromHotTaskingManager(projectId: number | string): (
+    Promise<{ errored: true, error: string }
+    | { errored: false, response: GeoJSON.FeatureCollection }>
+) {
+    type Res = GeoJSON.Geometry;
+    type Err = { Error: string, SubCode: string };
+    function hasErrored(res: Res | Err): res is Err {
+        return !!(res as Err).Error;
+    }
+
+    let response;
+    try {
+        response = await fetch(
+            `https://tasking-manager-tm4-production-api.hotosm.org/api/v2/projects/${projectId}/queries/aoi/?as_file=false`,
+        );
+    } catch {
+        return {
+            errored: true,
+            error: 'Some error occurred',
+        };
+    }
+    if (!response.ok) {
+        return {
+            errored: true,
+            error: 'Some error occurred',
+        };
+    }
+    const answer = await response.json() as (Err | Res);
+    if (hasErrored(answer)) {
+        return {
+            errored: true,
+            error: answer.Error,
+        };
+    }
+    return {
+        errored: false,
+        response: {
+            type: 'FeatureCollection',
+            features: [{ type: 'Feature', geometry: answer, properties: {} }],
+        },
+    };
+}
+
+export async function validateProjectIdOnHotTaskingManager(
+    projectId: number | string | undefined | null,
+    filter: string | undefined | null,
+): (
+    Promise<{ errored: true, error: string } | { errored: false, message: string }>
+) {
+    if (isNotDefined(projectId)) {
+        return {
+            error: 'HOT Tasking Manager ProjectID is not defined',
+            errored: true,
+        };
+    }
+    const aoi = await fetchAoiFromHotTaskingManager(projectId);
+    if (aoi.errored) {
+        return aoi;
+    }
+
+    const res = await validateAoiOnOhsome(aoi.response, filter);
+    return res;
+}

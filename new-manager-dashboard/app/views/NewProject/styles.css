@@ -30,6 +30,10 @@
             flex-direction: column;
             gap: var(--spacing-extra-large);
         }
+
+        .test-button {
+            align-self: flex-end;
+        }
     }
 
     .error-message {
