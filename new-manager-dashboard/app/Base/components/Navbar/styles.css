@@ -1,6 +1,8 @@
 .navbar {
     display: flex;
     justify-content: center;
+    z-index: 1;
+    box-shadow: 0 3px 5px -2px var(--color-shadow);
     background-color: var(--color-primary);
     padding: var(--spacing-medium) var(--spacing-large);
     color: var(--color-text-on-light);

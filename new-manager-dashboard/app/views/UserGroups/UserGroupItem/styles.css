@@ -1,9 +1,11 @@
 .user-group-item {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-medium);
+    border-radius: var(--radius-card-border);
+    box-shadow: var(--shadow-card);
     background-color: var(--color-foreground);
     padding: var(--spacing-large);
+    gap: var(--spacing-medium);
 
     .heading {
         display: flex;

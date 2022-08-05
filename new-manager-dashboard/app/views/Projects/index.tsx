@@ -89,20 +89,20 @@ function Projects(props: Props) {
                         onChange={setSearchText}
                         placeholder="Search by title"
                     />
-                </div>
-            </div>
-            <div className={styles.container}>
-                <div className={styles.sidebar}>
-                    <SmartLink
-                        route={route.newProject}
-                    >
-                        Add new Project
-                    </SmartLink>
                     <SmartLink
                         route={route.newTutorial}
                     >
                         Add new Tutorial
                     </SmartLink>
+                    <SmartLink
+                        route={route.newProject}
+                    >
+                        Add new Project
+                    </SmartLink>
+                </div>
+            </div>
+            <div className={styles.container}>
+                <div className={styles.sidebar}>
                     <div className={styles.filters}>
                         <RadioInput
                             label="Project Status"

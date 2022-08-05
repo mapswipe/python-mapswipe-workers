@@ -19,6 +19,9 @@
         }
 
         .actions {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-medium);
             flex-shrink: 0;
         }
     }
@@ -56,11 +59,15 @@
     }
 
     .loading {
+        border-radius: var(--radius-card-border);
+        box-shadow: var(--shadow-card);
         background-color: var(--color-foreground);
         padding: var(--spacing-extra-large);
     }
 
     .empty-message {
+        border-radius: var(--radius-card-border);
+        box-shadow: var(--shadow-card);
         background-color: var(--color-foreground);
         padding: var(--spacing-extra-large);
     }

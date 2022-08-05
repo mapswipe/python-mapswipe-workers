@@ -2,6 +2,10 @@ body {
     font-size: var(--font-size-medium);
 }
 
+a {
+    text-decoration: none;
+}
+
 .base {
     display: flex;
     flex-direction: column;
@@ -63,7 +67,7 @@ p {
     --color-danger: #e04656;
     --color-success: #53b391;
     --color-separator: rgba(0, 0, 0, 0.1);
-    --color-shadow: rgba(0, 0, 0, 0.5);
+    --color-shadow: rgba(0, 0, 0, 0.2);
 
     --color-input-border: rgba(0, 0, 0, 0.2);
     --color-active-input-border: var(--color-accent);
@@ -92,6 +96,9 @@ p {
     --radius-modal: 0.25rem;
     --radius-button-border: 0.25rem;
     --radius-input-border: 0.25rem;
-    --radius-card: 0.25rem;
+    --radius-card-border: 0.25rem;
+
+
+    --shadow-card: 0 2px 4px -2px var(--color-shadow);
 
 }

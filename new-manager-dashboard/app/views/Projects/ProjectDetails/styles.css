@@ -2,7 +2,8 @@
     display: flex;
     position: relative;
     flex-direction: column;
-    border-radius: var(--radius-card);
+    border-radius: var(--radius-card-border);
+    box-shadow: var(--shadow-card);
     background-color: var(--color-foreground);
     padding: var(--spacing-large);
     gap: var(--spacing-large);
