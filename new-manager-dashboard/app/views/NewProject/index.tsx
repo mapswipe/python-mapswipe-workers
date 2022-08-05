@@ -2,7 +2,6 @@ import React from 'react';
 import {
     _cs,
     isDefined,
-    isNotDefined,
 } from '@togglecorp/fujs';
 import {
     useForm,

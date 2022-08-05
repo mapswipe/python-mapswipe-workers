@@ -78,6 +78,7 @@ function Navbar(props: Props) {
                             {user.displayName}
                         </div>
                         <Button
+                            variant="action"
                             className={styles.logoutButton}
                             name={undefined}
                             onClick={handleLogoutClick}

@@ -2,7 +2,7 @@
     display: flex;
     justify-content: center;
     background-color: var(--color-primary);
-    padding: var(--spacing-medium);
+    padding: var(--spacing-medium) var(--spacing-large);
     color: var(--color-text-on-light);
 
     .container {
@@ -12,7 +12,7 @@
         flex-grow: 1;
         flex-wrap: wrap;
         max-width: var(--width-navbar-content-max);
-        gap: var(--spacing-extra-large);
+        gap: var(--spacing-large);
 
         .app-brand {
             display: flex;
@@ -39,10 +39,11 @@
                 gap: var(--spacing-large);
 
                 .link {
-                    text-transform: none;
+                    opacity: 0.7;
                     color: var(--color-text-on-light);
 
                     &.active {
+                        opacity: 1;
                         font-weight: var(--font-weight-bold);
                     }
                 }

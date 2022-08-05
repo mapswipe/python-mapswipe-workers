@@ -1,3 +1,47 @@
 .login {
-    padding: var(--spacing-medium);
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    justify-content: center;
+    background-color: var(--color-background);
+
+    .container {
+        width: 100%;
+        max-width: 30rem;
+
+        .app-brand {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-medium);
+            background-color: var(--color-primary);
+            padding: var(--spacing-large);
+
+            .logo {
+                height: 2.6rem;
+            }
+
+            .text {
+                color: var(--color-text-on-light);
+                font-size: var(--font-size-large);
+                font-weight: var(--font-weight-bold);
+            }
+        }
+
+        .login-form-container {
+            display: flex;
+            flex-direction: column;
+            background-color: var(--color-foreground);
+            padding: var(--spacing-large);
+            gap: var(--spacing-large);
+
+            .error-message {
+                color: var(--color-danger);
+            }
+
+            .actions {
+                display: flex;
+                justify-content: flex-end;
+            }
+        }
+    }
 }

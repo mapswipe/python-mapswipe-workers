@@ -8,11 +8,12 @@ import {
 } from 'firebase/auth';
 
 import { UserContext } from '#base/context/UserContext';
-import PageContent from '#components/PageContent';
 import TextInput from '#components/TextInput';
 import Button from '#components/Button';
 
 import useInputState from '#hooks/useInputState';
+
+import mapSwipeLogo from '#resources/images/mapswipe-logo.svg';
 
 import styles from './styles.css';
 
@@ -75,37 +76,51 @@ function Login(props: Props) {
     }, [setUser, email, password]);
 
     return (
-        <PageContent className={_cs(styles.login, className)}>
-            <TextInput
-                name="email"
-                label="Email"
-                value={email}
-                onChange={setEmail}
-                disabled={pending}
-            />
-            <TextInput
-                name="password"
-                label="Password"
-                value={password}
-                onChange={setPassword}
-                type="password"
-                disabled={pending}
-            />
-            <div>
-                <Button
-                    name={undefined}
-                    onClick={handleLoginClick}
-                    disabled={pending || !email || !password}
-                >
-                    Login
-                </Button>
-            </div>
-            {errorMessage && (
-                <div>
-                    {errorMessage}
+        <div className={_cs(styles.login, className)}>
+            <div className={styles.container}>
+                <div className={styles.appBrand}>
+                    <img
+                        className={styles.logo}
+                        src={mapSwipeLogo}
+                        alt="MapSwipe"
+                    />
+                    <div className={styles.text}>
+                        Manager Dashboard
+                    </div>
                 </div>
-            )}
-        </PageContent>
+                <div className={styles.loginFormContainer}>
+                    <TextInput
+                        name="email"
+                        label="Email"
+                        value={email}
+                        onChange={setEmail}
+                        disabled={pending}
+                    />
+                    <TextInput
+                        name="password"
+                        label="Password"
+                        value={password}
+                        onChange={setPassword}
+                        type="password"
+                        disabled={pending}
+                    />
+                    {errorMessage && (
+                        <div className={styles.errorMessage}>
+                            {errorMessage}
+                        </div>
+                    )}
+                    <div className={styles.actions}>
+                        <Button
+                            name={undefined}
+                            onClick={handleLoginClick}
+                            disabled={pending || !email || !password}
+                        >
+                            Login
+                        </Button>
+                    </div>
+                </div>
+            </div>
+        </div>
     );
 }
 
