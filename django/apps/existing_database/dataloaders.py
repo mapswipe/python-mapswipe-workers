@@ -113,6 +113,26 @@ USER_ORGANIZATION_TYPE_STATS = f"""
     GROUP BY organization, user_id
 """
 
+USER_GROUP_ORGANIZATION_TYPE_STATS = f"""
+    WITH
+        user_data AS (
+            SELECT
+                UGR.user_group_id as user_group_id,
+                COUNT(*) swipe_count,
+                P.organization_id as organization
+            From {Result._meta.db_table} R
+                LEFT JOIN {Project._meta.db_table} as P USING (project_id)
+                LEFT JOIN {UserGroupResult._meta.db_table} as UGR USING (user_id)
+            GROUP BY organization, UGR.user_group_id
+        )
+    SELECT
+        UGR.user_group_id,
+        SUM(swipe_count) as swipe_count,
+        organization
+    From user_data
+    GROUP BY organization, user_group_id
+"""
+
 USER_GROUP_CONTRIBUTORS_STAT_QUERY = f"""
     WITH
         -- Group by project_id, group_id, user_id and user_group_id to get
@@ -193,14 +213,13 @@ USER_PROJECT_TYPE_STATS_QUERY = f"""
     WITH
         project_data_type1 AS (
             SELECT
-                UGR.user_id as user_id,
+                R.user_id as user_id,
                 P.project_type as project_type,
                 st_area(geom) as area_sum
                 FROM {Project._meta.db_table} P
                     LEFT JOIN {Result._meta.db_table} R USING (project_id)
-                    LEFT JOIN {UserGroupResult._meta.db_table} UGR USING (project_id)
-            WHERE UGR.user_id = ANY(%s)
-            GROUP BY project_type, UGR.user_id, area_sum
+            WHERE R.user_id = ANY(%s)
+            GROUP BY project_type, R.user_id, area_sum
         )
     SELECT
         user_id,
@@ -208,6 +227,27 @@ USER_PROJECT_TYPE_STATS_QUERY = f"""
         project_type
     From project_data_type1
     GROUP BY user_id, project_type
+"""
+
+USER_GROUP_PROJECT_TYPE_STATS_QUERY = f"""
+    WITH
+        project_data_type1 AS (
+            SELECT
+                UGR.user_group_id as user_group_id,
+                P.project_type as project_type,
+                st_area(geom) as area_sum
+                FROM {Project._meta.db_table} P
+                    LEFT JOIN {Result._meta.db_table} R USING (project_id)
+                    LEFT JOIN {UserGroupResult._meta.db_table} UGR USING (project_id)
+            WHERE UGR.user_group_id = ANY(%s)
+            GROUP BY project_type, UGR.user_group_id, area_sum
+        )
+    SELECT
+        user_group_id,
+        SUM(area_sum) as area_sum,
+        project_type
+    From project_data_type1
+    GROUP BY user_group_id, project_type
 """
 
 USER_PROJECT_SWIPE_TYPE_STATS_QUERY = f"""
@@ -477,15 +517,30 @@ def load_user_group_project_type_stats(keys: List[str]):
     with connections[settings.MAPSWIPE_EXISTING_DB].cursor() as cursor:
         cursor.execute(USER_GROUP_PROJECT_TYPE_STATS_QUERY, [keys])
         aggregate_results = cursor.fetchall()
-    _map = {
-        user_group_id: ProjectContributorType(
-            build_area=area_sum_1 or 0,
-            footprint=area_sum_2 or 0,
-            change_detection=area_sum_3 or 0
+    _map = defaultdict(list)
+    for user_group_id, area_sum, project_type in aggregate_results:
+        _map[user_group_id].append(
+            ProjectTypeStats(
+                area=area_sum or 0,
+                project_type=project_type
+            )
         )
-        for user_group_id, area_sum_1, area_sum_2, area_sum_3 in aggregate_results
-    }
-    return [_map.get(key, None) for key in keys]
+    return [_map.get(key) for key in keys]
+
+
+def load_user_group_organization_stats(keys: List[str]):
+    with connections[settings.MAPSWIPE_EXISTING_DB].cursor() as cursor:
+        cursor.execute(USER_GROUP_ORGANIZATION_TYPE_STATS, [keys])
+        aggregate_results = cursor.fetchall()
+    _map = defaultdict(list)
+    for user_group_id, swipe_count, organization in aggregate_results:
+        _map[user_group_id].append(
+            OrganizationTypeStats(
+                total_swipe=swipe_count or 0,
+                organization_name=organization
+            )
+        )
+    return [_map.get(key) for key in keys]
 
 
 def load_user_group_user_stats(keys: List[List[str]]):

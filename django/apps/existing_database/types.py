@@ -246,6 +246,12 @@ class UserGroupType:
             root.user_group_id
         )
 
+    @strawberry.field
+    async def user_group_organization_stats(self, info: Info, root: UserGroup) -> List[OrganizationTypeStats]:
+        return await info.context["dl"].existing_database.load_user_group_organization_stats.load(
+            root.user_group_id
+        )
+
     def get_queryset(self, queryset, info, **kwargs):
         # Filter out user group without name. They aren't sync yet.
         return UserGroup.objects.exclude(name__isnull=True).all()
