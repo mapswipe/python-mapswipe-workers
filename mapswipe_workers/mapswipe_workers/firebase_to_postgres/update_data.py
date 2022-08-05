@@ -186,6 +186,13 @@ def update_user_group_data(user_group_ids: Optional[List[str]] = None) -> List[s
 
 
 def update_user_group_full_data(user_group_ids: List[str]):
+
+    def convert_datetimeformat(timestamp):
+        if timestamp:
+            return dt.datetime.strptime(
+                timestamp.replace("Z", ""), "%Y-%m-%dT%H:%M:%S"
+            )
+
     fb_db = auth.firebaseDB()
 
     user_group_file = io.StringIO("")
@@ -197,11 +204,31 @@ def update_user_group_full_data(user_group_ids: List[str]):
         if ug is None:  # userGroup doesn't exists in FB
             continue
         # New/Updated user group
+        created_at_timestamp = ug.get('created_at', None)
+        archived_at_timestamp = ug.get('archived_at', None)
+        archived_by_id = ug.get('archived_by', None)
+        created_by_id = ug.get('created_by', None)
+        if created_at_timestamp:
+            created_at = convert_datetimeformat(created_at_timestamp)
+
+        if archived_at_timestamp:
+            archived_at = convert_datetimeformat(archived_at_timestamp)
+
+        if archived_by_id:
+            is_archived = True
+        else:
+            is_archived = False
+
         ug_w.writerow(
             [
                 _id,
                 ug["name"],
                 ug["description"],
+                created_by_id,
+                created_at,
+                archived_by_id,
+                archived_at,
+                is_archived,
             ]
         )
         members = ug.get("users") or {}
@@ -227,22 +254,18 @@ def update_user_group_full_data(user_group_ids: List[str]):
     # Clear old temp data
     pg_db.query("TRUNCATE user_groups_temp")
     # Copy user group data to temp table
-    columns = ["user_group_id", "name", "description"]
+    columns = [
+        "user_group_id",
+        "name",
+        "description",
+        "created_by_id",
+        "created_at",
+        "archived_by_id",
+        "archived_at",
+        "is_archived",
+    ]
     pg_db.copy_from(user_group_file, "user_groups_temp", columns)
     user_group_file.close()
-
-    # update user_group data from temp table
-    query_insert_results = """
-        INSERT INTO user_groups
-            SELECT * FROM user_groups_temp
-        ON CONFLICT (user_group_id) DO UPDATE
-        SET
-          name = excluded.name,
-          description = excluded.description;
-        TRUNCATE user_groups_temp;
-    """
-    pg_db.query(query_insert_results)
-    logger.info("Updated user_group data in Postgres.")
 
     # ---- User Group Membership Data
     # Clear old temp data
@@ -258,11 +281,28 @@ def update_user_group_full_data(user_group_ids: List[str]):
 
     # Add missing users id.
     query_missing_users = """
-        SELECT DISTINCT(ug_temp.user_id)
-        FROM user_groups_user_memberships_temp ug_temp
-            LEFT JOIN users u USING (user_id)
-        WHERE u.user_id is NULL
+        (
+            SELECT DISTINCT(ug_temp.user_id)
+            FROM user_groups_user_memberships_temp ug_temp
+                LEFT JOIN users u USING (user_id)
+            WHERE u.user_id is NULL
+        )
+        UNION
+        (
+            SELECT DISTINCT(ug_temp.created_by_id)
+            FROM user_groups_temp ug_temp
+                LEFT JOIN users u ON u.user_id=ug_temp.created_by_id
+            WHERE u.user_id is NULL
+        )
+        UNION
+        (
+            SELECT DISTINCT(ug_temp.archived_by_id)
+            FROM user_groups_temp ug_temp
+                LEFT JOIN users u ON u.user_id=ug_temp.archived_by_id
+            WHERE u.user_id is NULL
+        )
     """
+
     missing_users_id = [_id for _id, *_ in pg_db.retr_query(query_missing_users)]
     if missing_users_id:
         update_user_data(user_ids=missing_users_id)
@@ -274,6 +314,36 @@ def update_user_group_full_data(user_group_ids: List[str]):
         )
     """
     pg_db.query(delete_memberships_for_non_existing_users)
+    # Set the created_by and archived_by to
+    set_non_existing_created_by = """
+        UPDATE user_groups_temp
+        SET created_by_id=NULL
+        WHERE created_by_id not in (SELECT user_id FROM users)
+    """
+    pg_db.query(set_non_existing_created_by)
+    set_non_existing_archived_by = """
+        UPDATE user_groups_temp
+        SET archived_by_id=NULL
+        WHERE archived_by_id not in (SELECT user_id FROM users)
+    """
+    pg_db.query(set_non_existing_archived_by)
+    # update user_group data from temp table
+    query_insert_results = """
+        INSERT INTO user_groups
+            SELECT * FROM user_groups_temp
+        ON CONFLICT (user_group_id) DO UPDATE
+        SET
+          name = excluded.name,
+          description = excluded.description,
+          created_at = excluded.created_at,
+          archived_at = excluded.archived_at,
+          created_by_id = excluded.created_by_id,
+          archived_by_id = excluded.archived_by_id,
+          is_archived = excluded.is_archived;
+        TRUNCATE user_groups_temp;
+    """
+    pg_db.query(query_insert_results)
+    logger.info("Updated user_group data in Postgres.")
 
     # Update user_group membership data from temp table
     query_insert_results = """
@@ -291,6 +361,27 @@ def update_user_group_full_data(user_group_ids: List[str]):
     """
     pg_db.query(query_insert_results, [user_group_ids])
     logger.info("Updated user_group membership data in Postgres.")
+    del pg_db
+
+
+def update_user_username(user_ids: List[str]):
+    fb_db = auth.firebaseDB()
+    pg_db = auth.postgresDB()
+
+    for _id in user_ids:
+        user = fb_db.reference(f"v2/users/{_id}").get()
+        if user is None:
+            continue
+        current_username = user.get('current_username', None)
+        new_username = user.get('new_username', None)
+
+        # query postgres to get username and id
+        update_username_query = f"""
+        UPDATE users set username={new_username}
+        WHERE user_id={_id} AND username={current_username};
+        """
+        pg_db.query(update_username_query)
+        logger.info("Updated user_group data in Postgres.")
     del pg_db
 
 

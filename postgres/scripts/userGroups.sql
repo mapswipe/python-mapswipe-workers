@@ -10,13 +10,25 @@ CREATE TABLE IF NOT EXISTS user_groups (
     user_group_id varchar,
     name varchar,
     description text,
-    PRIMARY KEY (user_group_id)
+    created_by_id varchar,
+    created_at timestamp,
+    archived_by_id varchar,
+    archived_at timestamp,
+    is_archived boolean,
+    PRIMARY KEY (user_group_id),
+    FOREIGN KEY (created_by_id) REFERENCES users (user_id),
+    FOREIGN KEY (archived_by_id) REFERENCES users (user_id)
 );
 
 CREATE TABLE IF NOT EXISTS user_groups_temp (
     user_group_id varchar,
     name varchar,
-    description text
+    description text,
+    created_by_id varchar,
+    created_at timestamp,
+    archived_by_id varchar,
+    archived_at timestamp,
+    is_archived boolean
 );
 
 CREATE TABLE IF NOT EXISTS user_groups_user_memberships (
@@ -54,4 +66,16 @@ CREATE TABLE IF NOT EXISTS results_user_groups_temp (
     group_id varchar,
     user_id varchar,
     user_group_id varchar
+);
+
+
+--- create table for organization
+CREATE TABLE IF NOT EXISTS organizations (
+    organization_id varchar,
+    PRIMARY KEY (organization_id)
+);
+
+
+CREATE TABLE IF NOT EXISTS organizations_temp (
+    organization_id varchar
 );

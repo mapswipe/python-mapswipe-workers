@@ -21,6 +21,11 @@ class UserGroup(models.Model):
     user_group_id = models.CharField(primary_key=True, max_length=-1)
     name = models.CharField(max_length=-1, null=True)
     description = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(blank=True, null=True)
+    created_by = models.ForeignKey(User, models.DO_NOTHING)
+    archived_at = models.DateTimeField(blank=True, null=True)
+    archived_by = models.ForeignKey(User, models.DO_NOTHING)
+    is_archived = models.BooleanField(blank=True, null=True)
 
     class Meta:
         managed = False
@@ -51,6 +56,18 @@ class UserGroupUserMembership(models.Model):
         return f"UG:{self.user_group_id}-U:{self.user_id}"
 
 
+class Organization(models.Model):
+    organization_id = models.CharField(primary_key=True, max_length=-1)
+
+    class Meta:
+        managed = False
+        db_table = "organizations"
+        app_label = settings.MAPSWIPE_EXISTING_DB
+
+    def __str__(self):
+        return self.organization_id
+
+
 class Project(models.Model):
     project_id = models.CharField(primary_key=True, max_length=-1)
     created = models.DateTimeField(blank=True, null=True)
@@ -69,10 +86,12 @@ class Project(models.Model):
     verification_number = models.IntegerField(blank=True, null=True)
     # Database uses JSON instead of JSONB (not supported by django)
     project_type_specifics = models.TextField(blank=True, null=True)
+    organization = models.ForeignKey(Organization, models.DO_NOTHING, primary_key=True)
 
     class Meta:
         managed = False
         db_table = "projects"
+        unique_together = (("project_id", "organization"),)
         app_label = settings.MAPSWIPE_EXISTING_DB
 
     def __str__(self):
