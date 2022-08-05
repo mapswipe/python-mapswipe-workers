@@ -28,6 +28,7 @@ function Home(props: Props) {
     ] = useBooleanState(false);
 
     const [showOrganizationList, setShowOrganizationList] = React.useState(false);
+    const [showTutorialList, setShowTutorialList] = React.useState(false);
 
     return (
         <div className={_cs(styles.home, className)}>
@@ -52,7 +53,7 @@ function Home(props: Props) {
                             page.
                         </p>
                         <p>
-                            Please find some of the useful links below.
+                            You may find some of the useful stuff below.
                         </p>
                     </div>
                 </div>
@@ -89,18 +90,26 @@ function Home(props: Props) {
                         <Button
                             className={styles.addButton}
                             name={undefined}
+                            disabled
                         >
                             Add New Tutorial
                         </Button>
                     </div>
                     <Button
-                        name={undefined}
+                        name={!showTutorialList}
                         actions={<IoChevronDown />}
                         variant="action"
+                        onClick={setShowTutorialList}
+                        disabled
                     >
                         View Tutorials
                     </Button>
                 </div>
+                {showTutorialList && (
+                    <div>
+                        Still in Progress
+                    </div>
+                )}
             </div>
             {showOrganizationFormModal && (
                 <OrganizationFormModal
