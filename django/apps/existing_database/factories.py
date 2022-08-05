@@ -1,4 +1,5 @@
 import factory
+import factory.fuzzy
 from factory.django import DjangoModelFactory
 
 from .models import (
@@ -10,6 +11,7 @@ from .models import (
     UserGroup,
     UserGroupResult,
     UserGroupUserMembership,
+    Organization,
 )
 
 
@@ -19,6 +21,13 @@ class UserFactory(DjangoModelFactory):
 
     class Meta:
         model = User
+
+
+class OrganizationFactory(DjangoModelFactory):
+    organization_id = factory.Sequence(lambda n: f"dummy-organization-id-{n}")
+
+    class Meta:
+        model = Organization
 
 
 class ProjectFactory(DjangoModelFactory):
@@ -84,6 +93,8 @@ class UserGroupFactory(DjangoModelFactory):
     user_group_id = factory.Sequence(lambda n: f"dummy-user-group-id-{n}")
     name = factory.Sequence(lambda n: f"UserGroup-{n}")
     description = factory.Faker("sentence", nb_words=20)
+    archived_by_id = factory.SubFactory(UserFactory)
+    created_by_id = factory.SubFactory(UserFactory)
 
     class Meta:
         model = UserGroup

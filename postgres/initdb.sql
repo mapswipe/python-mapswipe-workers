@@ -1,6 +1,11 @@
 -- noinspection SqlNoDataSourceInspectionForFile
 CREATE EXTENSION postgis;
 
+CREATE TABLE IF NOT EXISTS organizations (
+    organization_id varchar,
+    PRIMARY KEY (organization_id)
+);
+
 CREATE TABLE IF NOT EXISTS projects (
     created timestamp,
     created_by varchar,
@@ -18,7 +23,9 @@ CREATE TABLE IF NOT EXISTS projects (
     status varchar,
     verification_number int,
     project_type_specifics json,
-    PRIMARY KEY (project_id)
+    organization_id varchar,
+    PRIMARY KEY (project_id, organization_id),
+    FOREIGN KEY (organization_id) REFERENCES organizations (organization_id)
 );
 
 CREATE TABLE IF NOT EXISTS groups (
@@ -125,13 +132,25 @@ CREATE TABLE IF NOT EXISTS user_groups (
     user_group_id varchar,
     name varchar,
     description text,
-    PRIMARY KEY (user_group_id)
+    is_archived boolean,
+    created_at timestamp,
+    archived_at timestamp,
+    created_by_id varchar,
+    archived_by_id varchar,
+    PRIMARY KEY (user_group_id),
+    FOREIGN KEY (created_by_id) REFERENCES users (user_id),
+    FOREIGN KEY (archived_by_id) REFERENCES users (user_id)
 );
 
 CREATE TABLE IF NOT EXISTS user_groups_temp (
     user_group_id varchar,
     name varchar,
-    description text
+    description text,
+    is_archived boolean,
+    created_at timestamp,
+    archived_at timestamp,
+    created_by_id varchar,
+    archived_by_id varchar
 );
 
 CREATE TABLE IF NOT EXISTS user_groups_user_memberships (

@@ -2,10 +2,19 @@ import copy
 import unittest
 from typing import Union
 from unittest import mock
+import datetime
 
 from base import BaseTestCase
 
 from mapswipe_workers.firebase_to_postgres import update_data
+
+from mapswipe_workers.config import (
+    POSTGRES_DB,
+    POSTGRES_HOST,
+    POSTGRES_PASSWORD,
+    POSTGRES_PORT,
+    POSTGRES_USER,
+)
 
 
 class TestUpdateProjectData(BaseTestCase):
@@ -16,6 +25,10 @@ class TestUpdateProjectData(BaseTestCase):
             "user-group-1": {
                 "name": "User Group 1",
                 "description": "User Group 1 description",
+                "created_by": "user-1",
+                "created_at": "2022-07-11T09:32:02",
+                "archived_by": "user-2",
+                "archived_at": "2022-07-15T09:32:02",
                 "users": {
                     "user-1": True,
                     "user-2": True,
@@ -34,6 +47,10 @@ class TestUpdateProjectData(BaseTestCase):
             "user-group-3": {
                 "name": "User Group 3",
                 "description": "User Group 3 description",
+                "created_by": "user-1",
+                "created_at": "2022-07-11T09:32:02",
+                "archived_by": "user-2",
+                "archived_at": "2022-07-15T09:32:02",
                 "users": {
                     "user-2": True,
                 },
@@ -89,13 +106,13 @@ class TestUpdateProjectData(BaseTestCase):
         # Define SQL Queries
         UG_QUERY = """
             SELECT
-                user_group_id, name, description
+                user_group_id, name, description, is_archived
             FROM user_groups
             ORDER BY user_group_id
             """
         T_UG_QUERY = """
             SELECT
-                user_group_id, name, description
+                user_group_id, name, description, is_archived
             FROM user_groups_temp
             ORDER BY user_group_id
             """
@@ -111,15 +128,15 @@ class TestUpdateProjectData(BaseTestCase):
             FROM user_groups_user_memberships_temp
             ORDER BY user_group_id, user_id
             """
-        U_QUERY = "SELECT user_id FROM users ORDER BY user_id"
+        U_QUERY = "SELECT user_id FROM users WHERE user_id!='' AND user_id IS NOT NULL ORDER BY user_id"
 
         for query, expected_value in [
             (
                 UG_QUERY,
                 [
-                    ("user-group-1", "User Group 1", "User Group 1 description"),
-                    ("user-group-2", "User Group 2", "User Group 2 description"),
-                    ("user-group-3", "User Group 3", "User Group 3 description"),
+                    ("user-group-1", "User Group 1", "User Group 1 description", True),
+                    ("user-group-2", "User Group 2", "User Group 2 description", False),
+                    ("user-group-3", "User Group 3", "User Group 3 description", True),
                 ],
             ),
             (T_UG_QUERY, []),
@@ -155,7 +172,7 @@ class TestUpdateProjectData(BaseTestCase):
         # Let's modify data for user-group-2
         fb_db_mock.mock_data["user-group-2"] = dict(
             name="User Group 2 (UPDATED)",
-            description="User Group 2 descriptioni (UPDATED)",
+            description="User Group 2 description (UPDATED)",
             users={
                 "user-1": True,
                 "user-7": False,
@@ -177,15 +194,16 @@ class TestUpdateProjectData(BaseTestCase):
             (
                 UG_QUERY,
                 [
-                    ("user-group-1", "User Group 1", "User Group 1 description"),
+                    ("user-group-1", "User Group 1", "User Group 1 description", True),
                     (
                         "user-group-2",
                         "User Group 2 (UPDATED)",
-                        "User Group 2 descriptioni (UPDATED)",
+                        "User Group 2 description (UPDATED)",
+                        False
                     ),
-                    ("user-group-3", "User Group 3", "User Group 3 description"),
-                    ("user-group-4", "User Group 4", "User Group 4 description"),
-                    ("user-group-5", "User Group 5", "User Group 5 description"),
+                    ("user-group-3", "User Group 3", "User Group 3 description", True),
+                    ("user-group-4", "User Group 4", "User Group 4 description", False),
+                    ("user-group-5", "User Group 5", "User Group 5 description", False),
                 ],
             ),
             (T_UG_QUERY, []),
