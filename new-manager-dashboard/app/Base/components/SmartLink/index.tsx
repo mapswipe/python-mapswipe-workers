@@ -15,7 +15,7 @@ export type Props = Omit<LinkProps, 'to'> & {
     route: RouteData;
     attrs?: Attrs;
     children?: React.ReactNode;
-    variant: ButtonProps<unknown>['variant'];
+    variant?: ButtonProps<unknown>['variant'];
 };
 
 function SmartLink(props: Props) {

@@ -3,6 +3,7 @@ import {
     _cs,
     isDefined,
 } from '@togglecorp/fujs';
+import booleanValid from '@turf/boolean-valid';
 import {
     useForm,
     getErrorObject,
@@ -45,7 +46,6 @@ import TileServerInput, {
 } from '#components/TileServerInput';
 import InputSection from '#components/InputSection';
 import Button from '#components/Button';
-import { FeatureCollection } from '#components/GeoJsonPreview';
 import AnimatedSwipeIcon from '#components/AnimatedSwipeIcon';
 
 import {
@@ -78,6 +78,42 @@ import {
 } from './utils';
 import useProjectOptions from './useProjectOptions';
 import styles from './styles.css';
+
+console.log('validddddd', booleanValid({
+    type: 'Feature',
+    properties: {},
+    geometry: {
+        type: 'Polygon',
+        coordinates: [
+            [
+                [
+                    84.38323974609374,
+                    27.630615510736806,
+                ],
+                [
+                    84.34822082519531,
+                    27.62149006586649,
+                ],
+                [
+                    84.38461303710938,
+                    27.584980682294052,
+                ],
+                [
+                    84.45259094238281,
+                    27.607496239913193,
+                ],
+                [
+                    84.45327758789061,
+                    27.635482103617978,
+                ],
+                [
+                    84.38323974609374,
+                    27.630615510736806,
+                ],
+            ],
+        ],
+    },
+}));
 
 const defaultProjectFormValue: PartialProjectFormType = {
     projectType: PROJECT_TYPE_BUILD_AREA,
@@ -582,12 +618,13 @@ function NewProject(props: Props) {
                     >
                         <GeoJsonFileInput
                             name={'geometry' as const}
-                            value={value?.geometry as FeatureCollection | undefined}
+                            value={value?.geometry as GeoJSON.GeoJSON | undefined}
                             onChange={setFieldValue}
                             label="Project AOI Geometry"
                             hint="Upload your project area as GeoJSON File (max. 1MB). Make sure that you provide a single polygon geometry."
                             error={error?.geometry}
                             disabled={submissionPending}
+                            // maxFeaturesCount={10}
                         />
                     </InputSection>
                 )}
@@ -619,12 +656,13 @@ function NewProject(props: Props) {
                         {value?.inputType === PROJECT_INPUT_TYPE_UPLOAD && (
                             <GeoJsonFileInput
                                 name={'geometry' as const}
-                                value={value?.geometry as FeatureCollection | undefined}
+                                value={value?.geometry as GeoJSON.GeoJSON | undefined}
                                 onChange={setFieldValue}
                                 label="GeoJSON File"
                                 hint="Upload your project area as GeoJSON File (max. 1MB). Make sure that you provide a maximum of 10 polygon geometries."
                                 error={error?.geometry}
                                 disabled={submissionPending || testPending}
+                                // maxFeaturesCount={10}
                             />
                         )}
                         {value?.inputType === PROJECT_INPUT_TYPE_TASKING_MANAGER_ID && (

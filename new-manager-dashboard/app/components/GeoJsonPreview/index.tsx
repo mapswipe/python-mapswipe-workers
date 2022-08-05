@@ -4,18 +4,15 @@ import {
     Map,
     tileLayer,
     geoJSON,
-    GeoJSON,
+    GeoJSON as LeafletGeoJSON,
 } from 'leaflet';
 import { _cs } from '@togglecorp/fujs';
 
 import styles from './styles.css';
 
-export type FeatureCollection = GeoJSON.FeatureCollection;
-export type Feature = GeoJSON.Feature;
-
 interface Props {
     className?: string;
-    geoJson: FeatureCollection | undefined;
+    geoJson: GeoJSON.GeoJSON | undefined;
 }
 
 function GeoJsonPreview(props: Props) {
@@ -26,7 +23,7 @@ function GeoJsonPreview(props: Props) {
 
     const mapRef = React.useRef<Map>();
     const mapContainerRef = React.useRef<HTMLDivElement>(null);
-    const geoJsonLayerRef = React.useRef<GeoJSON>();
+    const geoJsonLayerRef = React.useRef<LeafletGeoJSON>();
 
     React.useEffect(
         () => {

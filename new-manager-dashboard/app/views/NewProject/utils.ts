@@ -1,3 +1,4 @@
+/* eslint-disable quotes */
 import {
     isDefined,
     sum,
@@ -12,16 +13,13 @@ import {
     requiredStringCondition,
     forceNullType,
 } from '@togglecorp/toggle-form';
-import {
-    getType as getFeatureType,
-    area as getFeatureArea,
-} from '@turf/turf';
+import { getType as getFeatureType } from '@turf/invariant';
+import getFeatureArea from '@turf/area';
 import {
     TileServer,
     tileServerFieldsSchema,
 } from '#components/TileServerInput';
 
-import { FeatureCollection } from '#components/GeoJsonPreview';
 import { getNoMoreThanNCharacterCondition } from '#utils/common';
 
 // FIXME: these are common types
@@ -47,7 +45,7 @@ export interface ProjectFormType {
     verificationNumber: number;
     groupSize: number;
     zoomLevel: number;
-    geometry?: FeatureCollection | string;
+    geometry?: GeoJSON.GeoJSON | string;
     inputType?: ProjectInputType;
     TMId?: string;
     filter?: string;
@@ -102,7 +100,7 @@ type ProjectFormSchemaFields = ReturnType<ProjectFormSchema['fields']>;
 const DEFAULT_MAX_FEATURES = 10;
 const DEFAULT_MAX_AREA = 20;
 function validGeometryCondition(
-    featureCollection: FeatureCollection | string | undefined,
+    featureCollection: GeoJSON.GeoJSON | string | undefined,
     allValue: PartialProjectFormType,
 ) {
     if (typeof featureCollection === 'string') {
@@ -110,6 +108,10 @@ function validGeometryCondition(
     }
     if (!featureCollection) {
         return undefined;
+    }
+
+    if (featureCollection.type !== 'FeatureCollection') {
+        return 'Only FeatureCollection is supported';
     }
 
     const numberOfFeatures = featureCollection.features.length;
@@ -289,7 +291,7 @@ function getFormData(obj: {
 }
 
 export async function validateAoiOnOhsome(
-    featureCollection: FeatureCollection | string | undefined | null,
+    featureCollection: GeoJSON.GeoJSON | string | undefined | null,
     filter: string | undefined | null,
 ): (
     Promise<{ errored: true, error: string } | { errored: false, message: string }>
@@ -347,7 +349,7 @@ export async function validateAoiOnOhsome(
 
 async function fetchAoiFromHotTaskingManager(projectId: number | string): (
     Promise<{ errored: true, error: string }
-    | { errored: false, response: GeoJSON.FeatureCollection }>
+    | { errored: false, response: GeoJSON.GeoJSON }>
 ) {
     type Res = GeoJSON.Geometry;
     type Err = { Error: string, SubCode: string };

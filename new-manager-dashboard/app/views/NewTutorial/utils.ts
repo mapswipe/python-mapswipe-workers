@@ -10,7 +10,6 @@ import {
     tileServerFieldsSchema,
 } from '#components/TileServerInput';
 
-import { FeatureCollection } from '#components/GeoJsonPreview';
 import { getNoMoreThanNCharacterCondition } from '#utils/common';
 
 // FIXME: these are common types
@@ -35,8 +34,8 @@ export interface TutorialFormType {
     lookFor: string;
     name: string;
     tileServer: TileServer,
-    screens?: FeatureCollection; // FIXME: this is not FeatureCollection
-    tutorialTasks?: FeatureCollection;
+    screens?: GeoJSON.GeoJSON ; // FIXME: this is not FeatureCollection
+    tutorialTasks?: GeoJSON.GeoJSON;
     exampleImage1: File;
     exampleImage2: File;
     projectType: ProjectType;
