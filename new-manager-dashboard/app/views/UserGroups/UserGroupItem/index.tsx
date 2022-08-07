@@ -2,16 +2,20 @@ import React from 'react';
 import { _cs } from '@togglecorp/fujs';
 import {
     getDatabase,
-    ref,
+    ref as databaseRef,
     onValue,
     child,
+    update,
 } from 'firebase/database';
-
 import {
     IoChevronDown,
     IoChevronUp,
 } from 'react-icons/io5';
 
+import UserContext from '#base/context/UserContext';
+import useConfirmation from '#hooks/useConfirmation';
+import useMountedRef from '#hooks/useMountedRef';
+import Modal from '#components/Modal';
 import Button from '#components/Button';
 import PendingMessage from '#components/PendingMessage';
 
@@ -20,6 +24,8 @@ import styles from './styles.css';
 export interface UserGroup {
     name: string;
     nameKey: string;
+    createdBy: string;
+    archivedBy: string;
     description: string;
     users: Record<string, boolean>,
 }
@@ -36,19 +42,59 @@ interface User {
 }
 
 interface Props {
+    groupKey: string;
     className?: string;
     data: UserGroup;
 }
 
 function UserGroupItem(props: Props) {
     const {
+        groupKey,
         className,
         data,
     } = props;
 
+    const { user } = React.useContext(UserContext);
+    const mountedRef = useMountedRef();
     const [userListPending, setUserListPending] = React.useState(false);
     const [userList, setUserList] = React.useState<User[]>([]);
     const [showDetails, setShowDetails] = React.useState(false);
+
+    const [archivePending, setArchivePending] = React.useState(false);
+
+    const handleArchive = React.useCallback(
+        () => {
+            async function submitToFirebase() {
+                setArchivePending(true);
+
+                try {
+                    const db = getDatabase();
+                    const updates = {
+                        [`v2/userGroups/${groupKey}/archivedBy`]: user?.id,
+                    };
+
+                    await update(databaseRef(db), updates);
+                    if (!mountedRef.current) {
+                        return;
+                    }
+                    setArchivePending(false);
+                } catch (submissionError) {
+                    // eslint-disable-next-line no-console
+                    console.error(submissionError);
+                    setArchivePending(false);
+                }
+            }
+
+            submitToFirebase();
+        },
+        [groupKey, mountedRef, user?.id],
+    );
+    const {
+        showConfirmation: showArchiveConfirmation,
+        setShowConfirmationTrue: setShowArchiveConfirmationTrue,
+        onConfirmButtonClick: onArchiveConfirmButtonClick,
+        onDenyButtonClick: onArchiveDenyButtonClick,
+    } = useConfirmation(handleArchive);
 
     React.useEffect(
         () => {
@@ -57,7 +103,7 @@ function UserGroupItem(props: Props) {
             }
 
             const db = getDatabase();
-            const usersRef = ref(db, 'v2/users');
+            const usersRef = databaseRef(db, 'v2/users');
             const memberIdList = Object.keys(data.users ?? {});
 
             if (memberIdList.length > 0) {
@@ -125,22 +171,22 @@ function UserGroupItem(props: Props) {
                                 Task Contributions
                             </div>
                         </div>
-                        {!userListPending && userList.map((user) => (
+                        {!userListPending && userList.map((groupUser) => (
                             <div
-                                key={user.username}
+                                key={groupUser.username}
                                 className={styles.userDetails}
                             >
                                 <div className={styles.userName}>
-                                    {user.username}
+                                    {groupUser.username}
                                 </div>
                                 <div className={styles.projectContributions}>
-                                    {user.projectContributionCount ?? 0}
+                                    {groupUser.projectContributionCount ?? 0}
                                 </div>
                                 <div className={styles.groupContributions}>
-                                    {user.groupContributionCount ?? 0}
+                                    {groupUser.groupContributionCount ?? 0}
                                 </div>
                                 <div className={styles.taskContributions}>
-                                    {user.taskContributionCount ?? 0}
+                                    {groupUser.taskContributionCount ?? 0}
                                 </div>
                             </div>
                         ))}
@@ -158,12 +204,40 @@ function UserGroupItem(props: Props) {
                     <div>
                         <Button
                             name={undefined}
-                            disabled
+                            onClick={setShowArchiveConfirmationTrue}
+                            disabled={archivePending}
                         >
                             Archive this Group
                         </Button>
                     </div>
                 </>
+            )}
+            {showArchiveConfirmation && (
+                <Modal
+                    className={styles.archiveConfirmationModal}
+                    heading="Archive User Group"
+                    footerClassName={styles.confirmationActions}
+                    closeButtonHidden
+                    footer={(
+                        <>
+                            <Button
+                                name={undefined}
+                                onClick={onArchiveDenyButtonClick}
+                                variant="action"
+                            >
+                                Cancel
+                            </Button>
+                            <Button
+                                name={undefined}
+                                onClick={onArchiveConfirmButtonClick}
+                            >
+                                Yes
+                            </Button>
+                        </>
+                    )}
+                >
+                    Are you sure you want to archive the User Group?
+                </Modal>
             )}
         </div>
     );

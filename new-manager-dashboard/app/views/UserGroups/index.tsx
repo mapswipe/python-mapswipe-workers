@@ -1,5 +1,8 @@
 import React from 'react';
-import { _cs } from '@togglecorp/fujs';
+import {
+    _cs,
+    isNotDefined,
+} from '@togglecorp/fujs';
 import {
     getDatabase,
     ref,
@@ -49,7 +52,16 @@ function UserGroups(props: Props) {
         query: userGroupsQuery,
     });
 
-    const userGroupList = Object.entries(userGroups ?? {});
+    const userGroupList = React.useMemo(
+        () => {
+            const list = Object.entries(userGroups ?? {});
+            return list.filter(
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                ([_, group]) => isNotDefined(group.archivedBy),
+            );
+        },
+        [userGroups],
+    );
 
     return (
         <div className={_cs(styles.userGroups, className)}>
@@ -91,6 +103,7 @@ function UserGroups(props: Props) {
 
                         return (
                             <UserGroupItem
+                                groupKey={userGroupKey}
                                 data={userGroup}
                                 key={userGroupKey}
                             />

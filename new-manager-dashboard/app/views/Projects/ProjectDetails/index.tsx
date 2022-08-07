@@ -110,6 +110,7 @@ function ProjectDetails(props: Props) {
                 if (!mountedRef.current) {
                     return;
                 }
+                setStatusUpdatePending(false);
             } catch (updateError) {
                 if (!mountedRef.current) {
                     return;
@@ -298,7 +299,7 @@ function ProjectDetails(props: Props) {
             {showStatusUpdateConfirmation && (
                 <Modal
                     className={styles.statusConfirmationModal}
-                    heading="Are you sure?"
+                    heading="Update Status"
                     footerClassName={styles.confirmationActions}
                     closeButtonHidden
                     footer={(
@@ -325,7 +326,7 @@ function ProjectDetails(props: Props) {
             {showFeaturedUpdateConfirmation && (
                 <Modal
                     className={styles.statusConfirmationModal}
-                    heading="Are you sure?"
+                    heading="Change Featured"
                     footerClassName={styles.confirmationActions}
                     closeButtonHidden
                     footer={(

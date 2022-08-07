@@ -98,7 +98,7 @@ function OrganizationFormModal(props: Props) {
                         if (snapshot.exists()) {
                             setError((prevValue) => ({
                                 ...getErrorObject(prevValue),
-                                name: 'A group with this name already exists, please use a different name (Please note that the name comparision is not case sensitive)',
+                                name: 'An organization with this name already exists, please use a different name (Please note that the name comparision is not case sensitive)',
                             }));
                             setSubmissionStatus(undefined);
                             return;

@@ -79,3 +79,13 @@
         color: var(--color-text-watermark);
     }
 }
+
+.archive-confirmation-modal {
+    padding: var(--spacing-large);
+
+    .confirmation-actions {
+        display: flex;
+        gap: var(--spacing-large);
+        justify-content: flex-end;
+    }
+}

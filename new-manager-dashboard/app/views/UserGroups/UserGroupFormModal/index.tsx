@@ -27,6 +27,7 @@ import {
     MdOutlineUnpublished,
 } from 'react-icons/md';
 
+import UserContext from '#base/context/UserContext';
 import Modal from '#components/Modal';
 import TextInput from '#components/TextInput';
 import Button from '#components/Button';
@@ -66,6 +67,7 @@ function UserGroupFormModal(props: Props) {
         className,
         onCloseButtonClick,
     } = props;
+
     const {
         setFieldValue,
         error: formError,
@@ -73,6 +75,8 @@ function UserGroupFormModal(props: Props) {
         validate,
         setError,
     } = useForm(userGroupFormSchema, defaultUserGroupFormValue);
+
+    const { user } = React.useContext(UserContext);
 
     const error = getErrorObject(formError);
     const [submissionStatus, setSubmissionStatus] = React.useState<'pending' | 'success' | 'failed' | undefined>(undefined);
@@ -111,6 +115,7 @@ function UserGroupFormModal(props: Props) {
                             const uploadData = {
                                 ...finalValues,
                                 nameKey,
+                                createdBy: user?.id,
                             };
 
                             const putUserGroupRef = databaseRef(db, `v2/userGroups/${newKey}`);
@@ -131,7 +136,7 @@ function UserGroupFormModal(props: Props) {
         }
 
         submitToFirebase();
-    }, [setError]);
+    }, [user, setError]);
 
     const handleSubmitButtonClick = React.useMemo(
         () => createSubmitHandler(validate, setError, handleFormSubmission),
