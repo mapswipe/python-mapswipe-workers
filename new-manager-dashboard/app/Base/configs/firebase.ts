@@ -1,8 +1,3 @@
-import {
-    FirebaseApp,
-    initializeApp,
-} from 'firebase/app';
-
 const API_KEY = process.env.REACT_APP_FIREBASE_API_KEY as string;
 const AUTH_DOMAIN = process.env.REACT_APP_FIREBASE_AUTH_DOMAIN as string;
 const DATABASE_URL = process.env.REACT_APP_FIREBASE_DATABASE_URL as string;
@@ -20,15 +15,5 @@ const firebaseConfig = {
     messagingSenderId: MESSAGING_SENDER_ID,
     appId: APP_ID,
 };
-
-let firebaseApp: FirebaseApp;
-
-export function initFirebaseApp() {
-    firebaseApp = initializeApp(firebaseConfig);
-}
-
-export function getFirebaseInstance() {
-    return firebaseApp;
-}
 
 export default firebaseConfig;

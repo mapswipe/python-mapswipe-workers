@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" translate="no">
     <head>
-        <title>MapSwipe Manager Dashboard</title>
+        <title><%= process.env.MY_APP_NAME %></title>
         <style>
             html, body {
                 margin: 0;
@@ -54,7 +54,7 @@
 
     <body>
         <noscript>
-            Manager Dashboard needs JS.
+            <%= process.env.MY_APP_NAME %> needs JS.
         </noscript>
         <div id="app-container"></div>
 

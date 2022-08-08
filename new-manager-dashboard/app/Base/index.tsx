@@ -11,6 +11,7 @@ import {
     ApolloClient,
     ApolloProvider,
 } from '@apollo/client';
+import { initializeApp } from 'firebase/app';
 
 import Init from '#base/components/Init';
 import PreloadMessage from '#base/components/PreloadMessage';
@@ -24,7 +25,7 @@ import Navbar from '#base/components/Navbar';
 import Routes from '#base/components/Routes';
 import { User } from '#base/types/user';
 import apolloConfig from '#base/configs/apollo';
-import { initFirebaseApp } from '#base/configs/firebase';
+import firebaseConfig from '#base/configs/firebase';
 
 import styles from './styles.css';
 
@@ -33,7 +34,7 @@ if (sentryConfig) {
 }
 
 const apolloClient = new ApolloClient(apolloConfig);
-initFirebaseApp();
+initializeApp(firebaseConfig);
 
 function Base() {
     const [user, setUser] = useState<User | undefined>();

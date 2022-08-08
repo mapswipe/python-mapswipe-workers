@@ -23,14 +23,20 @@ function Navbar(props: Props) {
         setUser,
     } = React.useContext(UserContext);
 
+    const [logoutPending, setLogoutPending] = React.useState(false);
+
     const handleLogoutClick = React.useCallback(async () => {
+        setLogoutPending(true);
         const auth = getAuth();
+
         try {
             await auth.signOut();
             setUser(undefined);
+            setLogoutPending(false);
         } catch (error) {
             // eslint-disable-next-line no-console
             console.error('Failed to sign out', error);
+            setLogoutPending(false);
         }
     }, [setUser]);
 
@@ -82,6 +88,7 @@ function Navbar(props: Props) {
                             className={styles.logoutButton}
                             name={undefined}
                             onClick={handleLogoutClick}
+                            disabled={logoutPending}
                         >
                             Logout
                         </Button>
