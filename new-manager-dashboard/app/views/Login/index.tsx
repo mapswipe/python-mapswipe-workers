@@ -46,6 +46,14 @@ function Login(props: Props) {
 
             const auth = getAuth();
             const { user } = await signInWithEmailAndPassword(auth, email, password);
+            const idToken = await user.getIdTokenResult();
+
+            if (!idToken.claims.projectManager) {
+                setErrorMessage('This user do not have enough permission for Manager Dashboard');
+                await auth.signOut();
+                setPending(false);
+                return;
+            }
 
             setErrorMessage(undefined);
             setPending(false);
