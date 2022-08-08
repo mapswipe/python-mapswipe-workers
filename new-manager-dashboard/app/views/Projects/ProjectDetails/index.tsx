@@ -54,7 +54,7 @@ export interface Project {
     projectRegion: string;
     projectTopic: string;
     projectType: ProjectType;
-    requestingOrganization: string;
+    requestingOrganisation: string;
     requiredResults: number;
     resultCount: number;
     status: ProjectStatus;

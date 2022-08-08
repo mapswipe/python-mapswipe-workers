@@ -3,7 +3,6 @@ import {
     _cs,
     isDefined,
 } from '@togglecorp/fujs';
-import booleanValid from '@turf/boolean-valid';
 import {
     useForm,
     getErrorObject,
@@ -79,42 +78,6 @@ import {
 import useProjectOptions from './useProjectOptions';
 import styles from './styles.css';
 
-console.log('validddddd', booleanValid({
-    type: 'Feature',
-    properties: {},
-    geometry: {
-        type: 'Polygon',
-        coordinates: [
-            [
-                [
-                    84.38323974609374,
-                    27.630615510736806,
-                ],
-                [
-                    84.34822082519531,
-                    27.62149006586649,
-                ],
-                [
-                    84.38461303710938,
-                    27.584980682294052,
-                ],
-                [
-                    84.45259094238281,
-                    27.607496239913193,
-                ],
-                [
-                    84.45327758789061,
-                    27.635482103617978,
-                ],
-                [
-                    84.38323974609374,
-                    27.630615510736806,
-                ],
-            ],
-        ],
-    },
-}));
-
 const defaultProjectFormValue: PartialProjectFormType = {
     projectType: PROJECT_TYPE_BUILD_AREA,
     projectNumber: 1,
@@ -161,8 +124,8 @@ function NewProject(props: Props) {
         tutorialOptions,
         teamsPending,
         tutorialsPending,
-        organizationOptions,
-        organizationsPending,
+        organisationOptions,
+        organisationsPending,
     } = useProjectOptions(value?.projectType);
 
     const [testPending, setTestPending] = React.useState(false);
@@ -190,7 +153,7 @@ function NewProject(props: Props) {
                     newValue.projectTopic,
                     newValue.projectNumber,
                     newValue.projectRegion,
-                    newValue.requestingOrganization,
+                    newValue.requestingOrganisation,
                 );
                 return {
                     ...newValue,
@@ -437,7 +400,7 @@ function NewProject(props: Props) {
 
     const submissionPending = (
         teamsPending
-        || organizationsPending
+        || organisationsPending
         || tutorialsPending
         || projectSubmissionStatus === 'started'
         || projectSubmissionStatus === 'imageUpload'
@@ -493,12 +456,12 @@ function NewProject(props: Props) {
                             disabled={submissionPending}
                         />
                         <SelectInput
-                            name={'requestingOrganization' as const}
-                            value={value?.requestingOrganization}
-                            options={organizationOptions}
+                            name={'requestingOrganisation' as const}
+                            value={value?.requestingOrganisation}
+                            options={organisationOptions}
                             onChange={setFieldValueWithName}
-                            error={error?.requestingOrganization}
-                            label="Requesting Organization"
+                            error={error?.requestingOrganisation}
+                            label="Requesting Organisation"
                             hint="Which group, institution or community is requesting this project?"
                             disabled={submissionPending}
                             keySelector={valueSelector}
@@ -511,7 +474,7 @@ function NewProject(props: Props) {
                         label="Name"
                         hint="We will generate you project name based on your inputs above."
                         readOnly
-                        placeholder="[Project Topic] - [Project Region]([Task Number]) [Requesting Organization]"
+                        placeholder="[Project Topic] - [Project Region]([Task Number]) [Requesting Organisation]"
                         // error={error?.name}
                         disabled={submissionPending}
                     />

@@ -9,8 +9,8 @@ import {
 import useBooleanState from '#hooks/useBooleanState';
 
 import Button from '#components/Button';
-import OrganizationFormModal from '#components/OrganizationFormModal';
-import OrganizationList from '#components/OrganizationList';
+import OrganisationFormModal from '#components/OrganisationFormModal';
+import OrganisationList from '#components/OrganisationList';
 
 import styles from './styles.css';
 
@@ -22,12 +22,12 @@ function Home(props: Props) {
     const { className } = props;
 
     const [
-        showOrganizationFormModal,
-        setShowOrganizationFormModalTrue,
-        setShowOrganizationFormModalFalse,
+        showOrganisationFormModal,
+        setShowOrganisationFormModalTrue,
+        setShowOrganisationFormModalFalse,
     ] = useBooleanState(false);
 
-    const [showOrganizationList, setShowOrganizationList] = React.useState(false);
+    const [showOrganisationList, setShowOrganisationList] = React.useState(false);
     const [showTutorialList, setShowTutorialList] = React.useState(false);
 
     return (
@@ -57,29 +57,29 @@ function Home(props: Props) {
                         </p>
                     </div>
                 </div>
-                <div className={styles.organizationContainer}>
+                <div className={styles.organisationContainer}>
                     <div className={styles.header}>
                         <h2 className={styles.heading}>
-                            Organizations
+                            Organisations
                         </h2>
                         <Button
                             className={styles.addButton}
                             name={undefined}
-                            onClick={setShowOrganizationFormModalTrue}
+                            onClick={setShowOrganisationFormModalTrue}
                         >
-                            Add New Organization
+                            Add New Organisation
                         </Button>
                     </div>
-                    {showOrganizationList && (
-                        <OrganizationList className={styles.organizationList} />
+                    {showOrganisationList && (
+                        <OrganisationList className={styles.organisationList} />
                     )}
                     <Button
-                        name={!showOrganizationList}
-                        actions={showOrganizationList ? <IoChevronUp /> : <IoChevronDown />}
-                        onClick={setShowOrganizationList}
+                        name={!showOrganisationList}
+                        actions={showOrganisationList ? <IoChevronUp /> : <IoChevronDown />}
+                        onClick={setShowOrganisationList}
                         variant="action"
                     >
-                        {showOrganizationList ? 'Hide Organizations' : 'View Organizations'}
+                        {showOrganisationList ? 'Hide Organisations' : 'View Organisations'}
                     </Button>
                 </div>
                 <div className={styles.tutorialsContainer}>
@@ -111,9 +111,9 @@ function Home(props: Props) {
                     </div>
                 )}
             </div>
-            {showOrganizationFormModal && (
-                <OrganizationFormModal
-                    onCloseButtonClick={setShowOrganizationFormModalFalse}
+            {showOrganisationFormModal && (
+                <OrganisationFormModal
+                    onCloseButtonClick={setShowOrganisationFormModalFalse}
                 />
             )}
         </div>

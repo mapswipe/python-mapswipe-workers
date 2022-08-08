@@ -36,32 +36,32 @@ import { getNoMoreThanNCharacterCondition } from '#utils/common';
 
 import styles from './styles.css';
 
-interface OrganizationFormFields {
+interface OrganisationFormFields {
     name?: string | undefined;
     description?: string | undefined;
 }
 
-type OrganizationFormSchema = ObjectSchema<OrganizationFormFields>;
-type OrganizationFormSchemaFields = ReturnType<OrganizationFormSchema['fields']>
+type OrganisationFormSchema = ObjectSchema<OrganisationFormFields>;
+type OrganisationFormSchemaFields = ReturnType<OrganisationFormSchema['fields']>
 
 const MAX_CHARS_NAME = 30;
 const MAX_CHARS_DESCRIPTION = 100;
 
-const organizationFormSchema: OrganizationFormSchema = {
-    fields: (): OrganizationFormSchemaFields => ({
+const organisationFormSchema: OrganisationFormSchema = {
+    fields: (): OrganisationFormSchemaFields => ({
         name: [requiredCondition, getNoMoreThanNCharacterCondition(MAX_CHARS_NAME)],
         description: [getNoMoreThanNCharacterCondition(MAX_CHARS_DESCRIPTION)],
     }),
 };
 
-const defaultOrganizationFormValue: OrganizationFormFields = {};
+const defaultOrganisationFormValue: OrganisationFormFields = {};
 
 interface Props {
     className?: string;
     onCloseButtonClick?: () => void;
 }
 
-function OrganizationFormModal(props: Props) {
+function OrganisationFormModal(props: Props) {
     const {
         className,
         onCloseButtonClick,
@@ -72,40 +72,40 @@ function OrganizationFormModal(props: Props) {
         value,
         validate,
         setError,
-    } = useForm(organizationFormSchema, defaultOrganizationFormValue);
+    } = useForm(organisationFormSchema, defaultOrganisationFormValue);
 
     const error = getErrorObject(formError);
     const [submissionStatus, setSubmissionStatus] = React.useState<'pending' | 'success' | 'failed' | undefined>(undefined);
     const [nonFieldError, setNonFieldError] = React.useState<string | undefined>();
 
-    const handleFormSubmission = React.useCallback((finalValues: OrganizationFormFields) => {
+    const handleFormSubmission = React.useCallback((finalValues: OrganisationFormFields) => {
         async function submitToFirebase() {
             setSubmissionStatus('pending');
             try {
                 const db = getDatabase();
-                const organizationsRef = databaseRef(db, 'v2/organizations/');
+                const organisationsRef = databaseRef(db, 'v2/organisations/');
                 const nameKey = finalValues?.name?.toLowerCase() as string;
 
-                const prevOrganizationQuery = query(
-                    organizationsRef,
+                const prevOrganisationQuery = query(
+                    organisationsRef,
                     orderByChild('nameKey'),
                     equalTo(nameKey),
                 );
 
                 onValue(
-                    prevOrganizationQuery,
+                    prevOrganisationQuery,
                     async (snapshot) => {
                         if (snapshot.exists()) {
                             setError((prevValue) => ({
                                 ...getErrorObject(prevValue),
-                                name: 'An organization with this name already exists, please use a different name (Please note that the name comparision is not case sensitive)',
+                                name: 'An organisation with this name already exists, please use a different name (Please note that the name comparison is not case sensitive)',
                             }));
                             setSubmissionStatus(undefined);
                             return;
                         }
 
-                        const newOrganizationRef = await pushToDatabase(organizationsRef);
-                        const newKey = newOrganizationRef.key;
+                        const newOrganisationRef = await pushToDatabase(organisationsRef);
+                        const newKey = newOrganisationRef.key;
 
                         if (newKey) {
                             const uploadData = {
@@ -113,11 +113,11 @@ function OrganizationFormModal(props: Props) {
                                 nameKey,
                             };
 
-                            const putOrganizationRef = databaseRef(db, `v2/organizations/${newKey}`);
-                            await setToDatabase(putOrganizationRef, uploadData);
+                            const putOrganisationRef = databaseRef(db, `v2/organisations/${newKey}`);
+                            await setToDatabase(putOrganisationRef, uploadData);
                             setSubmissionStatus('success');
                         } else {
-                            setNonFieldError('Failed to push new key for organization');
+                            setNonFieldError('Failed to push new key for organisation');
                             setSubmissionStatus('failed');
                         }
                     },
@@ -142,8 +142,8 @@ function OrganizationFormModal(props: Props) {
 
     return (
         <Modal
-            className={_cs(styles.organizationFormModal, className)}
-            heading="New Organization"
+            className={_cs(styles.organisationFormModal, className)}
+            heading="New Organisation"
             footer={(
                 <>
                     {isNotDefined(submissionStatus) && (
@@ -198,7 +198,7 @@ function OrganizationFormModal(props: Props) {
                         value={value?.name}
                         onChange={setFieldValue}
                         error={error?.name}
-                        hint={`Enter the name of new organization that you want to create (${MAX_CHARS_NAME} chars max)`}
+                        hint={`Enter the name of new organisation that you want to create (${MAX_CHARS_NAME} chars max)`}
                         disabled={submissionStatus === 'pending'}
                     />
                     <TextInput
@@ -207,7 +207,7 @@ function OrganizationFormModal(props: Props) {
                         value={value?.description}
                         onChange={setFieldValue}
                         error={error?.description}
-                        hint={`Enter a short description for the organization (${MAX_CHARS_DESCRIPTION} chars max)`}
+                        hint={`Enter a short description for the organisation (${MAX_CHARS_DESCRIPTION} chars max)`}
                         disabled={submissionStatus === 'pending'}
                     />
                 </>
@@ -218,7 +218,7 @@ function OrganizationFormModal(props: Props) {
                         <>
                             <AnimatedSwipeIcon className={styles.swipeIcon} />
                             <div className={styles.message}>
-                                Submitting Organization...
+                                Submitting Organisation...
                             </div>
                         </>
                     )}
@@ -226,7 +226,7 @@ function OrganizationFormModal(props: Props) {
                         <>
                             <MdOutlinePublishedWithChanges className={styles.successIcon} />
                             <div className={styles.postSubmissionMessage}>
-                                Organization added successfully!
+                                Organisation added successfully!
                             </div>
                         </>
                     )}
@@ -234,7 +234,7 @@ function OrganizationFormModal(props: Props) {
                         <>
                             <MdOutlineUnpublished className={styles.failureIcon} />
                             <div className={styles.postSubmissionMessage}>
-                                Failed to add the Organization!
+                                Failed to add the Organisation!
                                 Please make sure that you have an active internet connection
                                 and enough permission to perform this action
                             </div>
@@ -246,4 +246,4 @@ function OrganizationFormModal(props: Props) {
     );
 }
 
-export default OrganizationFormModal;
+export default OrganisationFormModal;

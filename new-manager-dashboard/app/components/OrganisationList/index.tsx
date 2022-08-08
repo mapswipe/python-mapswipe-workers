@@ -10,7 +10,7 @@ import PendingMessage from '#components/PendingMessage';
 
 import styles from './styles.css';
 
-interface Organization {
+interface Organisation {
     name: string;
     nameKey: string;
     description?: string;
@@ -20,47 +20,47 @@ interface Props {
     className?: string;
 }
 
-function OrganizationList(props: Props) {
+function OrganisationList(props: Props) {
     const {
         className,
     } = props;
 
-    const organizationsQuery = React.useMemo(
+    const organisationsQuery = React.useMemo(
         () => {
             const db = getDatabase();
-            return ref(db, '/v2/organizations');
+            return ref(db, '/v2/organisations');
         },
         [],
     );
 
     const {
-        data: organizations,
+        data: organisations,
         pending,
-    } = useFirebaseDatabase<Organization>({
-        query: organizationsQuery,
+    } = useFirebaseDatabase<Organisation>({
+        query: organisationsQuery,
     });
 
-    const organizationList = Object.entries(organizations ?? {});
+    const organisationList = Object.entries(organisations ?? {});
 
     return (
-        <div className={_cs(styles.organizationList, className)}>
+        <div className={_cs(styles.organisationList, className)}>
             {pending && (
                 <PendingMessage />
             )}
-            {!pending && organizationList.map((organizationKeyAndItem) => {
-                const [orgKey, organization] = organizationKeyAndItem;
+            {!pending && organisationList.map((organisationKeyAndItem) => {
+                const [orgKey, organisation] = organisationKeyAndItem;
 
                 return (
                     <div
-                        className={styles.organization}
+                        className={styles.organisation}
                         key={orgKey}
                     >
                         <div className={styles.name}>
-                            {organization.name}
+                            {organisation.name}
                         </div>
-                        {organization.description && (
+                        {organisation.description && (
                             <div className={styles.description}>
-                                {organization.description}
+                                {organisation.description}
                             </div>
                         )}
                     </div>
@@ -70,4 +70,4 @@ function OrganizationList(props: Props) {
     );
 }
 
-export default OrganizationList;
+export default OrganisationList;

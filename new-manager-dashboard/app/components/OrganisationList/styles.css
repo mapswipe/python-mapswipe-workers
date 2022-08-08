@@ -1,9 +1,9 @@
-.organization-list {
+.organisation-list {
     display: flex;
     flex-direction: column;
     gap: var(--spacing-medium);
 
-    .organization {
+    .organisation {
         .name {
             font-weight: var(--font-weight-bold);
         }

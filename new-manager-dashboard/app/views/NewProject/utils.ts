@@ -34,7 +34,7 @@ export interface ProjectFormType {
     projectType: ProjectType;
     projectRegion: string;
     projectNumber: number;
-    requestingOrganization: string;
+    requestingOrganisation: string;
     name: string;
     visibility: string;
     lookFor: string;
@@ -168,7 +168,7 @@ export const projectFormSchema: ProjectFormSchema = {
             projectType: [requiredCondition],
             projectRegion: [requiredStringCondition],
             projectNumber: [requiredCondition],
-            requestingOrganization: [requiredStringCondition],
+            requestingOrganisation: [requiredStringCondition],
             name: [requiredStringCondition],
             visibility: [requiredCondition],
             lookFor: [requiredStringCondition, getNoMoreThanNCharacterCondition(15)],
@@ -250,18 +250,18 @@ export function generateProjectName(
     projectTopic: string | undefined | null,
     projectNumber: number | undefined | null,
     projectRegion: string | undefined | null,
-    requestingOrganization: string | undefined | null,
+    requestingOrganisation: string | undefined | null,
 ) {
     if (
         isFalsyString(projectTopic)
         || isNotDefined(projectNumber)
         || isFalsyString(projectRegion)
-        || isFalsyString(requestingOrganization)
+        || isFalsyString(requestingOrganisation)
     ) {
         return undefined;
     }
 
-    return `${projectTopic} - ${projectRegion}(${projectNumber}) ${requestingOrganization}`;
+    return `${projectTopic} - ${projectRegion}(${projectNumber}) ${requestingOrganisation}`;
 }
 
 export function getGroupSize(projectType: ProjectType | undefined) {

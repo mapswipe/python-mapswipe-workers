@@ -10,7 +10,7 @@ import {
 import useFirebaseDatabase from '#hooks/useFirebaseDatabase';
 
 // FIXME: these typings are reusable
-interface Organization {
+interface Organisation {
     name: string;
     nameKey: string;
     description?: string;
@@ -82,10 +82,10 @@ function useProjectOptions(selectedProjectType: number | undefined) {
         [],
     );
 
-    const organizationQuery = React.useMemo(
+    const organisationQuery = React.useMemo(
         () => {
             const db = getDatabase();
-            return ref(db, '/v2/organizations');
+            return ref(db, '/v2/organisations');
         },
         [],
     );
@@ -105,10 +105,10 @@ function useProjectOptions(selectedProjectType: number | undefined) {
     });
 
     const {
-        data: organizations,
-        pending: organizationsPending,
-    } = useFirebaseDatabase<Organization>({
-        query: organizationQuery,
+        data: organisations,
+        pending: organisationsPending,
+    } = useFirebaseDatabase<Organisation>({
+        query: organisationQuery,
     });
 
     const teamOptions = React.useMemo(
@@ -133,13 +133,13 @@ function useProjectOptions(selectedProjectType: number | undefined) {
         [tutorials, selectedProjectType],
     );
 
-    const organizationOptions = React.useMemo(
-        () => (organizations ? Object.values(organizations) : [])
-            .map((organization) => ({
-                value: organization.name,
-                label: organization.name,
+    const organisationOptions = React.useMemo(
+        () => (organisations ? Object.values(organisations) : [])
+            .map((organisation) => ({
+                value: organisation.name,
+                label: organisation.name,
             })),
-        [organizations],
+        [organisations],
     );
 
     const options = React.useMemo(
@@ -148,16 +148,16 @@ function useProjectOptions(selectedProjectType: number | undefined) {
             tutorialOptions,
             teamsPending,
             tutorialsPending,
-            organizationsPending,
-            organizationOptions,
+            organisationsPending,
+            organisationOptions,
         }),
         [
             teamOptions,
             tutorialOptions,
             teamsPending,
             tutorialsPending,
-            organizationsPending,
-            organizationOptions,
+            organisationsPending,
+            organisationOptions,
         ],
     );
 

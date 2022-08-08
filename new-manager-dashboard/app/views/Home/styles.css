@@ -39,7 +39,7 @@
             }
         }
 
-        .organization-container {
+        .organisation-container {
             display: flex;
             flex-direction: column;
             border-radius: var(--radius-card-border);
@@ -60,7 +60,7 @@
                 }
             }
 
-            .organization-list {
+            .organisation-list {
                 border-top: var(--width-separator-thin) solid var(--color-separator);
                 border-bottom: var(--width-separator-thin) solid var(--color-separator);
                 padding: var(--spacing-medium) 0;

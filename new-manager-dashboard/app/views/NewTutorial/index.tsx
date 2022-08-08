@@ -86,8 +86,6 @@ interface Props {
 // name (max len 50)
 // images (.gif,.jpg,.jpeg,.png)
 // zoomLevel (14-22)
-//
-// Rename organization to organisation
 
 function NewTutorial(props: Props) {
     const {
