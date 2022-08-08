@@ -31,7 +31,13 @@ function useFirebaseDatabase<T = unknown>({
             setData(snapshot.val() as Record<string, T>);
         };
 
-        const unsubscribe = onValue(query, handleQueryDone);
+        const handleQueryError = (error: unknown) => {
+            // eslint-disable-next-line no-console
+            console.error(error);
+            setPending(false);
+        };
+
+        const unsubscribe = onValue(query, handleQueryDone, handleQueryError);
 
         return unsubscribe;
     }, [query, skip]);
