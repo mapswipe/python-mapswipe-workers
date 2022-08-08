@@ -30,6 +30,7 @@ function validateGeoJSON(value: GeoJSON.GeoJSON): boolean {
     }
 }
 
+// FIXME: Move to utils
 function readUploadedFileAsText(inputFile: File) {
     const temporaryFileReader = new FileReader();
 

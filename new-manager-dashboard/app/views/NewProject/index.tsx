@@ -129,6 +129,8 @@ function NewProject(props: Props) {
     } = useProjectOptions(value?.projectType);
 
     const [testPending, setTestPending] = React.useState(false);
+    const [geometryDescription, setGeometryDescription] = React.useState<string>();
+    const [TMIdDescription, setTMIdDescription] = React.useState<string>();
 
     const [
         projectSubmissionStatus,
@@ -140,7 +142,7 @@ function NewProject(props: Props) {
         [formError],
     );
 
-    const setFieldValueWithName = React.useCallback(
+    const setFieldValueAndGenerateName = React.useCallback(
         (...entries: EntriesAsList<PartialProjectFormType>) => {
             setValue((oldValue) => {
                 const [val, key] = entries;
@@ -174,6 +176,8 @@ function NewProject(props: Props) {
                 geometry: undefined,
                 groupSize: getGroupSize(projectType),
             }), true);
+            setGeometryDescription(undefined);
+            setTMIdDescription(undefined);
         },
         [setValue],
     );
@@ -187,12 +191,22 @@ function NewProject(props: Props) {
                 // can be string or FeatureCollection
                 geometry: undefined,
             }), true);
+            setGeometryDescription(undefined);
+            setTMIdDescription(undefined);
         },
         [setValue],
     );
 
-    const handleTestAoi = React.useCallback((
-    ) => {
+    const setFieldValueAndClearTestMessage: typeof setFieldValue = React.useCallback(
+        (...params) => {
+            setFieldValue(...params);
+            setGeometryDescription(undefined);
+            setTMIdDescription(undefined);
+        },
+        [setFieldValue],
+    );
+
+    const handleTestAoi = React.useCallback(() => {
         const finalValues = value;
         async function submitToFirebase() {
             if (!mountedRef.current) {
@@ -218,16 +232,15 @@ function NewProject(props: Props) {
                 if (!mountedRef.current) {
                     return;
                 }
+
                 if (res.errored) {
                     setError((err) => ({
                         ...getErrorObject(err),
                         geometry: res.error,
                     }));
+                    setGeometryDescription(undefined);
                 } else {
-                    setError((err) => ({
-                        ...getErrorObject(err),
-                        geometry: res.message,
-                    }));
+                    setGeometryDescription(res.message);
                 }
             } else if (projectType === PROJECT_TYPE_FOOTPRINT && inputType === 'TMId') {
                 const res = await validateProjectIdOnHotTaskingManager(
@@ -242,11 +255,9 @@ function NewProject(props: Props) {
                         ...getErrorObject(err),
                         TMId: res.error,
                     }));
+                    setTMIdDescription(undefined);
                 } else {
-                    setError((err) => ({
-                        ...getErrorObject(err),
-                        TMId: res.message,
-                    }));
+                    setTMIdDescription(res.message);
                 }
             }
 
@@ -377,17 +388,6 @@ function NewProject(props: Props) {
         submitToFirebase();
     }, [user, mountedRef, setError]);
 
-    /*
-    const handleTest = React.useCallback(
-        () => {
-            async function testSettings() {
-            }
-            testSettings();
-        },
-        [],
-    );
-    */
-
     const handleSubmitButtonClick = React.useMemo(
         () => createSubmitHandler(validate, setError, handleFormSubmission),
         [validate, setError, handleFormSubmission],
@@ -429,7 +429,7 @@ function NewProject(props: Props) {
                         <TextInput
                             name={'projectTopic' as const}
                             value={value?.projectTopic}
-                            onChange={setFieldValueWithName}
+                            onChange={setFieldValueAndGenerateName}
                             error={error?.projectTopic}
                             label="Project Topic"
                             hint="Enter the topic of your project (50 char max)."
@@ -438,7 +438,7 @@ function NewProject(props: Props) {
                         <TextInput
                             name={'projectRegion' as const}
                             value={value?.projectRegion}
-                            onChange={setFieldValueWithName}
+                            onChange={setFieldValueAndGenerateName}
                             label="Project Region"
                             hint="Enter name of your project Region (50 chars max)"
                             error={error?.projectRegion}
@@ -449,7 +449,7 @@ function NewProject(props: Props) {
                         <NumberInput
                             name={'projectNumber' as const}
                             value={value?.projectNumber}
-                            onChange={setFieldValueWithName}
+                            onChange={setFieldValueAndGenerateName}
                             label="Project Number"
                             hint="Is this project part of a bigger campaign with multiple projects?"
                             error={error?.projectNumber}
@@ -459,7 +459,7 @@ function NewProject(props: Props) {
                             name={'requestingOrganisation' as const}
                             value={value?.requestingOrganisation}
                             options={organisationOptions}
-                            onChange={setFieldValueWithName}
+                            onChange={setFieldValueAndGenerateName}
                             error={error?.requestingOrganisation}
                             label="Requesting Organisation"
                             hint="Which group, institution or community is requesting this project?"
@@ -474,7 +474,7 @@ function NewProject(props: Props) {
                         label="Name"
                         hint="We will generate you project name based on your inputs above."
                         readOnly
-                        placeholder="[Project Topic] - [Project Region]([Task Number]) [Requesting Organisation]"
+                        placeholder="[Project Topic] - [Project Region] ([Task Number]) [Requesting Organisation]"
                         // error={error?.name}
                         disabled={submissionPending}
                     />
@@ -582,7 +582,7 @@ function NewProject(props: Props) {
                         <GeoJsonFileInput
                             name={'geometry' as const}
                             value={value?.geometry as GeoJSON.GeoJSON | undefined}
-                            onChange={setFieldValue}
+                            onChange={setFieldValueAndClearTestMessage}
                             label="Project AOI Geometry"
                             hint="Upload your project area as GeoJSON File (max. 1MB). Make sure that you provide a single polygon geometry."
                             error={error?.geometry}
@@ -613,6 +613,7 @@ function NewProject(props: Props) {
                                 label="Input Geometries File (Direct Link)"
                                 hint="Provide a direct link to a GeoJSON file containing your building footprint geometries."
                                 error={error?.geometry}
+                                onChange={setFieldValue}
                                 disabled={submissionPending || testPending}
                             />
                         )}
@@ -620,7 +621,7 @@ function NewProject(props: Props) {
                             <GeoJsonFileInput
                                 name={'geometry' as const}
                                 value={value?.geometry as GeoJSON.GeoJSON | undefined}
-                                onChange={setFieldValue}
+                                onChange={setFieldValueAndClearTestMessage}
                                 label="GeoJSON File"
                                 hint="Upload your project area as GeoJSON File (max. 1MB). Make sure that you provide a maximum of 10 polygon geometries."
                                 error={error?.geometry}
@@ -632,7 +633,7 @@ function NewProject(props: Props) {
                             <TextInput
                                 name={'TMId' as const}
                                 value={value?.TMId}
-                                onChange={setFieldValue}
+                                onChange={setFieldValueAndClearTestMessage}
                                 label="HOT Tasking Manager ProjectID"
                                 hint="Provide the ID of a HOT Tasking Manager Project (only numbers, e.g. 6526)."
                                 error={error?.TMId}
@@ -646,7 +647,7 @@ function NewProject(props: Props) {
                                 <SegmentInput
                                     name={'filter' as const}
                                     value={value?.filter}
-                                    onChange={setFieldValue}
+                                    onChange={setFieldValueAndClearTestMessage}
                                     label="Ohsome Filter"
                                     hint="Please specify which objects should be included in your project."
                                     options={filterOptions}
@@ -659,21 +660,31 @@ function NewProject(props: Props) {
                                     <TextInput
                                         name={'filterText' as const}
                                         value={value?.filterText}
-                                        onChange={setFieldValueWithName}
+                                        onChange={setFieldValueAndClearTestMessage}
                                         error={error?.filterText}
                                         label="Custom Filter"
                                         disabled={submissionPending || testPending}
                                         placeholder="amenities=* and geometry:polygon"
                                     />
                                 )}
-                                <Button
-                                    className={styles.testButton}
-                                    name={undefined}
-                                    onClick={handleTestAoi}
-                                    disabled={submissionPending || testPending}
-                                >
-                                    Test
-                                </Button>
+                                <div className={styles.testContainer}>
+                                    <div className={styles.testSuccessMessage}>
+                                        <div className={styles.geometryDescription}>
+                                            {geometryDescription}
+                                        </div>
+                                        <div className={styles.tmidDescription}>
+                                            {TMIdDescription}
+                                        </div>
+                                    </div>
+                                    <Button
+                                        className={styles.testButton}
+                                        name={undefined}
+                                        onClick={handleTestAoi}
+                                        disabled={submissionPending || testPending}
+                                    >
+                                        {testPending ? 'Testing...' : 'Test'}
+                                    </Button>
+                                </div>
                             </>
                         )}
                     </InputSection>

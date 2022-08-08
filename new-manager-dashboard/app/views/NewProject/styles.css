@@ -31,8 +31,24 @@
             gap: var(--spacing-extra-large);
         }
 
-        .test-button {
-            align-self: flex-end;
+        .test-container {
+            display: flex;
+            align-items: center;
+            align-self: stretch;
+            gap: var(--spacing-medium);
+
+            .test-success-message {
+                flex-grow: 1;
+
+                .tmid-description,
+                .geometry-description {
+                    color: var(--color-success);
+                }
+            }
+
+            .test-button {
+                flex-shrink: 0;
+            }
         }
     }
 

@@ -12,6 +12,7 @@ import TextInput from '#components/TextInput';
 import Button from '#components/Button';
 
 import useInputState from '#hooks/useInputState';
+import useMountedRef from '#hooks/useMountedRef';
 
 import mapSwipeLogo from '#resources/images/mapswipe-logo.svg';
 
@@ -26,6 +27,7 @@ function Login(props: Props) {
         className,
     } = props;
 
+    const mountedRef = useMountedRef();
     const { setUser } = React.useContext(UserContext);
 
     const [errorMessage, setErrorMessage] = React.useState<string>();
@@ -46,11 +48,21 @@ function Login(props: Props) {
 
             const auth = getAuth();
             const { user } = await signInWithEmailAndPassword(auth, email, password);
+            if (!mountedRef.current) {
+                return;
+            }
+
             const idToken = await user.getIdTokenResult();
+            if (!mountedRef.current) {
+                return;
+            }
 
             if (!idToken.claims.projectManager) {
                 setErrorMessage('This user do not have enough permission for Manager Dashboard');
                 await auth.signOut();
+                if (!mountedRef.current) {
+                    return;
+                }
                 setPending(false);
                 return;
             }
@@ -67,6 +79,13 @@ function Login(props: Props) {
                 email: user.email,
             });
         } catch (error) {
+            // eslint-disable-next-line no-console
+            console.error(error);
+
+            if (!mountedRef.current) {
+                return;
+            }
+
             const errorCode = (error as AuthError).code;
             let message = 'Failed to authenticate';
 
@@ -81,7 +100,7 @@ function Login(props: Props) {
             setErrorMessage(message);
             setPending(false);
         }
-    }, [setUser, email, password]);
+    }, [mountedRef, setUser, email, password]);
 
     return (
         <div className={_cs(styles.login, className)}>

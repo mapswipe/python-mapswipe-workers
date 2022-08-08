@@ -39,7 +39,10 @@ function useFirebaseDatabase<T = unknown>({
 
         const unsubscribe = onValue(query, handleQueryDone, handleQueryError);
 
-        return unsubscribe;
+        return () => {
+            setPending(false);
+            unsubscribe();
+        };
     }, [query, skip]);
 
     const returnValue = React.useMemo(() => ({

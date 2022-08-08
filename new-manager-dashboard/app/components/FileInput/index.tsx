@@ -30,6 +30,7 @@ function Preview(props: PreviewProps) {
             return undefined;
         }
 
+        // FIXME: use async methods
         const fileReader = new FileReader();
 
         const handleFileLoad = () => {
@@ -95,7 +96,7 @@ function FileInput<Name>(props: Props<Name>) {
         descriptionContainerClassName,
     } = props;
 
-    const [inputId] = React.useState(randomString());
+    const [inputId] = React.useState(randomString);
     const labelProps = useButtonFeatures({
         children: (
             <>

@@ -37,6 +37,7 @@ function GeoJsonPreview(props: Props) {
                     4,
                 );
 
+                // FIXME: tiles are not being loaded in local deployment
                 const layer = tileLayer(
                     'https://maps.wikimedia.org/osm-intl/{z}/{x}/{y}.png',
                     {

@@ -2,6 +2,7 @@ import React from 'react';
 import { _cs } from '@togglecorp/fujs';
 import { getAuth } from 'firebase/auth';
 
+import useMountedRef from '#hooks/useMountedRef';
 import SmartNavLink from '#base/components/SmartNavLink';
 import route from '#base/configs/routes';
 import { UserContext } from '#base/context/UserContext';
@@ -22,6 +23,7 @@ function Navbar(props: Props) {
         user,
         setUser,
     } = React.useContext(UserContext);
+    const mountedRef = useMountedRef();
 
     const [logoutPending, setLogoutPending] = React.useState(false);
 
@@ -31,14 +33,21 @@ function Navbar(props: Props) {
 
         try {
             await auth.signOut();
+            if (!mountedRef.current) {
+                return;
+            }
+
             setUser(undefined);
             setLogoutPending(false);
         } catch (error) {
             // eslint-disable-next-line no-console
             console.error('Failed to sign out', error);
+            if (!mountedRef.current) {
+                return;
+            }
             setLogoutPending(false);
         }
-    }, [setUser]);
+    }, [mountedRef, setUser]);
 
     return (
         <nav className={_cs(className, styles.navbar)}>
