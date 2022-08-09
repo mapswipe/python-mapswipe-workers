@@ -214,6 +214,7 @@ function UserGroupFormModal(props: Props) {
                         error={error?.name}
                         hint={`Enter the name of new user group that you want to create (${MAX_CHARS_NAME} chars max)`}
                         disabled={submissionStatus === 'pending'}
+                        autoFocus
                     />
                     <TextInput
                         label="Description"

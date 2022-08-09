@@ -243,6 +243,7 @@ function NewTutorial(props: Props) {
                             hint="What should the users look for (e.g. buildings, cars, trees)? (15 chars max)."
                             error={error?.lookFor}
                             disabled={submissionPending}
+                            autoFocus
                         />
                         <TextInput
                             name={'name' as const}

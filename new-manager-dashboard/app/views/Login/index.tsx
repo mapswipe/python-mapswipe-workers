@@ -122,6 +122,7 @@ function Login(props: Props) {
                         value={email}
                         onChange={setEmail}
                         disabled={pending}
+                        autoFocus
                     />
                     <TextInput
                         name="password"

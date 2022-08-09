@@ -210,6 +210,7 @@ function OrganisationFormModal(props: Props) {
                         error={error?.name}
                         hint={`Enter the name of new organisation that you want to create (${MAX_CHARS_NAME} chars max)`}
                         disabled={submissionStatus === 'pending'}
+                        autoFocus
                     />
                     <TextInput
                         label="Description"

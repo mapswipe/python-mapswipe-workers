@@ -399,10 +399,7 @@ function NewProject(props: Props) {
     );
 
     const submissionPending = (
-        teamsPending
-        || organisationsPending
-        || tutorialsPending
-        || projectSubmissionStatus === 'started'
+        projectSubmissionStatus === 'started'
         || projectSubmissionStatus === 'imageUpload'
         || projectSubmissionStatus === 'projectSubmit'
     );
@@ -434,6 +431,7 @@ function NewProject(props: Props) {
                             label="Project Topic"
                             hint="Enter the topic of your project (50 char max)."
                             disabled={submissionPending}
+                            autoFocus
                         />
                         <TextInput
                             name={'projectRegion' as const}
@@ -463,7 +461,7 @@ function NewProject(props: Props) {
                             error={error?.requestingOrganisation}
                             label="Requesting Organisation"
                             hint="Which group, institution or community is requesting this project?"
-                            disabled={submissionPending}
+                            disabled={submissionPending || organisationsPending}
                             keySelector={valueSelector}
                             labelSelector={labelSelector}
                         />
@@ -489,7 +487,7 @@ function NewProject(props: Props) {
                             label="Visibility"
                             hint="Choose either 'public' or select the team for which this project should be displayed"
                             error={error?.visibility}
-                            disabled={submissionPending}
+                            disabled={submissionPending || teamsPending}
                         />
                         <TextInput
                             name={'lookFor' as const}
@@ -533,7 +531,7 @@ function NewProject(props: Props) {
                                 error={error?.tutorialId}
                                 keySelector={valueSelector}
                                 labelSelector={labelSelector}
-                                disabled={submissionPending}
+                                disabled={submissionPending || tutorialsPending}
                             />
                             <NumberInput
                                 name={'verificationNumber' as const}
