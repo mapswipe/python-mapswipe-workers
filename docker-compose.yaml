@@ -1,4 +1,5 @@
 version: '3'
+
 networks:
     mapswipe_network:
         driver: bridge
@@ -7,15 +8,27 @@ networks:
     api:
     manager_dashboard:
     mapswipe_workers:
+    django:
     postgres:
+
+volumes:
+    django-media:
+    django-static:
+    ipython_data_local:
 
 services:
     nginx:
+        image: nginx:stable  # XXX: Maybe use specific versions?
         container_name: nginx
-        build:
-            context: nginx/
+        environment:
+            NGINX_MAIN_DOMAIN: '${NGINX_MAIN_DOMAIN:-dev.mapswipe.org}'
+            NGINX_DJANGO_DOMAIN: '${NGINX_DJANGO_DOMAIN:-dev-api.mapswipe.org}'
         volumes:
             - /etc/letsencrypt/:/etc/letsencrypt/:ro
+            - ./nginx/nginx.conf.template:/etc/nginx/templates/default.conf.template:ro
+            # Files from Django
+            - django-media:/django-assets/media/
+            - django-static:/django-assets/static/
         restart: unless-stopped
         ports:
             - '80:80'
@@ -24,6 +37,7 @@ services:
             - mapswipe_network
             - api
             - manager_dashboard
+            - django
 
     api:
         container_name: api
@@ -214,3 +228,29 @@ services:
           osm.client_id=\"$OSM_OAUTH_CLIENT_ID\"
           osm.client_secret=\"$OSM_OAUTH_CLIENT_SECRET\" &&
           firebase deploy --token $FIREBASE_TOKEN --only functions,hosting,database"
+
+    django:
+        build:
+            context: django/
+        environment:
+            DJANGO_DEBUG: 'false'
+            DJANGO_SECRET_KEY: '${DJANGO_ALLOWED_HOST}'
+            DJANGO_ALLOWED_HOST: '${DJANGO_ALLOWED_HOST:-*}'
+            DJANGO_DB_NAME: '${POSTGRES_DB}'
+            DJANGO_DB_USER: '${POSTGRES_USER}'
+            DJANGO_DB_PWD: '${POSTGRES_PASSWORD}'
+            DJANGO_DB_HOST: 'postgres'
+            DJANGO_DB_PORT: 5432
+            DJANGO_STATIC_ROOT: '/assets/static/'
+            DJANGO_MEDIA_ROOT: '/assets/media/'
+        volumes:
+            - ipython_data_local:/root/.ipython/profile_default   # persist ipython data, including ipython history
+            - django-media:/assets/media/
+            - django-static:/assets/static/
+        restart: unless-stopped
+        command: ./scripts/run_prod.sh
+        depends_on:
+            - postgres
+        networks:
+            - postgres
+            - django

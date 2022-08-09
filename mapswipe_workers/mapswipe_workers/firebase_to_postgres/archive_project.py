@@ -31,8 +31,9 @@ def archive_project(project_ids: list) -> bool:
         ref = fb_db.reference(f"v2/results/{project_id}")
         if not re.match(r"/v2/\w+/[-a-zA-Z0-9]+", ref.path):
             raise CustomError(
-                f"""Given argument resulted in invalid Firebase Realtime Database reference.
-                {ref.path}"""
+                "Given argument resulted in invalid "
+                "Firebase Realtime Database reference. "
+                f"{ref.path}"
             )
         try:
             ref.delete()
@@ -47,8 +48,9 @@ def archive_project(project_ids: list) -> bool:
         ref = fb_db.reference(f"v2/tasks/{project_id}")
         if not re.match(r"/v2/\w+/[-a-zA-Z0-9]+", ref.path):
             raise CustomError(
-                f"""Given argument resulted in invalid Firebase Realtime Database reference.
-                {ref.path}"""
+                "Given argument resulted in invalid "
+                "Firebase Realtime Database reference. "
+                f"{ref.path}"
             )
         try:
             ref.delete()
@@ -63,8 +65,9 @@ def archive_project(project_ids: list) -> bool:
         ref = fb_db.reference(f"v2/groupsUsers/{project_id}")
         if not re.match(r"/v2/\w+/[-a-zA-Z0-9]+", ref.path):
             raise CustomError(
-                f"""Given argument resulted in invalid Firebase Realtime Database reference.
-                        {ref.path}"""
+                "Given argument resulted in invalid "
+                "Firebase Realtime Database reference. "
+                f"{ref.path}"
             )
         ref.delete()
 
@@ -73,8 +76,9 @@ def archive_project(project_ids: list) -> bool:
         ref = fb_db.reference(f"v2/groups/{project_id}")
         if not re.match(r"/v2/\w+/[-a-zA-Z0-9]+", ref.path):
             raise CustomError(
-                f"""Given argument resulted in invalid Firebase Realtime Database reference.
-                        {ref.path}"""
+                "Given argument resulted in invalid "
+                "Firebase Realtime Database reference. "
+                f"{ref.path}"
             )
         ref.delete()
 

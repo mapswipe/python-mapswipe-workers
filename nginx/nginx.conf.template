@@ -1,0 +1,70 @@
+server {
+    listen 80;
+    server_name $NGINX_MAIN_DOMAIN;
+
+    location / {
+        return 301 https://$host$request_uri;
+    }
+}
+
+
+server {
+    listen 443 ssl;
+
+    ssl_certificate /etc/letsencrypt/live/$NGINX_MAIN_DOMAIN/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/$NGINX_MAIN_DOMAIN/privkey.pem;
+
+    server_name $NGINX_MAIN_DOMAIN;
+
+    location /api/ {
+        add_header Access-Control-Allow-Origin *;
+        proxy_pass  http://api:80/;
+    }
+
+    location /api {
+        rewrite ^ /api/ permanent;
+    }
+
+    location /manager_dashboard/ {
+        proxy_pass  http://manager_dashboard:80/;
+    }
+
+    location /manager_dashboard {
+        rewrite ^ /manager_dashboard/ permanent;
+    }
+
+    location / {
+        rewrite ^ /manager_dashboard/ permanent;
+    }
+}
+
+server {
+    listen 443 ssl;
+
+    ssl_certificate /etc/letsencrypt/live/$NGINX_DJANGO_DOMAIN/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/$NGINX_DJANGO_DOMAIN/privkey.pem;
+
+    server_name $NGINX_DJANGO_DOMAIN;
+
+    # Path is defined in django/mapswipe/settings.py::STATIC_URL
+    location /static {
+        alias /django-assests/static/;
+    }
+
+    # Path is defined in django/mapswipe/settings.py::MEDIA_URL
+    location /media {
+        alias /django-assests/media/;
+    }
+
+    location / {
+        proxy_pass http://django:80/;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto https;
+    }
+}
+
+# set vim: syntax=nginx
