@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Dict, Optional
 import datetime
 
 import strawberry
@@ -27,14 +27,14 @@ class CommunityStatsType:
 
 @strawberry.type
 class ProjectTypeStats:
-    area: float
-    project_type: str
+    project_type: Optional[str] = None
+    area: Optional[float] = None
 
 
 @strawberry.type
 class ProjectSwipeTypeStats:
-    project_type: str
     total_swipe: int
+    project_type: Optional[str] = None
 
 
 @strawberry.type
@@ -60,6 +60,13 @@ class UserLatestType:
 
 
 @strawberry.type
+class UserGroupLatestType:
+    total_contributors: int
+    total_swipes: int
+    total_swipe_time: int
+
+
+@strawberry.type
 class UserSwipeStatType:
     total_swipe: int
     total_swipe_time: int
@@ -77,18 +84,18 @@ class ContributorType:
 @strawberry.type
 class ContributorTimeType:
     total_time: int
-    date: datetime.date
+    task_date: Optional[datetime.date] = None
 
 
 @strawberry.type
 class OrganizationTypeStats:
-    organization_name: str
     total_swipe: int
+    organization_name: Optional[str] = None
 
 
 @strawberry.type
 class MapContributionTypeStats:
-    geojson: str
+    geojson: JSON
     total_contribution: int
 
 
@@ -157,11 +164,6 @@ class UserType:
             "dl"
         ].existing_database.load_user_geo_contribution.load(root.user_id)
 
-    @strawberry.field
-    async def user_stast_latest(self, info: Info, root: User) -> UserLatestStatusTypeStats:
-        return await info.context[
-            "dl"
-        ].existing_database.load_user_stast_latest.load(root.user_id)
 
 
 @strawberry_django.type(Project)
@@ -251,6 +253,14 @@ class UserGroupType:
         return await info.context["dl"].existing_database.load_user_group_organization_stats.load(
             root.user_group_id
         )
+
+    @strawberry.field
+    async def user_group_latest(self, info: Info, root: UserGroup) -> UserGroupLatestType:
+        return await info.context["dl"].existing_database.user_group_latest_stats.load(root.user_group_id)
+
+    @strawberry.field
+    async def project_swipe_type(self, info: Info, root: UserGroup) -> ProjectSwipeTypeStats:
+        return await info.context["dl"].existing_database.load_user_group_stats_project_swipe_type.load(root.user_group_id)
 
     def get_queryset(self, queryset, info, **kwargs):
         # Filter out user group without name. They aren't sync yet.

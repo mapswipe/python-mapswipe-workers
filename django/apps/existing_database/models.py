@@ -154,7 +154,6 @@ class Result(models.Model):
     start_time = models.DateTimeField(blank=True, null=True)
     end_time = models.DateTimeField(blank=True, null=True)
     result = models.IntegerField(blank=True, null=True)
-
     class Meta:
         managed = False
         db_table = "results"
