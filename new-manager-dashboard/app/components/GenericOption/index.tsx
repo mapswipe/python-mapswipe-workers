@@ -41,7 +41,6 @@ function GenericOption<P extends ContentBaseProps, OK extends OptionKey, O>({
     const isFocused = focusedKey?.key === optionKey; //  && focusedKey?.mouse;
 
     const divRef = useRef<HTMLButtonElement>(null);
-    const focusedByMouse = useRef(false);
 
     useEffect(
         () => {
@@ -74,13 +73,6 @@ function GenericOption<P extends ContentBaseProps, OK extends OptionKey, O>({
         ],
     );
 
-    const handleMouseLeave = useCallback(
-        () => {
-            focusedByMouse.current = false;
-        },
-        [],
-    );
-
     return (
         <RawButton
             elementRef={divRef}
@@ -91,10 +83,8 @@ function GenericOption<P extends ContentBaseProps, OK extends OptionKey, O>({
             )}
             onClick={handleClick}
             onMouseMove={handleMouseMove}
-            onMouseLeave={handleMouseLeave}
             title={title}
             name={optionKey}
-            // focused={isFocused}
         >
             {contentRenderer(props)}
         </RawButton>

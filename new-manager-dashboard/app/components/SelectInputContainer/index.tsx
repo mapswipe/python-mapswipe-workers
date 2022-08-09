@@ -146,6 +146,19 @@ function SelectInputContainer<OK extends OptionKey, N extends string, O extends 
     const inputElementRef = useRef<HTMLInputElement>(null);
     const popupRef = useRef<HTMLDivElement>(null);
 
+    const handleFocusOut = useCallback(
+        () => {
+            onFocusedChange(true);
+        },
+        [onFocusedChange],
+    );
+    const handleFocusIn = useCallback(
+        () => {
+            onFocusedChange(true);
+        },
+        [onFocusedChange],
+    );
+
     const handleSearchInputChange = useCallback(
         (value) => {
             if (!dropdownShown) {
@@ -351,8 +364,8 @@ function SelectInputContainer<OK extends OptionKey, N extends string, O extends 
                         value={(dropdownShown || focused) ? searchText : valueDisplay}
                         onChange={handleSearchInputChange}
                         onClick={handleSearchInputClick}
-                        onFocus={() => onFocusedChange(true)}
-                        onBlur={() => onFocusedChange(false)}
+                        onFocus={handleFocusIn}
+                        onBlur={handleFocusOut}
                         placeholder={valueDisplay ?? placeholder}
                         autoComplete="off"
                         onKeyDown={handleKeyDown}

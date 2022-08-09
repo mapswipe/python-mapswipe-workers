@@ -2,6 +2,9 @@
 <html lang="en" translate="no">
     <head>
         <title><%= process.env.MY_APP_NAME %></title>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="preconnect" href="https://unpkg.com">
         <style>
             html, body {
                 margin: 0;
@@ -45,34 +48,18 @@
                 height: 100%;
             }
         </style>
-        <style id="anti-click-jacking">
-            body {
-                display:none !important;
-            }
-        </style>
     </head>
 
     <body>
         <noscript>
             <%= process.env.MY_APP_NAME %> needs JS.
         </noscript>
+
         <div id="app-container"></div>
 
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.8.0/dist/leaflet.css" integrity="sha512-hoalWLoI8r4UszCkZ5kL8vayOGVae1oxXe/2A4AO6J9+580uKHDO3JdHb7NzwwzK5xr/Fs0W40kiNHxM9vyTtQ==" crossorigin="" />
         <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;700&display=swap" rel="stylesheet">
-
-
-        <!-- Start of anti-click-jacking -->
-        <script type="text/javascript">
-            if (self === top) {
-                var antiClickjack = document.getElementById("anti-click-jacking");
-                antiClickjack.parentNode.removeChild(antiClickjack);
-            } else {
-                top.location = self.location;
-            }
-        </script>
-        <!-- End of anti-click-jacking -->
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.8.0/dist/leaflet.css" integrity="sha512-hoalWLoI8r4UszCkZ5kL8vayOGVae1oxXe/2A4AO6J9+580uKHDO3JdHb7NzwwzK5xr/Fs0W40kiNHxM9vyTtQ==" crossorigin="" />
 
         <!-- Start of service-worker -->
         <script>
@@ -112,7 +99,5 @@
             }
         </script>
         <!-- End of service-worker -->
-
-        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.8.0/dist/leaflet.css" integrity="sha512-hoalWLoI8r4UszCkZ5kL8vayOGVae1oxXe/2A4AO6J9+580uKHDO3JdHb7NzwwzK5xr/Fs0W40kiNHxM9vyTtQ==" crossorigin="" />
     </body>
 </html>

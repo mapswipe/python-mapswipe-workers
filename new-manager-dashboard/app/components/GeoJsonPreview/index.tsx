@@ -4,7 +4,6 @@ import {
     Map,
     tileLayer,
     geoJSON,
-    GeoJSON as LeafletGeoJSON,
 } from 'leaflet';
 import { _cs } from '@togglecorp/fujs';
 
@@ -23,7 +22,6 @@ function GeoJsonPreview(props: Props) {
 
     const mapRef = React.useRef<Map>();
     const mapContainerRef = React.useRef<HTMLDivElement>(null);
-    const geoJsonLayerRef = React.useRef<LeafletGeoJSON>();
 
     React.useEffect(
         () => {
@@ -66,29 +64,24 @@ function GeoJsonPreview(props: Props) {
                 return undefined;
             }
 
-            if (!mapRef.current) {
+            const map = mapRef.current;
+            if (!map) {
                 return undefined;
             }
 
-            if (mapRef.current) {
-                const newGeoJson = geoJSON();
-                geoJsonLayerRef.current = newGeoJson;
-                newGeoJson.addTo(mapRef.current);
+            const newGeoJson = geoJSON();
+            newGeoJson.addTo(map);
 
-                newGeoJson.addData(geoJson);
-                const bounds = newGeoJson.getBounds();
+            newGeoJson.addData(geoJson);
+            const bounds = newGeoJson.getBounds();
 
-                if (bounds.isValid()) {
-                    mapRef.current.fitBounds(bounds);
-                }
+            if (bounds.isValid()) {
+                map.fitBounds(bounds);
             }
 
             return () => {
-                if (geoJsonLayerRef.current && mapRef.current) {
-                    geoJsonLayerRef.current.removeFrom(mapRef.current);
-                    geoJsonLayerRef.current.remove();
-                    geoJsonLayerRef.current = undefined;
-                }
+                newGeoJson.removeFrom(map);
+                newGeoJson.remove();
             };
         },
         [geoJson],

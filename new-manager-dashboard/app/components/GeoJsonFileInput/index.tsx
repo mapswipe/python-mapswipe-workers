@@ -52,7 +52,6 @@ const DEFAULT_MAX_FILE_SIZE = ONE_MB;
 
 interface Props<N> extends Omit<FileInputProps<N>, 'value' | 'onChange' | 'accept'> {
     maxFileSize?: number;
-    // maxFeaturesCount?: number;
     value: GeoJSON.GeoJSON | undefined | null;
     onChange: (newValue: GeoJSON.GeoJSON | undefined, name: N) => void;
 }
@@ -63,7 +62,6 @@ function GeoJsonFileInput<N>(props: Props<N>) {
         description,
         error,
         maxFileSize = DEFAULT_MAX_FILE_SIZE,
-        // maxFeaturesCount,
         onChange,
         name,
         ...otherProps
@@ -119,16 +117,6 @@ function GeoJsonFileInput<N>(props: Props<N>) {
                         onChange(undefined, name);
                         return;
                     }
-
-                    /*
-                    const featuresCount = fileAsJson.features.length;
-                    if (isDefined(maxFeaturesCount) && featuresCount > maxFeaturesCount) {
-                        setInternalErrorMessage(`Too many features ${featuresCount}.`);
-                        setTempValue(newValue);
-                        onChange(undefined, name);
-                        return;
-                    }
-                    */
                 } catch {
                     if (!mountedRef.current) {
                         return;

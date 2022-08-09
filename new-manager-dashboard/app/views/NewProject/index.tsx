@@ -587,7 +587,6 @@ function NewProject(props: Props) {
                             hint="Upload your project area as GeoJSON File (max. 1MB). Make sure that you provide a single polygon geometry."
                             error={error?.geometry}
                             disabled={submissionPending}
-                            // maxFeaturesCount={10}
                         />
                     </InputSection>
                 )}
@@ -626,7 +625,6 @@ function NewProject(props: Props) {
                                 hint="Upload your project area as GeoJSON File (max. 1MB). Make sure that you provide a maximum of 10 polygon geometries."
                                 error={error?.geometry}
                                 disabled={submissionPending || testPending}
-                                // maxFeaturesCount={10}
                             />
                         )}
                         {value?.inputType === PROJECT_INPUT_TYPE_TASKING_MANAGER_ID && (

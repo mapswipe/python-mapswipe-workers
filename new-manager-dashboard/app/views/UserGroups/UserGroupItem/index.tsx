@@ -1,9 +1,8 @@
 import React from 'react';
-import { _cs } from '@togglecorp/fujs';
+import { _cs, isDefined } from '@togglecorp/fujs';
 import {
     getDatabase,
     ref as databaseRef,
-    onValue,
     child,
     update,
 } from 'firebase/database';
@@ -12,6 +11,7 @@ import {
     IoChevronUp,
 } from 'react-icons/io5';
 
+import { getValueFromFirebase } from '#utils/firebase';
 import UserContext from '#base/context/UserContext';
 import useConfirmation from '#hooks/useConfirmation';
 import useMountedRef from '#hooks/useMountedRef';
@@ -56,6 +56,7 @@ function UserGroupItem(props: Props) {
 
     const { user } = React.useContext(UserContext);
     const mountedRef = useMountedRef();
+
     const [userListPending, setUserListPending] = React.useState(false);
     const [userList, setUserList] = React.useState<User[]>([]);
     const [showDetails, setShowDetails] = React.useState(false);
@@ -116,28 +117,33 @@ function UserGroupItem(props: Props) {
 
             setUserList([]);
             setUserListPending(true);
-            memberIdList.forEach(
-                (userId, index) => {
-                    // TODO: handle error
-                    onValue(
-                        child(usersRef, userId),
-                        (snapshot) => {
-                            const userDetail = snapshot.val() as User;
-                            setUserList((prevUsers) => ([
-                                ...prevUsers,
-                                userDetail,
-                            ]));
-
-                            if (index === (memberIdList.length - 1)) {
-                                setUserListPending(false);
-                            }
-                        },
-                        { onlyOnce: true },
-                    );
-                },
-            );
+            async function loadUserData() {
+                try {
+                    const memberSnapshots = await Promise.all(memberIdList.map((id) => {
+                        const userRef = child(usersRef, id);
+                        return getValueFromFirebase(userRef);
+                    }));
+                    const members = memberSnapshots.map((snapshot) => {
+                        const userDetail = snapshot.val() as (User | null);
+                        return userDetail;
+                    }).filter(isDefined);
+                    if (!mountedRef.current) {
+                        return;
+                    }
+                    setUserList(members);
+                    setUserListPending(false);
+                } catch (err) {
+                    // eslint-disable-next-line no-console
+                    console.error(err);
+                    if (!mountedRef.current) {
+                        return;
+                    }
+                    setUserListPending(false);
+                }
+            }
+            loadUserData();
         },
-        [showDetails, data.users],
+        [showDetails, data.users, mountedRef],
     );
 
     return (

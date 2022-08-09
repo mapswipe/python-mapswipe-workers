@@ -81,6 +81,7 @@ export const projectInputTypeOptions: {
 export const FILTER_BUILDINGS = 'building=* and geometry:polygon';
 export const FILTER_OTHERS = 'other'; // 'amenities=* and geometry:polygon';
 
+// FIXME: Let's define strict type for filterOptions
 export const filterOptions = [
     { value: FILTER_BUILDINGS, label: 'Buildings' },
     { value: FILTER_OTHERS, label: 'Other' },

@@ -12,7 +12,6 @@ import {
     query,
     orderByChild,
     equalTo,
-    onValue,
 } from 'firebase/database';
 import {
     ObjectSchema,
@@ -27,6 +26,7 @@ import {
     MdOutlineUnpublished,
 } from 'react-icons/md';
 
+import { getValueFromFirebase } from '#utils/firebase';
 import useMountedRef from '#hooks/useMountedRef';
 import UserContext from '#base/context/UserContext';
 import Modal from '#components/Modal';
@@ -98,50 +98,45 @@ function UserGroupFormModal(props: Props) {
                     equalTo(nameKey),
                 );
 
-                onValue(
-                    prevUserGroupQuery,
-                    async (snapshot) => {
-                        if (snapshot.exists()) {
-                            setError((prevValue) => ({
-                                ...getErrorObject(prevValue),
-                                name: 'A group with this name already exists, please use a different name (Please note that the name comparision is not case sensitive)',
-                            }));
-                            setSubmissionStatus(undefined);
-                            return;
-                        }
+                const snapshot = await getValueFromFirebase(prevUserGroupQuery);
 
-                        const newUserGroupRef = await pushToDatabase(userGroupsRef);
-                        const newKey = newUserGroupRef.key;
-                        if (!mountedRef.current) {
-                            return;
-                        }
+                if (snapshot.exists()) {
+                    setError((prevValue) => ({
+                        ...getErrorObject(prevValue),
+                        name: 'A group with this name already exists, please use a different name (Please note that the name comparision is not case sensitive)',
+                    }));
+                    setSubmissionStatus(undefined);
+                    return;
+                }
 
-                        if (!newKey) {
-                            setNonFieldError('Failed to push new key for user group');
-                            setSubmissionStatus('failed');
-                            return;
-                        }
+                const newUserGroupRef = await pushToDatabase(userGroupsRef);
+                const newKey = newUserGroupRef.key;
+                if (!mountedRef.current) {
+                    return;
+                }
 
-                        const uploadData = {
-                            ...finalValues,
-                            nameKey,
-                            createdBy: user?.id,
-                        };
+                if (!newKey) {
+                    setNonFieldError('Failed to push new key for user group');
+                    setSubmissionStatus('failed');
+                    return;
+                }
 
-                        const putUserGroupRef = databaseRef(db, `v2/userGroups/${newKey}`);
-                        await setToDatabase(putUserGroupRef, uploadData);
+                const uploadData = {
+                    ...finalValues,
+                    nameKey,
+                    createdBy: user?.id,
+                };
 
-                        if (!mountedRef.current) {
-                            return;
-                        }
-                        setSubmissionStatus('success');
-                    },
-                    { onlyOnce: true },
-                );
+                const putUserGroupRef = databaseRef(db, `v2/userGroups/${newKey}`);
+                await setToDatabase(putUserGroupRef, uploadData);
+                if (!mountedRef.current) {
+                    return;
+                }
+
+                setSubmissionStatus('success');
             } catch (submissionError) {
                 // eslint-disable-next-line no-console
                 console.error(submissionError);
-
                 if (!mountedRef.current) {
                     return;
                 }

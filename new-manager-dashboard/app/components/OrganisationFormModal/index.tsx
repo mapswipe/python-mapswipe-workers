@@ -12,7 +12,6 @@ import {
     query,
     orderByChild,
     equalTo,
-    onValue,
 } from 'firebase/database';
 import {
     ObjectSchema,
@@ -27,6 +26,8 @@ import {
     MdOutlineUnpublished,
 } from 'react-icons/md';
 
+import useMountedRef from '#hooks/useMountedRef';
+import { getValueFromFirebase } from '#utils/firebase';
 import Modal from '#components/Modal';
 import TextInput from '#components/TextInput';
 import Button from '#components/Button';
@@ -74,6 +75,7 @@ function OrganisationFormModal(props: Props) {
         setError,
     } = useForm(organisationFormSchema, defaultOrganisationFormValue);
 
+    const mountedRef = useMountedRef();
     const error = getErrorObject(formError);
     const [submissionStatus, setSubmissionStatus] = React.useState<'pending' | 'success' | 'failed' | undefined>(undefined);
     const [nonFieldError, setNonFieldError] = React.useState<string | undefined>();
@@ -92,46 +94,54 @@ function OrganisationFormModal(props: Props) {
                     equalTo(nameKey),
                 );
 
-                onValue(
-                    prevOrganisationQuery,
-                    async (snapshot) => {
-                        if (snapshot.exists()) {
-                            setError((prevValue) => ({
-                                ...getErrorObject(prevValue),
-                                name: 'An organisation with this name already exists, please use a different name (Please note that the name comparison is not case sensitive)',
-                            }));
-                            setSubmissionStatus(undefined);
-                            return;
-                        }
+                const snapshot = await getValueFromFirebase(prevOrganisationQuery);
+                if (!mountedRef.current) {
+                    return;
+                }
 
-                        const newOrganisationRef = await pushToDatabase(organisationsRef);
-                        const newKey = newOrganisationRef.key;
+                if (snapshot.exists()) {
+                    setError((prevValue) => ({
+                        ...getErrorObject(prevValue),
+                        name: 'An organisation with this name already exists, please use a different name (Please note that the name comparison is not case sensitive)',
+                    }));
+                    setSubmissionStatus(undefined);
+                    return;
+                }
 
-                        if (newKey) {
-                            const uploadData = {
-                                ...finalValues,
-                                nameKey,
-                            };
+                const newOrganisationRef = await pushToDatabase(organisationsRef);
+                if (!mountedRef.current) {
+                    return;
+                }
+                const newKey = newOrganisationRef.key;
 
-                            const putOrganisationRef = databaseRef(db, `v2/organisations/${newKey}`);
-                            await setToDatabase(putOrganisationRef, uploadData);
-                            setSubmissionStatus('success');
-                        } else {
-                            setNonFieldError('Failed to push new key for organisation');
-                            setSubmissionStatus('failed');
-                        }
-                    },
-                    { onlyOnce: true },
-                );
+                if (newKey) {
+                    const uploadData = {
+                        ...finalValues,
+                        nameKey,
+                    };
+
+                    const putOrganisationRef = databaseRef(db, `v2/organisations/${newKey}`);
+                    await setToDatabase(putOrganisationRef, uploadData);
+                    if (!mountedRef.current) {
+                        return;
+                    }
+                    setSubmissionStatus('success');
+                } else {
+                    setNonFieldError('Failed to push new key for organisation');
+                    setSubmissionStatus('failed');
+                }
             } catch (submissionError) {
-                setSubmissionStatus('failed');
                 // eslint-disable-next-line no-console
                 console.error(submissionError);
+                if (!mountedRef.current) {
+                    return;
+                }
+                setSubmissionStatus('failed');
             }
         }
 
         submitToFirebase();
-    }, [setError]);
+    }, [setError, mountedRef]);
 
     const handleSubmitButtonClick = React.useMemo(
         () => createSubmitHandler(validate, setError, handleFormSubmission),
