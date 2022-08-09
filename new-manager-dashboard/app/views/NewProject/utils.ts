@@ -261,7 +261,7 @@ export function generateProjectName(
         return undefined;
     }
 
-    return `${projectTopic} - ${projectRegion}(${projectNumber}) ${requestingOrganisation}`;
+    return `${projectTopic} - ${projectRegion} (${projectNumber}) ${requestingOrganisation}`;
 }
 
 export function getGroupSize(projectType: ProjectType | undefined) {

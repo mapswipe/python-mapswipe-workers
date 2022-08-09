@@ -32,14 +32,14 @@ function GeoJsonPreview(props: Props) {
             }
 
             if (mapRef.current) {
+                // NOTE: show whole world by default
                 mapRef.current.setView(
                     [0.0, 0.0],
-                    4,
+                    1,
                 );
 
-                // FIXME: tiles are not being loaded in local deployment
                 const layer = tileLayer(
-                    'https://maps.wikimedia.org/osm-intl/{z}/{x}/{y}.png',
+                    'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                     {
                         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
                         subdomains: ['a', 'b', 'c'],

@@ -81,6 +81,10 @@ function UserGroupItem(props: Props) {
                 } catch (submissionError) {
                     // eslint-disable-next-line no-console
                     console.error(submissionError);
+
+                    if (!mountedRef.current) {
+                        return;
+                    }
                     setArchivePending(false);
                 }
             }
@@ -104,32 +108,34 @@ function UserGroupItem(props: Props) {
 
             const db = getDatabase();
             const usersRef = databaseRef(db, 'v2/users');
-            const memberIdList = Object.keys(data.users ?? {});
+            const memberIdList = data.users ? Object.keys(data.users) : [];
 
-            if (memberIdList.length > 0) {
-                setUserList([]);
-                setUserListPending(true);
-                memberIdList.forEach(
-                    (userId, index) => {
-                        // TODO: handle error
-                        onValue(
-                            child(usersRef, userId),
-                            (snapshot) => {
-                                const userDetail = snapshot.val() as User;
-                                setUserList((prevUsers) => ([
-                                    ...prevUsers,
-                                    userDetail,
-                                ]));
-
-                                if (index === (memberIdList.length - 1)) {
-                                    setUserListPending(false);
-                                }
-                            },
-                            { onlyOnce: true },
-                        );
-                    },
-                );
+            if (memberIdList.length === 0) {
+                return;
             }
+
+            setUserList([]);
+            setUserListPending(true);
+            memberIdList.forEach(
+                (userId, index) => {
+                    // TODO: handle error
+                    onValue(
+                        child(usersRef, userId),
+                        (snapshot) => {
+                            const userDetail = snapshot.val() as User;
+                            setUserList((prevUsers) => ([
+                                ...prevUsers,
+                                userDetail,
+                            ]));
+
+                            if (index === (memberIdList.length - 1)) {
+                                setUserListPending(false);
+                            }
+                        },
+                        { onlyOnce: true },
+                    );
+                },
+            );
         },
         [showDetails, data.users],
     );

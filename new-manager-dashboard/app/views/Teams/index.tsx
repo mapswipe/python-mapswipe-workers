@@ -43,7 +43,7 @@ function Teams(props: Props) {
         query: teamsQuery,
     });
 
-    const teamList = Object.entries(teams ?? {});
+    const teamList = React.useMemo(() => (teams ? Object.entries(teams) : []), [teams]);
 
     return (
         <div className={_cs(styles.teams, className)}>

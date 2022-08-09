@@ -70,7 +70,10 @@ function TeamItem(props: Props) {
         query: teamMembersQuery,
     });
 
-    const teamMemberList = Object.entries(teamMembers ?? {});
+    const teamMemberList = React.useMemo(
+        () => (teamMembers ? Object.entries(teamMembers) : []),
+        [teamMembers],
+    );
 
     return (
         <div

@@ -27,6 +27,7 @@ import {
     MdOutlineUnpublished,
 } from 'react-icons/md';
 
+import useMountedRef from '#hooks/useMountedRef';
 import UserContext from '#base/context/UserContext';
 import Modal from '#components/Modal';
 import TextInput from '#components/TextInput';
@@ -76,6 +77,7 @@ function UserGroupFormModal(props: Props) {
         setError,
     } = useForm(userGroupFormSchema, defaultUserGroupFormValue);
 
+    const mountedRef = useMountedRef();
     const { user } = React.useContext(UserContext);
 
     const error = getErrorObject(formError);
@@ -110,33 +112,45 @@ function UserGroupFormModal(props: Props) {
 
                         const newUserGroupRef = await pushToDatabase(userGroupsRef);
                         const newKey = newUserGroupRef.key;
+                        if (!mountedRef.current) {
+                            return;
+                        }
 
-                        if (newKey) {
-                            const uploadData = {
-                                ...finalValues,
-                                nameKey,
-                                createdBy: user?.id,
-                            };
-
-                            const putUserGroupRef = databaseRef(db, `v2/userGroups/${newKey}`);
-                            await setToDatabase(putUserGroupRef, uploadData);
-                            setSubmissionStatus('success');
-                        } else {
+                        if (!newKey) {
                             setNonFieldError('Failed to push new key for user group');
                             setSubmissionStatus('failed');
+                            return;
                         }
+
+                        const uploadData = {
+                            ...finalValues,
+                            nameKey,
+                            createdBy: user?.id,
+                        };
+
+                        const putUserGroupRef = databaseRef(db, `v2/userGroups/${newKey}`);
+                        await setToDatabase(putUserGroupRef, uploadData);
+
+                        if (!mountedRef.current) {
+                            return;
+                        }
+                        setSubmissionStatus('success');
                     },
                     { onlyOnce: true },
                 );
             } catch (submissionError) {
-                setSubmissionStatus('failed');
                 // eslint-disable-next-line no-console
                 console.error(submissionError);
+
+                if (!mountedRef.current) {
+                    return;
+                }
+                setSubmissionStatus('failed');
             }
         }
 
         submitToFirebase();
-    }, [user, setError]);
+    }, [user, setError, mountedRef]);
 
     const handleSubmitButtonClick = React.useMemo(
         () => createSubmitHandler(validate, setError, handleFormSubmission),

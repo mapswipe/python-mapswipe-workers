@@ -54,7 +54,7 @@ function UserGroups(props: Props) {
 
     const userGroupList = React.useMemo(
         () => {
-            const list = Object.entries(userGroups ?? {});
+            const list = userGroups ? Object.entries(userGroups) : [];
             return list.filter(
                 // eslint-disable-next-line @typescript-eslint/no-unused-vars
                 ([_, group]) => isNotDefined(group.archivedBy),
