@@ -21,7 +21,8 @@ from .types import (
     CommunityStatsLatestType,
     ContributorTimeType,
     ProjectTypeStats,
-    OrganizationTypeStats
+    OrganizationTypeStats,
+    ProjectSwipeTypeStats
 )
 from .models import (
     Result,
@@ -132,51 +133,53 @@ def get_contributor_time_stats() -> List[ContributorTimeType]:
         list_data.append(
             ContributorTimeType(
                 total_time=round(data[1] / 60) or 0,
-                date=data[0] or None,
+                task_date=data[0]
             )
         )
     return list_data
 
 
-def get_project_type_query() -> ProjectTypeStats:
+def get_project_type_query() -> List[ProjectTypeStats]:
     PROJECT_TYPE_STATS_QUERY = f"""
-        WITH
-            project_data_type1 AS (
-                SELECT
-                    st_area(P.geom) as area_sum_1
-                    FROM {Project._meta.db_table} P
-                        LEFT JOIN {Result._meta.db_table} R USING (project_id)
-                WHERE P.project_type=1
-                ),
-            project_data_type2 AS (
-                SELECT
-                    st_area(geom) as area_sum_2
-                    FROM {Project._meta.db_table} P
-                        LEFT JOIN {Result._meta.db_table} R USING (project_id)
-                WHERE P.project_type=2
-            ),
-            project_data_type3 AS (
-                SELECT
-                    st_area(geom) as area_sum_3
-                    FROM {Project._meta.db_table} P
-                        LEFT JOIN {Result._meta.db_table} R USING (project_id)
-                WHERE P.project_type=3
-            )
         SELECT
-            SUM(area_sum_1) as area_sum_1,
-            SUM(area_sum_2) as area_sum_2,
-            SUM(area_sum_3) as area_sum_3
-        From project_data_type1, project_data_type2, project_data_type3
-    """
+            P.project_type as project_type,
+            SUM(st_area(P.geom::geography)) as area_sum
+            FROM {Project._meta.db_table} P
+                LEFT JOIN {Result._meta.db_table} R USING (project_id)
+            WHERE P.geom is not null
+            GROUP BY P.project_type
+            """
     with connections[settings.MAPSWIPE_EXISTING_DB].cursor() as cursor:
         cursor.execute(PROJECT_TYPE_STATS_QUERY)
         aggregate_results = cursor.fetchall()
-    for data in aggregate_results:
-        return ProjectTypeStats(
-            build_area=data[0] or 0,
-            footprint=data[1] or 0,
-            change_detection=data[2] or 0
-        )
+    project_list = []
+    for project_type, area_sum in aggregate_results:
+        project_list.append(ProjectTypeStats(
+            area=area_sum / 1000000,
+            project_type=project_type
+        ))
+    return project_list
+
+
+def get_project_swipe_type() -> List[ProjectSwipeTypeStats]:
+    PROJECT_TYPE_STATS_QUERY = f"""
+        SELECT
+            P.project_type as project_type,
+            COUNT(*) as total_swipe
+            FROM {Result._meta.db_table} R
+                LEFT JOIN {Project._meta.db_table } P  USING (project_id)
+        GROUP BY project_type
+        """
+    with connections[settings.MAPSWIPE_EXISTING_DB].cursor() as cursor:
+        cursor.execute(PROJECT_TYPE_STATS_QUERY)
+        aggregate_results = cursor.fetchall()
+    project_list = []
+    for project_type, total_swipe in aggregate_results:
+        project_list.append(ProjectSwipeTypeStats(
+            total_swipe=total_swipe or 0,
+            project_type=project_type
+        ))
+    return project_list
 
 
 def get_organization_stats() -> List[OrganizationTypeStats]:
@@ -204,7 +207,7 @@ def get_organization_stats() -> List[OrganizationTypeStats]:
     for data in aggregate_results:
         list_data.append(
             OrganizationTypeStats(
-                organization_name=data[1] or None,
+                organization_name=data[1],
                 total_swipe=data[0] or 0,
             )
         )
@@ -232,6 +235,7 @@ class Query:
     user: UserType = strawberry_django.field()
     community_stats: CommunityStatsType = strawberry_django.field(get_community_stats)
     community_stast_lastest: CommunityStatsLatestType = strawberry_django.field(get_community_stats_latest)
-    contributor_time_sats: ContributorTimeType = strawberry_django.field(get_contributor_time_stats)
+    contributor_time_sats: List[ContributorTimeType] = strawberry_django.field(get_contributor_time_stats)
     project_type_stats: ProjectTypeStats = strawberry_django.field(get_project_type_query)
-    organization_type_stats: OrganizationTypeStats = strawberry_django.field(get_organization_stats)
+    organization_type_stats: List[OrganizationTypeStats] = strawberry_django.field(get_organization_stats)
+    project_swipe_type: List[ProjectSwipeTypeStats] = strawberry_django.field(get_project_swipe_type)
