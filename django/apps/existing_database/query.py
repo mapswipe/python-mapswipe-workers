@@ -22,7 +22,8 @@ from .types import (
     ContributorTimeType,
     ProjectTypeStats,
     OrganizationTypeStats,
-    ProjectSwipeTypeStats
+    ProjectSwipeTypeStats,
+    MapContributionTypeStats
 )
 from .models import (
     Result,
@@ -182,6 +183,31 @@ def get_project_swipe_type() -> List[ProjectSwipeTypeStats]:
     return project_list
 
 
+def get_project_geo_area_type() -> List[MapContributionTypeStats]:
+    PROJECT_GEO_TYPE = f"""
+        SELECT
+            ST_AsText(ST_Centroid(P.geom)) as geom,
+            COUNT(*) swipe_count
+            FROM {Result._meta.db_table} R
+                LEFT JOIN {Project._meta.db_table} P USING (project_id)
+        GROUP BY P.geom
+    """
+    with connections[settings.MAPSWIPE_EXISTING_DB].cursor() as cursor:
+        cursor.execute(PROJECT_GEO_TYPE)
+        aggregate_results = cursor.fetchall()
+    project_list = []
+    for geom, swipe_count in aggregate_results:
+        geom_centroid = {
+            "type": "Point",
+            "coordinates": geom
+        }
+        project_list.append(MapContributionTypeStats(
+            total_contribution=swipe_count or 0,
+            geojson=geom_centroid
+        ))
+    return project_list
+
+
 def get_organization_stats() -> List[OrganizationTypeStats]:
     COMMUNITY_DASHBOARD_STATS_QUERY = f"""
         WITH
@@ -239,3 +265,4 @@ class Query:
     project_type_stats: ProjectTypeStats = strawberry_django.field(get_project_type_query)
     organization_type_stats: List[OrganizationTypeStats] = strawberry_django.field(get_organization_stats)
     project_swipe_type: List[ProjectSwipeTypeStats] = strawberry_django.field(get_project_swipe_type)
+    project_geo_contribution: List[MapContributionTypeStats] = strawberry_django.field(get_project_geo_area_type)
