@@ -1,0 +1,19 @@
+.container {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    flex-grow: 1;
+    justify-content: center;
+
+    .heading {
+        color: var(--dui-color-danger);
+        font-size: var(--dui-font-size-super-large);
+        font-weight: var(--dui-font-weight-bold);
+    }
+
+    .message {
+        margin: var(--dui-spacing-large) 0;
+        text-align: center;
+        font-size: var(--dui-font-size-large);
+    }
+}

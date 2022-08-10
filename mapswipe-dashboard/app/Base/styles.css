@@ -1,0 +1,32 @@
+.base {
+    display: flex;
+    flex-direction: column;
+    width: 100vw;
+    height: 100vh;
+
+    .navbar {
+        flex-shrink: 0;
+
+        &.hidden {
+            display: none;
+        }
+    }
+
+    .view,
+    .init {
+        flex-grow: 1;
+        overflow: auto;
+    }
+}
+
+:root {
+    --spacing-small: 0.3rem;
+    --spacing-medium: 0.6rem;
+    --spacing-large: 1rem;
+
+    --color-primary: #0d1949;
+    --color-text-on-light: #ffffff;
+
+    --font-size-medium: 1rem;
+    --font-size-large: 1.2rem;
+}

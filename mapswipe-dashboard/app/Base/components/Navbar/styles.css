@@ -1,0 +1,39 @@
+.navbar {
+    display: flex;
+    position: relative;
+    align-items: center;
+    background-color: var(--color-primary);
+    padding: var(--spacing-medium);
+    color: var(--color-text-on-light);
+    gap: var(--spacing-medium);
+
+    .app-brand {
+        display: flex;
+        align-items: center;
+        flex-shrink: 0;
+        padding: var(--spacing-medium);
+
+        .logo {
+            height: 2.6rem;
+        }
+    }
+
+    .main {
+        display: flex;
+        align-self: stretch;
+        flex-grow: 1;
+        overflow: auto;
+
+        .nav-links {
+            display: flex;
+            flex-grow: 1;
+            justify-content: flex-start;
+            font-size: var(--font-size-large);
+            gap: var(--spacing-medium);
+
+            .link {
+                padding: var(--spacing-medium);
+            }
+        }
+    }
+}
