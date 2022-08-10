@@ -50,6 +50,7 @@ class SwipeStatType:
     total_swipe_time: int
     total_mapping_projects: int
     total_task: int
+    total_area: int
 
 
 @strawberry.type
@@ -72,7 +73,6 @@ class UserSwipeStatType:
     total_swipe_time: int
     total_mapping_projects: int
     total_task: int
-    total_user_group: int
 
 
 @ strawberry.type
@@ -117,49 +117,49 @@ class UserType:
     username: strawberry.auto
 
     @strawberry.field
-    async def stats(self, info: Info, root: User) -> UserSwipeStatType:
+    async def stats(self, info: Info, root: User) -> Optional[List[UserSwipeStatType]]:
         return await info.context[
             "dl"
         ].existing_database.load_user_stats.load(root.user_id)
 
     @strawberry.field
-    async def contribution_stats(self, info: Info, root: User) -> List[ContributorType]:
+    async def contribution_stats(self, info: Info, root: User) -> Optional[List[ContributorType]]:
         return await info.context[
             "dl"
         ].existing_database.load_user_contribution_stats.load(root.user_id)
 
     @strawberry.field
-    async def contribution_time(self, info: Info, root: User) -> List[ContributorTimeType]:
+    async def contribution_time(self, info: Info, root: User) -> Optional[List[ContributorTimeType]]:
         return await info.context[
             "dl"
         ].existing_database.load_user_time_spending.load(root.user_id)
 
     @strawberry.field
-    async def project_stats(self, info: Info, root: User) -> List[ProjectTypeStats]:
+    async def project_stats(self, info: Info, root: User) -> Optional[List[ProjectTypeStats]]:
         return await info.context[
             "dl"
         ].existing_database.load_user_stats_project_type.load(root.user_id)
 
     @strawberry.field
-    async def project_swipe_stats(self, info: Info, root: User) -> List[ProjectSwipeTypeStats]:
+    async def project_swipe_stats(self, info: Info, root: User) -> Optional[List[ProjectSwipeTypeStats]]:
         return await info.context[
             "dl"
         ].existing_database.load_user_stats_project_swipe_type.load(root.user_id)
 
     @strawberry_django.field
-    async def organization_swipe_stats(self, info: Info, root: User) -> List[OrganizationTypeStats]:
+    async def organization_swipe_stats(self, info: Info, root: User) -> Optional[List[OrganizationTypeStats]]:
         return await info.context[
             "dl"
         ].existing_database.load_user_organization_swipe_type.load(root.user_id)
 
     @strawberry.field
-    async def stats_latest(self, info: Info, root: User) -> CommunityStatsLatestType:
+    async def stats_latest(self, info: Info, root: User) -> Optional[CommunityStatsLatestType]:
         return await info.context[
             "dl"
         ].existing_database.load_user_latest_stats_query.load(root.user_id)
 
     @strawberry.field
-    async def user_geo_contribution(self, info: Info, root: User) -> List[MapContributionTypeStats]:
+    async def user_geo_contribution(self, info: Info, root: User) -> Optional[List[MapContributionTypeStats]]:
         return await info.context[
             "dl"
         ].existing_database.load_user_geo_contribution.load(root.user_id)
@@ -237,25 +237,25 @@ class UserGroupType:
         )
 
     @strawberry.field
-    async def project_type_stats(self, info: Info, root: UserGroup) -> ProjectTypeStats:
+    async def project_type_stats(self, info: Info, root: UserGroup) -> Optional[List[ProjectTypeStats]]:
         return await info.context["dl"].existing_database.load_user_group_project_type_stats.load(
             root.user_group_id
         )
 
     @strawberry.field
-    async def user_group_geo_stats(self, info: Info, root: UserGroup) -> List[MapContributionTypeStats]:
+    async def user_group_geo_stats(self, info: Info, root: UserGroup) -> Optional[List[MapContributionTypeStats]]:
         return await info.context["dl"].existing_database.load_user_group_geo_contributions.load(
             root.user_group_id
         )
 
     @strawberry.field
-    async def user_group_organization_stats(self, info: Info, root: UserGroup) -> List[OrganizationTypeStats]:
+    async def user_group_organization_stats(self, info: Info, root: UserGroup) -> Optional[List[OrganizationTypeStats]]:
         return await info.context["dl"].existing_database.load_user_group_organization_stats.load(
             root.user_group_id
         )
 
     @strawberry.field
-    async def user_group_latest(self, info: Info, root: UserGroup) -> UserGroupLatestType:
+    async def user_group_latest(self, info: Info, root: UserGroup) -> Optional[UserGroupLatestType]:
         return await info.context["dl"].existing_database.user_group_latest_stats.load(root.user_group_id)
 
     @strawberry.field

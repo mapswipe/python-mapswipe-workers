@@ -29,6 +29,7 @@ DEFAULT_STAT = SwipeStatType(
     total_swipe_time=0,
     total_mapping_projects=0,
     total_task=0,
+    total_area=0
 )
 
 DEFAULT_CONTRIBUTION_STAT = ContributorType(
@@ -85,11 +86,9 @@ USER_SWIPE_STAT_QUERY = f"""
         ) as total_time,
         COUNT(*) swipe_count,
         COUNT(DISTINCT R.project_id) as mapped_project_count,
-        COUNT(DISTINCT R.task_id) as task_count,
-        COUNT(DISTINCT UGR.user_group_id) as total_user_group
+        COUNT(DISTINCT R.task_id) as task_count
         From {Result._meta.db_table} R
             LEFT JOIN {User._meta.db_table} U USING (user_id)
-            LEFT JOIN {UserGroupResult._meta.db_table} as UGR USING (user_id)
     WHERE U.user_id = ANY(%s)
     GROUP BY user_id
 """
@@ -122,11 +121,11 @@ USER_GROUP_ORGANIZATION_TYPE_STATS = f"""
                 P.organization_id as organization
             From {Result._meta.db_table} R
                 LEFT JOIN {Project._meta.db_table} as P USING (project_id)
-                LEFT JOIN {UserGroupResult._meta.db_table} as UGR USING (user_id)
+                LEFT JOIN {UserGroupResult._meta.db_table} as UGR USING (project_id)
             GROUP BY organization, UGR.user_group_id
         )
     SELECT
-        UGR.user_group_id,
+        user_group_id,
         SUM(swipe_count) as swipe_count,
         organization
     From user_data
@@ -168,15 +167,15 @@ USER_CONTRIBUTORS_STAT_QUERY = f"""
             SELECT
                 U.user_id as user_id,
                 R.timestamp as timestamp,
-                R.task_id as task_id
+                COUNT(*) swipe_count
             From {Result._meta.db_table} R
                 LEFT JOIN {User._meta.db_table} U USING (user_id)
             WHERE U.user_id = ANY(%s)
-            GROUP BY project_id, group_id, U.user_id, task_id, timestamp
+            GROUP BY project_id, U.user_id, timestamp
         )
     SELECT
         user_id,
-        COUNT(DISTINCT task_id) as task_count,
+        SUM(swipe_count) as swipe_count,
         timestamp::date as task_date
     From user_data
     WHERE timestamp::date >= (CURRENT_DATE - INTERVAL '30 days')
@@ -231,7 +230,7 @@ USER_PROJECT_TYPE_STATS_QUERY = f"""
 
 USER_GROUP_PROJECT_TYPE_STATS_QUERY = f"""
     WITH
-        project_data_type1 AS (
+        project_data AS (
             SELECT
                 UGR.user_group_id as user_group_id,
                 P.project_type as project_type,
@@ -246,7 +245,7 @@ USER_GROUP_PROJECT_TYPE_STATS_QUERY = f"""
         user_group_id,
         SUM(area_sum) as area_sum,
         project_type
-    From project_data_type1
+    From project_data
     GROUP BY user_group_id, project_type
 """
 
@@ -254,14 +253,13 @@ USER_PROJECT_SWIPE_TYPE_STATS_QUERY = f"""
     WITH
         project_data_type1 AS (
             SELECT
-                UGR.user_id as user_id,
+                R.user_id as user_id,
                 P.project_type as project_type,
                 COUNT(*) as swipes
                 FROM {Result._meta.db_table} R
                     LEFT JOIN {Project._meta.db_table } P  USING (project_id)
-                    LEFT JOIN {UserGroupResult._meta.db_table} UGR USING (project_id)
             WHERE UGR.user_id = ANY(%s)
-            GROUP BY project_type, UGR.user_id
+            GROUP BY project_type, R.user_id
         )
     SELECT
         user_id,
@@ -290,46 +288,6 @@ USER_GROUP_PROJECT_SWIPE_TYPE_STATS_QUERY = f"""
         project_type
     From project_data_type1
     GROUP BY user_group_id, project_type
-"""
-
-USER_GROUP_PROJECT_TYPE_STATS_QUERY = f"""
-    WITH
-        project_data_type1 AS (
-            SELECT
-                UGR.user_group_id as user_group_id,
-                ST_Area(geom::geography) as area_sum_1,
-                FROM {Project._meta.db_table} P
-                    LEFT JOIN {Result._meta.db_table} R USING (project_id)
-                    LEFT JOIN {UserGroupResult._meta.db_table} UGR USING (project_id)
-            WHERE UGR.user_group_id = ANY(%s)
-            AND P.project_type=1
-            GROUP BY project_id, UGR.user_group_id
-        ),
-        project_data_type2 AS (
-            SELECT
-                ST_Area(geom::geography) as area_sum_2
-                FROM {Project._meta.db_table} P
-                    LEFT JOIN {Result._meta.db_table} R USING (project_id)
-                    LEFT JOIN {UserGroupResult._meta.db_table} UGR USING (project_id)
-            WHERE P.project_type=2 AND geom IS NOT NULL
-            GROUP BY project_id, UGR.user_group_id
-        ),
-        project_data_type3 AS (
-            SELECT
-                ST_Area(geom::geography) as area_sum_3
-                FROM {Project._meta.db_table} P
-                    LEFT JOIN {Result._meta.db_table} R USING (project_id)
-                    LEFT JOIN {UserGroupResult._meta.db_table} UGR USING (project_id)
-            WHERE P.project_type=3 AND geom IS NOT NULL
-            GROUP BY project_id, UGR.user_group_id
-        )
-    SELECT
-        user_group_id,
-        SUM(area_sum_1) as area_sum_1,
-        SUM(area_sum_2) as area_sum_2,
-        SUM(area_sum_3) as area_sum_3
-    From project_data_type1, project_data_type2, project_data_type3
-    GROUP BY user_group_id
 """
 
 USER_GROUP_USER_SWIPE_STAT_QUERY = f"""
@@ -448,7 +406,7 @@ USER_GROUP_GEO_CONTRIBUTION_STATS_QUERY = f"""
         project_data AS (
             SELECT
                 UGR.user_group_id as user_group_id,
-                ST_AsText(ST_Centroid(P.geom)),
+                ST_AsText(ST_Centroid(P.geom)) geom,
                 COUNT(*) swipe_count
                 FROM {Result._meta.db_table} R
                     LEFT JOIN {UserGroupResult._meta.db_table} UGR USING (project_id)
@@ -485,7 +443,7 @@ USER_DASHBOARD_STATS_QUERY = f"""
                 COUNT(*) swipe_count,
                 R.timestamp as timestamp
             From {Result._meta.db_table} R
-            WHERE timestamp::date >= (CURRENT_DATE- INTERVAL '1 days')
+            WHERE timestamp::date >= (CURRENT_DATE - INTERVAL '1 days')
             GROUP BY timestamp
 
         )
@@ -506,16 +464,16 @@ USER_GROUP_DASHBOARD_STATS_QUERY = f"""
         dashboard_data AS (
             SELECT
                 UGR.user_group_id as user_group_id,
-                R.user_id as user_id,
+                UGR.user_id as user_id,
                 MAX(R.start_time) as start_time,
                 MAX(R.end_time) as end_time,
                 COUNT(*) swipe_count,
                 R.timestamp as timestamp
             From {Result._meta.db_table} R
-                LEFT JOIN {UserGroupResult._meta.db_table} UGR USING (user_id)
-            WHERE timestamp::date >= (CURRENT_DATE- INTERVAL '30 days')
+                LEFT JOIN {UserGroupResult._meta.db_table} UGR USING (user_id, project_id)
+            WHERE timestamp::date >= (CURRENT_DATE - INTERVAL '30 days')
             AND UGR.user_group_id = ANY(%s)
-            GROUP timestamp, UGR.user_group_id
+            GROUP BY timestamp, UGR.user_group_id, UGR.user_id
         )
     SELECT
         user_group_id,
@@ -527,7 +485,7 @@ USER_GROUP_DASHBOARD_STATS_QUERY = f"""
         COUNT( DISTINCT user_id) as total_contributors,
         SUM(swipe_count) as total_swipe
     From dashboard_data
-    GROUP BY user_id
+    GROUP BY user_group_id
 """
 
 
@@ -562,7 +520,7 @@ def user_group_latest_stats(keys: List[str]):
         )
         for user_group_id, total_time, total_contributors, total_swipe in aggregate_results
     }
-    return [_map.get(key, DEFAULT_STAT) for key in keys]
+    return [_map.get(key) for key in keys]
 
 
 def load_user_group_contributors_stats(keys: List[str]):
@@ -667,9 +625,8 @@ def load_user_stats(keys: List[str]):
             total_swipe_time=round(total_time / 60) or 0,  # swipe time in minutes
             total_mapping_projects=mapped_project_count or 0,
             total_task=task_count or 0,
-            total_user_group=total_user_group or 0
         )
-        for user_id, total_time, swipe_count, mapped_project_count, task_count, total_user_group in aggregate_results
+        for user_id, total_time, swipe_count, mapped_project_count, task_count in aggregate_results
     }
     return [_map.get(key) for key in keys]
 
@@ -686,7 +643,7 @@ def load_user_contribution_stats(keys: List[str]):
                 task_date=task_date
             )
         )
-    return [_map.get(key, DEFAULT_CONTRIBUTION_STAT) for key in keys]
+    return [_map.get(key) for key in keys]
 
 
 def load_user_time_spending(keys: List[str]):
@@ -694,11 +651,11 @@ def load_user_time_spending(keys: List[str]):
         cursor.execute(USER_TIME_SPENT_CONTRIBUTION_QUERY, [keys])
         aggregate_results = cursor.fetchall()
     _map = defaultdict(list)
-    for user_id, task_date, total_time  in aggregate_results:
+    for user_id, task_date, total_time in aggregate_results:
         _map[user_id].append(
             ContributorTimeType(
-                total_time=total_time or 0,
-                date=task_date
+                total_time=round(total_time / 60) or 0,
+                task_date=task_date
             )
         )
     return [_map.get(key, DEFAULT_CONTRIBUTION_STAT) for key in keys]
@@ -769,18 +726,18 @@ def load_user_geo_contribution(keys: List[str]):
         cursor.execute(USER_GEO_CONTRIBUTION_STATS_QUERY, [keys])
         aggregate_results = cursor.fetchall()
     _map = defaultdict(list)
-    for user_id, geom, total_swipes in aggregate_results:
+    for user_id, total_swipes, geom in aggregate_results:
         geom_centroid = {
             "type": "Point",
             "coordinates": geom
         }
         _map[user_id].append(
             MapContributionTypeStats(
-                geojson=geom_centroid or None,
-                total_swipes=total_swipes or 0
+                geojson=geom_centroid,
+                total_contribution=total_swipes
             )
         )
-    return [_map.get(key, None) for key in keys]
+    return [_map.get(key) for key in keys]
 
 
 def load_user_group_geo_contributions(keys: List[str]):
@@ -881,3 +838,7 @@ class ExistingDatabaseDataLoader:
     @cached_property
     def load_user_group_stats_project_swipe_type(self):
         return DataLoader(load_fn=sync_to_async(load_user_group_stats_project_swipe_type))
+
+    @cached_property
+    def load_user_group_organization_stats(self):
+        return DataLoader(load_fn=sync_to_async(load_user_group_organization_stats))
