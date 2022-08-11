@@ -37,6 +37,7 @@
         "@babel/runtime": "^7.11.2",
         "@sentry/react": "^6.9.0",
         "@sentry/tracing": "^6.9.0",
+        "@the-deep/deep-ui": "^1.6.10",
         "@togglecorp/fujs": "^1.9.2",
         "@togglecorp/toggle-form": "^1.2.1",
         "apollo-link": "^1.2.14",
@@ -50,7 +51,8 @@
         "react": "^17.0.2",
         "react-dom": "^17.0.2",
         "react-ga": "^3.3.0",
-        "react-icons": "^4.3.1"
+        "react-icons": "^4.3.1",
+        "recharts": "^2.1.13"
     },
     "devDependencies": {
         "@babel/core": "^7.13.10",

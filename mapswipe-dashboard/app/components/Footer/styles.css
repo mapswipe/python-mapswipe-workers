@@ -1,0 +1,30 @@
+.footer {
+    display: flex;
+    gap: var(--spacing-extra-large);
+    justify-content: center;
+    background-color: var(--color-primary);
+    padding: var(--spacing-medium);
+
+    .links {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+
+        .image {
+            display: flex;
+        }
+
+        .icon-link {
+            display: flex;
+            align-items: center;
+            color: var(--color-text-light);
+            font-size: var(--spacing-extra-large);
+        }
+
+        .link {
+            display: flex;
+            align-items: center;
+            color: var(--color-text-light);
+        }
+    }
+}

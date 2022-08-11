@@ -25,27 +25,9 @@ const login = wrap({
 
 const home = wrap({
     path: '/',
-    title: 'Home',
+    title: 'Community',
     navbarVisibility: true,
-    component: lazy(() => import('#views/Home')),
-    componentProps: {},
-    visibility: 'is-authenticated',
-});
-
-const projects = wrap({
-    path: '/projects/',
-    title: 'Projects',
-    navbarVisibility: true,
-    component: lazy(() => import('#views/Projects')),
-    componentProps: {},
-    visibility: 'is-authenticated',
-});
-
-const teams = wrap({
-    path: '/teams/',
-    title: 'Teams',
-    navbarVisibility: true,
-    component: lazy(() => import('#views/Teams')),
+    component: lazy(() => import('#views/Dashboard')),
     componentProps: {},
     visibility: 'is-authenticated',
 });
@@ -53,8 +35,6 @@ const teams = wrap({
 const routes = {
     login,
     home,
-    projects,
-    teams,
     fourHundredFour,
 };
 export default routes;

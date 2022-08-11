@@ -1,8 +1,17 @@
+body {
+    font-size: var(--font-size-medium);
+}
+
+a {
+    text-decoration: none;
+}
+
 .base {
     display: flex;
     flex-direction: column;
-    width: 100vw;
-    height: 100vh;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
 
     .navbar {
         flex-shrink: 0;
@@ -19,14 +28,74 @@
     }
 }
 
+h1, h2, h3, h4, h5, h6 {
+    margin: 0;
+}
+
+p {
+    margin: 0;
+}
+
 :root {
-    --spacing-small: 0.3rem;
-    --spacing-medium: 0.6rem;
-    --spacing-large: 1rem;
+    --spacing-extra-small: 0.2rem;
+    --spacing-small: 0.4rem;
+    --spacing-medium: 0.8rem;
+    --spacing-large: 1.6rem;
+    --spacing-extra-large: 2.8rem;
+    --spacing-super-large: 4.4rem;
+    --spacing-mega-large: 6rem;
+    --spacing-ultra-large: 12rem;
 
-    --color-primary: #0d1949;
-    --color-text-on-light: #ffffff;
+    --color-background: #f3f3f3;
+    --color-foreground: #ffffff;
+    --color-backdrop: #EDF2FB;
 
-    --font-size-medium: 1rem;
-    --font-size-large: 1.2rem;
+    --color-background-primary-hint: #0F193F20;
+    --color-background-accent-hint: #239A3B10;
+    --color-background-hover: #239A3B10;
+
+    --color-primary: #0F193F;
+    --color-primary-light: #2d5989;
+    --color-text: #262626;
+    --color-text-dark: #58595B;
+    --color-text-light: #DEE0E3;
+    --color-text-on-dark: #ffffff;
+    --color-accent: #239A3B;
+    --color-danger: #e04656;
+    --color-success: #53b391;
+    --color-separator: #DEE0E3;
+    --color-shadow: #DEE0E3;
+    --color-scrollbar-foreground: rgba(0, 0, 0, .2);
+    --color-scrollbar-background: rgba(0, 0, 0, .01);
+
+    --font-size-small: 0.78rem;
+    --font-size-medium: 0.85rem;
+    --font-size-large: 1.125rem;
+    --font-size-extra-large: 1.5rem;
+    --font-size-super-large: 2rem;
+    --font-size-mega-large: 2.75rem;
+    --font-size-ultra-large: 4rem;
+
+    --font-weight-medium: 400;
+    --font-weight-bold: 600;
+
+    --opacity-disabled-element: 0.5;
+
+    --width-separator-thin: 1px;
+    --width-scrollbar: 0.75rem;
+    --width-page-content-max: 70rem;
+    --width-navbar-content-max: 76rem;
+
+    --radius-popup-border: 0.25rem;
+    --radius-scrollbar-border: 0.25rem;
+    --radius-blur-shadow: 5px;
+    --radius-modal: 0.25rem;
+    --radius-button-border: 0.25rem;
+    --radius-input-border: 0.25rem;
+    --radius-card-border: 0.25rem;
+
+    --icon-height: 3rem;
+
+    --shadow-card: 0 2px 4px -2px var(--color-shadow);
+
 }

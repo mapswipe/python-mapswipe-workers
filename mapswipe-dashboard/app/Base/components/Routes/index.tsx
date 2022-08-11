@@ -35,19 +35,7 @@ function Routes(props: Props) {
                 </Route>
                 <Route
                     exact
-                    path={routes.projects.path}
-                >
-                    {routes.projects.load({ className })}
-                </Route>
-                <Route
-                    exact
-                    path={routes.teams.path}
-                >
-                    {routes.teams.load({ className })}
-                </Route>
-                <Route
-                    exact
-                    path={routes.fourHundredFour.path}
+                    pajth={routes.fourHundredFour.path}
                 >
                     {routes.fourHundredFour.load({ className })}
                 </Route>

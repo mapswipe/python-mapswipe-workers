@@ -4,7 +4,7 @@ import { _cs } from '@togglecorp/fujs';
 import SmartNavLink from '#base/components/SmartNavLink';
 import route from '#base/configs/routes';
 
-import mapSwipeLogo from '#resources/images/mapswipe-logo.svg';
+import mapSwipeLogo from '#resources/img/logo.svg';
 
 import styles from './styles.css';
 
@@ -23,22 +23,18 @@ function Navbar(props: Props) {
                     src={mapSwipeLogo}
                     alt="MapSwipe"
                 />
+                <div className={styles.title}>
+                    Map
+                    <span className={styles.italic}>
+                        Swipe
+                    </span>
+                </div>
             </div>
             <div className={styles.main}>
                 <div className={styles.navLinks}>
                     <SmartNavLink
                         exact
                         route={route.home}
-                        className={styles.link}
-                    />
-                    <SmartNavLink
-                        exact
-                        route={route.projects}
-                        className={styles.link}
-                    />
-                    <SmartNavLink
-                        exact
-                        route={route.teams}
                         className={styles.link}
                     />
                 </div>
