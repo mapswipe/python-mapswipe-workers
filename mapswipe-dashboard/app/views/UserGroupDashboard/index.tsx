@@ -8,8 +8,10 @@ import userSvg from '#resources/icons/user.svg';
 import swipeSvg from '#resources/icons/swipe.svg';
 
 import MemberItem from '#components/MemberItem';
+import CalendarHeatMapContainer from '#components/CalendarHeatMapContainer';
 import Footer from '#components/Footer';
 import StatsBoard from '#views/StatsBoard';
+
 import styles from './styles.css';
 
 interface UserGroup {
@@ -203,6 +205,7 @@ function UserGroupDashboard(props: Props) {
                 </div>
             </div>
             <div className={styles.content}>
+                <CalendarHeatMapContainer />
                 <StatsBoard heading="Group Statsboard" />
                 <div className={styles.members}>
                     <div className={styles.membersHeading}>

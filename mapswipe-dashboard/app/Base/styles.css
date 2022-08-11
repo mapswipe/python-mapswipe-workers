@@ -68,6 +68,7 @@ p {
     --color-scrollbar-foreground: rgba(0, 0, 0, .2);
     --color-scrollbar-background: rgba(0, 0, 0, .01);
 
+    --font-size-extra-small: 0.5rem;
     --font-size-small: 0.78rem;
     --font-size-medium: 0.85rem;
     --font-size-large: 1.125rem;
