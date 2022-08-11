@@ -32,7 +32,7 @@ const home = wrap({
     visibility: 'is-authenticated',
 });
 
-const userGroup = wrap({
+const userGroupDashboard = wrap({
     path: '/usergroup',
     title: 'UserGroup',
     navbarVisibility: true,
@@ -41,10 +41,20 @@ const userGroup = wrap({
     visibility: 'is-authenticated',
 });
 
+const userDashboard = wrap({
+    path: '/user',
+    title: 'User',
+    navbarVisibility: true,
+    component: lazy(() => import('#views/UserDashboard')),
+    componentProps: {},
+    visibility: 'is-authenticated',
+});
+
 const routes = {
     login,
     home,
-    userGroup,
+    userGroupDashboard,
+    userDashboard,
     fourHundredFour,
 };
 export default routes;

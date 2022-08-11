@@ -146,7 +146,7 @@ module.exports = () => {
                     : 'css/[id].css',
             }),
             new HtmlWebpackPlugin({
-                favicon: getPath('app/favicon.ico'),
+                favicon: getPath('app/favicon.png'),
                 template: getPath('app/index.html'),
                 filename: 'index.html',
                 title: pkg.name,

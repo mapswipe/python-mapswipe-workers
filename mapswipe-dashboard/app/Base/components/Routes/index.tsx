@@ -29,9 +29,15 @@ function Routes(props: Props) {
                 </Route>
                 <Route
                     exact
-                    path={routes.userGroup.path}
+                    path={routes.userGroupDashboard.path}
                 >
-                    {routes.userGroup.load({ className })}
+                    {routes.userGroupDashboard.load({ className })}
+                </Route>
+                <Route
+                    exact
+                    path={routes.userDashboard.path}
+                >
+                    {routes.userDashboard.load({ className })}
                 </Route>
                 <Route
                     exact
