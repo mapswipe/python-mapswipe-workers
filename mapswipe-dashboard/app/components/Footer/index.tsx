@@ -10,6 +10,7 @@ function Footer() {
         <div className={styles.footer}>
             <div className={styles.links}>
                 <a
+                    aria-label="Ios"
                     href="https://itunes.apple.com/us/app/mapswipe/id1133855392?ls=1&mt=8"
                     rel="noreferrer"
                     target="_blank"
@@ -17,6 +18,7 @@ function Footer() {
                     <img src={iosSvg} alt="ios download icon" className={styles.image} />
                 </a>
                 <a
+                    aria-label="Android"
                     target="_blank"
                     rel="noreferrer"
                     href="https://play.google.com/store/apps/details?id=org.missingmaps.mapswipe"
@@ -26,6 +28,7 @@ function Footer() {
             </div>
             <div className={styles.links}>
                 <a
+                    aria-label="Facebook"
                     href="www.facebook.com"
                     target="_blank"
                     rel="noreferrer"
@@ -34,6 +37,7 @@ function Footer() {
                     <IoLogoFacebook />
                 </a>
                 <a
+                    aria-label="Twitter"
                     href="www.twitter.com"
                     target="_blank"
                     className={styles.iconLink}
@@ -41,7 +45,8 @@ function Footer() {
                     <IoLogoTwitter />
                 </a>
                 <a
-                    href="www.twitter.com"
+                    aria-label="Github"
+                    href="www.github.com"
                     target="_blank"
                     rel="noreferrer"
                     className={styles.iconLink}
@@ -49,7 +54,8 @@ function Footer() {
                     <IoLogoGithub />
                 </a>
                 <a
-                    href="www.twitter.com"
+                    aria-label="Instagram"
+                    href="www.instagram.com"
                     target="_blank"
                     rel="noreferrer"
                     className={styles.iconLink}
@@ -57,6 +63,7 @@ function Footer() {
                     <IoLogoInstagram />
                 </a>
                 <a
+                    aria-label="Email"
                     href="mailto:mapswipe.org"
                     target="_blank"
                     rel="noreferrer"
@@ -67,6 +74,7 @@ function Footer() {
             </div>
             <div className={styles.links}>
                 <a
+                    aria-label="Privacy"
                     href="https://mapswipe.org/en/privacy.html"
                     target="_blank"
                     rel="noreferrer"
@@ -75,6 +83,7 @@ function Footer() {
                     Privacy
                 </a>
                 <a
+                    aria-label="Cookies"
                     href="https://mapswipe.org/en/cookies.html"
                     target="_blank"
                     rel="noreferrer"

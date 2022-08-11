@@ -162,14 +162,25 @@ module.exports = () => {
                 short_name: pkg.name,
                 description: pkg.description,
                 orientation: 'landscape',
-                // background_color: '#f0f0f0',
-                // theme_color: '#303f9f',
+                background_color: '#f0f0f0',
+                theme_color: '#0F193F',
                 display: 'standalone',
                 start_url: '/',
                 scope: '/',
                 icons: [
                     {
                         src: getPath('app/favicon.png'),
+                        sizes: [96, 128, 192, 256, 384, 512],
+                        destination: 'icons',
+                    },
+                    {
+                        src: getPath('app/apple-touch-icon.png'),
+                        sizes: [96, 128, 192, 256, 384, 512],
+                        destination: 'icons',
+                        ios: true,
+                    },
+                    {
+                        src: getPath('app/android.png'),
                         sizes: [96, 128, 192, 256, 384, 512],
                         destination: 'icons',
                     },
