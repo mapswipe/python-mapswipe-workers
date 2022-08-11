@@ -6,14 +6,14 @@
     justify-content: center;
 
     .heading {
-        color: var(--dui-color-danger);
-        font-size: var(--dui-font-size-super-large);
-        font-weight: var(--dui-font-weight-bold);
+        color: var(--color-danger);
+        font-size: var(--font-size-super-large);
+        font-weight: var(--font-weight-bold);
     }
 
     .message {
-        margin: var(--dui-spacing-large) 0;
+        margin: var(--spacing-large) 0;
         text-align: center;
-        font-size: var(--dui-font-size-large);
+        font-size: var(--font-size-large);
     }
 }

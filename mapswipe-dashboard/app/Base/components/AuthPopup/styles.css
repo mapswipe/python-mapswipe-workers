@@ -6,7 +6,7 @@
         flex-shrink: 0;
 
         &:not(:first-child) {
-            margin-left: var(--dui-spacing-medium);
+            margin-left: var(--spacing-medium);
         }
     }
 }

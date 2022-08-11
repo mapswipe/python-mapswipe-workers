@@ -6,7 +6,7 @@
 
     .header {
         border-bottom: var(--width-separator-thin) solid var(--color-separator);
-        padding-bottom : var(--spacing-medium);
+        padding-bottom : var(--spacing-large);
 
         .heading {
             display: flex;

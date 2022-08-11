@@ -1,0 +1,12 @@
+.member {
+    display: flex;
+    flex-grow: 1;
+    gap: var(--spacing-medium);
+    border-bottom: var(--width-separator-thin) solid var(--color-separator);
+    padding: var(--spacing-medium);
+
+    .item {
+        flex-basis: 20%;
+        flex-grow: 1;
+    }
+}
