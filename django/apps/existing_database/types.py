@@ -41,7 +41,7 @@ class ProjectSwipeTypeStats:
 class CommunityStatsLatestType:
     total_contributors_last_month: int
     total_groups_last_month: int
-    total_swipes_last_twenty_four_hour: int
+    total_swipes_last_month: int
 
 
 @strawberry.type
@@ -49,8 +49,6 @@ class SwipeStatType:
     total_swipe: int
     total_swipe_time: int
     total_mapping_projects: int
-    total_task: int
-    total_area: int
 
 
 @strawberry.type
@@ -117,7 +115,7 @@ class UserType:
     username: strawberry.auto
 
     @strawberry.field
-    async def stats(self, info: Info, root: User) -> Optional[List[UserSwipeStatType]]:
+    async def stats(self, info: Info, root: User) -> Optional[UserSwipeStatType]:
         return await info.context[
             "dl"
         ].existing_database.load_user_stats.load(root.user_id)
@@ -153,7 +151,7 @@ class UserType:
         ].existing_database.load_user_organization_swipe_type.load(root.user_id)
 
     @strawberry.field
-    async def stats_latest(self, info: Info, root: User) -> Optional[CommunityStatsLatestType]:
+    async def stats_latest(self, info: Info, root: User) -> Optional[UserLatestStatusTypeStats]:
         return await info.context[
             "dl"
         ].existing_database.load_user_latest_stats_query.load(root.user_id)
@@ -259,7 +257,7 @@ class UserGroupType:
         return await info.context["dl"].existing_database.user_group_latest_stats.load(root.user_group_id)
 
     @strawberry.field
-    async def project_swipe_type(self, info: Info, root: UserGroup) -> ProjectSwipeTypeStats:
+    async def project_swipe_type(self, info: Info, root: UserGroup) -> Optional[List[ProjectSwipeTypeStats]]:
         return await info.context["dl"].existing_database.load_user_group_stats_project_swipe_type.load(root.user_group_id)
 
     def get_queryset(self, queryset, info, **kwargs):
