@@ -204,30 +204,24 @@ def update_user_group_full_data(user_group_ids: List[str]):
         if ug is None:  # userGroup doesn't exists in FB
             continue
         # New/Updated user group
-        created_at_timestamp = ug.get('created_at', None)
-        archived_at_timestamp = ug.get('archived_at', None)
+        created_at = convert_datetimeformat(ug.get('created_at'))
+        archived_at = convert_datetimeformat(ug.get('archived_at'))
         archived_by_id = ug.get('archived_by', None)
         created_by_id = ug.get('created_by', None)
-        if created_at_timestamp:
-            created_at = convert_datetimeformat(created_at_timestamp)
 
-        if archived_at_timestamp:
-            archived_at = convert_datetimeformat(archived_at_timestamp)
+        is_archived = archived_by_id is not None
 
-        if archived_by_id:
-            is_archived = True
-        else:
-            is_archived = False
-
+        # NOTE: '\\N' is for null values
+        # https://pygresql.readthedocs.io/en/latest/contents/pgdb/cursor.html#pgdb.Cursor.copy_from
         ug_w.writerow(
             [
                 _id,
                 ug["name"],
-                ug["description"],
+                ug.get("description"),
                 created_by_id,
-                created_at,
+                created_at or '\\N',
                 archived_by_id,
-                archived_at,
+                archived_at or '\\N',
                 is_archived,
             ]
         )

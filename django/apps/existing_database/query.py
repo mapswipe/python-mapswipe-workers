@@ -72,27 +72,18 @@ def get_community_stats_latest() -> CommunityStatsLatestType:
                 SELECT
                     UGR.user_group_id as user_group_id,
                     R.user_id as user_id,
-                    R.timestamp as timestamp
+                    R.timestamp as timestamp,
+                    COUNT(*) swipe_count
                 From {Result._meta.db_table} R
                     LEFT JOIN {UserGroupResult._meta.db_table} UGR USING (user_id)
                 WHERE timestamp::date >= (CURRENT_DATE- INTERVAL '30 days')
                 GROUP BY user_group_id, user_id, timestamp
-            ),
-            dashboard_twenty_four AS(
-                SELECT
-                    COUNT(*) swipe_count,
-                    R.timestamp as timestamp
-                From {Result._meta.db_table} R
-                WHERE timestamp::date >= (CURRENT_DATE- INTERVAL '30 days')
-                GROUP BY timestamp
-
             )
         SELECT
             COUNT( DISTINCT user_group_id) as total_groups,
             COUNT(DISTINCT user_id) as total_users,
             SUM(swipe_count) as total_swipes
-        From dashboard_data, dashboard_twenty_four
-
+        From dashboard_data
     """
     with connections[settings.MAPSWIPE_EXISTING_DB].cursor() as cursor:
         cursor.execute(COMMUNITY_DAHBOARD_STATS_QUERY)
@@ -101,7 +92,7 @@ def get_community_stats_latest() -> CommunityStatsLatestType:
         return CommunityStatsLatestType(
             total_contributors_last_month=data[0] or 0,
             total_groups_last_month=data[1] or 0,
-            total_swipes_last_twenty_four_hour=data[2] or 0,
+            total_swipes_last_month=data[2] or 0,
         )
 
 
