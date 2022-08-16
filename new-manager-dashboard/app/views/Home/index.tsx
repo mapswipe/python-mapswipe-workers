@@ -12,6 +12,7 @@ import useBooleanState from '#hooks/useBooleanState';
 
 import Button from '#components/Button';
 import OrganisationFormModal from '#components/OrganisationFormModal';
+import TutorialList from '#components/TutorialList';
 import OrganisationList from '#components/OrganisationList';
 
 import styles from './styles.css';
@@ -95,21 +96,18 @@ function Home(props: Props) {
                             Add New Tutorial
                         </SmartLink>
                     </div>
+                    {showTutorialList && (
+                        <TutorialList className={styles.tutorialList} />
+                    )}
                     <Button
                         name={!showTutorialList}
-                        actions={<IoChevronDown />}
+                        actions={showTutorialList ? <IoChevronUp /> : <IoChevronDown />}
                         variant="action"
                         onClick={setShowTutorialList}
-                        disabled
                     >
-                        View Tutorials
+                        {showTutorialList ? 'Hide Tutorials' : 'View Tutorials'}
                     </Button>
                 </div>
-                {showTutorialList && (
-                    <div>
-                        Still in Progress
-                    </div>
-                )}
             </div>
             {showOrganisationFormModal && (
                 <OrganisationFormModal

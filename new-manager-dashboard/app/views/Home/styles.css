@@ -87,6 +87,12 @@
                     flex-shrink: 0;
                 }
             }
+
+            .tutorial-list {
+                border-top: var(--width-separator-thin) solid var(--color-separator);
+                border-bottom: var(--width-separator-thin) solid var(--color-separator);
+                padding: var(--spacing-medium) 0;
+            }
         }
     }
 }

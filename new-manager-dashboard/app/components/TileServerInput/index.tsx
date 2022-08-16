@@ -8,7 +8,6 @@ import {
     ObjectSchema,
     requiredStringCondition,
     requiredCondition,
-    getNoMoreThanNCharacterCondition,
 } from '@togglecorp/toggle-form';
 
 import TextInput from '#components/TextInput';
@@ -16,6 +15,7 @@ import RadioInput from '#components/RadioInput';
 import {
     valueSelector,
     labelSelector,
+    getNoMoreThanNCharacterCondition,
 } from '#utils/common';
 
 export type TileServerType = 'bing' | 'mapbox' | 'maxar_standard' | 'maxar_premium' | 'esri' | 'esri_beta' | 'sinergise' | 'custom';

@@ -1,0 +1,15 @@
+.tutorial-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-medium);
+
+    .tutorial {
+        .name {
+            font-weight: var(--font-weight-bold);
+        }
+
+        .look-for {
+            color: var(--color-text-light);
+        }
+    }
+}
