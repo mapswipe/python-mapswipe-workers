@@ -15,6 +15,7 @@ import useInputState from '#hooks/useInputState';
 import TextInput from '#components/TextInput';
 import Button from '#components/Button';
 import PendingMessage from '#components/PendingMessage';
+import { rankedSearchOnList } from '#components/SelectInput/utils';
 
 import UserGroupItem, { UserGroup } from './UserGroupItem';
 import UserGroupFormModal from './UserGroupFormModal';
@@ -62,6 +63,14 @@ function UserGroups(props: Props) {
         },
         [userGroups],
     );
+    const filteredUserGroupList = React.useMemo(
+        () => rankedSearchOnList(
+            userGroupList,
+            searchText,
+            ([, userGroup]) => userGroup.name,
+        ),
+        [userGroupList, searchText],
+    );
 
     return (
         <div className={_cs(styles.userGroups, className)}>
@@ -76,7 +85,6 @@ function UserGroups(props: Props) {
                         value={searchText}
                         onChange={setSearchText}
                         placeholder="Search by title"
-                        disabled
                     />
                     <Button
                         name={undefined}
@@ -93,12 +101,12 @@ function UserGroups(props: Props) {
                             className={styles.loading}
                         />
                     )}
-                    {!pending && userGroupList.length === 0 && (
+                    {!pending && filteredUserGroupList.length === 0 && (
                         <div className={styles.emptyMessage}>
-                            No userGroups found
+                            No User Groups found
                         </div>
                     )}
-                    {!pending && userGroupList.map((userGroupKeyAndItem) => {
+                    {!pending && filteredUserGroupList.map((userGroupKeyAndItem) => {
                         const [userGroupKey, userGroup] = userGroupKeyAndItem;
 
                         return (

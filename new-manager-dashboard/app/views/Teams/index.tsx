@@ -12,6 +12,7 @@ import useFirebaseDatabase from '#hooks/useFirebaseDatabase';
 import useInputState from '#hooks/useInputState';
 import TextInput from '#components/TextInput';
 import PendingMessage from '#components/PendingMessage';
+import { rankedSearchOnList } from '#components/SelectInput/utils';
 
 import TeamItem, { Team } from './TeamItem';
 
@@ -44,6 +45,14 @@ function Teams(props: Props) {
     });
 
     const teamList = React.useMemo(() => (teams ? Object.entries(teams) : []), [teams]);
+    const filteredTeamList = React.useMemo(
+        () => rankedSearchOnList(
+            teamList,
+            searchText,
+            ([, team]) => team.teamName,
+        ),
+        [teamList, searchText],
+    );
 
     return (
         <div className={_cs(styles.teams, className)}>
@@ -58,7 +67,6 @@ function Teams(props: Props) {
                         value={searchText}
                         onChange={setSearchText}
                         placeholder="Search by title"
-                        disabled
                     />
                 </div>
             </div>
@@ -74,7 +82,7 @@ function Teams(props: Props) {
                             No teams found
                         </div>
                     )}
-                    {!pending && teamList.map((teamKeyAndItem) => {
+                    {!pending && filteredTeamList.map((teamKeyAndItem) => {
                         const [teamKey, team] = teamKeyAndItem;
 
                         return (
