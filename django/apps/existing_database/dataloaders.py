@@ -76,11 +76,13 @@ USER_SWIPE_STAT_QUERY = f"""
         ) as total_time,
         COUNT(*) swipe_count,
         COUNT(DISTINCT R.project_id) as mapped_project_count,
-        COUNT(DISTINCT R.task_id) as task_count
+        COUNT(DISTINCT R.task_id) as task_count,
+        COUNT(DISTINCT UGR.user_group_id) as total_user_group
         From {Result._meta.db_table} R
             LEFT JOIN {User._meta.db_table} U USING (user_id)
+            LEFT JOIN {UserGroupResult._meta.db_table} UGR USING (project_id, group_id, user_id)
     WHERE R.user_id = ANY(%s)
-    GROUP BY user_id
+    GROUP BY user_id, R.project_id, group_id
 """
 
 USER_ORGANIZATION_TYPE_STATS = f"""
@@ -134,7 +136,7 @@ USER_GROUP_CONTRIBUTORS_STAT_QUERY = f"""
             From {Result._meta.db_table} R
                 LEFT JOIN {UserGroupResult._meta.db_table} UGR USING (user_id, project_id)
             WHERE UGR.user_group_id = ANY(%s)
-            GROUP BY UGR.user_group_id, task_id
+            GROUP BY UGR.user_group_id, timestamp
         )
     SELECT
         user_group_id,
@@ -360,7 +362,7 @@ USER_LATEST_STATS_QUERY = f"""
             SELECT
                 UGR.user_group_id as user_group_id
             From {UserGroupResult._meta.db_table} UGR
-                LEFT JOIN  {Result._meta.db_table} R  USING (user_id)
+                LEFT JOIN  {Result._meta.db_table} R  USING (user_id, project_id, group_id)
             WHERE timestamp::date >= (CURRENT_DATE- INTERVAL '30 days')
             GROUP BY user_id, timestamp, user_group_id
         )
@@ -619,8 +621,9 @@ def load_user_stats(keys: List[str]):
             total_swipe_time=round(total_time / 60) or 0,  # swipe time in minutes
             total_mapping_projects=mapped_project_count or 0,
             total_task=task_count or 0,
+            total_user_group=total_user_group or 0
         )
-        for user_id, total_time, swipe_count, mapped_project_count, task_count in aggregate_results
+        for user_id, total_time, swipe_count, mapped_project_count, task_count, total_user_group in aggregate_results
     }
     return [_map.get(key) for key in keys]
 
