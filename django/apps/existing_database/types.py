@@ -71,6 +71,7 @@ class UserSwipeStatType:
     total_swipe_time: int
     total_mapping_projects: int
     total_task: int
+    total_user_group: int
 
 
 @ strawberry.type
@@ -229,7 +230,7 @@ class UserGroupType:
         )
 
     @strawberry.field
-    async def contibutors_stats(self, info: Info, root: UserGroup) -> List[ContributorType]:
+    async def contribution_stats(self, info: Info, root: UserGroup) -> List[ContributorType]:
         return await info.context["dl"].existing_database.load_user_group_contributors_stats.load(
             root.user_group_id
         )
