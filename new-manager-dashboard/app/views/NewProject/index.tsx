@@ -494,8 +494,8 @@ function NewProject(props: Props) {
                             value={value?.lookFor}
                             onChange={setFieldValue}
                             error={error?.lookFor}
-                            label="Look for"
-                            hint="What should the users look for (e.g. buildings, cars, trees)? (15 chars max)"
+                            label="Look For"
+                            hint="What should the users look for (e.g. buildings, cars, trees)? (25 chars max)"
                             disabled={submissionPending}
                         />
                     </div>
@@ -505,7 +505,7 @@ function NewProject(props: Props) {
                         onChange={setFieldValue}
                         error={error?.projectDetails}
                         label="Project Details"
-                        hint="Enter the description for your project. (3-5 sentences)."
+                        hint="Enter the description for your project. (markdown syntax is supported)."
                         disabled={submissionPending}
                     />
                     <div className={styles.inputGroup}>

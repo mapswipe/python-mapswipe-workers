@@ -92,12 +92,12 @@ function Projects(props: Props) {
                     <SmartLink
                         route={route.newTutorial}
                     >
-                        Add new Tutorial
+                        Add New Tutorial
                     </SmartLink>
                     <SmartLink
                         route={route.newProject}
                     >
-                        Add new Project
+                        Add New Project
                     </SmartLink>
                 </div>
             </div>
@@ -126,7 +126,7 @@ function Projects(props: Props) {
                     )}
                     {!pending && filteredProjectList.length === 0 && (
                         <div className={styles.emptyMessage}>
-                            No projects found
+                            No projects found!
                         </div>
                     )}
                     {!pending && filteredProjectList.map((project) => (

@@ -10,6 +10,10 @@ import {
     PartialForm,
     requiredCondition,
     requiredStringCondition,
+    integerCondition,
+    greaterThanCondition,
+    greaterThanOrEqualToCondition,
+    lessThanOrEqualToCondition,
     forceNullType,
 } from '@togglecorp/toggle-form';
 import { getType as getFeatureType } from '@turf/invariant';
@@ -103,13 +107,12 @@ function validGeometryCondition(
     featureCollection: GeoJSON.GeoJSON | string | undefined,
     allValue: PartialProjectFormType,
 ) {
-    if (typeof featureCollection === 'string') {
-        return undefined;
-    }
     if (!featureCollection) {
         return undefined;
     }
-
+    if (typeof featureCollection === 'string') {
+        return undefined;
+    }
     if (featureCollection.type !== 'FeatureCollection') {
         return 'Only FeatureCollection is supported';
     }
@@ -167,32 +170,56 @@ export const projectFormSchema: ProjectFormSchema = {
         const baseSchema: ProjectFormSchemaFields = {
             projectTopic: [requiredStringCondition, getNoMoreThanNCharacterCondition(50)],
             projectType: [requiredCondition],
-            projectRegion: [requiredStringCondition],
-            projectNumber: [requiredCondition],
-            requestingOrganisation: [requiredStringCondition],
+            projectRegion: [requiredStringCondition, getNoMoreThanNCharacterCondition(50)],
+            projectNumber: [requiredCondition, integerCondition, greaterThanCondition(0)],
+            requestingOrganisation: [
+                requiredStringCondition,
+                getNoMoreThanNCharacterCondition(100),
+            ],
             name: [requiredStringCondition],
             visibility: [requiredCondition],
-            lookFor: [requiredStringCondition, getNoMoreThanNCharacterCondition(15)],
-            projectDetails: [requiredStringCondition],
+            lookFor: [requiredStringCondition, getNoMoreThanNCharacterCondition(25)],
+            projectDetails: [requiredStringCondition, getNoMoreThanNCharacterCondition(10000)],
             tutorialId: [requiredCondition],
             projectImage: [requiredCondition],
-            verificationNumber: [requiredCondition],
-            groupSize: [requiredCondition],
+            verificationNumber: [
+                requiredCondition,
+                greaterThanOrEqualToCondition(3),
+                lessThanOrEqualToCondition(21),
+                integerCondition,
+            ],
+            groupSize: [
+                requiredCondition,
+                greaterThanOrEqualToCondition(10),
+                lessThanOrEqualToCondition(250),
+                integerCondition,
+            ],
+            tileServer: {
+                fields: tileServerFieldsSchema,
+            },
+            maxTasksPerUser: [
+                requiredCondition,
+                greaterThanCondition(0),
+                integerCondition,
+            ],
+
             zoomLevel: [forceNullType],
             geometry: [forceNullType],
             filter: [forceNullType],
             filterText: [forceNullType],
             TMId: [forceNullType],
-            tileServer: {
-                fields: tileServerFieldsSchema,
-            },
             tileServerB: [forceNullType],
         };
 
         if (value?.projectType === PROJECT_TYPE_BUILD_AREA) {
             return {
                 ...baseSchema,
-                zoomLevel: [requiredCondition],
+                zoomLevel: [
+                    requiredCondition,
+                    greaterThanOrEqualToCondition(14),
+                    lessThanOrEqualToCondition(22),
+                    integerCondition,
+                ],
                 geometry: [
                     requiredCondition,
                     validGeometryCondition,
@@ -212,15 +239,17 @@ export const projectFormSchema: ProjectFormSchema = {
                     value?.inputType === PROJECT_INPUT_TYPE_TASKING_MANAGER_ID
                     || value?.inputType === PROJECT_INPUT_TYPE_UPLOAD
                 ) && value?.filter === FILTER_OTHERS
-                    ? [requiredCondition]
+                    ? [requiredStringCondition, getNoMoreThanNCharacterCondition(1000)]
                     : [forceNullType],
+                // FIXME: geometry type is either string or object
+                // update validation
                 geometry: (value?.inputType === PROJECT_INPUT_TYPE_LINK
                     || value?.inputType === PROJECT_INPUT_TYPE_UPLOAD)
-                    ? [requiredCondition]
+                    ? [requiredCondition, validGeometryCondition]
                     : [forceNullType],
+                // FIXME: number string condition
                 TMId: value?.inputType === PROJECT_INPUT_TYPE_TASKING_MANAGER_ID
-                    // FIXME: number string condition
-                    ? [requiredCondition]
+                    ? [requiredStringCondition, getNoMoreThanNCharacterCondition(1000)]
                     : [forceNullType],
             };
         }
@@ -229,7 +258,12 @@ export const projectFormSchema: ProjectFormSchema = {
             || value?.projectType === PROJECT_TYPE_COMPLETENESS) {
             return {
                 ...baseSchema,
-                zoomLevel: [requiredCondition],
+                zoomLevel: [
+                    requiredCondition,
+                    greaterThanOrEqualToCondition(14),
+                    lessThanOrEqualToCondition(22),
+                    integerCondition,
+                ],
                 geometry: [
                     requiredCondition,
                     validGeometryCondition,

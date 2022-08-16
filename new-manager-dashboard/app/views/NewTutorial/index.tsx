@@ -36,6 +36,7 @@ import NumberInput from '#components/NumberInput';
 import SegmentInput from '#components/SegmentInput';
 import FileInput from '#components/FileInput';
 import GeoJsonFileInput from '#components/GeoJsonFileInput';
+import JsonFileInput from '#components/JsonFileInput';
 import TileServerInput, {
     TILE_SERVER_BING,
     tileServerDefaultCredits,
@@ -74,18 +75,6 @@ const defaultTutorialFormValue: PartialTutorialFormType = {
 interface Props {
     className?: string;
 }
-
-// TODO:
-// file size should be 1 mb for json
-// show no. of screens
-
-// geojson should be 1 mb for geojson
-// show no. of features
-
-// lookFor (max len 25)
-// name (max len 50)
-// images (.gif,.jpg,.jpeg,.png)
-// zoomLevel (14-22)
 
 function NewTutorial(props: Props) {
     const {
@@ -240,7 +229,7 @@ function NewTutorial(props: Props) {
                             value={value?.lookFor}
                             onChange={setFieldValue}
                             label="Look For"
-                            hint="What should the users look for (e.g. buildings, cars, trees)? (15 chars max)."
+                            hint="What should the users look for (e.g. buildings, cars, trees)? (25 chars max)."
                             error={error?.lookFor}
                             disabled={submissionPending}
                             autoFocus
@@ -256,7 +245,7 @@ function NewTutorial(props: Props) {
                         />
                     </div>
                     <div className={styles.inputGroup}>
-                        <GeoJsonFileInput
+                        <JsonFileInput
                             name={'screens' as const}
                             value={value?.screens}
                             onChange={setFieldValue}
@@ -270,7 +259,7 @@ function NewTutorial(props: Props) {
                             value={value?.tutorialTasks}
                             onChange={setFieldValue}
                             label="Upload Tutorial Tasks as GeoJSON"
-                            hint="It should end with .json"
+                            hint="It should end with .geojson or .geo.json"
                             error={error?.tutorialTasks}
                             disabled={submissionPending}
                         />

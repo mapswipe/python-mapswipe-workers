@@ -58,7 +58,7 @@ function Login(props: Props) {
             }
 
             if (!idToken.claims.projectManager) {
-                setErrorMessage('This user do not have enough permission for Manager Dashboard');
+                setErrorMessage('This user does not have enough permissions for Manager Dashboard');
                 await auth.signOut();
                 if (!mountedRef.current) {
                     return;
@@ -90,11 +90,11 @@ function Login(props: Props) {
             let message = 'Failed to authenticate';
 
             if (errorCode === AuthErrorCodes.INVALID_EMAIL) {
-                message = 'Invalid Email or Password';
+                message = 'Invalid email or password';
             }
 
             if (errorCode === AuthErrorCodes.INVALID_PASSWORD) {
-                message = 'Invalid Email or Password';
+                message = 'Invalid email or password';
             }
 
             setErrorMessage(message);

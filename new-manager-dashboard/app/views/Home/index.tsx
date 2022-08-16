@@ -6,6 +6,8 @@ import {
     IoChevronUp,
 } from 'react-icons/io5';
 
+import route from '#base/configs/routes';
+import SmartLink from '#base/components/SmartLink';
 import useBooleanState from '#hooks/useBooleanState';
 
 import Button from '#components/Button';
@@ -87,13 +89,11 @@ function Home(props: Props) {
                         <h2 className={styles.heading}>
                             Tutorials
                         </h2>
-                        <Button
-                            className={styles.addButton}
-                            name={undefined}
-                            disabled
+                        <SmartLink
+                            route={route.newTutorial}
                         >
                             Add New Tutorial
-                        </Button>
+                        </SmartLink>
                     </div>
                     <Button
                         name={!showTutorialList}

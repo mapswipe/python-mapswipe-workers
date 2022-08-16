@@ -198,7 +198,7 @@ function ProjectDetails(props: Props) {
                         <>
                             <div className={styles.textOutput}>
                                 <div className={styles.label}>
-                                    Look for:
+                                    Look For:
                                 </div>
                                 <div className={styles.value}>
                                     {data.lookFor}

@@ -4,6 +4,9 @@ import {
     requiredCondition,
     requiredStringCondition,
     forceNullType,
+    greaterThanOrEqualToCondition,
+    lessThanOrEqualToCondition,
+    integerCondition,
 } from '@togglecorp/toggle-form';
 import {
     TileServer,
@@ -60,8 +63,8 @@ export const tutorialFormSchema: TutorialFormSchema = {
     fields: (value): TutorialFormSchemaFields => {
         const baseSchema: TutorialFormSchemaFields = {
             projectType: [requiredCondition],
-            lookFor: [requiredStringCondition, getNoMoreThanNCharacterCondition(15)],
-            name: [requiredStringCondition],
+            lookFor: [requiredStringCondition, getNoMoreThanNCharacterCondition(25)],
+            name: [requiredStringCondition, getNoMoreThanNCharacterCondition(1000)],
             tileServer: {
                 fields: tileServerFieldsSchema,
             },
@@ -78,7 +81,12 @@ export const tutorialFormSchema: TutorialFormSchema = {
         if (value?.projectType === PROJECT_TYPE_BUILD_AREA) {
             return {
                 ...baseSchema,
-                zoomLevel: [requiredCondition],
+                zoomLevel: [
+                    requiredCondition,
+                    greaterThanOrEqualToCondition(14),
+                    lessThanOrEqualToCondition(22),
+                    integerCondition,
+                ],
             };
         }
 
@@ -86,7 +94,12 @@ export const tutorialFormSchema: TutorialFormSchema = {
             || value?.projectType === PROJECT_TYPE_COMPLETENESS) {
             return {
                 ...baseSchema,
-                zoomLevel: [requiredCondition],
+                zoomLevel: [
+                    requiredCondition,
+                    greaterThanOrEqualToCondition(14),
+                    lessThanOrEqualToCondition(22),
+                    integerCondition,
+                ],
                 tileServerB: {
                     fields: tileServerFieldsSchema,
                 },

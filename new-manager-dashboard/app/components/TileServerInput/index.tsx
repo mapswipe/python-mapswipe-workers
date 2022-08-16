@@ -8,6 +8,7 @@ import {
     ObjectSchema,
     requiredStringCondition,
     requiredCondition,
+    getNoMoreThanNCharacterCondition,
 } from '@togglecorp/toggle-form';
 
 import TextInput from '#components/TextInput';
@@ -76,21 +77,25 @@ type TileServerSchema = ObjectSchema<PartialForm<TileServerInputType>, unknown>;
 type TileServerFields = ReturnType<TileServerSchema['fields']>;
 export function tileServerFieldsSchema(value: TileServerInputType | undefined): TileServerFields {
     const basicFields: TileServerFields = {
-        name: [requiredStringCondition],
-        credits: [requiredStringCondition],
+        name: [requiredStringCondition, getNoMoreThanNCharacterCondition(1000)],
+        credits: [requiredStringCondition, getNoMoreThanNCharacterCondition(1000)],
     };
 
     if (value?.name === TILE_SERVER_CUSTOM) {
         return {
             ...basicFields,
-            url: [requiredStringCondition, imageryUrlCondition],
-            wmtsLayerName: [requiredCondition],
+            url: [
+                requiredStringCondition,
+                imageryUrlCondition,
+                getNoMoreThanNCharacterCondition(1000),
+            ],
+            wmtsLayerName: [requiredCondition, getNoMoreThanNCharacterCondition(1000)],
         };
     }
     if (value?.name === TILE_SERVER_SINERGISE) {
         return {
             ...basicFields,
-            wmtsLayerName: [requiredCondition],
+            wmtsLayerName: [requiredStringCondition, getNoMoreThanNCharacterCondition(1000)],
         };
     }
     return basicFields;
