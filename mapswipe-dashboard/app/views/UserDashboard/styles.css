@@ -33,6 +33,10 @@
             display: flex;
             flex-wrap: wrap;
             gap: var(--spacing-large);
+
+            .value {
+                display: flex;
+            }
         }
     }
 

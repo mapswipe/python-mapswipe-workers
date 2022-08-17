@@ -175,7 +175,7 @@ function Dashboard(props: Props) {
             <div className={styles.content}>
                 <StatsBoard
                     heading="Community Statsboard"
-                    contributionStats={communityStats?.contributorTimeSats}
+                    contributionTimeStats={communityStats?.contributorTimeSats}
                     projectTypeStats={communityStats?.projectTypeStats}
                     organizationTypeStats={communityStats?.organizationTypeStats}
                     projectSwipeTypeStats={communityStats?.projectSwipeType}
