@@ -99,6 +99,13 @@ class MapContributionTypeStats:
 
 
 @strawberry.type
+class UserUserGroupTypeStats:
+    user_group: str
+    members_count: int
+    joined_at: Optional[datetime.date] = None
+
+
+@strawberry.type
 class UserLatestStatusTypeStats:
     total_user_group: int
     total_swipe: int
@@ -163,6 +170,11 @@ class UserType:
             "dl"
         ].existing_database.load_user_geo_contribution.load(root.user_id)
 
+    @strawberry.field
+    async def user_in_user_groups(self, info: Info, root: User) -> Optional[List[UserUserGroupTypeStats]]:
+        return await info.context[
+            'dl'
+        ].existing_database.load_user_usergroup_stats.load(root.user_id)
 
 
 @strawberry_django.type(Project)
@@ -179,12 +191,15 @@ class ProjectType:
     status: strawberry.auto
     organization: OrganizationType
     geom: str
+    organization_name: str
 
 
 @strawberry_django.type(UserGroupUserMembership)
 class UserGroupUserMembershipType:
     user: UserType
     is_active: strawberry.auto
+    left_at: str
+    joined_at: str
 
     @strawberry.field
     async def stats(self, info: Info, root: UserGroupUserMembership) -> SwipeStatType:

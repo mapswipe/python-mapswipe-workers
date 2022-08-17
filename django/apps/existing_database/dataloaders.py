@@ -8,7 +8,14 @@ from django.utils.functional import cached_property
 from strawberry.dataloader import DataLoader
 from shapely.geometry import shape
 
-from .models import Result, UserGroupResult, Project, User
+from .models import (
+    Result,
+    UserGroupResult,
+    Project,
+    User,
+    UserGroupUserMembership,
+    UserGroup
+)
 from .types import (
     SwipeStatType,
     ContributorType,
@@ -20,7 +27,8 @@ from .types import (
     OrganizationTypeStats,
     MapContributionTypeStats,
     UserLatestStatusTypeStats,
-    UserGroupLatestType
+    UserGroupLatestType,
+    UserUserGroupTypeStats
 )
 
 
@@ -91,10 +99,10 @@ USER_ORGANIZATION_TYPE_STATS = f"""
             SELECT
                 R.user_id as user_id,
                 COUNT(*) swipe_count,
-                P.organization_id as organization
+                P.organization_name as organization
             From {Result._meta.db_table} R
                 LEFT JOIN {Project._meta.db_table} as P USING (project_id)
-            WHERE P.organization_id is not null
+            WHERE P.organization_id != 'null'
             GROUP BY organization, R.user_id
         )
     SELECT
@@ -111,11 +119,11 @@ USER_GROUP_ORGANIZATION_TYPE_STATS = f"""
             SELECT
                 UGR.user_group_id as user_group_id,
                 COUNT(*) swipe_count,
-                P.organization_id as organization
+                P.organization_name as organization
             From {Result._meta.db_table} R
                 LEFT JOIN {Project._meta.db_table} as P USING (project_id)
                 LEFT JOIN {UserGroupResult._meta.db_table} as UGR USING (project_id)
-            WHERE P.organization_id is not null
+            WHERE P.organization_name != 'null'
             GROUP BY organization, UGR.user_group_id
         )
     SELECT
@@ -487,6 +495,29 @@ USER_GROUP_DASHBOARD_STATS_QUERY = f"""
 """
 
 
+USER_USER_GROUP_STATS_QUERY = f"""
+    WITH
+        user_data AS (
+            SELECT
+                UG.name as user_group,
+                M.user_id as user_id,
+                M.joined_at[0] as joined_at
+            FROM {UserGroupResult._meta.db_table} UGR
+                LEFT JOIN  {UserGroup._meta.db_table} UG USING (user_group_id)
+                LEFT JOIN {UserGroupUserMembership._meta.db_table} M USING (user_id)
+            WHERE UGR.user_id = ANY(%s)
+            GROUP BY M.user_id, user_group, joined_at
+        )
+    SELECT
+        user_id,
+        user_group,
+        joined_at,
+        COUNT(user_id) as members_count
+    FROM user_data
+    GROUP BY user_id, user_group, joined_at
+"""
+
+
 def load_user_group_stats(keys: List[str]):
     with connections[settings.MAPSWIPE_EXISTING_DB].cursor() as cursor:
         cursor.execute(USER_GROUP_SWIPE_STAT_QUERY, [keys])
@@ -771,6 +802,22 @@ def load_user_group_stats_project_swipe_type(keys: List[str]):
     return [_map.get(key) for key in keys]
 
 
+def load_user_usergroup_stats(keys: List[str]):
+    with connections[settings.MAPSWIPE_EXISTING_DB].cursor() as cursor:
+        cursor.execute(USER_USER_GROUP_STATS_QUERY, [keys])
+        aggregate_results = cursor.fetchall()
+    _map = defaultdict(list)
+    for user_id, user_group, joined_at, members_count in aggregate_results:
+        _map[user_id].append(
+            UserUserGroupTypeStats(
+                user_group=user_group or None,
+                joined_at=joined_at or None,
+                members_count=members_count or 0
+            )
+        )
+    return [_map.get(key) for key in keys]
+
+
 class ExistingDatabaseDataLoader:
     @cached_property
     def load_user_group_stats(self):
@@ -839,3 +886,7 @@ class ExistingDatabaseDataLoader:
     @cached_property
     def load_user_group_organization_stats(self):
         return DataLoader(load_fn=sync_to_async(load_user_group_organization_stats))
+
+    @cached_property
+    def load_user_usergroup_stats(Self):
+        return DataLoader(load_fn=sync_to_async(load_user_usergroup_stats))

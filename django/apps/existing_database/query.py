@@ -205,10 +205,11 @@ def get_organization_stats() -> List[OrganizationTypeStats]:
             user_data AS (
                 SELECT
                     COUNT(*) swipe_count,
-                    P.organization_id as organization
+                    P.organization_name as organization
                 From {Result._meta.db_table} R
                     LEFT JOIN {Project._meta.db_table} as P USING
                         (project_id)
+                WHERE P.organization_name != 'null'
                 GROUP BY organization
             )
         SELECT
@@ -247,7 +248,6 @@ class Query:
         filters=UserGroupFilter,
         order=UserGroupOrder,
     )
-
     user_group: UserGroupType = strawberry_django.field()
     user: UserType = strawberry_django.field()
     community_stats: CommunityStatsType = strawberry_django.field(get_community_stats)

@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.contrib.gis.db import models as gis_models
 from django.db import models
+from django.contrib.postgres.fields import ArrayField
 
 
 class User(models.Model):
@@ -45,6 +46,8 @@ class UserGroupUserMembership(models.Model):
     user_group = models.ForeignKey(UserGroup, models.DO_NOTHING, primary_key=True)
     user = models.ForeignKey(User, models.DO_NOTHING, primary_key=True)
     is_active = models.BooleanField(null=True, blank=True)
+    left_at = ArrayField(models.DateTimeField(blank=True, null=True), default=dict)
+    joined_at = ArrayField(models.DateTimeField(blank=True, null=True), default=dict)
 
     class Meta:
         managed = False
@@ -86,7 +89,8 @@ class Project(models.Model):
     verification_number = models.IntegerField(blank=True, null=True)
     # Database uses JSON instead of JSONB (not supported by django)
     project_type_specifics = models.TextField(blank=True, null=True)
-    organization = models.ForeignKey(Organization, models.DO_NOTHING, primary_key=True)
+    organization_name = models.CharField(max_length=-1, null=True, blank=True)
+    # organization = models.ForeignKey(Organization, models.DO_NOTHING, primary_key=True)
 
     class Meta:
         managed = False
@@ -154,6 +158,7 @@ class Result(models.Model):
     start_time = models.DateTimeField(blank=True, null=True)
     end_time = models.DateTimeField(blank=True, null=True)
     result = models.IntegerField(blank=True, null=True)
+
     class Meta:
         managed = False
         db_table = "results"

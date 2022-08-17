@@ -298,6 +298,7 @@ class BaseProject(metaclass=ABCMeta):
               ,%s  -- status
               ,%s  -- verificationCount
               ,%s  -- projectTypeSpecifics
+              ,%s  -- organizationName
             );
             """
 
@@ -317,6 +318,7 @@ class BaseProject(metaclass=ABCMeta):
             project["resultCount"],
             project["status"],
             project["verificationNumber"],
+            project["organization_name"],
         ]
 
         project_attributes = [
@@ -335,6 +337,7 @@ class BaseProject(metaclass=ABCMeta):
             "resultCount",
             "status",
             "verificationNumber",
+            "organization_name",
         ]
 
         project_type_specifics = dict()
