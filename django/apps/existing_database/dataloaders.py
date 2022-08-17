@@ -207,6 +207,32 @@ USER_TIME_SPENT_CONTRIBUTION_QUERY = f"""
     GROUP BY user_id, task_date
 """
 
+USER_GROUP_TIME_SPENT_CONTRIBUTION_QUERY = f"""
+    WITH
+        user_group_data AS (
+            SELECT
+                MAX(R.start_time) as start_time,
+                MAX(R.end_time) as end_time,
+                R.timestamp as timestamp,
+                UGR.user_group_id as user_group_id
+            From {Result._meta.db_table} R
+                LEFT JOIN {UserGroupResult._meta.db_table} UGR USING (project_id, group_id, user_id)
+            WHERE UGR.user_group_id = ANY(%s)
+            GROUP BY UGR.user_group_id, timestamp
+        )
+    SELECT
+        user_group_id,
+        timestamp::date as task_date,
+        SUM(
+            EXTRACT(
+                EPOCH FROM (end_time - start_time)
+            )
+        ) as total_time
+    From user_group_data
+    WHERE timestamp::date >= (CURRENT_DATE - INTERVAL '30 days')
+    GROUP BY user_group_id, task_date
+"""
+
 USER_PROJECT_TYPE_STATS_QUERY = f"""
     WITH
         project_data_type1 AS (
@@ -641,6 +667,21 @@ def load_user_group_user_contributors_stats(keys: List[str]):
     return [_map.get(f"{user_group_id}-{user_id}") for user_group_id, user_id in keys]
 
 
+def load_user_group_contribution_time(keys: List[str]):
+    with connections[settings.MAPSWIPE_EXISTING_DB].cursor() as cursor:
+        cursor.execute(USER_GROUP_TIME_SPENT_CONTRIBUTION_QUERY, [keys])
+        aggregate_results = cursor.fetchall()
+    _map = defaultdict(list)
+    for user_group_id, task_date, total_time in aggregate_results:
+        _map[user_group_id].append(
+            ContributorTimeType(
+                total_time=round(total_time / 60) or 0,
+                task_date=task_date
+            )
+        )
+    return [_map.get(key) for key in keys]
+
+
 ## User User Stats
 def load_user_stats(keys: List[str]):
     with connections[settings.MAPSWIPE_EXISTING_DB].cursor() as cursor:
@@ -888,5 +929,9 @@ class ExistingDatabaseDataLoader:
         return DataLoader(load_fn=sync_to_async(load_user_group_organization_stats))
 
     @cached_property
-    def load_user_usergroup_stats(Self):
+    def load_user_usergroup_stats(self):
         return DataLoader(load_fn=sync_to_async(load_user_usergroup_stats))
+
+    @cached_property
+    def load_user_group_contribution_time(self):
+        return DataLoader(load_fn=sync_to_async(load_user_group_contribution_time))

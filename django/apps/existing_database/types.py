@@ -276,6 +276,10 @@ class UserGroupType:
     async def project_swipe_type(self, info: Info, root: UserGroup) -> Optional[List[ProjectSwipeTypeStats]]:
         return await info.context["dl"].existing_database.load_user_group_stats_project_swipe_type.load(root.user_group_id)
 
+    @strawberry.field
+    async def contribution_time(self, info: Info, root: UserGroup) -> Optional[List[ContributorTimeType]]:
+        return await info.context["dl"].existing_database.load_user_group_contribution_time.load(root.user_group_id)
+
     def get_queryset(self, queryset, info, **kwargs):
         # Filter out user group without name. They aren't sync yet.
         return UserGroup.objects.exclude(name__isnull=True).all()
