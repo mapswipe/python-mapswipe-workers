@@ -39,6 +39,10 @@
                 justify-content: space-between;
                 padding: var(--spacing-medium);
 
+                .value {
+                    display: flex;
+                }
+
                 .chart-container {
                     display: flex;
                     flex-grow: 1;
