@@ -22,12 +22,22 @@
                 color: var(--color-text-on-dark);
                 font-size: var(--font-size-mega-large);
             }
+
+            .description {
+                text-transform: capitalize;
+                color: var(--color-text-on-dark);
+                font-size: var(--font-size-large);
+            }
         }
 
         .stats {
             display: flex;
             flex-wrap: wrap;
             gap: var(--spacing-extra-large);
+
+            .value {
+                display: flex;
+            }
         }
     }
 

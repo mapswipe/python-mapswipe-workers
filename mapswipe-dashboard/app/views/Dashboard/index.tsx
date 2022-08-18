@@ -79,14 +79,13 @@ function Dashboard(props: Props) {
         <div className={_cs(styles.dashboard, className)}>
             <div className={styles.headerContainer} style={{ backgroundImage: `url(${dashboardHeaderSvg})` }}>
                 <Header
-                    heading={user.name}
+                    heading="MapSwipe Community"
                     className={styles.header}
                     headingClassName={styles.heading}
-                    headerDescription="Putting communities on the map to help humanitarians find and help vunerable communities by "
                     headingSize="small"
                     headingContainerClassName={styles.description}
                     descriptionClassName={styles.description}
-                    description="Putting communities on the map to help humanitarians find and help vunerable communities by "
+                    description="Putting communities on the map to help humanitarians find and help vunerable communities"
                 />
                 <div className={styles.stats}>
                     <InformationCard

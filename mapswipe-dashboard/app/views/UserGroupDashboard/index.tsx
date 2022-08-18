@@ -1,23 +1,20 @@
 import React, { useCallback } from 'react';
+import { gql, useQuery } from '@apollo/client';
 import { _cs } from '@togglecorp/fujs';
-import { Header, ListView } from '@the-deep/deep-ui';
+import { Header, ListView, TextOutput, NumberOutput } from '@the-deep/deep-ui';
+
 import dashboardHeaderSvg from '#resources/img/dashboard.svg';
 import InformationCard from '#components/InformationCard';
 import timeSvg from '#resources/icons/time.svg';
 import userSvg from '#resources/icons/user.svg';
 import swipeSvg from '#resources/icons/swipe.svg';
-
 import MemberItem from '#components/MemberItem';
 import CalendarHeatMapContainer from '#components/CalendarHeatMapContainer';
 import Footer from '#components/Footer';
 import StatsBoard from '#views/StatsBoard';
+import { UserGroupStatsQuery, UserGroupStatsQueryVariables } from '#generated/types';
 
 import styles from './styles.css';
-
-interface UserGroup {
-    id: number;
-    title: string;
-}
 
 export interface Member {
     id: number;
@@ -155,18 +152,70 @@ function memberKeySelector(member: Member) {
     return member.id;
 }
 
-const defaultUserGroup: UserGroup = { // TODO remove this later
-    id: 1,
-    title: 'Team Mappers',
-};
+const USER_GROUP_STATS = gql`
+    query UserGroupStats($pk: ID) {
+        userGroup(pk: $pk) {
+            contributionStats {
+                taskDate
+                totalSwipe
+            }
+            contributionTime {
+                taskDate
+                totalTime
+            }
+            projectSwipeType {
+                projectType
+                totalSwipe
+            }
+            projectTypeStats {
+                area
+                projectType
+            }
+            stats {
+                totalMappingProjects
+                totalContributors
+                totalSwipe
+                totalSwipeTime
+            }
+            userGroupId
+            userGroupLatest {
+                totalContributors
+                totalSwipeTime
+                totalSwipes
+            }
+            userGroupOrganizationStats {
+                organizationName
+                totalSwipe
+            }
+            name
+            description
+
+        }
+    }
+`;
 
 interface Props {
     className?: string;
-    userGroup?: UserGroup;
 }
 
 function UserGroupDashboard(props: Props) {
-    const { className, userGroup = defaultUserGroup } = props;
+    const { className } = props;
+
+    const userGroupId = '';
+
+    const {
+        data: userGroupStats,
+    } = useQuery<UserGroupStatsQuery, UserGroupStatsQueryVariables>(
+        USER_GROUP_STATS,
+        {
+            variables: {
+                pk: userGroupId,
+            },
+        },
+    );
+
+    const contributionData = userGroupStats?.userGroup.contributionStats
+        .map((value) => ({ date: value.taskDate, count: value.totalSwipe }));
 
     const memberRendererParams = useCallback((_: number, item: Member) => (
         { member: item }
@@ -178,38 +227,110 @@ function UserGroupDashboard(props: Props) {
         >
             <div className={styles.headerContainer} style={{ backgroundImage: `url(${dashboardHeaderSvg})` }}>
                 <Header
-                    heading={userGroup.title}
+                    heading={userGroupStats?.userGroup.name}
                     className={styles.header}
                     headingClassName={styles.heading}
                     headingSize="small"
+                    descriptionClassName={styles.description}
+                    description={userGroupStats?.userGroup.description}
                 />
                 <div className={styles.stats}>
                     <InformationCard
                         icon={(<img src={swipeSvg} alt="swipe icon" />)}
-                        value="50k"
                         label="Total Swipes"
-                        description="25k swipes last month"
+                        value={(
+                            <NumberOutput
+                                className={styles.value}
+                                value={userGroupStats?.userGroup.stats.totalSwipe}
+                                normal
+                                precision={2}
+                            />
+                        )}
+                        description={(
+                            <TextOutput
+                                className={styles.value}
+                                value={(
+                                    <NumberOutput
+                                        className={styles.value}
+                                        value={userGroupStats
+                                            ?.userGroup.userGroupLatest?.totalSwipes}
+                                        normal
+                                        precision={2}
+                                    />
+                                )}
+                                description="&nbsp;total swipes last month"
+                            />
+                        )}
                     />
                     <InformationCard
                         icon={(<img src={timeSvg} alt="time icon" />)}
-                        value="200"
                         label="Total Time Spent (in mins)"
-                        description="34 mins last month"
+                        value={(
+                            <NumberOutput
+                                className={styles.value}
+                                value={userGroupStats?.userGroup.stats.totalSwipeTime}
+                                normal
+                                precision={2}
+                            />
+                        )}
+                        description={(
+                            <TextOutput
+                                className={styles.value}
+                                value={(
+                                    <NumberOutput
+                                        className={styles.value}
+                                        value={userGroupStats
+                                            ?.userGroup.userGroupLatest?.totalSwipeTime}
+                                        normal
+                                        precision={2}
+                                    />
+                                )}
+                                description="&nbsp; mins last month"
+                            />
+                        )}
                     />
                     <InformationCard
                         icon={(<img src={userSvg} alt="user icon" />)}
-                        value="50k"
                         label="Total Contributors"
-                        description="25k active contributors last month"
+                        value={(
+                            <NumberOutput
+                                className={styles.value}
+                                value={userGroupStats?.userGroup.stats.totalContributors}
+                                normal
+                                precision={2}
+                            />
+                        )}
+                        description={(
+                            <TextOutput
+                                className={styles.value}
+                                value={(
+                                    <NumberOutput
+                                        className={styles.value}
+                                        value={userGroupStats
+                                            ?.userGroup.userGroupLatest?.totalContributors}
+                                        normal
+                                        precision={2}
+                                    />
+                                )}
+                                hideLabelColon
+                                description="&nbsp; active contributors last month"
+                            />
+                        )}
                     />
                 </div>
             </div>
             <div className={styles.content}>
-                <CalendarHeatMapContainer />
-                <StatsBoard heading="Group Statsboard" />
+                <CalendarHeatMapContainer data={contributionData} />
+                <StatsBoard
+                    heading="Group Statsboard"
+                    contributionTimeStats={userGroupStats?.userGroup.contributionTime}
+                    projectTypeStats={userGroupStats?.userGroup.projectTypeStats}
+                    organizationTypeStats={userGroupStats?.userGroup.userGroupOrganizationStats}
+                    projectSwipeTypeStats={userGroupStats?.userGroup.projectSwipeType}
+                />
                 <div className={styles.members}>
                     <div className={styles.membersHeading}>
-                        {`${userGroup.title}'s Members`}
+                        {`${userGroupStats?.userGroup.name}'s Members`}
                     </div>
                     <div className={styles.membersContainer}>
                         <div className={styles.memberListHeading}>

@@ -1,10 +1,8 @@
 import React from 'react';
 import { _cs } from '@togglecorp/fujs';
 import { Header, NumberOutput, TextOutput } from '@the-deep/deep-ui';
-import {
-    gql,
-    useQuery,
-} from '@apollo/client';
+import { gql, useQuery } from '@apollo/client';
+
 import dashboardHeaderSvg from '#resources/img/dashboard.svg';
 import InformationCard from '#components/InformationCard';
 import timeSvg from '#resources/icons/time.svg';
@@ -16,58 +14,6 @@ import CalendarHeatMapContainer from '#components/CalendarHeatMapContainer';
 import { UserStatsQuery, UserStatsQueryVariables } from '#generated/types';
 
 import styles from './styles.css';
-
-interface Group {
-    id: number;
-    title: string;
-    joinedDate: string;
-    membersCount: number;
-}
-
-interface User {
-    id: number;
-    title: string;
-    level: number;
-}
-
-const groups: Group[] = [
-    {
-        id: 1,
-        title: 'Kiri',
-        membersCount: 29,
-        joinedDate: '7/19/2022',
-    },
-    {
-        id: 2,
-        title: 'Marje',
-        membersCount: 81,
-        joinedDate: '4/7/2022',
-    },
-    {
-        id: 3,
-        title: 'Aimee',
-        membersCount: 83,
-        joinedDate: '12/29/2021',
-    },
-    {
-        id: 4,
-        title: 'Camellia',
-        membersCount: 26,
-        joinedDate: '4/4/2022',
-    },
-    {
-        id: 5,
-        title: 'Rheba',
-        membersCount: 30,
-        joinedDate: '4/16/2022',
-    },
-    {
-        id: 6,
-        title: 'Alaine',
-        membersCount: 35,
-        joinedDate: '6/15/2022',
-    },
-];
 
 const USER_STATS = gql`
     query UserStats($pk: ID) {
@@ -104,6 +50,11 @@ const USER_STATS = gql`
                 totalSwipeTime
                 totalUserGroup
             }
+            userInUserGroups {
+                joinedAt
+                membersCount
+                userGroup
+              }
             userId
             username
         }
@@ -114,6 +65,7 @@ interface Props {
     className?: string;
     userId: string;
 }
+
 function UserDashboard(props: Props) {
     const { className, userId } = props;
 
@@ -242,14 +194,23 @@ function UserDashboard(props: Props) {
                         {`${userStats?.user.username}'s Group`}
                     </div>
                     <div className={styles.groupsContainer}>
-                        {groups.map((group) => (
+                        {userStats?.user.userInUserGroups?.map((group) => (
                             <InformationCard
-                                key={group.id}
+                                key={group.userGroup}
                                 className={styles.group}
                                 icon={(<img src={groupSvg} alt="swipe icon" />)}
-                                subHeading={`Joined on ${group.joinedDate}`}
-                                label={group.title}
-                                description={`${group.membersCount} Members`}
+                                subHeading={(
+                                    <TextOutput
+                                        className={styles.value}
+                                        label="Joined on &nbsp;"
+                                        value={group.joinedAt}
+                                        hideLabelColon
+                                        valueType="date"
+                                    />
+                                )}
+                                label={group.userGroup}
+                                description={`${group.membersCount}
+                                    ${group.membersCount > 1 ? 'members' : 'member'}`}
                             />
                         ))}
                     </div>

@@ -17,7 +17,7 @@
             max-width: 700px;
 
             .heading {
-                text-transform: capitalize;
+                text-transform: none;
                 color: var(--color-text-on-dark);
                 font-size: var(--font-size-mega-large);
             }
