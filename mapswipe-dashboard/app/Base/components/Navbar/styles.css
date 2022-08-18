@@ -46,6 +46,12 @@
                 padding: var(--spacing-small);
             }
         }
+
+        .filter {
+            display: flex;
+            align-self: flex-end;
+            gap: var(--spacing-small);
+        }
     }
 }
 @media(max-width: 900px) {

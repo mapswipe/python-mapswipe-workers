@@ -2,6 +2,7 @@ import React, { useCallback } from 'react';
 import { gql, useQuery } from '@apollo/client';
 import { _cs } from '@togglecorp/fujs';
 import { Header, ListView, TextOutput, NumberOutput } from '@the-deep/deep-ui';
+import { useParams } from 'react-router-dom';
 
 import dashboardHeaderSvg from '#resources/img/dashboard.svg';
 import InformationCard from '#components/InformationCard';
@@ -201,7 +202,7 @@ interface Props {
 function UserGroupDashboard(props: Props) {
     const { className } = props;
 
-    const userGroupId = '';
+    const { userGroupId } = useParams();
 
     const {
         data: userGroupStats,
@@ -211,6 +212,7 @@ function UserGroupDashboard(props: Props) {
             variables: {
                 pk: userGroupId,
             },
+            skip: !userGroupId,
         },
     );
 

@@ -1,5 +1,14 @@
 import React, { useMemo, useState } from 'react';
-import { encodeDate, getDifferenceInDays, isDefined, listToGroupList, mapToList, _cs, sum } from '@togglecorp/fujs';
+import {
+    encodeDate,
+    getDifferenceInDays,
+    isDefined,
+    listToGroupList,
+    mapToList,
+    _cs,
+    sum,
+    compareNumber,
+} from '@togglecorp/fujs';
 import { scaleOrdinal } from 'd3-scale';
 import {
     Container,
@@ -137,7 +146,7 @@ function StatsBoard(props: Props) {
         .domain(organizationTypeStats
             ?.map((organization) => (organization.organizationName))
             .filter(isDefined) ?? [])
-        .range(['#a6cee3', '#1f78b4', '#b2df8a', '#33a02c', '#fb9a99', '#e31a1c', '#fdbf6f', '#ff7f00']);
+        .range(['#8adbd3', '#e6afd3', '#b2ce91', '#74aff3', '#d6ce9c', '#b4bcec', '#c8f0c4', '#71cdeb', '#e9b198', '#92cda5']);
 
     const [search, setSearch] = useState<string | undefined>(undefined);
 
@@ -187,6 +196,14 @@ function StatsBoard(props: Props) {
     const totalAreaReviewed = projectTypeStats ? sum(
         projectTypeStats?.map((project) => (project.area ?? 0)),
     ) : undefined;
+
+    const sortedProjectSwipeType = projectSwipeTypeStats
+        ?.slice()
+        ?.sort((a, b) => compareNumber(a.totalSwipe, b.totalSwipe));
+
+    const sortedTotalSwipeByOrganization = organizationTypeStats
+        ?.slice()
+        ?.sort((a, b) => compareNumber(a.totalSwipe, b.totalSwipe));
 
     return (
         <Container
@@ -340,7 +357,7 @@ function StatsBoard(props: Props) {
                                     formatter={projectTypeFormatter}
                                 />
                                 <Pie
-                                    data={projectSwipeTypeStats ?? undefined}
+                                    data={sortedProjectSwipeType ?? undefined}
                                     dataKey="totalSwipe"
                                     nameKey="projectType"
                                     cx="50%"
@@ -348,7 +365,7 @@ function StatsBoard(props: Props) {
                                     outerRadius="90%"
                                     innerRadius="50%"
                                 >
-                                    {projectSwipeTypeStats?.map((item) => (
+                                    {sortedProjectSwipeType?.map((item) => (
                                         <Cell
                                             key={item.projectType}
                                             fill={item.projectType ? projectTypes[item.projectType].color : '#ff0000'}
@@ -376,7 +393,7 @@ function StatsBoard(props: Props) {
                                 <Tooltip formatter={organizationTotalTimeFormatter} />
                                 <Legend align="center" layout="horizontal" verticalAlign="bottom" />
                                 <Pie
-                                    data={organizationTypeStats ?? undefined}
+                                    data={sortedTotalSwipeByOrganization ?? undefined}
                                     dataKey="totalSwipe"
                                     nameKey="organizationName"
                                     cx="50%"
@@ -384,7 +401,7 @@ function StatsBoard(props: Props) {
                                     outerRadius="90%"
                                     innerRadius="50%"
                                 >
-                                    {organizationTypeStats?.map((item) => (
+                                    {sortedTotalSwipeByOrganization?.map((item) => (
                                         <Cell
                                             key={item.organizationName}
                                             fill={item.organizationName ? organizationColors(item.organizationName) as 'string' : '#ff00ff'}

@@ -19,16 +19,6 @@ import {
 } from '#generated/types';
 import styles from './styles.css';
 
-interface User {
-    name: string;
-    level: number;
-}
-
-const user: User = {
-    name: 'Ram',
-    level: 1,
-};
-
 const COMMUNITY_STATS = gql`
     query CommunityStats {
         communityStastLastest {

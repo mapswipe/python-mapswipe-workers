@@ -1,7 +1,8 @@
 import React from 'react';
-import { _cs } from '@togglecorp/fujs';
+import { compareNumber, _cs } from '@togglecorp/fujs';
 import { Header, NumberOutput, TextOutput } from '@the-deep/deep-ui';
 import { gql, useQuery } from '@apollo/client';
+import { useParams } from 'react-router-dom';
 
 import dashboardHeaderSvg from '#resources/img/dashboard.svg';
 import InformationCard from '#components/InformationCard';
@@ -63,11 +64,12 @@ const USER_STATS = gql`
 
 interface Props {
     className?: string;
-    userId: string;
 }
 
 function UserDashboard(props: Props) {
-    const { className, userId } = props;
+    const { className } = props;
+
+    const { userId } = useParams();
 
     const {
         data: userStats,

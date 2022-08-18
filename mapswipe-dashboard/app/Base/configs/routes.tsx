@@ -33,7 +33,7 @@ const home = wrap({
 });
 
 const userGroupDashboard = wrap({
-    path: '/user-group/',
+    path: '/user-group/:userGroupId/',
     title: 'UserGroup',
     navbarVisibility: true,
     component: lazy(() => import('#views/UserGroupDashboard')),
@@ -42,13 +42,11 @@ const userGroupDashboard = wrap({
 });
 
 const userDashboard = wrap({
-    path: '/user',
+    path: '/user/:userId/',
     title: 'User',
     navbarVisibility: true,
     component: lazy(() => import('#views/UserDashboard')),
-    componentProps: {
-        userId: '',
-    },
+    componentProps: {},
     visibility: 'is-authenticated',
 });
 
