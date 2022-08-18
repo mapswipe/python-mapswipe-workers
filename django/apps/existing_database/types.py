@@ -49,6 +49,7 @@ class SwipeStatType:
     total_swipe: int
     total_swipe_time: int
     total_mapping_projects: int
+    total_contributors: int
 
 
 @strawberry.type
@@ -63,6 +64,14 @@ class UserGroupLatestType:
     total_contributors: int
     total_swipes: int
     total_swipe_time: int
+
+
+@strawberry.type
+class UserGroupUserType:
+    total_mapping_projects: int
+    total_swipes: int
+    total_swipe_time: int
+    user_name: str
 
 
 @strawberry.type
@@ -202,12 +211,8 @@ class UserGroupUserMembershipType:
     joined_at: str
 
     @strawberry.field
-    async def stats(self, info: Info, root: UserGroupUserMembership) -> SwipeStatType:
-        return await info.context[
-            "dl"
-        ].existing_database.load_user_group_user_stats.load(
-            (root.user_group_id, root.user_id)
-        )
+    async def stats(self, info: Info, root: UserGroupUserMembership) -> Optional[UserGroupUserType]:
+        return await info.context["dl"].existing_database.load_user_group_user_stats.load(root.user_group_id)
 
     @strawberry.field
     async def contributors_stats(self, info: Info, root: UserGroupUserMembership) -> ContributorType:
@@ -234,9 +239,11 @@ class UserGroupType:
         UserGroupUserMembershipType
     ] = StrawberryDjangoCountList(
         pagination=True,
-        filters=UserMembershipFilter,
-        order=UserGroupUserMembershipOrder,
     )
+
+    @strawberry.field
+    async def user_stats(self, info: Info, root: UserGroup) -> Optional[List[UserGroupUserType]]:
+        return await info.context["dl"].existing_database.load_user_group_user_stats.load(root.user_group_id)
 
     @strawberry.field
     async def stats(self, info: Info, root: UserGroup) -> SwipeStatType:

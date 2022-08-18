@@ -28,7 +28,8 @@ from .types import (
     MapContributionTypeStats,
     UserLatestStatusTypeStats,
     UserGroupLatestType,
-    UserUserGroupTypeStats
+    UserUserGroupTypeStats,
+    UserGroupUserType
 )
 
 
@@ -36,6 +37,7 @@ DEFAULT_STAT = SwipeStatType(
     total_swipe=0,
     total_swipe_time=0,
     total_mapping_projects=0,
+    total_contributors=0
 )
 
 DEFAULT_CONTRIBUTION_STAT = ContributorType(
@@ -54,16 +56,18 @@ USER_GROUP_SWIPE_STAT_QUERY = f"""
                 MAX(R.start_time) as start_time,
                 MAX(R.end_time) as end_time,
                 COUNT(*) swipe_count,
-                R.project_id as project_id
+                R.project_id as project_id,
+                R.user_id as user_id
             From {Result._meta.db_table} R
                 LEFT JOIN {UserGroupResult._meta.db_table} UGR USING
                     (project_id, group_id, user_id)
             WHERE UGR.user_group_id = ANY(%s)
-            GROUP BY project_id, group_id, UGR.user_group_id
+            GROUP BY project_id, group_id, UGR.user_group_id, user_id
         )
     SELECT
         user_group_id,
         COUNT(DISTINCT project_id) as mapped_project_count,
+        COUNT(DISTINCT user_id) as total_contributors,
         SUM(swipe_count) as total_swipe_count,
         SUM(
             EXTRACT(
@@ -320,25 +324,23 @@ USER_GROUP_USER_SWIPE_STAT_QUERY = f"""
         user_group_grouped_data AS (
             SELECT
                 UGR.user_group_id as user_group_id,
-                R.user_id as user_id,
                 MAX(R.start_time) as start_time,
                 MAX(R.end_time) as end_time,
                 COUNT(*) swipe_count,
                 R.project_id as project_id,
-                R.task_id as task_id
+                U.username as username
             From {Result._meta.db_table} R
                 LEFT JOIN {UserGroupResult._meta.db_table} UGR USING
                     (project_id, group_id, user_id)
+                LEFT JOIN {User._meta.db_table} U USING (user_id)
             WHERE
-                UGR.user_group_id = %s
-                AND R.user_id = ANY(%s)
-            GROUP BY project_id, group_id, user_id, UGR.user_group_id, task_id
+                UGR.user_group_id = ANY(%s)
+            GROUP BY project_id, group_id, UGR.user_group_id, username
         )
     SELECT
         user_group_id,
-        user_id,
+        username,
         COUNT(DISTINCT project_id) as mapped_project_count,
-        COUNT(DISTINCT task_id) as task_count,
         SUM(swipe_count) as total_swipe_count,
         SUM(
             EXTRACT(
@@ -346,7 +348,7 @@ USER_GROUP_USER_SWIPE_STAT_QUERY = f"""
             )
         ) as total_time
     From user_group_grouped_data
-    GROUP BY user_group_id, user_id
+    GROUP BY user_group_id, username
 """
 
 USER_GROUP_USER_CONTRIBUTORS_STAT_QUERY = f"""
@@ -502,8 +504,8 @@ USER_GROUP_DASHBOARD_STATS_QUERY = f"""
                 COUNT(*) swipe_count,
                 R.timestamp as timestamp
             From {Result._meta.db_table} R
-                LEFT JOIN {UserGroupResult._meta.db_table} UGR USING (user_id, project_id)
-            WHERE timestamp::date >= (CURRENT_DATE - INTERVAL '30 days')
+                LEFT JOIN {UserGroupResult._meta.db_table} UGR USING (user_id, group_id, project_id)
+            WHERE R.timestamp::date >= (CURRENT_DATE - INTERVAL '30 days')
             AND UGR.user_group_id = ANY(%s)
             GROUP BY timestamp, UGR.user_group_id, UGR.user_id
         )
@@ -554,8 +556,9 @@ def load_user_group_stats(keys: List[str]):
             total_swipe=swipe_count or 0,
             total_swipe_time=round(total_time / 60) or 0,  # swipe time in minutes
             total_mapping_projects=mapped_project_count or 0,
+            total_contributors=total_contributors or 0,
         )
-        for user_group_id, mapped_project_count, swipe_count, total_time in aggregate_results
+        for user_group_id, mapped_project_count, total_contributors, swipe_count, total_time in aggregate_results
     }
     return [_map.get(key, DEFAULT_STAT) for key in keys]
 
@@ -621,31 +624,24 @@ def load_user_group_organization_stats(keys: List[str]):
     return [_map.get(key) for key in keys]
 
 
-def load_user_group_user_stats(keys: List[List[str]]):
+def load_user_group_user_stats(keys: List[str]):
     """
     Load user stats under user_group
     """
-    user_group_users_map = defaultdict(list)
-    for user_group_id, user_id in keys:
-        user_group_users_map[user_group_id].append(user_id)
-
-    _map = defaultdict()
-    for user_group_id, users_id in user_group_users_map.items():
-        # NOTE: N+1, but this should be used for one user_group at a time.
-        with connections[settings.MAPSWIPE_EXISTING_DB].cursor() as cursor:
-            cursor.execute(USER_GROUP_USER_SWIPE_STAT_QUERY, [user_group_id, users_id])
-            aggregate_results = cursor.fetchall()
-            for _, user_id, mapped_project_count, task_count, count, time in aggregate_results:
-                _map[f"{user_group_id}-{user_id}"] = SwipeStatType(
-                    total_swipe=count or 0,
-                    total_swipe_time=round(time / 60) or 0,  # swipe time in minutes
-                    total_mapping_projects=mapped_project_count or 0,
-                    total_task=task_count or 0,
-                )
-    return [
-        _map.get(f"{user_group_id}-{user_id}", DEFAULT_STAT)
-        for user_group_id, user_id in keys
-    ]
+    with connections[settings.MAPSWIPE_EXISTING_DB].cursor() as cursor:
+        cursor.execute(USER_GROUP_USER_SWIPE_STAT_QUERY, [keys])
+        aggregate_results = cursor.fetchall()
+    _map = defaultdict(list)
+    for user_group_id, username, mapped_project_count, total_swipe_count, total_time in aggregate_results:
+        _map[user_group_id].append(
+            UserGroupUserType(
+                user_name=username,
+                total_swipes=total_swipe_count or 0,
+                total_swipe_time=round(total_swipe_count / 60) or 0,  # swipe time in minutes
+                total_mapping_projects=mapped_project_count or 0,
+            )
+        )
+    return [_map.get(key) for key in keys]
 
 
 def load_user_group_user_contributors_stats(keys: List[str]):
