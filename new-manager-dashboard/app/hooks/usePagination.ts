@@ -30,7 +30,7 @@ function usePagination<Item>(items: Item[]) {
     const showPager = totalItems > 0;
     const startIndex = showPager ? ((pageState.activePage - 1) * pageState.pagePerItem) : 0;
     const filteredItems = React.useMemo(
-        () => (showPager ? [...items].splice(startIndex, pageState.pagePerItem) : items),
+        () => (showPager ? items.slice(startIndex, pageState.pagePerItem) : items),
         [showPager, items, startIndex, pageState.pagePerItem],
     );
 
@@ -51,8 +51,7 @@ function usePagination<Item>(items: Item[]) {
             );
 
             const potentialActivePage = 1 + Math.floor(newStartIndex / newPagePerItem);
-            const newActivePage = potentialActivePage < oldActivePage
-                ? potentialActivePage : oldActivePage;
+            const newActivePage = Math.min(potentialActivePage, oldActivePage);
 
             return {
                 pagePerItem: newPagePerItem,
