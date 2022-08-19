@@ -9,7 +9,9 @@ import {
 } from 'firebase/database';
 
 import useFirebaseDatabase from '#hooks/useFirebaseDatabase';
+import usePagination from '#hooks/usePagination';
 import PendingMessage from '#components/PendingMessage';
+import Pager from '#components/Pager';
 
 import styles from './styles.css';
 
@@ -46,14 +48,28 @@ function TutorialList(props: Props) {
         query: tutorialsQuery,
     });
 
-    const tutorialList = Object.entries(tutorials ?? {});
+    const tutorialList = React.useMemo(
+        () => (tutorials ? Object.entries(tutorials) : []),
+        [tutorials],
+    );
+
+    const {
+        showPager,
+        activePage,
+        setActivePage,
+        pagePerItem,
+        setPagePerItem,
+        pagePerItemOptions,
+        totalItems,
+        items: tutorialListInCurrentPage,
+    } = usePagination(tutorialList);
 
     return (
         <div className={_cs(styles.tutorialList, className)}>
             {pending && (
                 <PendingMessage />
             )}
-            {!pending && tutorialList.map((tutorialKeyAndItem) => {
+            {!pending && tutorialListInCurrentPage.map((tutorialKeyAndItem) => {
                 const [orgKey, tutorial] = tutorialKeyAndItem;
 
                 return (
@@ -72,6 +88,16 @@ function TutorialList(props: Props) {
                     </div>
                 );
             })}
+            {!pending && showPager && (
+                <Pager
+                    pagePerItem={pagePerItem}
+                    onPagePerItemChange={setPagePerItem}
+                    activePage={activePage}
+                    onActivePageChange={setActivePage}
+                    totalItems={totalItems}
+                    pagePerItemOptions={pagePerItemOptions}
+                />
+            )}
         </div>
     );
 }

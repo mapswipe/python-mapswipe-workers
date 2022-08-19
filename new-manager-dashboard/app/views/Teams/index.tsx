@@ -8,10 +8,12 @@ import {
     MdSearch,
 } from 'react-icons/md';
 
+import usePagination from '#hooks/usePagination';
 import useFirebaseDatabase from '#hooks/useFirebaseDatabase';
 import useInputState from '#hooks/useInputState';
 import TextInput from '#components/TextInput';
 import PendingMessage from '#components/PendingMessage';
+import Pager from '#components/Pager';
 import { rankedSearchOnList } from '#components/SelectInput/utils';
 
 import TeamItem, { Team } from './TeamItem';
@@ -54,6 +56,17 @@ function Teams(props: Props) {
         [teamList, searchText],
     );
 
+    const {
+        showPager,
+        activePage,
+        setActivePage,
+        pagePerItem,
+        setPagePerItem,
+        pagePerItemOptions,
+        totalItems,
+        items: filteredTeamListInCurrentPage,
+    } = usePagination(filteredTeamList);
+
     return (
         <div className={_cs(styles.teams, className)}>
             <div className={styles.headingContainer}>
@@ -82,7 +95,7 @@ function Teams(props: Props) {
                             No teams found
                         </div>
                     )}
-                    {!pending && filteredTeamList.map((teamKeyAndItem) => {
+                    {!pending && filteredTeamListInCurrentPage.map((teamKeyAndItem) => {
                         const [teamKey, team] = teamKeyAndItem;
 
                         return (
@@ -93,6 +106,16 @@ function Teams(props: Props) {
                             />
                         );
                     })}
+                    {!pending && showPager && (
+                        <Pager
+                            pagePerItem={pagePerItem}
+                            onPagePerItemChange={setPagePerItem}
+                            activePage={activePage}
+                            onActivePageChange={setActivePage}
+                            totalItems={totalItems}
+                            pagePerItemOptions={pagePerItemOptions}
+                        />
+                    )}
                 </div>
             </div>
         </div>

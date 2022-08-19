@@ -12,6 +12,8 @@ import { MdSearch } from 'react-icons/md';
 import useBooleanState from '#hooks/useBooleanState';
 import useFirebaseDatabase from '#hooks/useFirebaseDatabase';
 import useInputState from '#hooks/useInputState';
+import usePagination from '#hooks/usePagination';
+import Pager from '#components/Pager';
 import TextInput from '#components/TextInput';
 import Button from '#components/Button';
 import PendingMessage from '#components/PendingMessage';
@@ -72,6 +74,17 @@ function UserGroups(props: Props) {
         [userGroupList, searchText],
     );
 
+    const {
+        showPager,
+        activePage,
+        setActivePage,
+        pagePerItem,
+        setPagePerItem,
+        pagePerItemOptions,
+        totalItems,
+        items: filteredUserGroupListInCurrentPage,
+    } = usePagination(filteredUserGroupList);
+
     return (
         <div className={_cs(styles.userGroups, className)}>
             <div className={styles.headingContainer}>
@@ -106,7 +119,7 @@ function UserGroups(props: Props) {
                             No User Groups found
                         </div>
                     )}
-                    {!pending && filteredUserGroupList.map((userGroupKeyAndItem) => {
+                    {!pending && filteredUserGroupListInCurrentPage.map((userGroupKeyAndItem) => {
                         const [userGroupKey, userGroup] = userGroupKeyAndItem;
 
                         return (
@@ -117,6 +130,16 @@ function UserGroups(props: Props) {
                             />
                         );
                     })}
+                    {!pending && showPager && (
+                        <Pager
+                            pagePerItem={pagePerItem}
+                            onPagePerItemChange={setPagePerItem}
+                            activePage={activePage}
+                            onActivePageChange={setActivePage}
+                            totalItems={totalItems}
+                            pagePerItemOptions={pagePerItemOptions}
+                        />
+                    )}
                 </div>
             </div>
             {showNewUserGroupModal && (

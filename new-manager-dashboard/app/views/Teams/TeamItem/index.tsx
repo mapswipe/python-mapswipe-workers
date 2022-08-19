@@ -13,8 +13,10 @@ import {
     IoChevronUp,
 } from 'react-icons/io5';
 
+import usePagination from '#hooks/usePagination';
 import useFirebaseDatabase from '#hooks/useFirebaseDatabase';
 import Button from '#components/Button';
+import Pager from '#components/Pager';
 import PendingMessage from '#components/PendingMessage';
 
 import styles from './styles.css';
@@ -75,6 +77,17 @@ function TeamItem(props: Props) {
         [teamMembers],
     );
 
+    const {
+        showPager,
+        activePage,
+        setActivePage,
+        pagePerItem,
+        setPagePerItem,
+        pagePerItemOptions,
+        totalItems,
+        items: teamMemberListInCurrentPage,
+    } = usePagination(teamMemberList);
+
     return (
         <div
             className={_cs(styles.teamItem, className)}
@@ -112,7 +125,7 @@ function TeamItem(props: Props) {
                                 Task Contributions
                             </div>
                         </div>
-                        {!pending && teamMemberList.map((userIdAndDetails) => {
+                        {!pending && teamMemberListInCurrentPage.map((userIdAndDetails) => {
                             const [userId, user] = userIdAndDetails;
 
                             return (
@@ -136,6 +149,16 @@ function TeamItem(props: Props) {
                             );
                         })}
                     </div>
+                    {!pending && showPager && (
+                        <Pager
+                            pagePerItem={pagePerItem}
+                            onPagePerItemChange={setPagePerItem}
+                            activePage={activePage}
+                            onActivePageChange={setActivePage}
+                            totalItems={totalItems}
+                            pagePerItemOptions={pagePerItemOptions}
+                        />
+                    )}
                     {!pending && teamMemberList.length === 0 && (
                         <div className={styles.emptyMessage}>
                             No users yet on this team!

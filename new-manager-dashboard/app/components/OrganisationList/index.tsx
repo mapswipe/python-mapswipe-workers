@@ -6,7 +6,9 @@ import {
 } from 'firebase/database';
 
 import useFirebaseDatabase from '#hooks/useFirebaseDatabase';
+import usePagination from '#hooks/usePagination';
 import PendingMessage from '#components/PendingMessage';
+import Pager from '#components/Pager';
 
 import styles from './styles.css';
 
@@ -40,14 +42,28 @@ function OrganisationList(props: Props) {
         query: organisationsQuery,
     });
 
-    const organisationList = Object.entries(organisations ?? {});
+    const organisationList = React.useMemo(
+        () => (organisations ? Object.entries(organisations) : []),
+        [organisations],
+    );
+
+    const {
+        showPager,
+        activePage,
+        setActivePage,
+        pagePerItem,
+        setPagePerItem,
+        pagePerItemOptions,
+        totalItems,
+        items: organisationListInCurrentPage,
+    } = usePagination(organisationList);
 
     return (
         <div className={_cs(styles.organisationList, className)}>
             {pending && (
                 <PendingMessage />
             )}
-            {!pending && organisationList.map((organisationKeyAndItem) => {
+            {!pending && organisationListInCurrentPage.map((organisationKeyAndItem) => {
                 const [orgKey, organisation] = organisationKeyAndItem;
 
                 return (
@@ -66,6 +82,16 @@ function OrganisationList(props: Props) {
                     </div>
                 );
             })}
+            {!pending && showPager && (
+                <Pager
+                    pagePerItem={pagePerItem}
+                    onPagePerItemChange={setPagePerItem}
+                    activePage={activePage}
+                    onActivePageChange={setActivePage}
+                    totalItems={totalItems}
+                    pagePerItemOptions={pagePerItemOptions}
+                />
+            )}
         </div>
     );
 }

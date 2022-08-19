@@ -15,6 +15,8 @@ import { getValueFromFirebase } from '#utils/firebase';
 import UserContext from '#base/context/UserContext';
 import useConfirmation from '#hooks/useConfirmation';
 import useMountedRef from '#hooks/useMountedRef';
+import usePagination from '#hooks/usePagination';
+import Pager from '#components/Pager';
 import Modal from '#components/Modal';
 import Button from '#components/Button';
 import PendingMessage from '#components/PendingMessage';
@@ -146,6 +148,17 @@ function UserGroupItem(props: Props) {
         [showDetails, data.users, mountedRef],
     );
 
+    const {
+        showPager,
+        activePage,
+        setActivePage,
+        pagePerItem,
+        setPagePerItem,
+        pagePerItemOptions,
+        totalItems,
+        items: userListInCurrentPage,
+    } = usePagination(userList);
+
     return (
         <div
             className={_cs(styles.userGroupItem, className)}
@@ -183,7 +196,7 @@ function UserGroupItem(props: Props) {
                                 Task Contributions
                             </div>
                         </div>
-                        {!userListPending && userList.map((groupUser) => (
+                        {!userListPending && userListInCurrentPage.map((groupUser) => (
                             <div
                                 key={groupUser.username}
                                 className={styles.userDetails}
@@ -203,6 +216,16 @@ function UserGroupItem(props: Props) {
                             </div>
                         ))}
                     </div>
+                    {!userListPending && showPager && (
+                        <Pager
+                            pagePerItem={pagePerItem}
+                            onPagePerItemChange={setPagePerItem}
+                            activePage={activePage}
+                            onActivePageChange={setActivePage}
+                            totalItems={totalItems}
+                            pagePerItemOptions={pagePerItemOptions}
+                        />
+                    )}
                     {!userListPending && userList.length === 0 && (
                         <div className={styles.emptyMessage}>
                             No users yet on this userGroup!

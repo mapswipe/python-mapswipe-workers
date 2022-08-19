@@ -12,8 +12,9 @@ import { MdSearch } from 'react-icons/md';
 import route from '#base/configs/routes';
 import SmartLink from '#base/components/SmartLink';
 import useFirebaseDatabase from '#hooks/useFirebaseDatabase';
-
+import usePagination from '#hooks/usePagination';
 import useInputState from '#hooks/useInputState';
+import Pager from '#components/Pager';
 import RadioInput from '#components/RadioInput';
 import TextInput from '#components/TextInput';
 import PendingMessage from '#components/PendingMessage';
@@ -63,9 +64,15 @@ function Projects(props: Props) {
     });
 
     const projectList = React.useMemo(
-        () => (projects ? Object.values(projects) : []),
+        () => (
+            projects
+                ? Object.values(projects).filter(
+                    (project) => !!project.projectId && project.status !== 'tutorial',
+                ) : []
+        ),
         [projects],
     );
+
     const filteredProjectList = React.useMemo(
         () => rankedSearchOnList(
             projectList,
@@ -74,6 +81,17 @@ function Projects(props: Props) {
         ),
         [projectList, searchText],
     );
+
+    const {
+        showPager,
+        activePage,
+        setActivePage,
+        pagePerItem,
+        setPagePerItem,
+        pagePerItemOptions,
+        totalItems,
+        items: filteredProjectListInCurrentPage,
+    } = usePagination(filteredProjectList);
 
     return (
         <div className={_cs(styles.projects, className)}>
@@ -124,17 +142,27 @@ function Projects(props: Props) {
                             className={styles.loading}
                         />
                     )}
-                    {!pending && filteredProjectList.length === 0 && (
+                    {!pending && filteredProjectListInCurrentPage.length === 0 && (
                         <div className={styles.emptyMessage}>
                             No projects found!
                         </div>
                     )}
-                    {!pending && filteredProjectList.map((project) => (
+                    {!pending && filteredProjectListInCurrentPage.map((project) => (
                         <ProjectDetails
                             key={project.projectId}
                             data={project}
                         />
                     ))}
+                    {!pending && showPager && (
+                        <Pager
+                            pagePerItem={pagePerItem}
+                            onPagePerItemChange={setPagePerItem}
+                            activePage={activePage}
+                            onActivePageChange={setActivePage}
+                            totalItems={totalItems}
+                            pagePerItemOptions={pagePerItemOptions}
+                        />
+                    )}
                 </div>
             </div>
         </div>

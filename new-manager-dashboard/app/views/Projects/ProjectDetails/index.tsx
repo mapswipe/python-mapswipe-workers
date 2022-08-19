@@ -25,7 +25,7 @@ import styles from './styles.css';
 // FIXME: these are common types
 type ProjectType = 1 | 2 | 3 | 4;
 type ProjectInputType = 'aoi_file' | 'link' | 'TMId';
-type ProjectStatus = 'active' | 'inactive' | 'finished' | 'archived';
+type ProjectStatus = 'active' | 'inactive' | 'finished' | 'archived' | 'tutorial';
 
 const projectTypeLabelMap: {
     [key in ProjectType]: string
