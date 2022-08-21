@@ -1,7 +1,7 @@
 import React from 'react';
 import {
     _cs,
-    isNotDefined,
+    // isNotDefined,
 } from '@togglecorp/fujs';
 import {
     getDatabase,
@@ -58,10 +58,13 @@ function UserGroups(props: Props) {
     const userGroupList = React.useMemo(
         () => {
             const list = userGroups ? Object.entries(userGroups) : [];
+            return list;
+            /*
             return list.filter(
                 // eslint-disable-next-line @typescript-eslint/no-unused-vars
                 ([_, group]) => isNotDefined(group.archivedBy),
             );
+            */
         },
         [userGroups],
     );

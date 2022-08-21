@@ -37,6 +37,7 @@ p {
 }
 
 :root {
+    --spacing-super-small: 0.1rem;
     --spacing-extra-small: 0.2rem;
     --spacing-small: 0.4rem;
     --spacing-medium: 0.8rem;
@@ -97,6 +98,7 @@ p {
     --radius-button-border: 0.25rem;
     --radius-input-border: 0.25rem;
     --radius-card-border: 0.25rem;
+    --radius-badge-border: 1rem;
 
 
     --shadow-card: 0 2px 4px -2px var(--color-shadow);

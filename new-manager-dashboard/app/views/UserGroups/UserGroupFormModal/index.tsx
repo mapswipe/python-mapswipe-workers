@@ -124,6 +124,7 @@ function UserGroupFormModal(props: Props) {
                 const uploadData = {
                     ...finalValues,
                     nameKey,
+                    createdAt: (new Date()).getTime(),
                     createdBy: user?.id,
                 };
 

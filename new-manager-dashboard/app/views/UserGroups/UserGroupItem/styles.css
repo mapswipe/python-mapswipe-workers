@@ -10,9 +10,19 @@
     .heading {
         display: flex;
         align-items: center;
+        gap: var(--spacing-medium);
 
         .user-group-name {
             flex-grow: 1;
+        }
+
+        .archived-badge {
+            flex-shrink: 0;
+            border: var(--width-separator-thin) solid var(--color-separator);
+            border-radius: var(--radius-badge-border);
+            background-color: var(--color-background);
+            padding: var(--spacing-super-small) var(--spacing-medium);
+            color: var(--color-text-light);
         }
 
         .expand-toggle-button {

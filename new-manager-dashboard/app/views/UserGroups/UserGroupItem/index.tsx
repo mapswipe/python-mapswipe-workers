@@ -26,7 +26,9 @@ import styles from './styles.css';
 export interface UserGroup {
     name: string;
     nameKey: string;
+    createdAt: string;
     createdBy: string;
+    archivedAt: string;
     archivedBy: string;
     description: string;
     users: Record<string, boolean>,
@@ -64,6 +66,7 @@ function UserGroupItem(props: Props) {
     const [showDetails, setShowDetails] = React.useState(false);
 
     const [archivePending, setArchivePending] = React.useState(false);
+    const isArchived = !!data.archivedBy || !!data.archivedAt;
 
     const handleArchive = React.useCallback(
         () => {
@@ -74,6 +77,7 @@ function UserGroupItem(props: Props) {
                     const db = getDatabase();
                     const updates = {
                         [`v2/userGroups/${groupKey}/archivedBy`]: user?.id,
+                        [`v2/userGroups/${groupKey}/archivedAt`]: (new Date()).getTime(),
                     };
 
                     await update(databaseRef(db), updates);
@@ -167,6 +171,11 @@ function UserGroupItem(props: Props) {
                 <h3 className={styles.userGroupName}>
                     {data.name}
                 </h3>
+                {isArchived && (
+                    <div className={styles.archivedBadge}>
+                        Archived
+                    </div>
+                )}
                 <Button
                     className={styles.expandToggleButton}
                     name={!showDetails}
@@ -240,7 +249,7 @@ function UserGroupItem(props: Props) {
                         <Button
                             name={undefined}
                             onClick={setShowArchiveConfirmationTrue}
-                            disabled={archivePending}
+                            disabled={archivePending || isArchived}
                         >
                             Archive this Group
                         </Button>

@@ -3,7 +3,7 @@
     align-items: center;
     border: var(--width-separator-thin) solid rgba(0, 0, 0, 0.3);
     border-radius: var(--radius-button-border);
-    padding: var(--spacing-small) var(--spacing-large);
+    padding: var(--spacing-small) var(--spacing-medium);
     color: rgba(0, 0, 0, 0.8);
     gap: var(--spacing-small);
 
