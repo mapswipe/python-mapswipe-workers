@@ -77,7 +77,11 @@
                 padding: var(--spacing-small) var(--spacing-medium);
             }
         }
+    }
 
+    .action {
+        display: flex;
+        justify-content: flex-end;
     }
 
     .pending-message {

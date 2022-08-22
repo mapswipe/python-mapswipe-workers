@@ -245,7 +245,7 @@ function UserGroupItem(props: Props) {
                             className={styles.pendingMessage}
                         />
                     )}
-                    <div>
+                    <div className={styles.action}>
                         <Button
                             name={undefined}
                             onClick={setShowArchiveConfirmationTrue}
