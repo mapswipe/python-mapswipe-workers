@@ -79,7 +79,6 @@ class UserSwipeStatType:
     total_swipe: int
     total_swipe_time: int
     total_mapping_projects: int
-    total_task: int
     total_user_group: int
 
 
@@ -207,8 +206,8 @@ class ProjectType:
 class UserGroupUserMembershipType:
     user: UserType
     is_active: strawberry.auto
-    left_at: str
-    joined_at: str
+    # action: strawberry.auto
+    # timestamp: datetime.datetime
 
     @strawberry.field
     async def stats(self, info: Info, root: UserGroupUserMembership) -> Optional[UserGroupUserType]:

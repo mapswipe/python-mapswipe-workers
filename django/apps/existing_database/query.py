@@ -30,6 +30,7 @@ from .models import (
     UserGroupResult,
     Project
 )
+from .utils import parse_geom
 
 
 def get_community_stats() -> CommunityStatsType:
@@ -56,8 +57,8 @@ def get_community_stats() -> CommunityStatsType:
         aggregate_results = cursor.fetchall()
     for data in aggregate_results:
         return CommunityStatsType(
-            total_contributors=data[0] or 0,
-            total_groups=data[1] or 0,
+            total_contributors=data[1] or 0,
+            total_groups=data[0] or 0,
             total_swipes=data[2] or 0,
         )
 
@@ -90,8 +91,8 @@ def get_community_stats_latest() -> CommunityStatsLatestType:
         aggregate_results = cursor.fetchall()
     for data in aggregate_results:
         return CommunityStatsLatestType(
-            total_contributors_last_month=data[0] or 0,
-            total_groups_last_month=data[1] or 0,
+            total_contributors_last_month=data[1] or 0,
+            total_groups_last_month=data[0] or 0,
             total_swipes_last_month=data[2] or 0,
         )
 
@@ -188,9 +189,11 @@ def get_project_geo_area_type() -> List[MapContributionTypeStats]:
         aggregate_results = cursor.fetchall()
     project_list = []
     for geom, swipe_count in aggregate_results:
+        if geom is None:
+            break
         geom_centroid = {
             "type": "Point",
-            "coordinates": geom
+            "coordinates": parse_geom(geom)
         }
         project_list.append(MapContributionTypeStats(
             total_contribution=swipe_count or 0,
