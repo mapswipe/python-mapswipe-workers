@@ -361,7 +361,7 @@ function NewProject(props: Props) {
                         filter: finalFilter,
                         image: downloadUrl,
                         createdBy: userId,
-                        teamId: visibility === 'public' ? undefined : visibility,
+                        teamId: visibility === 'public' ? null : visibility,
                     };
                     await setToDatabase(newProjectRef, uploadData);
                     if (!mountedRef.current) {
