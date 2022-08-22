@@ -27,6 +27,7 @@ import {
 } from 'react-icons/md';
 
 import useMountedRef from '#hooks/useMountedRef';
+import UserContext from '#base/context/UserContext';
 import { getValueFromFirebase } from '#utils/firebase';
 import Modal from '#components/Modal';
 import TextInput from '#components/TextInput';
@@ -76,6 +77,7 @@ function OrganisationFormModal(props: Props) {
     } = useForm(organisationFormSchema, defaultOrganisationFormValue);
 
     const mountedRef = useMountedRef();
+    const { user } = React.useContext(UserContext);
     const error = getErrorObject(formError);
     const [submissionStatus, setSubmissionStatus] = React.useState<'pending' | 'success' | 'failed' | undefined>(undefined);
     const [nonFieldError, setNonFieldError] = React.useState<string | undefined>();
@@ -118,6 +120,8 @@ function OrganisationFormModal(props: Props) {
                     const uploadData = {
                         ...finalValues,
                         nameKey,
+                        createdAt: (new Date()).getTime(),
+                        createdBy: user?.id,
                     };
 
                     const putOrganisationRef = databaseRef(db, `v2/organisations/${newKey}`);
@@ -141,7 +145,7 @@ function OrganisationFormModal(props: Props) {
         }
 
         submitToFirebase();
-    }, [setError, mountedRef]);
+    }, [user, setError, mountedRef]);
 
     const handleSubmitButtonClick = React.useMemo(
         () => createSubmitHandler(validate, setError, handleFormSubmission),

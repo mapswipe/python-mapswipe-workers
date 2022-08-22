@@ -46,7 +46,8 @@ function Teams(props: Props) {
         query: teamsQuery,
     });
 
-    const teamList = React.useMemo(() => (teams ? Object.entries(teams) : []), [teams]);
+    const teamList = React.useMemo(() => (teams
+        ? [...Object.entries(teams)].reverse() : []), [teams]);
     const filteredTeamList = React.useMemo(
         () => rankedSearchOnList(
             teamList,
