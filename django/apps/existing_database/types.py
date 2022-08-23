@@ -72,6 +72,7 @@ class UserGroupUserType:
     total_swipes: int
     total_swipe_time: int
     user_name: str
+    user_id: str
 
 
 @strawberry.type
@@ -110,7 +111,6 @@ class MapContributionTypeStats:
 class UserUserGroupTypeStats:
     user_group: str
     members_count: int
-    joined_at: Optional[datetime.date] = None
 
 
 @strawberry.type
@@ -218,7 +218,7 @@ class UserGroupUserMembershipType:
         return await info.context[
             "dl"
         ].existing_database.load_user_group_user_contributors_stats.load(
-            (root.user_group_id, root.user_id)
+            (root.user_group_id)
         )
 
 

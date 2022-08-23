@@ -185,6 +185,54 @@ def update_user_group_data(user_group_ids: Optional[List[str]] = None) -> List[s
     return new_user_group_ids
 
 
+def create_update_user_data(user_ids: Optional[List[str]] = None) -> List[str]:
+    fb_db = auth.firebaseDB()
+
+    user_file = io.StringIO("")
+    u_w = csv.writer(user_file, delimiter="\t", quotechar="'")
+    for _id in user_ids:
+        u = fb_db.reference(f"v2/users/{_id}").get()
+        if u is None:  # user doesn't exists in FB
+            continue
+        username = u.get('username')
+        updated_at = dt.datetime.utcnow().isoformat()[0:-3] + "Z"
+        u_w.writerow(
+            [
+                _id,
+                username,
+                updated_at
+            ]
+        )
+    user_file.seek(0)
+
+    pg_db = auth.postgresDB()
+
+    # ---- User Data
+    # Clear old temp data
+    pg_db.query("TRUNCATE users_temp")
+    # Copy user data to temp table
+    columns = [
+        "user_id",
+        "username",
+        "updated_at",
+    ]
+    pg_db.copy_from(user_file, "users_temp", columns)
+    user_file.close()
+
+    query_insert_results = """
+        INSERT INTO users
+            SELECT * FROM users_temp
+        ON CONFLICT (user_id) DO UPDATE
+        SET
+          username = excluded.username,
+          updated_at = excluded.updated_at;
+        TRUNCATE users_temp;
+    """
+    pg_db.query(query_insert_results)
+    logger.info("Updated user data in Postgres.")
+    del pg_db
+
+
 def update_user_group_full_data(user_group_ids: List[str]):
 
     def convert_datetimeformat(timestamp):
@@ -197,8 +245,10 @@ def update_user_group_full_data(user_group_ids: List[str]):
 
     user_group_file = io.StringIO("")
     user_group_membership_file = io.StringIO("")
+    user_group_membership_log_file = io.StringIO("")
     ug_w = csv.writer(user_group_file, delimiter="\t", quotechar="'")
     ugm_w = csv.writer(user_group_membership_file, delimiter="\t", quotechar="'")
+    ugml_w = csv.writer(user_group_membership_log_file, delimiter="\t", quotechar="'")
     for _id in user_group_ids:
         ug = fb_db.reference(f"v2/userGroups/{_id}").get()
         if ug is None:  # userGroup doesn't exists in FB
@@ -238,6 +288,18 @@ def update_user_group_full_data(user_group_ids: List[str]):
                     if is_selected
                 ]
             )
+        # membership_logs = ug.get("userGroupMembershipLogs") or {}
+        # if membership_logs:
+        #     ugml_w.writerows(
+        #         [
+        #             [
+        #                 _id,
+        #                 user_id,
+        #             ]
+        #             for user_id, is_selected in membership_logs.items()
+        #             if is_selected
+        #         ]
+        #     )
 
     user_group_file.seek(0)
     user_group_membership_file.seek(0)
@@ -355,27 +417,32 @@ def update_user_group_full_data(user_group_ids: List[str]):
     """
     pg_db.query(query_insert_results, [user_group_ids])
     logger.info("Updated user_group membership data in Postgres.")
-    del pg_db
 
-
-def update_user_username(user_ids: List[str]):
-    fb_db = auth.firebaseDB()
-    pg_db = auth.postgresDB()
-
-    for _id in user_ids:
-        user = fb_db.reference(f"v2/users/{_id}").get()
-        if user is None:
-            continue
-        current_username = user.get('current_username', None)
-        new_username = user.get('new_username', None)
-
-        # query postgres to get username and id
-        update_username_query = f"""
-        UPDATE users set username={new_username}
-        WHERE user_id={_id} AND username={current_username};
-        """
-        pg_db.query(update_username_query)
-        logger.info("Updated user_group data in Postgres.")
+    # Clear old memberships logs
+    # pg_db.query("TRUNCATE user_groups_membership_logs_temp")
+    # # Copy user group membership log data to temp table
+    # columns = ["user_group_id", "user_id"]
+    # pg_db.copy_from(
+    #     user_group_membership_log_file,
+    #     "user_groups_membership_logs_temp",
+    #     columns,
+    # )
+    # user_group_membership_log_file.close()
+    # query_insert_results = """
+    #     INSERT INTO user_groups_membership_logs
+    #         SELECT *, TRUE FROM user_groups_membership_logs_temp
+    #     ON CONFLICT (user_group_id, user_id) DO UPDATE
+    #     SET action = ( CASE WHEN TRUE
+    #         THEN membership_action
+    #         ELSE excluded.action='leave'
+    #         END
+    #     ),
+    #     timestamp = excluded.timestamp;
+    #     -- Clear temp table data
+    #     TRUNCATE user_groups_membership_logs_temp;
+    # """
+    # pg_db.query(query_insert_results, [user_group_ids])
+    # logger.info("Updated user_group membership logs data in Postgres.")
     del pg_db
 
 

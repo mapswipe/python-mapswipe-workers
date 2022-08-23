@@ -55,6 +55,7 @@ class TestDbTransactionMixin:
                 TRUNCATE TABLE user_groups_temp;
                 TRUNCATE TABLE user_groups_user_memberships_temp;
                 TRUNCATE TABLE users_temp;
+                TRUNCATE TABLE user_groups_membership_logs_temp;
                 -- normal tables
                 TRUNCATE TABLE results CASCADE;
                 TRUNCATE TABLE results_user_groups CASCADE;
@@ -64,6 +65,7 @@ class TestDbTransactionMixin:
                 TRUNCATE TABLE groups CASCADE;
                 TRUNCATE TABLE projects CASCADE;
                 TRUNCATE TABLE users CASCADE;
+                TRUNCATE TABLE user_groups_membership_logs;
             """
             )
         except psycopg2.errors.InFailedSqlTransaction:

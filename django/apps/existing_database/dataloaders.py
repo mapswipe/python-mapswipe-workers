@@ -81,30 +81,29 @@ USER_GROUP_SWIPE_STAT_QUERY = f"""
 USER_SWIPE_STAT_QUERY = f"""
     with user_data AS (
         SELECT
-            DISTINCT ON (UGR.user_group_id)
+            COUNT(DISTINCT UGR.user_group_id) as user_group_id,
+            COUNT(DISTINCT R.task_id) as task_id,
+            COUNT(DISTINCT R.project_id) as project_id,
             R.user_id as user_id,
             MAX(R.start_time) as start_time,
-            MAX(R.end_time) as end_time,
-            COUNT(*) swipe_count,
-            R.project_id as project_id,
-            UGR.user_group_id as user_group_id
+            MAX(R.end_time) as end_time
             From {Result._meta.db_table} R
-                LEFT JOIN  {UserGroupResult._meta.db_table} UGR USING (project_id, group_id, user_id)
-            WHERE R.user_id = 'Tyf9vhtd8aZCgLlaRWQGzBE52w82'
-            GROUP BY user_id, project_id, UGR.user_group_id, group_id
+                LEFT JOIN {UserGroupResult._meta.db_table} UGR USING (project_id, group_id, user_id)
+            WHERE R.user_id = ANY(%s)
+            GROUP BY user_id, group_id, project_id
         )
     SELECT
         user_id,
-        COUNT(user_group_id) as user_group,
-        SUM(swipe_count) as total_swipe_count,
+        SUM(DISTINCT user_group_id),
+        SUM(task_id) as total_swipe_count,
         SUM(
             EXTRACT(
                 EPOCH FROM (end_time - start_time)
             )
         ) as total_time,
-        COUNT(project_id) as total_project
+        SUM(DISTINCT project_id)
     FROM user_data
-    GROUP BY user_id;
+    GROUP BY user_id
 """
 
 USER_ORGANIZATION_TYPE_STATS = f"""
@@ -114,8 +113,8 @@ USER_ORGANIZATION_TYPE_STATS = f"""
                 R.user_id as user_id,
                 COUNT(*) swipe_count,
                 P.organization_name as organization
-            From results R
-                LEFT JOIN projects as P USING (project_id)
+            From {Result._meta.db_table} R
+                LEFT JOIN {Project._meta.db_table} as P USING (project_id)
             WHERE P.organization_name != 'null' AND R.user_id = ANY(%s)
             GROUP BY organization, R.user_id
         )
@@ -256,7 +255,7 @@ USER_PROJECT_TYPE_STATS_QUERY = f"""
                 st_area(geom) as area_sum
                 FROM {Project._meta.db_table} P
                     LEFT JOIN {Result._meta.db_table} R USING (project_id)
-            WHERE R.user_id = ANY(%s)
+            WHERE R.user_id = 'Tyf9vhtd8aZCgLlaRWQGzBE52w82' and P.project_type = '1'
             GROUP BY project_type, R.user_id, area_sum
         )
     SELECT
@@ -296,8 +295,8 @@ USER_PROJECT_SWIPE_TYPE_STATS_QUERY = f"""
                 P.project_type as project_type,
                 COUNT(*) as swipes
                 FROM {Result._meta.db_table} R
-                    LEFT JOIN {Project._meta.db_table } P  USING (project_id)
-            WHERE R.user_id = ANY(%s)
+                    LEFT JOIN {Project._meta.db_table} P  USING (project_id)
+            WHERE R.user_id = 'Tyf9vhtd8aZCgLlaRWQGzBE52w82'
             GROUP BY project_type, R.user_id
         )
     SELECT
@@ -333,24 +332,26 @@ USER_GROUP_USER_SWIPE_STAT_QUERY = f"""
     WITH
         user_group_grouped_data AS (
             SELECT
-                DISTINCT(U.username) as username,
-                UGR.user_group_id as user_group_id,
+                DISTINCT(UGR.user_group_id) as user_group_id,
+                COUNT(DISTINCT R.project_id) as project_id,
+                U.username,
+                U.user_id,
                 MAX(R.start_time) as start_time,
                 MAX(R.end_time) as end_time,
-                COUNT(*) swipe_count,
-                R.project_id as project_id
+                COUNT(*) swipe_count
             From {Result._meta.db_table} R
                 LEFT JOIN {UserGroupResult._meta.db_table} UGR USING
                     (project_id, group_id, user_id)
                 LEFT JOIN {User._meta.db_table} U USING (user_id)
             WHERE
                 UGR.user_group_id = ANY(%s)
-            GROUP BY project_id, group_id, UGR.user_group_id, username
+            GROUP BY UGR.user_group_id, username, U.user_id
         )
     SELECT
         user_group_id,
+        user_id,
         username,
-        COUNT(DISTINCT project_id) as mapped_project_count,
+        COUNT(project_id) as mapped_project_count,
         SUM(swipe_count) as total_swipe_count,
         SUM(
             EXTRACT(
@@ -358,7 +359,7 @@ USER_GROUP_USER_SWIPE_STAT_QUERY = f"""
             )
         ) as total_time
     From user_group_grouped_data
-    GROUP BY user_group_id, username
+    GROUP BY user_group_id, username, user_id
 """
 
 USER_GROUP_USER_CONTRIBUTORS_STAT_QUERY = f"""
@@ -397,17 +398,17 @@ USER_LATEST_STATS_QUERY = f"""
     WITH
         dashboard_data AS (
             SELECT
+                COUNT(DISTINCT UGR.user_group_id) as user_group_id,
+                COUNT(DISTINCT R.task_id) as task_id,
                 R.user_id as user_id,
                 MAX(R.start_time) as start_time,
                 MAX(R.end_time) as end_time,
-                COUNT(*) swipe_count,
-                R.timestamp as timestamp,
-                UGR.user_group_id as user_group_id
+                R.timestamp as timestamp
             From {Result._meta.db_table} R
-                LEFT JOIN  {UserGroupResult._meta.db_table} UGR USING (project_id, group_id, user_id)
+                LEFT JOIN {UserGroupResult._meta.db_table} UGR USING (project_id, group_id, user_id)
             WHERE timestamp::date >= (CURRENT_DATE - INTERVAL '30 days')
             AND R.user_id = ANY(%s)
-            GROUP BY user_id, timestamp, user_group_id
+            GROUP BY user_id, timestamp
         )
     SELECT
         user_id,
@@ -417,7 +418,7 @@ USER_LATEST_STATS_QUERY = f"""
             )
         ) as total_time,
         COUNT( DISTINCT user_group_id) as total_group,
-        SUM(swipe_count) as total_swipe
+        SUM(task_id) as total_swipe
     From dashboard_data
     GROUP BY user_id;
 """
@@ -535,21 +536,18 @@ USER_USER_GROUP_STATS_QUERY = f"""
         user_data AS (
             SELECT
                 UG.name as user_group,
-                M.user_id as user_id,
-                M.joined_at[0] as joined_at
+                UGR.user_id as user_id
             FROM {UserGroupResult._meta.db_table} UGR
                 LEFT JOIN  {UserGroup._meta.db_table} UG USING (user_group_id)
-                LEFT JOIN {UserGroupUserMembership._meta.db_table} M USING (user_id)
             WHERE UGR.user_id = ANY(%s)
-            GROUP BY M.user_id, user_group, joined_at
+            GROUP BY UGR.user_id, user_group
         )
     SELECT
         user_id,
         user_group,
-        joined_at,
         COUNT(user_id) as members_count
     FROM user_data
-    GROUP BY user_id, user_group, joined_at
+    GROUP BY user_id, user_group
 """
 
 
@@ -639,9 +637,10 @@ def load_user_group_user_stats(keys: List[str]):
         cursor.execute(USER_GROUP_USER_SWIPE_STAT_QUERY, [keys])
         aggregate_results = cursor.fetchall()
     _map = defaultdict(list)
-    for user_group_id, username, mapped_project_count, total_swipe_count, total_time in aggregate_results:
+    for user_group_id, user_id, username, mapped_project_count, total_swipe_count, total_time in aggregate_results:
         _map[user_group_id].append(
             UserGroupUserType(
+                user_id=user_id,
                 user_name=username,
                 total_swipes=total_swipe_count or 0,
                 total_swipe_time=round(total_swipe_count / 60) or 0,  # swipe time in minutes
@@ -689,10 +688,10 @@ def load_user_stats(keys: List[str]):
         aggregate_results = cursor.fetchall()
     _map = {
         user_id: UserSwipeStatType(
-            total_swipe=round(total_swipe_count / 2) or 0,
-            total_swipe_time=round(total_time / 60 * 2) or 0,  # swipe time in minutes
-            total_mapping_projects=round(total_project + 1 / 3) or 0,
-            total_user_group=round(user_group + 1 / 3) or 0
+            total_swipe=round(total_swipe_count) or 0,
+            total_swipe_time=round(total_time / 60) or 0,  # swipe time in minutes
+            total_mapping_projects=round(total_project) or 0,
+            total_user_group=round(user_group / 4) or 0
         )
         for user_id, user_group, total_swipe_count, total_time, total_project in aggregate_results
     }
@@ -780,9 +779,9 @@ def load_user_latest_stats_query(keys: List[str]):
         aggregate_results = cursor.fetchall()
     _map = {
         user_id: UserLatestStatusTypeStats(
-            total_user_group=total_group,
-            total_swipe=total_swipe,
-            total_swipe_time=round(total_time / 60) or 0,
+            total_user_group=round(total_group / 4) or 0,
+            total_swipe=round(total_swipe),
+            total_swipe_time=round(total_time) or 0,
         )
         for user_id, total_time, total_group, total_swipe in aggregate_results
     }
@@ -847,11 +846,10 @@ def load_user_usergroup_stats(keys: List[str]):
         cursor.execute(USER_USER_GROUP_STATS_QUERY, [keys])
         aggregate_results = cursor.fetchall()
     _map = defaultdict(list)
-    for user_id, user_group, joined_at, members_count in aggregate_results:
+    for user_id, user_group, members_count in aggregate_results:
         _map[user_id].append(
             UserUserGroupTypeStats(
                 user_group=user_group or None,
-                joined_at=joined_at or None,
                 members_count=members_count or 0
             )
         )

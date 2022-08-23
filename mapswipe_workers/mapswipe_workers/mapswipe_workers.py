@@ -134,6 +134,24 @@ def run_create_user_groups():
     )
 
 
+@cli.command("create-user")
+def run_create_users():
+    fb_db = auth.firebaseDB()
+    ref = fb_db.reference("v2/updates/users")
+    changed_users_id = list((ref.get(shallow=True) or {}).keys())
+
+    if not changed_users_id:
+        return
+
+    # Update changed user data in postgres.
+    update_data.create_update_user_data(changed_users_id)
+
+    # Finally delete used records using multi-location update
+    fb_db.reference("v2/updates/users").update(
+        {_id: None for _id in changed_users_id}
+    )
+
+
 @cli.command("firebase-to-postgres")
 @click.option(
     "--project_ids",
@@ -497,6 +515,7 @@ def run(context, analysis_type, schedule, time_interval):
         context.invoke(run_create_projects)
         context.invoke(run_create_tutorials)
         context.invoke(run_create_user_groups)
+        context.invoke(run_create_users)
         project_ids = context.invoke(run_firebase_to_postgres)
         context.invoke(run_generate_stats, project_ids=project_ids)
 
@@ -505,6 +524,7 @@ def run(context, analysis_type, schedule, time_interval):
         context.invoke(run_create_projects)
         context.invoke(run_create_tutorials)
         context.invoke(run_create_user_groups)
+        context.invoke(run_create_users)
 
     def _run_firebase_to_postgres():
         logger.info(
