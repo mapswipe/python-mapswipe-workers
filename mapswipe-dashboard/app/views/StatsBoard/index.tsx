@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import {
     encodeDate,
     getDifferenceInDays,
@@ -12,7 +12,6 @@ import {
 import { scaleOrdinal } from 'd3-scale';
 import {
     Container,
-    TextInput,
     NumberOutput,
 } from '@the-deep/deep-ui';
 import {
@@ -30,6 +29,7 @@ import {
     Bar,
 } from 'recharts';
 
+import ContributionHeatmap, { MapContributionType } from '#components/ContributionHeatMap';
 import InformationCard from '#components/InformationCard';
 import areaSvg from '#resources/icons/area.svg';
 import sceneSvg from '#resources/icons/scene.svg';
@@ -49,7 +49,7 @@ const projectTypes: Record<string, { color: string, name: string}> = {
         name: 'Build Area',
     },
     2: {
-        color: '#ffffb3',
+        color: '#66C5CC',
         name: 'Footprint',
     },
     3: {
@@ -130,6 +130,7 @@ interface Props{
     projectTypeStats: ProjectTypeStats[] | null | undefined;
     organizationTypeStats: OrganizationTypeStats[] | null | undefined;
     projectSwipeTypeStats: ProjectSwipeTypeStats[] | null | undefined;
+    contributions: MapContributionType[] | undefined | null;
 }
 
 function StatsBoard(props: Props) {
@@ -140,6 +141,7 @@ function StatsBoard(props: Props) {
         projectTypeStats,
         organizationTypeStats,
         projectSwipeTypeStats,
+        contributions,
     } = props;
 
     const organizationColors = scaleOrdinal()
@@ -147,8 +149,6 @@ function StatsBoard(props: Props) {
             ?.map((organization) => (organization.organizationName))
             .filter(isDefined) ?? [])
         .range(['#8adbd3', '#e6afd3', '#b2ce91', '#74aff3', '#d6ce9c', '#b4bcec', '#c8f0c4', '#71cdeb', '#e9b198', '#92cda5']);
-
-    const [search, setSearch] = useState<string | undefined>(undefined);
 
     const totalContributionMinutes = useMemo(() => contributionTimeStats
         ?.filter((contribution) => isDefined(contribution.taskDate))
@@ -213,20 +213,11 @@ function StatsBoard(props: Props) {
             headerActionsContainerClassName={styles.headerActions}
             heading={heading}
             headingSize="large"
-            headerActions={(
-                <TextInput
-                    variant="general"
-                    placeholder="Search"
-                    name={undefined}
-                    value={search}
-                    type="search"
-                    onChange={setSearch}
-                />
-            )}
             contentClassName={styles.content}
         >
             <div className={styles.board}>
                 <div className={styles.stats}>
+                    <ContributionHeatmap contributions={contributions} />
                     <InformationCard
                         label="Time Spent Contributing"
                         variant="stat"

@@ -11,6 +11,7 @@ import {
 import SearchSelectInput, {
     SearchSelectInputProps,
 } from '#components/SelectInput/SearchSelectInput';
+import useDebouncedValue from '#hooks/useDebouncedValue';
 
 export type SearchUserGroupType = Pick<UserGroupType, 'userGroupId' | 'name'>;
 
@@ -49,9 +50,11 @@ function UserGroupSelectInput<K extends string>(props: UserGroupSelectInputProps
 
     const [opened, setOpened] = useState(false);
     const [searchText, setSearchText] = useState<string>('');
+    const debouncedSearchText = useDebouncedValue(searchText);
+
     const variables = useMemo(() => ({
-        search: searchText,
-    }), [searchText]);
+        search: debouncedSearchText,
+    }), [debouncedSearchText]);
 
     const {
         previousData,

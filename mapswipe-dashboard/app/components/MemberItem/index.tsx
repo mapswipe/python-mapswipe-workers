@@ -1,9 +1,12 @@
 import React from 'react';
-import { Member } from '#views/UserGroupDashboard';
+import { NumberOutput } from '@the-deep/deep-ui';
+
+import { UserGroupMember } from '#views/UserGroupDashboard';
+
 import styles from './styles.css';
 
 interface Props {
-    member: Member;
+    member: UserGroupMember;
 }
 
 function MemberItem(props: Props) {
@@ -11,11 +14,24 @@ function MemberItem(props: Props) {
 
     return (
         <div className={styles.member}>
-            <div className={styles.item}>{member.displayName}</div>
-            <div className={styles.item}>{member.level}</div>
-            <div className={styles.item}>{member.totalSwipes}</div>
-            <div className={styles.item}>{member.missionsContributed}</div>
-            <div className={styles.item}>{member.timeSpent}</div>
+            <div className={styles.item}>{member.userName}</div>
+            <div className={styles.item}>
+                <NumberOutput
+                    value={member.totalSwipes}
+                    normal
+                    precision={2}
+                />
+            </div>
+            <div className={styles.item}>
+                <NumberOutput
+                    value={member.totalMappingProjects}
+                />
+            </div>
+            <div className={styles.item}>
+                <NumberOutput
+                    value={member.totalSwipeTime}
+                />
+            </div>
         </div>
     );
 }

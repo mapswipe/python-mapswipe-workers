@@ -4,6 +4,8 @@ import { init, ErrorBoundary, setUser as setUserOnSentry } from '@sentry/react';
 import { _cs } from '@togglecorp/fujs';
 import { ApolloClient, ApolloProvider } from '@apollo/client';
 import ReactGA from 'react-ga';
+import { setMapboxToken } from '@togglecorp/re-map';
+import 'mapbox-gl/dist/mapbox-gl.css';
 
 import Init from '#base/components/Init';
 import PreloadMessage from '#base/components/PreloadMessage';
@@ -18,12 +20,15 @@ import Routes from '#base/components/Routes';
 import { User } from '#base/types/user';
 import apolloConfig from '#base/configs/apollo';
 import { trackingId, gaConfig } from '#base/configs/googleAnalytics';
+import { mapboxToken } from '#base/configs/env';
 
 import styles from './styles.css';
 
 if (sentryConfig) {
     init(sentryConfig);
 }
+
+setMapboxToken(mapboxToken);
 
 if (trackingId) {
     ReactGA.initialize(trackingId, gaConfig);

@@ -1,5 +1,5 @@
 import React from 'react';
-import { compareNumber, _cs } from '@togglecorp/fujs';
+import { _cs } from '@togglecorp/fujs';
 import { Header, NumberOutput, TextOutput } from '@the-deep/deep-ui';
 import { gql, useQuery } from '@apollo/client';
 import { useParams } from 'react-router-dom';
@@ -13,6 +13,7 @@ import Footer from '#components/Footer';
 import StatsBoard from '#views/StatsBoard';
 import CalendarHeatMapContainer from '#components/CalendarHeatMapContainer';
 import { UserStatsQuery, UserStatsQueryVariables } from '#generated/types';
+import { MapContributionType } from '#components/ContributionHeatMap';
 
 import styles from './styles.css';
 
@@ -27,10 +28,13 @@ const USER_STATS = gql`
                 taskDate
                 totalTime
             }
-
             organizationSwipeStats {
                 organizationName
                 totalSwipe
+            }
+            userGeoContribution {
+                geojson
+                totalContribution
             }
             projectStats {
                 area
@@ -44,7 +48,6 @@ const USER_STATS = gql`
                 totalMappingProjects
                 totalSwipe
                 totalSwipeTime
-                totalTask
             }
             statsLatest {
                 totalSwipe
@@ -132,8 +135,6 @@ function UserDashboard(props: Props) {
                             <NumberOutput
                                 className={styles.value}
                                 value={userStats?.user.stats?.totalSwipeTime}
-                                normal
-                                precision={2}
                             />
                         )}
                         label="Total Time Spent (in mins)"
@@ -144,8 +145,6 @@ function UserDashboard(props: Props) {
                                     <NumberOutput
                                         className={styles.value}
                                         value={userStats?.user.statsLatest?.totalSwipeTime}
-                                        normal
-                                        precision={2}
                                     />
                                 )}
                                 description="&nbsp; mins last month"
@@ -158,8 +157,6 @@ function UserDashboard(props: Props) {
                             <NumberOutput
                                 className={styles.value}
                                 value={userStats?.user.stats?.totalMappingProjects}
-                                normal
-                                precision={2}
                             />
                         )}
                         label="Groups Joined"
@@ -171,8 +168,6 @@ function UserDashboard(props: Props) {
                                     <NumberOutput
                                         className={styles.value}
                                         value={userStats?.user.statsLatest?.totalUserGroup}
-                                        normal
-                                        precision={2}
                                     />
                                 )}
                                 hideLabelColon
@@ -190,6 +185,8 @@ function UserDashboard(props: Props) {
                     projectTypeStats={userStats?.user.projectStats}
                     organizationTypeStats={userStats?.user.organizationSwipeStats}
                     projectSwipeTypeStats={userStats?.user.projectSwipeStats}
+                    contributions={userStats
+                        ?.user.userGeoContribution as MapContributionType[] | null | undefined}
                 />
                 <div className={styles.groups}>
                     <div className={styles.groupsHeading}>

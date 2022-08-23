@@ -69,7 +69,7 @@
                     padding: 0 var(--spacing-medium);
 
                     .heading {
-                        flex-basis: 20%;
+                        flex-basis: 25%;
                         color: var(--color-text-on-dark);
                         font-size: var(--font-size-large);
                         font-weight: var(--font-weight-medium);

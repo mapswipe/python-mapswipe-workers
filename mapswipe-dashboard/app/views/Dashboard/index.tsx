@@ -16,7 +16,11 @@ import StatsBoard from '#views/StatsBoard';
 import {
     CommunityStatsQuery,
     CommunityStatsQueryVariables,
+    DeepCommunityStatsQuery,
+    DeepCommunityStatsQueryVariables,
 } from '#generated/types';
+import { MapContributionType } from '#components/ContributionHeatMap';
+
 import styles from './styles.css';
 
 const COMMUNITY_STATS = gql`
@@ -26,18 +30,14 @@ const COMMUNITY_STATS = gql`
             totalGroupsLastMonth
             totalSwipesLastMonth
         }
+        projectGeoContribution {
+            geojson
+            totalContribution
+        }
         communityStats {
             totalContributors
             totalGroups
             totalSwipes
-        }
-        contributorTimeSats {
-            taskDate
-            totalTime
-          }
-        projectTypeStats {
-            area
-            projectType
         }
         organizationTypeStats {
             organizationName
@@ -47,6 +47,19 @@ const COMMUNITY_STATS = gql`
             projectType
             totalSwipe
           }
+    }
+`;
+
+const DEEP_COMMUNITY_STATS = gql`
+    query DeepCommunityStats {
+        contributorTimeSats {
+            taskDate
+            totalTime
+          }
+        projectTypeStats {
+            area
+            projectType
+        }
     }
 `;
 
@@ -63,6 +76,12 @@ function Dashboard(props: Props) {
         data: communityStats,
     } = useQuery<CommunityStatsQuery, CommunityStatsQueryVariables>(
         COMMUNITY_STATS,
+    );
+
+    const {
+        data: deepCommunityStats,
+    } = useQuery<DeepCommunityStatsQuery, DeepCommunityStatsQueryVariables>(
+        DEEP_COMMUNITY_STATS,
     );
 
     return (
@@ -111,8 +130,6 @@ function Dashboard(props: Props) {
                             <NumberOutput
                                 className={styles.value}
                                 value={communityStats?.communityStats?.totalGroups}
-                                normal
-                                precision={2}
                             />
                         )}
                         label="Total Groups"
@@ -124,8 +141,6 @@ function Dashboard(props: Props) {
                                         className={styles.value}
                                         value={communityStats
                                             ?.communityStastLastest?.totalGroupsLastMonth}
-                                        normal
-                                        precision={2}
                                     />
                                 )}
                                 description="&nbsp;active groups last month"
@@ -164,10 +179,12 @@ function Dashboard(props: Props) {
             <div className={styles.content}>
                 <StatsBoard
                     heading="Community Statsboard"
-                    contributionTimeStats={communityStats?.contributorTimeSats}
-                    projectTypeStats={communityStats?.projectTypeStats}
+                    contributionTimeStats={deepCommunityStats?.contributorTimeSats}
+                    projectTypeStats={deepCommunityStats?.projectTypeStats}
                     organizationTypeStats={communityStats?.organizationTypeStats}
                     projectSwipeTypeStats={communityStats?.projectSwipeType}
+                    contributions={communityStats
+                        ?.projectGeoContribution as MapContributionType[] | null | undefined}
                 />
             </div>
             <Footer />

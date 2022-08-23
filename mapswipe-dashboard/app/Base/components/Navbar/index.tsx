@@ -42,7 +42,7 @@ function Navbar(props: Props) {
         if (userId) {
             history.push(`/user/${userId}/`);
         }
-    }, []);
+    }, [history]);
 
     const handleSelectUserGroup = useCallback((userGroupId: string | undefined) => {
         setSelectedUserGroup(userGroupId);
@@ -50,7 +50,7 @@ function Navbar(props: Props) {
         if (userGroupId) {
             history.push(`/user-group/${userGroupId}/`);
         }
-    }, []);
+    }, [history]);
 
     return (
         <nav className={_cs(className, styles.navbar)}>

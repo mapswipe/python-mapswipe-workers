@@ -29,7 +29,7 @@ function Footer() {
             <div className={styles.links}>
                 <a
                     aria-label="Facebook"
-                    href="www.facebook.com"
+                    href="https://www.facebook.com"
                     target="_blank"
                     rel="noreferrer"
                     className={styles.iconLink}
@@ -38,15 +38,16 @@ function Footer() {
                 </a>
                 <a
                     aria-label="Twitter"
-                    href="www.twitter.com"
+                    href="https://www.twitter.com"
                     target="_blank"
                     className={styles.iconLink}
+                    rel="noreferrer"
                 >
                     <IoLogoTwitter />
                 </a>
                 <a
                     aria-label="Github"
-                    href="www.github.com"
+                    href="https://www.github.com"
                     target="_blank"
                     rel="noreferrer"
                     className={styles.iconLink}
@@ -55,7 +56,7 @@ function Footer() {
                 </a>
                 <a
                     aria-label="Instagram"
-                    href="www.instagram.com"
+                    href="https://www.instagram.com"
                     target="_blank"
                     rel="noreferrer"
                     className={styles.iconLink}

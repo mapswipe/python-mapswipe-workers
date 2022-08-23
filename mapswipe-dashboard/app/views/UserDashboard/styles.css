@@ -44,19 +44,6 @@
         flex-grow: 1;
         padding: var(--spacing-medium) var(--spacing-ultra-large);
 
-        .chart-container {
-            display: flex;
-            flex-grow: 1;
-            margin-bottom: var(--spacing-extra-large);
-
-            .heat-map-legend {
-                display: flex;
-                gap: 0.7rem;
-                align-items: center;
-                justify-content: flex-end;
-            }
-        }
-
         .groups {
             display: flex;
             flex-direction: column;

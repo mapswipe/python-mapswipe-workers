@@ -14,143 +14,14 @@ import CalendarHeatMapContainer from '#components/CalendarHeatMapContainer';
 import Footer from '#components/Footer';
 import StatsBoard from '#views/StatsBoard';
 import { UserGroupStatsQuery, UserGroupStatsQueryVariables } from '#generated/types';
+import { MapContributionType } from '#components/ContributionHeatMap';
 
 import styles from './styles.css';
 
-export interface Member {
-    id: number;
-    displayName: string;
-    level: number;
-    totalSwipes: number;
-    missionsContributed: number;
-    timeSpent: number;
-}
+export type UserGroupMember = NonNullable<NonNullable<UserGroupStatsQuery['userGroup']>['userStats']>[number];
 
-const members: Member[] = [
-    {
-        id: 1,
-        displayName: 'Ofelia',
-        level: 5,
-        totalSwipes: 8564,
-        missionsContributed: 59,
-        timeSpent: 1852,
-    },
-    {
-        id: 2,
-        displayName: 'Lynnet',
-        level: 40,
-        totalSwipes: 2347,
-        missionsContributed: 17,
-        timeSpent: 6799,
-    },
-    {
-        id: 3,
-        displayName: 'Gabriel',
-        level: 49,
-        totalSwipes: 2573,
-        missionsContributed: 98,
-        timeSpent: 1825,
-    },
-    {
-        id: 4,
-        displayName: 'Domini',
-        level: 66,
-        totalSwipes: 8741,
-        missionsContributed: 65,
-        timeSpent: 6910,
-    },
-    {
-        id: 5,
-        displayName: 'Jill',
-        level: 67,
-        totalSwipes: 7653,
-        missionsContributed: 38,
-        timeSpent: 8780,
-    },
-    {
-        id: 6,
-        displayName: 'Gillie',
-        level: 49,
-        totalSwipes: 1178,
-        missionsContributed: 64,
-        timeSpent: 5883,
-    },
-    {
-        id: 7,
-        displayName: 'Zsa zsa',
-        level: 60,
-        totalSwipes: 8869,
-        missionsContributed: 15,
-        timeSpent: 4595,
-    },
-    {
-        id: 8,
-        displayName: 'Roanna',
-        level: 64,
-        totalSwipes: 2163,
-        missionsContributed: 15,
-        timeSpent: 5807,
-    },
-    {
-        id: 9,
-        displayName: 'Aubrie',
-        level: 2,
-        totalSwipes: 516,
-        missionsContributed: 84,
-        timeSpent: 7744,
-    },
-    {
-        id: 10,
-        displayName: 'Pandora',
-        level: 95,
-        totalSwipes: 9760,
-        missionsContributed: 64,
-        timeSpent: 7569,
-    },
-    {
-        id: 11,
-        displayName: 'Pattie',
-        level: 67,
-        totalSwipes: 7455,
-        missionsContributed: 62,
-        timeSpent: 9060,
-    },
-    {
-        id: 12,
-        displayName: 'Sabine',
-        level: 76,
-        totalSwipes: 4750,
-        missionsContributed: 61,
-        timeSpent: 2622,
-    },
-    {
-        id: 13,
-        displayName: 'Rozanne',
-        level: 80,
-        totalSwipes: 8899,
-        missionsContributed: 87,
-        timeSpent: 6356,
-    },
-    {
-        id: 14,
-        displayName: 'Caria',
-        level: 75,
-        totalSwipes: 7655,
-        missionsContributed: 16,
-        timeSpent: 9654,
-    },
-    {
-        id: 15,
-        displayName: 'Helen',
-        level: 64,
-        totalSwipes: 7402,
-        missionsContributed: 26,
-        timeSpent: 5319,
-    },
-];
-
-function memberKeySelector(member: Member) {
-    return member.id;
+function memberKeySelector(member: UserGroupMember) {
+    return member.userName;
 }
 
 const USER_GROUP_STATS = gql`
@@ -172,6 +43,10 @@ const USER_GROUP_STATS = gql`
                 area
                 projectType
             }
+            userGroupGeoStats {
+                geojson
+                totalContribution
+            }
             stats {
                 totalMappingProjects
                 totalContributors
@@ -187,6 +62,25 @@ const USER_GROUP_STATS = gql`
             userGroupOrganizationStats {
                 organizationName
                 totalSwipe
+            }
+            userStats {
+                totalMappingProjects
+                totalSwipeTime
+                totalSwipes
+                userName
+            }
+            userMemberships {
+                items {
+                    user {
+                        userId
+                        username
+                        stats {
+                            totalSwipe
+                            totalSwipeTime
+                            totalMappingProjects
+                        }
+                    }
+                }
             }
             name
             description
@@ -219,7 +113,7 @@ function UserGroupDashboard(props: Props) {
     const contributionData = userGroupStats?.userGroup.contributionStats
         .map((value) => ({ date: value.taskDate, count: value.totalSwipe }));
 
-    const memberRendererParams = useCallback((_: number, item: Member) => (
+    const memberRendererParams = useCallback((_: string, item: UserGroupMember) => (
         { member: item }
     ), []);
 
@@ -271,8 +165,6 @@ function UserGroupDashboard(props: Props) {
                             <NumberOutput
                                 className={styles.value}
                                 value={userGroupStats?.userGroup.stats.totalSwipeTime}
-                                normal
-                                precision={2}
                             />
                         )}
                         description={(
@@ -283,8 +175,6 @@ function UserGroupDashboard(props: Props) {
                                         className={styles.value}
                                         value={userGroupStats
                                             ?.userGroup.userGroupLatest?.totalSwipeTime}
-                                        normal
-                                        precision={2}
                                     />
                                 )}
                                 description="&nbsp; mins last month"
@@ -298,8 +188,6 @@ function UserGroupDashboard(props: Props) {
                             <NumberOutput
                                 className={styles.value}
                                 value={userGroupStats?.userGroup.stats.totalContributors}
-                                normal
-                                precision={2}
                             />
                         )}
                         description={(
@@ -310,8 +198,6 @@ function UserGroupDashboard(props: Props) {
                                         className={styles.value}
                                         value={userGroupStats
                                             ?.userGroup.userGroupLatest?.totalContributors}
-                                        normal
-                                        precision={2}
                                     />
                                 )}
                                 hideLabelColon
@@ -329,6 +215,8 @@ function UserGroupDashboard(props: Props) {
                     projectTypeStats={userGroupStats?.userGroup.projectTypeStats}
                     organizationTypeStats={userGroupStats?.userGroup.userGroupOrganizationStats}
                     projectSwipeTypeStats={userGroupStats?.userGroup.projectSwipeType}
+                    contributions={userGroupStats
+                        ?.userGroup.userGroupGeoStats as MapContributionType[] | null | undefined}
                 />
                 <div className={styles.members}>
                     <div className={styles.membersHeading}>
@@ -337,13 +225,12 @@ function UserGroupDashboard(props: Props) {
                     <div className={styles.membersContainer}>
                         <div className={styles.memberListHeading}>
                             <div className={styles.heading}>User</div>
-                            <div className={styles.heading}>Level</div>
                             <div className={styles.heading}>Total Swipes</div>
                             <div className={styles.heading}>Mission contributed</div>
-                            <div className={styles.heading}>Time Spent</div>
+                            <div className={styles.heading}>Time Spent (mins)</div>
                         </div>
                         <ListView
-                            data={members}
+                            data={userGroupStats?.userGroup.userStats}
                             keySelector={memberKeySelector}
                             renderer={MemberItem}
                             rendererParams={memberRendererParams}
