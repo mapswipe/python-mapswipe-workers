@@ -45,6 +45,25 @@ CREATE TABLE IF NOT EXISTS user_groups_user_memberships_temp (
     user_id varchar
 );
 
+CREATE TYPE membership_action AS ENUM ('join', 'leave');
+
+CREATE TABLE IF NOT EXISTS user_groups_membership_logs (
+    user_group_id varchar,
+    user_id varchar,
+    action MEMBERSHIP_ACTION,
+    "timestamp" timestamp,
+    PRIMARY KEY (user_group_id, user_id),
+    FOREIGN KEY (user_id) REFERENCES users (user_id),
+    FOREIGN KEY (user_group_id) REFERENCES user_groups (user_group_id)
+);
+
+CREATE TABLE IF NOT EXISTS user_groups_membership_logs_temp (
+    user_group_id varchar,
+    user_id varchar,
+    action MEMBERSHIP_ACTION,
+    "timestamp" timestamp
+);
+
 -- Used to group results by user groups
 CREATE TABLE IF NOT EXISTS results_user_groups (
     -- result primary key (not using task_id as it is a flat field in results)

@@ -34,6 +34,11 @@ class TestUpdateProjectData(BaseTestCase):
                     "user-2": True,
                     "user-3": True,
                 },
+                "userGroupMembershipLogs": {
+                    "member-1": True,
+                    "member-2": True,
+                    "member-3": True,
+                }
             },
             "user-group-2": {
                 "name": "User Group 2",
@@ -43,6 +48,11 @@ class TestUpdateProjectData(BaseTestCase):
                     "user-2": True,
                     "user-4": True,
                 },
+                "userGroupMembershipLogs": {
+                    "member-1": True,
+                    "member-2": True,
+                    "member-4": True,
+                }
             },
             "user-group-3": {
                 "name": "User Group 3",
@@ -54,6 +64,9 @@ class TestUpdateProjectData(BaseTestCase):
                 "users": {
                     "user-2": True,
                 },
+                "userGroupMembershipLogs": {
+                    "member-2": True,
+                }
             },
             "user-group-4": {
                 "name": "User Group 4",
@@ -62,6 +75,10 @@ class TestUpdateProjectData(BaseTestCase):
                     "user-1": True,
                     "user-2": False,
                 },
+                "userGroupMembershipLogs": {
+                    "member-1": True,
+                    "member-2": False,
+                }
             },
             "user-group-5": {
                 "name": "User Group 5",
@@ -69,9 +86,19 @@ class TestUpdateProjectData(BaseTestCase):
             },
         }
 
+        USER_MOCK_DATA = {
+            'user-1': {
+                "username": "test user"
+            },
+            'user-2': {
+                "username": "test user 2"
+            }
+        }
+
         def __init__(self):
             # If we need to mutate data
             self.mock_data = copy.deepcopy(self.USER_GROUP_MOCK_DATA)
+            self.user_mock_data = copy.deepcopy(self.USER_MOCK_DATA)
 
         def reference(self, url):
             # To track url. Used in get()
@@ -84,6 +111,9 @@ class TestUpdateProjectData(BaseTestCase):
             if self.url.startswith("v2/userGroups/"):
                 user_group_id = self.url.split("/")[-1]
                 return self.mock_data.get(user_group_id)
+            elif self.url.startswith("v2/users/"):
+                user_id = self.url.split("/")[-1]
+                return self.user_mock_data.get(user_id)
             return {}
 
     @mock.patch("mapswipe_workers.firebase_to_postgres.update_data.auth.firebaseDB")
@@ -230,6 +260,37 @@ class TestUpdateProjectData(BaseTestCase):
                     ("user-3",),
                     ("user-4",),
                     ("user-8",),
+                ],
+            ),
+        ]:
+            self.assertEqual(
+                expected_value,
+                self.db.retr_query(query),
+                (query, expected_value),
+            )
+
+    @mock.patch("mapswipe_workers.firebase_to_postgres.update_data.auth.firebaseDB")
+    def test_with_user_ids(self, fb_db_patch):
+        """Test add/update users in postgres yet."""
+
+        # Mock firebase db. Responses are simple here.
+        fb_db_mock = self.FbDbMock()
+        fb_db_patch.return_value = fb_db_mock
+
+        # update user data
+        update_data.create_update_user_data(
+            [
+                "user-1",
+                "user-2",
+            ]
+        )
+        U_QUERY = "SELECT user_id, username FROM users"
+        for query, expected_value in [
+            (
+                U_QUERY,
+                [
+                    ("user-1", "test user"),
+                    ("user-2", "test user 2"),
                 ],
             ),
         ]:

@@ -17,7 +17,6 @@ def get_agg_results_by_user_id(
     raw_contributions_df = results_df.merge(
         agg_results_df, left_on="task_id", right_on="task_id"
     )
-
     # compare to classifications of other users
     # Calc number of agreeig and disagreeing results from other users.
     raw_contributions_df.loc[
@@ -38,7 +37,7 @@ def get_agg_results_by_user_id(
     ] - (raw_contributions_df["agreeing_contributions"] + 1)
 
     agg_results_by_user_id_df = raw_contributions_df.groupby(
-        ["project_id", "user_id"]
+        ["project_id", "user_id", "username"]
     ).agg(
         groups_completed=pd.NamedAgg(column="group_id", aggfunc=pd.Series.nunique),
         total_contributions=pd.NamedAgg(column="user_id", aggfunc="count"),
