@@ -60,6 +60,7 @@
 }
 @media(max-width: 900px) {
     .navbar {
+        flex-direction: column;
         padding: var(--spacing-small) var(--spacing-mega-large) var(--spacing-small) var(--spacing-mega-large);
     }
 }
@@ -70,7 +71,7 @@
     }
 }
 
-@media(max-width: 700px) {
+@media(max-width: 500px) {
     .navbar {
         padding: var(--spacing-small);
     }

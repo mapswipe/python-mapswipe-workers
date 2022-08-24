@@ -3,7 +3,7 @@
     gap: var(--spacing-extra-large);
     justify-content: center;
     background-color: var(--color-primary);
-    padding: var(--spacing-medium);
+    padding: var(--spacing-extra-large) var(--spacing-medium);
 
     .links {
         display: flex;
@@ -28,3 +28,13 @@
         }
     }
 }
+
+@media(max-width: 600px) {
+    .footer {
+        display: flex;
+        align-items: center;
+        flex-direction: column;
+    }
+}
+
+

@@ -94,7 +94,7 @@ function Dashboard(props: Props) {
                     headingSize="small"
                     headingContainerClassName={styles.description}
                     descriptionClassName={styles.description}
-                    description="Putting communities on the map to help humanitarians find and help vunerable communities"
+                    description="Putting communities on the map to help humanitarians find and help vunerable communities."
                 />
                 <div className={styles.stats}>
                     <InformationCard

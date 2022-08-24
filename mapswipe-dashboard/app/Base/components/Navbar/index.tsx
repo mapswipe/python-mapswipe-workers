@@ -51,7 +51,7 @@ function Navbar(props: Props) {
                 <ItemSelectInput
                     className={styles.filter}
                     name="user"
-                    label="User / User Group"
+                    label="Search Users and Groups"
                     onItemSelect={handleSelectItem}
                     labelContainerClassName={styles.label}
                 />
