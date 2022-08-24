@@ -165,11 +165,18 @@ function ProjectDetails(props: Props) {
         onDenyButtonClick: onFeaturedUpdateDenyButtonClick,
     } = useConfirmation(updateFeatured);
 
+    const [title, org] = data.name?.split('\n');
+
     return (
         <div className={_cs(styles.projectDetails, className)}>
             <div className={styles.header}>
                 <h3 className={styles.heading}>
-                    {data.name}
+                    <div>
+                        {title}
+                    </div>
+                    <small className={styles.orgName}>
+                        {org}
+                    </small>
                 </h3>
                 <div className={styles.progressBar}>
                     <div className={styles.value}>

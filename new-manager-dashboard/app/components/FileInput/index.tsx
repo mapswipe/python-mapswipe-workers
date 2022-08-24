@@ -157,7 +157,7 @@ function FileInput<Name>(props: Props<Name>) {
                     />
                 </>
             )}
-            iconsContainerClassName={iconsContainerClassName}
+            iconsContainerClassName={_cs(styles.labelContainer, iconsContainerClassName)}
             inputSectionClassName={_cs(styles.inputSection, inputSectionClassName)}
             inputContainerClassName={styles.status}
             label={label}
@@ -178,7 +178,9 @@ function FileInput<Name>(props: Props<Name>) {
             )}
             input={(
                 <>
-                    {status}
+                    <span title={status}>
+                        {status}
+                    </span>
                     <RawInput
                         className={styles.input}
                         id={inputId}

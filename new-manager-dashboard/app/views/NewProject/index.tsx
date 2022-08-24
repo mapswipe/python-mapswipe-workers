@@ -37,7 +37,7 @@ import TextInput from '#components/TextInput';
 import TextArea from '#components/TextArea';
 import NumberInput from '#components/NumberInput';
 import SegmentInput from '#components/SegmentInput';
-import FileInput from '#components/FileInput';
+import ImageInput from '#components/ImageInput';
 import GeoJsonFileInput from '#components/GeoJsonFileInput';
 import TileServerInput, {
     TILE_SERVER_BING,
@@ -142,28 +142,27 @@ function NewProject(props: Props) {
         [formError],
     );
 
+    React.useEffect(() => {
+        setFieldValue(tutorialOptions?.[0]?.value, 'tutorialId');
+    }, [setFieldValue, value?.projectType, tutorialOptions]);
+
     const setFieldValueAndGenerateName = React.useCallback(
         (...entries: EntriesAsList<PartialProjectFormType>) => {
+            setFieldValue(...entries);
             setValue((oldValue) => {
-                const [val, key] = entries;
-                const newValue: typeof oldValue = {
-                    ...oldValue,
-                    // NOTE: this may not be type-safe
-                    [key]: val,
-                };
                 const name = generateProjectName(
-                    newValue.projectTopic,
-                    newValue.projectNumber,
-                    newValue.projectRegion,
-                    newValue.requestingOrganisation,
+                    oldValue.projectTopic,
+                    oldValue.projectNumber,
+                    oldValue.projectRegion,
+                    oldValue.requestingOrganisation,
                 );
                 return {
-                    ...newValue,
+                    ...oldValue,
                     name,
                 };
             }, true);
         },
-        [setValue],
+        [setFieldValue, setValue],
     );
 
     const handleProjectTypeChange = React.useCallback(
@@ -175,6 +174,9 @@ function NewProject(props: Props) {
                 // can be string or FeatureCollection
                 geometry: undefined,
                 groupSize: getGroupSize(projectType),
+
+                // selecting the first tutorial in the list
+                tutorialId: undefined,
             }), true);
             setGeometryDescription(undefined);
             setTMIdDescription(undefined);
@@ -507,16 +509,16 @@ function NewProject(props: Props) {
                         label="Project Details"
                         hint="Enter the description for your project. (markdown syntax is supported)."
                         disabled={submissionPending}
+                        rows={4}
                     />
                     <div className={styles.inputGroup}>
-                        <FileInput
+                        <ImageInput
                             name={'projectImage' as const}
                             value={value?.projectImage}
                             onChange={setFieldValue}
-                            label="Upload Project Image"
+                            label="Upload Project Image (Image)"
                             hint="Make sure you have the rights to use the image. It should end with .jpg or .png."
                             showPreview
-                            accept="image/png, image/jpeg"
                             error={error?.projectImage}
                             disabled={submissionPending}
                         />

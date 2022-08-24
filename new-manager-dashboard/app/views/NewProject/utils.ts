@@ -172,10 +172,7 @@ export const projectFormSchema: ProjectFormSchema = {
             projectType: [requiredCondition],
             projectRegion: [requiredStringCondition, getNoMoreThanNCharacterCondition(50)],
             projectNumber: [requiredCondition, integerCondition, greaterThanCondition(0)],
-            requestingOrganisation: [
-                requiredStringCondition,
-                getNoMoreThanNCharacterCondition(100),
-            ],
+            requestingOrganisation: [requiredStringCondition],
             name: [requiredStringCondition],
             visibility: [requiredCondition],
             lookFor: [requiredStringCondition, getNoMoreThanNCharacterCondition(25)],
@@ -296,7 +293,7 @@ export function generateProjectName(
         return undefined;
     }
 
-    return `${projectTopic} - ${projectRegion} (${projectNumber}) \n${requestingOrganisation}`;
+    return `${projectTopic} - ${projectRegion} (${projectNumber})\n${requestingOrganisation}`;
 }
 
 export function getGroupSize(projectType: ProjectType | undefined) {
