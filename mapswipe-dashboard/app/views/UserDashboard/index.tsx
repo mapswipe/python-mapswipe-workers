@@ -55,7 +55,6 @@ const USER_STATS = gql`
                 totalUserGroup
             }
             userInUserGroups {
-                joinedAt
                 membersCount
                 userGroup
               }
@@ -100,11 +99,10 @@ function UserDashboard(props: Props) {
                     headingSize="small"
                     headingContainerClassName={styles.description}
                     descriptionClassName={styles.description}
-                    description="Level"
                 />
                 <div className={styles.stats}>
                     <InformationCard
-                        icon={(<img src={swipeSvg} alt="swipe icon" />)}
+                        icon={(<img src={swipeSvg} alt="swipe icon" className={styles.image} />)}
                         value={(
                             <NumberOutput
                                 className={styles.value}
@@ -130,7 +128,7 @@ function UserDashboard(props: Props) {
                         )}
                     />
                     <InformationCard
-                        icon={(<img src={timeSvg} alt="time icon" />)}
+                        icon={(<img src={timeSvg} alt="time icon" className={styles.image} />)}
                         value={(
                             <NumberOutput
                                 className={styles.value}
@@ -152,7 +150,7 @@ function UserDashboard(props: Props) {
                         )}
                     />
                     <InformationCard
-                        icon={(<img src={groupSvg} alt="group icon" />)}
+                        icon={(<img src={groupSvg} alt="group icon" className={styles.image} />)}
                         value={(
                             <NumberOutput
                                 className={styles.value}
@@ -202,7 +200,7 @@ function UserDashboard(props: Props) {
                                     <TextOutput
                                         className={styles.value}
                                         label="Joined on &nbsp;"
-                                        value={group.joinedAt}
+                                        value={undefined}
                                         hideLabelColon
                                         valueType="date"
                                     />

@@ -101,7 +101,7 @@ const projectTypeTotalSwipeFormatter = (value: number, name: string) => (
 const totalTimeFormatter = (value: number) => ([getHoursMinutes(value), 'total time']);
 
 const getTicks = (startDate: number, endDate: number, num: number) => {
-    const diffDays = getDifferenceInDays(startDate, endDate);
+    const diffDays = getDifferenceInDays(endDate, startDate);
 
     const ticks = [startDate];
     const velocity = Math.round(diffDays / (num - 1));
@@ -150,7 +150,7 @@ function StatsBoard(props: Props) {
             .filter(isDefined) ?? [])
         .range(['#8adbd3', '#e6afd3', '#b2ce91', '#74aff3', '#d6ce9c', '#b4bcec', '#c8f0c4', '#71cdeb', '#e9b198', '#92cda5']);
 
-    const totalContributionMinutes = useMemo(() => contributionTimeStats
+    const contributionTimeSeries = useMemo(() => contributionTimeStats
         ?.filter((contribution) => isDefined(contribution.taskDate))
         ?.map((contribution) => ({
             taskDate: contribution?.taskDate
@@ -162,7 +162,7 @@ function StatsBoard(props: Props) {
 
     const totalContributionMintuesByYear = useMemo(() => {
         const yearWiseContributions = listToGroupList(
-            totalContributionMinutes,
+            contributionTimeSeries,
             (d) => new Date(d.taskDate).getUTCFullYear(),
             (d) => d.totalTime,
         );
@@ -171,16 +171,20 @@ function StatsBoard(props: Props) {
             (d, key) => ({ year: key, totalTime: d.reduce((a, b) => a + b, 0) }),
         );
         return result;
-    }, [totalContributionMinutes]);
+    }, [contributionTimeSeries]);
 
-    const totalContributionHours = totalContributionMintuesByYear
-        ?.reduce((a, b) => (a + b.totalTime), 0);
-    const totalContribution = totalContributionHours
-        ? getHoursMinutes(totalContributionHours) : undefined;
-    const ticks = totalContributionMinutes
+    const totalContribution = useMemo(() => {
+        const totalContributionInMinutes = sum(totalContributionMintuesByYear
+            ?.map((contribution) => contribution.totalTime) ?? []);
+
+        return totalContributionMintuesByYear
+            ? getHoursMinutes(totalContributionInMinutes) : undefined;
+    }, [totalContributionMintuesByYear]);
+
+    const ticks = contributionTimeSeries
         ? getTicks(
-            totalContributionMinutes[0].taskDate,
-            totalContributionMinutes[totalContributionMinutes.length - 1].taskDate,
+            contributionTimeSeries[0].taskDate,
+            contributionTimeSeries[contributionTimeSeries.length - 1].taskDate,
             5,
         )
         : undefined;
@@ -197,13 +201,28 @@ function StatsBoard(props: Props) {
         projectTypeStats?.map((project) => (project.area ?? 0)),
     ) : undefined;
 
-    const sortedProjectSwipeType = projectSwipeTypeStats
+    const sortedProjectSwipeType = useMemo(() => projectSwipeTypeStats
         ?.slice()
-        ?.sort((a, b) => compareNumber(a.totalSwipe, b.totalSwipe));
+        ?.filter((project) => isDefined(project.projectType))
+        ?.sort((a, b) => compareNumber(b.totalSwipe, a.totalSwipe)), [projectSwipeTypeStats]);
 
-    const sortedTotalSwipeByOrganization = organizationTypeStats
-        ?.slice()
-        ?.sort((a, b) => compareNumber(a.totalSwipe, b.totalSwipe));
+    const totalSwipesByOrganizationStats = useMemo(() => {
+        const sortedTotalSwipeByOrganization = organizationTypeStats
+            ?.slice()
+            ?.sort((a, b) => compareNumber(b.totalSwipe, a.totalSwipe));
+
+        return [
+            ...(sortedTotalSwipeByOrganization?.slice(0, 4) ?? []),
+            ...(sortedTotalSwipeByOrganization && sortedTotalSwipeByOrganization?.length >= 5 ? [
+                {
+                    organizationName: 'Others',
+                    totalSwipe: sortedTotalSwipeByOrganization
+                        ?.slice(4)
+                        ?.reduce((total, organization) => (total + organization.totalSwipe), 0),
+                },
+            ] : []),
+        ];
+    }, [organizationTypeStats]);
 
     return (
         <Container
@@ -217,7 +236,15 @@ function StatsBoard(props: Props) {
         >
             <div className={styles.board}>
                 <div className={styles.stats}>
-                    <ContributionHeatmap contributions={contributions} />
+                    <InformationCard
+                        label="Contribution Heatmap"
+                        variant="stat"
+                        className={styles.stats}
+                    >
+                        <ContributionHeatmap contributions={contributions} />
+                    </InformationCard>
+                </div>
+                <div className={styles.stats}>
                     <InformationCard
                         label="Time Spent Contributing"
                         variant="stat"
@@ -225,7 +252,7 @@ function StatsBoard(props: Props) {
                     >
                         {totalContributionMintuesByYear && (
                             <ResponsiveContainer className={styles.responsive}>
-                                <AreaChart data={totalContributionMinutes}>
+                                <AreaChart data={contributionTimeSeries}>
                                     <XAxis
                                         dataKey="taskDate"
                                         type="number"
@@ -295,6 +322,7 @@ function StatsBoard(props: Props) {
                             />
                         )}
                         label="Area Reviewed (in sq km)"
+                        subHeading="All project"
                         variant="stat"
                     />
                     <InformationCard
@@ -308,6 +336,7 @@ function StatsBoard(props: Props) {
                             />
                         )}
                         label="Features Checked (# of swipes)"
+                        subHeading="Footprint"
                         variant="stat"
                     />
                     <InformationCard
@@ -321,6 +350,7 @@ function StatsBoard(props: Props) {
                             />
                         )}
                         label="Scene Comparision (# of swipes)"
+                        subHeading="Change Detection & Completeness"
                         variant="stat"
                     />
                 </div>
@@ -384,7 +414,7 @@ function StatsBoard(props: Props) {
                                 <Tooltip formatter={organizationTotalTimeFormatter} />
                                 <Legend align="center" layout="horizontal" verticalAlign="bottom" />
                                 <Pie
-                                    data={sortedTotalSwipeByOrganization ?? undefined}
+                                    data={totalSwipesByOrganizationStats ?? undefined}
                                     dataKey="totalSwipe"
                                     nameKey="organizationName"
                                     cx="50%"
@@ -392,7 +422,7 @@ function StatsBoard(props: Props) {
                                     outerRadius="90%"
                                     innerRadius="50%"
                                 >
-                                    {sortedTotalSwipeByOrganization?.map((item) => (
+                                    {totalSwipesByOrganizationStats?.map((item) => (
                                         <Cell
                                             key={item.organizationName}
                                             fill={item.organizationName ? organizationColors(item.organizationName) as 'string' : '#ff00ff'}

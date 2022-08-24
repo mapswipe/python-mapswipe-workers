@@ -30,7 +30,10 @@ function InformationCard(props: Props) {
         <div className={_cs(className, styles.informationCard)}>
             {variant === 'stat' && (
                 <div className={styles.statHeading}>
-                    {icon && (<div className={styles.icon}>{icon}</div>)}
+                    <div className={styles.icons}>
+                        {icon && (<div className={styles.icon}>{icon}</div>)}
+                        {subHeading && (<div className={styles.subHeading}>{subHeading}</div>)}
+                    </div>
                     <div>{label}</div>
                 </div>
             )}

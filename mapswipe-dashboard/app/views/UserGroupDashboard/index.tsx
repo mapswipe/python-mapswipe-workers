@@ -69,19 +69,6 @@ const USER_GROUP_STATS = gql`
                 totalSwipes
                 userName
             }
-            userMemberships {
-                items {
-                    user {
-                        userId
-                        username
-                        stats {
-                            totalSwipe
-                            totalSwipeTime
-                            totalMappingProjects
-                        }
-                    }
-                }
-            }
             name
             description
 
@@ -132,7 +119,7 @@ function UserGroupDashboard(props: Props) {
                 />
                 <div className={styles.stats}>
                     <InformationCard
-                        icon={(<img src={swipeSvg} alt="swipe icon" />)}
+                        icon={(<img src={swipeSvg} alt="swipe icon" className={styles.image} />)}
                         label="Total Swipes"
                         value={(
                             <NumberOutput
@@ -159,7 +146,7 @@ function UserGroupDashboard(props: Props) {
                         )}
                     />
                     <InformationCard
-                        icon={(<img src={timeSvg} alt="time icon" />)}
+                        icon={(<img src={timeSvg} alt="time icon" className={styles.image} />)}
                         label="Total Time Spent (in mins)"
                         value={(
                             <NumberOutput
@@ -182,7 +169,7 @@ function UserGroupDashboard(props: Props) {
                         )}
                     />
                     <InformationCard
-                        icon={(<img src={userSvg} alt="user icon" />)}
+                        icon={(<img src={userSvg} alt="user icon" className={styles.image} />)}
                         label="Total Contributors"
                         value={(
                             <NumberOutput

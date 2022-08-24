@@ -98,7 +98,7 @@ function Dashboard(props: Props) {
                 />
                 <div className={styles.stats}>
                     <InformationCard
-                        icon={(<img src={userSvg} alt="user icon" />)}
+                        icon={(<img src={userSvg} alt="user icon" className={styles.image} />)}
                         value={(
                             <NumberOutput
                                 className={styles.value}
@@ -125,7 +125,7 @@ function Dashboard(props: Props) {
                         )}
                     />
                     <InformationCard
-                        icon={(<img src={groupSvg} alt="group icon" />)}
+                        icon={(<img src={groupSvg} alt="group icon" className={styles.image} />)}
                         value={(
                             <NumberOutput
                                 className={styles.value}
@@ -148,7 +148,7 @@ function Dashboard(props: Props) {
                         )}
                     />
                     <InformationCard
-                        icon={(<img src={swipeSvg} alt="swipe icon" />)}
+                        icon={(<img src={swipeSvg} alt="swipe icon" className={styles.image} />)}
                         value={(
                             <NumberOutput
                                 className={styles.value}

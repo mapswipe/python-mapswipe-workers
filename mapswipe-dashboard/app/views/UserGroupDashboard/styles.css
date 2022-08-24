@@ -35,6 +35,11 @@
             flex-wrap: wrap;
             gap: var(--spacing-extra-large);
 
+            .image {
+                object-fit: contain;
+                height: var(--icon-height);
+            }
+
             .value {
                 display: flex;
             }
