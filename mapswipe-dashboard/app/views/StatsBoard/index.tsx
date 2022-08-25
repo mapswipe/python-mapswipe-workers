@@ -43,7 +43,11 @@ import {
 
 import styles from './styles.css';
 
-const projectTypes: Record<string, { color: string, name: string}> = {
+const days: string[] = [
+    'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat',
+];
+
+const projectTypes: Record<string, { color: string, name: string }> = {
     1: {
         color: '#8dd3c7',
         name: 'Build Area',
@@ -131,6 +135,7 @@ interface Props{
     organizationTypeStats: OrganizationTypeStats[] | null | undefined;
     projectSwipeTypeStats: ProjectSwipeTypeStats[] | null | undefined;
     contributions: MapContributionType[] | undefined | null;
+    contributionChartType: 'dayWise' | 'yearWise';
 }
 
 function StatsBoard(props: Props) {
@@ -142,6 +147,7 @@ function StatsBoard(props: Props) {
         organizationTypeStats,
         projectSwipeTypeStats,
         contributions,
+        contributionChartType,
     } = props;
 
     const organizationColors = scaleOrdinal()
@@ -160,26 +166,42 @@ function StatsBoard(props: Props) {
         ?.filter((contribution) => contribution.totalTime > 0)
         .sort((a, b) => (a?.taskDate - b?.taskDate)), [contributionTimeStats]);
 
-    const totalContributionMintuesByYear = useMemo(() => {
-        const yearWiseContributions = listToGroupList(
+    const totalContributionData = useMemo(() => {
+        if (contributionChartType === 'dayWise') {
+            const dayWiseContribution = listToGroupList(
+                contributionTimeSeries,
+                (d) => new Date(d.taskDate).getDay(),
+                (d) => d.totalTime,
+            );
+
+            const result = mapToList(
+                dayWiseContribution,
+                (d, key) => ({ day: days[Number(key)], totalTime: sum(d) }),
+            );
+
+            return result;
+        }
+        const dayWiseContribution = listToGroupList(
             contributionTimeSeries,
-            (d) => new Date(d.taskDate).getUTCFullYear(),
+            (d) => new Date(d.taskDate).getDay(),
             (d) => d.totalTime,
         );
+
         const result = mapToList(
-            yearWiseContributions,
-            (d, key) => ({ year: key, totalTime: d.reduce((a, b) => a + b, 0) }),
+            dayWiseContribution,
+            (d, key) => ({ day: days[Number(key)], totalTime: sum(d) }),
         );
+
         return result;
-    }, [contributionTimeSeries]);
+    }, [contributionChartType, contributionTimeSeries]);
 
     const totalContribution = useMemo(() => {
-        const totalContributionInMinutes = sum(totalContributionMintuesByYear
+        const totalContributionInMinutes = sum(totalContributionData
             ?.map((contribution) => contribution.totalTime) ?? []);
 
-        return totalContributionMintuesByYear
+        return totalContributionData
             ? getHoursMinutes(totalContributionInMinutes) : undefined;
-    }, [totalContributionMintuesByYear]);
+    }, [totalContributionData]);
 
     const ticks = contributionTimeSeries
         ? getTicks(
@@ -250,7 +272,7 @@ function StatsBoard(props: Props) {
                         variant="stat"
                         className={styles.chartContainer}
                     >
-                        {totalContributionMintuesByYear && (
+                        {totalContributionData && (
                             <ResponsiveContainer className={styles.responsive}>
                                 <AreaChart data={contributionTimeSeries}>
                                     <XAxis
@@ -295,11 +317,11 @@ function StatsBoard(props: Props) {
                         variant="stat"
                         className={styles.chartContainer}
                     >
-                        {totalContributionMintuesByYear && (
+                        {totalContributionData && (
                             <ResponsiveContainer className={styles.responsive}>
-                                <BarChart data={totalContributionMintuesByYear}>
+                                <BarChart data={totalContributionData}>
                                     <Tooltip formatter={totalTimeFormatter} />
-                                    <XAxis dataKey="year" />
+                                    <XAxis dataKey={contributionChartType === 'dayWise' ? 'day' : 'year'} />
                                     <YAxis />
                                     <Bar
                                         dataKey="totalTime"
