@@ -165,7 +165,7 @@ export const token = async (req: any, res: any, admin: any) => {
             if (id === undefined) {
                 // this should not happen, but help guard against creating
                 // invalid accounts
-                throw 'Could not obtain an account id from OSM';
+                throw new Error('Could not obtain an account id from OSM');
             }
 
             // Create a Firebase account and get the Custom Auth Token.

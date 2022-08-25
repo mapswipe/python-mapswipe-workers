@@ -109,7 +109,10 @@ exports.groupUsersCounter = functions.database.ref('/v2/results/{projectId}/{gro
                 taskContributionCountRef.transaction((currentCount) => {
                     return currentCount + numberOfTasks;
                 }),
+
+                // Tag userGroups of the user in the result
                 userRef.child('userGroups').once('value').then((usergroupSnapshot) => {
+                    // Include userGroups of the user in the results
                     return thisResultRef.child('userGroups').set(usergroupSnapshot.val());
                 }),
             ]);
@@ -189,7 +192,9 @@ exports.projectContributionCounter = functions.database.ref('/v2/users/{userId}/
 * Generates update commands for PSQL db
 * Gets triggered when new user group is created, update or deleted
 */
-exports.userGroupWrite = functions.database.ref('/v2/userGroups/{userGroupId}/').onWrite((_, context) => {
+exports.userGroupWrite = functions.database.ref(
+    '/v2/userGroups/{userGroupId}/'
+).onWrite((_, context) => {
     const userGroupId = context.params.userGroupId;
 
     if (!userGroupId) {
@@ -197,6 +202,18 @@ exports.userGroupWrite = functions.database.ref('/v2/userGroups/{userGroupId}/')
     }
 
     return admin.database().ref('/v2/updates/userGroups/').child(userGroupId).set(true);
+});
+
+exports.userGroupMembershipWrite = functions.database.ref(
+    '/v2/userGroupMembershipLogs/{membershipId}'
+).onWrite((_, context) => {
+    const membershipId = context.params.membershipId;
+
+    if (!membershipId) {
+        return null;
+    }
+
+    return admin.database().ref('/v2/updates/userGroupMembershipLogs').child(membershipId).set(true);
 });
 
 
