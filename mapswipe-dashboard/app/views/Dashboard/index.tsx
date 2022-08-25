@@ -185,7 +185,6 @@ function Dashboard(props: Props) {
                     projectSwipeTypeStats={communityStats?.projectSwipeType}
                     contributions={communityStats
                         ?.projectGeoContribution as MapContributionType[] | null | undefined}
-                    contributionChartType="yearWise"
                 />
             </div>
             <Footer />

@@ -204,7 +204,6 @@ function UserGroupDashboard(props: Props) {
                     projectSwipeTypeStats={userGroupStats?.userGroup.projectSwipeType}
                     contributions={userGroupStats
                         ?.userGroup.userGroupGeoStats as MapContributionType[] | null | undefined}
-                    contributionChartType="dayWise"
                 />
                 <div className={styles.members}>
                     <div className={styles.membersHeading}>

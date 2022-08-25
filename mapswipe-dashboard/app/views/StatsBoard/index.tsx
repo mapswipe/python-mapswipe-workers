@@ -44,7 +44,7 @@ import {
 import styles from './styles.css';
 
 const days: string[] = [
-    'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat',
+    'Sunday', 'Monday', 'Tueday', 'Wednesday', 'Thursday', 'Friday', 'Saturday',
 ];
 
 const projectTypes: Record<string, { color: string, name: string }> = {
@@ -135,7 +135,6 @@ interface Props{
     organizationTypeStats: OrganizationTypeStats[] | null | undefined;
     projectSwipeTypeStats: ProjectSwipeTypeStats[] | null | undefined;
     contributions: MapContributionType[] | undefined | null;
-    contributionChartType: 'dayWise' | 'yearWise';
 }
 
 function StatsBoard(props: Props) {
@@ -147,7 +146,6 @@ function StatsBoard(props: Props) {
         organizationTypeStats,
         projectSwipeTypeStats,
         contributions,
-        contributionChartType,
     } = props;
 
     const organizationColors = scaleOrdinal()
@@ -167,20 +165,6 @@ function StatsBoard(props: Props) {
         .sort((a, b) => (a?.taskDate - b?.taskDate)), [contributionTimeStats]);
 
     const totalContributionData = useMemo(() => {
-        if (contributionChartType === 'dayWise') {
-            const dayWiseContribution = listToGroupList(
-                contributionTimeSeries,
-                (d) => new Date(d.taskDate).getDay(),
-                (d) => d.totalTime,
-            );
-
-            const result = mapToList(
-                dayWiseContribution,
-                (d, key) => ({ day: days[Number(key)], totalTime: sum(d) }),
-            );
-
-            return result;
-        }
         const dayWiseContribution = listToGroupList(
             contributionTimeSeries,
             (d) => new Date(d.taskDate).getDay(),
@@ -193,14 +177,17 @@ function StatsBoard(props: Props) {
         );
 
         return result;
-    }, [contributionChartType, contributionTimeSeries]);
+    }, [contributionTimeSeries]);
 
     const totalContribution = useMemo(() => {
+        if (!totalContributionData) {
+            return undefined;
+        }
+
         const totalContributionInMinutes = sum(totalContributionData
             ?.map((contribution) => contribution.totalTime) ?? []);
 
-        return totalContributionData
-            ? getHoursMinutes(totalContributionInMinutes) : undefined;
+        return totalContributionInMinutes;
     }, [totalContributionData]);
 
     const ticks = contributionTimeSeries
@@ -313,7 +300,7 @@ function StatsBoard(props: Props) {
                 <div className={styles.stats}>
                     <InformationCard
                         value={totalContribution}
-                        label="Time Spent Contributing"
+                        label="Time Spent Contributing (in mins)"
                         variant="stat"
                         className={styles.chartContainer}
                     >
@@ -321,7 +308,7 @@ function StatsBoard(props: Props) {
                             <ResponsiveContainer className={styles.responsive}>
                                 <BarChart data={totalContributionData}>
                                     <Tooltip formatter={totalTimeFormatter} />
-                                    <XAxis dataKey={contributionChartType === 'dayWise' ? 'day' : 'year'} />
+                                    <XAxis dataKey="day" />
                                     <YAxis />
                                     <Bar
                                         dataKey="totalTime"
