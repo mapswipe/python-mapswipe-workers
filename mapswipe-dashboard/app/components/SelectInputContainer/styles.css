@@ -16,7 +16,7 @@
                 overflow: hidden;
                 text-overflow: ellipsis;
                 white-space: nowrap;
-                color: var(--color-text-dark);
+                color: var(--color-text-light);
                 font-weight: var(--font-weight-bold);
             }
 

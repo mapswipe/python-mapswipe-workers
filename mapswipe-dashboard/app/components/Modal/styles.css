@@ -1,33 +1,25 @@
 .modal {
-    --background-color: transparent;
-    --text-color: transparent;
-    --border-color: transparent;
-
     display: flex;
     flex-direction: column;
-    border: var(--width-separator-thin) solid var(--color-border);
+    border: var(--width-separator-thin) solid var(--color-separator);
     border-radius: var(--radius-modal);
-    background-color: var(--background-color);
-    min-width: var(--width-min-modal);
-    max-width: var(--width-max-modal);
-    max-height: var(--height-max-modal);
+    background-color: var(--color-foreground);
     overflow: auto;
-    color: var(--text-color);
+    color: var(--color-text);
+    gap: var(--spacing-large);
 
     .modal-header {
         display: flex;
         align-items: center;
         flex-shrink: 0;
-        padding: calc(var(--spacing-large) - var(--spacing-small));
 
-        .title-container {
+        .heading {
             flex-grow: 1;
-            padding: var(--spacing-small);
+            font-size: var(--font-size-large);
         }
 
         .actions {
             flex-shrink: 0;
-            padding: var(--spacing-small);
 
             .close-button {
                 padding: calc(var(--spacing-small) - var(--spacing-extra-small));
@@ -38,12 +30,10 @@
 
     .modal-body {
         flex-grow: 1;
-        padding: var(--spacing-large);
         overflow: auto;
     }
 
     .modal-footer {
         flex-shrink: 0;
-        padding: var(--spacing-large);
     }
 }

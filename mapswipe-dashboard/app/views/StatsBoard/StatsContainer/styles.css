@@ -1,0 +1,16 @@
+.stats-container {
+    display: flex;
+    flex-direction: column;
+    border: var(--width-separator-thin) solid var(--color-separator);
+    border-radius: var(--radius-card-border);
+    padding: var(--spacing-medium);
+    gap: var(--spacing-large);
+
+    .heading {
+        flex-shrink: 0;
+    }
+
+    .content {
+        flex-grow: 1;
+    }
+}

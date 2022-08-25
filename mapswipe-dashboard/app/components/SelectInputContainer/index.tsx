@@ -1,5 +1,8 @@
 import React, { useCallback, useRef } from 'react';
-import { _cs } from '@togglecorp/fujs';
+import {
+    _cs,
+    isFalsyString,
+} from '@togglecorp/fujs';
 import { IoIosArrowDown, IoIosArrowUp, IoMdClose } from 'react-icons/io';
 
 import GenericOption, {
@@ -323,7 +326,7 @@ function SelectInputContainer<OK extends OptionKey, N extends string, O extends 
                             <Button
                                 onClick={onClear}
                                 disabled={disabled}
-                                variant="primary"
+                                variant="action"
                                 name={undefined}
                                 title="Clear"
                             >
@@ -333,7 +336,7 @@ function SelectInputContainer<OK extends OptionKey, N extends string, O extends 
                         {!readOnly && (
                             <Button
                                 onClick={handleToggleDropdown}
-                                variant="primary"
+                                variant="action"
                                 name={undefined}
                                 title={dropdownShown ? 'Close' : 'Open'}
                             >
@@ -366,7 +369,7 @@ function SelectInputContainer<OK extends OptionKey, N extends string, O extends 
                         onClick={handleSearchInputClick}
                         onFocus={handleFocusIn}
                         onBlur={handleFocusOut}
-                        placeholder={valueDisplay ?? placeholder}
+                        placeholder={isFalsyString(valueDisplay) ? placeholder : valueDisplay}
                         autoComplete="off"
                         onKeyDown={handleKeyDown}
                     />

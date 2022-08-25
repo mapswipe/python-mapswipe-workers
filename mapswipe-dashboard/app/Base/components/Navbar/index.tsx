@@ -27,20 +27,22 @@ function Navbar(props: Props) {
 
     return (
         <nav className={_cs(className, styles.navbar)}>
-            <div className={styles.appBrand}>
-                <img
-                    className={styles.logo}
-                    src={mapSwipeLogo}
-                    alt="MapSwipe"
-                />
-                <div className={styles.title}>
-                    Map
-                    <span className={styles.italic}>
-                        Swipe
-                    </span>
+            <div className={styles.container}>
+                <div className={styles.appBrand}>
+                    <img
+                        className={styles.logo}
+                        src={mapSwipeLogo}
+                        alt="MapSwipe"
+                    />
+                    <div className={styles.title}>
+                        <div className={styles.map}>
+                            Map
+                        </div>
+                        <div className={styles.swipe}>
+                            Swipe
+                        </div>
+                    </div>
                 </div>
-            </div>
-            <div className={styles.main}>
                 <div className={styles.navLinks}>
                     <SmartNavLink
                         exact
@@ -50,8 +52,7 @@ function Navbar(props: Props) {
                 </div>
                 <ItemSelectInput
                     className={styles.filter}
-                    name="user"
-                    label="Search Users and Groups"
+                    placeholder="Search Users and Groups"
                     onItemSelect={handleSelectItem}
                     labelContainerClassName={styles.label}
                 />

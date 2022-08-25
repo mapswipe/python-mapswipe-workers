@@ -11,8 +11,8 @@ import {
 } from '@togglecorp/fujs';
 import { scaleOrdinal } from 'd3-scale';
 import {
-    Container,
     NumberOutput,
+    Heading,
 } from '@the-deep/deep-ui';
 import {
     AreaChart,
@@ -41,6 +41,7 @@ import {
     ProjectTypeStats,
 } from '#generated/types';
 
+import StatsContainer from './StatsContainer';
 import styles from './styles.css';
 
 const days: string[] = [
@@ -49,15 +50,15 @@ const days: string[] = [
 
 const projectTypes: Record<string, { color: string, name: string }> = {
     1: {
-        color: '#8dd3c7',
+        color: '#f8a769',
         name: 'Build Area',
     },
     2: {
-        color: '#66C5CC',
+        color: '#bbcb7d',
         name: 'Footprint',
     },
     3: {
-        color: '#bebada',
+        color: '#79aeeb',
         name: 'Change Detection',
     },
     4: {
@@ -86,10 +87,9 @@ const dateFormatter = (value: number | string) => {
     return date.toDateString();
 };
 
-const projectTypeFormatter = (value: string, entry: { color?: string | undefined }) => {
-    const { color } = entry;
-    return <span style={{ color }}>{ projectTypes[value]?.name }</span>;
-};
+const projectTypeFormatter = (value: string) => (
+    projectTypes[value]?.name
+);
 
 const minTickFormatter = (value: number | string) => {
     const date = new Date(value);
@@ -127,6 +127,14 @@ const getTicks = (startDate: number, endDate: number, num: number) => {
     return ticks;
 };
 
+const DEFAULT_COLORS = [
+    '#f8a769',
+    '#ffd982',
+    '#bbcb7d',
+    '#79aeeb',
+    '#8a8c91',
+];
+
 interface Props{
     className?: string;
     heading: string;
@@ -147,12 +155,6 @@ function StatsBoard(props: Props) {
         projectSwipeTypeStats,
         contributions,
     } = props;
-
-    const organizationColors = scaleOrdinal()
-        .domain(organizationTypeStats
-            ?.map((organization) => (organization.organizationName))
-            .filter(isDefined) ?? [])
-        .range(['#8adbd3', '#e6afd3', '#b2ce91', '#74aff3', '#d6ce9c', '#b4bcec', '#c8f0c4', '#71cdeb', '#e9b198', '#92cda5']);
 
     const contributionTimeSeries = useMemo(() => contributionTimeStats
         ?.filter((contribution) => isDefined(contribution.taskDate))
@@ -233,98 +235,95 @@ function StatsBoard(props: Props) {
         ];
     }, [organizationTypeStats]);
 
+    const organizationColors = scaleOrdinal()
+        .domain(totalSwipesByOrganizationStats?.map(
+            (organization) => (organization.organizationName),
+        ).filter(isDefined) ?? [])
+        .range(DEFAULT_COLORS);
+
     return (
-        <Container
-            className={_cs(className, styles.statsContainer)}
-            headerClassName={styles.header}
-            headingSectionClassName={styles.heading}
-            headerActionsContainerClassName={styles.headerActions}
-            heading={heading}
-            headingSize="large"
-            contentClassName={styles.content}
-        >
+        <div className={_cs(className, styles.statsBoard)}>
+            <Heading size="large">
+                {heading}
+            </Heading>
             <div className={styles.board}>
-                <div className={styles.stats}>
-                    <InformationCard
-                        label="Contribution Heatmap"
-                        variant="stat"
-                        className={styles.stats}
-                    >
-                        <ContributionHeatmap contributions={contributions} />
-                    </InformationCard>
-                </div>
-                <div className={styles.stats}>
-                    <InformationCard
-                        label="Time Spent Contributing"
-                        variant="stat"
-                        className={styles.chartContainer}
-                    >
-                        {totalContributionData && (
-                            <ResponsiveContainer className={styles.responsive}>
-                                <AreaChart data={contributionTimeSeries}>
-                                    <XAxis
-                                        dataKey="taskDate"
-                                        type="number"
-                                        scale="time"
-                                        domain={['auto', 'auto']}
-                                        allowDuplicatedCategory={false}
-                                        tick={{ strokeWidth: 1 }}
-                                        tickFormatter={minTickFormatter}
-                                        ticks={ticks}
-                                        interval={0}
-                                        padding={{ left: 10, right: 30 }}
-                                    />
-                                    <YAxis
-                                        scale="log"
-                                        type="number"
-                                        dataKey="totalTime"
-                                        domain={[0.9, 'auto']}
-                                    />
-                                    <Tooltip
-                                        labelFormatter={dateFormatter}
-                                        formatter={totalTimeFormatter}
-                                    />
-                                    <Area
-                                        type="monotone"
-                                        dataKey="totalTime"
-                                        stroke="#589AE2"
-                                        fillOpacity={1}
-                                        fill="#D4E5F7"
-                                        connectNulls
-                                    />
-                                </AreaChart>
-                            </ResponsiveContainer>
-                        )}
-                    </InformationCard>
-                </div>
-                <div className={styles.stats}>
-                    <InformationCard
-                        value={totalContribution}
-                        label="Time Spent Contributing (in mins)"
-                        variant="stat"
-                        className={styles.chartContainer}
-                    >
-                        {totalContributionData && (
-                            <ResponsiveContainer className={styles.responsive}>
-                                <BarChart data={totalContributionData}>
-                                    <Tooltip formatter={totalTimeFormatter} />
-                                    <XAxis dataKey="day" />
-                                    <YAxis />
-                                    <Bar
-                                        dataKey="totalTime"
-                                        fill="#589AE2"
-                                    />
-                                </BarChart>
-                            </ResponsiveContainer>
-                        )}
-                    </InformationCard>
-                </div>
-                <div className={styles.stats}>
+                <StatsContainer
+                    title="Contribution Heatmap"
+                >
+                    <ContributionHeatmap contributions={contributions} />
+                </StatsContainer>
+                <StatsContainer
+                    title="Time Spent Contributing"
+                    contentClassName={styles.timeSpentChartContainer}
+                >
+                    {totalContributionData && (
+                        <ResponsiveContainer>
+                            <AreaChart data={contributionTimeSeries}>
+                                <XAxis
+                                    dataKey="taskDate"
+                                    type="number"
+                                    scale="time"
+                                    domain={['auto', 'auto']}
+                                    allowDuplicatedCategory={false}
+                                    tick={{ strokeWidth: 1 }}
+                                    tickFormatter={minTickFormatter}
+                                    ticks={ticks}
+                                    interval={0}
+                                    padding={{ left: 10, right: 30 }}
+                                />
+                                <YAxis
+                                    scale="log"
+                                    type="number"
+                                    dataKey="totalTime"
+                                    domain={[0.9, 'auto']}
+                                />
+                                <Tooltip
+                                    labelFormatter={dateFormatter}
+                                    formatter={totalTimeFormatter}
+                                />
+                                <Area
+                                    type="monotone"
+                                    dataKey="totalTime"
+                                    stroke="#589AE2"
+                                    fillOpacity={1}
+                                    fill="#D4E5F7"
+                                    connectNulls
+                                />
+                            </AreaChart>
+                        </ResponsiveContainer>
+                    )}
+                </StatsContainer>
+                <InformationCard
+                    label="Time Spent Contributing (in mins)"
+                    value={(
+                        <NumberOutput
+                            className={styles.numberOutput}
+                            value={totalContribution}
+                        />
+                    )}
+                    variant="stat"
+                    contentClassName={styles.timeSpentChartContainer}
+                >
+                    {totalContributionData && (
+                        <ResponsiveContainer>
+                            <BarChart data={totalContributionData}>
+                                <Tooltip formatter={totalTimeFormatter} />
+                                <XAxis dataKey="day" />
+                                <YAxis />
+                                <Bar
+                                    dataKey="totalTime"
+                                    fill="#589AE2"
+                                />
+                            </BarChart>
+                        </ResponsiveContainer>
+                    )}
+                </InformationCard>
+                <div className={styles.statsCardContainer}>
                     <InformationCard
                         icon={(<img src={areaSvg} alt="user icon" />)}
                         value={(
                             <NumberOutput
-                                className={styles.value}
+                                className={styles.numberOutput}
                                 value={totalAreaReviewed}
                                 normal
                                 precision={((totalAreaReviewed ?? 0) < 1 ? 4 : 2)}
@@ -338,8 +337,10 @@ function StatsBoard(props: Props) {
                         icon={(<img src={featureSvg} alt="group icon" />)}
                         value={(
                             <NumberOutput
-                                className={styles.value}
-                                value={projectSwipeTypeStats?.find((project) => project.projectType === '2')?.totalSwipe}
+                                className={styles.numberOutput}
+                                value={projectSwipeTypeStats?.find(
+                                    (project) => project.projectType === '2',
+                                )?.totalSwipe}
                                 normal
                                 precision={2}
                             />
@@ -352,7 +353,7 @@ function StatsBoard(props: Props) {
                         icon={(<img src={sceneSvg} alt="swipe icon" />)}
                         value={(
                             <NumberOutput
-                                className={styles.value}
+                                className={styles.numberOutput}
                                 value={projectSwipeTypeStats?.find((project) => project.projectType === '3')?.totalSwipe}
                                 normal
                                 precision={2}
@@ -363,11 +364,11 @@ function StatsBoard(props: Props) {
                         variant="stat"
                     />
                 </div>
-                <div className={styles.stats}>
+                <div className={styles.otherStatsContainer}>
                     <InformationCard
                         value={(
                             <NumberOutput
-                                className={styles.value}
+                                className={styles.numberOutput}
                                 value={totalSwipes}
                                 normal
                                 precision={2}
@@ -375,16 +376,17 @@ function StatsBoard(props: Props) {
                         )}
                         label="Swipes by Mission Type"
                         variant="stat"
-                        className={styles.chartContainer}
+                        contentClassName={styles.pieChartContainer}
                     >
-                        <ResponsiveContainer width="90%" className={styles.responsive}>
+                        <ResponsiveContainer>
                             <PieChart>
                                 <Tooltip formatter={projectTypeTotalSwipeFormatter} />
                                 <Legend
-                                    align="center"
-                                    layout="horizontal"
-                                    verticalAlign="bottom"
+                                    align="right"
+                                    layout="vertical"
+                                    verticalAlign="middle"
                                     formatter={projectTypeFormatter}
+                                    iconType="circle"
                                 />
                                 <Pie
                                     data={sortedProjectSwipeType ?? undefined}
@@ -398,7 +400,7 @@ function StatsBoard(props: Props) {
                                     {sortedProjectSwipeType?.map((item) => (
                                         <Cell
                                             key={item.projectType}
-                                            fill={item.projectType ? projectTypes[item.projectType].color : '#ff0000'}
+                                            fill={item.projectType ? projectTypes[item.projectType].color : '#808080'}
                                         />
                                     ))}
                                 </Pie>
@@ -408,7 +410,7 @@ function StatsBoard(props: Props) {
                     <InformationCard
                         value={(
                             <NumberOutput
-                                className={styles.value}
+                                className={styles.numberOutput}
                                 value={totalSwipesByOrganization}
                                 normal
                                 precision={2}
@@ -416,12 +418,17 @@ function StatsBoard(props: Props) {
                         )}
                         label="Swipes by Organization"
                         variant="stat"
-                        className={styles.chartContainer}
+                        contentClassName={styles.pieChartContainer}
                     >
-                        <ResponsiveContainer width="90%" className={styles.responsive}>
+                        <ResponsiveContainer>
                             <PieChart>
                                 <Tooltip formatter={organizationTotalTimeFormatter} />
-                                <Legend align="center" layout="horizontal" verticalAlign="bottom" />
+                                <Legend
+                                    align="right"
+                                    layout="vertical"
+                                    verticalAlign="middle"
+                                    iconType="circle"
+                                />
                                 <Pie
                                     data={totalSwipesByOrganizationStats ?? undefined}
                                     dataKey="totalSwipe"
@@ -434,7 +441,7 @@ function StatsBoard(props: Props) {
                                     {totalSwipesByOrganizationStats?.map((item) => (
                                         <Cell
                                             key={item.organizationName}
-                                            fill={item.organizationName ? organizationColors(item.organizationName) as 'string' : '#ff00ff'}
+                                            fill={item.organizationName ? organizationColors(item.organizationName) as 'string' : '#808080'}
                                         />
                                     ))}
                                 </Pie>
@@ -443,7 +450,7 @@ function StatsBoard(props: Props) {
                     </InformationCard>
                 </div>
             </div>
-        </Container>
+        </div>
     );
 }
 

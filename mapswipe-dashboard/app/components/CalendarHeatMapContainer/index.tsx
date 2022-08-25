@@ -46,14 +46,18 @@ interface Data {
 
 interface Props {
     data: Data[] | undefined | null;
+    maxContribution?: number;
 }
 
 function CalendarHeatMapContainer(props: Props) {
-    const { data } = props;
+    const {
+        data,
+        maxContribution = 1000,
+    } = props;
     const range = getDateRange(data);
 
     const contributionColors = scaleQuantile<string>()
-        .domain([0, 5000])
+        .domain([0, maxContribution])
         .range(githubColorsClass.slice(1));
 
     const getClassForValue = (value: Data | undefined) => {
@@ -65,7 +69,7 @@ function CalendarHeatMapContainer(props: Props) {
 
     return (
         <InformationCard
-            label="Contribution Heatmap"
+            label="Contributions"
             variant="stat"
             className={styles.chartContainer}
         >

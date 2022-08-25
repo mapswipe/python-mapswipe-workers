@@ -1,45 +1,52 @@
 .navbar {
     display: flex;
-    position: relative;
     align-items: center;
+    flex-direction: column;
+    border-bottom: var(--width-separator-thin) solid var(--color-separator);
     background-color: var(--color-foreground);
-    padding: var(--spacing-small) var(--spacing-ultra-large) var(--spacing-small) var(--spacing-ultra-large);
-    color: var(--color-text);
-    gap: var(--spacing-medium);
 
-    .app-brand {
+    .container {
         display: flex;
+        position: relative;
         align-items: center;
-        flex-shrink: 0;
-        padding: var(--spacing-small);
+        flex-wrap: wrap;
+        padding: var(--spacing-medium) var(--spacing-large);
+        width: 100%;
+        max-width: var(--width-navbar-content-max);
+        color: var(--color-text);
+        gap: var(--spacing-large);
 
-        .logo {
-            height: var(--icon-height);
-        }
+        .app-brand {
+            display: flex;
+            align-items: center;
+            flex-shrink: 0;
+            gap: var(--spacing-small);
 
-        .title {
-            color: var(--color-primary);
-            font-size: var(--font-size-extra-large);
-            font-weight: var(--font-weight-bold);
+            .logo {
+                height: 2rem;
+            }
 
-            .italic {
-                font-weight: var(--font-weight-medium);
-                font-style: italic;
+            .title {
+                display: flex;
+                color: var(--color-primary);
+                font-size: var(--font-size-extra-large);
+
+                .map {
+                    font-weight: var(--font-weight-bold);
+                }
+
+                .swipe {
+                    font-weight: var(--font-weight-medium);
+                    font-style: italic;
+                }
             }
         }
-    }
-
-    .main {
-        display: flex;
-        align-self: stretch;
-        flex-grow: 1;
-        overflow: auto;
 
         .nav-links {
             display: flex;
             flex-grow: 1;
             justify-content: flex-start;
-            font-size: var(--font-size-extra-large);
+            font-size: var(--font-size-large);
             gap: var(--spacing-small);
 
             .link {
@@ -50,29 +57,12 @@
         .filter {
             display: flex;
             align-self: flex-end;
+            flex-grow: 0.5;
             gap: var(--spacing-small);
 
             .label {
                 color: var(--color-primary);
             }
         }
-    }
-}
-@media(max-width: 900px) {
-    .navbar {
-        flex-direction: column;
-        padding: var(--spacing-small) var(--spacing-mega-large) var(--spacing-small) var(--spacing-mega-large);
-    }
-}
-
-@media(max-width: 700px) {
-    .navbar {
-        padding: var(--spacing-small) var(--spacing-super-large) var(--spacing-small) var(--spacing-super-large);
-    }
-}
-
-@media(max-width: 500px) {
-    .navbar {
-        padding: var(--spacing-small);
     }
 }

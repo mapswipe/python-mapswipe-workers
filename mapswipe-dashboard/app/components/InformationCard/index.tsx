@@ -12,6 +12,7 @@ interface Props {
     variant?: 'info' | 'stat';
     children?: React.ReactNode;
     subHeading?: React.ReactNode;
+    contentClassName?: string;
 }
 
 function InformationCard(props: Props) {
@@ -24,33 +25,68 @@ function InformationCard(props: Props) {
         variant = 'info',
         subHeading,
         children,
+        contentClassName,
     } = props;
 
     return (
         <div className={_cs(className, styles.informationCard)}>
-            {variant === 'stat' && (
-                <div className={styles.statHeading}>
-                    <div className={styles.icons}>
-                        {icon && (<div className={styles.icon}>{icon}</div>)}
-                        {subHeading && (<div className={styles.subHeading}>{subHeading}</div>)}
+            <div className={styles.headingSection}>
+                {variant === 'stat' && (
+                    <div className={styles.statHeading}>
+                        {(icon || subHeading) && (
+                            <div className={styles.icons}>
+                                {icon && (
+                                    <div className={styles.icon}>
+                                        {icon}
+                                    </div>
+                                )}
+                                {subHeading && (
+                                    <div className={styles.subHeading}>
+                                        {subHeading}
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                        <div>
+                            {label}
+                        </div>
                     </div>
-                    <div>{label}</div>
-                </div>
-            )}
-            {variant === 'info' && (
-                <div className={styles.headingContainer}>
-                    <div className={styles.heading}>
-                        <div>{label}</div>
-                        {icon && (<div className={styles.icon}>{icon}</div>)}
+                )}
+                {variant === 'info' && (
+                    <div className={styles.headingContainer}>
+                        <div className={styles.heading}>
+                            <div>
+                                {label}
+                            </div>
+                            {icon && (
+                                <div className={styles.icon}>
+                                    {icon}
+                                </div>
+                            )}
+                        </div>
+                        {subHeading && (
+                            <div className={styles.subHeading}>
+                                {subHeading}
+                            </div>
+                        )}
                     </div>
-                    {subHeading && (<div className={styles.subHeading}>{subHeading}</div>)}
-                </div>
-            )}
-            {value && (<div className={styles.value}>{value}</div>)}
+                )}
+                {value && (
+                    <div className={styles.valueContainer}>
+                        {value}
+                    </div>
+                )}
+            </div>
             {description && (
-                <div className={styles.description}>{description}</div>
+                <div className={styles.description}>
+                    {description}
+                </div>
             )}
-            {children}
+            {children && (
+                <div className={contentClassName}>
+                    {children}
+                </div>
+            )}
         </div>
     );
 }

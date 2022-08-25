@@ -5,9 +5,10 @@
     border: var(--width-separator-thin) solid var(--color-separator);
     border-radius: var(--radius-card-border);
     background-color: var(--color-foreground);
-    padding: var(--spacing-large);
+    padding: var(--spacing-medium);
+    gap: var(--spacing-large);
 
-    .headingContainer {
+    .heading-container {
         display: flex;
         flex-direction: column;
         gap: var(--spacing-medium);
@@ -32,18 +33,6 @@
         }
 
     }
-    .value {
-        display: flex;
-        color: var(--color-primary);
-        font-size: var(--font-size-super-large);
-        font-weight: var(--font-weight-bold);
-    }
-
-    .description {
-        padding-top: var(--spacing-large);
-        color: var(--color-accent);
-        font-weight: var(--font-weight-medium);
-    }
 
     .stat-heading {
         display: flex;
@@ -65,9 +54,22 @@
             }
 
             .sub-heading {
-                color: var(--color-text-dark);
-                font-size: var(--font-size-large);
+                text-align: right;
+                color: var(--color-text-light);
+                font-size: var(--font-size-small);
             }
         }
     }
+
+    .value-container {
+        color: var(--color-primary);
+        font-size: var(--font-size-super-large);
+        font-weight: var(--font-weight-bold);
+    }
+
+    .description {
+        color: var(--color-accent);
+        font-weight: var(--font-weight-medium);
+    }
+
 }

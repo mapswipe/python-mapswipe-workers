@@ -56,17 +56,19 @@ p {
 
     --color-primary: #0F193F;
     --color-primary-light: #2d5989;
-    --color-text: #262626;
-    --color-text-dark: #58595B;
-    --color-text-light: #DEE0E3;
+    --color-text: rgba(0, 0, 0, .7);
+    --color-text-dark: rgba(0, 0, 0, 1);
+    --color-text-light: rgba(0, 0, 0, .5);
     --color-text-on-dark: #ffffff;
     --color-accent: #239A3B;
     --color-danger: #e04656;
     --color-success: #53b391;
-    --color-separator: #DEE0E3;
-    --color-shadow: #DEE0E3;
+    --color-separator: rgba(0, 0, 0, 0.1);
+    --color-shadow: rgba(0, 0, 0, 0.3);
     --color-scrollbar-foreground: rgba(0, 0, 0, .2);
     --color-scrollbar-background: rgba(0, 0, 0, .01);
+
+    --color-input-background: rgba(14, 45, 80, 0.1);
 
     --font-size-extra-small: 0.5rem;
     --font-size-small: 0.78rem;
@@ -85,7 +87,7 @@ p {
     --width-separator-thin: 1px;
     --width-scrollbar: 0.75rem;
     --width-page-content-max: 70rem;
-    --width-navbar-content-max: 76rem;
+    --width-navbar-content-max: 70rem;
 
     --radius-popup-border: 0.25rem;
     --radius-scrollbar-border: 0.25rem;
@@ -98,5 +100,4 @@ p {
     --icon-height: 3rem;
 
     --shadow-card: 0 2px 4px -2px var(--color-shadow);
-
 }

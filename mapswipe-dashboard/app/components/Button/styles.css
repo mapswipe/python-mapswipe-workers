@@ -1,53 +1,44 @@
 .button {
-    --color-text: transparent;
-    --color-background: transparent;
-    --border-color: transparent;
-    --padding: var(--spacing-small);
-
     display: flex;
-    position: relative;
     align-items: center;
-    justify-content: space-around;
-    border: var(--width-separator-thin) solid var(--border-color);
-    border-radius: var(--radius-button);
-    background-color: var(--color-background);
-    cursor: pointer;
-    padding: var(--padding);
-    overflow: hidden;
-    color: var(--color-text);
-    font-family: inherit;
-    font-weight: var(--font-weight-bold);
+    border: var(--width-separator-thin) solid rgba(0, 0, 0, 0.3);
+    border-radius: var(--radius-button-border);
+    padding: var(--spacing-small) var(--spacing-medium);
+    color: rgba(0, 0, 0, 0.8);
+    gap: var(--spacing-small);
 
-    &.compact {
-        padding: var(--spacing-extra-small);
-    }
-
-    .icons {
-        display: flex;
-        align-items: center;
-        padding: 0 var(--spacing-extra-small);
-    }
-
+    .icons,
     .actions {
         display: flex;
-        align-items: center;
-        padding: 0 var(--spacing-extra-small);
+        font-size: 1.2em;
     }
 
     .children {
         display: flex;
-        align-items: center;
-        padding: 0 var(--spacing-extra-small);
     }
 
+    &.primary {
+        border-color: var(--primary-color);
+        color: var(--primary-color);
+    }
+    &.secondary {
+        border-color: var(--primary-accent);
+        color: var(--primary-accent);
+    }
 
     &.transparent {
-        --border-color: transparent;
-        --color-background: transparent;
+        border: none;
+        padding: 0;
+        font-size: var(--font-size-medium);
+    }
+
+    &.action {
+        border: none;
+        padding: 0;
+        font-size: var(--font-size-medium);
     }
 
     &.disabled {
-        opacity: var(--opacity-disabled-element);
-        cursor: not-allowed;
+        opacity: 0.5;
     }
 }

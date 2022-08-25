@@ -88,128 +88,145 @@ function UserDashboard(props: Props) {
         ?.map((value) => ({ date: value.taskDate, count: value.totalSwipe }));
 
     return (
-        <div
-            className={_cs(className, styles.dashboard)}
-        >
-            <div className={styles.headerContainer} style={{ backgroundImage: `url(${dashboardHeaderSvg})` }}>
-                <Header
-                    heading={userStats?.user.username}
-                    className={styles.header}
-                    headingClassName={styles.heading}
-                    headingSize="small"
-                    headingContainerClassName={styles.description}
-                    descriptionClassName={styles.description}
-                />
-                <div className={styles.stats}>
-                    <InformationCard
-                        icon={(<img src={swipeSvg} alt="swipe icon" className={styles.image} />)}
-                        value={(
-                            <NumberOutput
-                                className={styles.value}
-                                value={userStats?.user.stats?.totalSwipe}
-                                normal
-                                precision={2}
-                            />
-                        )}
-                        label="Total Swipes"
-                        description={(
-                            <TextOutput
-                                className={styles.value}
-                                value={(
-                                    <NumberOutput
-                                        className={styles.value}
-                                        value={userStats?.user.statsLatest?.totalSwipe}
-                                        normal
-                                        precision={2}
-                                    />
-                                )}
-                                description="&nbsp;total swipes last month"
-                            />
-                        )}
+        <div className={_cs(className, styles.userDashboard)}>
+            <div
+                className={styles.headerSection}
+                style={{ backgroundImage: `url(${dashboardHeaderSvg})` }}
+            >
+                <div className={styles.headerContainer}>
+                    <Header
+                        heading={userStats?.user.username}
+                        className={styles.header}
+                        headingClassName={styles.heading}
+                        headingSize="small"
+                        headingContainerClassName={styles.description}
+                        descriptionClassName={styles.description}
                     />
-                    <InformationCard
-                        icon={(<img src={timeSvg} alt="time icon" className={styles.image} />)}
-                        value={(
-                            <NumberOutput
-                                className={styles.value}
-                                value={userStats?.user.stats?.totalSwipeTime}
-                            />
-                        )}
-                        label="Total Time Spent (in mins)"
-                        description={(
-                            <TextOutput
-                                className={styles.value}
-                                value={(
-                                    <NumberOutput
-                                        className={styles.value}
-                                        value={userStats?.user.statsLatest?.totalSwipeTime}
-                                    />
-                                )}
-                                description="&nbsp; mins last month"
-                            />
-                        )}
-                    />
-                    <InformationCard
-                        icon={(<img src={groupSvg} alt="group icon" className={styles.image} />)}
-                        value={(
-                            <NumberOutput
-                                className={styles.value}
-                                value={userStats?.user.stats?.totalMappingProjects}
-                            />
-                        )}
-                        label="Groups Joined"
-                        description={(
-                            <TextOutput
-                                className={styles.value}
-                                label="Active in&nbsp;"
-                                value={(
-                                    <NumberOutput
-                                        className={styles.value}
-                                        value={userStats?.user.statsLatest?.totalUserGroup}
-                                    />
-                                )}
-                                hideLabelColon
-                                description="&nbsp; groups last month"
-                            />
-                        )}
-                    />
+                    <div className={styles.stats}>
+                        <InformationCard
+                            icon={(<img src={swipeSvg} alt="swipe icon" className={styles.image} />)}
+                            value={(
+                                <NumberOutput
+                                    className={styles.value}
+                                    value={userStats?.user.stats?.totalSwipe}
+                                    normal
+                                    precision={2}
+                                />
+                            )}
+                            label="Total Swipes"
+                            description={(
+                                <TextOutput
+                                    className={styles.value}
+                                    value={(
+                                        <NumberOutput
+                                            className={styles.value}
+                                            value={userStats?.user.statsLatest?.totalSwipe}
+                                            normal
+                                            precision={2}
+                                        />
+                                    )}
+                                    description="&nbsp;total swipes last month"
+                                />
+                            )}
+                        />
+                        <InformationCard
+                            icon={(<img src={timeSvg} alt="time icon" className={styles.image} />)}
+                            value={(
+                                <NumberOutput
+                                    className={styles.value}
+                                    value={userStats?.user.stats?.totalSwipeTime}
+                                />
+                            )}
+                            label="Total Time Spent (in mins)"
+                            description={(
+                                <TextOutput
+                                    className={styles.value}
+                                    value={(
+                                        <NumberOutput
+                                            className={styles.value}
+                                            value={userStats?.user.statsLatest?.totalSwipeTime}
+                                        />
+                                    )}
+                                    description="&nbsp; mins last month"
+                                />
+                            )}
+                        />
+                        <InformationCard
+                            icon={(<img src={groupSvg} alt="group icon" className={styles.image} />)}
+                            value={(
+                                <NumberOutput
+                                    className={styles.value}
+                                    value={userStats?.user.stats?.totalMappingProjects}
+                                />
+                            )}
+                            label="Groups Joined"
+                            description={(
+                                <TextOutput
+                                    className={styles.value}
+                                    label="Active in&nbsp;"
+                                    value={(
+                                        <NumberOutput
+                                            className={styles.value}
+                                            value={userStats?.user.statsLatest?.totalUserGroup}
+                                        />
+                                    )}
+                                    hideLabelColon
+                                    description="&nbsp; groups last month"
+                                />
+                            )}
+                        />
+                    </div>
                 </div>
             </div>
             <div className={styles.content}>
-                <CalendarHeatMapContainer data={contributionData} />
-                <StatsBoard
-                    heading="User Statsboard"
-                    contributionTimeStats={userStats?.user.contributionTime}
-                    projectTypeStats={userStats?.user.projectStats}
-                    organizationTypeStats={userStats?.user.organizationSwipeStats}
-                    projectSwipeTypeStats={userStats?.user.projectSwipeStats}
-                    contributions={userStats
-                        ?.user.userGeoContribution as MapContributionType[] | null | undefined}
-                />
-                <div className={styles.groups}>
-                    <div className={styles.groupsHeading}>
-                        {`${userStats?.user.username}'s Group`}
-                    </div>
-                    <div className={styles.groupsContainer}>
-                        {userStats?.user.userInUserGroups?.map((group) => (
-                            <InformationCard
-                                key={group.userGroup}
-                                className={styles.group}
-                                icon={(<img src={groupSvg} alt="swipe icon" />)}
-                                subHeading={(
-                                    <TextOutput
-                                        className={styles.value}
-                                        label="Joined on &nbsp;"
-                                        value={undefined}
-                                        hideLabelColon
-                                        valueType="date"
-                                    />
-                                )}
-                                label={group.userGroup}
-                                description={`${group.membersCount}
-                                    ${group.membersCount > 1 ? 'members' : 'member'}`}
-                            />
-                        ))}
+                <div className={styles.container}>
+                    <CalendarHeatMapContainer
+                        data={contributionData}
+                        maxContribution={800}
+                    />
+                    <StatsBoard
+                        heading="User Statsboard"
+                        contributionTimeStats={userStats?.user.contributionTime}
+                        projectTypeStats={userStats?.user.projectStats}
+                        organizationTypeStats={userStats?.user.organizationSwipeStats}
+                        projectSwipeTypeStats={userStats?.user.projectSwipeStats}
+                        contributions={userStats
+                            ?.user.userGeoContribution as MapContributionType[] | null | undefined}
+                    />
+                    <div className={styles.groups}>
+                        <div className={styles.groupsHeading}>
+                            {`${userStats?.user.username}'s Group`}
+                        </div>
+                        <div className={styles.groupsContainer}>
+                            {userStats?.user?.userInUserGroups?.map((group) => (
+                                <InformationCard
+                                    key={group.userGroup}
+                                    className={styles.group}
+                                    icon={(<img src={groupSvg} alt="swipe icon" />)}
+                                    subHeading={(
+                                        <TextOutput
+                                            className={styles.value}
+                                            label="Joined on &nbsp;"
+                                            value={undefined}
+                                            hideLabelColon
+                                            valueType="date"
+                                        />
+                                    )}
+                                    label={group.userGroup}
+                                    description={`${group.membersCount}
+                                        ${group.membersCount > 1 ? 'members' : 'member'}`}
+                                />
+                            ))}
+                            {Array.from(
+                                new Array(
+                                    (3 - (
+                                        (userStats?.user?.userInUserGroups?.length ?? 0) % 3)
+                                    ) % 3,
+                                ).keys(),
+                            ).map((key) => (
+                                <div key={key} className={styles.group} />
+                            ))}
+                        </div>
                     </div>
                 </div>
             </div>

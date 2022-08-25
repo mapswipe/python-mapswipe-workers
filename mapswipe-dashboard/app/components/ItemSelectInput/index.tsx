@@ -46,16 +46,20 @@ query UserGroupOptions($search: String) {
 }
 `;
 
-type Def = { containerClassName?: string };
-type ItemSelectInputProps<K extends string> = SearchSelectInputProps<
+interface OptionRendererProps {}
+type BaseProps<Name extends string> = SearchSelectInputProps<
     string,
-    K,
+    Name,
     SearchItemType,
-    Def,
-    'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector' | 'totalOptionsCount' | 'onShowDropdownChange' | 'onChange' | 'value' | 'options' | 'onOptionsChange'
-> & {
+    OptionRendererProps,
+    ''
+>;
+
+type ItemSelectInputProps<Name extends string> = {
+    className?: string;
     onItemSelect: (item: SearchItemType | undefined) => void;
-    labelContainerClassName?: string;
+    labelContainerClassName?: BaseProps<Name>['labelContainerClassName'];
+    placeholder: BaseProps<Name>['placeholder'];
 };
 
 const keySelector = (d: SearchItemType) => d.id;
@@ -64,7 +68,7 @@ export function titleSelector(item: SearchItemType) {
     return item.name;
 }
 
-function ItemSelectInput<K extends string>(props: ItemSelectInputProps<K>) {
+function ItemSelectInput<Name extends string>(props: ItemSelectInputProps<Name>) {
     const {
         className,
         onItemSelect,
@@ -139,9 +143,12 @@ function ItemSelectInput<K extends string>(props: ItemSelectInputProps<K>) {
         onItemSelect(item);
     };
 
+    console.info(selectedItem, otherProps.placeholder);
+
     return (
         <SearchSelectInput
             {...otherProps}
+            name="item-select-input"
             options={itemOptions}
             onOptionsChange={setItemOptions}
             value={selectedItem}

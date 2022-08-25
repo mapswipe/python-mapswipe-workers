@@ -3,7 +3,7 @@ import { _cs } from '@togglecorp/fujs';
 
 import styles from './styles.css';
 
-export interface RawButtonProps<N extends number | string | undefined> extends Omit<React.HTMLProps<HTMLButtonElement>, 'ref' | 'onClick' | 'name'>{
+export interface Props<N> extends Omit<React.HTMLProps<HTMLButtonElement>, 'ref' | 'onClick' | 'name'>{
     className?: string;
     onClick?: (name: N, e: React.MouseEvent<HTMLButtonElement>) => void;
     type?: 'button' | 'submit' | 'reset';
@@ -14,7 +14,7 @@ export interface RawButtonProps<N extends number | string | undefined> extends O
 /**
  * The most basic button component (without styles)
  */
-function RawButton<N extends number | string | undefined>(props: RawButtonProps<N>) {
+function RawButton<N>(props: Props<N>) {
     const {
         className,
         onClick,
@@ -41,7 +41,7 @@ function RawButton<N extends number | string | undefined>(props: RawButtonProps<
             className={_cs(className, styles.rawButton)}
             disabled={disabled}
             onClick={onClick ? handleClick : undefined}
-            name={name as string}
+            name={typeof name === 'string' ? name : undefined}
             {...otherProps}
         >
             { children }

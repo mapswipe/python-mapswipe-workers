@@ -15,7 +15,7 @@ export interface ModalProps {
     bodyClassName?: string;
     headingClassName?: string;
     footerClassName?: string;
-    onCloseButtonClick: () => void;
+    onCloseButtonClick?: () => void;
     closeButtonHidden?: boolean;
 }
 
@@ -44,16 +44,16 @@ function Modal(props: ModalProps) {
             >
                 {heading !== null && (
                     <div className={_cs(styles.modalHeader, headingClassName)}>
-                        <h4 className={styles.titleContainer}>
+                        <h3 className={styles.heading}>
                             {heading}
-                        </h4>
+                        </h3>
                         {!closeButtonHidden && (
                             <div className={styles.actions}>
                                 <Button
                                     className={styles.closeButton}
                                     onClick={onCloseButtonClick}
-                                    transparent
-                                    name="Close"
+                                    variant="action"
+                                    name="close"
                                 >
                                     <IoMdClose />
                                 </Button>
