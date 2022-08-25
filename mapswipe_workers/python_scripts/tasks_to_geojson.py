@@ -1,3 +1,4 @@
+import math
 import os
 import sys
 
@@ -76,6 +77,7 @@ def tasks_to_geojson(project_extent_file, zoomlevel, outfile):
     outLayer.CreateField(ogr.FieldDefn("taskId", ogr.OFTString))
     outLayer.CreateField(ogr.FieldDefn("tile_x", ogr.OFTInteger))
     outLayer.CreateField(ogr.FieldDefn("tile_y", ogr.OFTInteger))
+    outLayer.CreateField(ogr.FieldDefn("tile_y_google", ogr.OFTInteger))
     outLayer.CreateField(ogr.FieldDefn("tile_z", ogr.OFTInteger))
 
     for task in tasks:
@@ -85,6 +87,8 @@ def tasks_to_geojson(project_extent_file, zoomlevel, outfile):
         tile_z, tile_x, tile_y = task["taskId"].split("-")
         geom = ogr.CreateGeometryFromWkt(geometry)
 
+        tile_y_google = int(math.pow(2, int(tile_z)) - int(tile_y)) - 1
+
         featureDefn = outLayer.GetLayerDefn()
         outFeature = ogr.Feature(featureDefn)
         outFeature.SetGeometry(geom)
@@ -92,6 +96,7 @@ def tasks_to_geojson(project_extent_file, zoomlevel, outfile):
         outFeature.SetField("taskId", task_id)
         outFeature.SetField("tile_x", int(tile_x))
         outFeature.SetField("tile_y", (tile_y))
+        outFeature.SetField("tile_y_google", (tile_y_google))
         outFeature.SetField("tile_z", (tile_z))
         outLayer.CreateFeature(outFeature)
         outFeature = None
