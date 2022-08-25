@@ -39,6 +39,7 @@ exports.groupUsersCounter = functions.database.ref('/v2/results/{projectId}/{gro
     const userContributionRef = userRef.child('contributions/' + context.params.projectId);
     const taskContributionCountRef = userRef.child('contributions/' + context.params.projectId + '/taskContributionCount');
     const thisResultRef = admin.database().ref('/v2/results/' + context.params.projectId + '/' + context.params.groupId + '/' + context.params.userId );
+    const userGroupsRef = admin.database().ref('/v2/userGroups/');
 
 
     // Check for specific user ids which have been identified as problematic.
@@ -111,9 +112,36 @@ exports.groupUsersCounter = functions.database.ref('/v2/results/{projectId}/{gro
                 }),
 
                 // Tag userGroups of the user in the result
-                userRef.child('userGroups').once('value').then((usergroupSnapshot) => {
-                    // Include userGroups of the user in the results
-                    return thisResultRef.child('userGroups').set(usergroupSnapshot.val());
+                // eslint-disable-next-line promise/no-nesting
+                userRef.child('userGroups').once('value').then((userGroupsOfTheUserSnapshot) => {
+                    if (!userGroupsOfTheUserSnapshot.exists()) {
+                        return null;
+                    }
+
+                    // eslint-disable-next-line promise/no-nesting
+                    return userGroupsRef.once('value').then((allUserGroupsSnapshot) => {
+                        if (!allUserGroupsSnapshot.exists()) {
+                            return null;
+                        }
+                        const allUserGroups = allUserGroupsSnapshot.val();
+
+                        const userGroupsOfTheUserKeyList = Object.keys(userGroupsOfTheUserSnapshot.val());
+                        const nonArchivedUserGroupKeys = userGroupsOfTheUserKeyList.filter((key) => (
+                            !allUserGroups[key].archivedAt && !allUserGroups[key].archivedBy
+                        ));
+
+                        if (nonArchivedUserGroupKeys.length === 0) {
+                            return null;
+                        }
+
+                        const nonArchivedUserGroupsOfTheUser = nonArchivedUserGroupKeys.reduce((acc, val) => {
+                            acc[val] = true;
+                            return acc;
+                        }, {} as Record<string, boolean>);
+
+                        // Include userGroups of the user in the results
+                        return thisResultRef.child('userGroups').set(nonArchivedUserGroupsOfTheUser);
+                    });
                 }),
             ]);
         });
@@ -154,6 +182,7 @@ exports.groupFinishedCountUpdater = functions.database.ref('/v2/groupsUsers/{pro
             }
 
             // use project verification number if it is not set for the group
+            // eslint-disable-next-line promise/no-nesting
             const verificationNumber = projectVerificationNumberRef.once('value')
                 .then((dataSnapshot2) => {
                     return dataSnapshot2.val();
@@ -161,6 +190,7 @@ exports.groupFinishedCountUpdater = functions.database.ref('/v2/groupsUsers/{pro
             return verificationNumber;
         })
         .then((verificationNumber) => {
+            // eslint-disable-next-line promise/no-nesting
             return groupUsersRef.once('value')
                 .then((dataSnapshot3) => {
                     return Promise.all([
