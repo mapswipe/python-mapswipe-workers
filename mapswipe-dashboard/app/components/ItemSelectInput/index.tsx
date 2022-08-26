@@ -143,8 +143,6 @@ function ItemSelectInput<Name extends string>(props: ItemSelectInputProps<Name>)
         onItemSelect(item);
     };
 
-    console.info(selectedItem, otherProps.placeholder);
-
     return (
         <SearchSelectInput
             {...otherProps}

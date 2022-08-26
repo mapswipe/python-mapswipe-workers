@@ -95,8 +95,12 @@ export type SelectInputContainerProps<
 
 const emptyList: unknown[] = [];
 
-// eslint-disable-next-line @typescript-eslint/ban-types, max-len
-function SelectInputContainer<OK extends OptionKey, N extends string, O extends object, P extends ContentBaseProps>(
+function SelectInputContainer<
+    OK extends OptionKey,
+    N extends string,
+    O extends object,
+    P extends ContentBaseProps
+>(
     props: SelectInputContainerProps<OK, N, O, P, never>,
 ) {
     const {

@@ -8,6 +8,9 @@
     padding: var(--spacing-medium);
     gap: var(--spacing-large);
 
+    .heading-section {
+        display: flex;
+    }
     .heading-container {
         display: flex;
         flex-direction: column;
