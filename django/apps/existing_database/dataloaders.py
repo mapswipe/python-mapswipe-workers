@@ -408,7 +408,7 @@ USER_LATEST_STATS_QUERY = f"""
                 LEFT JOIN {UserGroupResult._meta.db_table} UGR USING (project_id, group_id, user_id)
             WHERE timestamp::date >= (CURRENT_DATE - INTERVAL '30 days')
             AND R.user_id = ANY(%s)
-            GROUP BY user_id, timestamp
+            GROUP BY user_id, timestamp, project_id, group_id
         )
     SELECT
         user_id,
@@ -417,10 +417,10 @@ USER_LATEST_STATS_QUERY = f"""
                 EPOCH FROM (end_time - start_time)
             )
         ) as total_time,
-        COUNT( DISTINCT user_group_id) as total_group,
+        COUNT(DISTINCT user_group_id) as total_group,
         SUM(task_id) as total_swipe
     From dashboard_data
-    GROUP BY user_id;
+    GROUP BY user_id
 """
 
 USER_GEO_CONTRIBUTION_STATS_QUERY = f"""
@@ -691,7 +691,7 @@ def load_user_stats(keys: List[str]):
             total_swipe=round(total_swipe_count) or 0,
             total_swipe_time=round(total_time / 60) or 0,  # swipe time in minutes
             total_mapping_projects=round(total_project) or 0,
-            total_user_group=round(user_group / 4) or 0
+            total_user_group=round(user_group) or 0
         )
         for user_id, user_group, total_swipe_count, total_time, total_project in aggregate_results
     }
@@ -779,9 +779,9 @@ def load_user_latest_stats_query(keys: List[str]):
         aggregate_results = cursor.fetchall()
     _map = {
         user_id: UserLatestStatusTypeStats(
-            total_user_group=round(total_group / 4) or 0,
+            total_user_group=round(total_group) or 0,
             total_swipe=round(total_swipe),
-            total_swipe_time=round(total_time) or 0,
+            total_swipe_time=round(total_time / 60) or 0,
         )
         for user_id, total_time, total_group, total_swipe in aggregate_results
     }
