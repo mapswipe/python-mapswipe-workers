@@ -41,12 +41,6 @@ function Routes(props: Props) {
                 </Route>
                 <Route
                     exact
-                    path={routes.login.path}
-                >
-                    {routes.login.load({ className })}
-                </Route>
-                <Route
-                    exact
                     pajth={routes.fourHundredFour.path}
                 >
                     {routes.fourHundredFour.load({ className })}

@@ -143,7 +143,7 @@ function UserGroupDashboard(props: Props) {
                                             precision={2}
                                         />
                                     )}
-                                    description="&nbsp;total swipes last month"
+                                    description="&nbsp;total swipes in the last 30 days"
                                 />
                             )}
                         />
@@ -166,7 +166,7 @@ function UserGroupDashboard(props: Props) {
                                                 ?.userGroup.userGroupLatest?.totalSwipeTime}
                                         />
                                     )}
-                                    description="&nbsp; mins last month"
+                                    description="&nbsp; mins in the last 30 days"
                                 />
                             )}
                         />
@@ -190,7 +190,7 @@ function UserGroupDashboard(props: Props) {
                                         />
                                     )}
                                     hideLabelColon
-                                    description="&nbsp; active contributors last month"
+                                    description="&nbsp; active contributors in the last 30 days"
                                 />
                             )}
                         />
@@ -211,32 +211,33 @@ function UserGroupDashboard(props: Props) {
                         projectSwipeTypeStats={userGroupStats?.userGroup.projectSwipeType}
                         contributions={
                             userGroupStats?.userGroup.userGroupGeoStats as MapContributionType[]
-                                | null | undefined
+                            | null | undefined
                         }
                     />
-                    <div className={styles.members}>
-                        <div className={styles.membersHeading}>
-                            {`${userGroupStats?.userGroup.name}'s Members`}
-                        </div>
-                        <div className={styles.membersContainer}>
-                            <div className={styles.memberListHeading}>
-                                <div className={styles.heading}>User</div>
-                                <div className={styles.heading}>Total Swipes</div>
-                                <div className={styles.heading}>Mission contributed</div>
-                                <div className={styles.heading}>Time Spent (mins)</div>
+                    {(userGroupStats?.userGroup.userStats?.length ?? 0) > 0 && (
+                        <div className={styles.members}>
+                            <div className={styles.membersHeading}>
+                                {`${userGroupStats?.userGroup.name}'s Members`}
                             </div>
-                            <ListView
-                                data={userGroupStats?.userGroup.userStats}
-                                keySelector={memberKeySelector}
-                                renderer={MemberItem}
-                                rendererParams={memberRendererParams}
-                                filtered={false}
-                                pending={false}
-                                errored={false}
-                            />
+                            <div className={styles.membersContainer}>
+                                <div className={styles.memberListHeading}>
+                                    <div className={styles.heading}>User</div>
+                                    <div className={styles.heading}>Total Swipes</div>
+                                    <div className={styles.heading}>Mission contributed</div>
+                                    <div className={styles.heading}>Time Spent (mins)</div>
+                                </div>
+                                <ListView
+                                    data={userGroupStats?.userGroup.userStats}
+                                    keySelector={memberKeySelector}
+                                    renderer={MemberItem}
+                                    rendererParams={memberRendererParams}
+                                    filtered={false}
+                                    pending={false}
+                                    errored={false}
+                                />
+                            </div>
                         </div>
-                    </div>
-                    <div />
+                    )}
                 </div>
             </div>
             <Footer />

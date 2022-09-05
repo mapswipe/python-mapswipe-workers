@@ -8,10 +8,12 @@ import {
     _cs,
     sum,
     compareNumber,
+    listToMap,
 } from '@togglecorp/fujs';
 import { scaleOrdinal } from 'd3-scale';
 import {
     NumberOutput,
+    TextOutput,
     Heading,
 } from '@the-deep/deep-ui';
 import {
@@ -28,6 +30,7 @@ import {
     BarChart,
     Bar,
 } from 'recharts';
+import { formatDuration, intervalToDuration } from 'date-fns';
 
 import ContributionHeatmap, { MapContributionType } from '#components/ContributionHeatMap';
 import InformationCard from '#components/InformationCard';
@@ -44,8 +47,39 @@ import {
 import StatsContainer from './StatsContainer';
 import styles from './styles.css';
 
-const days: string[] = [
-    'Sunday', 'Monday', 'Tueday', 'Wednesday', 'Thursday', 'Friday', 'Saturday',
+interface Day {
+    key: string;
+    title: string;
+}
+const days: Day[] = [
+    {
+        key: '0',
+        title: 'Sunday',
+    },
+    {
+        key: '1',
+        title: 'Monday',
+    },
+    {
+        key: '2',
+        title: 'Tuesday',
+    },
+    {
+        key: '3',
+        title: 'Wednesday',
+    },
+    {
+        key: '4',
+        title: 'Thursday',
+    },
+    {
+        key: '5',
+        title: 'Friday',
+    },
+    {
+        key: '6',
+        title: 'Saturday',
+    },
 ];
 
 const projectTypes: Record<string, { color: string, name: string }> = {
@@ -67,21 +101,6 @@ const projectTypes: Record<string, { color: string, name: string }> = {
     },
 };
 
-const getHoursMinutes = (num: number) => {
-    const hours = (num / 60);
-    const rhours = Math.floor(hours);
-    const minutes = (hours - rhours) * 60;
-    const rminutes = Math.round(minutes);
-    if (rhours > 0 && rminutes > 0) {
-        return `${rhours} ${rhours > 1 ? 'hours' : 'hour'} and ${rminutes} ${rminutes > 1 ? 'minutes' : 'minute'}`;
-    } if (rhours > 0) {
-        return `${rhours} hours`;
-    } if (rminutes > 0) {
-        return `${rminutes} ${rminutes > 1 ? 'minutes' : 'minute'}`;
-    }
-    return 0;
-};
-
 const dateFormatter = (value: number | string) => {
     const date = new Date(value);
     return date.toDateString();
@@ -96,13 +115,24 @@ const minTickFormatter = (value: number | string) => {
     return encodeDate(date);
 };
 
-const organizationTotalTimeFormatter = (value: number) => (getHoursMinutes(value));
-
 const projectTypeTotalSwipeFormatter = (value: number, name: string) => (
-    [value, projectTypes[name]?.name]
+    [value.toLocaleString(), projectTypes[name]?.name]
 );
 
-const totalTimeFormatter = (value: number) => ([getHoursMinutes(value), 'total time']);
+const organizationTotalSwipeFormatter = (value: number) => (
+    value.toLocaleString()
+);
+
+const humanizeMinutes = (value: number) => (
+    formatDuration(intervalToDuration({ start: 0, end: value * 60000 }))
+);
+
+const totalTimeFormatter = (value: number) => {
+    if (value) {
+        return [humanizeMinutes(value), 'total time'];
+    }
+    return [value, 'total time'];
+};
 
 const getTicks = (startDate: number, endDate: number, num: number) => {
     const diffDays = getDifferenceInDays(endDate, startDate);
@@ -173,9 +203,11 @@ function StatsBoard(props: Props) {
             (d) => d.totalTime,
         );
 
+        const emptyContribution = listToMap(days, (d) => d.key, () => []);
+        const dayWise = { ...emptyContribution, ...dayWiseContribution };
         const result = mapToList(
-            dayWiseContribution,
-            (d, key) => ({ day: days[Number(key)], totalTime: sum(d) }),
+            dayWise,
+            (d, key) => ({ day: days.find((day) => (day.key === key))?.title, totalTime: sum(d) }),
         );
 
         return result;
@@ -294,17 +326,17 @@ function StatsBoard(props: Props) {
                     )}
                 </StatsContainer>
                 <InformationCard
-                    label="Time Spent Contributing (in mins)"
-                    value={(
-                        <NumberOutput
+                    label="Time Spent Contributing"
+                    value={contributionTimeSeries && totalContribution && (
+                        <TextOutput
                             className={styles.numberOutput}
-                            value={totalContribution}
+                            value={humanizeMinutes(totalContribution)}
                         />
                     )}
                     variant="stat"
                     contentClassName={styles.timeSpentChartContainer}
                 >
-                    {totalContributionData && (
+                    {contributionTimeSeries && (
                         <ResponsiveContainer>
                             <BarChart data={totalContributionData}>
                                 <Tooltip formatter={totalTimeFormatter} />
@@ -326,11 +358,11 @@ function StatsBoard(props: Props) {
                                 className={styles.numberOutput}
                                 value={totalAreaReviewed}
                                 normal
-                                precision={((totalAreaReviewed ?? 0) < 1 ? 4 : 2)}
+                                precision={2}
                             />
                         )}
                         label="Area Reviewed (in sq km)"
-                        subHeading="All project"
+                        subHeading="Build Area"
                         variant="stat"
                     />
                     <InformationCard
@@ -360,7 +392,7 @@ function StatsBoard(props: Props) {
                             />
                         )}
                         label="Scene Comparision (# of swipes)"
-                        subHeading="Change Detection & Completeness"
+                        subHeading="Change Detection"
                         variant="stat"
                     />
                 </div>
@@ -422,7 +454,7 @@ function StatsBoard(props: Props) {
                     >
                         <ResponsiveContainer>
                             <PieChart>
-                                <Tooltip formatter={organizationTotalTimeFormatter} />
+                                <Tooltip formatter={organizationTotalSwipeFormatter} />
                                 <Legend
                                     align="right"
                                     layout="vertical"

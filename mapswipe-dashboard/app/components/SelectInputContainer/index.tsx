@@ -98,7 +98,7 @@ const emptyList: unknown[] = [];
 function SelectInputContainer<
     OK extends OptionKey,
     N extends string,
-    O extends object,
+    O extends Record<string, unknown>,
     P extends ContentBaseProps
 >(
     props: SelectInputContainerProps<OK, N, O, P, never>,

@@ -10,6 +10,7 @@
 
     .heading-section {
         display: flex;
+        flex-direction: column;
     }
     .heading-container {
         display: flex;

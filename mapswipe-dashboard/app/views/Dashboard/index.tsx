@@ -101,7 +101,7 @@ function Dashboard(props: Props) {
                         headingSize="small"
                         headingContainerClassName={styles.description}
                         descriptionClassName={styles.description}
-                        description="Putting communities on the map to help humanitarians find and help vunerable communities."
+                        description="Improving humanitarian action through open, geospatial data."
                     />
                     <div className={styles.stats}>
                         <InformationCard
@@ -115,7 +115,8 @@ function Dashboard(props: Props) {
                                 />
                             )}
                             label="Total Contributors"
-                            description={(
+                            description={communityStats
+                                ?.communityStastLastest?.totalContributorsLastMonth && (
                                 <TextOutput
                                     className={styles.value}
                                     value={(
@@ -127,7 +128,7 @@ function Dashboard(props: Props) {
                                             precision={2}
                                         />
                                     )}
-                                    description="&nbsp;total contributors last month"
+                                    description="&nbsp;total contributors in the last 30 days"
                                 />
                             )}
                         />
@@ -140,7 +141,8 @@ function Dashboard(props: Props) {
                                 />
                             )}
                             label="Total Groups"
-                            description={(
+                            description={communityStats
+                                ?.communityStastLastest?.totalGroupsLastMonth && (
                                 <TextOutput
                                     className={styles.value}
                                     value={(
@@ -150,7 +152,7 @@ function Dashboard(props: Props) {
                                                 ?.communityStastLastest?.totalGroupsLastMonth}
                                         />
                                     )}
-                                    description="&nbsp;active groups last month"
+                                    description="&nbsp;active groups in the last 30 days"
                                 />
                             )}
                         />
@@ -165,7 +167,8 @@ function Dashboard(props: Props) {
                                 />
                             )}
                             label="Total Swipes"
-                            description={(
+                            description={communityStats
+                                ?.communityStastLastest?.totalSwipesLastMonth && (
                                 <TextOutput
                                     className={styles.value}
                                     value={(
@@ -177,7 +180,7 @@ function Dashboard(props: Props) {
                                             precision={2}
                                         />
                                     )}
-                                    description="&nbsp;swipes last month"
+                                    description="&nbsp;swipes in the last 30 days"
                                 />
                             )}
                         />

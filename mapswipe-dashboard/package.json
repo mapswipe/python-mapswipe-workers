@@ -51,6 +51,7 @@
         "apollo-upload-client": "^16.0.0",
         "core-js": "3",
         "d3-scale": "^4.0.2",
+        "date-fns": "^2.29.2",
         "graphql": "^15.5.1",
         "graphql-anywhere": "^4.2.7",
         "mapbox-gl": "^2.9.2",

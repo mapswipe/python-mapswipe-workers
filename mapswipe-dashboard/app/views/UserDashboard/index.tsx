@@ -114,7 +114,7 @@ function UserDashboard(props: Props) {
                                 />
                             )}
                             label="Total Swipes"
-                            description={(
+                            description={userStats?.user.statsLatest?.totalSwipe && (
                                 <TextOutput
                                     className={styles.value}
                                     value={(
@@ -125,7 +125,7 @@ function UserDashboard(props: Props) {
                                             precision={2}
                                         />
                                     )}
-                                    description="&nbsp;total swipes last month"
+                                    description="&nbsp;total swipes last 30 days"
                                 />
                             )}
                         />
@@ -138,7 +138,7 @@ function UserDashboard(props: Props) {
                                 />
                             )}
                             label="Total Time Spent (in mins)"
-                            description={(
+                            description={userStats?.user.statsLatest?.totalSwipeTime && (
                                 <TextOutput
                                     className={styles.value}
                                     value={(
@@ -147,7 +147,7 @@ function UserDashboard(props: Props) {
                                             value={userStats?.user.statsLatest?.totalSwipeTime}
                                         />
                                     )}
-                                    description="&nbsp; mins last month"
+                                    description="&nbsp; mins last 30 days"
                                 />
                             )}
                         />
@@ -160,7 +160,7 @@ function UserDashboard(props: Props) {
                                 />
                             )}
                             label="Groups Joined"
-                            description={(
+                            description={userStats?.user.statsLatest?.totalUserGroup && (
                                 <TextOutput
                                     className={styles.value}
                                     label="Active in&nbsp;"
@@ -171,7 +171,7 @@ function UserDashboard(props: Props) {
                                         />
                                     )}
                                     hideLabelColon
-                                    description="&nbsp; groups last month"
+                                    description="&nbsp; groups last 30 days"
                                 />
                             )}
                         />
@@ -193,41 +193,43 @@ function UserDashboard(props: Props) {
                         contributions={userStats
                             ?.user.userGeoContribution as MapContributionType[] | null | undefined}
                     />
-                    <div className={styles.groups}>
-                        <div className={styles.groupsHeading}>
-                            {`${userStats?.user.username}'s Group`}
-                        </div>
-                        <div className={styles.groupsContainer}>
-                            {userStats?.user?.userInUserGroups?.map((group) => (
-                                <InformationCard
-                                    key={group.userGroup}
-                                    className={styles.group}
-                                    icon={(<img src={groupSvg} alt="swipe icon" />)}
-                                    subHeading={(
-                                        <TextOutput
-                                            className={styles.value}
-                                            label="Joined on &nbsp;"
-                                            value={undefined}
-                                            hideLabelColon
-                                            valueType="date"
-                                        />
-                                    )}
-                                    label={group.userGroup}
-                                    description={`${group.membersCount}
+                    {(userStats?.user?.userInUserGroups?.length ?? 0) > 0 && (
+                        <div className={styles.groups}>
+                            <div className={styles.groupsHeading}>
+                                Group membership
+                            </div>
+                            <div className={styles.groupsContainer}>
+                                {userStats?.user?.userInUserGroups?.map((group) => (
+                                    <InformationCard
+                                        key={group.userGroup}
+                                        className={styles.group}
+                                        icon={(<img src={groupSvg} alt="swipe icon" />)}
+                                        subHeading={(
+                                            <TextOutput
+                                                className={styles.value}
+                                                label="Joined on &nbsp;"
+                                                value={undefined}
+                                                hideLabelColon
+                                                valueType="date"
+                                            />
+                                        )}
+                                        label={group.userGroup}
+                                        description={`${group.membersCount}
                                         ${group.membersCount > 1 ? 'members' : 'member'}`}
-                                />
-                            ))}
-                            {Array.from(
-                                new Array(
-                                    (3 - (
-                                        (userStats?.user?.userInUserGroups?.length ?? 0) % 3)
-                                    ) % 3,
-                                ).keys(),
-                            ).map((key) => (
-                                <div key={key} className={styles.group} />
-                            ))}
+                                    />
+                                ))}
+                                {Array.from(
+                                    new Array(
+                                        (3 - (
+                                            (userStats?.user?.userInUserGroups?.length ?? 0) % 3)
+                                        ) % 3,
+                                    ).keys(),
+                                ).map((key) => (
+                                    <div key={key} className={styles.group} />
+                                ))}
+                            </div>
                         </div>
-                    </div>
+                    )}
                 </div>
             </div>
             <Footer />

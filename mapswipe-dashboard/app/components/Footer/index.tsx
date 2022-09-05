@@ -1,5 +1,5 @@
 import React from 'react';
-import { IoLogoFacebook, IoLogoTwitter, IoLogoGithub, IoLogoInstagram, IoMail } from 'react-icons/io5';
+import { IoLogoTwitter, IoLogoGithub, IoMail } from 'react-icons/io5';
 import iosSvg from '#resources/icons/ios.svg';
 import androidSvg from '#resources/icons/android.svg';
 
@@ -28,17 +28,8 @@ function Footer() {
             </div>
             <div className={styles.links}>
                 <a
-                    aria-label="Facebook"
-                    href="https://www.facebook.com"
-                    target="_blank"
-                    rel="noreferrer"
-                    className={styles.iconLink}
-                >
-                    <IoLogoFacebook />
-                </a>
-                <a
                     aria-label="Twitter"
-                    href="https://www.twitter.com"
+                    href="https://twitter.com/mapswipe"
                     target="_blank"
                     className={styles.iconLink}
                     rel="noreferrer"
@@ -47,7 +38,7 @@ function Footer() {
                 </a>
                 <a
                     aria-label="Github"
-                    href="https://www.github.com"
+                    href="https://github.com/mapswipe"
                     target="_blank"
                     rel="noreferrer"
                     className={styles.iconLink}
@@ -55,17 +46,8 @@ function Footer() {
                     <IoLogoGithub />
                 </a>
                 <a
-                    aria-label="Instagram"
-                    href="https://www.instagram.com"
-                    target="_blank"
-                    rel="noreferrer"
-                    className={styles.iconLink}
-                >
-                    <IoLogoInstagram />
-                </a>
-                <a
                     aria-label="Email"
-                    href="mailto:mapswipe.org"
+                    href="mailto:info@mapswipe.org"
                     target="_blank"
                     rel="noreferrer"
                     className={styles.iconLink}

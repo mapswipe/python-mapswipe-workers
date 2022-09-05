@@ -14,15 +14,6 @@ const fourHundredFour = wrap({
     navbarVisibility: true,
 });
 
-const login = wrap({
-    path: '/login/',
-    title: 'Login',
-    navbarVisibility: false,
-    component: lazy(() => import('#views/Login')),
-    componentProps: {},
-    visibility: 'is-not-authenticated',
-});
-
 const home = wrap({
     path: '/',
     title: 'Community',
@@ -51,7 +42,6 @@ const userDashboard = wrap({
 });
 
 const routes = {
-    login,
     home,
     userGroupDashboard,
     userDashboard,

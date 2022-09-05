@@ -27,7 +27,6 @@
 
                 .heading {
                     padding-bottom: var(--spacing-medium);
-                    text-transform: capitalize;
                     color: var(--color-text-on-dark);
                     font-size: var(--font-size-mega-large);
 

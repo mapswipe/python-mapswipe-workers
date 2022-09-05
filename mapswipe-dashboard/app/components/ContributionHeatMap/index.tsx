@@ -41,17 +41,17 @@ export type MapContributionType = MapContributionTypeStats & {
 }
 
 const contributionPointColor: mapboxgl.CirclePaint = {
-    // Size circle radius by earthquake magnitude and zoom level
+    // Size circle radius by totalContribution and zoom level
     'circle-radius': [
         'interpolate',
         ['linear'],
         ['zoom'],
         7,
         ['interpolate', ['linear'], ['get', 'totalContribution'], 1, 1, 50, 4],
-        16,
-        ['interpolate', ['linear'], ['get', 'totalContribution'], 1, 5, 50, 50],
+        14,
+        ['interpolate', ['linear'], ['get', 'totalContribution'], 1, 1, 50, 20],
     ],
-    // Color circle by earthquake magnitude
+    // Color circle by totalContribution
     'circle-color': [
         'interpolate',
         ['linear'],
@@ -130,7 +130,7 @@ const contributionHeatMapColor: mapboxgl.HeatmapPaint = {
         ['linear'],
         ['zoom'],
         0,
-        2,
+        5,
         9,
         20,
     ],
@@ -225,7 +225,8 @@ function ContributionHeatMap(props: Props) {
             mapStyle={lightStyle}
             mapOptions={{
                 logoPosition: 'bottom-left',
-                scrollZoom: true,
+                scrollZoom: false,
+                maxZoom: 12,
             }}
             scaleControlShown
             navControlShown

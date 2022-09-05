@@ -2,16 +2,18 @@ import React from 'react';
 import { _cs } from '@togglecorp/fujs';
 import { IoEllipsisHorizontal } from 'react-icons/io5';
 
-import SelectInput from '#components/SelectInput';
-import Button from '#components/Button';
-
-import {
-    valueSelector,
-    labelSelector,
-} from '#utils/common';
+import SelectInput from '../SelectInput';
+import Button from '../Button';
 
 import styles from './styles.css';
 
+function valueSelector<T>(item: { value: T }) {
+    return item.value;
+}
+
+function labelSelector<T>(item: { label: T }) {
+    return item.label;
+}
 interface LabelValue {
     value: number;
     label: string;

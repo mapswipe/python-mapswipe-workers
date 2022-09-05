@@ -37,7 +37,7 @@ type OptionKey = string | number;
 export type SearchSelectInputProps<
     T extends OptionKey,
     K,
-    O extends object,
+    O extends Record<string, unknown>,
     P extends Def,
     OMISSION extends string,
 > = Omit<{
@@ -86,7 +86,7 @@ const emptyList: unknown[] = [];
 function SearchSelectInput<
     T extends OptionKey,
     K extends string,
-    O extends object,
+    O extends Record<string, unknown>,
     P extends Def,
 >(
     props: SearchSelectInputProps<T, K, O, P, never>,
