@@ -2,6 +2,7 @@ import datetime
 
 from apps.existing_database.factories import (
     GroupFactory,
+    OrganizationFactory,
     ProjectFactory,
     ResultFactory,
     TaskFactory,
@@ -9,7 +10,6 @@ from apps.existing_database.factories import (
     UserGroupFactory,
     UserGroupMembershipFactory,
     UserGroupResultFactory,
-    OrganizationFactory,
 )
 from apps.existing_database.models import (
     Group,
@@ -86,7 +86,12 @@ class Command(BaseCommand):
                     user_group=user_group,
                     is_active=is_active,
                 )
-        organization1, organization2, organization3, _ = OrganizationFactory.create_batch(4)
+        (
+            organization1,
+            organization2,
+            organization3,
+            _,
+        ) = OrganizationFactory.create_batch(4)
         project1 = ProjectFactory.create(organization=organization1)
         project2 = ProjectFactory.create(organization=organization2)
         project3 = ProjectFactory.create(organization=organization3)
@@ -118,13 +123,25 @@ class Command(BaseCommand):
         ]:
             end_time = start_time + datetime.timedelta(seconds=time_seconds)
             for task, timestamp in [
-                (Task.objects.filter(group_id=group.group_id)[0], timestamp_now + datetime.timedelta(days=-19)),
-                (Task.objects.filter(group_id=group.group_id)[1], timestamp_now + datetime.timedelta(days=-12)),
-                (Task.objects.filter(group_id=group.group_id)[2], timestamp_now + datetime.timedelta(days=-14)),
+                (
+                    Task.objects.filter(group_id=group.group_id)[0],
+                    timestamp_now + datetime.timedelta(days=-19),
+                ),
+                (
+                    Task.objects.filter(group_id=group.group_id)[1],
+                    timestamp_now + datetime.timedelta(days=-12),
+                ),
+                (
+                    Task.objects.filter(group_id=group.group_id)[2],
+                    timestamp_now + datetime.timedelta(days=-14),
+                ),
             ]:
                 ResultFactory.create(
-                    task=task, user=user, start_time=start_time, end_time=end_time,
-                    timestamp=timestamp
+                    task=task,
+                    user=user,
+                    start_time=start_time,
+                    end_time=end_time,
+                    timestamp=timestamp,
                 )
             for user_group in user_groups:
                 UserGroupResultFactory.create(

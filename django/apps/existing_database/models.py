@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.contrib.gis.db import models as gis_models
-from django.db import models
 from django.contrib.postgres.fields import ArrayField
+from django.db import models
 
 
 class User(models.Model):
@@ -90,7 +90,6 @@ class Project(models.Model):
     # Database uses JSON instead of JSONB (not supported by django)
     project_type_specifics = models.TextField(blank=True, null=True)
     organization_name = models.CharField(max_length=-1, null=True, blank=True)
-    # organization = models.ForeignKey(Organization, models.DO_NOTHING, primary_key=True)
 
     class Meta:
         managed = False

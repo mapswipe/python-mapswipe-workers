@@ -1,34 +1,25 @@
 from typing import List
 
-from django.conf import settings
-from django.db import connections
-
 import strawberry
 import strawberry_django
+from django.conf import settings
+from django.db import connections
 from mapswipe.paginations import CountList, StrawberryDjangoCountList
 
-from .filters import (
-    ProjectFilter,
-    UserGroupFilter,
-    UserFilter
-)
+from .filters import ProjectFilter, UserFilter, UserGroupFilter
+from .models import Project, Result, UserGroupResult
 from .ordering import UserGroupOrder
 from .types import (
-    ProjectType,
-    UserGroupType,
-    UserType,
-    CommunityStatsType,
     CommunityStatsLatestType,
+    CommunityStatsType,
     ContributorTimeType,
-    ProjectTypeStats,
+    MapContributionTypeStats,
     OrganizationTypeStats,
     ProjectSwipeTypeStats,
-    MapContributionTypeStats
-)
-from .models import (
-    Result,
-    UserGroupResult,
-    Project
+    ProjectType,
+    ProjectTypeStats,
+    UserGroupType,
+    UserType,
 )
 from .utils import parse_geom
 
@@ -124,10 +115,7 @@ def get_contributor_time_stats() -> List[ContributorTimeType]:
     list_data = []
     for data in aggregate_results:
         list_data.append(
-            ContributorTimeType(
-                total_time=round(data[1] / 60) or 0,
-                task_date=data[0]
-            )
+            ContributorTimeType(total_time=round(data[1] / 60) or 0, task_date=data[0])
         )
     return list_data
 
@@ -147,10 +135,9 @@ def get_project_type_query() -> List[ProjectTypeStats]:
         aggregate_results = cursor.fetchall()
     project_list = []
     for project_type, area_sum in aggregate_results:
-        project_list.append(ProjectTypeStats(
-            area=area_sum / 1000000,
-            project_type=project_type
-        ))
+        project_list.append(
+            ProjectTypeStats(area=area_sum / 1000000, project_type=project_type)
+        )
     return project_list
 
 
@@ -168,10 +155,11 @@ def get_project_swipe_type() -> List[ProjectSwipeTypeStats]:
         aggregate_results = cursor.fetchall()
     project_list = []
     for project_type, total_swipe in aggregate_results:
-        project_list.append(ProjectSwipeTypeStats(
-            total_swipe=total_swipe or 0,
-            project_type=project_type
-        ))
+        project_list.append(
+            ProjectSwipeTypeStats(
+                total_swipe=total_swipe or 0, project_type=project_type
+            )
+        )
     return project_list
 
 
@@ -191,14 +179,12 @@ def get_project_geo_area_type() -> List[MapContributionTypeStats]:
     for geom, swipe_count in aggregate_results:
         if geom is None:
             break
-        geom_centroid = {
-            "type": "Point",
-            "coordinates": parse_geom(geom)
-        }
-        project_list.append(MapContributionTypeStats(
-            total_contribution=swipe_count or 0,
-            geojson=geom_centroid
-        ))
+        geom_centroid = {"type": "Point", "coordinates": parse_geom(geom)}
+        project_list.append(
+            MapContributionTypeStats(
+                total_contribution=swipe_count or 0, geojson=geom_centroid
+            )
+        )
     return project_list
 
 
@@ -238,8 +224,7 @@ def get_organization_stats() -> List[OrganizationTypeStats]:
 @strawberry.type
 class Query:
     users: CountList[UserType] = StrawberryDjangoCountList(
-        pagination=True,
-        filters=UserFilter
+        pagination=True, filters=UserFilter
     )
     projects: CountList[ProjectType] = StrawberryDjangoCountList(
         pagination=True,
@@ -254,9 +239,21 @@ class Query:
     user_group: UserGroupType = strawberry_django.field()
     user: UserType = strawberry_django.field()
     community_stats: CommunityStatsType = strawberry_django.field(get_community_stats)
-    community_stast_lastest: CommunityStatsLatestType = strawberry_django.field(get_community_stats_latest)
-    contributor_time_sats: List[ContributorTimeType] = strawberry_django.field(get_contributor_time_stats)
-    project_type_stats: ProjectTypeStats = strawberry_django.field(get_project_type_query)
-    organization_type_stats: List[OrganizationTypeStats] = strawberry_django.field(get_organization_stats)
-    project_swipe_type: List[ProjectSwipeTypeStats] = strawberry_django.field(get_project_swipe_type)
-    project_geo_contribution: List[MapContributionTypeStats] = strawberry_django.field(get_project_geo_area_type)
+    community_stast_lastest: CommunityStatsLatestType = strawberry_django.field(
+        get_community_stats_latest
+    )
+    contributor_time_sats: List[ContributorTimeType] = strawberry_django.field(
+        get_contributor_time_stats
+    )
+    project_type_stats: ProjectTypeStats = strawberry_django.field(
+        get_project_type_query
+    )
+    organization_type_stats: List[OrganizationTypeStats] = strawberry_django.field(
+        get_organization_stats
+    )
+    project_swipe_type: List[ProjectSwipeTypeStats] = strawberry_django.field(
+        get_project_swipe_type
+    )
+    project_geo_contribution: List[MapContributionTypeStats] = strawberry_django.field(
+        get_project_geo_area_type
+    )

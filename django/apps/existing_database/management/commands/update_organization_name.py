@@ -1,8 +1,7 @@
-from django.conf import settings
-from django.db import connections
-from django.core.management.base import BaseCommand
-
 from apps.existing_database.models import Project
+from django.conf import settings
+from django.core.management.base import BaseCommand
+from django.db import connections
 
 
 class Command(BaseCommand):
@@ -14,13 +13,13 @@ class Command(BaseCommand):
         super().__init__(*args, **kwargs)
 
     def parse_organization_name(self, name):
-        if name and '\n' in name:
-            name_parts = [x.strip() for x in name.split('\n')]
-            if name_parts[1] == '':
-                return 'null'
+        if name and "\n" in name:
+            name_parts = [x.strip() for x in name.split("\n")]
+            if name_parts[1] == "":
+                return "null"
             else:
                 return name_parts[1]
-        return 'null'
+        return "null"
 
     def handle(self, *args, **kwargs):
         with connections[settings.MAPSWIPE_EXISTING_DB].cursor() as cursor:

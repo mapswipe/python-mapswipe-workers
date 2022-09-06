@@ -6,44 +6,29 @@ from django.conf import settings
 from django.db import connections
 from django.utils.functional import cached_property
 from strawberry.dataloader import DataLoader
-from shapely.geometry import shape
 
-from .models import (
-    Result,
-    UserGroupResult,
-    Project,
-    User,
-    UserGroupUserMembership,
-    UserGroup
-)
+from .models import Project, Result, User, UserGroup, UserGroupResult
 from .types import (
-    SwipeStatType,
-    ContributorType,
-    ProjectTypeStats,
-    ProjectSwipeTypeStats,
-    CommunityStatsType,
     ContributorTimeType,
-    UserSwipeStatType,
-    OrganizationTypeStats,
+    ContributorType,
     MapContributionTypeStats,
-    UserLatestStatusTypeStats,
+    OrganizationTypeStats,
+    ProjectSwipeTypeStats,
+    ProjectTypeStats,
+    SwipeStatType,
     UserGroupLatestType,
+    UserGroupUserType,
+    UserLatestStatusTypeStats,
+    UserSwipeStatType,
     UserUserGroupTypeStats,
-    UserGroupUserType
 )
 from .utils import parse_geom
 
 DEFAULT_STAT = SwipeStatType(
-    total_swipe=0,
-    total_swipe_time=0,
-    total_mapping_projects=0,
-    total_contributors=0
+    total_swipe=0, total_swipe_time=0, total_mapping_projects=0, total_contributors=0
 )
 
-DEFAULT_CONTRIBUTION_STAT = ContributorType(
-    task_date=None,
-    total_swipe=0
-)
+DEFAULT_CONTRIBUTION_STAT = ContributorType(task_date=None, total_swipe=0)
 
 USER_GROUP_SWIPE_STAT_QUERY = f"""
     WITH
@@ -88,7 +73,8 @@ USER_SWIPE_STAT_QUERY = f"""
             MAX(R.start_time) as start_time,
             MAX(R.end_time) as end_time
             From {Result._meta.db_table} R
-                LEFT JOIN {UserGroupResult._meta.db_table} UGR USING (project_id, group_id, user_id)
+                LEFT JOIN {UserGroupResult._meta.db_table}
+                    UGR USING (project_id, group_id, user_id)
             WHERE R.user_id = ANY(%s)
             GROUP BY user_id, group_id, project_id
         )
@@ -155,7 +141,8 @@ USER_GROUP_CONTRIBUTORS_STAT_QUERY = f"""
                 R.timestamp as timestamp,
                 COUNT(*) swipe_count
             From {Result._meta.db_table} R
-                LEFT JOIN {UserGroupResult._meta.db_table} UGR USING (user_id, project_id)
+                LEFT JOIN {UserGroupResult._meta.db_table}
+                    UGR USING (user_id, project_id)
             WHERE UGR.user_group_id = ANY(%s)
             GROUP BY UGR.user_group_id, timestamp
         )
@@ -229,7 +216,8 @@ USER_GROUP_TIME_SPENT_CONTRIBUTION_QUERY = f"""
                 R.timestamp as timestamp,
                 UGR.user_group_id as user_group_id
             From {Result._meta.db_table} R
-                LEFT JOIN {UserGroupResult._meta.db_table} UGR USING (project_id, group_id, user_id)
+                LEFT JOIN {UserGroupResult._meta.db_table}
+                    UGR USING (project_id, group_id, user_id)
             WHERE UGR.user_group_id = ANY(%s)
             GROUP BY UGR.user_group_id, timestamp
         )
@@ -316,7 +304,8 @@ USER_GROUP_PROJECT_SWIPE_TYPE_STATS_QUERY = f"""
                 COUNT(*) as swipes
                 FROM {Result._meta.db_table} R
                     LEFT JOIN {Project._meta.db_table } P  USING (project_id)
-                    LEFT JOIN {UserGroupResult._meta.db_table} UGR USING (project_id, group_id, user_id)
+                    LEFT JOIN {UserGroupResult._meta.db_table}
+                        UGR USING (project_id, group_id, user_id)
             WHERE UGR.user_group_id = ANY(%s)
             GROUP BY project_type, UGR.user_group_id
         )
@@ -405,7 +394,8 @@ USER_LATEST_STATS_QUERY = f"""
                 MAX(R.end_time) as end_time,
                 R.timestamp as timestamp
             From {Result._meta.db_table} R
-                LEFT JOIN {UserGroupResult._meta.db_table} UGR USING (project_id, group_id, user_id)
+                LEFT JOIN {UserGroupResult._meta.db_table}
+                    UGR USING (project_id, group_id, user_id)
             WHERE timestamp::date >= (CURRENT_DATE - INTERVAL '30 days')
             AND R.user_id = ANY(%s)
             GROUP BY user_id, timestamp, project_id, group_id
@@ -451,7 +441,8 @@ USER_GROUP_GEO_CONTRIBUTION_STATS_QUERY = f"""
                 ST_AsText(ST_Centroid(P.geom)) geom,
                 COUNT(*) swipe_count
                 FROM {Result._meta.db_table} R
-                    LEFT JOIN {UserGroupResult._meta.db_table} UGR USING (project_id, group_id, user_id)
+                    LEFT JOIN {UserGroupResult._meta.db_table}
+                        UGR USING (project_id, group_id, user_id)
                     LEFT JOIN {Project._meta.db_table} P USING (project_id)
             WHERE UGR.user_group_id = ANY(%s)
             GROUP BY UGR.user_group_id, P.geom
@@ -512,7 +503,8 @@ USER_GROUP_DASHBOARD_STATS_QUERY = f"""
                 COUNT(*) swipe_count,
                 R.timestamp as timestamp
             From {Result._meta.db_table} R
-                LEFT JOIN {UserGroupResult._meta.db_table} UGR USING (user_id, group_id, project_id)
+                LEFT JOIN {UserGroupResult._meta.db_table}
+                    UGR USING (user_id, group_id, project_id)
             WHERE R.timestamp::date >= (CURRENT_DATE - INTERVAL '30 days')
             AND UGR.user_group_id = ANY(%s)
             GROUP BY timestamp, UGR.user_group_id, UGR.user_id
@@ -563,7 +555,13 @@ def load_user_group_stats(keys: List[str]):
             total_mapping_projects=mapped_project_count or 0,
             total_contributors=total_contributors or 0,
         )
-        for user_group_id, mapped_project_count, total_contributors, swipe_count, total_time in aggregate_results
+        for (
+            user_group_id,
+            mapped_project_count,
+            total_contributors,
+            swipe_count,
+            total_time,
+        ) in aggregate_results
     }
     return [_map.get(key, DEFAULT_STAT) for key in keys]
 
@@ -577,9 +575,14 @@ def user_group_latest_stats(keys: List[str]):
         user_group_id: UserGroupLatestType(
             total_swipes=total_swipe or 0,
             total_swipe_time=round(total_time / 60) or 0,  # swipe time in minutes
-            total_contributors=total_contributors
+            total_contributors=total_contributors,
         )
-        for user_group_id, total_time, total_contributors, total_swipe in aggregate_results
+        for (
+            user_group_id,
+            total_time,
+            total_contributors,
+            total_swipe,
+        ) in aggregate_results
     }
     return [_map.get(key) for key in keys]
 
@@ -591,10 +594,7 @@ def load_user_group_contributors_stats(keys: List[str]):
     _map = defaultdict(list)
     for user_group_id, swipe_count, task_date in aggregate_results:
         _map[user_group_id].append(
-            ContributorType(
-                total_swipe=swipe_count or 0,
-                task_date=task_date
-            )
+            ContributorType(total_swipe=swipe_count or 0, task_date=task_date)
         )
     return [_map.get(key) for key in keys]
 
@@ -606,10 +606,7 @@ def load_user_group_project_type_stats(keys: List[str]):
     _map = defaultdict(list)
     for user_group_id, area_sum, project_type in aggregate_results:
         _map[user_group_id].append(
-            ProjectTypeStats(
-                area=area_sum or 0,
-                project_type=project_type
-            )
+            ProjectTypeStats(area=area_sum or 0, project_type=project_type)
         )
     return [_map.get(key) for key in keys]
 
@@ -622,8 +619,7 @@ def load_user_group_organization_stats(keys: List[str]):
     for user_group_id, swipe_count, organization in aggregate_results:
         _map[user_group_id].append(
             OrganizationTypeStats(
-                total_swipe=swipe_count or 0,
-                organization_name=organization
+                total_swipe=swipe_count or 0, organization_name=organization
             )
         )
     return [_map.get(key) for key in keys]
@@ -637,33 +633,37 @@ def load_user_group_user_stats(keys: List[str]):
         cursor.execute(USER_GROUP_USER_SWIPE_STAT_QUERY, [keys])
         aggregate_results = cursor.fetchall()
     _map = defaultdict(list)
-    for user_group_id, user_id, username, mapped_project_count, total_swipe_count, total_time in aggregate_results:
+    for (
+        user_group_id,
+        user_id,
+        username,
+        mapped_project_count,
+        total_swipe_count,
+        total_time,
+    ) in aggregate_results:
         _map[user_group_id].append(
             UserGroupUserType(
                 user_id=user_id,
                 user_name=username,
                 total_swipes=total_swipe_count or 0,
-                total_swipe_time=round(total_swipe_count / 60) or 0,  # swipe time in minutes
+                total_swipe_time=round(total_swipe_count / 60)
+                or 0,  # swipe time in minutes
                 total_mapping_projects=mapped_project_count or 0,
             )
         )
     return [_map.get(key) for key in keys]
 
 
-def load_user_group_user_contributors_stats(keys: List[str]):
-    user_group_users_map = defaultdict(list)
-    _map = defaultdict(list)
-    with connections[settings.MAPSWIPE_EXISTING_DB].cursor() as cursor:
-        cursor.execute(USER_GROUP_USER_CONTRIBUTORS_STAT_QUERY, [keys])
-        aggregate_results = cursor.fetchall()
-    for _, user_id, swipe_count, task_date in aggregate_results:
-        _map[f"{user_group_id}-{user_id}"].append(
-            ContributorType(
-                total_swipe=swipe_count or 0,
-                task_date=task_date
-            )
-        )
-    return [_map.get(f"{user_group_id}-{user_id}") for user_group_id, user_id in keys]
+# def load_user_group_user_contributors_stats(keys: List[str]):
+#     _map = defaultdict(list)
+#     with connections[settings.MAPSWIPE_EXISTING_DB].cursor() as cursor:
+#         cursor.execute(USER_GROUP_USER_CONTRIBUTORS_STAT_QUERY, [keys])
+#         aggregate_results = cursor.fetchall()
+#     for _, user_id, swipe_count, task_date in aggregate_results:
+#         _map[f"{user_group_id}-{user_id}"].append(
+#             ContributorType(total_swipe=swipe_count or 0, task_date=task_date)
+#         )
+#     return [_map.get(f"{user_group_id}-{user_id}") for user_group_id, user_id in keys]
 
 
 def load_user_group_contribution_time(keys: List[str]):
@@ -674,14 +674,13 @@ def load_user_group_contribution_time(keys: List[str]):
     for user_group_id, task_date, total_time in aggregate_results:
         _map[user_group_id].append(
             ContributorTimeType(
-                total_time=round(total_time / 60) or 0,
-                task_date=task_date
+                total_time=round(total_time / 60) or 0, task_date=task_date
             )
         )
     return [_map.get(key) for key in keys]
 
 
-## User User Stats
+# User User Stats
 def load_user_stats(keys: List[str]):
     with connections[settings.MAPSWIPE_EXISTING_DB].cursor() as cursor:
         cursor.execute(USER_SWIPE_STAT_QUERY, [keys])
@@ -691,9 +690,15 @@ def load_user_stats(keys: List[str]):
             total_swipe=round(total_swipe_count) or 0,
             total_swipe_time=round(total_time / 60) or 0,  # swipe time in minutes
             total_mapping_projects=round(total_project) or 0,
-            total_user_group=round(user_group) or 0
+            total_user_group=round(user_group) or 0,
         )
-        for user_id, user_group, total_swipe_count, total_time, total_project in aggregate_results
+        for (
+            user_id,
+            user_group,
+            total_swipe_count,
+            total_time,
+            total_project,
+        ) in aggregate_results
     }
     return [_map.get(key) for key in keys]
 
@@ -705,10 +710,7 @@ def load_user_contribution_stats(keys: List[str]):
     _map = defaultdict(list)
     for user_id, swipe_count, task_date in aggregate_results:
         _map[user_id].append(
-            ContributorType(
-                total_swipe=swipe_count or 0,
-                task_date=task_date
-            )
+            ContributorType(total_swipe=swipe_count or 0, task_date=task_date)
         )
     return [_map.get(key) for key in keys]
 
@@ -721,8 +723,7 @@ def load_user_time_spending(keys: List[str]):
     for user_id, task_date, total_time in aggregate_results:
         _map[user_id].append(
             ContributorTimeType(
-                total_time=round(total_time / 60) or 0,
-                task_date=task_date
+                total_time=round(total_time / 60) or 0, task_date=task_date
             )
         )
     return [_map.get(key) for key in keys]
@@ -735,10 +736,7 @@ def load_user_stats_project_type(keys: List[str]):
     _map = defaultdict(list)
     for user_id, area_sum, project_type in aggregate_results:
         _map[user_id].append(
-            ProjectTypeStats(
-                area=area_sum or 0,
-                project_type=project_type
-            )
+            ProjectTypeStats(area=area_sum or 0, project_type=project_type)
         )
     return [_map.get(key) for key in keys]
 
@@ -751,8 +749,7 @@ def load_user_stats_project_swipe_type(keys: List[str]):
     for user_id, total_swipe, project_type in aggregate_results:
         _map[user_id].append(
             ProjectSwipeTypeStats(
-                total_swipe=total_swipe or 0,
-                project_type=project_type
+                total_swipe=total_swipe or 0, project_type=project_type
             )
         )
     return [_map.get(key) for key in keys]
@@ -766,8 +763,7 @@ def load_user_organization_swipe_type(keys: List[str]):
     for user_id, total_swipe, organization_name in aggregate_results:
         _map[user_id].append(
             OrganizationTypeStats(
-                total_swipe=total_swipe or 0,
-                organization_name=organization_name
+                total_swipe=total_swipe or 0, organization_name=organization_name
             )
         )
     return [_map.get(key) for key in keys]
@@ -800,8 +796,7 @@ def load_user_geo_contribution(keys: List[str]):
         }
         _map[user_id].append(
             MapContributionTypeStats(
-                geojson=geom_centroid,
-                total_contribution=total_swipes
+                geojson=geom_centroid, total_contribution=total_swipes
             )
         )
     return [_map.get(key) for key in keys]
@@ -813,14 +808,10 @@ def load_user_group_geo_contributions(keys: List[str]):
         aggregate_results = cursor.fetchall()
     _map = defaultdict(list)
     for user_id, total_swipes, geom in aggregate_results:
-        geom_centroid = {
-            "type": "Point",
-            "coordinates": parse_geom(geom)
-        }
+        geom_centroid = {"type": "Point", "coordinates": parse_geom(geom)}
         _map[user_id].append(
             MapContributionTypeStats(
-                geojson=geom_centroid or None,
-                total_contribution=total_swipes or 0
+                geojson=geom_centroid or None, total_contribution=total_swipes or 0
             )
         )
     return [_map.get(key) for key in keys]
@@ -834,8 +825,7 @@ def load_user_group_stats_project_swipe_type(keys: List[str]):
     for user_group_id, total_swipe, project_type in aggregate_results:
         _map[user_group_id].append(
             ProjectSwipeTypeStats(
-                total_swipe=total_swipe or 0,
-                project_type=project_type
+                total_swipe=total_swipe or 0, project_type=project_type
             )
         )
     return [_map.get(key) for key in keys]
@@ -849,8 +839,7 @@ def load_user_usergroup_stats(keys: List[str]):
     for user_id, user_group, members_count in aggregate_results:
         _map[user_id].append(
             UserUserGroupTypeStats(
-                user_group=user_group or None,
-                members_count=members_count or 0
+                user_group=user_group or None, members_count=members_count or 0
             )
         )
     return [_map.get(key) for key in keys]
@@ -873,9 +862,11 @@ class ExistingDatabaseDataLoader:
     def load_user_group_project_type_stats(self):
         return DataLoader(load_fn=sync_to_async(load_user_group_project_type_stats))
 
-    @cached_property
-    def load_user_group_user_contributors_stats(self):
-        return DataLoader(load_fn=sync_to_async(load_user_group_user_contributors_stats))
+    # @cached_property
+    # def load_user_group_user_contributors_stats(self):
+    #     return DataLoader(
+    #         load_fn=sync_to_async(load_user_group_user_contributors_stats)
+    #     )
 
     @cached_property
     def load_user_stats(self):
@@ -919,7 +910,9 @@ class ExistingDatabaseDataLoader:
 
     @cached_property
     def load_user_group_stats_project_swipe_type(self):
-        return DataLoader(load_fn=sync_to_async(load_user_group_stats_project_swipe_type))
+        return DataLoader(
+            load_fn=sync_to_async(load_user_group_stats_project_swipe_type)
+        )
 
     @cached_property
     def load_user_group_organization_stats(self):

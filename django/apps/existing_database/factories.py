@@ -4,6 +4,7 @@ from factory.django import DjangoModelFactory
 
 from .models import (
     Group,
+    Organization,
     Project,
     Result,
     Task,
@@ -11,7 +12,6 @@ from .models import (
     UserGroup,
     UserGroupResult,
     UserGroupUserMembership,
-    Organization,
 )
 
 
