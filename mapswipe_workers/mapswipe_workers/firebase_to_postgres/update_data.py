@@ -194,15 +194,9 @@ def create_update_user_data(user_ids: Optional[List[str]] = None) -> List[str]:
         u = fb_db.reference(f"v2/users/{_id}").get()
         if u is None:  # user doesn't exists in FB
             continue
-        username = u.get('username')
+        username = u.get("username")
         updated_at = dt.datetime.utcnow().isoformat()[0:-3] + "Z"
-        u_w.writerow(
-            [
-                _id,
-                username,
-                updated_at
-            ]
-        )
+        u_w.writerow([_id, username, updated_at])
     user_file.seek(0)
 
     pg_db = auth.postgresDB()
@@ -234,30 +228,27 @@ def create_update_user_data(user_ids: Optional[List[str]] = None) -> List[str]:
 
 
 def update_user_group_full_data(user_group_ids: List[str]):
-
     def convert_datetimeformat(timestamp):
         if timestamp:
-            return dt.datetime.strptime(
-                timestamp.replace("Z", ""), "%Y-%m-%dT%H:%M:%S"
-            )
+            return dt.datetime.strptime(timestamp.replace("Z", ""), "%Y-%m-%dT%H:%M:%S")
 
     fb_db = auth.firebaseDB()
 
     user_group_file = io.StringIO("")
     user_group_membership_file = io.StringIO("")
-    user_group_membership_log_file = io.StringIO("")
+    # user_group_membership_log_file = io.StringIO("")
     ug_w = csv.writer(user_group_file, delimiter="\t", quotechar="'")
     ugm_w = csv.writer(user_group_membership_file, delimiter="\t", quotechar="'")
-    ugml_w = csv.writer(user_group_membership_log_file, delimiter="\t", quotechar="'")
+    # ugml_w = csv.writer(user_group_membership_log_file, delimiter="\t", quotechar="'")
     for _id in user_group_ids:
         ug = fb_db.reference(f"v2/userGroups/{_id}").get()
         if ug is None:  # userGroup doesn't exists in FB
             continue
         # New/Updated user group
-        created_at = convert_datetimeformat(ug.get('created_at'))
-        archived_at = convert_datetimeformat(ug.get('archived_at'))
-        archived_by_id = ug.get('archived_by', None)
-        created_by_id = ug.get('created_by', None)
+        created_at = convert_datetimeformat(ug.get("created_at"))
+        archived_at = convert_datetimeformat(ug.get("archived_at"))
+        archived_by_id = ug.get("archived_by", None)
+        created_by_id = ug.get("created_by", None)
 
         is_archived = archived_by_id is not None
 
@@ -269,9 +260,9 @@ def update_user_group_full_data(user_group_ids: List[str]):
                 ug["name"],
                 ug.get("description"),
                 created_by_id,
-                created_at or '\\N',
+                created_at or "\\N",
                 archived_by_id,
-                archived_at or '\\N',
+                archived_at or "\\N",
                 is_archived,
             ]
         )

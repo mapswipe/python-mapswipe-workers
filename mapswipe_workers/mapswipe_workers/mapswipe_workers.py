@@ -147,9 +147,7 @@ def run_create_users():
     update_data.create_update_user_data(changed_users_id)
 
     # Finally delete used records using multi-location update
-    fb_db.reference("v2/updates/users").update(
-        {_id: None for _id in changed_users_id}
-    )
+    fb_db.reference("v2/updates/users").update({_id: None for _id in changed_users_id})
 
 
 @cli.command("firebase-to-postgres")
