@@ -92,7 +92,8 @@ def transfer_results_for_project(project_id, results, filter_mode: bool = False)
             ]
         )
         update_data.update_user_data(results_user_id_list)
-        update_data.update_user_group_data(results_user_group_id_list)
+        if results_user_group_id_list:
+            update_data.update_user_group_data(results_user_group_id_list)
 
     try:
         # Results are dumped into an in-memory file.
