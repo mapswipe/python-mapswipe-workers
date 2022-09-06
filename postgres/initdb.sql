@@ -1,11 +1,6 @@
 -- noinspection SqlNoDataSourceInspectionForFile
 CREATE EXTENSION postgis;
 
-CREATE TABLE IF NOT EXISTS organizations (
-    organization_id varchar,
-    PRIMARY KEY (organization_id)
-);
-
 CREATE TABLE IF NOT EXISTS projects (
     created timestamp,
     created_by varchar,
@@ -23,9 +18,8 @@ CREATE TABLE IF NOT EXISTS projects (
     status varchar,
     verification_number int,
     project_type_specifics json,
-    organization_id varchar,
-    PRIMARY KEY (project_id, organization_id),
-    FOREIGN KEY (organization_id) REFERENCES organizations (organization_id)
+    organization_name varchar,
+    PRIMARY KEY (project_id)
 );
 
 CREATE TABLE IF NOT EXISTS groups (
@@ -70,6 +64,7 @@ CREATE TABLE IF NOT EXISTS users (
     user_id varchar,
     username varchar,
     created timestamp,
+    updated_at timestamp,
     PRIMARY KEY (user_id)
 );
 
@@ -79,7 +74,8 @@ CREATE INDEX IF NOT EXISTS users_userid ON public.users
 CREATE TABLE IF NOT EXISTS users_temp (
     user_id varchar,
     username varchar,
-    created timestamp
+    created timestamp,
+    updated_at timestamp
 );
 
 CREATE TABLE IF NOT EXISTS results (
@@ -151,6 +147,25 @@ CREATE TABLE IF NOT EXISTS user_groups_temp (
     archived_at timestamp,
     created_by_id varchar,
     archived_by_id varchar
+);
+
+CREATE TYPE membership_action AS ENUM ('join', 'leave');
+
+CREATE TABLE IF NOT EXISTS user_groups_membership_logs (
+    user_group_id varchar,
+    user_id varchar,
+    action MEMBERSHIP_ACTION,
+    "timestamp" timestamp,
+    PRIMARY KEY (user_group_id, user_id),
+    FOREIGN KEY (user_id) REFERENCES users (user_id),
+    FOREIGN KEY (user_group_id) REFERENCES user_groups (user_group_id)
+);
+
+CREATE TABLE IF NOT EXISTS user_groups_membership_logs_temp (
+    user_group_id varchar,
+    user_id varchar,
+    action MEMBERSHIP_ACTION,
+    "timestamp" timestamp
 );
 
 CREATE TABLE IF NOT EXISTS user_groups_user_memberships (

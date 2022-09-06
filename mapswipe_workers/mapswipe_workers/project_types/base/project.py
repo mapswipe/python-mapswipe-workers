@@ -302,25 +302,6 @@ class BaseProject(metaclass=ABCMeta):
             );
             """
 
-        data_project = [
-            self.created,
-            self.createdBy,
-            project["geometry"],
-            project["image"],
-            project["isFeatured"],
-            project["lookFor"],
-            project["name"],
-            project["progress"],
-            project["projectDetails"],
-            project["projectId"],
-            project["projectType"],
-            project["requiredResults"],
-            project["resultCount"],
-            project["status"],
-            project["verificationNumber"],
-            project["organization_name"],
-        ]
-
         project_attributes = [
             "created",
             "createdBy",
@@ -337,14 +318,33 @@ class BaseProject(metaclass=ABCMeta):
             "resultCount",
             "status",
             "verificationNumber",
-            "organization_name",
+            "organizationName",
         ]
 
         project_type_specifics = dict()
         for key, value in project.items():
             if key not in project_attributes:
                 project_type_specifics[key] = value
-        data_project.append(json.dumps(project_type_specifics))
+
+        data_project = [
+            self.created,
+            self.createdBy,
+            project["geometry"],
+            project["image"],
+            project["isFeatured"],
+            project["lookFor"],
+            project["name"],
+            project["progress"],
+            project["projectDetails"],
+            project["projectId"],
+            project["projectType"],
+            project["requiredResults"],
+            project["resultCount"],
+            project["status"],
+            project["verificationNumber"],
+            json.dumps(project_type_specifics),
+            project["requestingOrganisation"],
+        ]
 
         query_recreate_raw_groups = """
             DROP TABLE IF EXISTS raw_groups CASCADE;

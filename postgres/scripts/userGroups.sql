@@ -3,7 +3,14 @@
 -- DROP TABLE IF EXISTS user_groups_user_memberships_temp;
 -- DROP TABLE IF EXISTS user_groups_user_memberships;
 -- DROP TABLE IF EXISTS results_user_groups;
+-- DROP TABLE IF EXISTS user_groups_membership_logs;
+-- DROP TABLE IF EXISTS user_groups_membership_logs_temp;
 -- DROP TABLE IF EXISTS user_groups;
+-- ALTER TABLE projects DROP COLUMN organization_name;
+-- ALTER TABLE users DROP COLUMN updated_at;
+-- ALTER TABLE users_temp DROP COLUMN updated_at;
+-- DROP TYPE membership_action;
+
 
 ---- User Group Tables
 CREATE TABLE IF NOT EXISTS user_groups (
@@ -45,25 +52,6 @@ CREATE TABLE IF NOT EXISTS user_groups_user_memberships_temp (
     user_id varchar
 );
 
-CREATE TYPE membership_action AS ENUM ('join', 'leave');
-
-CREATE TABLE IF NOT EXISTS user_groups_membership_logs (
-    user_group_id varchar,
-    user_id varchar,
-    action MEMBERSHIP_ACTION,
-    "timestamp" timestamp,
-    PRIMARY KEY (user_group_id, user_id),
-    FOREIGN KEY (user_id) REFERENCES users (user_id),
-    FOREIGN KEY (user_group_id) REFERENCES user_groups (user_group_id)
-);
-
-CREATE TABLE IF NOT EXISTS user_groups_membership_logs_temp (
-    user_group_id varchar,
-    user_id varchar,
-    action MEMBERSHIP_ACTION,
-    "timestamp" timestamp
-);
-
 -- Used to group results by user groups
 CREATE TABLE IF NOT EXISTS results_user_groups (
     -- result primary key (not using task_id as it is a flat field in results)
@@ -88,13 +76,30 @@ CREATE TABLE IF NOT EXISTS results_user_groups_temp (
 );
 
 
---- create table for organization
-CREATE TABLE IF NOT EXISTS organizations (
-    organization_id varchar,
-    PRIMARY KEY (organization_id)
+-- Track user group memberships actions
+CREATE TYPE membership_action AS ENUM ('join', 'leave');
+
+CREATE TABLE IF NOT EXISTS user_groups_membership_logs (
+    user_group_id varchar,
+    user_id varchar,
+    action MEMBERSHIP_ACTION,
+    "timestamp" timestamp,
+    PRIMARY KEY (user_group_id, user_id),
+    FOREIGN KEY (user_id) REFERENCES users (user_id),
+    FOREIGN KEY (user_group_id) REFERENCES user_groups (user_group_id)
+);
+
+CREATE TABLE IF NOT EXISTS user_groups_membership_logs_temp (
+    user_group_id varchar,
+    user_id varchar,
+    action MEMBERSHIP_ACTION,
+    "timestamp" timestamp
 );
 
 
-CREATE TABLE IF NOT EXISTS organizations_temp (
-    organization_id varchar
-);
+-- Add organization_name in projects
+ALTER TABLE projects ADD COLUMN organization_name varchar;
+
+-- Add updated_at in users
+ALTER TABLE users ADD COLUMN updated_at timestamp;
+ALTER TABLE users_temp ADD COLUMN updated_at timestamp;

@@ -1,4 +1,3 @@
--- Copy from postgres/initdb.sql
 -- noinspection SqlNoDataSourceInspectionForFile
 CREATE EXTENSION postgis;
 
@@ -19,6 +18,7 @@ CREATE TABLE IF NOT EXISTS projects (
     status varchar,
     verification_number int,
     project_type_specifics json,
+    organization_name varchar,
     PRIMARY KEY (project_id)
 );
 
@@ -128,11 +128,11 @@ CREATE TABLE IF NOT EXISTS user_groups (
     user_group_id varchar,
     name varchar,
     description text,
-    created_by_id varchar,
-    created_at timestamp,
-    archived_by_id varchar,
-    archived_at timestamp,
     is_archived boolean,
+    created_at timestamp,
+    archived_at timestamp,
+    created_by_id varchar,
+    archived_by_id varchar,
     PRIMARY KEY (user_group_id),
     FOREIGN KEY (created_by_id) REFERENCES users (user_id),
     FOREIGN KEY (archived_by_id) REFERENCES users (user_id)
@@ -142,11 +142,30 @@ CREATE TABLE IF NOT EXISTS user_groups_temp (
     user_group_id varchar,
     name varchar,
     description text,
-    created_by_id varchar,
+    is_archived boolean,
     created_at timestamp,
-    archived_by_id varchar,
     archived_at timestamp,
-    is_archived boolean
+    created_by_id varchar,
+    archived_by_id varchar
+);
+
+CREATE TYPE membership_action AS ENUM ('join', 'leave');
+
+CREATE TABLE IF NOT EXISTS user_groups_membership_logs (
+    user_group_id varchar,
+    user_id varchar,
+    action MEMBERSHIP_ACTION,
+    "timestamp" timestamp,
+    PRIMARY KEY (user_group_id, user_id),
+    FOREIGN KEY (user_id) REFERENCES users (user_id),
+    FOREIGN KEY (user_group_id) REFERENCES user_groups (user_group_id)
+);
+
+CREATE TABLE IF NOT EXISTS user_groups_membership_logs_temp (
+    user_group_id varchar,
+    user_id varchar,
+    action MEMBERSHIP_ACTION,
+    "timestamp" timestamp
 );
 
 CREATE TABLE IF NOT EXISTS user_groups_user_memberships (
@@ -184,23 +203,4 @@ CREATE TABLE IF NOT EXISTS results_user_groups_temp (
     group_id varchar,
     user_id varchar,
     user_group_id varchar
-);
-
-CREATE TYPE membership_action AS ENUM ('join', 'leave');
-
-CREATE TABLE IF NOT EXISTS user_groups_membership_logs (
-    user_group_id varchar,
-    user_id varchar,
-    action MEMBERSHIP_ACTION,
-    "timestamp" timestamp,
-    PRIMARY KEY (user_group_id, user_id),
-    FOREIGN KEY (user_id) REFERENCES users (user_id),
-    FOREIGN KEY (user_group_id) REFERENCES user_groups (user_group_id)
-);
-
-CREATE TABLE IF NOT EXISTS user_groups_membership_logs_temp (
-    user_group_id varchar,
-    user_id varchar,
-    action MEMBERSHIP_ACTION,
-    "timestamp" timestamp
 );
