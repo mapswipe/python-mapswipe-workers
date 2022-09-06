@@ -5,6 +5,17 @@
     border-bottom: var(--width-separator-thin) solid var(--color-separator);
     padding: var(--spacing-medium);
 
+    .member-name {
+        flex-basis: 20%;
+        flex-grow: 1;
+        cursor: pointer;
+        color: var(--color-primary);
+
+        .link {
+            color: var(--color-primary);
+            font-weight: var(--font-weight-bold);
+        }
+    }
     .item {
         flex-basis: 20%;
         flex-grow: 1;

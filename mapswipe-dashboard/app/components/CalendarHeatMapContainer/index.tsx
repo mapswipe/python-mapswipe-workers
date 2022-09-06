@@ -2,6 +2,7 @@ import React from 'react';
 import { compareDate, encodeDate, getDifferenceInDays } from '@togglecorp/fujs';
 import CalendarHeatmap from 'react-calendar-heatmap';
 import { scaleQuantile } from 'd3-scale';
+import ReactTooltip from 'react-tooltip';
 import InformationCard from '#components/InformationCard';
 
 import styles from './styles.css';
@@ -78,8 +79,15 @@ function CalendarHeatMapContainer(props: Props) {
                 endDate={range.endDate}
                 values={data ?? []}
                 classForValue={getClassForValue}
+                tooltipDataAttrs={(value: { date?: string, count?: string }) => {
+                    if (value?.count && value?.date) {
+                        return { 'data-tip': `${value?.count} swipes on ${value?.date}` };
+                    }
+                    return undefined;
+                }}
                 showWeekdayLabels
             />
+            <ReactTooltip />
             <div className={styles.heatMapLegend}>
                 <div>Low Contribution</div>
                 <svg
@@ -87,9 +95,24 @@ function CalendarHeatMapContainer(props: Props) {
                     height="15"
                     xmlns="<http://www.w3.org/2000/svg>"
                 >
-                    {githubColors.map((color: string, index) => (
-                        <rect width="15" height="15" x={index * 18} y="0" fill={color} key={color} />
-                    ))}
+                    <rect width="15" height="15" x={0} y="0" fill="#eeeeee" key="noContribution">
+                        <title>
+                            No contribution
+                        </title>
+                    </rect>
+                    {githubColors.slice(1).map((color: string, index) => {
+                        const [
+                            start,
+                            end,
+                        ] = contributionColors.invertExtent(githubColorsClass[index + 1]);
+                        return (
+                            <rect width="15" height="15" x={(index + 1) * 18} y="0" fill={color} key={color}>
+                                <title>
+                                    {`${start} - ${end}`}
+                                </title>
+                            </rect>
+                        );
+                    })}
                 </svg>
                 <div>High Contribution</div>
             </div>

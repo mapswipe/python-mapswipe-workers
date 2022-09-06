@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { NumberOutput } from '@the-deep/deep-ui';
 
 import { UserGroupMember } from '#views/UserGroupDashboard';
@@ -14,7 +15,14 @@ function MemberItem(props: Props) {
 
     return (
         <div className={styles.member}>
-            <div className={styles.item}>{member.userName}</div>
+            <div className={styles.memberName}>
+                <Link
+                    className={styles.link}
+                    to={`/user/${member.userId}/`}
+                >
+                    {member.userName}
+                </Link>
+            </div>
             <div className={styles.item}>
                 <NumberOutput
                     value={member.totalSwipes}
