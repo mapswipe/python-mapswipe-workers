@@ -5,6 +5,7 @@ import { Header, ListView, TextOutput, NumberOutput } from '@the-deep/deep-ui';
 import { useParams } from 'react-router-dom';
 
 import dashboardHeaderSvg from '#resources/img/dashboard.svg';
+import Button from '#components/Button';
 import InformationCard from '#components/InformationCard';
 import timeSvg from '#resources/icons/time.svg';
 import userSvg from '#resources/icons/user.svg';
@@ -68,6 +69,7 @@ const USER_GROUP_STATS = gql`
                 totalSwipeTime
                 totalSwipes
                 userName
+                userId
             }
             name
             description
@@ -78,6 +80,21 @@ const USER_GROUP_STATS = gql`
 
 interface Props {
     className?: string;
+}
+
+function downloadFile(data: BlobPart, fileName: string, fileType: string) {
+    const blob = new Blob([data], { type: fileType });
+
+    const a = document.createElement('a');
+    a.download = fileName;
+    a.href = window.URL.createObjectURL(blob);
+    const clickEvt = new MouseEvent('click', {
+        view: window,
+        bubbles: true,
+        cancelable: true,
+    });
+    a.dispatchEvent(clickEvt);
+    a.remove();
 }
 
 function UserGroupDashboard(props: Props) {
@@ -103,6 +120,17 @@ function UserGroupDashboard(props: Props) {
     const memberRendererParams = useCallback((_: string, item: UserGroupMember) => (
         { member: item }
     ), []);
+
+    const handleMembersDownload = useCallback(() => {
+        const headers = ['User', 'Total swipes', 'Mission contributed', 'Time spent(mins)'].join(',');
+        const members = userGroupStats?.userGroup.userStats?.map(
+            (user) => (
+                [user.userName, user.totalSwipes, user.totalMappingProjects, user.totalSwipeTime].join(',')
+            ),
+        );
+        const data = [headers, ...(members ?? [])].join('\n');
+        downloadFile(data, `${userGroupStats?.userGroup.name}-members`, 'text/csv');
+    }, [userGroupStats?.userGroup]);
 
     return (
         <div className={_cs(className, styles.userGroupDashboard)}>
@@ -218,6 +246,13 @@ function UserGroupDashboard(props: Props) {
                         <div className={styles.members}>
                             <div className={styles.membersHeading}>
                                 {`${userGroupStats?.userGroup.name}'s Members`}
+                                <Button
+                                    variant="secondary"
+                                    name={undefined}
+                                    onClick={handleMembersDownload}
+                                >
+                                    Export
+                                </Button>
                             </div>
                             <div className={styles.membersContainer}>
                                 <div className={styles.memberListHeading}>

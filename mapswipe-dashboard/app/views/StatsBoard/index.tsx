@@ -240,10 +240,6 @@ function StatsBoard(props: Props) {
         organizationTypeStats?.map((organization) => (organization.totalSwipe ?? 0)),
     ) : undefined;
 
-    const totalAreaReviewed = projectTypeStats ? sum(
-        projectTypeStats?.map((project) => (project.area ?? 0)),
-    ) : undefined;
-
     const sortedProjectSwipeType = useMemo(() => projectSwipeTypeStats
         ?.slice()
         ?.filter((project) => isDefined(project.projectType))
@@ -356,7 +352,7 @@ function StatsBoard(props: Props) {
                         value={(
                             <NumberOutput
                                 className={styles.numberOutput}
-                                value={totalAreaReviewed}
+                                value={projectTypeStats?.find((project) => project.projectType === '1')?.area}
                                 normal
                                 precision={2}
                             />

@@ -86,12 +86,13 @@ function ItemSelectInput<Name extends string>(props: ItemSelectInputProps<Name>)
     }), [debouncedSearchText]);
 
     const location = useLocation();
+    const pathName = location.pathname.split('/');
 
     useEffect(() => {
-        if (location.pathname === '/' && isDefined(selectedItem)) {
+        if ((location.pathname === '/' && isDefined(selectedItem)) || (selectedItem && !pathName.includes(selectedItem))) {
             setSelectedItem(undefined);
         }
-    }, [location, selectedItem]);
+    }, [location, selectedItem, pathName]);
 
     const {
         previousData: previousUserData,

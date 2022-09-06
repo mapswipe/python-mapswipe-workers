@@ -86,6 +86,8 @@
             gap: var(--spacing-medium);
 
             .members-heading {
+                display: flex;
+                justify-content: space-between;
                 font-size: var(--font-size-large);
                 font-weight: var(--font-weight-bold);
             }
