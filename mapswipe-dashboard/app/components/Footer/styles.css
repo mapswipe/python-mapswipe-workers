@@ -17,14 +17,14 @@
         .icon-link {
             display: flex;
             align-items: center;
-            color: var(--color-text-light);
+            color: var(--color-text-on-dark);
             font-size: var(--spacing-extra-large);
         }
 
         .link {
             display: flex;
             align-items: center;
-            color: var(--color-text-light);
+            color: var(--color-text-on-dark);
         }
     }
 }
