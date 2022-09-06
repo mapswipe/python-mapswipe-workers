@@ -47,7 +47,7 @@ function Teams(props: Props) {
     });
 
     const teamList = React.useMemo(() => (teams
-        ? [...Object.entries(teams)].reverse() : []), [teams]);
+        ? Object.entries(teams).reverse() : []), [teams]);
     const filteredTeamList = React.useMemo(
         () => rankedSearchOnList(
             teamList,

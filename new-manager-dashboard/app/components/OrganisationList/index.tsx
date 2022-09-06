@@ -43,7 +43,7 @@ function OrganisationList(props: Props) {
     });
 
     const organisationList = React.useMemo(
-        () => (organisations ? [...Object.entries(organisations)].reverse() : []),
+        () => (organisations ? Object.entries(organisations).reverse() : []),
         [organisations],
     );
 

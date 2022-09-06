@@ -165,7 +165,7 @@ function ProjectDetails(props: Props) {
         onDenyButtonClick: onFeaturedUpdateDenyButtonClick,
     } = useConfirmation(updateFeatured);
 
-    const [title, org] = data.name?.split('\n');
+    const [title, org] = data.name.split('\n');
 
     return (
         <div className={_cs(styles.projectDetails, className)}>

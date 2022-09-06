@@ -148,7 +148,9 @@ function NewProject(props: Props) {
 
     const setFieldValueAndGenerateName = React.useCallback(
         (...entries: EntriesAsList<PartialProjectFormType>) => {
+            // NOTE: we need to use setFieldValue to set error on change
             setFieldValue(...entries);
+
             setValue((oldValue) => {
                 const name = generateProjectName(
                     oldValue.projectTopic,
@@ -175,7 +177,7 @@ function NewProject(props: Props) {
                 geometry: undefined,
                 groupSize: getGroupSize(projectType),
 
-                // selecting the first tutorial in the list
+                // de-selecting the tutorial in the list
                 tutorialId: undefined,
             }), true);
             setGeometryDescription(undefined);

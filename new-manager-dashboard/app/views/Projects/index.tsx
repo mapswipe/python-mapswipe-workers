@@ -66,9 +66,10 @@ function Projects(props: Props) {
     const projectList = React.useMemo(
         () => (
             projects
-                ? [...Object.values(projects).filter(
-                    (project) => !!project.projectId && project.status !== 'tutorial',
-                )].reverse() : []
+                ? Object.values(projects)
+                    .filter((project) => !!project.projectId && project.status !== 'tutorial')
+                    .reverse()
+                : []
         ),
         [projects],
     );

@@ -57,7 +57,7 @@ function UserGroups(props: Props) {
 
     const userGroupList = React.useMemo(
         () => {
-            const list = userGroups ? [...Object.entries(userGroups)].reverse() : [];
+            const list = userGroups ? Object.entries(userGroups).reverse() : [];
             return list;
             /*
             return list.filter(

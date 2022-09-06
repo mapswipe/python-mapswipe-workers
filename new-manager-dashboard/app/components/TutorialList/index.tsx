@@ -49,7 +49,7 @@ function TutorialList(props: Props) {
     });
 
     const tutorialList = React.useMemo(
-        () => (tutorials ? [...Object.entries(tutorials)].reverse() : []),
+        () => (tutorials ? Object.entries(tutorials).reverse() : []),
         [tutorials],
     );
 
