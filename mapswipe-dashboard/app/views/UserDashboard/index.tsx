@@ -182,7 +182,6 @@ function UserDashboard(props: Props) {
                 <div className={styles.container}>
                     <CalendarHeatMapContainer
                         data={contributionData}
-                        maxContribution={800}
                     />
                     <StatsBoard
                         heading="User Statsboard"

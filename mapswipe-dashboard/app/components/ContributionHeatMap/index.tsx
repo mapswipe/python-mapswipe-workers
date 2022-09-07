@@ -1,32 +1,16 @@
-import React, { useState, useCallback, useMemo } from 'react';
-import Map, {
-    MapContainer,
-    MapSource,
-    MapLayer,
-    MapTooltip,
-    MapBounds,
-} from '@togglecorp/re-map';
-import mapboxgl, {
-    MapboxGeoJSONFeature,
-    LngLat,
-    PopupOptions,
-    LngLatLike,
-    LngLatBoundsLike,
-} from 'mapbox-gl';
+import React, { useMemo, useEffect } from 'react';
+import L, { HeatLatLngTuple, HeatMapOptions } from 'leaflet';
+import 'leaflet.heat';
+import { MapContainer, TileLayer, useMap } from 'react-leaflet';
+
 import { isDefined } from '@togglecorp/fujs';
 import bbox from '@turf/bbox';
 
-// import HTMLOutput from '#components/HTMLOutput';
-import { TextOutput } from '@the-deep/deep-ui';
 import {
     MapContributionTypeStats,
 } from '#generated/types';
-
+import '../../../node_modules/leaflet/dist/leaflet.css';
 import styles from './styles.css';
-
-interface PopupProperties {
-    totalContribution: number,
-}
 
 type ContributionGeoJSON = GeoJSON.FeatureCollection<
     GeoJSON.Point,
@@ -40,124 +24,36 @@ export type MapContributionType = MapContributionTypeStats & {
     }
 }
 
-const contributionPointColor: mapboxgl.CirclePaint = {
-    // Size circle radius by totalContribution and zoom level
-    'circle-radius': [
-        'interpolate',
-        ['linear'],
-        ['zoom'],
-        7,
-        ['interpolate', ['linear'], ['get', 'totalContribution'], 1, 1, 50, 4],
-        14,
-        ['interpolate', ['linear'], ['get', 'totalContribution'], 1, 1, 50, 20],
-    ],
-    // Color circle by totalContribution
-    'circle-color': [
-        'interpolate',
-        ['linear'],
-        ['get', 'totalContribution'],
-        1,
-        'rgba(33,102,172,0)',
-        50,
-        'rgb(103,169,207)',
-        100,
-        'rgb(209,229,240)',
-        200,
-        'rgb(253,219,199)',
-        400,
-        'rgb(239,138,98)',
-        1000,
-        'rgb(178,24,43)',
-    ],
-    'circle-stroke-color': 'white',
-    'circle-stroke-width': 1,
-    // Transition from heatmap to circle layer by zoom level
-    'circle-opacity': [
-        'interpolate',
-        ['linear'],
-        ['zoom'],
-        7,
-        0,
-        8,
-        1,
-    ],
+const heatLayerOptions: HeatMapOptions = {
+    minOpacity: 0.1,
+    radius: 15,
 };
 
-const contributionHeatMapColor: mapboxgl.HeatmapPaint = {
-    'heatmap-weight': [
-        'interpolate',
-        ['linear'],
-        ['get', 'totalContribution'],
-        0,
-        0,
-        100,
-        1,
-    ],
-    // Increase the heatmap color weight weight by zoom level
-    // heatmap-intensity is a multiplier on top of heatmap-weight
-    'heatmap-intensity': [
-        'interpolate',
-        ['linear'],
-        ['zoom'],
-        0,
-        1,
-        9,
-        3,
-    ],
-    // Color ramp for heatmap.  Domain is 0 (low) to 1 (high).
-    // Begin color ramp at 0-stop with a 0-transparancy color
-    // to create a blur-like effect.
-    'heatmap-color': [
-        'interpolate',
-        ['linear'],
-        ['heatmap-density'],
-        0,
-        'rgba(33,102,172,0)',
-        0.2,
-        'rgb(103,169,207)',
-        0.4,
-        'rgb(209,229,240)',
-        0.6,
-        'rgb(253,219,199)',
-        0.8,
-        'rgb(239,138,98)',
-        1,
-        'rgb(178,24,43)',
-    ],
-    // Adjust the heatmap radius by zoom level
-    'heatmap-radius': [
-        'interpolate',
-        ['linear'],
-        ['zoom'],
-        0,
-        5,
-        9,
-        20,
-    ],
-    // Transition from heatmap to circle layer by zoom level
-    'heatmap-opacity': [
-        'interpolate',
-        ['linear'],
-        ['zoom'],
-        7,
-        1,
-        9,
-        0,
-    ],
-};
+interface HeatmapComponentProps {
+    contributionGeojson: ContributionGeoJSON;
+}
+function HeatmapComponent(props: HeatmapComponentProps) {
+    const { contributionGeojson } = props;
 
-const popupOptions: PopupOptions = {
-    closeOnClick: true,
-    closeButton: false,
-    offset: 12,
-    maxWidth: '480px',
-};
+    const map = useMap();
+    if (contributionGeojson.features.length > 0) {
+        const [minX, minY, maxX, maxY] = bbox(contributionGeojson);
+        const corner1 = L.latLng(minY, minX);
+        const corner2 = L.latLng(maxY, maxX);
+        map.fitBounds(L.latLngBounds(corner1, corner2));
+    }
 
-const sourceOption: mapboxgl.GeoJSONSourceRaw = {
-    type: 'geojson',
-};
+    useEffect(() => {
+        const points: HeatLatLngTuple[] = contributionGeojson.features.map((feature) => ([
+            feature.geometry.coordinates[1],
+            feature.geometry.coordinates[0],
+            feature.properties.totalContribution,
+        ]));
+        L.heatLayer(points, heatLayerOptions).addTo(map);
+    }, [map, contributionGeojson.features]);
 
-const lightStyle = process.env.REACT_APP_MAPBOX_STYLE || 'mapbox://styles/mapbox/light-v10';
+    return null;
+}
 
 interface Props {
     contributions?: MapContributionType[] | undefined | null;
@@ -167,27 +63,6 @@ function ContributionHeatMap(props: Props) {
     const {
         contributions,
     } = props;
-
-    const [mapHoverLngLat, setMapHoverLngLat] = useState<LngLatLike>();
-    const [
-        mapHoverFeatureProperties,
-        setMapHoverFeatureProperties,
-    ] = useState<PopupProperties | undefined>(undefined);
-
-    const handleMapPointClick = useCallback((feature: MapboxGeoJSONFeature, lngLat: LngLat) => {
-        if (feature.properties) {
-            setMapHoverLngLat(lngLat);
-            setMapHoverFeatureProperties(feature.properties as PopupProperties);
-        } else {
-            setMapHoverFeatureProperties(undefined);
-        }
-        return true;
-    }, []);
-
-    const handleMapPopupClose = useCallback(() => {
-        setMapHoverLngLat(undefined);
-        setMapHoverFeatureProperties(undefined);
-    }, []);
 
     const contributionGeojson: ContributionGeoJSON = useMemo(
         () => ({
@@ -212,70 +87,14 @@ function ContributionHeatMap(props: Props) {
         [contributions],
     );
 
-    const boundingBox = useMemo(() => {
-        if (contributionGeojson.features.length === 0) {
-            return undefined;
-        }
-        const [minX, minY, maxX, maxY] = bbox(contributionGeojson);
-        return [[minX, minY], [maxX, maxY]] as LngLatBoundsLike;
-    }, [contributionGeojson]);
-
     return (
-        <Map
-            mapStyle={lightStyle}
-            mapOptions={{
-                logoPosition: 'bottom-left',
-                scrollZoom: false,
-                maxZoom: 12,
-            }}
-            scaleControlShown
-            navControlShown
-        >
-            <MapContainer
-                className={styles.mapContainer}
+        <MapContainer zoom={1} className={styles.mapContainer} maxZoom={13}>
+            <HeatmapComponent contributionGeojson={contributionGeojson} />
+            <TileLayer
+                attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+                url="https://{s}.tile.osm.org/{z}/{x}/{y}.png"
             />
-            <MapSource
-                sourceKey="contribution-points"
-                sourceOptions={sourceOption}
-                geoJson={contributionGeojson}
-            >
-                <MapBounds
-                    bounds={boundingBox}
-                    padding={50}
-                />
-                <MapLayer
-                    layerKey="contribution-heatmap"
-                    // onClick={handlePointClick}
-                    layerOptions={{
-                        type: 'heatmap',
-                        paint: contributionHeatMapColor,
-                        maxzoom: 9,
-                    }}
-                />
-                <MapLayer
-                    layerKey="contribution-point"
-                    // onClick={handlePointClick}
-                    layerOptions={{
-                        type: 'circle',
-                        paint: contributionPointColor,
-                        minzoom: 7,
-                    }}
-                    onClick={handleMapPointClick}
-                />
-                {mapHoverLngLat && mapHoverFeatureProperties && (
-                    <MapTooltip
-                        coordinates={mapHoverLngLat}
-                        tooltipOptions={popupOptions}
-                        onHide={handleMapPopupClose}
-                    >
-                        <TextOutput
-                            label="Total Contributions"
-                            value={mapHoverFeatureProperties.totalContribution}
-                        />
-                    </MapTooltip>
-                )}
-            </MapSource>
-        </Map>
+        </MapContainer>
     );
 }
 export default ContributionHeatMap;

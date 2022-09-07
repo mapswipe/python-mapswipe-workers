@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { compareDate, encodeDate, getDifferenceInDays } from '@togglecorp/fujs';
 import CalendarHeatmap from 'react-calendar-heatmap';
 import { scaleQuantile } from 'd3-scale';
@@ -47,18 +47,21 @@ interface Data {
 
 interface Props {
     data: Data[] | undefined | null;
-    maxContribution?: number;
 }
 
 function CalendarHeatMapContainer(props: Props) {
     const {
         data,
-        maxContribution = 1000,
     } = props;
     const range = getDateRange(data);
 
+    useEffect(() => {
+        ReactTooltip.rebuild();
+    });
+
+    const maxContributionValue = Math.max(5, ...(data?.map((d) => d.count) ?? []));
     const contributionColors = scaleQuantile<string>()
-        .domain([0, maxContribution])
+        .domain([0, maxContributionValue])
         .range(githubColorsClass.slice(1));
 
     const getClassForValue = (value: Data | undefined) => {
@@ -87,7 +90,6 @@ function CalendarHeatMapContainer(props: Props) {
                 }}
                 showWeekdayLabels
             />
-            <ReactTooltip />
             <div className={styles.heatMapLegend}>
                 <div>Low Contribution</div>
                 <svg
@@ -95,27 +97,36 @@ function CalendarHeatMapContainer(props: Props) {
                     height="15"
                     xmlns="<http://www.w3.org/2000/svg>"
                 >
-                    <rect width="15" height="15" x={0} y="0" fill="#eeeeee" key="noContribution">
-                        <title>
-                            No contribution
-                        </title>
-                    </rect>
+                    <rect
+                        width="15"
+                        height="15"
+                        x={0}
+                        y="0"
+                        fill="#eeeeee"
+                        key="noContribution"
+                        data-tip="No contribution"
+                    />
                     {githubColors.slice(1).map((color: string, index) => {
                         const [
                             start,
                             end,
                         ] = contributionColors.invertExtent(githubColorsClass[index + 1]);
                         return (
-                            <rect width="15" height="15" x={(index + 1) * 18} y="0" fill={color} key={color}>
-                                <title>
-                                    {`${start} - ${end}`}
-                                </title>
-                            </rect>
+                            <rect
+                                width="15"
+                                height="15"
+                                x={(index + 1) * 18}
+                                y="0"
+                                fill={color}
+                                key={color}
+                                data-tip={`${Math.round(start)} - ${Math.round(end)}`}
+                            />
                         );
                     })}
                 </svg>
                 <div>High Contribution</div>
             </div>
+            <ReactTooltip />
         </InformationCard>
     );
 }
