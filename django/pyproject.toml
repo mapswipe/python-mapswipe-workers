@@ -17,7 +17,6 @@ strawberry-graphql-django = "==0.3"
 strawberry-graphql = "^0.114.1"
 strawberry-django-plus = "^1.14.1"
 starlette = "^0.20.3"
-shapely = "==1.8.2"
 
 [tool.poetry.dev-dependencies]
 pytest-profiling = "*"

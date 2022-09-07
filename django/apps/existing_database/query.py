@@ -127,7 +127,7 @@ def get_project_type_query() -> List[ProjectTypeStats]:
             SUM(st_area(P.geom::geography)) as area_sum
             FROM {Project._meta.db_table} P
                 LEFT JOIN {Result._meta.db_table} R USING (project_id)
-            WHERE P.geom is not null
+            WHERE P.geom is not null AND P.project_type = '1'
             GROUP BY P.project_type
             """
     with connections[settings.MAPSWIPE_EXISTING_DB].cursor() as cursor:

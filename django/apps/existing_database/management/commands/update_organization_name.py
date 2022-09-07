@@ -7,6 +7,7 @@ from django.db import connections
 class Command(BaseCommand):
     FETCH_ORGANIZATION_DETAILS = f"""
         SELECT project_id, name FROM {Project._meta.db_table}
+        WHERE organization_name is NULL OR organization_name = ''
     """
 
     def __init__(self, *args, **kwargs):
