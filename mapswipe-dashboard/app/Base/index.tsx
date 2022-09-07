@@ -4,8 +4,6 @@ import { init, ErrorBoundary } from '@sentry/react';
 import { _cs } from '@togglecorp/fujs';
 import { ApolloClient, ApolloProvider } from '@apollo/client';
 import ReactGA from 'react-ga';
-import { setMapboxToken } from '@togglecorp/re-map';
-import 'mapbox-gl/dist/mapbox-gl.css';
 
 import PreloadMessage from '#base/components/PreloadMessage';
 import browserHistory from '#base/configs/history';
@@ -15,15 +13,12 @@ import Navbar from '#base/components/Navbar';
 import Routes from '#base/components/Routes';
 import apolloConfig from '#base/configs/apollo';
 import { trackingId, gaConfig } from '#base/configs/googleAnalytics';
-import { mapboxToken } from '#base/configs/env';
 
 import styles from './styles.css';
 
 if (sentryConfig) {
     init(sentryConfig);
 }
-
-setMapboxToken(mapboxToken);
 
 if (trackingId) {
     ReactGA.initialize(trackingId, gaConfig);
