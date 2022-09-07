@@ -58,6 +58,7 @@ def create_test_project(
     if results:
         set_firebase_test_data(project_type, "users", "user", project_id)
         set_postgres_test_data(project_type, "users", "user")
+        set_firebase_test_data(project_type, "userGroups", "user_group", "")
         set_firebase_test_data(project_type, "results", fixture_name, project_id)
         set_postgres_test_data(project_type, "results", fixture_name)
 

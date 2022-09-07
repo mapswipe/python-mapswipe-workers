@@ -1,0 +1,128 @@
+# NOTE: This is for development only.
+# Copied from docker-compose.yml
+# Maybe we can define a base docker-compose.yml and then docker-compose.development.yml and docker-compose.production.yml from there (https://docs.docker.com/compose/extends/)
+version: '3'
+
+networks:
+  api:
+  manager_dashboard:
+  mapswipe_workers:
+  postgres:
+
+x-mapswipe-workers: &base_mapswipe_workers
+  build:
+    context: mapswipe_workers/
+  environment:
+    FIREBASE_DB: '${FIREBASE_DB}'
+    FIREBASE_API_KEY: '${FIREBASE_API_KEY}'
+    FIREBASE_TOKEN: '${FIREBASE_TOKEN}'
+    GOOGLE_APPLICATION_CREDENTIALS: '/root/.local/share/mapswipe_workers/serviceAccountKey.json'
+    POSTGRES_PASSWORD: '${POSTGRES_PASSWORD:-postgres}'
+    POSTGRES_USER: '${POSTGRES_USER:-postgres}'
+    POSTGRES_DB: '${POSTGRES_DB:-postgres}'
+    POSTGRES_HOST: '${POSTGRES_HOST:-postgres}'
+    POSTGRES_PORT: ${POSTGRES_PORT:-5432}
+    PGDATA: '/var/lib/postgresql/mapswipe'
+    IMAGE_BING_API_KEY: '${IMAGE_BING_API_KEY}'
+    IMAGE_ESRI_API_KEY: '${IMAGE_ESRI_API_KEY}'
+    IMAGE_ESRI_BETA_API_KEY: '${IMAGE_ESRI_BETA_API_KEY}'
+    IMAGE_MAPBOX_API_KEY: '${IMAGE_MAPBOX_API_KEY}'
+    IMAGE_MAXAR_PREMIUM_API_KEY: '${IMAGE_MAXAR_PREMIUM_API_KEY}'
+    IMAGE_MAXAR_STANDARD_API_KEY: '${IMAGE_MAXAR_STANDARD_API_KEY}'
+    SLACK_TOKEN: '${SLACK_TOKEN}'
+    SLACK_CHANNEL: '${SLACK_CHANNEL}'
+    SENTRY_DSN: '${SENTRY_DSN}'
+    OSMCHA_API_KEY: '${OSMCHA_API_KEY}'
+  depends_on:
+    - postgres
+  volumes:
+    - ./mapswipe_workers/mapswipe_workers:/usr/local/lib/python3.10/dist-packages/mapswipe_workers/:ro
+    - ./mapswipe_workers/mapswipe_workers:/usr/local/lib/python3.8/dist-packages/mapswipe_workers/:ro
+    - ./mapswipe_workers/mapswipe_workers:/root/mapswipe_workers/:ro
+    - ./mapswipe_workers/tests:/root/tests/:ro
+    - ./mapswipe-data:/root/.local/share/mapswipe_workers
+  restart: "no"
+  networks:
+    - mapswipe_workers
+    - postgres
+
+services:
+  api:
+    build:
+      context: api/
+    volumes:
+      - ./mapswipe-data/api:/usr/share/nginx/html/api/:ro
+    restart: unless-stopped
+    ports:
+      - "8111:80"
+    networks:
+      - api
+
+  manager_dashboard:
+    build:
+      context: manager_dashboard/
+    restart: unless-stopped
+    ports:
+      - "8112:80"
+    volumes:
+      - ./manager_dashboard/manager_dashboard:/usr/share/nginx/html/manager_dashboard
+      - ./manager_dashboard/nginx.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      - manager_dashboard
+
+  mapswipe_workers_creation:
+    <<: *base_mapswipe_workers
+    command: mapswipe_workers --verbose run --analysis_type=creation --schedule --time_interval=1
+
+  # mapswipe_workers_stats:
+  #   <<: *base_mapswipe_workers
+  #   command: mapswipe_workers --verbose run --analysis_type=generate-stats --schedule --time_interval=60
+
+  mapswipe_workers_firebase_to_postgres:
+    <<: *base_mapswipe_workers
+    command: mapswipe_workers --verbose run --analysis_type=firebase-to-postgres --schedule --time_interval=1
+
+  postgres:
+    build:
+      context: postgres/
+      dockerfile: Dockerfile-dev
+    environment:
+      POSTGRES_PASSWORD: '${POSTGRES_PASSWORD:-postgres}'
+      POSTGRES_USER: '${POSTGRES_USER:-postgres}'
+      POSTGRES_DB: '${POSTGRES_DB:-postgres}'
+      PGDATA: '/var/lib/postgresql/mapswipe'
+    command: postgres
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/mapswipe
+    restart: unless-stopped
+    expose:
+      - "54320"
+    ports:
+      - "127.0.0.1:54320:5432"
+    networks:
+      - postgres
+
+  django:
+    build:
+      context: django/
+    environment:
+      DJANGO_DEBUG: 'true'
+      DJANGO_SECRET_KEY: 'simple-secret-key-dont-use-in-production'
+      DJANGO_ALLOWED_HOST: '*'
+      DJANGO_DB_NAME: '${POSTGRES_DB:-postgres}'
+      DJANGO_DB_USER: '${POSTGRES_USER:-postgres}'
+      DJANGO_DB_PWD: '${POSTGRES_PASSWORD:-postgres}'
+      DJANGO_DB_HOST: '${POSTGRES_HOST:-postgres}'
+      DJANGO_DB_PORT: '${POSTGRES_PORT:-5432}'
+    volumes:
+      - ./django:/code
+      - ipython_data_local:/root/.ipython/profile_default   # persist ipython data, including ipython history
+    restart: unless-stopped
+    command: ./scripts/run_develop.sh
+    networks:
+      - postgres
+    ports:
+      - "8113:80"
+
+volumes:
+  ipython_data_local:

@@ -104,8 +104,9 @@ def get_results(filename: str, project_id: str) -> pd.DataFrame:
     sql_query = sql.SQL(
         """
         COPY (
-            SELECT *
+            SELECT results.*, U.username
             FROM results
+            LEFT JOIN users U USING (user_id)
             WHERE project_id = {}
         ) TO STDOUT WITH CSV HEADER
         """

@@ -57,6 +57,7 @@ coverage.xml
 # Django stuff:
 *.log
 local_settings.py
+django/assets  # Static/media files
 
 # Flask stuff:
 instance/
@@ -118,6 +119,8 @@ ENV/
 data/
 mapswipe-data/
 postgres-data/
+pgdata_restored/
+django/db.sqlite3
 
 # don't upload app config for project managers dashboard
 app.js
