@@ -243,7 +243,7 @@ USER_PROJECT_TYPE_STATS_QUERY = f"""
                 st_area(geom) as area_sum
                 FROM {Project._meta.db_table} P
                     LEFT JOIN {Result._meta.db_table} R USING (project_id)
-            WHERE R.user_id = 'Tyf9vhtd8aZCgLlaRWQGzBE52w82' and P.project_type = '1'
+            WHERE R.user_id = ANY(%s) and P.project_type = '1'
             GROUP BY project_type, R.user_id, area_sum
         )
     SELECT
@@ -284,7 +284,7 @@ USER_PROJECT_SWIPE_TYPE_STATS_QUERY = f"""
                 COUNT(*) as swipes
                 FROM {Result._meta.db_table} R
                     LEFT JOIN {Project._meta.db_table} P  USING (project_id)
-            WHERE R.user_id = 'Tyf9vhtd8aZCgLlaRWQGzBE52w82'
+            WHERE R.user_id = ANY(%s)
             GROUP BY project_type, R.user_id
         )
     SELECT
@@ -527,7 +527,8 @@ USER_USER_GROUP_STATS_QUERY = f"""
     WITH
         user_data AS (
             SELECT
-                UG.name as user_group,
+                UG.user_group_id as user_group_id,
+                UG.name as user_group_name,
                 UGR.user_id as user_id
             FROM {UserGroupResult._meta.db_table} UGR
                 LEFT JOIN  {UserGroup._meta.db_table} UG USING (user_group_id)
@@ -536,7 +537,8 @@ USER_USER_GROUP_STATS_QUERY = f"""
         )
     SELECT
         user_id,
-        user_group,
+        user_group_id,
+        user_group_name,
         COUNT(user_id) as members_count
     FROM user_data
     GROUP BY user_id, user_group
@@ -836,10 +838,12 @@ def load_user_usergroup_stats(keys: List[str]):
         cursor.execute(USER_USER_GROUP_STATS_QUERY, [keys])
         aggregate_results = cursor.fetchall()
     _map = defaultdict(list)
-    for user_id, user_group, members_count in aggregate_results:
+    for user_id, user_group_id, user_group_name, members_count in aggregate_results:
         _map[user_id].append(
             UserUserGroupTypeStats(
-                user_group=user_group or None, members_count=members_count or 0
+                user_group_id=user_group_id or None,
+                user_group_name=user_group_name or None,
+                members_count=members_count or 0,
             )
         )
     return [_map.get(key) for key in keys]

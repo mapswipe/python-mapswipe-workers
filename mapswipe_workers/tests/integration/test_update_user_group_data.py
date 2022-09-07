@@ -35,10 +35,10 @@ class TestUpdateProjectData(BaseTestCase):
                     "user-3": True,
                 },
                 "userGroupMembershipLogs": {
-                    "member-1": True,
-                    "member-2": True,
-                    "member-3": True,
-                }
+                    "user_id": "user-1",
+                    "action": "join",
+                    "timestamp": "2022-07-15T09:32:02",
+                },
             },
             "user-group-2": {
                 "name": "User Group 2",
@@ -48,11 +48,6 @@ class TestUpdateProjectData(BaseTestCase):
                     "user-2": True,
                     "user-4": True,
                 },
-                "userGroupMembershipLogs": {
-                    "member-1": True,
-                    "member-2": True,
-                    "member-4": True,
-                }
             },
             "user-group-3": {
                 "name": "User Group 3",
@@ -64,9 +59,6 @@ class TestUpdateProjectData(BaseTestCase):
                 "users": {
                     "user-2": True,
                 },
-                "userGroupMembershipLogs": {
-                    "member-2": True,
-                }
             },
             "user-group-4": {
                 "name": "User Group 4",
@@ -75,10 +67,6 @@ class TestUpdateProjectData(BaseTestCase):
                     "user-1": True,
                     "user-2": False,
                 },
-                "userGroupMembershipLogs": {
-                    "member-1": True,
-                    "member-2": False,
-                }
             },
             "user-group-5": {
                 "name": "User Group 5",
@@ -87,12 +75,8 @@ class TestUpdateProjectData(BaseTestCase):
         }
 
         USER_MOCK_DATA = {
-            'user-1': {
-                "username": "test user"
-            },
-            'user-2': {
-                "username": "test user 2"
-            }
+            "user-1": {"username": "test user"},
+            "user-2": {"username": "test user 2"},
         }
 
         def __init__(self):
@@ -159,6 +143,9 @@ class TestUpdateProjectData(BaseTestCase):
             ORDER BY user_group_id, user_id
             """
         U_QUERY = "SELECT user_id FROM users WHERE user_id!='' AND user_id IS NOT NULL ORDER BY user_id"
+        UGML_QUERY = (
+            "SELECT user_group_id, user_id, action FROM user_groups_membership_logs"
+        )
 
         for query, expected_value in [
             (
@@ -192,6 +179,7 @@ class TestUpdateProjectData(BaseTestCase):
                     ("user-4",),
                 ],
             ),
+            (UGML_QUERY, [("user-group-1", "user-1", "join")]),
         ]:
             self.assertEqual(
                 expected_value,
@@ -229,7 +217,7 @@ class TestUpdateProjectData(BaseTestCase):
                         "user-group-2",
                         "User Group 2 (UPDATED)",
                         "User Group 2 description (UPDATED)",
-                        False
+                        False,
                     ),
                     ("user-group-3", "User Group 3", "User Group 3 description", True),
                     ("user-group-4", "User Group 4", "User Group 4 description", False),

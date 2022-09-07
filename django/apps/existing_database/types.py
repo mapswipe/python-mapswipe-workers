@@ -101,7 +101,8 @@ class MapContributionTypeStats:
 
 @strawberry.type
 class UserUserGroupTypeStats:
-    user_group: str
+    user_group_id: str
+    user_group_name: str
     members_count: int
 
 

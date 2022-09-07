@@ -236,10 +236,10 @@ def update_user_group_full_data(user_group_ids: List[str]):
 
     user_group_file = io.StringIO("")
     user_group_membership_file = io.StringIO("")
-    # user_group_membership_log_file = io.StringIO("")
+    user_group_membership_log_file = io.StringIO("")
     ug_w = csv.writer(user_group_file, delimiter="\t", quotechar="'")
     ugm_w = csv.writer(user_group_membership_file, delimiter="\t", quotechar="'")
-    # ugml_w = csv.writer(user_group_membership_log_file, delimiter="\t", quotechar="'")
+    ugml_w = csv.writer(user_group_membership_log_file, delimiter="\t", quotechar="'")
     for _id in user_group_ids:
         ug = fb_db.reference(f"v2/userGroups/{_id}").get()
         if ug is None:  # userGroup doesn't exists in FB
@@ -279,21 +279,19 @@ def update_user_group_full_data(user_group_ids: List[str]):
                     if is_selected
                 ]
             )
-        # membership_logs = ug.get("userGroupMembershipLogs") or {}
-        # if membership_logs:
-        #     ugml_w.writerows(
-        #         [
-        #             [
-        #                 _id,
-        #                 user_id,
-        #             ]
-        #             for user_id, is_selected in membership_logs.items()
-        #             if is_selected
-        #         ]
-        #     )
-
+        membership_logs = ug.get("userGroupMembershipLogs") or {}
+        if membership_logs:
+            ugml_w.writerow(
+                [
+                    _id,
+                    membership_logs["user_id"],
+                    membership_logs["action"],
+                    membership_logs["timestamp"],
+                ]
+            )
     user_group_file.seek(0)
     user_group_membership_file.seek(0)
+    user_group_membership_log_file.seek(0)
 
     pg_db = auth.postgresDB()
 
@@ -410,30 +408,32 @@ def update_user_group_full_data(user_group_ids: List[str]):
     logger.info("Updated user_group membership data in Postgres.")
 
     # Clear old memberships logs
-    # pg_db.query("TRUNCATE user_groups_membership_logs_temp")
-    # # Copy user group membership log data to temp table
-    # columns = ["user_group_id", "user_id"]
-    # pg_db.copy_from(
-    #     user_group_membership_log_file,
-    #     "user_groups_membership_logs_temp",
-    #     columns,
-    # )
-    # user_group_membership_log_file.close()
-    # query_insert_results = """
-    #     INSERT INTO user_groups_membership_logs
-    #         SELECT *, TRUE FROM user_groups_membership_logs_temp
-    #     ON CONFLICT (user_group_id, user_id) DO UPDATE
-    #     SET action = ( CASE WHEN TRUE
-    #         THEN membership_action
-    #         ELSE excluded.action='leave'
-    #         END
-    #     ),
-    #     timestamp = excluded.timestamp;
-    #     -- Clear temp table data
-    #     TRUNCATE user_groups_membership_logs_temp;
-    # """
-    # pg_db.query(query_insert_results, [user_group_ids])
-    # logger.info("Updated user_group membership logs data in Postgres.")
+    pg_db.query("TRUNCATE user_groups_membership_logs_temp")
+    # Copy user group membership log data to temp table
+    columns = [
+        "user_group_id",
+        "user_id",
+        "action",
+        "timestamp",
+    ]
+    pg_db.copy_from(
+        user_group_membership_log_file,
+        "user_groups_membership_logs_temp",
+        columns,
+    )
+    user_group_membership_log_file.close()
+    query_insert_results = """
+        INSERT INTO user_groups_membership_logs
+            SELECT * FROM user_groups_membership_logs_temp
+        ON CONFLICT (user_group_id, user_id) DO UPDATE
+        SET
+            action = excluded.action,
+            timestamp = excluded.timestamp;
+        -- Clear temp table data
+        TRUNCATE user_groups_membership_logs_temp;
+    """
+    pg_db.query(query_insert_results)
+    logger.info("Updated user_group membership logs data in Postgres.")
     del pg_db
 
 

@@ -1,4 +1,6 @@
 def parse_geom(geom):
+    # NOTE: This method transform data equivalent to what mapbox supports
+    # Since data structure from postgres isn't mapbox compatible
     if geom:
         geom_list = []
         data = geom.split("(")
