@@ -124,7 +124,6 @@ module.exports = () => {
                 MY_APP_ID: pkg.name,
                 MY_APP_NAME: pkg.longName,
                 // MY_APP_DESCRIPTION: pkg.description,
-
                 // REACT_APP_VERSION: gitRevisionPlugin.version(),
                 // REACT_APP_COMMITHASH: gitRevisionPlugin.commithash(),
                 // REACT_APP_BRANCH: gitRevisionPlugin.branch(),
