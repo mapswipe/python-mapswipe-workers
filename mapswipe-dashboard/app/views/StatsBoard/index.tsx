@@ -12,11 +12,6 @@ import {
 } from '@togglecorp/fujs';
 import { scaleOrdinal } from 'd3-scale';
 import {
-    NumberOutput,
-    TextOutput,
-    Heading,
-} from '@the-deep/deep-ui';
-import {
     AreaChart,
     ResponsiveContainer,
     XAxis,
@@ -33,6 +28,10 @@ import {
 import { formatDuration, intervalToDuration } from 'date-fns';
 
 import ContributionHeatmap, { MapContributionType } from '#components/ContributionHeatMap';
+import NumberOutput from '#components/NumberOutput';
+import TextOutput from '#components/TextOutput';
+import Heading from '#components/Heading';
+
 import InformationCard from '#components/InformationCard';
 import areaSvg from '#resources/icons/area.svg';
 import sceneSvg from '#resources/icons/scene.svg';
@@ -354,7 +353,6 @@ function StatsBoard(props: Props) {
                                 className={styles.numberOutput}
                                 value={projectTypeStats?.find((project) => project.projectType === '1')?.area}
                                 normal
-                                precision={2}
                             />
                         )}
                         label="Area Reviewed (in sq km)"
@@ -370,7 +368,6 @@ function StatsBoard(props: Props) {
                                     (project) => project.projectType === '2',
                                 )?.totalSwipe}
                                 normal
-                                precision={2}
                             />
                         )}
                         label="Features Checked (# of swipes)"
@@ -384,7 +381,6 @@ function StatsBoard(props: Props) {
                                 className={styles.numberOutput}
                                 value={projectSwipeTypeStats?.find((project) => project.projectType === '3')?.totalSwipe}
                                 normal
-                                precision={2}
                             />
                         )}
                         label="Scene Comparision (# of swipes)"
@@ -399,7 +395,6 @@ function StatsBoard(props: Props) {
                                 className={styles.numberOutput}
                                 value={totalSwipes}
                                 normal
-                                precision={2}
                             />
                         )}
                         label="Swipes by Mission Type"
@@ -441,7 +436,6 @@ function StatsBoard(props: Props) {
                                 className={styles.numberOutput}
                                 value={totalSwipesByOrganization}
                                 normal
-                                precision={2}
                             />
                         )}
                         label="Swipes by Organization"
