@@ -2,7 +2,6 @@ import copy
 import unittest
 from typing import Union
 from unittest import mock
-import datetime
 
 from base import BaseTestCase
 
@@ -78,11 +77,26 @@ class TestUpdateProjectData(BaseTestCase):
             "user-1": {"username": "test user"},
             "user-2": {"username": "test user 2"},
         }
+        MEMBERHSHIP_LOG_DATA = {
+            "membership-1": {
+                "user_group_id": "user-group-1",
+                "user_id": "user-1",
+                "action": "join",
+                "timestamp": "2022-07-15T09:32:02",
+            },
+            "membership-2": {
+                "user_group_id": "user-group-2",
+                "user_id": "user-2",
+                "action": "leave",
+                "timestamp": "2022-07-15T09:32:02",
+            },
+        }
 
         def __init__(self):
             # If we need to mutate data
             self.mock_data = copy.deepcopy(self.USER_GROUP_MOCK_DATA)
             self.user_mock_data = copy.deepcopy(self.USER_MOCK_DATA)
+            self.membership_mock_data = copy.deepcopy(self.MEMBERHSHIP_LOG_DATA)
 
         def reference(self, url):
             # To track url. Used in get()
@@ -98,6 +112,9 @@ class TestUpdateProjectData(BaseTestCase):
             elif self.url.startswith("v2/users/"):
                 user_id = self.url.split("/")[-1]
                 return self.user_mock_data.get(user_id)
+            elif self.url.startswith("v2/userGroupMembershipLogs/"):
+                membership_id = self.url.split("/")[-1]
+                return self.membership_mock_data.get(membership_id)
             return {}
 
     @mock.patch("mapswipe_workers.firebase_to_postgres.update_data.auth.firebaseDB")
@@ -114,6 +131,14 @@ class TestUpdateProjectData(BaseTestCase):
                 "user-group-2",
                 "user-group-3",
                 "user-group-6",
+            ]
+        )
+
+        # update user memeberhsip log data
+        update_data.create_update_membership_data(
+            [
+                "membership-1",
+                "membership-2",
             ]
         )
 
@@ -142,8 +167,10 @@ class TestUpdateProjectData(BaseTestCase):
             FROM user_groups_user_memberships_temp
             ORDER BY user_group_id, user_id
             """
-        U_QUERY = "SELECT user_id FROM users WHERE user_id!='' AND user_id IS NOT NULL ORDER BY user_id"
-        UGML_QUERY = (
+        U_QUERY = "SELECT user_id FROM users WHERE user_id!='' \
+        AND user_id IS NOT NULL ORDER BY user_id"
+
+        UML_QUERY = (
             "SELECT user_group_id, user_id, action FROM user_groups_membership_logs"
         )
 
@@ -179,7 +206,6 @@ class TestUpdateProjectData(BaseTestCase):
                     ("user-4",),
                 ],
             ),
-            (UGML_QUERY, [("user-group-1", "user-1", "join")]),
         ]:
             self.assertEqual(
                 expected_value,
@@ -248,6 +274,13 @@ class TestUpdateProjectData(BaseTestCase):
                     ("user-3",),
                     ("user-4",),
                     ("user-8",),
+                ],
+            ),
+            (
+                UML_QUERY,
+                [
+                    ("user-group-1", "user-1", "join"),
+                    ("user-group-2", "user-2", "leave"),
                 ],
             ),
         ]:

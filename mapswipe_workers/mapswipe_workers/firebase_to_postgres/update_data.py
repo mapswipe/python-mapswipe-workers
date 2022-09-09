@@ -236,10 +236,8 @@ def update_user_group_full_data(user_group_ids: List[str]):
 
     user_group_file = io.StringIO("")
     user_group_membership_file = io.StringIO("")
-    user_group_membership_log_file = io.StringIO("")
     ug_w = csv.writer(user_group_file, delimiter="\t", quotechar="'")
     ugm_w = csv.writer(user_group_membership_file, delimiter="\t", quotechar="'")
-    ugml_w = csv.writer(user_group_membership_log_file, delimiter="\t", quotechar="'")
     for _id in user_group_ids:
         ug = fb_db.reference(f"v2/userGroups/{_id}").get()
         if ug is None:  # userGroup doesn't exists in FB
@@ -279,19 +277,8 @@ def update_user_group_full_data(user_group_ids: List[str]):
                     if is_selected
                 ]
             )
-        membership_logs = ug.get("userGroupMembershipLogs") or {}
-        if membership_logs:
-            ugml_w.writerow(
-                [
-                    _id,
-                    membership_logs["user_id"],
-                    membership_logs["action"],
-                    membership_logs["timestamp"],
-                ]
-            )
     user_group_file.seek(0)
     user_group_membership_file.seek(0)
-    user_group_membership_log_file.seek(0)
 
     pg_db = auth.postgresDB()
 
@@ -407,32 +394,61 @@ def update_user_group_full_data(user_group_ids: List[str]):
     pg_db.query(query_insert_results, [user_group_ids])
     logger.info("Updated user_group membership data in Postgres.")
 
+    del pg_db
+
+
+def create_update_membership_data(
+    membership_ids: Optional[List[str]] = None,
+) -> List[str]:
+    fb_db = auth.firebaseDB()
+
+    membership_file = io.StringIO("")
+    m_w = csv.writer(membership_file, delimiter="\t", quotechar="'")
+    for _id in membership_ids:
+        u = fb_db.reference(f"v2/userGroupMembershipLogs/{_id}").get()
+        if u is None:  # user doesn't exists in FB
+            continue
+        user_group_id = u.get("user_group_id")
+        user_id = u.get("user_id")
+        action = u.get("action")
+        timestamp = u.get("timestamp")
+        m_w.writerow(
+            [
+                _id,
+                user_group_id,
+                user_id,
+                action,
+                timestamp,
+            ]
+        )
+    membership_file.seek(0)
+
+    pg_db = auth.postgresDB()
+
     # Clear old memberships logs
     pg_db.query("TRUNCATE user_groups_membership_logs_temp")
     # Copy user group membership log data to temp table
     columns = [
+        "membership_id",
         "user_group_id",
         "user_id",
         "action",
         "timestamp",
     ]
     pg_db.copy_from(
-        user_group_membership_log_file,
+        membership_file,
         "user_groups_membership_logs_temp",
         columns,
     )
-    user_group_membership_log_file.close()
+    membership_file.close()
     query_insert_results = """
         INSERT INTO user_groups_membership_logs
             SELECT * FROM user_groups_membership_logs_temp
-        ON CONFLICT (user_group_id, user_id) DO UPDATE
-        SET
-            action = excluded.action,
-            timestamp = excluded.timestamp;
+        WHERE membership_id = ANY(%s);
         -- Clear temp table data
         TRUNCATE user_groups_membership_logs_temp;
     """
-    pg_db.query(query_insert_results)
+    pg_db.query(query_insert_results, [membership_ids])
     logger.info("Updated user_group membership logs data in Postgres.")
     del pg_db
 

@@ -142,12 +142,28 @@ def run_create_users():
 
     if not changed_users_id:
         return
-
     # Update changed user data in postgres.
     update_data.create_update_user_data(changed_users_id)
 
     # Finally delete used records using multi-location update
     fb_db.reference("v2/updates/users").update({_id: None for _id in changed_users_id})
+
+
+@cli.command("create-user-group-membership-log")
+def run_create_user_group_membership_log():
+    fb_db = auth.firebaseDB()
+    ref = fb_db.reference("v2/updates/userGroupMembershipLogs")
+    changed_membership_id = list((ref.get(shallow=True) or {}).keys())
+
+    if not changed_membership_id:
+        return
+    # Update changed user data in postgres.
+    update_data.create_update_membership_data(changed_membership_id)
+
+    # Finally delete used records using multi-location update
+    fb_db.reference("v2/updates/userGroupMembershipLogs").update(
+        {_id: None for _id in changed_membership_id}
+    )
 
 
 @cli.command("firebase-to-postgres")
@@ -514,6 +530,7 @@ def run(context, analysis_type, schedule, time_interval):
         context.invoke(run_create_tutorials)
         context.invoke(run_create_user_groups)
         context.invoke(run_create_users)
+        context.invoke(run_create_user_group_membership_log)
         project_ids = context.invoke(run_firebase_to_postgres)
         context.invoke(run_generate_stats, project_ids=project_ids)
 
@@ -523,6 +540,7 @@ def run(context, analysis_type, schedule, time_interval):
         context.invoke(run_create_tutorials)
         context.invoke(run_create_user_groups)
         context.invoke(run_create_users)
+        context.invoke(run_create_user_group_membership_log)
 
     def _run_firebase_to_postgres():
         logger.info(

@@ -9,7 +9,6 @@
 -- ALTER TABLE projects DROP COLUMN organization_name;
 -- ALTER TABLE users DROP COLUMN updated_at;
 -- ALTER TABLE users_temp DROP COLUMN updated_at;
--- DROP TYPE membership_action;
 
 
 ---- User Group Tables
@@ -80,6 +79,7 @@ CREATE TABLE IF NOT EXISTS results_user_groups_temp (
 CREATE TYPE membership_action AS ENUM ('join', 'leave');
 
 CREATE TABLE IF NOT EXISTS user_groups_membership_logs (
+    membership_id varchar,
     user_group_id varchar,
     user_id varchar,
     action MEMBERSHIP_ACTION,
@@ -90,6 +90,7 @@ CREATE TABLE IF NOT EXISTS user_groups_membership_logs (
 );
 
 CREATE TABLE IF NOT EXISTS user_groups_membership_logs_temp (
+    membership_id varchar,
     user_group_id varchar,
     user_id varchar,
     action MEMBERSHIP_ACTION,
