@@ -1,6 +1,5 @@
 from django.conf import settings
 from django.contrib.gis.db import models as gis_models
-from django.contrib.postgres.fields import ArrayField
 from django.db import models
 
 
@@ -46,8 +45,6 @@ class UserGroupUserMembership(models.Model):
     user_group = models.ForeignKey(UserGroup, models.DO_NOTHING, primary_key=True)
     user = models.ForeignKey(User, models.DO_NOTHING, primary_key=True)
     is_active = models.BooleanField(null=True, blank=True)
-    left_at = ArrayField(models.DateTimeField(blank=True, null=True), default=dict)
-    joined_at = ArrayField(models.DateTimeField(blank=True, null=True), default=dict)
 
     class Meta:
         managed = False

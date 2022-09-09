@@ -121,7 +121,8 @@ USER_GROUP_ORGANIZATION_TYPE_STATS = f"""
                 P.organization_name as organization
             From {Result._meta.db_table} R
                 LEFT JOIN {Project._meta.db_table} as P USING (project_id)
-                LEFT JOIN {UserGroupResult._meta.db_table} as UGR USING (project_id)
+                LEFT JOIN {UserGroupResult._meta.db_table} as UGR USING
+                (project_id, group_id, user_id)
             WHERE P.organization_name != 'null' AND UGR.user_group_id = ANY(%s)
             GROUP BY organization, UGR.user_group_id
         )
