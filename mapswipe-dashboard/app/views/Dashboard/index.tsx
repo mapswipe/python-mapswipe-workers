@@ -1,12 +1,10 @@
 import React from 'react';
 import { _cs } from '@togglecorp/fujs';
 import {
-    Header,
-} from '@the-deep/deep-ui';
-import {
     gql,
     useQuery,
 } from '@apollo/client';
+import Header from '#components/Header';
 import dashboardHeaderSvg from '#resources/img/dashboard.svg';
 import userSvg from '#resources/icons/user.svg';
 import groupSvg from '#resources/icons/group.svg';

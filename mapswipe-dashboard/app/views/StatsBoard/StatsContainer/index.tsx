@@ -1,7 +1,7 @@
 import React from 'react';
 import { _cs } from '@togglecorp/fujs';
 
-import { Heading } from '@the-deep/deep-ui';
+import Heading from '#components/Heading';
 
 import styles from './styles.css';
 
