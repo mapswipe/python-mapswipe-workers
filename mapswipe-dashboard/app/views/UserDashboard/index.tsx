@@ -1,7 +1,7 @@
 import React from 'react';
+import { Link, useParams } from 'react-router-dom';
 import { _cs } from '@togglecorp/fujs';
 import { gql, useQuery } from '@apollo/client';
-import { useParams } from 'react-router-dom';
 
 import dashboardHeaderSvg from '#resources/img/dashboard.svg';
 import Header from '#components/Header';
@@ -58,7 +58,8 @@ const USER_STATS = gql`
             }
             userInUserGroups {
                 membersCount
-                userGroup
+                userGroupName
+                userGroupId
               }
             userId
             username
@@ -200,7 +201,7 @@ function UserDashboard(props: Props) {
                             <div className={styles.groupsContainer}>
                                 {userStats?.user?.userInUserGroups?.map((group) => (
                                     <InformationCard
-                                        key={group.userGroup}
+                                        key={group.userGroupId}
                                         className={styles.group}
                                         icon={(<img src={groupSvg} alt="swipe icon" />)}
                                         subHeading={(
@@ -211,7 +212,14 @@ function UserDashboard(props: Props) {
                                                 hideLabelColon
                                             />
                                         )}
-                                        label={group.userGroup}
+                                        label={(
+                                            <Link
+                                                className={styles.link}
+                                                to={`/user-group/${group.userGroupId}/`}
+                                            >
+                                                {group.userGroupName}
+                                            </Link>
+                                        )}
                                         description={`${group.membersCount}
                                         ${group.membersCount > 1 ? 'members' : 'member'}`}
                                     />

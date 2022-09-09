@@ -92,6 +92,11 @@
                 .group {
                     flex-basis: calc(100% / 3 - var(--spacing-medium));
                     flex-grow: 1;
+
+                    .link {
+                        color: var(--color-primary);
+                        font-weight: var(--font-weight-bold);
+                    }
                 }
             }
         }

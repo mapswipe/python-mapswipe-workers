@@ -1,5 +1,5 @@
 .text-output {
-    --spacing: var(--spacing-small);
+    --spacing: var(--spacing-extra-small);
     display: flex;
     align-items: baseline;
     gap: var(--spacing);

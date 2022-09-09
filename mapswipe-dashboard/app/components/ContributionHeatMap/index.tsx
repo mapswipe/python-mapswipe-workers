@@ -25,7 +25,7 @@ export type MapContributionType = MapContributionTypeStats & {
 }
 
 const heatLayerOptions: HeatMapOptions = {
-    minOpacity: 0.1,
+    minOpacity: 0.5,
     radius: 15,
 };
 
