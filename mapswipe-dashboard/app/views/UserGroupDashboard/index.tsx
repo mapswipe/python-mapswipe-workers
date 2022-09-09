@@ -1,10 +1,11 @@
 import React, { useCallback } from 'react';
 import { gql, useQuery } from '@apollo/client';
 import { _cs } from '@togglecorp/fujs';
-import { Header, ListView, TextOutput, NumberOutput } from '@the-deep/deep-ui';
 import { useParams } from 'react-router-dom';
 
+import Header from '#components/Header';
 import dashboardHeaderSvg from '#resources/img/dashboard.svg';
+import List from '#components/List';
 import Button from '#components/Button';
 import InformationCard from '#components/InformationCard';
 import timeSvg from '#resources/icons/time.svg';
@@ -12,7 +13,9 @@ import userSvg from '#resources/icons/user.svg';
 import swipeSvg from '#resources/icons/swipe.svg';
 import MemberItem from '#components/MemberItem';
 import CalendarHeatMapContainer from '#components/CalendarHeatMapContainer';
+import NumberOutput from '#components/NumberOutput';
 import Footer from '#components/Footer';
+import TextOutput from '#components/TextOutput';
 import StatsBoard from '#views/StatsBoard';
 import { UserGroupStatsQuery, UserGroupStatsQueryVariables } from '#generated/types';
 import { MapContributionType } from '#components/ContributionHeatMap';
@@ -156,7 +159,6 @@ function UserGroupDashboard(props: Props) {
                                     className={styles.value}
                                     value={userGroupStats?.userGroup.stats.totalSwipe}
                                     normal
-                                    precision={2}
                                 />
                             )}
                             description={(
@@ -168,7 +170,6 @@ function UserGroupDashboard(props: Props) {
                                             value={userGroupStats
                                                 ?.userGroup.userGroupLatest?.totalSwipes}
                                             normal
-                                            precision={2}
                                         />
                                     )}
                                     description="&nbsp;total swipes in the last 30 days"
@@ -260,14 +261,11 @@ function UserGroupDashboard(props: Props) {
                                     <div className={styles.heading}>Mission contributed</div>
                                     <div className={styles.heading}>Time Spent (mins)</div>
                                 </div>
-                                <ListView
-                                    data={userGroupStats?.userGroup.userStats}
+                                <List
+                                    data={userGroupStats?.userGroup.userStats ?? []}
                                     keySelector={memberKeySelector}
                                     renderer={MemberItem}
                                     rendererParams={memberRendererParams}
-                                    filtered={false}
-                                    pending={false}
-                                    errored={false}
                                 />
                             </div>
                         </div>

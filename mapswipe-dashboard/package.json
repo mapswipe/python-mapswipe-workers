@@ -37,7 +37,6 @@
         "@babel/runtime": "^7.11.2",
         "@sentry/react": "^6.9.0",
         "@sentry/tracing": "^6.9.0",
-        "@the-deep/deep-ui": "^1.6.10",
         "@togglecorp/fujs": "^1.9.2",
         "@togglecorp/toggle-form": "^1.2.1",
         "@turf/bbox": "^6.5.0",

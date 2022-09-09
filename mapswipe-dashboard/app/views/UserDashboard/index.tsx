@@ -1,16 +1,18 @@
 import React from 'react';
 import { _cs } from '@togglecorp/fujs';
-import { Header, NumberOutput, TextOutput } from '@the-deep/deep-ui';
 import { gql, useQuery } from '@apollo/client';
 import { useParams } from 'react-router-dom';
 
 import dashboardHeaderSvg from '#resources/img/dashboard.svg';
+import Header from '#components/Header';
+import NumberOutput from '#components/NumberOutput';
 import InformationCard from '#components/InformationCard';
 import timeSvg from '#resources/icons/time.svg';
 import groupSvg from '#resources/icons/group.svg';
 import swipeSvg from '#resources/icons/swipe.svg';
 import Footer from '#components/Footer';
 import StatsBoard from '#views/StatsBoard';
+import TextOutput from '#components/TextOutput';
 import CalendarHeatMapContainer from '#components/CalendarHeatMapContainer';
 import { UserStatsQuery, UserStatsQueryVariables } from '#generated/types';
 import { MapContributionType } from '#components/ContributionHeatMap';
@@ -110,7 +112,6 @@ function UserDashboard(props: Props) {
                                     className={styles.value}
                                     value={userStats?.user.stats?.totalSwipe}
                                     normal
-                                    precision={2}
                                 />
                             )}
                             label="Total Swipes"
@@ -122,7 +123,6 @@ function UserDashboard(props: Props) {
                                             className={styles.value}
                                             value={userStats?.user.statsLatest?.totalSwipe}
                                             normal
-                                            precision={2}
                                         />
                                     )}
                                     description="&nbsp;total swipes last 30 days"
@@ -209,7 +209,6 @@ function UserDashboard(props: Props) {
                                                 label="Joined on &nbsp;"
                                                 value={undefined}
                                                 hideLabelColon
-                                                valueType="date"
                                             />
                                         )}
                                         label={group.userGroup}

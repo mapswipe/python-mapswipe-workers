@@ -1,0 +1,51 @@
+.heading {
+    --color: var(--color-black);
+
+    margin: 0;
+    color: var(--color);
+    font-weight: var(--font-weight-bold);
+
+    &.extra-large {
+        font-size: var(--font-size-extra-large);
+    }
+
+    &.large {
+        font-size: var(--font-size-large);
+    }
+
+    &.medium {
+        --color: var(--color-brand);
+        font-size: var(--font-size-medium);
+    }
+
+    &.small {
+        font-size: var(--font-size-small);
+    }
+
+    &.extra-small {
+        font-size: var(--font-size-extra-small);
+    }
+
+    &.brand {
+        --color: var(--color-brand);
+    }
+
+    &.accent {
+        --color: var(--color-accent);
+    }
+
+    &.default {
+        --color: var(--color-text);
+    }
+
+    &.ellipsize {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+}
+
+.ellipsize-container {
+    width: 100%;
+    overflow: auto;
+}
