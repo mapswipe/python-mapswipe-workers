@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { NumberOutput } from '@the-deep/deep-ui';
+import NumberOutput from '#components/NumberOutput';
 
 import { UserGroupMember } from '#views/UserGroupDashboard';
 
@@ -27,7 +27,6 @@ function MemberItem(props: Props) {
                 <NumberOutput
                     value={member.totalSwipes}
                     normal
-                    precision={2}
                 />
             </div>
             <div className={styles.item}>

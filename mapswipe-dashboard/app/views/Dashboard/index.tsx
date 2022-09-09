@@ -2,8 +2,6 @@ import React from 'react';
 import { _cs } from '@togglecorp/fujs';
 import {
     Header,
-    NumberOutput,
-    TextOutput,
 } from '@the-deep/deep-ui';
 import {
     gql,
@@ -14,6 +12,8 @@ import userSvg from '#resources/icons/user.svg';
 import groupSvg from '#resources/icons/group.svg';
 import swipeSvg from '#resources/icons/swipe.svg';
 import Footer from '#components/Footer';
+import NumberOutput from '#components/NumberOutput';
+import TextOutput from '#components/TextOutput';
 import InformationCard from '#components/InformationCard';
 import StatsBoard from '#views/StatsBoard';
 import {
@@ -111,7 +111,6 @@ function Dashboard(props: Props) {
                                     className={styles.value}
                                     value={communityStats?.communityStats.totalContributors}
                                     normal
-                                    precision={2}
                                 />
                             )}
                             label="Total Contributors"
@@ -125,7 +124,6 @@ function Dashboard(props: Props) {
                                             value={communityStats
                                                 ?.communityStastLastest?.totalContributorsLastMonth}
                                             normal
-                                            precision={2}
                                         />
                                     )}
                                     description="&nbsp;total contributors in the last 30 days"
@@ -163,7 +161,6 @@ function Dashboard(props: Props) {
                                     className={styles.value}
                                     value={communityStats?.communityStats.totalSwipes}
                                     normal
-                                    precision={2}
                                 />
                             )}
                             label="Total Swipes"
@@ -177,7 +174,6 @@ function Dashboard(props: Props) {
                                             value={communityStats
                                                 ?.communityStastLastest?.totalSwipesLastMonth}
                                             normal
-                                            precision={2}
                                         />
                                     )}
                                     description="&nbsp;swipes in the last 30 days"

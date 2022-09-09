@@ -1,0 +1,5 @@
+.number-output {
+    display: flex;
+    font-family: monospace;
+    font-size: inherit;
+}
