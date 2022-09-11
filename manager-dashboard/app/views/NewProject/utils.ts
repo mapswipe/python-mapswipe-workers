@@ -175,14 +175,14 @@ export const projectFormSchema: ProjectFormSchema = {
             requestingOrganisation: [requiredStringCondition],
             name: [requiredStringCondition],
             visibility: [requiredCondition],
-            lookFor: [requiredStringCondition, getNoMoreThanNCharacterCondition(25)],
+            lookFor: [getNoMoreThanNCharacterCondition(25)],
             projectDetails: [requiredStringCondition, getNoMoreThanNCharacterCondition(10000)],
             tutorialId: [requiredCondition],
             projectImage: [requiredCondition],
             verificationNumber: [
                 requiredCondition,
                 greaterThanOrEqualToCondition(3),
-                lessThanOrEqualToCondition(21),
+                lessThanOrEqualToCondition(10000),
                 integerCondition,
             ],
             groupSize: [
@@ -195,7 +195,6 @@ export const projectFormSchema: ProjectFormSchema = {
                 fields: tileServerFieldsSchema,
             },
             maxTasksPerUser: [
-                requiredCondition,
                 greaterThanCondition(0),
                 integerCondition,
             ],

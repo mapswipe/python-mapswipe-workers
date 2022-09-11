@@ -47,37 +47,13 @@ function Login(props: Props) {
             setPending(true);
 
             const auth = getAuth();
-            const { user } = await signInWithEmailAndPassword(auth, email, password);
+            await signInWithEmailAndPassword(auth, email, password);
+            // NOTE: we will udpate the current user on <Init />
             if (!mountedRef.current) {
                 return;
             }
-
-            const idToken = await user.getIdTokenResult();
-            if (!mountedRef.current) {
-                return;
-            }
-
-            if (!idToken.claims.projectManager) {
-                setErrorMessage('This user does not have enough permissions for Manager Dashboard');
-                await auth.signOut();
-                if (!mountedRef.current) {
-                    return;
-                }
-                setPending(false);
-                return;
-            }
-
             setErrorMessage(undefined);
             setPending(false);
-
-            // NOTE: we do not need to use useMountedRef here as
-            // the page will only be unmounted after we call setUser
-            setUser({
-                id: user.uid,
-                displayName: user.displayName ?? 'Anonymous User',
-                displayPictureUrl: user.photoURL,
-                email: user.email,
-            });
         } catch (error) {
             // eslint-disable-next-line no-console
             console.error(error);
@@ -100,7 +76,7 @@ function Login(props: Props) {
             setErrorMessage(message);
             setPending(false);
         }
-    }, [mountedRef, setUser, email, password]);
+    }, [mountedRef, email, password]);
 
     return (
         <div className={_cs(styles.login, className)}>
