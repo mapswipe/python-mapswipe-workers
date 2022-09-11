@@ -632,6 +632,10 @@ function NewProject(props: Props) {
                         {value?.inputType === PROJECT_INPUT_TYPE_TASKING_MANAGER_ID && (
                             <TextInput
                                 name={'TMId' as const}
+                                // NOTE: This is actually a string but
+                                // should only support numeric characters
+                                type="number"
+                                min="1"
                                 value={value?.TMId}
                                 onChange={setFieldValueAndClearTestMessage}
                                 label="HOT Tasking Manager ProjectID"

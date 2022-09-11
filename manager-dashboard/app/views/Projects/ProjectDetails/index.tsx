@@ -14,7 +14,7 @@ import useConfirmation from '#hooks/useConfirmation';
 import useMountedRef from '#hooks/useMountedRef';
 import Modal from '#components/Modal';
 import Button from '#components/Button';
-import SegmentInput from '#components/SegmentInput';
+import SelectInput from '#components/SelectInput';
 import Checkbox from '#components/Checkbox';
 import PendingMessage from '#components/PendingMessage';
 import { TileServerType } from '#components/TileServerInput';
@@ -25,7 +25,7 @@ import styles from './styles.css';
 // FIXME: these are common types
 type ProjectType = 1 | 2 | 3 | 4;
 type ProjectInputType = 'aoi_file' | 'link' | 'TMId';
-type ProjectStatus = 'active' | 'inactive' | 'finished' | 'archived' | 'tutorial';
+type ProjectStatus = 'private_active' | 'private_inactive' | 'active' | 'inactive' | 'finished' | 'archived' | 'tutorial';
 
 const projectTypeLabelMap: {
     [key in ProjectType]: string
@@ -73,7 +73,9 @@ export const projectStatusOptions: {
     label: string;
 }[] = [
     { value: 'active', label: 'Active' },
+    { value: 'private_active', label: 'Active (Private)' },
     { value: 'inactive', label: 'Inactive' },
+    { value: 'private_inactive', label: 'Inactive (Private)' },
     { value: 'finished', label: 'Finished' },
     { value: 'archived', label: 'Archived' },
 ];
@@ -271,14 +273,15 @@ function ProjectDetails(props: Props) {
             )}
             <div className={styles.actions}>
                 <div className={styles.dbActions}>
-                    <SegmentInput
-                        name={undefined}
+                    <SelectInput
+                        name="status"
                         options={projectStatusOptions}
                         value={data.status}
                         keySelector={valueSelector}
                         labelSelector={labelSelector}
                         onChange={setShowStatusUpdateConfirmationTrue}
                         disabled={featuredUpdatePending || statusUpdatePending}
+                        nonClearable
                     />
                     <Checkbox
                         name={undefined}

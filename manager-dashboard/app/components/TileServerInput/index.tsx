@@ -62,12 +62,16 @@ export const tileServerDefaultCredits: Record<TileServerType, string> = {
 };
 
 function imageryUrlCondition(value: string | null | undefined) {
-    if (value && !(
-        value.includes('{z}')
-        && value.includes('{x}')
-        && (value.includes('{y}') || value.includes('{-y}'))
+    if (value && (
+        (
+            !value.includes('{z}')
+            || !value.includes('{x}')
+            || (!value.includes('{y}') && !value.includes('{-y}'))
+        ) || (
+            !value.includes('{quad_key}')
+        )
     )) {
-        return 'Imagery url must contain {x}, {y} (or {-y}) and {z} placeholders.';
+        return 'Imagery url must contain {x}, {y} (or {-y}) & {z} placeholders or {quad_key} placeholder.';
     }
     return undefined;
 }
@@ -164,7 +168,7 @@ function TileServerInput<Name extends string | number>(props: Props<Name>) {
                     name={'url' as const}
                     value={value?.url}
                     label="Custom Tile Server URL"
-                    hint="Make sure you have permission. Add a custom tile server URL that uses {z}, {x} and {y} as placeholders and that already includes the api key."
+                    hint="Make sure you have permission. Add a custom tile server URL that uses {x}, {y} (or {-y}) & {z} or {quad_key} as placeholders and that already includes the api key."
                     error={error?.url}
                     onChange={setFieldValue}
                     disabled={disabled}

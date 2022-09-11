@@ -33,6 +33,8 @@ export function wrap<T extends string, K extends { className?: string }>(
                 component={component}
                 componentProps={componentProps}
                 overrideProps={overrideProps}
+                loginPage="/login/"
+                defaultPage="/projects/"
                 {...otherProps}
             />
         ),
