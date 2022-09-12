@@ -84,6 +84,7 @@ const defaultProjectFormValue: PartialProjectFormType = {
     visibility: 'public',
     verificationNumber: 3,
     zoomLevel: 18,
+    groupSize: getGroupSize(PROJECT_TYPE_BUILD_AREA),
     tileServer: {
         name: TILE_SERVER_BING,
         credits: tileServerDefaultCredits[TILE_SERVER_BING],
@@ -175,6 +176,8 @@ function NewProject(props: Props) {
                 // We are un-setting geometry because geometry
                 // can be string or FeatureCollection
                 geometry: undefined,
+
+                // FIXME: also remove error for group size?
                 groupSize: getGroupSize(projectType),
 
                 // de-selecting the tutorial in the list

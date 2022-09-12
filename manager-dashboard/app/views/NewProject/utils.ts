@@ -101,7 +101,8 @@ type ProjectFormSchema = ObjectSchema<PartialProjectFormType>;
 type ProjectFormSchemaFields = ReturnType<ProjectFormSchema['fields']>;
 
 // FIXME: break this into multiple geometry conditions
-const DEFAULT_MAX_FEATURES = 10;
+const DEFAULT_MAX_FEATURES = 100;
+// const DEFAULT_MAX_FEATURES = 10;
 const DEFAULT_MAX_AREA = 20;
 function validGeometryCondition(
     featureCollection: GeoJSON.GeoJSON | string | undefined,

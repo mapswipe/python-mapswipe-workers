@@ -7,7 +7,6 @@ import {
     AuthErrorCodes,
 } from 'firebase/auth';
 
-import { UserContext } from '#base/context/UserContext';
 import TextInput from '#components/TextInput';
 import Button from '#components/Button';
 
@@ -28,7 +27,6 @@ function Login(props: Props) {
     } = props;
 
     const mountedRef = useMountedRef();
-    const { setUser } = React.useContext(UserContext);
 
     const [errorMessage, setErrorMessage] = React.useState<string>();
     const [pending, setPending] = React.useState(false);
