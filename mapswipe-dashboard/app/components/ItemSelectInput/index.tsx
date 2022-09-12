@@ -1,6 +1,7 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { useLocation } from 'react-router-dom';
-import { sum, isDefined } from '@togglecorp/fujs';
+import { IoCheckmark } from 'react-icons/io5';
+import { sum, isDefined, _cs } from '@togglecorp/fujs';
 import {
     useQuery,
     gql,
@@ -15,11 +16,13 @@ import SearchSelectInput, {
     SearchSelectInputProps,
 } from '#components/SelectInput/SearchSelectInput';
 import useDebouncedValue from '#hooks/useDebouncedValue';
+import styles from './styles.css';
 
 export type SearchItemType = {
     id: string;
     name: string;
-    type: 'user' | 'user-group',
+    type: 'user' | 'user group',
+    isArchived?: boolean,
 };
 
 const USERS = gql`
@@ -38,6 +41,7 @@ const USER_GROUPS = gql`
 query UserGroupOptions($search: String) {
     userGroups(filters: { search: $search }, pagination: { limit: 10, offset: 0 }) {
         items {
+            isArchived
             userGroupId
             name
         }
@@ -46,7 +50,12 @@ query UserGroupOptions($search: String) {
 }
 `;
 
-interface OptionRendererProps {}
+interface OptionRendererProps {
+    title: string;
+    isArchived: boolean;
+    type: string;
+}
+
 type BaseProps<Name extends string> = SearchSelectInputProps<
     string,
     Name,
@@ -63,6 +72,39 @@ type ItemSelectInputProps<Name extends string> = {
 };
 
 const keySelector = (d: SearchItemType) => d.id;
+
+const isArchivedSelector = (d: SearchItemType) => d?.isArchived ?? false;
+
+const typeSelector = (d: SearchItemType) => d.type;
+
+interface OptionProps {
+    label: React.ReactNode;
+    isArchived: boolean;
+    type: string;
+}
+
+function Option(props: OptionProps) {
+    const {
+        label,
+        isArchived,
+        type,
+    } = props;
+
+    return (
+        <div className={styles.options}>
+            <div className={styles.icon}>
+                <IoCheckmark />
+            </div>
+            <div className={styles.label}>
+                {label}
+                <div className={styles.meta}>
+                    {`${isArchived ? '(archived)' : ''}`}
+                    {`${type}`}
+                </div>
+            </div>
+        </div>
+    );
+}
 
 export function titleSelector(item: SearchItemType) {
     return item.name;
@@ -81,6 +123,7 @@ function ItemSelectInput<Name extends string>(props: ItemSelectInputProps<Name>)
     const [opened, setOpened] = useState(false);
     const [searchText, setSearchText] = useState<string>('');
     const debouncedSearchText = useDebouncedValue(searchText);
+
     const variables = useMemo(() => ({
         search: debouncedSearchText,
     }), [debouncedSearchText]);
@@ -102,7 +145,7 @@ function ItemSelectInput<Name extends string>(props: ItemSelectInputProps<Name>)
         USERS,
         {
             variables,
-            skip: !opened || !searchText || searchText.trim().length === 0,
+            skip: !opened || !debouncedSearchText || debouncedSearchText.trim().length === 0,
         },
     );
 
@@ -114,14 +157,14 @@ function ItemSelectInput<Name extends string>(props: ItemSelectInputProps<Name>)
         USER_GROUPS,
         {
             variables,
-            skip: !opened,
+            skip: !opened || !debouncedSearchText || debouncedSearchText.trim().length === 0,
         },
     );
 
     const loading = userDataLoading || userGroupDataLoading;
     const count = sum([
-        previousUserData?.users.count ?? 0,
-        previousUserGroupData?.userGroups.count ?? 0,
+        userData?.users.count ?? 0,
+        userGroupData?.userGroups.count ?? 0,
     ]);
 
     const data: SearchItemType[] = [
@@ -134,7 +177,8 @@ function ItemSelectInput<Name extends string>(props: ItemSelectInputProps<Name>)
         ...(userGroupData?.userGroups.items.map((userGroup) => ({
             id: userGroup.userGroupId,
             name: userGroup.name ?? '',
-            type: 'user-group' as const,
+            type: 'user group' as const,
+            isArcived: userGroup.isArchived,
         })) ?? []),
     ];
 
@@ -144,11 +188,27 @@ function ItemSelectInput<Name extends string>(props: ItemSelectInputProps<Name>)
         onItemSelect(item);
     };
 
+    const optionRendererParams = useCallback(
+        (key: number | string, option: SearchItemType) => {
+            const isActive = key === selectedItem;
+
+            return {
+                label: titleSelector(option),
+                isArchived: isArchivedSelector(option),
+                type: typeSelector(option),
+                containerClassName: _cs(styles.option, isActive && styles.active),
+            };
+        },
+        [selectedItem],
+    );
+
     return (
         <SearchSelectInput
             {...otherProps}
             name="item-select-input"
             options={itemOptions}
+            optionRendererParams={optionRendererParams}
+            optionRenderer={Option}
             onOptionsChange={setItemOptions}
             value={selectedItem}
             onChange={handleSelectItem}

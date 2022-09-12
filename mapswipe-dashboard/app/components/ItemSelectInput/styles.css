@@ -1,0 +1,41 @@
+.option {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-small);
+    overflow: auto;
+
+    .options {
+        display: flex;
+        flex-grow: 1;
+
+        .icon {
+            display: flex;
+            align-items: center;
+            flex-shrink: 0;
+            opacity: 0;
+            font-size: 1.2em;
+        }
+
+        .label {
+            display: flex;
+            flex-grow: 1;
+            justify-content: space-between;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+
+            .meta {
+                display: flex;
+                color: var(--color-gray);
+            }
+        }
+    }
+
+    &.active {
+        color: var(--color-accent);
+
+        .icon {
+            opacity: 1;
+        }
+    }
+}
