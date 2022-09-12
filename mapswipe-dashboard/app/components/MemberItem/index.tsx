@@ -1,7 +1,8 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, generatePath } from 'react-router-dom';
 import NumberOutput from '#components/NumberOutput';
 
+import routes from '#base/configs/routes';
 import { UserGroupMember } from '#views/UserGroupDashboard';
 
 import styles from './styles.css';
@@ -13,12 +14,17 @@ interface Props {
 function MemberItem(props: Props) {
     const { member } = props;
 
+    const path = generatePath(
+        routes.userDashboard.path,
+        { userId: member.userId },
+    );
+
     return (
         <div className={styles.member}>
             <div className={styles.memberName}>
                 <Link
                     className={styles.link}
-                    to={`/user/${member.userId}/`}
+                    to={path}
                 >
                     {member.userName}
                 </Link>

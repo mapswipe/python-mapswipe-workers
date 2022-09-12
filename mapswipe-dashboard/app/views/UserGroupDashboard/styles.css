@@ -90,6 +90,16 @@
                 justify-content: space-between;
                 font-size: var(--font-size-large);
                 font-weight: var(--font-weight-bold);
+
+                .export-link {
+                    text-decoration: underline;
+                    color: var(--color-primary);
+                    font-size: var(--font-size-medium);
+
+                    &:hover {
+                        color: var(--color-accent);
+                    }
+                }
             }
 
             .members-container {
