@@ -1,12 +1,12 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { gql, useQuery } from '@apollo/client';
 import { _cs } from '@togglecorp/fujs';
 import { useParams } from 'react-router-dom';
+import { CSVLink } from 'react-csv';
 
 import Header from '#components/Header';
 import dashboardHeaderSvg from '#resources/img/dashboard.svg';
 import List from '#components/List';
-import Button from '#components/Button';
 import InformationCard from '#components/InformationCard';
 import timeSvg from '#resources/icons/time.svg';
 import userSvg from '#resources/icons/user.svg';
@@ -124,16 +124,12 @@ function UserGroupDashboard(props: Props) {
         { member: item }
     ), []);
 
-    const handleMembersDownload = useCallback(() => {
-        const headers = ['User', 'Total swipes', 'Mission contributed', 'Time spent(mins)'].join(',');
-        const members = userGroupStats?.userGroup.userStats?.map(
-            (user) => (
-                [user.userName, user.totalSwipes, user.totalMappingProjects, user.totalSwipeTime].join(',')
-            ),
-        );
-        const data = [headers, ...(members ?? [])].join('\n');
-        downloadFile(data, `${userGroupStats?.userGroup.name}-members`, 'text/csv');
-    }, [userGroupStats?.userGroup]);
+    const data = useMemo(() => ([
+        ['User', 'Total swipes', 'Mission contributed', 'Time spent(mins)'],
+        ...(userGroupStats?.userGroup.userStats?.map((user) => (
+            [user.userName, user.totalSwipes, user.totalMappingProjects, user.totalSwipeTime]
+        )) ?? []),
+    ]), [userGroupStats?.userGroup.userStats]);
 
     return (
         <div className={_cs(className, styles.userGroupDashboard)}>
@@ -246,13 +242,13 @@ function UserGroupDashboard(props: Props) {
                         <div className={styles.members}>
                             <div className={styles.membersHeading}>
                                 {`${userGroupStats?.userGroup.name}'s Members`}
-                                <Button
-                                    variant="secondary"
-                                    name={undefined}
-                                    onClick={handleMembersDownload}
+                                <CSVLink
+                                    filename={userGroupStats?.userGroup.name}
+                                    className={styles.exportLink}
+                                    data={data}
                                 >
                                     Export
-                                </Button>
+                                </CSVLink>
                             </div>
                             <div className={styles.membersContainer}>
                                 <div className={styles.memberListHeading}>

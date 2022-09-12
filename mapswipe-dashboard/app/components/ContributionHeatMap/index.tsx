@@ -9,7 +9,7 @@ import bbox from '@turf/bbox';
 import {
     MapContributionTypeStats,
 } from '#generated/types';
-import '../../../node_modules/leaflet/dist/leaflet.css';
+import 'leaflet/dist/leaflet.css';
 import styles from './styles.css';
 
 type ContributionGeoJSON = GeoJSON.FeatureCollection<
@@ -36,21 +36,22 @@ function HeatmapComponent(props: HeatmapComponentProps) {
     const { contributionGeojson } = props;
 
     const map = useMap();
-    if (contributionGeojson.features.length > 0) {
-        const [minX, minY, maxX, maxY] = bbox(contributionGeojson);
-        const corner1 = L.latLng(minY, minX);
-        const corner2 = L.latLng(maxY, maxX);
-        map.fitBounds(L.latLngBounds(corner1, corner2));
-    }
 
     useEffect(() => {
+        if (contributionGeojson.features.length > 0) {
+            const [minX, minY, maxX, maxY] = bbox(contributionGeojson);
+            const corner1 = L.latLng(minY, minX);
+            const corner2 = L.latLng(maxY, maxX);
+            map.fitBounds(L.latLngBounds(corner1, corner2));
+        }
         const points: HeatLatLngTuple[] = contributionGeojson.features.map((feature) => ([
             feature.geometry.coordinates[1],
             feature.geometry.coordinates[0],
             feature.properties.totalContribution,
         ]));
+
         L.heatLayer(points, heatLayerOptions).addTo(map);
-    }, [map, contributionGeojson.features]);
+    }, [map, contributionGeojson]);
 
     return null;
 }

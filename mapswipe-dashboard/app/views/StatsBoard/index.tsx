@@ -262,6 +262,10 @@ function StatsBoard(props: Props) {
         ];
     }, [organizationTypeStats]);
 
+    const buildAreaTotalArea = projectTypeStats?.find((project) => project.projectType === '1')?.area;
+    const changeDetectionTotalSwipes = projectSwipeTypeStats?.find((project) => project.projectType === '3')?.totalSwipe;
+    const footPrintTotalSwipes = projectSwipeTypeStats?.find((project) => project.projectType === '2')?.totalSwipe;
+
     const organizationColors = scaleOrdinal()
         .domain(totalSwipesByOrganizationStats?.map(
             (organization) => (organization.organizationName),
@@ -351,7 +355,7 @@ function StatsBoard(props: Props) {
                         value={(
                             <NumberOutput
                                 className={styles.numberOutput}
-                                value={projectTypeStats?.find((project) => project.projectType === '1')?.area}
+                                value={buildAreaTotalArea}
                                 normal
                             />
                         )}
@@ -364,9 +368,7 @@ function StatsBoard(props: Props) {
                         value={(
                             <NumberOutput
                                 className={styles.numberOutput}
-                                value={projectSwipeTypeStats?.find(
-                                    (project) => project.projectType === '2',
-                                )?.totalSwipe}
+                                value={footPrintTotalSwipes}
                                 normal
                             />
                         )}
@@ -379,7 +381,7 @@ function StatsBoard(props: Props) {
                         value={(
                             <NumberOutput
                                 className={styles.numberOutput}
-                                value={projectSwipeTypeStats?.find((project) => project.projectType === '3')?.totalSwipe}
+                                value={changeDetectionTotalSwipes}
                                 normal
                             />
                         )}
