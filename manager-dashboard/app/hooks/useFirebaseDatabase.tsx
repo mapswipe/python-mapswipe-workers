@@ -25,6 +25,7 @@ function useFirebaseDatabase<T = unknown>({
             setPending(false);
 
             if (!snapshot.exists()) {
+                setData(undefined);
                 return;
             }
 
