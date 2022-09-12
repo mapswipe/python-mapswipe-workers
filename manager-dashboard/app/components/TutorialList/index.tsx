@@ -7,6 +7,7 @@ import {
     orderByChild,
     equalTo,
 } from 'firebase/database';
+import { BsJournalBookmarkFill } from 'react-icons/bs';
 
 import useFirebaseDatabase from '#hooks/useFirebaseDatabase';
 import usePagination from '#hooks/usePagination';
@@ -15,9 +16,21 @@ import Pager from '#components/Pager';
 
 import styles from './styles.css';
 
+// FIXME: these are common types
+export type ProjectType = 1 | 2 | 3 | 4;
+const projectTypeLabelMap: {
+    [key in ProjectType]: string
+} = {
+    1: 'Build Area',
+    2: 'Footprint',
+    3: 'Change Detection',
+    4: 'Completeness',
+};
+
 interface Tutorial {
     name: string;
     lookFor?: string;
+    projectType: ProjectType;
 }
 
 interface Props {
@@ -69,34 +82,46 @@ function TutorialList(props: Props) {
             {pending && (
                 <PendingMessage />
             )}
-            {!pending && tutorialListInCurrentPage.map((tutorialKeyAndItem) => {
-                const [orgKey, tutorial] = tutorialKeyAndItem;
+            {!pending && tutorialListInCurrentPage && tutorialListInCurrentPage.length > 0 && (
+                <div className={styles.list}>
+                    {tutorialListInCurrentPage.map((tutorialKeyAndItem) => {
+                        const [orgKey, tutorial] = tutorialKeyAndItem;
 
-                return (
-                    <div
-                        className={styles.tutorial}
-                        key={orgKey}
-                    >
-                        <div className={styles.name}>
-                            {tutorial.name}
-                        </div>
-                        {tutorial.lookFor && (
-                            <div className={styles.lookFor}>
-                                {tutorial.lookFor}
+                        return (
+                            <div
+                                className={styles.tutorial}
+                                key={orgKey}
+                            >
+                                <div className={styles.heading}>
+                                    <BsJournalBookmarkFill className={styles.icon} />
+                                    <div className={styles.name}>
+                                        {tutorial.name}
+                                    </div>
+                                </div>
+                                <div className={styles.lookFor}>
+                                    {projectTypeLabelMap[tutorial.projectType]}
+                                </div>
                             </div>
-                        )}
-                    </div>
-                );
-            })}
+                        );
+                    })}
+                </div>
+            )}
+            {!pending && (!tutorialListInCurrentPage || tutorialListInCurrentPage.length === 0) && (
+                <div className={styles.emptyList}>
+                    No tutorials yet!
+                </div>
+            )}
             {!pending && showPager && (
-                <Pager
-                    pagePerItem={pagePerItem}
-                    onPagePerItemChange={setPagePerItem}
-                    activePage={activePage}
-                    onActivePageChange={setActivePage}
-                    totalItems={totalItems}
-                    pagePerItemOptions={pagePerItemOptions}
-                />
+                <div className={styles.footerActions}>
+                    <Pager
+                        pagePerItem={pagePerItem}
+                        onPagePerItemChange={setPagePerItem}
+                        activePage={activePage}
+                        onActivePageChange={setActivePage}
+                        totalItems={totalItems}
+                        pagePerItemOptions={pagePerItemOptions}
+                    />
+                </div>
             )}
         </div>
     );

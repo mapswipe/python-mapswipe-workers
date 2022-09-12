@@ -59,12 +59,6 @@ function UserGroups(props: Props) {
         () => {
             const list = userGroups ? Object.entries(userGroups).reverse() : [];
             return list;
-            /*
-            return list.filter(
-                // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                ([_, group]) => isNotDefined(group.archivedBy),
-            );
-            */
         },
         [userGroups],
     );
@@ -134,14 +128,16 @@ function UserGroups(props: Props) {
                         );
                     })}
                     {!pending && showPager && (
-                        <Pager
-                            pagePerItem={pagePerItem}
-                            onPagePerItemChange={setPagePerItem}
-                            activePage={activePage}
-                            onActivePageChange={setActivePage}
-                            totalItems={totalItems}
-                            pagePerItemOptions={pagePerItemOptions}
-                        />
+                        <div className={styles.footerActions}>
+                            <Pager
+                                pagePerItem={pagePerItem}
+                                onPagePerItemChange={setPagePerItem}
+                                activePage={activePage}
+                                onActivePageChange={setActivePage}
+                                totalItems={totalItems}
+                                pagePerItemOptions={pagePerItemOptions}
+                            />
+                        </div>
                     )}
                 </div>
             </div>

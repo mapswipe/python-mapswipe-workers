@@ -150,14 +150,16 @@ function TeamItem(props: Props) {
                         })}
                     </div>
                     {!pending && showPager && (
-                        <Pager
-                            pagePerItem={pagePerItem}
-                            onPagePerItemChange={setPagePerItem}
-                            activePage={activePage}
-                            onActivePageChange={setActivePage}
-                            totalItems={totalItems}
-                            pagePerItemOptions={pagePerItemOptions}
-                        />
+                        <div className={styles.footerActions}>
+                            <Pager
+                                pagePerItem={pagePerItem}
+                                onPagePerItemChange={setPagePerItem}
+                                activePage={activePage}
+                                onActivePageChange={setActivePage}
+                                totalItems={totalItems}
+                                pagePerItemOptions={pagePerItemOptions}
+                            />
+                        </div>
                     )}
                     {!pending && teamMemberList.length === 0 && (
                         <div className={styles.emptyMessage}>

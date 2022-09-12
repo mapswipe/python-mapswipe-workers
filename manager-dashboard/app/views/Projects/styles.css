@@ -71,4 +71,9 @@
         background-color: var(--color-foreground);
         padding: var(--spacing-extra-large);
     }
+
+    .footer-actions {
+        display: flex;
+        justify-content: flex-end;
+    }
 }
