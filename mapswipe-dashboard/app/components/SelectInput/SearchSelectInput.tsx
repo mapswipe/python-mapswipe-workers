@@ -12,7 +12,7 @@ import { rankedSearchOnList } from './utils';
 import styles from './styles.css';
 
 interface OptionProps {
-    children: React.ReactNode;
+    children?: React.ReactNode;
 }
 function Option(props: OptionProps) {
     const {
@@ -31,7 +31,7 @@ function Option(props: OptionProps) {
     );
 }
 
-type Def = { containerClassName?: string, title?: string; };
+type Def = { containerClassName?: string, title?: string };
 type OptionKey = string | number;
 
 export type SearchSelectInputProps<
@@ -40,7 +40,7 @@ export type SearchSelectInputProps<
     O extends Record<string, unknown>,
     P extends Def,
     OMISSION extends string,
-> = Omit<{
+    > = Omit<{
     value: T | undefined | null;
     options: O[] | undefined | null;
     searchOptions?: O[] | undefined | null;
@@ -53,32 +53,32 @@ export type SearchSelectInputProps<
     sortFunction?: (options: O[], search: string, labelSelector: (option: O) => string) => O[];
     onSearchValueChange?: (value: string) => void;
     onShowDropdownChange?: (value: boolean) => void;
-}, OMISSION> & (
-    SelectInputContainerProps<T, K, O, P,
-        'name'
-        | 'nonClearable'
-        | 'onClear'
-        | 'onOptionClick'
-        | 'optionKeySelector'
-        | 'optionRenderer'
-        | 'optionRendererParams'
-        | 'optionsFiltered'
-        | 'persistentOptionPopup'
-        | 'valueDisplay'
-        | 'optionContainerClassName'
-        | 'searchText'
-        | 'onSearchTextChange'
-        | 'dropdownShown'
-        | 'onDropdownShownChange'
-        | 'focused'
-        | 'onFocusedChange'
-        | 'focusedKey'
-        | 'onFocusedKeyChange'
-        | 'hasValue'
-    >
-) & (
-    { nonClearable: true; onChange: (newValue: T, name: K) => void }
-    | { nonClearable?: false; onChange: (newValue: T | undefined, name: K) => void }
+    optionRenderer: (props: Pick<P, Exclude<keyof P, 'containerClassName' | 'title'>>) => React.ReactNode;
+    optionRendererParams: (optionKey: OptionKey, option: O) => P;
+    }, OMISSION> & (
+        SelectInputContainerProps<T, K, O, P,
+            'name'
+            | 'nonClearable'
+            | 'onClear'
+            | 'onOptionClick'
+            | 'optionKeySelector'
+            | 'optionsFiltered'
+            | 'persistentOptionPopup'
+            | 'valueDisplay'
+            | 'optionContainerClassName'
+            | 'searchText'
+            | 'onSearchTextChange'
+            | 'dropdownShown'
+            | 'onDropdownShownChange'
+            | 'focused'
+            | 'onFocusedChange'
+            | 'focusedKey'
+            | 'onFocusedKeyChange'
+            | 'hasValue'
+        >
+    ) & (
+        { nonClearable: true; onChange: (newValue: T, name: K) => void }
+        | { nonClearable?: false; onChange: (newValue: T | undefined, name: K) => void }
 );
 
 const emptyList: unknown[] = [];
@@ -104,6 +104,8 @@ function SearchSelectInput<
         searchOptions: searchOptionsFromProps,
         onSearchValueChange,
         onShowDropdownChange,
+        optionRendererParams,
+        optionRenderer,
         ...otherProps
     } = props;
 
@@ -212,7 +214,7 @@ function SearchSelectInput<
         [value, onSearchValueChange, onShowDropdownChange],
     );
 
-    const optionRendererParams = useCallback(
+    const optionRendererParamsDefault = useCallback(
         (key: OptionKey, option: O) => {
             const isActive = key === value;
 
@@ -263,8 +265,8 @@ function SearchSelectInput<
             optionsPending={optionsPending}
             optionsFiltered={searchInputValue?.length > 0}
             optionKeySelector={keySelector}
-            optionRenderer={Option}
-            optionRendererParams={optionRendererParams}
+            optionRenderer={optionRenderer ?? Option}
+            optionRendererParams={optionRendererParams ?? optionRendererParamsDefault}
             // optionContainerClassName={styles.optionContainer}
             onOptionClick={handleOptionClick}
             valueDisplay={valueDisplay}
