@@ -103,4 +103,6 @@ p {
 
     --shadow-card: 0 2px 4px -2px var(--color-shadow);
 
+    --duration-transition-medium: .2s;
+
 }

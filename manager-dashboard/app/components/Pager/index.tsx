@@ -162,6 +162,9 @@ function Pager(props: Props) {
 
     return (
         <div className={_cs(styles.pager, className)}>
+            <div className={styles.pageList}>
+                {pageItems}
+            </div>
             <SelectInput
                 className={styles.itemsPerPage}
                 name="pagePerItem"
@@ -172,9 +175,6 @@ function Pager(props: Props) {
                 labelSelector={labelSelector}
                 nonClearable
             />
-            <div className={styles.pageList}>
-                {pageItems}
-            </div>
         </div>
     );
 }

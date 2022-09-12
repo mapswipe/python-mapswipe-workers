@@ -38,28 +38,12 @@
             }
         }
 
-        .progress-bar {
-            display: flex;
-            align-items: center;
+        .details-toggle-button {
             flex-shrink: 0;
-            gap: var(--spacing-small);
-
-            .track {
-                position: relative;
-                border-radius: 0.3rem;
-                background-color: var(--color-background-accent-hint);
-                width: 10rem;
-                height: 0.6rem;
-
-                .progress-amount {
-                    position: absolute;
-                    left: 0;
-                    border-radius: 0.3rem;
-                    background-color: var(--color-accent);
-                    height: 100%;
-                }
-            }
+            color: var(--color-text-light);
+            font-size: var(--font-size-large);
         }
+
     }
 
     .meta-data {
@@ -120,11 +104,29 @@
             gap: var(--spacing-large);
         }
 
-        .details-toggle-button {
+        .progress-bar {
+            display: flex;
+            align-items: center;
             flex-shrink: 0;
-            color: var(--color-text-light);
-            font-size: var(--font-size-large);
+            gap: var(--spacing-small);
+
+            .track {
+                position: relative;
+                border-radius: 0.3rem;
+                background-color: var(--color-background-accent-hint);
+                width: 10rem;
+                height: 0.6rem;
+
+                .progress-amount {
+                    position: absolute;
+                    left: 0;
+                    border-radius: 0.3rem;
+                    background-color: var(--color-accent);
+                    height: 100%;
+                }
+            }
         }
+
     }
 }
 

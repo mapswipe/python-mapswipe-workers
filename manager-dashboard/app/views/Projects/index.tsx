@@ -155,14 +155,16 @@ function Projects(props: Props) {
                         />
                     ))}
                     {!pending && showPager && (
-                        <Pager
-                            pagePerItem={pagePerItem}
-                            onPagePerItemChange={setPagePerItem}
-                            activePage={activePage}
-                            onActivePageChange={setActivePage}
-                            totalItems={totalItems}
-                            pagePerItemOptions={pagePerItemOptions}
-                        />
+                        <div className={styles.footerActions}>
+                            <Pager
+                                pagePerItem={pagePerItem}
+                                onPagePerItemChange={setPagePerItem}
+                                activePage={activePage}
+                                onActivePageChange={setActivePage}
+                                totalItems={totalItems}
+                                pagePerItemOptions={pagePerItemOptions}
+                            />
+                        </div>
                     )}
                 </div>
             </div>

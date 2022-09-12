@@ -167,29 +167,31 @@ function UserGroupItem(props: Props) {
         <div
             className={_cs(styles.userGroupItem, className)}
         >
-            <div className={styles.heading}>
-                <h3 className={styles.userGroupName}>
-                    {data.name}
-                </h3>
-                {isArchived && (
-                    <div className={styles.archivedBadge}>
-                        Archived
-                    </div>
-                )}
-                <Button
-                    className={styles.expandToggleButton}
-                    name={!showDetails}
-                    onClick={setShowDetails}
-                    variant="action"
-                >
-                    {showDetails ? <IoChevronUp /> : <IoChevronDown />}
-                </Button>
-            </div>
-            <div className={styles.token}>
-                {data.description}
+            <div className={styles.header}>
+                <div className={styles.heading}>
+                    <h3 className={styles.userGroupName}>
+                        {data.name}
+                    </h3>
+                    {isArchived && (
+                        <div className={styles.archivedBadge}>
+                            Archived
+                        </div>
+                    )}
+                    <Button
+                        className={styles.expandToggleButton}
+                        name={!showDetails}
+                        onClick={setShowDetails}
+                        variant="action"
+                    >
+                        {showDetails ? <IoChevronUp /> : <IoChevronDown />}
+                    </Button>
+                </div>
+                <div className={styles.token}>
+                    {data.description}
+                </div>
             </div>
             {showDetails && (
-                <>
+                <div className={styles.details}>
                     <div className={styles.userList}>
                         <div className={styles.userDetailsHeading}>
                             <div className={styles.userName}>
@@ -237,7 +239,7 @@ function UserGroupItem(props: Props) {
                     )}
                     {!userListPending && userList.length === 0 && (
                         <div className={styles.emptyMessage}>
-                            No users yet on this userGroup!
+                            No users yet on this usergroup!
                         </div>
                     )}
                     {userListPending && (
@@ -254,7 +256,7 @@ function UserGroupItem(props: Props) {
                             Archive this Group
                         </Button>
                     </div>
-                </>
+                </div>
             )}
             {showArchiveConfirmation && (
                 <Modal

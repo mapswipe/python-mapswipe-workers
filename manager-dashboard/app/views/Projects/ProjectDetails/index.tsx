@@ -180,18 +180,14 @@ function ProjectDetails(props: Props) {
                         {org}
                     </small>
                 </h3>
-                <div className={styles.progressBar}>
-                    <div className={styles.value}>
-                        {data.progress}
-                        %
-                    </div>
-                    <div className={styles.track}>
-                        <div
-                            className={styles.progressAmount}
-                            style={{ width: `${data.progress}%` }}
-                        />
-                    </div>
-                </div>
+                <Button
+                    className={styles.detailsToggleButton}
+                    name={!detailsShown}
+                    onClick={setDetailsShown}
+                    variant="action"
+                >
+                    {detailsShown ? <IoChevronUp /> : <IoChevronDown />}
+                </Button>
             </div>
             <div className={styles.metaData}>
                 <div className={styles.metaList}>
@@ -291,14 +287,18 @@ function ProjectDetails(props: Props) {
                         disabled={featuredUpdatePending || statusUpdatePending}
                     />
                 </div>
-                <Button
-                    className={styles.detailsToggleButton}
-                    name={!detailsShown}
-                    onClick={setDetailsShown}
-                    variant="action"
-                >
-                    {detailsShown ? <IoChevronUp /> : <IoChevronDown />}
-                </Button>
+                <div className={styles.progressBar}>
+                    <div className={styles.value}>
+                        {data.progress}
+                        %
+                    </div>
+                    <div className={styles.track}>
+                        <div
+                            className={styles.progressAmount}
+                            style={{ width: `${data.progress}%` }}
+                        />
+                    </div>
+                </div>
             </div>
             {statusUpdatePending && (
                 <PendingMessage

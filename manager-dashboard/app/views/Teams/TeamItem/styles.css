@@ -78,4 +78,9 @@
         padding: var(--spacing-small) var(--spacing-medium);
         color: var(--color-text-watermark);
     }
+
+    .footer-actions {
+        display: flex;
+        justify-content: flex-end;
+    }
 }
