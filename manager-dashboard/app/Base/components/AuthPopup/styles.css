@@ -1,12 +1,13 @@
-.action-buttons-row {
-    display: flex;
-    justify-content: flex-end;
+.auth-popup {
+    padding: var(--spacing-medium);
 
-    .action-button {
-        flex-shrink: 0;
+    .action-buttons-row {
+        display: flex;
+        gap: var(--spacing-medium);
+        justify-content: flex-end;
 
-        &:not(:first-child) {
-            margin-left: var(--dui-spacing-medium);
+        .action-button {
+            flex-shrink: 0;
         }
     }
 }
