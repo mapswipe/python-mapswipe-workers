@@ -1,8 +1,9 @@
 import React from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, generatePath } from 'react-router-dom';
 import { _cs } from '@togglecorp/fujs';
 import { gql, useQuery } from '@apollo/client';
 
+import routes from '#base/configs/routes';
 import dashboardHeaderSvg from '#resources/img/dashboard.svg';
 import Header from '#components/Header';
 import NumberOutput from '#components/NumberOutput';
@@ -215,7 +216,10 @@ function UserDashboard(props: Props) {
                                         label={(
                                             <Link
                                                 className={styles.link}
-                                                to={`/user-group/${group.userGroupId}/`}
+                                                to={generatePath(
+                                                    routes.userGroupDashboard.path,
+                                                    { userGroupId: group.userGroupId },
+                                                )}
                                             >
                                                 {group.userGroupName}
                                             </Link>
