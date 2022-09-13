@@ -9,6 +9,8 @@
 -- ALTER TABLE projects DROP COLUMN organization_name;
 -- ALTER TABLE users DROP COLUMN updated_at;
 -- ALTER TABLE users_temp DROP COLUMN updated_at;
+-- DROP MATERIALIZED VIEW aggregated_project_user_timestampe__task_count_total_time;
+-- DROP MATERIALIZED VIEW aggregated_project_user_group_timestamp__task_count_total_time;
 
 
 ---- User Group Tables
@@ -104,3 +106,92 @@ ALTER TABLE projects ADD COLUMN organization_name varchar;
 -- Add updated_at in users
 ALTER TABLE users ADD COLUMN updated_at timestamp;
 ALTER TABLE users_temp ADD COLUMN updated_at timestamp;
+
+-- TODO: Create this as table in Django
+-- CREATE MATERIALIZED VIEW aggregated_project_user_timestamp__task_count_total_time AS WITH
+-- tasks_data AS (
+--   SELECT
+--     task_id,
+--     st_area(geom) as area
+--   From
+--     tasks
+-- ),
+-- user_group_agg_data AS (
+--   SELECT
+--     project_id,
+--     group_id,
+--     user_id,
+--     ARRAY_AGG(DISTINCT user_group_id) as user_group_ids
+--   FROM
+--     results_user_groups
+--   GROUP BY project_id, group_id, user_id
+-- ),
+-- user_data AS (
+--   SELECT
+--     R.project_id,
+--     R.group_id,
+--     R.user_id,
+--     MAX(R.timestamp::date) as timestamp_date,
+--     MAX(R.start_time) as start_time,
+--     MAX(R.end_time) as end_time,
+--     COUNT(DISTINCT R.task_id) as task_count,
+--     SUM(T.area) as area_swiped -- TODO: use task count instead contact @safar.ligal
+--   From
+--     results R
+--     LEFT JOIN tasks_data T USING (task_id)
+--   GROUP BY R.project_id, R.group_id, R.user_id
+-- )
+-- SELECT
+--   project_id,
+--   user_id,
+--   timestamp_date,
+--   SUM(
+--     EXTRACT( EPOCH FROM (end_time - start_time))
+--   ) as total_time,
+--   SUM(task_count) as task_count,
+--   SUM(area_swiped) as area_swiped,
+--   ugad.user_group_ids
+-- FROM
+--   user_data
+--   LEFT JOIN user_group_agg_data ugad USING (project_id, group_id, user_id)
+-- GROUP BY project_id, user_id, timestamp_date, ugad.user_group_ids;
+
+-- TODO: Create this as table in Django
+-- CREATE MATERIALIZED VIEW aggregated_project_user_group_timestamp__task_count_total_time AS
+-- WITH tasks_data AS (
+--   SELECT
+--     task_id,
+--     st_area(geom) as area
+--   From
+--     tasks
+-- ),
+-- user_group_data AS (
+--     SELECT
+--         ug.project_id,
+--         ug.group_id,
+--         ug.user_group_id,
+--         ug.user_id,
+--         MAX(R.timestamp::date) as timestamp_date,
+--         MAX(R.start_time) as start_time,
+--         MAX(R.end_time) as end_time,
+--         COUNT(DISTINCT R.task_id) as task_count,
+--         SUM(T.area) as area_swiped
+--     From results_user_groups ug
+--         LEFT JOIN results R USING (project_id, group_id, user_id)
+--         LEFT JOIN tasks_data T USING (task_id)
+--     GROUP BY ug.project_id, ug.group_id, ug.user_group_id, ug.user_id
+-- )
+-- SELECT
+--     project_id,
+--     user_id,
+--     user_group_id,
+--     timestamp_date,
+--     SUM(
+--         EXTRACT(
+--             EPOCH FROM (end_time - start_time)
+--         )
+--     ) as total_time,
+--     SUM(task_count) as task_count,
+--     SUM(area_swiped) as area_swiped
+-- FROM user_group_data
+-- GROUP BY project_id, user_id, user_group_id, timestamp_date;

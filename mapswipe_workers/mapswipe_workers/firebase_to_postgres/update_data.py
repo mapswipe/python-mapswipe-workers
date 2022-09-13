@@ -10,6 +10,17 @@ from mapswipe_workers import auth
 from mapswipe_workers.definitions import logger
 
 
+# TODO: Change firebase/client side to send UTC time instead.
+def convert_timestamp_to_database_format(timestamp_number):
+    if timestamp_number:
+        return dt.datetime.fromtimestamp(timestamp_number / 1000).strftime("%Y-%m-%dT%H:%M:%S")
+
+
+def convert_firebase_datetime_to_database_format(timestamp):
+    if timestamp:
+        return dt.datetime.strptime(timestamp.replace("Z", ""), "%Y-%m-%dT%H:%M:%S")
+
+
 def get_user_attribute_from_firebase(user_ids: List[str], attribute: str):
     """Use threading to query a user attribute in firebase.
 
@@ -228,10 +239,6 @@ def create_update_user_data(user_ids: Optional[List[str]] = None) -> List[str]:
 
 
 def update_user_group_full_data(user_group_ids: List[str]):
-    def convert_datetimeformat(timestamp):
-        if timestamp:
-            return dt.datetime.strptime(timestamp.replace("Z", ""), "%Y-%m-%dT%H:%M:%S")
-
     fb_db = auth.firebaseDB()
 
     user_group_file = io.StringIO("")
@@ -243,8 +250,8 @@ def update_user_group_full_data(user_group_ids: List[str]):
         if ug is None:  # userGroup doesn't exists in FB
             continue
         # New/Updated user group
-        created_at = convert_datetimeformat(ug.get("created_at"))
-        archived_at = convert_datetimeformat(ug.get("archived_at"))
+        created_at = convert_firebase_datetime_to_database_format(ug.get("created_at"))
+        archived_at = convert_firebase_datetime_to_database_format(ug.get("archived_at"))
         archived_by_id = ug.get("archived_by", None)
         created_by_id = ug.get("created_by", None)
 
@@ -408,10 +415,10 @@ def create_update_membership_data(
         u = fb_db.reference(f"v2/userGroupMembershipLogs/{_id}").get()
         if u is None:  # user doesn't exists in FB
             continue
-        user_group_id = u.get("user_group_id")
-        user_id = u.get("user_id")
+        user_group_id = u.get("userGroupId")
+        user_id = u.get("userId")
         action = u.get("action")
-        timestamp = u.get("timestamp")
+        timestamp = convert_timestamp_to_database_format(u.get("timestamp"))
         m_w.writerow(
             [
                 _id,

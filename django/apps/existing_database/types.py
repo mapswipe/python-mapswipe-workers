@@ -83,8 +83,8 @@ class ContributorType:
 
 @strawberry.type
 class ContributorTimeType:
-    total_time: int
-    task_date: Optional[datetime.date] = None
+    date: datetime.date
+    total: int
 
 
 @strawberry.type
@@ -272,7 +272,7 @@ class UserGroupType:
     @strawberry.field
     async def contribution_stats(
         self, info: Info, root: UserGroup
-    ) -> List[ContributorType]:
+    ) -> Optional[List[ContributorType]]:
         return await info.context[
             "dl"
         ].existing_database.load_user_group_contributors_stats.load(root.user_group_id)
