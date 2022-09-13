@@ -14,19 +14,18 @@
             padding: var(--spacing-large);
             width: 100%;
             max-width: var(--width-page-content-max);
-            gap: var(--spacing-extra-large);
+            gap: var(--spacing-large);
 
             .header {
                 display: flex;
                 max-width: 36rem;
 
                 .heading {
-                    padding-bottom: var(--spacing-medium);
                     color: var(--color-text-on-dark);
                     font-size: var(--font-size-mega-large);
                 }
 
-                .description {
+                .heading-container {
                     color: var(--color-text-on-dark);
                     font-size: var(--font-size-large);
                 }
@@ -40,7 +39,6 @@
                 >* {
                     flex-basis: 0;
                     flex-grow: 1;
-                    padding: var(--spacing-large);
                     min-width: 20rem;
 
                     @media (max-width: 40rem) {
@@ -51,10 +49,6 @@
                 .image {
                     height: var(--icon-height);
                     object-fit: contain;
-                }
-
-                .value {
-                    display: flex;
                 }
             }
         }

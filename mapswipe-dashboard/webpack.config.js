@@ -3,7 +3,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const { HotModuleReplacementPlugin, EnvironmentPlugin } = require('webpack');
 const Dotenv = require('dotenv-webpack');
-const { GitRevisionPlugin } = require('git-revision-webpack-plugin');
+// const { GitRevisionPlugin } = require('git-revision-webpack-plugin');
 const WebpackPwaManifest = require('webpack-pwa-manifest');
 const { merge } = require('webpack-merge');
 const CircularDependencyPlugin = require('circular-dependency-plugin');
@@ -11,7 +11,7 @@ const TerserPlugin = require('terser-webpack-plugin');
 const CssMinimizerWebpackPlugin = require('css-minimizer-webpack-plugin');
 const StyleLintPlugin = require('stylelint-webpack-plugin');
 const ESLintPlugin = require('eslint-webpack-plugin');
-const WorkboxWebpackPlugin = require('workbox-webpack-plugin');
+// const WorkboxWebpackPlugin = require('workbox-webpack-plugin');
 const CompressionPlugin = require('compression-webpack-plugin');
 const ResourceHintWebpackPlugin = require('resource-hints-webpack-plugin');
 const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin');
@@ -22,7 +22,7 @@ function getPath(value) {
     return path.resolve(__dirname, value);
 }
 
-const gitRevisionPlugin = new GitRevisionPlugin();
+// const gitRevisionPlugin = new GitRevisionPlugin();
 
 const isProduction = process.env.NODE_ENV === 'production';
 
@@ -125,9 +125,9 @@ module.exports = () => {
                 MY_APP_NAME: pkg.longName,
                 // MY_APP_DESCRIPTION: pkg.description,
 
-                REACT_APP_VERSION: gitRevisionPlugin.version(),
-                REACT_APP_COMMITHASH: gitRevisionPlugin.commithash(),
-                REACT_APP_BRANCH: gitRevisionPlugin.branch(),
+                // REACT_APP_VERSION: gitRevisionPlugin.version(),
+                // REACT_APP_COMMITHASH: gitRevisionPlugin.commithash(),
+                // REACT_APP_BRANCH: gitRevisionPlugin.branch(),
             }),
             new Dotenv({
                 safe: true,
@@ -170,17 +170,6 @@ module.exports = () => {
                 icons: [
                     {
                         src: getPath('app/favicon.png'),
-                        sizes: [96, 128, 192, 256, 384, 512],
-                        destination: 'icons',
-                    },
-                    {
-                        src: getPath('app/apple-touch-icon.png'),
-                        sizes: [96, 128, 192, 256, 384, 512],
-                        destination: 'icons',
-                        ios: true,
-                    },
-                    {
-                        src: getPath('app/android.png'),
                         sizes: [96, 128, 192, 256, 384, 512],
                         destination: 'icons',
                     },
@@ -239,6 +228,7 @@ module.exports = () => {
                 plugins: [
                     new ResourceHintWebpackPlugin(),
                     new CompressionPlugin(),
+                    /*
                     new WorkboxWebpackPlugin.GenerateSW({
                         // these options encourage the ServiceWorkers to get in there fast
                         // and not allow any straggling "old" SWs to hang around
@@ -257,6 +247,7 @@ module.exports = () => {
                         ],
                         exclude: [/\.map$/, /\.map.gz$/, /index.html/, /index.html.gz/],
                     }),
+                    */
                 ],
             },
         );
@@ -267,7 +258,7 @@ module.exports = () => {
         {
             devServer: {
                 host: '0.0.0.0',
-                port: 3080,
+                port: 3081,
                 overlay: true,
                 hot: true,
                 liveReload: false,

@@ -16,7 +16,6 @@ export interface Props extends ElementFragmentProps {
 function Element(props: Props) {
     const {
         className,
-        spacing = 'comfortable',
         fitContent,
         elementRef,
         ...elementFragmentProps
@@ -32,7 +31,6 @@ function Element(props: Props) {
             ref={elementRef}
         >
             <ElementFragments
-                spacing={spacing}
                 {...elementFragmentProps}
             />
         </div>

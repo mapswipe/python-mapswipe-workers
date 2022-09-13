@@ -21,7 +21,7 @@ import styles from './styles.css';
 export type SearchItemType = {
     id: string;
     name: string;
-    type: 'user' | 'user group',
+    type: 'user' | 'user-group',
     isArchived?: boolean,
 };
 
@@ -73,7 +73,7 @@ type ItemSelectInputProps<Name extends string> = {
 
 const keySelector = (d: SearchItemType) => d.id;
 
-const isArchivedSelector = (d: SearchItemType) => d?.isArchived ?? false;
+const isArchivedSelector = (d: SearchItemType) => d.isArchived ?? false;
 
 const typeSelector = (d: SearchItemType) => d.type;
 
@@ -177,7 +177,7 @@ function ItemSelectInput<Name extends string>(props: ItemSelectInputProps<Name>)
         ...(userGroupData?.userGroups.items.map((userGroup) => ({
             id: userGroup.userGroupId,
             name: userGroup.name ?? '',
-            type: 'user group' as const,
+            type: 'user-group' as const,
             isArcived: userGroup.isArchived,
         })) ?? []),
     ];

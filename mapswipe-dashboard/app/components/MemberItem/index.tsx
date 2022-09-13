@@ -3,12 +3,17 @@ import { Link, generatePath } from 'react-router-dom';
 import NumberOutput from '#components/NumberOutput';
 
 import routes from '#base/configs/routes';
-import { UserGroupMember } from '#views/UserGroupDashboard';
 
 import styles from './styles.css';
 
 interface Props {
-    member: UserGroupMember;
+    member: {
+        totalMappingProjects: number;
+        totalSwipeTime: number;
+        totalSwipes: number;
+        userName: string;
+        userId: string;
+    };
 }
 
 function MemberItem(props: Props) {

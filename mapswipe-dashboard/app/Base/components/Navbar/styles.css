@@ -51,6 +51,10 @@
 
             .link {
                 padding: var(--spacing-small);
+
+                &:hover {
+                    background-color: transparent;
+                }
             }
         }
 
