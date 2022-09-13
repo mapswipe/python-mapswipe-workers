@@ -3,6 +3,7 @@ import { Link, useParams, generatePath } from 'react-router-dom';
 import { _cs } from '@togglecorp/fujs';
 import { gql, useQuery } from '@apollo/client';
 
+import PendingMessage from '#components/PendingMessage';
 import routes from '#base/configs/routes';
 import dashboardHeaderSvg from '#resources/img/dashboard.svg';
 import Header from '#components/Header';
@@ -79,6 +80,7 @@ function UserDashboard(props: Props) {
 
     const {
         data: userStats,
+        loading: userStatsLoading,
     } = useQuery<UserStatsQuery, UserStatsQueryVariables>(
         USER_STATS,
         {
@@ -93,6 +95,7 @@ function UserDashboard(props: Props) {
 
     return (
         <div className={_cs(className, styles.userDashboard)}>
+            {userStatsLoading && <PendingMessage />}
             <div
                 className={styles.headerSection}
                 style={{ backgroundImage: `url(${dashboardHeaderSvg})` }}

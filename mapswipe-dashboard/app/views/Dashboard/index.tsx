@@ -5,6 +5,7 @@ import {
     useQuery,
 } from '@apollo/client';
 import Header from '#components/Header';
+import PendingMessage from '#components/PendingMessage';
 import dashboardHeaderSvg from '#resources/img/dashboard.svg';
 import userSvg from '#resources/icons/user.svg';
 import groupSvg from '#resources/icons/group.svg';
@@ -75,18 +76,23 @@ function Dashboard(props: Props) {
 
     const {
         data: communityStats,
+        loading: communityStatsLoading,
     } = useQuery<CommunityStatsQuery, CommunityStatsQueryVariables>(
         COMMUNITY_STATS,
     );
 
     const {
         data: deepCommunityStats,
+        loading: deepCommunityStatsLoading,
     } = useQuery<DeepCommunityStatsQuery, DeepCommunityStatsQueryVariables>(
         DEEP_COMMUNITY_STATS,
     );
 
+    const pending = communityStatsLoading || deepCommunityStatsLoading;
+
     return (
         <div className={_cs(styles.dashboard, className)}>
+            {pending && <PendingMessage />}
             <div
                 className={styles.headerSection}
                 style={{ backgroundImage: `url(${dashboardHeaderSvg})` }}
