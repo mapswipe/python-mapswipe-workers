@@ -115,7 +115,7 @@ DATABASES = {
         "USER": env("DJANGO_DB_USER"),
         "PASSWORD": env("DJANGO_DB_PWD"),
         "OPTIONS": {
-            # 'options': '-c search_path=public'
+            'options': '-c search_path=public'
         },
     },
 }
