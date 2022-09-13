@@ -18,7 +18,7 @@
             display: flex;
             align-items: center;
             color: var(--color-text-on-dark);
-            font-size: var(--spacing-extra-large);
+            font-size: var(--spacing-large);
         }
 
         .link {

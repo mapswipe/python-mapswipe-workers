@@ -25,8 +25,15 @@ export type MapContributionType = MapContributionTypeStats & {
 }
 
 const heatLayerOptions: HeatMapOptions = {
-    minOpacity: 0.5,
-    radius: 15,
+    minOpacity: 0.8,
+    radius: 10,
+    gradient: {
+        0.2: '#2b83ba',
+        0.4: '#abdda4',
+        0.6: '#ffffbf',
+        0.8: '#fdae61',
+        1: '#d7191c',
+    },
 };
 
 interface HeatmapComponentProps {
@@ -89,13 +96,19 @@ function ContributionHeatMap(props: Props) {
     );
 
     return (
-        <MapContainer zoom={1} className={styles.mapContainer} maxZoom={13}>
-            <HeatmapComponent contributionGeojson={contributionGeojson} />
-            <TileLayer
-                attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-                url="https://{s}.tile.osm.org/{z}/{x}/{y}.png"
-            />
-        </MapContainer>
+        <div className={styles.contributionHeatMap}>
+            <MapContainer
+                className={styles.mapContainer}
+            >
+                <HeatmapComponent
+                    contributionGeojson={contributionGeojson}
+                />
+                <TileLayer
+                    attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+                    url="https://tile.openstreetmap.org/{z}/{x}/{y}.png "
+                />
+            </MapContainer>
+        </div>
     );
 }
 export default ContributionHeatMap;

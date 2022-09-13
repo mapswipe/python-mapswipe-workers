@@ -51,7 +51,6 @@ function TextOutput(props: Props) {
                 {...props.valueProps}
             />
         );
-    // eslint-disable-next-line react/destructuring-assignment
     }
 
     return (

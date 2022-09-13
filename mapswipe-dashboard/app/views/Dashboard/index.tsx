@@ -1,5 +1,5 @@
 import React from 'react';
-import { _cs } from '@togglecorp/fujs';
+import { _cs, isDefined } from '@togglecorp/fujs';
 import {
     gql,
     useQuery,
@@ -21,7 +21,6 @@ import {
     DeepCommunityStatsQuery,
     DeepCommunityStatsQueryVariables,
 } from '#generated/types';
-import { MapContributionType } from '#components/ContributionHeatMap';
 
 import styles from './styles.css';
 
@@ -44,20 +43,21 @@ const COMMUNITY_STATS = gql`
         organizationTypeStats {
             organizationName
             totalSwipe
-          }
-          projectSwipeType {
+        }
+        projectSwipeType {
             projectType
             totalSwipe
-          }
+        }
     }
 `;
 
+// FIXME: add filters
 const DEEP_COMMUNITY_STATS = gql`
     query DeepCommunityStats {
-        contributorTimeSats {
-            taskDate
-            totalTime
-          }
+        contributorTimeStats(fromDate: "2010-01-01", toDate: "2023-01-01") {
+            date
+            total
+        }
         projectTypeStats {
             area
             projectType
@@ -90,12 +90,25 @@ function Dashboard(props: Props) {
 
     const pending = communityStatsLoading || deepCommunityStatsLoading;
 
+    const totalContributors = communityStats?.communityStats.totalContributors;
+    const totalContributorsLastMonth = communityStats
+        ?.communityStastLastest?.totalContributorsLastMonth;
+
+    const totalGroups = communityStats?.communityStats?.totalGroups;
+    const totalGroupsLastMonth = communityStats?.communityStastLastest?.totalGroupsLastMonth;
+
+    const totalSwipes = communityStats?.communityStats?.totalSwipes;
+    const totalSwipesLastMonth = communityStats?.communityStastLastest?.totalSwipesLastMonth;
+
     return (
         <div className={_cs(styles.dashboard, className)}>
-            {pending && <PendingMessage />}
+            {pending && <PendingMessage message="Getting latest data..." />}
             <div
                 className={styles.headerSection}
-                style={{ backgroundImage: `url(${dashboardHeaderSvg})` }}
+                style={{
+                    backgroundImage: `url(${dashboardHeaderSvg})`,
+                    backgroundColor: '#000836',
+                }}
             >
                 <div className={styles.headerContainer}>
                     <Header
@@ -103,84 +116,91 @@ function Dashboard(props: Props) {
                         className={styles.header}
                         headingClassName={styles.heading}
                         headingSize="small"
-                        headingContainerClassName={styles.description}
-                        descriptionClassName={styles.description}
+                        headingContainerClassName={styles.headingContainer}
                         description="Improving humanitarian action through open, geospatial data."
                     />
                     <div className={styles.stats}>
                         <InformationCard
-                            icon={(<img src={userSvg} alt="user icon" className={styles.image} />)}
+                            icon={(
+                                <img
+                                    src={userSvg}
+                                    alt="user icon"
+                                    className={styles.image}
+                                />
+                            )}
                             value={(
                                 <NumberOutput
-                                    className={styles.value}
-                                    value={communityStats?.communityStats.totalContributors}
+                                    value={totalContributors}
                                     normal
                                 />
                             )}
                             label="Total Contributors"
-                            description={communityStats
-                                ?.communityStastLastest?.totalContributorsLastMonth && (
+                            // eslint-disable-next-line max-len
+                            description={isDefined(totalContributorsLastMonth) && totalContributorsLastMonth > 0 && (
                                 <TextOutput
-                                    className={styles.value}
                                     value={(
                                         <NumberOutput
-                                            className={styles.value}
-                                            value={communityStats
-                                                ?.communityStastLastest?.totalContributorsLastMonth}
+                                            value={totalContributorsLastMonth}
                                             normal
                                         />
                                     )}
-                                    description="&nbsp;total contributors in the last 30 days"
+                                    description="total contributors in the last 30 days"
                                 />
                             )}
                         />
                         <InformationCard
-                            icon={(<img src={groupSvg} alt="group icon" className={styles.image} />)}
+                            icon={(
+                                <img
+                                    src={groupSvg}
+                                    alt="group icon"
+                                    className={styles.image}
+                                />
+                            )}
                             value={(
                                 <NumberOutput
-                                    className={styles.value}
-                                    value={communityStats?.communityStats?.totalGroups}
+                                    value={totalGroups}
+                                    normal
                                 />
                             )}
                             label="Total Groups"
-                            description={communityStats
-                                ?.communityStastLastest?.totalGroupsLastMonth && (
+                            // eslint-disable-next-line max-len
+                            description={isDefined(totalGroupsLastMonth) && totalGroupsLastMonth > 0 && (
                                 <TextOutput
-                                    className={styles.value}
                                     value={(
                                         <NumberOutput
-                                            className={styles.value}
-                                            value={communityStats
-                                                ?.communityStastLastest?.totalGroupsLastMonth}
+                                            value={totalGroupsLastMonth}
+                                            normal
                                         />
                                     )}
-                                    description="&nbsp;active groups in the last 30 days"
+                                    description="active groups in the last 30 days"
                                 />
                             )}
                         />
                         <InformationCard
-                            icon={(<img src={swipeSvg} alt="swipe icon" className={styles.image} />)}
+                            icon={(
+                                <img
+                                    src={swipeSvg}
+                                    alt="swipe icon"
+                                    className={styles.image}
+                                />
+                            )}
                             value={(
                                 <NumberOutput
-                                    className={styles.value}
-                                    value={communityStats?.communityStats.totalSwipes}
+                                    value={totalSwipes}
                                     normal
                                 />
                             )}
                             label="Total Swipes"
-                            description={communityStats
-                                ?.communityStastLastest?.totalSwipesLastMonth && (
+                            // eslint-disable-next-line max-len
+                            description={isDefined(totalSwipesLastMonth) && totalSwipesLastMonth > 0 && (
                                 <TextOutput
-                                    className={styles.value}
                                     value={(
                                         <NumberOutput
-                                            className={styles.value}
-                                            value={communityStats
-                                                ?.communityStastLastest?.totalSwipesLastMonth}
+                                            value={totalSwipesLastMonth}
                                             normal
                                         />
                                     )}
-                                    description="&nbsp;swipes in the last 30 days"
+                                    description="swipes in the last 30 days"
                                 />
                             )}
                         />
@@ -190,13 +210,11 @@ function Dashboard(props: Props) {
             <div className={styles.content}>
                 <StatsBoard
                     className={styles.statsBoard}
-                    heading="Community Statsboard"
-                    contributionTimeStats={deepCommunityStats?.contributorTimeSats}
+                    contributionTimeStats={deepCommunityStats?.contributorTimeStats}
                     projectTypeStats={deepCommunityStats?.projectTypeStats}
                     organizationTypeStats={communityStats?.organizationTypeStats}
                     projectSwipeTypeStats={communityStats?.projectSwipeType}
-                    contributions={communityStats
-                        ?.projectGeoContribution as MapContributionType[] | null | undefined}
+                    contributions={communityStats?.projectGeoContribution}
                 />
             </div>
             <Footer />

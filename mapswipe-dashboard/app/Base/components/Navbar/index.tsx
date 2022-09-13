@@ -19,6 +19,7 @@ function Navbar(props: Props) {
 
     const history = useHistory();
 
+    // FIXME: use route.path
     const handleSelectItem = useCallback((item: SearchItemType | undefined) => {
         if (item) {
             history.push(`/${item.type}/${item.id}/`);
@@ -28,27 +29,28 @@ function Navbar(props: Props) {
     return (
         <nav className={_cs(className, styles.navbar)}>
             <div className={styles.container}>
-                <div className={styles.appBrand}>
-                    <img
-                        className={styles.logo}
-                        src={mapSwipeLogo}
-                        alt="MapSwipe"
-                    />
-                    <div className={styles.title}>
-                        <div className={styles.map}>
-                            Map
-                        </div>
-                        <div className={styles.swipe}>
-                            Swipe
-                        </div>
-                    </div>
-                </div>
                 <div className={styles.navLinks}>
                     <SmartNavLink
                         exact
                         route={route.home}
                         className={styles.link}
-                    />
+                    >
+                        <div className={styles.appBrand}>
+                            <img
+                                className={styles.logo}
+                                src={mapSwipeLogo}
+                                alt="MapSwipe"
+                            />
+                            <div className={styles.title}>
+                                <div className={styles.map}>
+                                    Map
+                                </div>
+                                <div className={styles.swipe}>
+                                    Swipe
+                                </div>
+                            </div>
+                        </div>
+                    </SmartNavLink>
                 </div>
                 <ItemSelectInput
                     className={styles.filter}

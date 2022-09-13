@@ -3,8 +3,8 @@
     flex-direction: column;
     border: var(--width-separator-thin) solid var(--color-separator);
     border-radius: var(--radius-card-border);
-    padding: var(--spacing-medium);
-    gap: var(--spacing-large);
+    padding: var(--spacing-large);
+    gap: var(--spacing-medium);
 
     .heading {
         flex-shrink: 0;

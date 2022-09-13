@@ -1,23 +1,23 @@
 import React from 'react';
-import { Link, useParams, generatePath } from 'react-router-dom';
-import { _cs } from '@togglecorp/fujs';
 import { gql, useQuery } from '@apollo/client';
+import { _cs } from '@togglecorp/fujs';
+import { useParams, generatePath, Link } from 'react-router-dom';
 
-import PendingMessage from '#components/PendingMessage';
 import routes from '#base/configs/routes';
-import dashboardHeaderSvg from '#resources/img/dashboard.svg';
+import CalendarHeatMapContainer from '#components/CalendarHeatMapContainer';
+// import { MapContributionType } from '#components/ContributionHeatMap';
+import Footer from '#components/Footer';
 import Header from '#components/Header';
-import NumberOutput from '#components/NumberOutput';
 import InformationCard from '#components/InformationCard';
-import timeSvg from '#resources/icons/time.svg';
+import NumberOutput from '#components/NumberOutput';
+import PendingMessage from '#components/PendingMessage';
+import TextOutput from '#components/TextOutput';
+import { UserStatsQuery, UserStatsQueryVariables } from '#generated/types';
 import groupSvg from '#resources/icons/group.svg';
 import swipeSvg from '#resources/icons/swipe.svg';
-import Footer from '#components/Footer';
+import timeSvg from '#resources/icons/time.svg';
+import dashboardHeaderSvg from '#resources/img/dashboard.svg';
 import StatsBoard from '#views/StatsBoard';
-import TextOutput from '#components/TextOutput';
-import CalendarHeatMapContainer from '#components/CalendarHeatMapContainer';
-import { UserStatsQuery, UserStatsQueryVariables } from '#generated/types';
-import { MapContributionType } from '#components/ContributionHeatMap';
 
 import styles from './styles.css';
 
@@ -29,8 +29,8 @@ const USER_STATS = gql`
                 totalSwipe
             }
             contributionTime {
-                taskDate
-                totalTime
+                date
+                total
             }
             organizationSwipeStats {
                 organizationName
@@ -87,6 +87,7 @@ function UserDashboard(props: Props) {
             variables: {
                 pk: userId,
             },
+            skip: !userId,
         },
     );
 
@@ -106,12 +107,12 @@ function UserDashboard(props: Props) {
                         className={styles.header}
                         headingClassName={styles.heading}
                         headingSize="small"
-                        headingContainerClassName={styles.description}
                         descriptionClassName={styles.description}
                     />
                     <div className={styles.stats}>
                         <InformationCard
                             icon={(<img src={swipeSvg} alt="swipe icon" className={styles.image} />)}
+                            label="Total Swipes"
                             value={(
                                 <NumberOutput
                                     className={styles.value}
@@ -119,7 +120,6 @@ function UserDashboard(props: Props) {
                                     normal
                                 />
                             )}
-                            label="Total Swipes"
                             description={userStats?.user.statsLatest?.totalSwipe && (
                                 <TextOutput
                                     className={styles.value}
@@ -136,13 +136,13 @@ function UserDashboard(props: Props) {
                         />
                         <InformationCard
                             icon={(<img src={timeSvg} alt="time icon" className={styles.image} />)}
+                            label="Total Time Spent (in mins)"
                             value={(
                                 <NumberOutput
                                     className={styles.value}
                                     value={userStats?.user.stats?.totalSwipeTime}
                                 />
                             )}
-                            label="Total Time Spent (in mins)"
                             description={userStats?.user.statsLatest?.totalSwipeTime && (
                                 <TextOutput
                                     className={styles.value}
@@ -158,13 +158,13 @@ function UserDashboard(props: Props) {
                         />
                         <InformationCard
                             icon={(<img src={groupSvg} alt="group icon" className={styles.image} />)}
+                            label="Groups Joined"
                             value={(
                                 <NumberOutput
                                     className={styles.value}
                                     value={userStats?.user.stats?.totalMappingProjects}
                                 />
                             )}
-                            label="Groups Joined"
                             description={userStats?.user.statsLatest?.totalUserGroup && (
                                 <TextOutput
                                     className={styles.value}
@@ -194,8 +194,7 @@ function UserDashboard(props: Props) {
                         projectTypeStats={userStats?.user.projectStats}
                         organizationTypeStats={userStats?.user.organizationSwipeStats}
                         projectSwipeTypeStats={userStats?.user.projectSwipeStats}
-                        contributions={userStats
-                            ?.user.userGeoContribution as MapContributionType[] | null | undefined}
+                        contributions={userStats?.user.userGeoContribution}
                     />
                     {(userStats?.user?.userInUserGroups?.length ?? 0) > 0 && (
                         <div className={styles.groups}>
@@ -211,7 +210,7 @@ function UserDashboard(props: Props) {
                                         subHeading={(
                                             <TextOutput
                                                 className={styles.value}
-                                                label="Joined on &nbsp;"
+                                                label="Joined on"
                                                 value={undefined}
                                                 hideLabelColon
                                             />
@@ -227,8 +226,7 @@ function UserDashboard(props: Props) {
                                                 {group.userGroupName}
                                             </Link>
                                         )}
-                                        description={`${group.membersCount}
-                                        ${group.membersCount > 1 ? 'members' : 'member'}`}
+                                        description={`${group.membersCount} ${group.membersCount > 1 ? 'members' : 'member'}`}
                                     />
                                 ))}
                                 {Array.from(

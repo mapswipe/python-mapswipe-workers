@@ -43,11 +43,6 @@
                 height: 100%;
             }
         </style>
-        <style id="anti-click-jacking">
-            body {
-                display:none !important;
-            }
-        </style>
     </head>
 
     <body>
@@ -58,18 +53,8 @@
 
         <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;700&amp;display=swap" rel="stylesheet">
 
-        <!-- Start of anti-click-jacking -->
-        <script type="text/javascript">
-            if (self === top) {
-                var antiClickjack = document.getElementById("anti-click-jacking");
-                antiClickjack.parentNode.removeChild(antiClickjack);
-            } else {
-                top.location = self.location;
-            }
-        </script>
-        <!-- End of anti-click-jacking -->
-
         <!-- Start of service-worker -->
+        <!--
         <script>
             if ('serviceWorker' in navigator && '<%= process.env.NODE_ENV %>' === 'production') {
                 window.addEventListener('load', () => {
@@ -106,6 +91,7 @@
                 });
             }
         </script>
+        -->
         <!-- End of service-worker -->
     </body>
 </html>
