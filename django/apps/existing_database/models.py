@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.contrib.postgres.fields import ArrayField
 from django.contrib.gis.db import models as gis_models
 from django.db import models
 
@@ -208,3 +209,43 @@ class UserGroupResult(models.Model):
             project=self.project,
             group_id=self.group_id,
         ).first()
+
+
+# Aggregated Tables
+class AggregatedUserStatData(models.Model):
+    # Ref Fields
+    project = models.ForeignKey(Project, primary_key=True, on_delete=models.DO_NOTHING)
+    user = models.ForeignKey(User, on_delete=models.DO_NOTHING)
+    # Aggregated Fields
+    timestamp_date = models.DateField()
+    total_time = models.DurationField()
+    task_count = models.FloatField()
+    area_swiped = models.FloatField()
+    user_group_ids = ArrayField(models.CharField(max_length=255))
+
+    class Meta:
+        # Use DjangoDBRouter for this
+        db_table = 'aggregated_project_user_timestamp__task_count_total_time'
+        managed = False
+        # TODO: Use appconfig for this instead
+        app_label = settings.MAPSWIPE_EXISTING_DB
+
+
+class AggregatedUserGroupStatData(models.Model):
+    # Ref Fields
+    project = models.ForeignKey(Project, primary_key=True, on_delete=models.DO_NOTHING)
+    user = models.ForeignKey(User, on_delete=models.DO_NOTHING)
+    user_group = models.ForeignKey(UserGroup, on_delete=models.DO_NOTHING)
+    # Aggregated Fields
+    timestamp_date = models.DateField()
+    total_time = models.DurationField()
+    task_count = models.FloatField()
+    area_swiped = models.FloatField()
+    total_user_groups = models.FloatField()
+
+    class Meta:
+        # Use DjangoDBRouter for this
+        db_table = 'aggregated_project_user_group_timestamp__task_count_total_time'
+        managed = False
+        # TODO: Use appconfig for this instead
+        app_label = settings.MAPSWIPE_EXISTING_DB
