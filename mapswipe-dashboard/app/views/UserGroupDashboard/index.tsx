@@ -4,6 +4,7 @@ import { _cs } from '@togglecorp/fujs';
 import { useParams } from 'react-router-dom';
 import { CSVLink } from 'react-csv';
 
+import PendingMessage from '#components/PendingMessage';
 import Header from '#components/Header';
 import dashboardHeaderSvg from '#resources/img/dashboard.svg';
 import List from '#components/List';
@@ -92,6 +93,7 @@ function UserGroupDashboard(props: Props) {
 
     const {
         data: userGroupStats,
+        loading: userGroupStatsLoading,
     } = useQuery<UserGroupStatsQuery, UserGroupStatsQueryVariables>(
         USER_GROUP_STATS,
         {
@@ -118,6 +120,7 @@ function UserGroupDashboard(props: Props) {
 
     return (
         <div className={_cs(className, styles.userGroupDashboard)}>
+            {userGroupStatsLoading && <PendingMessage />}
             <div
                 className={styles.headerSection}
                 style={{ backgroundImage: `url(${dashboardHeaderSvg})` }}
