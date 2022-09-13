@@ -2,32 +2,27 @@ import React, { useCallback, useMemo } from 'react';
 import { gql, useQuery } from '@apollo/client';
 import { _cs } from '@togglecorp/fujs';
 import { useParams } from 'react-router-dom';
+
 import { CSVLink } from 'react-csv';
 
-import PendingMessage from '#components/PendingMessage';
+import CalendarHeatMapContainer from '#components/CalendarHeatMapContainer';
+// import { MapContributionType } from '#components/ContributionHeatMap';
+import Footer from '#components/Footer';
 import Header from '#components/Header';
-import dashboardHeaderSvg from '#resources/img/dashboard.svg';
-import List from '#components/List';
 import InformationCard from '#components/InformationCard';
-import timeSvg from '#resources/icons/time.svg';
+import List from '#components/List';
+import MemberItem from '#components/MemberItem';
+import NumberOutput from '#components/NumberOutput';
+import PendingMessage from '#components/PendingMessage';
+import TextOutput from '#components/TextOutput';
+import { UserGroupStatsQuery, UserGroupStatsQueryVariables } from '#generated/types';
 import userSvg from '#resources/icons/user.svg';
 import swipeSvg from '#resources/icons/swipe.svg';
-import MemberItem from '#components/MemberItem';
-import CalendarHeatMapContainer from '#components/CalendarHeatMapContainer';
-import NumberOutput from '#components/NumberOutput';
-import Footer from '#components/Footer';
-import TextOutput from '#components/TextOutput';
+import timeSvg from '#resources/icons/time.svg';
+import dashboardHeaderSvg from '#resources/img/dashboard.svg';
 import StatsBoard from '#views/StatsBoard';
-import { UserGroupStatsQuery, UserGroupStatsQueryVariables } from '#generated/types';
-import { MapContributionType } from '#components/ContributionHeatMap';
 
 import styles from './styles.css';
-
-export type UserGroupMember = NonNullable<NonNullable<UserGroupStatsQuery['userGroup']>['userStats']>[number];
-
-function memberKeySelector(member: UserGroupMember) {
-    return member.userName;
-}
 
 const USER_GROUP_STATS = gql`
     query UserGroupStats($pk: ID) {
@@ -37,8 +32,8 @@ const USER_GROUP_STATS = gql`
                 totalSwipe
             }
             contributionTime {
-                taskDate
-                totalTime
+                date
+                total
             }
             projectSwipeType {
                 projectType
@@ -82,6 +77,12 @@ const USER_GROUP_STATS = gql`
     }
 `;
 
+type UserGroupMember = NonNullable<NonNullable<UserGroupStatsQuery['userGroup']>['userStats']>[number];
+
+function memberKeySelector(member: UserGroupMember) {
+    return member.userName;
+}
+
 interface Props {
     className?: string;
 }
@@ -105,7 +106,7 @@ function UserGroupDashboard(props: Props) {
     );
 
     const contributionData = userGroupStats?.userGroup.contributionStats
-        .map((value) => ({ date: value.taskDate, count: value.totalSwipe }));
+        ?.map((value) => ({ date: value.taskDate, count: value.totalSwipe }));
 
     const memberRendererParams = useCallback((_: string, item: UserGroupMember) => (
         { member: item }
@@ -221,10 +222,7 @@ function UserGroupDashboard(props: Props) {
                         projectTypeStats={userGroupStats?.userGroup.projectTypeStats}
                         organizationTypeStats={userGroupStats?.userGroup.userGroupOrganizationStats}
                         projectSwipeTypeStats={userGroupStats?.userGroup.projectSwipeType}
-                        contributions={
-                            userGroupStats?.userGroup.userGroupGeoStats as MapContributionType[]
-                            | null | undefined
-                        }
+                        contributions={userGroupStats?.userGroup.userGroupGeoStats}
                     />
                     {(userGroupStats?.userGroup.userStats?.length ?? 0) > 0 && (
                         <div className={styles.members}>

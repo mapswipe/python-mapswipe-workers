@@ -24,7 +24,7 @@ function StatsContainer(props: Props) {
         <div className={_cs(className, styles.statsContainer)}>
             <Heading
                 className={styles.heading}
-                size="medium"
+                size="large"
             >
                 {title}
             </Heading>

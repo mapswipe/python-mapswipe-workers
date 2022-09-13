@@ -1,6 +1,5 @@
 import React, { useMemo } from 'react';
 import {
-    encodeDate,
     getDifferenceInDays,
     isDefined,
     listToGroupList,
@@ -25,7 +24,7 @@ import {
     BarChart,
     Bar,
 } from 'recharts';
-import { formatDuration, intervalToDuration } from 'date-fns';
+// import { formatDuration, intervalToDuration } from 'date-fns';
 
 import ContributionHeatmap, { MapContributionType } from '#components/ContributionHeatMap';
 import NumberOutput from '#components/NumberOutput';
@@ -45,6 +44,145 @@ import {
 
 import StatsContainer from './StatsContainer';
 import styles from './styles.css';
+
+const UNKNOWN = '-1';
+const BUILD_AREA = '1';
+const FOOT_PRINT = '2';
+const CHANGE_DETECTION = '3';
+const COMPLETENESS = '4';
+
+const projectTypes: Record<string, { color: string, name: string }> = {
+    [UNKNOWN]: {
+        color: '#808080',
+        name: 'Unknown',
+    },
+    [BUILD_AREA]: {
+        color: '#f8a769',
+        name: 'Build Area',
+    },
+    [FOOT_PRINT]: {
+        color: '#bbcb7d',
+        name: 'Footprint',
+    },
+    [CHANGE_DETECTION]: {
+        color: '#79aeeb',
+        name: 'Change Detection',
+    },
+    [COMPLETENESS]: {
+        color: '#fb8072',
+        name: 'Completeness',
+    },
+};
+
+function formatDate(value: number | string) {
+    const date = new Date(value);
+    return new Intl.DateTimeFormat(
+        'en-US',
+        { year: 'numeric', month: 'short', day: 'numeric' },
+    ).format(date);
+}
+
+function suffix(num: number, suffixStr: string, skipZero: boolean) {
+    if (num === 0 && skipZero) {
+        return '';
+    }
+    return `${num.toLocaleString()} ${suffixStr}${num !== 1 ? 's' : ''}`;
+}
+
+type DurationNumeric = 0 | 1 | 2 | 3 | 4 | 5;
+
+const mappings: {
+    [x in DurationNumeric]: {
+        text: string;
+        value: number;
+    }
+} = {
+    0: {
+        text: 'year',
+        value: 365 * 24 * 60 * 60,
+    },
+    1: {
+        text: 'month',
+        value: 30 * 24 * 60 * 60,
+    },
+    2: {
+        text: 'day',
+        value: 24 * 60 * 60,
+    },
+    3: {
+        text: 'hour',
+        value: 60 * 60,
+    },
+    4: {
+        text: 'minute',
+        value: 60,
+    },
+    5: {
+        text: 'second',
+        value: 1,
+    },
+};
+
+function formatTimeDuration(
+    seconds: number,
+    separator = ' ',
+    stop = 2,
+    startFrom: DurationNumeric = 3,
+    endAt?: DurationNumeric,
+): string {
+    if (endAt === startFrom) {
+        return '';
+    }
+    if (startFrom === 5) {
+        return suffix(seconds, 'second', false);
+    }
+
+    const map = mappings[startFrom];
+    const dur = Math.floor(seconds / map.value);
+    if (dur >= 1) {
+        return [
+            suffix(dur, map.text, true),
+            formatTimeDuration(
+                seconds % map.value,
+                separator,
+                stop,
+                startFrom,
+                endAt ?? Math.min(startFrom + stop, 5) as DurationNumeric,
+            ),
+        ].filter(Boolean).join(' ');
+    }
+
+    const nextStartFrom: DurationNumeric = (startFrom + 1) as DurationNumeric;
+    return formatTimeDuration(seconds, separator, stop, nextStartFrom, endAt);
+}
+
+/*
+function formatTimeDuration(value: number) {
+    return formatDuration(intervalToDuration({ start: 0, end: value * 60000 }));
+}
+*/
+
+// Swipes by mission
+
+function projectTypeFormatter(value: string) {
+    return projectTypes[value].name;
+}
+
+const projectTypeTotalSwipeFormatter = (value: number, name: string) => (
+    [value.toLocaleString(), projectTypeFormatter(name)]
+);
+
+// Swipes by organization
+
+function organizationNameFormatter(value: string) {
+    return value || 'Unknown';
+}
+
+const organizationTotalSwipeFormatter = (value: number, name: string) => (
+    [value.toLocaleString(), organizationNameFormatter(name)]
+);
+
+// Timeseries by week day
 
 interface Day {
     key: string;
@@ -81,72 +219,32 @@ const days: Day[] = [
     },
 ];
 
-const projectTypes: Record<string, { color: string, name: string }> = {
-    1: {
-        color: '#f8a769',
-        name: 'Build Area',
-    },
-    2: {
-        color: '#bbcb7d',
-        name: 'Footprint',
-    },
-    3: {
-        color: '#79aeeb',
-        name: 'Change Detection',
-    },
-    4: {
-        color: '#fb8072',
-        name: 'Completeness',
-    },
-};
+// Timeseries
 
-const dateFormatter = (value: number | string) => {
-    const date = new Date(value);
-    return date.toDateString();
-};
-
-const projectTypeFormatter = (value: string) => (
-    projectTypes[value]?.name
-);
-
-const minTickFormatter = (value: number | string) => {
-    const date = new Date(value);
-    return encodeDate(date);
-};
-
-const projectTypeTotalSwipeFormatter = (value: number, name: string) => (
-    [value.toLocaleString(), projectTypes[name]?.name]
-);
-
-const organizationTotalSwipeFormatter = (value: number) => (
-    value.toLocaleString()
-);
-
-const humanizeMinutes = (value: number) => (
-    formatDuration(intervalToDuration({ start: 0, end: value * 60000 }))
-);
-
-const totalTimeFormatter = (value: number) => {
+function timeSpentLabelFormatter(value: number) {
     if (value) {
-        return [humanizeMinutes(value), 'total time'];
+        return [formatTimeDuration(value), 'Total time'];
     }
-    return [value, 'total time'];
-};
+    return [value, 'Total time'];
+}
 
 const getTicks = (startDate: number, endDate: number, num: number) => {
     const diffDays = getDifferenceInDays(endDate, startDate);
 
     const ticks = [startDate];
-    const velocity = Math.round(diffDays / (num - 1));
 
     if (diffDays <= num) {
-        for (let i = 1; i < diffDays - 1; i += 1) {
+        // FIXME: comparison should be <= imo
+        for (let i = 1; i <= diffDays - 1; i += 1) {
             const result = new Date(startDate);
             result.setDate(result.getDate() + i);
             ticks.push(result.getTime());
         }
     } else {
-        for (let i = 1; i < num - 1; i += 1) {
+        const velocity = Math.round(diffDays / (num - 1));
+        // FIXME: comparison should be <= imo
+        // FIXME: should be <= imo
+        for (let i = 1; i <= num - 1; i += 1) {
             const result = new Date(startDate);
             result.setDate(result.getDate() + velocity * i);
             ticks.push(result.getTime());
@@ -156,17 +254,9 @@ const getTicks = (startDate: number, endDate: number, num: number) => {
     return ticks;
 };
 
-const DEFAULT_COLORS = [
-    '#f8a769',
-    '#ffd982',
-    '#bbcb7d',
-    '#79aeeb',
-    '#8a8c91',
-];
-
 interface Props{
     className?: string;
-    heading: string;
+    heading?: string;
     contributionTimeStats: ContributorTimeType[] | null | undefined;
     projectTypeStats: ProjectTypeStats[] | null | undefined;
     organizationTypeStats: OrganizationTypeStats[] | null | undefined;
@@ -185,165 +275,237 @@ function StatsBoard(props: Props) {
         contributions,
     } = props;
 
-    const contributionTimeSeries = useMemo(() => contributionTimeStats
-        ?.filter((contribution) => isDefined(contribution.taskDate))
-        ?.map((contribution) => ({
-            taskDate: contribution?.taskDate
-                ? new Date(contribution?.taskDate).getTime() : 0,
-            totalTime: contribution.totalTime,
-        }))
-        ?.filter((contribution) => contribution.totalTime > 0)
-        .sort((a, b) => (a?.taskDate - b?.taskDate)), [contributionTimeStats]);
+    // Timeseries
 
-    const totalContributionData = useMemo(() => {
+    const contributionTimeSeries = useMemo(
+        () => contributionTimeStats
+            ?.filter((contribution) => isDefined(contribution.date))
+            .map((contribution) => ({
+                date: new Date(contribution.date).getTime(),
+                total: contribution.total,
+            }))
+            .filter((contribution) => contribution.total > 0)
+            .sort((a, b) => (a.date - b.date)),
+        [contributionTimeStats],
+    );
+
+    const ticks = contributionTimeSeries && contributionTimeSeries.length > 1
+        ? getTicks(
+            contributionTimeSeries[0].date,
+            contributionTimeSeries[contributionTimeSeries.length - 1].date,
+            5,
+        )
+        : undefined;
+
+    // Timeseries by Day of Week
+
+    const totalContributionByDay = useMemo(() => {
         const dayWiseContribution = listToGroupList(
             contributionTimeSeries,
-            (d) => new Date(d.taskDate).getDay(),
-            (d) => d.totalTime,
+            (d) => new Date(d.date).getDay(),
+            (d) => d.total,
         );
 
-        const emptyContribution = listToMap(days, (d) => d.key, () => []);
-        const dayWise = { ...emptyContribution, ...dayWiseContribution };
+        // NOTE: add emptyContribution so that there is no gap between days
+        const emptyContribution = listToMap(
+            days,
+            (d) => d.key,
+            () => [],
+        );
+
         const result = mapToList(
-            dayWise,
-            (d, key) => ({ day: days.find((day) => (day.key === key))?.title, totalTime: sum(d) }),
+            {
+                ...emptyContribution,
+                ...dayWiseContribution,
+            },
+            (d, key) => ({
+                // NOTE: this will never be undefined
+                day: days.find((day) => (day.key === key))?.title,
+                total: sum(d),
+            }),
         );
 
         return result;
     }, [contributionTimeSeries]);
 
-    const totalContribution = useMemo(() => {
-        if (!totalContributionData) {
-            return undefined;
-        }
+    const totalContribution = useMemo(() => (
+        sum(totalContributionByDay.map((contribution) => contribution.total))
+    ), [totalContributionByDay]);
 
-        const totalContributionInMinutes = sum(totalContributionData
-            ?.map((contribution) => contribution.totalTime) ?? []);
-
-        return totalContributionInMinutes;
-    }, [totalContributionData]);
-
-    const ticks = contributionTimeSeries
-        ? getTicks(
-            contributionTimeSeries[0].taskDate,
-            contributionTimeSeries[contributionTimeSeries.length - 1].taskDate,
-            5,
-        )
-        : undefined;
+    // Swipes by Mission
 
     const totalSwipes = projectSwipeTypeStats ? sum(
-        projectSwipeTypeStats.map((project) => (project.totalSwipe ?? 0)),
+        projectSwipeTypeStats.map((project) => (project.totalSwipe)),
     ) : undefined;
+
+    const sortedProjectSwipeType = useMemo(
+        () => (
+            projectSwipeTypeStats
+                ?.map((item) => ({
+                    ...item,
+                    projectType: item.projectType ?? '-1',
+                }))
+                .sort((a, b) => compareNumber(b.totalSwipe, a.totalSwipe)) ?? []
+        ),
+        [projectSwipeTypeStats],
+    );
+
+    // Swipes by Organization
 
     const totalSwipesByOrganization = organizationTypeStats ? sum(
         organizationTypeStats?.map((organization) => (organization.totalSwipe ?? 0)),
     ) : undefined;
 
-    const sortedProjectSwipeType = useMemo(() => projectSwipeTypeStats
-        ?.slice()
-        ?.filter((project) => isDefined(project.projectType))
-        ?.sort((a, b) => compareNumber(b.totalSwipe, a.totalSwipe)), [projectSwipeTypeStats]);
-
     const totalSwipesByOrganizationStats = useMemo(() => {
         const sortedTotalSwipeByOrganization = organizationTypeStats
-            ?.slice()
-            ?.sort((a, b) => compareNumber(b.totalSwipe, a.totalSwipe));
+            ?.map((item) => ({
+                ...item,
+                organizationName: item.organizationName ?? 'Unknown',
+            }))
+            .filter((project) => isDefined(project.organizationName))
+            .sort((a, b) => compareNumber(b.totalSwipe, a.totalSwipe)) ?? [];
 
+        if (sortedTotalSwipeByOrganization.length <= 5) {
+            return sortedTotalSwipeByOrganization;
+        }
+        // FIXME: we need to look for one by off error
         return [
-            ...(sortedTotalSwipeByOrganization?.slice(0, 4) ?? []),
-            ...(sortedTotalSwipeByOrganization && sortedTotalSwipeByOrganization?.length >= 5 ? [
-                {
-                    organizationName: 'Others',
-                    totalSwipe: sortedTotalSwipeByOrganization
-                        ?.slice(4)
-                        ?.reduce((total, organization) => (total + organization.totalSwipe), 0),
-                },
-            ] : []),
+            ...sortedTotalSwipeByOrganization.slice(0, 4),
+            {
+                organizationName: 'Others',
+                totalSwipe: sum(
+                    sortedTotalSwipeByOrganization
+                        .slice(4)
+                        .map((item) => item.totalSwipe),
+                ),
+            },
         ];
     }, [organizationTypeStats]);
 
-    const buildAreaTotalArea = projectTypeStats?.find((project) => project.projectType === '1')?.area;
-    const changeDetectionTotalSwipes = projectSwipeTypeStats?.find((project) => project.projectType === '3')?.totalSwipe;
-    const footPrintTotalSwipes = projectSwipeTypeStats?.find((project) => project.projectType === '2')?.totalSwipe;
+    // Others
 
-    const organizationColors = scaleOrdinal()
+    const buildAreaTotalArea = projectTypeStats?.find(
+        (project) => project.projectType === BUILD_AREA,
+    )?.area;
+    const changeDetectionTotalSwipes = projectSwipeTypeStats?.find(
+        (project) => project.projectType === CHANGE_DETECTION,
+    )?.totalSwipe;
+    const footPrintTotalSwipes = projectSwipeTypeStats?.find(
+        (project) => project.projectType === FOOT_PRINT,
+    )?.totalSwipe;
+
+    const organizationColors = scaleOrdinal<string, string | undefined>()
         .domain(totalSwipesByOrganizationStats?.map(
             (organization) => (organization.organizationName),
         ).filter(isDefined) ?? [])
-        .range(DEFAULT_COLORS);
+        .range([
+            '#f8a769',
+            '#ffd982',
+            '#bbcb7d',
+            '#79aeeb',
+            '#8a8c91',
+        ]);
 
     return (
         <div className={_cs(className, styles.statsBoard)}>
-            <Heading size="large">
-                {heading}
-            </Heading>
+            {heading && (
+                <Heading size="large">
+                    {heading}
+                </Heading>
+            )}
             <div className={styles.board}>
                 <StatsContainer
                     title="Contribution Heatmap"
                 >
-                    <ContributionHeatmap contributions={contributions} />
+                    <ContributionHeatmap
+                        contributions={contributions}
+                    />
                 </StatsContainer>
                 <StatsContainer
                     title="Time Spent Contributing"
                     contentClassName={styles.timeSpentChartContainer}
                 >
-                    {totalContributionData && (
+                    {contributionTimeSeries && contributionTimeSeries.length > 1 && (
                         <ResponsiveContainer>
-                            <AreaChart data={contributionTimeSeries}>
+                            <AreaChart
+                                data={contributionTimeSeries}
+                                margin={{
+                                    top: 0,
+                                    bottom: 0,
+                                    left: 0,
+                                    right: 0,
+                                }}
+                            >
+                                <defs>
+                                    <linearGradient id="stat" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="5%" stopColor="var(--color-primary-light)" stopOpacity={0.6} />
+                                        <stop offset="95%" stopColor="var(--color-primary-light)" stopOpacity={0} />
+                                    </linearGradient>
+                                </defs>
                                 <XAxis
-                                    dataKey="taskDate"
+                                    dataKey="date"
                                     type="number"
                                     scale="time"
-                                    domain={['auto', 'auto']}
+                                    domain={['dataMin', 'dataMax']}
                                     allowDuplicatedCategory={false}
                                     tick={{ strokeWidth: 1 }}
-                                    tickFormatter={minTickFormatter}
+                                    tickFormatter={formatDate}
                                     ticks={ticks}
-                                    interval={0}
+                                    interval="preserveStartEnd"
                                     padding={{ left: 10, right: 30 }}
                                 />
                                 <YAxis
-                                    scale="log"
                                     type="number"
-                                    dataKey="totalTime"
-                                    domain={[0.9, 'auto']}
+                                    dataKey="total"
+                                    tickFormatter={(value) => formatTimeDuration(value, ' ', 1)}
+                                    // domain={[0.9, 'auto']}
+                                    padding={{ top: 20, bottom: 10 }}
+                                    width={100}
                                 />
                                 <Tooltip
-                                    labelFormatter={dateFormatter}
-                                    formatter={totalTimeFormatter}
+                                    labelFormatter={formatDate}
+                                    formatter={timeSpentLabelFormatter}
                                 />
                                 <Area
-                                    type="monotone"
-                                    dataKey="totalTime"
-                                    stroke="#589AE2"
+                                    // type="step"
+                                    // type="linear"
+                                    type="monotoneX"
+                                    dataKey="total"
+                                    stroke="var(--color-primary-light)"
                                     fillOpacity={1}
-                                    fill="#D4E5F7"
+                                    fill="url(#stat)"
+                                    strokeWidth={2}
                                     connectNulls
+                                    activeDot
                                 />
                             </AreaChart>
                         </ResponsiveContainer>
                     )}
                 </StatsContainer>
                 <InformationCard
-                    label="Time Spent Contributing"
-                    value={contributionTimeSeries && totalContribution && (
+                    label="Time Spent Contributing by Day of Week"
+                    value={isDefined(totalContribution) && (
                         <TextOutput
                             className={styles.numberOutput}
-                            value={humanizeMinutes(totalContribution)}
+                            value={formatTimeDuration(totalContribution)}
                         />
                     )}
                     variant="stat"
                     contentClassName={styles.timeSpentChartContainer}
                 >
-                    {contributionTimeSeries && (
+                    {totalContributionByDay && (
                         <ResponsiveContainer>
-                            <BarChart data={totalContributionData}>
-                                <Tooltip formatter={totalTimeFormatter} />
+                            <BarChart data={totalContributionByDay}>
+                                <Tooltip formatter={timeSpentLabelFormatter} />
                                 <XAxis dataKey="day" />
-                                <YAxis />
+                                <YAxis
+                                    tickFormatter={(value) => formatTimeDuration(value, ' ', 1)}
+                                    padding={{ top: 20, bottom: 0 }}
+                                    width={100}
+                                />
                                 <Bar
-                                    dataKey="totalTime"
-                                    fill="#589AE2"
+                                    dataKey="total"
+                                    fill="var(--color-primary-light)"
                                 />
                             </BarChart>
                         </ResponsiveContainer>
@@ -414,7 +576,7 @@ function StatsBoard(props: Props) {
                                     iconType="circle"
                                 />
                                 <Pie
-                                    data={sortedProjectSwipeType ?? undefined}
+                                    data={sortedProjectSwipeType}
                                     dataKey="totalSwipe"
                                     nameKey="projectType"
                                     cx="50%"
@@ -422,10 +584,10 @@ function StatsBoard(props: Props) {
                                     outerRadius="90%"
                                     innerRadius="50%"
                                 >
-                                    {sortedProjectSwipeType?.map((item) => (
+                                    {sortedProjectSwipeType.map((item) => (
                                         <Cell
                                             key={item.projectType}
-                                            fill={item.projectType ? projectTypes[item.projectType].color : '#808080'}
+                                            fill={projectTypes[item.projectType].color}
                                         />
                                     ))}
                                 </Pie>
@@ -451,6 +613,7 @@ function StatsBoard(props: Props) {
                                     align="right"
                                     layout="vertical"
                                     verticalAlign="middle"
+                                    formatter={organizationNameFormatter}
                                     iconType="circle"
                                 />
                                 <Pie
@@ -465,7 +628,9 @@ function StatsBoard(props: Props) {
                                     {totalSwipesByOrganizationStats?.map((item) => (
                                         <Cell
                                             key={item.organizationName}
-                                            fill={item.organizationName ? organizationColors(item.organizationName) as 'string' : '#808080'}
+                                            fill={item.organizationName
+                                                ? organizationColors(item.organizationName) ?? '#808080'
+                                                : '#808080'}
                                         />
                                     ))}
                                 </Pie>

@@ -14,17 +14,17 @@ function getDateRange(data: Data[] | null | undefined) {
     if (!data) {
         const currentDate = new Date();
         return {
-
             startDate: encodeDate(new Date(currentDate.getFullYear(), 0, 1)),
             endDate: encodeDate(new Date(currentDate.getFullYear(), 11, 31)),
         };
     }
 
-    const sortedData = data.sort((a, b) => compareDate(a.date, b.date));
+    const sortedData = [...data].sort((a, b) => compareDate(a.date, b.date));
+
     const startDate = sortedData[0].date;
     const endDate = sortedData[sortedData.length - 1].date;
 
-    if (getDifferenceInDays(new Date(endDate).getTime(), new Date(startDate).getTime()) < 366) {
+    if (getDifferenceInDays(new Date(endDate).getTime(), new Date(startDate).getTime()) <= 365) {
         const currentYear = new Date(startDate).getFullYear();
         return {
             startDate: encodeDate(new Date(currentYear, 0, 1)),
@@ -36,6 +36,7 @@ function getDateRange(data: Data[] | null | undefined) {
 
     return {
         startDate: encodeDate(new Date(startDateTime.getFullYear(), startDateTime.getMonth(), 1)),
+        // FIXME: we should be taking the last day of the month
         endDate: encodeDate(new Date((endDateTime).getFullYear(), endDateTime.getMonth() + 1, 1)),
     };
 }
@@ -59,11 +60,14 @@ function CalendarHeatMapContainer(props: Props) {
         ReactTooltip.rebuild();
     });
 
+    // FIXME: use useMemo
+    // NOTE: 5 is taken as a base minimum values as we bin the contribution into five bings
     const maxContributionValue = Math.max(5, ...(data?.map((d) => d.count) ?? []));
     const contributionColors = scaleQuantile<string>()
         .domain([0, maxContributionValue])
         .range(githubColorsClass.slice(1));
 
+    // FIXME: use useCallback
     const getClassForValue = (value: Data | undefined) => {
         if (value) {
             return contributionColors(value.count);
