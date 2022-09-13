@@ -217,6 +217,12 @@ exports.projectContributionCounter = functions.database.ref('/v2/users/{userId}/
     return projectContributionCountRef.set(Object.keys( contributions ).length);
 });
 
+// Generate updates when user name is changed
+exports.usernameUpdate = functions.database.ref('/v2/users/{userId}/username/').onWrite((_, context) => {
+    const userId = context.params.userId;
+    return admin.database().ref('/v2/updates/users/').child(userId).set(true);
+});
+
 
 /*
 * Generates update commands for PSQL db
