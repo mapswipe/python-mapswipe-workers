@@ -1,14 +1,15 @@
-.option {
+.option-container {
     display: flex;
     align-items: center;
-    gap: var(--spacing-small);
+    padding: var(--spacing-medium);
     overflow: auto;
 
-    .options {
+    .option-item {
         display: flex;
         flex-grow: 1;
+        gap: var(--spacing-medium);
 
-        .icon {
+        .checkmark {
             display: flex;
             align-items: center;
             flex-shrink: 0;
@@ -16,25 +17,32 @@
             font-size: 1.2em;
         }
 
-        .label {
+        .name {
             display: flex;
+            align-items: center;
             flex-grow: 1;
-            justify-content: space-between;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
+            gap: var(--spacing-small);
 
-            .meta {
-                display: flex;
-                color: var(--color-gray);
+            .icon {
+                flex-shrink: 0;
+                font-size: 1.2em;
             }
+
+            .label {
+                word-break: break-word;
+            }
+        }
+
+        .meta {
+            flex-shrink: 0;
+            color: var(--color-text-watermark);
         }
     }
 
     &.active {
         color: var(--color-accent);
 
-        .icon {
+        .checkmark {
             opacity: 1;
         }
     }

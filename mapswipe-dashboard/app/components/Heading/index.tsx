@@ -39,6 +39,11 @@ function Heading(props: Props) {
         styles.heading,
         ellipsize && styles.ellipsize,
         classNameFromProps,
+        size === 'extraSmall' && styles.extraSmall,
+        size === 'small' && styles.small,
+        size === 'medium' && styles.medium,
+        size === 'large' && styles.large,
+        size === 'extraLarge' && styles.extraLarge,
     );
 
     const heading = (
