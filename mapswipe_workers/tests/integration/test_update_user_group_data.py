@@ -7,14 +7,6 @@ from base import BaseTestCase
 
 from mapswipe_workers.firebase_to_postgres import update_data
 
-from mapswipe_workers.config import (
-    POSTGRES_DB,
-    POSTGRES_HOST,
-    POSTGRES_PASSWORD,
-    POSTGRES_PORT,
-    POSTGRES_USER,
-)
-
 
 class TestUpdateProjectData(BaseTestCase):
     class FbDbMock:
@@ -36,7 +28,7 @@ class TestUpdateProjectData(BaseTestCase):
                 "userGroupMembershipLogs": {
                     "user_id": "user-1",
                     "action": "join",
-                    "timestamp": "2022-07-15T09:32:02",
+                    "timestamp": 1663039591857,
                 },
             },
             "user-group-2": {
@@ -82,13 +74,13 @@ class TestUpdateProjectData(BaseTestCase):
                 "user_group_id": "user-group-1",
                 "user_id": "user-1",
                 "action": "join",
-                "timestamp": "2022-07-15T09:32:02",
+                "timestamp": 1663039597857,
             },
             "membership-2": {
                 "user_group_id": "user-group-2",
                 "user_id": "user-2",
                 "action": "leave",
-                "timestamp": "2022-07-15T09:32:02",
+                "timestamp": 1663039599857,
             },
         }
 
