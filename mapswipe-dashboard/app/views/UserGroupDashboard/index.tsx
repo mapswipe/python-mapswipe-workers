@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { gql, useQuery } from '@apollo/client';
 import { _cs, isDefined } from '@togglecorp/fujs';
 import { useParams } from 'react-router-dom';
@@ -22,6 +22,8 @@ import timeSvg from '#resources/icons/time.svg';
 import dashboardHeaderSvg from '#resources/img/dashboard.svg';
 import StatsBoard from '#views/StatsBoard';
 import { formatTimeDuration } from '#utils/temporal';
+// FIXME: we should not import from views
+import { DateRangeValue, defaultDateRange } from '#views/Dashboard';
 
 import styles from './styles.css';
 
@@ -92,6 +94,8 @@ function UserGroupDashboard(props: Props) {
     const { className } = props;
 
     const { userGroupId } = useParams<{ userGroupId: string | undefined }>();
+    // TODO use dateRange to filter user group stats
+    const [dateRange, setDateRange] = useState<DateRangeValue>(defaultDateRange);
 
     const {
         data: userGroupStats,
@@ -134,6 +138,14 @@ function UserGroupDashboard(props: Props) {
     const totalContributors = userGroupStats?.userGroup.stats?.totalContributors;
     // eslint-disable-next-line max-len
     const totalContributorsLastMonth = userGroupStats?.userGroup.userGroupLatest?.totalContributors;
+
+    const handleDateRangeChange = useCallback((value: DateRangeValue | undefined) => {
+        if (value) {
+            setDateRange(value);
+        } else {
+            setDateRange(defaultDateRange);
+        }
+    }, []);
 
     return (
         <div className={_cs(className, styles.userGroupDashboard)}>
@@ -240,6 +252,8 @@ function UserGroupDashboard(props: Props) {
                         projectTypeStats={userGroupStats?.userGroup.projectTypeStats}
                         organizationTypeStats={userGroupStats?.userGroup.userGroupOrganizationStats}
                         projectSwipeTypeStats={userGroupStats?.userGroup.projectSwipeType}
+                        dateRange={dateRange}
+                        handleDateRangeChange={handleDateRangeChange}
                         contributions={
                             userGroupStats?.userGroup.userGroupGeoStats as MapContributionType[]
                         }

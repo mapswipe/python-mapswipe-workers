@@ -1,0 +1,100 @@
+.input-container {
+    display: flex;
+    flex-direction: row;
+
+    .input {
+        --color: var(--color-text);
+        color: var(--color);
+
+        &.empty {
+            --color: var(--color-text);
+        }
+
+        &.errored {
+            --color: var(--color-text);
+        }
+
+        &::-webkit-calendar-picker-indicator {
+            display: none;
+        }
+    }
+
+    .separator {
+        padding: 0 var(--spacing-small);
+    }
+
+    .start-date-input {
+        flex-shrink: 0;
+        width: auto;
+    }
+
+    .end-date-input {
+        flex-grow: 1;
+    }
+}
+
+.calendar-popup {
+    height: 25rem;
+
+    .popup-content {
+        display: flex;
+        max-width: unset!important;
+        max-height: unset!important;
+
+        .calendar {
+            --padding: var(--spacing-medium);
+            width: calc(var(--width-calendar-date) * 7 + 2 * var(--padding));
+            height: 100%;
+        }
+
+        .predefined-options {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: calc(var(--spacing-medium) - var(--spacing-small));
+
+            .option {
+                padding: var(--spacing-small);
+                width: 100%;
+                text-align: right;
+
+                &:hover {
+                    background-color: var(--color-background-hover-light);
+                }
+            }
+        }
+    }
+}
+
+.calendar-date {
+    &.start-date {
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+
+        &:not(.ghost) {
+            background-color: var(--color-accent);
+            color: var(--color-text-on-accent);
+        }
+        &.ghost {
+            background-color: var(--color-background-hover-light);
+        }
+    }
+
+    &.end-date {
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+
+        &:not(.ghost) {
+            background-color: var(--color-accent);
+            color: var(--color-text-on-accent);
+        }
+        &.ghost {
+            background-color: var(--color-background-hover-light);
+        }
+    }
+
+    &.in-between {
+        border-radius: 0;
+        background-color: var(--color-background-hover-light);
+    }
+}
