@@ -6,7 +6,7 @@ import { useParams } from 'react-router-dom';
 import { CSVLink } from 'react-csv';
 
 import CalendarHeatMapContainer from '#components/CalendarHeatMapContainer';
-// import { MapContributionType } from '#components/ContributionHeatMap';
+import { MapContributionType } from '#components/ContributionHeatMap';
 import Footer from '#components/Footer';
 import Header from '#components/Header';
 import InformationCard from '#components/InformationCard';
@@ -240,14 +240,15 @@ function UserGroupDashboard(props: Props) {
                         projectTypeStats={userGroupStats?.userGroup.projectTypeStats}
                         organizationTypeStats={userGroupStats?.userGroup.userGroupOrganizationStats}
                         projectSwipeTypeStats={userGroupStats?.userGroup.projectSwipeType}
-                        contributions={userGroupStats?.userGroup.userGroupGeoStats}
+                        contributions={
+                            userGroupStats?.userGroup.userGroupGeoStats as MapContributionType[]
+                        }
                     />
                     {(userGroupStats?.userGroup.userStats?.length ?? 0) > 0 && (
                         <div className={styles.members}>
                             <div className={styles.membersHeading}>
                                 {`${userGroupStats?.userGroup.name}'s Members`}
                                 <CSVLink
-                                    filename={userGroupStats?.userGroup.name}
                                     className={styles.exportLink}
                                     data={data}
                                 >

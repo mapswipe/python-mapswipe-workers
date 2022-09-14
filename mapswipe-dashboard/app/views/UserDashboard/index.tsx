@@ -5,7 +5,7 @@ import { useParams, generatePath, Link } from 'react-router-dom';
 
 import routes from '#base/configs/routes';
 import CalendarHeatMapContainer from '#components/CalendarHeatMapContainer';
-// import { MapContributionType } from '#components/ContributionHeatMap';
+import { MapContributionType } from '#components/ContributionHeatMap';
 import Footer from '#components/Footer';
 import Header from '#components/Header';
 import InformationCard from '#components/InformationCard';
@@ -50,6 +50,7 @@ const USER_STATS = gql`
                 totalSwipe
             }
             stats {
+                totalMappingProjects
                 totalSwipe
                 totalSwipeTime
                 totalUserGroup
@@ -214,7 +215,9 @@ function UserDashboard(props: Props) {
                         projectTypeStats={userStats?.user.projectStats}
                         organizationTypeStats={userStats?.user.organizationSwipeStats}
                         projectSwipeTypeStats={userStats?.user.projectSwipeStats}
-                        contributions={userStats?.user.userGeoContribution}
+                        contributions={
+                            userStats?.user.userGeoContribution as MapContributionType[] | undefined
+                        }
                     />
                     {(userStats?.user?.userInUserGroups?.length ?? 0) > 0 && (
                         <div className={styles.groups}>

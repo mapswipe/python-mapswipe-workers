@@ -102,6 +102,8 @@ function ContributionHeatMap(props: Props) {
                 center={[40.866667, 34.566667]}
                 zoom={2}
                 className={styles.mapContainer}
+                maxZoom-={13}
+                minZoom={1}
             >
                 <HeatmapComponent
                     contributionGeojson={contributionGeojson}
@@ -114,4 +116,5 @@ function ContributionHeatMap(props: Props) {
         </div>
     );
 }
+
 export default ContributionHeatMap;
