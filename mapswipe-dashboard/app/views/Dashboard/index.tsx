@@ -4,6 +4,7 @@ import {
     gql,
     useQuery,
 } from '@apollo/client';
+import { MapContributionType } from '#components/ContributionHeatMap';
 import Header from '#components/Header';
 import PendingMessage from '#components/PendingMessage';
 import dashboardHeaderSvg from '#resources/img/dashboard.svg';
@@ -209,12 +210,15 @@ function Dashboard(props: Props) {
             </div>
             <div className={styles.content}>
                 <StatsBoard
+                    heading="Community Statsboard"
                     className={styles.statsBoard}
                     contributionTimeStats={deepCommunityStats?.contributorTimeStats}
                     projectTypeStats={deepCommunityStats?.projectTypeStats}
                     organizationTypeStats={communityStats?.organizationTypeStats}
                     projectSwipeTypeStats={communityStats?.projectSwipeType}
-                    contributions={communityStats?.projectGeoContribution}
+                    contributions={
+                        communityStats?.projectGeoContribution as MapContributionType[] | undefined
+                    }
                 />
             </div>
             <Footer />

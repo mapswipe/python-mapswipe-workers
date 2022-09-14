@@ -1,12 +1,11 @@
 import React, { useState, useMemo, useCallback } from 'react';
-// import { useLocation } from 'react-router-dom';
 import {
     IoCheckmark,
     IoPerson,
     IoPeople,
     IoSearch,
 } from 'react-icons/io5';
-import { sum, _cs } from '@togglecorp/fujs';
+import { _cs } from '@togglecorp/fujs';
 import {
     useQuery,
     gql,
@@ -133,6 +132,8 @@ function ItemSelectInput<Name extends string>(props: ItemSelectInputProps<Name>)
         ...otherProps
     } = props;
 
+    const [itemOptions, setItemOptions] = useState<SearchItemType[] | undefined | null>();
+
     const [opened, setOpened] = useState(false);
     const [searchText, setSearchText] = useState<string>('');
 
@@ -188,28 +189,19 @@ function ItemSelectInput<Name extends string>(props: ItemSelectInputProps<Name>)
         [userGroupsData, usersData],
     );
 
-    const handleSelectItem = useCallback(
-        (id: string | undefined) => {
-            const item = data.find((val) => val.id === id);
-            onItemSelect(item);
-        },
-        [data, onItemSelect],
-    );
+    const handleSelectItem = (id: string | undefined) => {
+        const item = data.find((val) => val.id === id);
+        onItemSelect(item);
+    };
 
     const optionRendererParams = useCallback(
-        (_: number | string, option: SearchItemType) => {
-            // const isActive = key === selectedItem;
-            const isActive = false;
-
-            return {
-                label: titleSelector(option),
-                isArchived: isArchivedSelector(option),
-                type: typeSelector(option),
-                containerClassName: _cs(styles.optionContainer, isActive && styles.active),
-            };
-        },
+        (_: number | string, option: SearchItemType) => ({
+            label: titleSelector(option),
+            isArchived: isArchivedSelector(option),
+            type: typeSelector(option),
+            containerClassName: _cs(styles.option),
+        }),
         [],
-        // [selectedItem],
     );
 
     return (
@@ -221,9 +213,8 @@ function ItemSelectInput<Name extends string>(props: ItemSelectInputProps<Name>)
             )}
             optionRendererParams={optionRendererParams}
             optionRenderer={Option}
-            options={[]}
-            // onOptionsChange={setItemOptions}
-            // value={selectedItem}
+            options={itemOptions}
+            onOptionsChange={setItemOptions}
             value={undefined}
             onChange={handleSelectItem}
             // Other props
