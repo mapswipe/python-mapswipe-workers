@@ -74,6 +74,13 @@ DEFAULT_CONTRIBUTION_STAT = ContributorType(task_date=None, total_swipe=0)
 #     From dashboard_data, dashboard_twenty_four
 # """
 
+def total_time_minute(time_seconds: int) -> int:
+    """
+    Input: seconds
+    Response: Round minute
+    """
+    return round((time_seconds or 0) / 60) or 0
+
 
 def load_user_group_stats(keys: List[str]):
     aggregate_results = (
@@ -90,7 +97,7 @@ def load_user_group_stats(keys: List[str]):
     _map = {
         user_group_id: SwipeStatType(
             total_swipe=swipe_count or 0,
-            total_swipe_time=round(total_time or 0 / 60),  # swipe time in minutes
+            total_swipe_time=total_time_minute(total_time),
             total_mapping_projects=mapped_project_count or 0,
             total_contributors=total_contributors or 0,
         )
@@ -129,7 +136,7 @@ def user_group_latest_stats(keys: List[str]):
     _map = {
         user_group_id: UserGroupLatestType(
             total_swipes=total_swipe or 0,
-            total_swipe_time=round(total_time or 0 / 60),  # swipe time in minutes
+            total_swipe_time=total_time_minute(total_time),
             total_contributors=total_contributors,
         )
         for (
@@ -256,7 +263,7 @@ def load_user_group_user_stats(keys: List[str]):
                 user_id=user_id,
                 user_name=username,
                 total_swipes=total_swipe_count or 0,
-                total_swipe_time=round(total_time or 0 / 60),  # swipe time in minutes
+                total_swipe_time=total_time_minute(total_time),
                 total_mapping_projects=mapped_project_count or 0,
             )
         )
@@ -311,7 +318,7 @@ def load_user_group_contribution_time(keys: List[str]):
         _map[user_group_id].append(
             ContributorTimeType(
                 date=task_date,
-                total=round(total_time or 0 / 60),
+                total=total_time_minute(total_time),
             )
         )
     return [_map.get(key) for key in keys]
@@ -342,7 +349,7 @@ def load_user_stats(keys: List[str]):
     _map = {
         user_id: UserSwipeStatType(
             total_swipe=round(total_swipe_count or 0) or 0,
-            total_swipe_time=round(total_time or 0 / 60) or 0,  # swipe time in minutes
+            total_swipe_time=total_time_minute(total_time),
             total_mapping_projects=round(total_project or 0) or 0,
             total_user_group=round(user_user_group_count.get(user_id, 0)) or 0,
         )
@@ -411,7 +418,7 @@ def load_user_time_spending(keys: List[str]):
         _map[user_id].append(
             ContributorTimeType(
                 date=task_date,
-                total=round(total_time or 0 / 60),
+                total=total_time_minute(total_time),
             )
         )
     return [_map.get(key) for key in keys]
@@ -506,7 +513,7 @@ def load_user_latest_stats_query(keys: List[str]):
         user_id: UserLatestStatusTypeStats(
             total_user_group=round(total_group or 0),
             total_swipe=round(total_swipe or 0),
-            total_swipe_time=round(total_time or 0 / 60),
+            total_swipe_time=total_time_minute(total_time),
         )
         for (
             user_id,
