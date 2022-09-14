@@ -1,6 +1,10 @@
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { useLocation } from 'react-router-dom';
-import { IoCheckmark } from 'react-icons/io5';
+import {
+    IoCheckmark,
+    IoPerson,
+    IoPeople,
+} from 'react-icons/io5';
 import { sum, isDefined, _cs } from '@togglecorp/fujs';
 import {
     useQuery,
@@ -91,16 +95,27 @@ function Option(props: OptionProps) {
     } = props;
 
     return (
-        <div className={styles.options}>
-            <div className={styles.icon}>
+        <div className={styles.optionItem}>
+            <div className={styles.checkmark}>
                 <IoCheckmark />
             </div>
-            <div className={styles.label}>
-                {label}
-                <div className={styles.meta}>
-                    {`${isArchived ? '(archived)' : ''}`}
-                    {`${type}`}
+            <div className={styles.name}>
+                {type === 'user' && (
+                    <IoPerson className={styles.icon} />
+                )}
+                {type === 'user-group' && (
+                    <IoPeople className={styles.icon} />
+                )}
+                <div className={styles.label}>
+                    {label}
                 </div>
+            </div>
+            <div className={styles.meta}>
+                {isArchived && (
+                    <div className={styles.archived}>
+                        Archived
+                    </div>
+                )}
             </div>
         </div>
     );
@@ -196,7 +211,7 @@ function ItemSelectInput<Name extends string>(props: ItemSelectInputProps<Name>)
                 label: titleSelector(option),
                 isArchived: isArchivedSelector(option),
                 type: typeSelector(option),
-                containerClassName: _cs(styles.option, isActive && styles.active),
+                containerClassName: _cs(styles.optionContainer, isActive && styles.active),
             };
         },
         [selectedItem],

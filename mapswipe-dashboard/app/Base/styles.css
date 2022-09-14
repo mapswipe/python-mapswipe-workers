@@ -60,6 +60,7 @@ p {
     --color-text-dark: rgba(0, 0, 0, 1);
     --color-text-light: rgba(0, 0, 0, .5);
     --color-text-on-dark: #ffffff;
+    --color-text-watermark: rgba(0, 0, 0, .4);
     --color-accent: #239A3B;
     --color-danger: #e04656;
     --color-success: #53b391;

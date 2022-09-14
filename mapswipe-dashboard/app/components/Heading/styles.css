@@ -26,18 +26,6 @@
         font-size: var(--font-size-extra-small);
     }
 
-    &.brand {
-        --color: var(--color-brand);
-    }
-
-    &.accent {
-        --color: var(--color-accent);
-    }
-
-    &.default {
-        --color: var(--color-text);
-    }
-
     &.ellipsize {
         overflow: hidden;
         text-overflow: ellipsis;

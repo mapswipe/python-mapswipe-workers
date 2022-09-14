@@ -40,7 +40,7 @@ function ElementFragments(props: Props) {
                 <Icons
                     wrap={wrapIcons}
                     allowShrink={allowIconsShrink}
-                    className={_cs(iconsContainerClassName, styles.icons)}
+                    className={_cs(styles.icons, iconsContainerClassName)}
                 >
                     {icons}
                 </Icons>
@@ -57,7 +57,7 @@ function ElementFragments(props: Props) {
                 <Actions
                     wrap={wrapActions}
                     allowShrink={allowActionsShrink}
-                    className={actionsContainerClassName}
+                    className={_cs(styles.actions, actionsContainerClassName)}
                 >
                     {actions}
                 </Actions>
