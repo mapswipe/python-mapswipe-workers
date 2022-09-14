@@ -123,6 +123,34 @@ function Dashboard(props: Props) {
                         <InformationCard
                             icon={(
                                 <img
+                                    src={swipeSvg}
+                                    alt="swipe icon"
+                                    className={styles.image}
+                                />
+                            )}
+                            value={(
+                                <NumberOutput
+                                    value={totalSwipes}
+                                    normal
+                                />
+                            )}
+                            label="Total Swipes"
+                            // eslint-disable-next-line max-len
+                            description={isDefined(totalSwipesLastMonth) && totalSwipesLastMonth > 0 && (
+                                <TextOutput
+                                    value={(
+                                        <NumberOutput
+                                            value={totalSwipesLastMonth}
+                                            normal
+                                        />
+                                    )}
+                                    description="swipes in the last 30 days"
+                                />
+                            )}
+                        />
+                        <InformationCard
+                            icon={(
+                                <img
                                     src={userSvg}
                                     alt="user icon"
                                     className={styles.image}
@@ -173,34 +201,6 @@ function Dashboard(props: Props) {
                                         />
                                     )}
                                     description="active groups in the last 30 days"
-                                />
-                            )}
-                        />
-                        <InformationCard
-                            icon={(
-                                <img
-                                    src={swipeSvg}
-                                    alt="swipe icon"
-                                    className={styles.image}
-                                />
-                            )}
-                            value={(
-                                <NumberOutput
-                                    value={totalSwipes}
-                                    normal
-                                />
-                            )}
-                            label="Total Swipes"
-                            // eslint-disable-next-line max-len
-                            description={isDefined(totalSwipesLastMonth) && totalSwipesLastMonth > 0 && (
-                                <TextOutput
-                                    value={(
-                                        <NumberOutput
-                                            value={totalSwipesLastMonth}
-                                            normal
-                                        />
-                                    )}
-                                    description="swipes in the last 30 days"
                                 />
                             )}
                         />

@@ -1,8 +1,10 @@
 import React from 'react';
 import { Link, generatePath } from 'react-router-dom';
-import NumberOutput from '#components/NumberOutput';
+import { isDefined } from '@togglecorp/fujs';
 
+import NumberOutput from '#components/NumberOutput';
 import routes from '#base/configs/routes';
+import { formatTimeDuration } from '#utils/temporal';
 
 import styles from './styles.css';
 
@@ -46,9 +48,9 @@ function MemberItem(props: Props) {
                 />
             </div>
             <div className={styles.item}>
-                <NumberOutput
-                    value={member.totalSwipeTime}
-                />
+                <div>
+                    {isDefined(member.totalSwipeTime) ? formatTimeDuration(member.totalSwipeTime) : '-'}
+                </div>
             </div>
         </div>
     );
