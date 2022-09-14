@@ -165,7 +165,6 @@ function UserGroupDashboard(props: Props) {
     const totalSwipeTimeLastMonth = userGroupStats?.userGroup.userGroupLatest?.totalSwipeTime;
 
     const totalContributors = userGroupStats?.userGroup.stats?.totalContributors;
-    // eslint-disable-next-line max-len
     const totalContributorsLastMonth = userGroupStats?.userGroup.userGroupLatest?.totalContributors;
 
     const handleDateRangeChange = useCallback((value: DateRangeValue | undefined) => {

@@ -57,13 +57,13 @@ function RawInputWithSuggestion<K extends string, S>(
     props: RawInputWithSuggestionProps<K, S, never>,
 ) {
     const {
-        // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         suggestions,
-        // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         suggestionKeySelector,
-        // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         suggestionLabelSelector,
-        // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         suggestionsPopupClassName,
         containerRef,
         inputSectionRef,
