@@ -17,6 +17,8 @@
         "#components/*": ["./app/components/*"],
         "#views/*": ["./app/views/*"],
         "#resources/*": ["./app/resources/*"],
-        "#base/*": ["./app/Base/*"]
+        "#base/*": ["./app/Base/*"],
+        "#utils/*": ["./app/Base/utils/*"],
+        "#hooks/*": ["./app/hooks/*"]
     }
 }

@@ -40,69 +40,20 @@ import {
     ProjectSwipeTypeStats,
     ProjectTypeStats,
 } from '#generated/types';
+import {
+    mergeItems,
+} from '#utils/common';
+import {
+    formatTimeDuration,
+    formatDate,
+    formatMonth,
+    formatYear,
+    resolveTime,
+    getTimestamps,
+} from '#utils/temporal';
 
 import StatsContainer from './StatsContainer';
 import styles from './styles.css';
-
-function mergeItems<T, K extends string>(
-    list: T[],
-    keySelector: (item: T) => K,
-    merge: (prev: T, item: T, key: K) => T,
-): T[] {
-    const mapping: {
-        [key: string]: T | undefined;
-    } = {};
-    list.forEach((item) => {
-        const key = keySelector(item);
-        const prev = mapping[key];
-        if (!prev) {
-            mapping[key] = prev;
-        } else {
-            mapping[key] = merge(prev, item, key);
-        }
-    });
-    return Object.values(list);
-}
-
-function removeTime(date: Date | number | string, resolution: 'day' | 'month' | 'year'): Date {
-    const newDate = new Date(date);
-    if (resolution === 'day' || resolution === 'month' || resolution === 'year') {
-        newDate.setUTCHours(0, 0, 0, 0);
-    }
-    if (resolution === 'month' || resolution === 'year') {
-        newDate.setDate(1);
-    }
-    if (resolution === 'year') {
-        newDate.setMonth(0);
-    }
-    return newDate;
-}
-
-function getTimestamps(
-    startDate: Date | number | string,
-    endDate: Date | number | string,
-    resolution: 'day' | 'month' | 'year',
-) {
-    const sanitizedStartDate = removeTime(startDate, resolution);
-    const sanitizedEndDate = removeTime(endDate, resolution);
-
-    const returns: number[] = [
-        sanitizedStartDate.getTime(),
-    ];
-
-    while (sanitizedStartDate < sanitizedEndDate) {
-        if (resolution === 'year') {
-            sanitizedStartDate.setFullYear(sanitizedStartDate.getFullYear() + 1);
-        } else if (resolution === 'month') {
-            sanitizedStartDate.setMonth(sanitizedStartDate.getMonth() + 1);
-        } else {
-            sanitizedStartDate.setDate(sanitizedStartDate.getDate() + 1);
-        }
-        returns.push(sanitizedStartDate.getTime());
-    }
-
-    return returns;
-}
 
 const UNKNOWN = '-1';
 const BUILD_AREA = '1';
@@ -132,120 +83,6 @@ const projectTypes: Record<string, { color: string, name: string }> = {
         name: 'Completeness',
     },
 };
-
-function formatDate(value: number | string) {
-    const date = new Date(value);
-    return new Intl.DateTimeFormat(
-        'en-US',
-        { year: 'numeric', month: 'short', day: 'numeric' },
-    ).format(date);
-}
-
-function formatMonth(value: number | string) {
-    const date = new Date(value);
-    return new Intl.DateTimeFormat(
-        'en-US',
-        { year: 'numeric', month: 'short' },
-    ).format(date);
-}
-
-function formatYear(value: number | string) {
-    const date = new Date(value);
-    return new Intl.DateTimeFormat(
-        'en-US',
-        { year: 'numeric' },
-    ).format(date);
-}
-
-function suffix(num: number, suffixStr: string, skipZero: boolean) {
-    if (num === 0) {
-        return skipZero ? '' : '0';
-    }
-    return `${num.toLocaleString()} ${suffixStr}${num !== 1 ? 's' : ''}`;
-}
-
-type DurationNumeric = 0 | 1 | 2 | 3 | 4 | 5;
-
-const mappings: {
-    [x in DurationNumeric]: {
-        text: string;
-        shortText: string;
-        value: number;
-    }
-} = {
-    0: {
-        shortText: 'yr',
-        text: 'year',
-        value: 365 * 24 * 60 * 60,
-    },
-    1: {
-        shortText: 'mo',
-        text: 'month',
-        value: 30 * 24 * 60 * 60,
-    },
-    2: {
-        shortText: 'day',
-        text: 'day',
-        value: 24 * 60 * 60,
-    },
-    3: {
-        shortText: 'hr',
-        text: 'hour',
-        value: 60 * 60,
-    },
-    4: {
-        shortText: 'min',
-        text: 'minute',
-        value: 60,
-    },
-    5: {
-        shortText: 'sec',
-        text: 'second',
-        value: 1,
-    },
-};
-
-function formatTimeDuration(
-    seconds: number,
-    separator = ' ',
-    shorten = false,
-    stop = 2,
-    startFrom: DurationNumeric = 3,
-    endAt?: DurationNumeric,
-): string {
-    if (endAt === startFrom) {
-        return '';
-    }
-    if (startFrom === 5) {
-        return suffix(seconds, shorten ? 'sec' : 'second', false);
-    }
-
-    const map = mappings[startFrom];
-    const dur = Math.floor(seconds / map.value);
-    if (dur >= 1) {
-        return [
-            suffix(dur, shorten ? map.shortText : map.text, true),
-            formatTimeDuration(
-                seconds % map.value,
-                separator,
-                shorten,
-                stop,
-                startFrom,
-                endAt ?? Math.min(startFrom + stop, 5) as DurationNumeric,
-            ),
-        ].filter(Boolean).join(' ');
-    }
-
-    const nextStartFrom: DurationNumeric = (startFrom + 1) as DurationNumeric;
-    return formatTimeDuration(
-        seconds,
-        separator,
-        shorten,
-        stop,
-        nextStartFrom,
-        endAt,
-    );
-}
 
 /*
 function formatTimeDuration(value: number) {
@@ -364,7 +201,7 @@ function StatsBoard(props: Props) {
             const values = (contributionTimeStats ?? [])
                 .filter((contribution) => isDefined(contribution.date))
                 .map((contribution) => ({
-                    date: removeTime(contribution.date, resolution).getTime(),
+                    date: resolveTime(contribution.date, resolution).getTime(),
                     total: contribution.total,
                 }))
                 .filter((contribution) => contribution.total > 0);
@@ -599,7 +436,7 @@ function StatsBoard(props: Props) {
                     value={isDefined(totalContribution) && totalContribution > 0 && (
                         <TextOutput
                             className={styles.numberOutput}
-                            value={formatTimeDuration(totalContribution)}
+                            value={formatTimeDuration(totalContribution, ' ', true)}
                         />
                     )}
                     variant="stat"

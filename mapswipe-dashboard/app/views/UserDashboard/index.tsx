@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { gql, useQuery } from '@apollo/client';
-import { _cs } from '@togglecorp/fujs';
+import { _cs, isDefined } from '@togglecorp/fujs';
 import { useParams, generatePath, Link } from 'react-router-dom';
 
 import routes from '#base/configs/routes';
@@ -18,6 +18,7 @@ import swipeSvg from '#resources/icons/swipe.svg';
 import timeSvg from '#resources/icons/time.svg';
 import dashboardHeaderSvg from '#resources/img/dashboard.svg';
 import StatsBoard from '#views/StatsBoard';
+import { formatTimeDuration } from '#utils/temporal';
 
 import styles from './styles.css';
 
@@ -49,9 +50,9 @@ const USER_STATS = gql`
                 totalSwipe
             }
             stats {
-                totalMappingProjects
                 totalSwipe
                 totalSwipeTime
+                totalUserGroup
             }
             statsLatest {
                 totalSwipe
@@ -76,7 +77,7 @@ interface Props {
 function UserDashboard(props: Props) {
     const { className } = props;
 
-    const { userId } = useParams();
+    const { userId } = useParams<{ userId: string | undefined }>();
 
     const {
         data: userStats,
@@ -91,8 +92,22 @@ function UserDashboard(props: Props) {
         },
     );
 
-    const contributionData = userStats?.user.contributionStats
-        ?.map((value) => ({ date: value.taskDate, count: value.totalSwipe }));
+    const contributionData = useMemo(
+        () => (
+            userStats?.user.contributionStats
+                ?.map((value) => ({ date: value.taskDate, count: value.totalSwipe }))
+        ),
+        [userStats],
+    );
+
+    const totalSwipe = userStats?.user.stats?.totalSwipe;
+    const totalSwipeLastMonth = userStats?.user.statsLatest?.totalSwipe;
+
+    const totalSwipeTime = userStats?.user.stats?.totalSwipeTime;
+    const totalSwipeTimeLastMonth = userStats?.user.statsLatest?.totalSwipeTime;
+
+    const totalUserGroup = userStats?.user.stats?.totalUserGroup;
+    const totalUserGroupLastMonth = userStats?.user.statsLatest?.totalUserGroup;
 
     return (
         <div className={_cs(className, styles.userDashboard)}>
@@ -116,43 +131,47 @@ function UserDashboard(props: Props) {
                             value={(
                                 <NumberOutput
                                     className={styles.value}
-                                    value={userStats?.user.stats?.totalSwipe}
+                                    value={totalSwipe}
                                     normal
                                 />
                             )}
-                            description={userStats?.user.statsLatest?.totalSwipe && (
+                            // eslint-disable-next-line max-len
+                            description={isDefined(totalSwipeLastMonth) && totalSwipeLastMonth > 0 && (
                                 <TextOutput
                                     className={styles.value}
                                     value={(
                                         <NumberOutput
                                             className={styles.value}
-                                            value={userStats?.user.statsLatest?.totalSwipe}
+                                            value={totalSwipeLastMonth}
                                             normal
                                         />
                                     )}
-                                    description="&nbsp;total swipes last 30 days"
+                                    description="total swipes in the last 30 days"
                                 />
                             )}
                         />
                         <InformationCard
                             icon={(<img src={timeSvg} alt="time icon" className={styles.image} />)}
-                            label="Total Time Spent (in mins)"
+                            label="Total Time Spent"
                             value={(
-                                <NumberOutput
+                                <div
                                     className={styles.value}
-                                    value={userStats?.user.stats?.totalSwipeTime}
-                                />
+                                >
+                                    {isDefined(totalSwipeTime) ? formatTimeDuration(totalSwipeTime, ' ', true) : '-'}
+                                </div>
                             )}
-                            description={userStats?.user.statsLatest?.totalSwipeTime && (
+                            // eslint-disable-next-line max-len
+                            description={isDefined(totalSwipeTimeLastMonth) && totalSwipeTimeLastMonth > 0 && (
                                 <TextOutput
                                     className={styles.value}
                                     value={(
-                                        <NumberOutput
+                                        <div
                                             className={styles.value}
-                                            value={userStats?.user.statsLatest?.totalSwipeTime}
-                                        />
+                                        >
+                                            {formatTimeDuration(totalSwipeTimeLastMonth, ' ', true)}
+                                        </div>
                                     )}
-                                    description="&nbsp; mins last 30 days"
+                                    description="in the last 30 days"
                                 />
                             )}
                         />
@@ -162,21 +181,22 @@ function UserDashboard(props: Props) {
                             value={(
                                 <NumberOutput
                                     className={styles.value}
-                                    value={userStats?.user.stats?.totalMappingProjects}
+                                    value={totalUserGroup}
                                 />
                             )}
-                            description={userStats?.user.statsLatest?.totalUserGroup && (
+                            // eslint-disable-next-line max-len
+                            description={isDefined(totalUserGroupLastMonth) && totalUserGroupLastMonth > 0 && (
                                 <TextOutput
                                     className={styles.value}
-                                    label="Active in&nbsp;"
+                                    label="Active in"
                                     value={(
                                         <NumberOutput
                                             className={styles.value}
-                                            value={userStats?.user.statsLatest?.totalUserGroup}
+                                            value={totalUserGroupLastMonth}
                                         />
                                     )}
                                     hideLabelColon
-                                    description="&nbsp; groups last 30 days"
+                                    description="groups last 30 days"
                                 />
                             )}
                         />
@@ -207,14 +227,15 @@ function UserDashboard(props: Props) {
                                         key={group.userGroupId}
                                         className={styles.group}
                                         icon={(<img src={groupSvg} alt="swipe icon" />)}
-                                        subHeading={(
-                                            <TextOutput
-                                                className={styles.value}
-                                                label="Joined on"
-                                                value={undefined}
-                                                hideLabelColon
-                                            />
-                                        )}
+                                        // subHeading={(
+                                        //     <TextOutput
+                                        //         className={styles.value}
+                                        //         label="Joined on"
+                                        //         // FIXME: fill this value
+                                        //         value={undefined}
+                                        //         hideLabelColon
+                                        //     />
+                                        // )}
                                         label={(
                                             <Link
                                                 className={styles.link}
