@@ -13,7 +13,9 @@ from mapswipe_workers.definitions import logger
 # TODO: Change firebase/client side to send UTC time instead.
 def convert_timestamp_to_database_format(timestamp_number):
     if timestamp_number:
-        return dt.datetime.fromtimestamp(timestamp_number / 1000).strftime("%Y-%m-%dT%H:%M:%S")
+        return dt.datetime.fromtimestamp(timestamp_number / 1000).strftime(
+            "%Y-%m-%dT%H:%M:%S"
+        )
 
 
 def convert_firebase_datetime_to_database_format(timestamp):
@@ -251,7 +253,9 @@ def update_user_group_full_data(user_group_ids: List[str]):
             continue
         # New/Updated user group
         created_at = convert_firebase_datetime_to_database_format(ug.get("created_at"))
-        archived_at = convert_firebase_datetime_to_database_format(ug.get("archived_at"))
+        archived_at = convert_firebase_datetime_to_database_format(
+            ug.get("archived_at")
+        )
         archived_by_id = ug.get("archived_by", None)
         created_by_id = ug.get("created_by", None)
 
