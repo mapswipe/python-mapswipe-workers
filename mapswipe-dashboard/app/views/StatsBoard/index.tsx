@@ -1,6 +1,5 @@
 import React, { useMemo } from 'react';
 import {
-    getDifferenceInDays,
     isDefined,
     listToGroupList,
     mapToList,
@@ -45,6 +44,66 @@ import {
 import StatsContainer from './StatsContainer';
 import styles from './styles.css';
 
+function mergeItems<T, K extends string>(
+    list: T[],
+    keySelector: (item: T) => K,
+    merge: (prev: T, item: T, key: K) => T,
+): T[] {
+    const mapping: {
+        [key: string]: T | undefined;
+    } = {};
+    list.forEach((item) => {
+        const key = keySelector(item);
+        const prev = mapping[key];
+        if (!prev) {
+            mapping[key] = prev;
+        } else {
+            mapping[key] = merge(prev, item, key);
+        }
+    });
+    return Object.values(list);
+}
+
+function removeTime(date: Date | number | string, resolution: 'day' | 'month' | 'year'): Date {
+    const newDate = new Date(date);
+    if (resolution === 'day' || resolution === 'month' || resolution === 'year') {
+        newDate.setUTCHours(0, 0, 0, 0);
+    }
+    if (resolution === 'month' || resolution === 'year') {
+        newDate.setDate(1);
+    }
+    if (resolution === 'year') {
+        newDate.setMonth(0);
+    }
+    return newDate;
+}
+
+function getTimestamps(
+    startDate: Date | number | string,
+    endDate: Date | number | string,
+    resolution: 'day' | 'month' | 'year',
+) {
+    const sanitizedStartDate = removeTime(startDate, resolution);
+    const sanitizedEndDate = removeTime(endDate, resolution);
+
+    const returns: number[] = [
+        sanitizedStartDate.getTime(),
+    ];
+
+    while (sanitizedStartDate < sanitizedEndDate) {
+        if (resolution === 'year') {
+            sanitizedStartDate.setFullYear(sanitizedStartDate.getFullYear() + 1);
+        } else if (resolution === 'month') {
+            sanitizedStartDate.setMonth(sanitizedStartDate.getMonth() + 1);
+        } else {
+            sanitizedStartDate.setDate(sanitizedStartDate.getDate() + 1);
+        }
+        returns.push(sanitizedStartDate.getTime());
+    }
+
+    return returns;
+}
+
 const UNKNOWN = '-1';
 const BUILD_AREA = '1';
 const FOOT_PRINT = '2';
@@ -82,9 +141,25 @@ function formatDate(value: number | string) {
     ).format(date);
 }
 
+function formatMonth(value: number | string) {
+    const date = new Date(value);
+    return new Intl.DateTimeFormat(
+        'en-US',
+        { year: 'numeric', month: 'short' },
+    ).format(date);
+}
+
+function formatYear(value: number | string) {
+    const date = new Date(value);
+    return new Intl.DateTimeFormat(
+        'en-US',
+        { year: 'numeric' },
+    ).format(date);
+}
+
 function suffix(num: number, suffixStr: string, skipZero: boolean) {
-    if (num === 0 && skipZero) {
-        return '';
+    if (num === 0) {
+        return skipZero ? '' : '0';
     }
     return `${num.toLocaleString()} ${suffixStr}${num !== 1 ? 's' : ''}`;
 }
@@ -94,30 +169,37 @@ type DurationNumeric = 0 | 1 | 2 | 3 | 4 | 5;
 const mappings: {
     [x in DurationNumeric]: {
         text: string;
+        shortText: string;
         value: number;
     }
 } = {
     0: {
+        shortText: 'yr',
         text: 'year',
         value: 365 * 24 * 60 * 60,
     },
     1: {
+        shortText: 'mo',
         text: 'month',
         value: 30 * 24 * 60 * 60,
     },
     2: {
+        shortText: 'day',
         text: 'day',
         value: 24 * 60 * 60,
     },
     3: {
+        shortText: 'hr',
         text: 'hour',
         value: 60 * 60,
     },
     4: {
+        shortText: 'min',
         text: 'minute',
         value: 60,
     },
     5: {
+        shortText: 'sec',
         text: 'second',
         value: 1,
     },
@@ -126,6 +208,7 @@ const mappings: {
 function formatTimeDuration(
     seconds: number,
     separator = ' ',
+    shorten = false,
     stop = 2,
     startFrom: DurationNumeric = 3,
     endAt?: DurationNumeric,
@@ -134,17 +217,18 @@ function formatTimeDuration(
         return '';
     }
     if (startFrom === 5) {
-        return suffix(seconds, 'second', false);
+        return suffix(seconds, shorten ? 'sec' : 'second', false);
     }
 
     const map = mappings[startFrom];
     const dur = Math.floor(seconds / map.value);
     if (dur >= 1) {
         return [
-            suffix(dur, map.text, true),
+            suffix(dur, shorten ? map.shortText : map.text, true),
             formatTimeDuration(
                 seconds % map.value,
                 separator,
+                shorten,
                 stop,
                 startFrom,
                 endAt ?? Math.min(startFrom + stop, 5) as DurationNumeric,
@@ -153,7 +237,14 @@ function formatTimeDuration(
     }
 
     const nextStartFrom: DurationNumeric = (startFrom + 1) as DurationNumeric;
-    return formatTimeDuration(seconds, separator, stop, nextStartFrom, endAt);
+    return formatTimeDuration(
+        seconds,
+        separator,
+        shorten,
+        stop,
+        nextStartFrom,
+        endAt,
+    );
 }
 
 /*
@@ -228,32 +319,6 @@ function timeSpentLabelFormatter(value: number) {
     return [value, 'Total time'];
 }
 
-const getTicks = (startDate: number, endDate: number, num: number) => {
-    const diffDays = getDifferenceInDays(endDate, startDate);
-
-    const ticks = [startDate];
-
-    if (diffDays <= num) {
-        // FIXME: comparison should be <= imo
-        for (let i = 1; i <= diffDays - 1; i += 1) {
-            const result = new Date(startDate);
-            result.setDate(result.getDate() + i);
-            ticks.push(result.getTime());
-        }
-    } else {
-        const velocity = Math.round(diffDays / (num - 1));
-        // FIXME: comparison should be <= imo
-        // FIXME: should be <= imo
-        for (let i = 1; i <= num - 1; i += 1) {
-            const result = new Date(startDate);
-            result.setDate(result.getDate() + velocity * i);
-            ticks.push(result.getTime());
-        }
-    }
-    ticks.push(endDate);
-    return ticks;
-};
-
 interface Props{
     className?: string;
     heading?: string;
@@ -276,26 +341,70 @@ function StatsBoard(props: Props) {
     } = props;
 
     // Timeseries
+    // FIXME: update this logic
+    const len = (contributionTimeStats ?? []).length;
+    let resolution: 'year' | 'month' | 'day';
+    if (len > 5 * 365) {
+        resolution = 'year';
+    } else if (len > 0.5 * 365) {
+        resolution = 'month';
+    } else {
+        resolution = 'day';
+    }
+
+    // eslint-disable-next-line no-nested-ternary
+    const timeFormatter = resolution === 'day'
+        ? formatDate
+        : resolution === 'month'
+            ? formatMonth
+            : formatYear;
 
     const contributionTimeSeries = useMemo(
-        () => contributionTimeStats
-            ?.filter((contribution) => isDefined(contribution.date))
-            .map((contribution) => ({
-                date: new Date(contribution.date).getTime(),
-                total: contribution.total,
-            }))
-            .filter((contribution) => contribution.total > 0)
-            .sort((a, b) => (a.date - b.date)),
-        [contributionTimeStats],
+        () => {
+            const values = (contributionTimeStats ?? [])
+                .filter((contribution) => isDefined(contribution.date))
+                .map((contribution) => ({
+                    date: removeTime(contribution.date, resolution).getTime(),
+                    total: contribution.total,
+                }))
+                .filter((contribution) => contribution.total > 0);
+
+            return mergeItems(
+                values,
+                (item) => String(item.date),
+                (foo, bar) => ({
+                    date: foo.date,
+                    total: foo.total + bar.total,
+                }),
+            ).sort((a, b) => (a.date - b.date));
+        },
+        [contributionTimeStats, resolution],
     );
 
-    const ticks = contributionTimeSeries && contributionTimeSeries.length > 1
-        ? getTicks(
-            contributionTimeSeries[0].date,
-            contributionTimeSeries[contributionTimeSeries.length - 1].date,
-            5,
-        )
-        : undefined;
+    const contributionTimeSeriesWithoutGaps = useMemo(
+        () => {
+            if (!contributionTimeSeries || contributionTimeSeries.length < 2) {
+                return undefined;
+            }
+
+            const mapping = listToMap(
+                contributionTimeSeries,
+                (item) => item.date,
+                (item) => item.total,
+            );
+
+            return getTimestamps(
+                contributionTimeSeries[0].date,
+                contributionTimeSeries[contributionTimeSeries.length - 1].date,
+                resolution,
+            )
+                .map((item) => ({
+                    total: mapping[item] ?? 0,
+                    date: item,
+                }));
+        },
+        [contributionTimeSeries, resolution],
+    );
 
     // Timeseries by Day of Week
 
@@ -425,10 +534,11 @@ function StatsBoard(props: Props) {
                     title="Time Spent Contributing"
                     contentClassName={styles.timeSpentChartContainer}
                 >
-                    {contributionTimeSeries && contributionTimeSeries.length > 1 && (
+                    {/* eslint-disable-next-line max-len */}
+                    {contributionTimeSeriesWithoutGaps && contributionTimeSeriesWithoutGaps.length >= 2 && (
                         <ResponsiveContainer>
                             <AreaChart
-                                data={contributionTimeSeries}
+                                data={contributionTimeSeriesWithoutGaps}
                                 margin={{
                                     top: 0,
                                     bottom: 0,
@@ -449,27 +559,29 @@ function StatsBoard(props: Props) {
                                     domain={['dataMin', 'dataMax']}
                                     allowDuplicatedCategory={false}
                                     tick={{ strokeWidth: 1 }}
-                                    tickFormatter={formatDate}
-                                    ticks={ticks}
+                                    tickFormatter={timeFormatter}
+                                    minTickGap={20}
+                                    // ticks={ticks}
                                     interval="preserveStartEnd"
                                     padding={{ left: 10, right: 30 }}
                                 />
                                 <YAxis
                                     type="number"
                                     dataKey="total"
-                                    tickFormatter={(value) => formatTimeDuration(value, ' ', 1)}
+                                    tickFormatter={(value) => formatTimeDuration(value, ' ', true)}
                                     // domain={[0.9, 'auto']}
-                                    padding={{ top: 20, bottom: 10 }}
+                                    padding={{ top: 20, bottom: 5 }}
                                     width={100}
                                 />
                                 <Tooltip
-                                    labelFormatter={formatDate}
+                                    labelFormatter={timeFormatter}
                                     formatter={timeSpentLabelFormatter}
                                 />
                                 <Area
                                     // type="step"
-                                    // type="linear"
-                                    type="monotoneX"
+                                    type="linear"
+                                    // type="monotoneX"
+                                    // type="natural"
                                     dataKey="total"
                                     stroke="var(--color-primary-light)"
                                     fillOpacity={1}
@@ -484,7 +596,7 @@ function StatsBoard(props: Props) {
                 </StatsContainer>
                 <InformationCard
                     label="Time Spent Contributing by Day of Week"
-                    value={isDefined(totalContribution) && (
+                    value={isDefined(totalContribution) && totalContribution > 0 && (
                         <TextOutput
                             className={styles.numberOutput}
                             value={formatTimeDuration(totalContribution)}
@@ -499,7 +611,7 @@ function StatsBoard(props: Props) {
                                 <Tooltip formatter={timeSpentLabelFormatter} />
                                 <XAxis dataKey="day" />
                                 <YAxis
-                                    tickFormatter={(value) => formatTimeDuration(value, ' ', 1)}
+                                    tickFormatter={(value) => formatTimeDuration(value, ' ', true)}
                                     padding={{ top: 20, bottom: 0 }}
                                     width={100}
                                 />

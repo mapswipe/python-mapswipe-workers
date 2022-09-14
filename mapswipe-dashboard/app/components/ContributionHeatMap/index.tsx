@@ -26,7 +26,7 @@ export type MapContributionType = MapContributionTypeStats & {
 
 const heatLayerOptions: HeatMapOptions = {
     minOpacity: 0.8,
-    radius: 10,
+    radius: 15,
     gradient: {
         0.2: '#2b83ba',
         0.4: '#abdda4',
@@ -51,6 +51,7 @@ function HeatmapComponent(props: HeatmapComponentProps) {
             const corner2 = L.latLng(maxY, maxX);
             map.fitBounds(L.latLngBounds(corner1, corner2));
         }
+
         const points: HeatLatLngTuple[] = contributionGeojson.features.map((feature) => ([
             feature.geometry.coordinates[1],
             feature.geometry.coordinates[0],
@@ -98,6 +99,8 @@ function ContributionHeatMap(props: Props) {
     return (
         <div className={styles.contributionHeatMap}>
             <MapContainer
+                center={[40.866667, 34.566667]}
+                zoom={2}
                 className={styles.mapContainer}
             >
                 <HeatmapComponent

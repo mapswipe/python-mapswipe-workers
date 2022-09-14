@@ -1,11 +1,12 @@
-import React, { useState, useMemo, useEffect, useCallback } from 'react';
-import { useLocation } from 'react-router-dom';
+import React, { useState, useMemo, useCallback } from 'react';
+// import { useLocation } from 'react-router-dom';
 import {
     IoCheckmark,
     IoPerson,
     IoPeople,
+    IoSearch,
 } from 'react-icons/io5';
-import { sum, isDefined, _cs } from '@togglecorp/fujs';
+import { sum, _cs } from '@togglecorp/fujs';
 import {
     useQuery,
     gql,
@@ -132,25 +133,14 @@ function ItemSelectInput<Name extends string>(props: ItemSelectInputProps<Name>)
         ...otherProps
     } = props;
 
-    const [selectedItem, setSelectedItem] = useState<string | undefined>();
-    const [itemOptions, setItemOptions] = useState<SearchItemType[] | undefined | null>();
-
     const [opened, setOpened] = useState(false);
     const [searchText, setSearchText] = useState<string>('');
+
     const debouncedSearchText = useDebouncedValue(searchText);
 
     const variables = useMemo(() => ({
         search: debouncedSearchText,
     }), [debouncedSearchText]);
-
-    const location = useLocation();
-    const pathName = location.pathname.split('/');
-
-    useEffect(() => {
-        if ((location.pathname === '/' && isDefined(selectedItem)) || (selectedItem && !pathName.includes(selectedItem))) {
-            setSelectedItem(undefined);
-        }
-    }, [location, selectedItem, pathName]);
 
     const {
         previousData: previousUserData,
@@ -160,7 +150,7 @@ function ItemSelectInput<Name extends string>(props: ItemSelectInputProps<Name>)
         USERS,
         {
             variables,
-            skip: !opened || !debouncedSearchText || debouncedSearchText.trim().length === 0,
+            skip: !opened,
         },
     );
 
@@ -172,40 +162,44 @@ function ItemSelectInput<Name extends string>(props: ItemSelectInputProps<Name>)
         USER_GROUPS,
         {
             variables,
-            skip: !opened || !debouncedSearchText || debouncedSearchText.trim().length === 0,
+            skip: !opened,
         },
     );
 
     const loading = userDataLoading || userGroupDataLoading;
-    const count = sum([
-        userData?.users.count ?? 0,
-        userGroupData?.userGroups.count ?? 0,
-    ]);
+    const count = (userData?.users.count ?? 0) + (userGroupData?.userGroups.count ?? 0);
+    const usersData = userData?.users.items;
+    const userGroupsData = userGroupData?.userGroups.items;
 
-    const data: SearchItemType[] = [
-        ...(userData?.users.items.map((user) => ({
-            id: user.userId,
-            name: user.username ?? '',
-            type: 'user' as const,
-        })) ?? []),
+    const data: SearchItemType[] = useMemo(
+        () => ([
+            ...(usersData?.map((user) => ({
+                id: user.userId,
+                name: user.username ?? 'Unknown',
+                type: 'user' as const,
+            })) ?? []),
+            ...(userGroupsData?.map((userGroup) => ({
+                id: userGroup.userGroupId,
+                name: userGroup.name ?? 'Unknown',
+                type: 'user-group' as const,
+                isArchived: userGroup.isArchived ?? false,
+            })) ?? []),
+        ]),
+        [userGroupsData, usersData],
+    );
 
-        ...(userGroupData?.userGroups.items.map((userGroup) => ({
-            id: userGroup.userGroupId,
-            name: userGroup.name ?? '',
-            type: 'user-group' as const,
-            isArcived: userGroup.isArchived,
-        })) ?? []),
-    ];
-
-    const handleSelectItem = (id: string | undefined) => {
-        setSelectedItem(id);
-        const item = data.find((val) => val.id === id);
-        onItemSelect(item);
-    };
+    const handleSelectItem = useCallback(
+        (id: string | undefined) => {
+            const item = data.find((val) => val.id === id);
+            onItemSelect(item);
+        },
+        [data, onItemSelect],
+    );
 
     const optionRendererParams = useCallback(
-        (key: number | string, option: SearchItemType) => {
-            const isActive = key === selectedItem;
+        (_: number | string, option: SearchItemType) => {
+            // const isActive = key === selectedItem;
+            const isActive = false;
 
             return {
                 label: titleSelector(option),
@@ -214,27 +208,33 @@ function ItemSelectInput<Name extends string>(props: ItemSelectInputProps<Name>)
                 containerClassName: _cs(styles.optionContainer, isActive && styles.active),
             };
         },
-        [selectedItem],
+        [],
+        // [selectedItem],
     );
 
     return (
         <SearchSelectInput
             {...otherProps}
             name="item-select-input"
-            options={itemOptions}
+            icons={(
+                <IoSearch />
+            )}
             optionRendererParams={optionRendererParams}
             optionRenderer={Option}
-            onOptionsChange={setItemOptions}
-            value={selectedItem}
+            options={[]}
+            // onOptionsChange={setItemOptions}
+            // value={selectedItem}
+            value={undefined}
             onChange={handleSelectItem}
+            // Other props
             className={className}
             keySelector={keySelector}
             labelSelector={titleSelector}
             onSearchValueChange={setSearchText}
+            onShowDropdownChange={setOpened}
             searchOptions={data}
             optionsPending={loading}
             totalOptionsCount={count}
-            onShowDropdownChange={setOpened}
         />
     );
 }

@@ -54,7 +54,7 @@ const COMMUNITY_STATS = gql`
 // FIXME: add filters
 const DEEP_COMMUNITY_STATS = gql`
     query DeepCommunityStats {
-        contributorTimeStats(fromDate: "2010-01-01", toDate: "2023-01-01") {
+        contributorTimeStats(fromDate: "2012-01-01", toDate: "2023-01-01") {
             date
             total
         }
