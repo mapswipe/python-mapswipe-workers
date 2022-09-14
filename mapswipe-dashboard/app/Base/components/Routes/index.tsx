@@ -41,7 +41,7 @@ function Routes(props: Props) {
                 </Route>
                 <Route
                     exact
-                    pajth={routes.fourHundredFour.path}
+                    path={routes.fourHundredFour.path}
                 >
                     {routes.fourHundredFour.load({ className })}
                 </Route>
