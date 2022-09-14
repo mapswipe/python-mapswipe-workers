@@ -15,11 +15,6 @@ interface OptionProps {
     children?: React.ReactNode;
 }
 
-interface DateRangeValue {
-    startDate: string;
-    endDate: string;
-}
-
 function Option(props: OptionProps) {
     const {
         children,
@@ -47,20 +42,20 @@ export type SearchSelectInputProps<
     P extends Def,
     OMISSION extends string,
     > = Omit<{
-    value: T | undefined | null;
-    options: O[] | undefined | null;
-    searchOptions?: O[] | undefined | null;
-    keySelector: (option: O) => T;
-    labelSelector: (option: O) => string;
-    name: K;
-    disabled?: boolean;
-    readOnly?: boolean;
-    onOptionsChange?: React.Dispatch<React.SetStateAction<O[] | undefined | null>>;
-    sortFunction?: (options: O[], search: string, labelSelector: (option: O) => string) => O[];
-    onSearchValueChange?: (value: string) => void;
-    onShowDropdownChange?: (value: boolean) => void;
-    optionRenderer: (props: Pick<P, Exclude<keyof P, 'containerClassName' | 'title'>>) => React.ReactNode;
-    optionRendererParams: (optionKey: OptionKey, option: O) => P;
+        value: T | undefined | null;
+        options: O[] | undefined | null;
+        searchOptions?: O[] | undefined | null;
+        keySelector: (option: O) => T;
+        labelSelector: (option: O) => string;
+        name: K;
+        disabled?: boolean;
+        readOnly?: boolean;
+        onOptionsChange?: React.Dispatch<React.SetStateAction<O[] | undefined | null>>;
+        sortFunction?: (options: O[], search: string, labelSelector: (option: O) => string) => O[];
+        onSearchValueChange?: (value: string) => void;
+        onShowDropdownChange?: (value: boolean) => void;
+        optionRenderer?: (props: Pick<P, Exclude<keyof P, 'containerClassName' | 'title'>>) => React.ReactNode;
+        optionRendererParams?: (optionKey: OptionKey, option: O) => P;
     }, OMISSION> & (
         SelectInputContainerProps<T, K, O, P,
             'name'
@@ -118,7 +113,6 @@ function SearchSelectInput<
     const options = optionsFromProps ?? (emptyList as O[]);
     const searchOptions = searchOptionsFromProps ?? (emptyList as O[]);
 
-    const [dateRange, setDateRange] = useState<DateRangeValue>();
     const [searchInputValue, setSearchInputValue] = React.useState('');
     const [showDropdown, setShowDropdown] = React.useState(false);
     const [focused, setFocused] = React.useState(false);

@@ -50,6 +50,8 @@ function HeatmapComponent(props: HeatmapComponentProps) {
             const corner1 = L.latLng(minY, minX);
             const corner2 = L.latLng(maxY, maxX);
             map.fitBounds(L.latLngBounds(corner1, corner2));
+        } else {
+            map.setView([40.866667, 34.566667], 2);
         }
 
         const points: HeatLatLngTuple[] = contributionGeojson.features.map((feature) => ([
@@ -60,6 +62,7 @@ function HeatmapComponent(props: HeatmapComponentProps) {
 
         const layer = L.heatLayer(points, heatLayerOptions);
         layer.addTo(map);
+
         return () => {
             map.removeLayer(layer);
         };

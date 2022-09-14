@@ -15,7 +15,22 @@ export interface PredefinedDateRangeOption {
     getValue: () => ({ startDate: Date, endDate: Date });
 }
 
+export const getThisMonth = () => {
+    const startDate = new Date();
+    startDate.setDate(1);
+
+    const endDate = new Date();
+    endDate.setMonth(endDate.getMonth() + 1);
+    endDate.setDate(0);
+
+    return {
+        startDate,
+        endDate,
+    };
+};
+
 export const predefinedDateRangeOptions: PredefinedDateRangeOption[] = [
+    /*
     {
         key: 'today',
         label: 'Today',
@@ -40,6 +55,7 @@ export const predefinedDateRangeOptions: PredefinedDateRangeOption[] = [
             };
         },
     },
+    */
     {
         key: 'thisWeek',
         label: 'This week',
@@ -75,19 +91,7 @@ export const predefinedDateRangeOptions: PredefinedDateRangeOption[] = [
     {
         key: 'thisMonth',
         label: 'This month',
-        getValue: () => {
-            const startDate = new Date();
-            startDate.setDate(1);
-
-            const endDate = new Date();
-            endDate.setMonth(endDate.getMonth() + 1);
-            endDate.setDate(0);
-
-            return {
-                startDate,
-                endDate,
-            };
-        },
+        getValue: getThisMonth,
     },
     {
         key: 'lastThirtyDays',

@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { gql, useQuery } from '@apollo/client';
-import { _cs, isDefined } from '@togglecorp/fujs';
+import { _cs, isDefined, encodeDate } from '@togglecorp/fujs';
 import { useParams } from 'react-router-dom';
 
 import { CSVLink } from 'react-csv';
@@ -21,15 +21,42 @@ import swipeSvg from '#resources/icons/swipe.svg';
 import timeSvg from '#resources/icons/time.svg';
 import dashboardHeaderSvg from '#resources/img/dashboard.svg';
 import StatsBoard from '#views/StatsBoard';
+import { getThisMonth } from '#components/DateRangeInput/predefinedDateRange';
 import { formatTimeDuration } from '#utils/temporal';
-// FIXME: we should not import from views
-import { DateRangeValue, defaultDateRange } from '#views/Dashboard';
 
 import styles from './styles.css';
 
 const USER_GROUP_STATS = gql`
     query UserGroupStats($pk: ID) {
         userGroup(pk: $pk) {
+            userGroupId
+            name
+            description
+            stats {
+                totalContributors
+                totalSwipe
+                totalSwipeTime
+            }
+            userGroupLatest {
+                totalContributors
+                totalSwipeTime
+                totalSwipes
+            }
+            userStats {
+                totalMappingProjects
+                totalSwipeTime
+                totalSwipes
+                userName
+                userId
+            }
+        }
+    }
+`;
+
+const FILTERED_USER_GROUP_STATS = gql`
+    query FilteredUserGroupStats($pk: ID) {
+        userGroup(pk: $pk) {
+            userGroupId
             contributionStats {
                 taskDate
                 totalSwipe
@@ -50,32 +77,10 @@ const USER_GROUP_STATS = gql`
                 geojson
                 totalContribution
             }
-            stats {
-                totalMappingProjects
-                totalContributors
-                totalSwipe
-                totalSwipeTime
-            }
-            userGroupId
-            userGroupLatest {
-                totalContributors
-                totalSwipeTime
-                totalSwipes
-            }
             userGroupOrganizationStats {
                 organizationName
                 totalSwipe
             }
-            userStats {
-                totalMappingProjects
-                totalSwipeTime
-                totalSwipes
-                userName
-                userId
-            }
-            name
-            description
-
         }
     }
 `;
@@ -86,6 +91,16 @@ function memberKeySelector(member: UserGroupMember) {
     return member.userName;
 }
 
+interface DateRangeValue {
+    startDate: string;
+    endDate: string;
+}
+
+const { startDate, endDate } = getThisMonth();
+const defaultDateRange: DateRangeValue = {
+    startDate: encodeDate(startDate),
+    endDate: encodeDate(endDate),
+};
 interface Props {
     className?: string;
 }
@@ -94,7 +109,6 @@ function UserGroupDashboard(props: Props) {
     const { className } = props;
 
     const { userGroupId } = useParams<{ userGroupId: string | undefined }>();
-    // TODO use dateRange to filter user group stats
     const [dateRange, setDateRange] = useState<DateRangeValue>(defaultDateRange);
 
     const {
@@ -110,12 +124,27 @@ function UserGroupDashboard(props: Props) {
         },
     );
 
+    const {
+        data: filteredUserGroupStats,
+        loading: filteredUserGroupStatsLoading,
+    } = useQuery<UserGroupStatsQuery, UserGroupStatsQueryVariables>(
+        FILTERED_USER_GROUP_STATS,
+        {
+            variables: {
+                pk: userGroupId,
+                // fromDate: dateRange.startDate,
+                // toDate: dateRange.endDate,
+            },
+            skip: !userGroupId,
+        },
+    );
+
     const contributionData = useMemo(
         () => (
-            userGroupStats?.userGroup.contributionStats
+            filteredUserGroupStats?.userGroup.contributionStats
                 ?.map((value) => ({ date: value.taskDate, count: value.totalSwipe }))
         ),
-        [userGroupStats],
+        [filteredUserGroupStats],
     );
 
     const data = useMemo(() => ([
@@ -149,7 +178,7 @@ function UserGroupDashboard(props: Props) {
 
     return (
         <div className={_cs(className, styles.userGroupDashboard)}>
-            {userGroupStatsLoading && <PendingMessage />}
+            {(userGroupStatsLoading || filteredUserGroupStatsLoading) && <PendingMessage />}
             <div
                 className={styles.headerSection}
                 style={{ backgroundImage: `url(${dashboardHeaderSvg})` }}
@@ -248,14 +277,16 @@ function UserGroupDashboard(props: Props) {
                     />
                     <StatsBoard
                         heading="Group Statsboard"
-                        contributionTimeStats={userGroupStats?.userGroup.contributionTime}
-                        projectTypeStats={userGroupStats?.userGroup.projectTypeStats}
-                        organizationTypeStats={userGroupStats?.userGroup.userGroupOrganizationStats}
-                        projectSwipeTypeStats={userGroupStats?.userGroup.projectSwipeType}
+                        contributionTimeStats={filteredUserGroupStats?.userGroup.contributionTime}
+                        projectTypeStats={filteredUserGroupStats?.userGroup.projectTypeStats}
+                        // eslint-disable-next-line max-len
+                        organizationTypeStats={filteredUserGroupStats?.userGroup.userGroupOrganizationStats}
+                        projectSwipeTypeStats={filteredUserGroupStats?.userGroup.projectSwipeType}
                         dateRange={dateRange}
                         handleDateRangeChange={handleDateRangeChange}
                         contributions={
-                            userGroupStats?.userGroup.userGroupGeoStats as MapContributionType[]
+                            // eslint-disable-next-line max-len
+                            filteredUserGroupStats?.userGroup.userGroupGeoStats as MapContributionType[]
                         }
                     />
                     {(userGroupStats?.userGroup.userStats?.length ?? 0) > 0 && (
