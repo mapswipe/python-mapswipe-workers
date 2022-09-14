@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React from 'react';
 import {
     _cs,
     isNotDefined,
@@ -193,6 +193,8 @@ function Calendar<P extends CalendarDateProps>(props: Props<P>) {
                                 styles.monthSelectionPopup,
                             )}
                             optionsPopupContentClassName={styles.popupContent}
+                            optionRenderer={undefined}
+                            optionRendererParams={undefined}
                         />
                     </div>
                 </div>
@@ -202,7 +204,7 @@ function Calendar<P extends CalendarDateProps>(props: Props<P>) {
                             key={wd}
                             className={styles.weekDayName}
                         >
-                            {wd.substr(0, 2)}
+                            {wd.substring(0, 2)}
                         </div>
                     ))}
                 </div>
@@ -264,6 +266,7 @@ function Calendar<P extends CalendarDateProps>(props: Props<P>) {
                     name={undefined}
                     title="Go to current year / month"
                     onClick={handleGotoCurrentButtonClick}
+                    variant="action"
                 >
                     <IoTimeOutline />
                 </Button>
@@ -272,6 +275,7 @@ function Calendar<P extends CalendarDateProps>(props: Props<P>) {
                     onClick={handlePreviousMonthButtonClick}
                     title="Previous month"
                     disabled={isNotDefined(year)}
+                    variant="action"
                 >
                     <IoChevronBack />
                 </Button>
@@ -280,6 +284,7 @@ function Calendar<P extends CalendarDateProps>(props: Props<P>) {
                     onClick={handleNextMonthButtonClick}
                     title="Next month"
                     disabled={isNotDefined(year)}
+                    variant="action"
                 >
                     <IoChevronForward />
                 </Button>
@@ -288,4 +293,4 @@ function Calendar<P extends CalendarDateProps>(props: Props<P>) {
     );
 }
 
-export default memo(Calendar);
+export default Calendar;

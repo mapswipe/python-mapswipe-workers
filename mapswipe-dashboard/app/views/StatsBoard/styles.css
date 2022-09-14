@@ -9,6 +9,10 @@
         align-items: center;
         flex-grow: 1;
         justify-content: space-between;
+
+        .hint {
+            text-align: right;
+        }
     }
     .board {
         display: flex;
