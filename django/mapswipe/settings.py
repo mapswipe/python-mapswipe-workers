@@ -22,7 +22,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 env = environ.Env(
     DJANGO_DEBUG=(bool, False),
     DJANGO_SECRET_KEY=str,
-    DJANGO_ALLOWED_HOST=list,
+    DJANGO_ALLOWED_HOST=(list, ["*"]),
     DJANGO_DB_NAME=str,
     DJANGO_DB_USER=str,
     DJANGO_DB_PWD=str,
@@ -114,9 +114,7 @@ DATABASES = {
         "NAME": env("DJANGO_DB_NAME"),
         "USER": env("DJANGO_DB_USER"),
         "PASSWORD": env("DJANGO_DB_PWD"),
-        "OPTIONS": {
-            'options': '-c search_path=public'
-        },
+        "OPTIONS": {"options": "-c search_path=public"},
     },
 }
 
