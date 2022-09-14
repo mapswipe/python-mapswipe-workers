@@ -24,9 +24,9 @@ function SelectInput<T extends OptionKey, K extends string, O extends object, P 
         name,
         options,
         labelSelector,
-        nonClearable, // eslint-disable-line no-unused-vars, @typescript-eslint/no-unused-vars
-        onChange, // eslint-disable-line no-unused-vars, @typescript-eslint/no-unused-vars
-        totalOptionsCount, // eslint-disable-line no-unused-vars, @typescript-eslint/no-unused-vars
+        nonClearable, // eslint-disable-line @typescript-eslint/no-unused-vars
+        onChange, // eslint-disable-line @typescript-eslint/no-unused-vars
+        totalOptionsCount, // eslint-disable-line @typescript-eslint/no-unused-vars
         ...otherProps
     } = props;
 
