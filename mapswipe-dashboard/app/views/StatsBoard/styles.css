@@ -4,6 +4,12 @@
     flex-grow: 1;
     gap: var(--spacing-large);
 
+    .heading-container {
+        display: flex;
+        align-items: center;
+        flex-grow: 1;
+        justify-content: space-between;
+    }
     .board {
         display: flex;
         flex-direction: column;
@@ -42,12 +48,18 @@
             }
 
             .pie-chart-container {
+                display: flex;
                 height: 20rem;
 
                 :global {
+                    .recharts-legend-wrapper {
+                        max-width: 12rem;
+                    }
+
                     .recharts-default-legend {
                         display: flex;
                         flex-direction: column;
+                        flex-grow: 1;
                         flex-wrap: wrap;
                         justify-content: center;
                         gap: var(--spacing-medium);
@@ -61,6 +73,10 @@
 
                     .recharts-legend-item-text {
                         color: var(--color-text)!important;
+                    }
+
+                    .recharts-surface {
+                        flex-shrink: 0;
                     }
                 }
             }

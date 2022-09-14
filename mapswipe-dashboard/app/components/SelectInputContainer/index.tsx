@@ -98,7 +98,7 @@ const emptyList: unknown[] = [];
 function SelectInputContainer<
     OK extends OptionKey,
     N extends string,
-    O extends Record<string, unknown>,
+    O extends object, // eslint-disable-line
     P extends ContentBaseProps
 >(
     props: SelectInputContainerProps<OK, N, O, P, never>,

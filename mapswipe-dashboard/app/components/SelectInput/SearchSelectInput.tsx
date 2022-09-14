@@ -14,6 +14,12 @@ import styles from './styles.css';
 interface OptionProps {
     children?: React.ReactNode;
 }
+
+interface DateRangeValue {
+    startDate: string;
+    endDate: string;
+}
+
 function Option(props: OptionProps) {
     const {
         children,
@@ -37,7 +43,7 @@ type OptionKey = string | number;
 export type SearchSelectInputProps<
     T extends OptionKey,
     K,
-    O extends Record<string, unknown>,
+    O extends object, // eslint-disable-line
     P extends Def,
     OMISSION extends string,
     > = Omit<{
@@ -86,7 +92,7 @@ const emptyList: unknown[] = [];
 function SearchSelectInput<
     T extends OptionKey,
     K extends string,
-    O extends Record<string, unknown>,
+    O extends object, //eslint-disable-line
     P extends Def,
 >(
     props: SearchSelectInputProps<T, K, O, P, never>,
@@ -112,6 +118,7 @@ function SearchSelectInput<
     const options = optionsFromProps ?? (emptyList as O[]);
     const searchOptions = searchOptionsFromProps ?? (emptyList as O[]);
 
+    const [dateRange, setDateRange] = useState<DateRangeValue>();
     const [searchInputValue, setSearchInputValue] = React.useState('');
     const [showDropdown, setShowDropdown] = React.useState(false);
     const [focused, setFocused] = React.useState(false);
