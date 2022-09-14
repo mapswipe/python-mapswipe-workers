@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useCallback } from 'react';
+// import { useLocation } from 'react-router-dom';
 import {
     IoCheckmark,
     IoPerson,
@@ -132,8 +133,6 @@ function ItemSelectInput<Name extends string>(props: ItemSelectInputProps<Name>)
         ...otherProps
     } = props;
 
-    const [itemOptions, setItemOptions] = useState<SearchItemType[] | undefined | null>();
-
     const [opened, setOpened] = useState(false);
     const [searchText, setSearchText] = useState<string>('');
 
@@ -189,19 +188,28 @@ function ItemSelectInput<Name extends string>(props: ItemSelectInputProps<Name>)
         [userGroupsData, usersData],
     );
 
-    const handleSelectItem = (id: string | undefined) => {
-        const item = data.find((val) => val.id === id);
-        onItemSelect(item);
-    };
+    const handleSelectItem = useCallback(
+        (id: string | undefined) => {
+            const item = data.find((val) => val.id === id);
+            onItemSelect(item);
+        },
+        [data, onItemSelect],
+    );
 
     const optionRendererParams = useCallback(
-        (_: number | string, option: SearchItemType) => ({
-            label: titleSelector(option),
-            isArchived: isArchivedSelector(option),
-            type: typeSelector(option),
-            containerClassName: _cs(styles.option),
-        }),
+        (_: number | string, option: SearchItemType) => {
+            // const isActive = key === selectedItem;
+            const isActive = false;
+
+            return {
+                label: titleSelector(option),
+                isArchived: isArchivedSelector(option),
+                type: typeSelector(option),
+                containerClassName: _cs(styles.optionContainer, isActive && styles.active),
+            };
+        },
         [],
+        // [selectedItem],
     );
 
     return (
@@ -213,8 +221,9 @@ function ItemSelectInput<Name extends string>(props: ItemSelectInputProps<Name>)
             )}
             optionRendererParams={optionRendererParams}
             optionRenderer={Option}
-            options={itemOptions}
-            onOptionsChange={setItemOptions}
+            options={[]}
+            // onOptionsChange={setItemOptions}
+            // value={selectedItem}
             value={undefined}
             onChange={handleSelectItem}
             // Other props

@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useCallback } from 'react';
 import { gql, useQuery } from '@apollo/client';
 import { _cs, isDefined } from '@togglecorp/fujs';
 import { useParams, generatePath, Link } from 'react-router-dom';
@@ -19,6 +19,8 @@ import timeSvg from '#resources/icons/time.svg';
 import dashboardHeaderSvg from '#resources/img/dashboard.svg';
 import StatsBoard from '#views/StatsBoard';
 import { formatTimeDuration } from '#utils/temporal';
+// FIXME: we should not import from views
+import { DateRangeValue, defaultDateRange } from '#views/Dashboard';
 
 import styles from './styles.css';
 
@@ -79,6 +81,8 @@ function UserDashboard(props: Props) {
     const { className } = props;
 
     const { userId } = useParams<{ userId: string | undefined }>();
+    // TODO use this date range as filter
+    const [dateRange, setDateRange] = useState<DateRangeValue | undefined>(defaultDateRange);
 
     const {
         data: userStats,
@@ -109,6 +113,14 @@ function UserDashboard(props: Props) {
 
     const totalUserGroup = userStats?.user.stats?.totalUserGroup;
     const totalUserGroupLastMonth = userStats?.user.statsLatest?.totalUserGroup;
+
+    const handleDateRangeChange = useCallback((value: DateRangeValue | undefined) => {
+        if (value) {
+            setDateRange(value);
+        } else {
+            setDateRange(defaultDateRange);
+        }
+    }, []);
 
     return (
         <div className={_cs(className, styles.userDashboard)}>
@@ -211,6 +223,8 @@ function UserDashboard(props: Props) {
                     />
                     <StatsBoard
                         heading="User Statsboard"
+                        dateRange={dateRange}
+                        handleDateRangeChange={handleDateRangeChange}
                         contributionTimeStats={userStats?.user.contributionTime}
                         projectTypeStats={userStats?.user.projectStats}
                         organizationTypeStats={userStats?.user.organizationSwipeStats}

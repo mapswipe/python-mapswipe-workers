@@ -1,5 +1,5 @@
-import React from 'react';
-import { _cs, isDefined } from '@togglecorp/fujs';
+import React, { useState, useCallback } from 'react';
+import { _cs, isDefined, encodeDate } from '@togglecorp/fujs';
 import {
     gql,
     useQuery,
@@ -52,10 +52,12 @@ const COMMUNITY_STATS = gql`
     }
 `;
 
-// FIXME: add filters
 const DEEP_COMMUNITY_STATS = gql`
-    query DeepCommunityStats {
-        contributorTimeStats(fromDate: "2012-01-01", toDate: "2023-01-01") {
+    query DeepCommunityStats(
+        $fromDate: DateTime!
+        $toDate: DateTime!
+    ) {
+        contributorTimeStats(fromDate: $fromDate, toDate: $toDate) {
             date
             total
         }
@@ -66,6 +68,16 @@ const DEEP_COMMUNITY_STATS = gql`
     }
 `;
 
+export const defaultDateRange: DateRangeValue = {
+    startDate: '2010-01-01',
+    endDate: encodeDate(new Date()),
+};
+
+export interface DateRangeValue {
+    startDate: string;
+    endDate: string;
+}
+
 interface Props {
     className?: string;
 }
@@ -74,6 +86,9 @@ function Dashboard(props: Props) {
     const {
         className,
     } = props;
+
+    // TODO use this date range to filter all stats
+    const [dateRange, setDateRange] = useState<DateRangeValue>(defaultDateRange);
 
     const {
         data: communityStats,
@@ -87,6 +102,12 @@ function Dashboard(props: Props) {
         loading: deepCommunityStatsLoading,
     } = useQuery<DeepCommunityStatsQuery, DeepCommunityStatsQueryVariables>(
         DEEP_COMMUNITY_STATS,
+        {
+            variables: {
+                fromDate: dateRange.startDate,
+                toDate: dateRange.endDate,
+            },
+        },
     );
 
     const pending = communityStatsLoading || deepCommunityStatsLoading;
@@ -100,6 +121,14 @@ function Dashboard(props: Props) {
 
     const totalSwipes = communityStats?.communityStats?.totalSwipes;
     const totalSwipesLastMonth = communityStats?.communityStastLastest?.totalSwipesLastMonth;
+
+    const handleDateRangeChange = useCallback((value: DateRangeValue | undefined) => {
+        if (value) {
+            setDateRange(value);
+        } else {
+            setDateRange(defaultDateRange);
+        }
+    }, []);
 
     return (
         <div className={_cs(styles.dashboard, className)}>
@@ -211,6 +240,8 @@ function Dashboard(props: Props) {
             <div className={styles.content}>
                 <StatsBoard
                     heading="Community Statsboard"
+                    dateRange={dateRange}
+                    handleDateRangeChange={handleDateRangeChange}
                     className={styles.statsBoard}
                     contributionTimeStats={deepCommunityStats?.contributorTimeStats}
                     projectTypeStats={deepCommunityStats?.projectTypeStats}

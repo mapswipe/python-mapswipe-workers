@@ -1,0 +1,29 @@
+.popup {
+    padding-top: calc(var(--spacing-large) - var(--spacing-medium));
+    padding-bottom: calc(var(--spacing-large) - var(--spacing-medium));
+
+    .popup-content {
+        display: flex;
+        flex-direction: column;
+        max-width: max(50vw, 300px);
+
+        .list-item {
+            flex-shrink: 0;
+        }
+    }
+}
+
+.suggestion-header {
+    flex-shrink: 0;
+    padding: var(--spacing-small) var(--spacing-large);
+    color: var(--color-text);
+    font-weight: var(--font-weight-bold);
+}
+
+.label {
+    flex-grow: 1;
+    padding: 0 var(--spacing-small);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}

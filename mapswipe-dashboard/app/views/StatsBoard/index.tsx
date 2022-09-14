@@ -29,7 +29,7 @@ import ContributionHeatmap, { MapContributionType } from '#components/Contributi
 import NumberOutput from '#components/NumberOutput';
 import TextOutput from '#components/TextOutput';
 import Heading from '#components/Heading';
-
+import DateRangeInput from '#components/DateRangeInput';
 import InformationCard from '#components/InformationCard';
 import areaSvg from '#resources/icons/area.svg';
 import sceneSvg from '#resources/icons/scene.svg';
@@ -156,7 +156,12 @@ function timeSpentLabelFormatter(value: number) {
     return [value, 'Total time'];
 }
 
-interface Props{
+interface DateRangeValue {
+    startDate: string;
+    endDate: string;
+}
+
+interface Props {
     className?: string;
     heading?: string;
     contributionTimeStats: ContributorTimeType[] | null | undefined;
@@ -164,6 +169,8 @@ interface Props{
     organizationTypeStats: OrganizationTypeStats[] | null | undefined;
     projectSwipeTypeStats: ProjectSwipeTypeStats[] | null | undefined;
     contributions: MapContributionType[] | undefined | null;
+    dateRange: DateRangeValue | undefined;
+    handleDateRangeChange: (value: DateRangeValue | undefined) => void;
 }
 
 function StatsBoard(props: Props) {
@@ -175,6 +182,8 @@ function StatsBoard(props: Props) {
         organizationTypeStats,
         projectSwipeTypeStats,
         contributions,
+        dateRange,
+        handleDateRangeChange,
     } = props;
 
     // Timeseries
@@ -354,11 +363,19 @@ function StatsBoard(props: Props) {
 
     return (
         <div className={_cs(className, styles.statsBoard)}>
-            {heading && (
-                <Heading size="large">
-                    {heading}
-                </Heading>
-            )}
+            <div className={styles.headingContainer}>
+                {heading && (
+                    <Heading size="large">
+                        {heading}
+                    </Heading>
+                )}
+                <DateRangeInput
+                    name="date-range"
+                    label="Select a range"
+                    value={dateRange}
+                    onChange={handleDateRangeChange}
+                />
+            </div>
             <div className={styles.board}>
                 <StatsContainer
                     title="Contribution Heatmap"

@@ -61,6 +61,9 @@ p {
     --color-text-light: rgba(0, 0, 0, .5);
     --color-text-on-dark: #ffffff;
     --color-text-watermark: rgba(0, 0, 0, .4);
+    --color-text-on-accent: rgba(255, 255, 255, .9);
+    --color-text-disabled: #bdbdbd;
+    --color-background-hover-light: rgba(0, 0, 0, .1);
     --color-accent: #239A3B;
     --color-danger: #e04656;
     --color-success: #53b391;
@@ -89,6 +92,7 @@ p {
     --width-scrollbar: 0.75rem;
     --width-page-content-max: 70rem;
     --width-navbar-content-max: 70rem;
+    --width-calendar-date: 2.4rem;
 
     --radius-popup-border: 0.25rem;
     --radius-scrollbar-border: 0.25rem;

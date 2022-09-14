@@ -58,7 +58,11 @@ function HeatmapComponent(props: HeatmapComponentProps) {
             feature.properties.totalContribution,
         ]));
 
-        L.heatLayer(points, heatLayerOptions).addTo(map);
+        const layer = L.heatLayer(points, heatLayerOptions);
+        layer.addTo(map);
+        return () => {
+            map.removeLayer(layer);
+        };
     }, [map, contributionGeojson]);
 
     return null;
