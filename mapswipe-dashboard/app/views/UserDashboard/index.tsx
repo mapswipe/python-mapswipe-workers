@@ -1,6 +1,6 @@
 import React, { useMemo, useState, useCallback } from 'react';
 import { gql, useQuery } from '@apollo/client';
-import { _cs, isDefined } from '@togglecorp/fujs';
+import { _cs, isDefined, encodeDate } from '@togglecorp/fujs';
 import { useParams, generatePath, Link } from 'react-router-dom';
 
 import routes from '#base/configs/routes';
@@ -18,15 +18,39 @@ import swipeSvg from '#resources/icons/swipe.svg';
 import timeSvg from '#resources/icons/time.svg';
 import dashboardHeaderSvg from '#resources/img/dashboard.svg';
 import StatsBoard from '#views/StatsBoard';
+import { getThisMonth } from '#components/DateRangeInput/predefinedDateRange';
 import { formatTimeDuration } from '#utils/temporal';
-// FIXME: we should not import from views
-import { DateRangeValue, defaultDateRange } from '#views/Dashboard';
 
 import styles from './styles.css';
 
 const USER_STATS = gql`
     query UserStats($pk: ID) {
         user(pk: $pk) {
+            userId
+            username
+            stats {
+                totalSwipe
+                totalSwipeTime
+                totalUserGroup
+            }
+            statsLatest {
+                totalSwipe
+                totalSwipeTime
+                totalUserGroup
+            }
+            userInUserGroups {
+                membersCount
+                userGroupName
+                userGroupId
+            }
+        }
+    }
+`;
+
+const FILTERED_USER_STATS = gql`
+    query FilteredUserStats($pk: ID) {
+        user(pk: $pk) {
+            userId
             contributionStats {
                 taskDate
                 totalSwipe
@@ -51,27 +75,20 @@ const USER_STATS = gql`
                 projectType
                 totalSwipe
             }
-            stats {
-                totalMappingProjects
-                totalSwipe
-                totalSwipeTime
-                totalUserGroup
-            }
-            statsLatest {
-                totalSwipe
-                totalSwipeTime
-                totalUserGroup
-            }
-            userInUserGroups {
-                membersCount
-                userGroupName
-                userGroupId
-              }
-            userId
-            username
         }
     }
 `;
+
+interface DateRangeValue {
+    startDate: string;
+    endDate: string;
+}
+
+const { startDate, endDate } = getThisMonth();
+const defaultDateRange: DateRangeValue = {
+    startDate: encodeDate(startDate),
+    endDate: encodeDate(endDate),
+};
 
 interface Props {
     className?: string;
@@ -81,8 +98,7 @@ function UserDashboard(props: Props) {
     const { className } = props;
 
     const { userId } = useParams<{ userId: string | undefined }>();
-    // TODO use this date range as filter
-    const [dateRange, setDateRange] = useState<DateRangeValue | undefined>(defaultDateRange);
+    const [dateRange, setDateRange] = useState<DateRangeValue>(defaultDateRange);
 
     const {
         data: userStats,
@@ -97,12 +113,27 @@ function UserDashboard(props: Props) {
         },
     );
 
+    const {
+        data: filteredUserStats,
+        loading: filteredUserStatsLoading,
+    } = useQuery<UserStatsQuery, UserStatsQueryVariables>(
+        FILTERED_USER_STATS,
+        {
+            variables: {
+                pk: userId,
+                // fromDate: dateRange.startDate,
+                // toDate: dateRange.endDate,
+            },
+            skip: !userId,
+        },
+    );
+
     const contributionData = useMemo(
         () => (
-            userStats?.user.contributionStats
+            filteredUserStats?.user.contributionStats
                 ?.map((value) => ({ date: value.taskDate, count: value.totalSwipe }))
         ),
-        [userStats],
+        [filteredUserStats],
     );
 
     const totalSwipe = userStats?.user.stats?.totalSwipe;
@@ -124,7 +155,7 @@ function UserDashboard(props: Props) {
 
     return (
         <div className={_cs(className, styles.userDashboard)}>
-            {userStatsLoading && <PendingMessage />}
+            {(userStatsLoading || filteredUserStatsLoading) && <PendingMessage />}
             <div
                 className={styles.headerSection}
                 style={{ backgroundImage: `url(${dashboardHeaderSvg})` }}
@@ -225,12 +256,13 @@ function UserDashboard(props: Props) {
                         heading="User Statsboard"
                         dateRange={dateRange}
                         handleDateRangeChange={handleDateRangeChange}
-                        contributionTimeStats={userStats?.user.contributionTime}
-                        projectTypeStats={userStats?.user.projectStats}
-                        organizationTypeStats={userStats?.user.organizationSwipeStats}
-                        projectSwipeTypeStats={userStats?.user.projectSwipeStats}
+                        contributionTimeStats={filteredUserStats?.user.contributionTime}
+                        projectTypeStats={filteredUserStats?.user.projectStats}
+                        organizationTypeStats={filteredUserStats?.user.organizationSwipeStats}
+                        projectSwipeTypeStats={filteredUserStats?.user.projectSwipeStats}
                         contributions={
-                            userStats?.user.userGeoContribution as MapContributionType[] | undefined
+                            // eslint-disable-next-line max-len
+                            filteredUserStats?.user.userGeoContribution as MapContributionType[] | undefined
                         }
                     />
                     {(userStats?.user?.userInUserGroups?.length ?? 0) > 0 && (

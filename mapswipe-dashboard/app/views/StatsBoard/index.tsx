@@ -371,9 +371,10 @@ function StatsBoard(props: Props) {
                 )}
                 <DateRangeInput
                     name="date-range"
-                    label="Select a range"
                     value={dateRange}
                     onChange={handleDateRangeChange}
+                    hintContainerClassName={styles.hint}
+                    hint="All dates are calculated in UTC"
                 />
             </div>
             <div className={styles.board}>

@@ -97,6 +97,7 @@ export interface Props<N extends NameType> extends InheritedProps {
     value: Value | undefined | null;
     name: N;
     onChange?: (value: Value | undefined, name: N) => void;
+    clearable?: boolean;
 }
 
 function DateRangeInput<N extends NameType>(props: Props<N>) {
@@ -122,6 +123,7 @@ function DateRangeInput<N extends NameType>(props: Props<N>) {
         onChange,
         name,
         value,
+        clearable,
     } = props;
 
     const [tempDate, setTempDate] = React.useState<Partial<Value>>({
@@ -284,11 +286,12 @@ function DateRangeInput<N extends NameType>(props: Props<N>) {
                         { actions }
                         {!readOnly && (
                             <>
-                                {value && (
+                                {value && clearable && (
                                     <Button
                                         name={undefined}
                                         onClick={handleClearButtonClick}
                                         disabled={disabled}
+                                        variant="transparent"
                                         title="Clear"
                                     >
                                         <IoClose />
@@ -299,6 +302,7 @@ function DateRangeInput<N extends NameType>(props: Props<N>) {
                                     onClick={toggleShowCalendar}
                                     disabled={disabled}
                                     title="Show calendar"
+                                    variant="transparent"
                                 >
                                     <IoCalendarOutline />
                                 </Button>

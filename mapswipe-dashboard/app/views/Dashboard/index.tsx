@@ -16,11 +16,12 @@ import NumberOutput from '#components/NumberOutput';
 import TextOutput from '#components/TextOutput';
 import InformationCard from '#components/InformationCard';
 import StatsBoard from '#views/StatsBoard';
+import { getThisMonth } from '#components/DateRangeInput/predefinedDateRange';
 import {
     CommunityStatsQuery,
     CommunityStatsQueryVariables,
-    DeepCommunityStatsQuery,
-    DeepCommunityStatsQueryVariables,
+    FilteredCommunityStatsQuery,
+    FilteredCommunityStatsQueryVariables,
 } from '#generated/types';
 
 import styles from './styles.css';
@@ -32,51 +33,52 @@ const COMMUNITY_STATS = gql`
             totalGroupsLastMonth
             totalSwipesLastMonth
         }
-        projectGeoContribution {
-            geojson
-            totalContribution
-        }
         communityStats {
             totalContributors
             totalGroups
             totalSwipes
         }
-        organizationTypeStats {
-            organizationName
-            totalSwipe
-        }
-        projectSwipeType {
-            projectType
-            totalSwipe
-        }
     }
 `;
 
-const DEEP_COMMUNITY_STATS = gql`
-    query DeepCommunityStats(
+const FILTERED_COMMUNITY_STATS = gql`
+    query FilteredCommunityStats(
         $fromDate: DateTime!
         $toDate: DateTime!
     ) {
-        contributorTimeStats(fromDate: $fromDate, toDate: $toDate) {
-            date
-            total
+        projectGeoContribution {
+            geojson
+            totalContribution
         }
         projectTypeStats {
             area
             projectType
         }
+        projectSwipeType {
+            projectType
+            totalSwipe
+        }
+        contributorTimeStats(fromDate: $fromDate, toDate: $toDate) {
+            date
+            total
+        }
+        organizationTypeStats {
+            organizationName
+            totalSwipe
+        }
     }
 `;
 
-export const defaultDateRange: DateRangeValue = {
-    startDate: '2010-01-01',
-    endDate: encodeDate(new Date()),
-};
-
-export interface DateRangeValue {
+interface DateRangeValue {
     startDate: string;
     endDate: string;
 }
+
+const { startDate, endDate } = getThisMonth();
+const defaultDateRange: DateRangeValue = {
+    startDate: encodeDate(startDate),
+    endDate: encodeDate(endDate),
+};
 
 interface Props {
     className?: string;
@@ -87,7 +89,6 @@ function Dashboard(props: Props) {
         className,
     } = props;
 
-    // TODO use this date range to filter all stats
     const [dateRange, setDateRange] = useState<DateRangeValue>(defaultDateRange);
 
     const {
@@ -98,10 +99,10 @@ function Dashboard(props: Props) {
     );
 
     const {
-        data: deepCommunityStats,
-        loading: deepCommunityStatsLoading,
-    } = useQuery<DeepCommunityStatsQuery, DeepCommunityStatsQueryVariables>(
-        DEEP_COMMUNITY_STATS,
+        data: filteredCommunityStats,
+        loading: filteredCommunityStatsLoading,
+    } = useQuery<FilteredCommunityStatsQuery, FilteredCommunityStatsQueryVariables>(
+        FILTERED_COMMUNITY_STATS,
         {
             variables: {
                 fromDate: dateRange.startDate,
@@ -110,7 +111,7 @@ function Dashboard(props: Props) {
         },
     );
 
-    const pending = communityStatsLoading || deepCommunityStatsLoading;
+    const pending = communityStatsLoading || filteredCommunityStatsLoading;
 
     const totalContributors = communityStats?.communityStats.totalContributors;
     const totalContributorsLastMonth = communityStats
@@ -123,11 +124,7 @@ function Dashboard(props: Props) {
     const totalSwipesLastMonth = communityStats?.communityStastLastest?.totalSwipesLastMonth;
 
     const handleDateRangeChange = useCallback((value: DateRangeValue | undefined) => {
-        if (value) {
-            setDateRange(value);
-        } else {
-            setDateRange(defaultDateRange);
-        }
+        setDateRange(value ?? defaultDateRange);
     }, []);
 
     return (
@@ -243,12 +240,13 @@ function Dashboard(props: Props) {
                     dateRange={dateRange}
                     handleDateRangeChange={handleDateRangeChange}
                     className={styles.statsBoard}
-                    contributionTimeStats={deepCommunityStats?.contributorTimeStats}
-                    projectTypeStats={deepCommunityStats?.projectTypeStats}
-                    organizationTypeStats={communityStats?.organizationTypeStats}
-                    projectSwipeTypeStats={communityStats?.projectSwipeType}
+                    contributionTimeStats={filteredCommunityStats?.contributorTimeStats}
+                    projectTypeStats={filteredCommunityStats?.projectTypeStats}
+                    organizationTypeStats={filteredCommunityStats?.organizationTypeStats}
+                    projectSwipeTypeStats={filteredCommunityStats?.projectSwipeType}
                     contributions={
-                        communityStats?.projectGeoContribution as MapContributionType[] | undefined
+                        // eslint-disable-next-line max-len
+                        filteredCommunityStats?.projectGeoContribution as MapContributionType[] | undefined
                     }
                 />
             </div>
