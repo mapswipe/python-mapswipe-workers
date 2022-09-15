@@ -18,3 +18,35 @@ export function mergeItems<T, K extends string>(
     });
     return Object.values(list);
 }
+
+export function max<T>(list: T[], comparator: (val: T) => number) {
+    if (list.length <= 0) {
+        return undefined;
+    }
+    let maxItem = list[0];
+    let maxValue = comparator(maxItem);
+    list.forEach((item) => {
+        const myValue = comparator(item);
+        if (myValue > maxValue) {
+            maxValue = myValue;
+            maxItem = item;
+        }
+    });
+    return maxItem;
+}
+
+export function min<T>(list: T[], comparator: (val: T) => number) {
+    if (list.length <= 0) {
+        return undefined;
+    }
+    let maxItem = list[0];
+    let maxValue = comparator(maxItem);
+    list.forEach((item) => {
+        const myValue = comparator(item);
+        if (myValue < maxValue) {
+            maxValue = myValue;
+            maxItem = item;
+        }
+    });
+    return maxItem;
+}

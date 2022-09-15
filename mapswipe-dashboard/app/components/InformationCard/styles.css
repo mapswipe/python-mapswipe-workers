@@ -6,7 +6,7 @@
     border-radius: var(--radius-card-border);
     background-color: var(--color-foreground);
     padding: var(--spacing-large);
-    gap: var(--spacing-medium);
+    gap: var(--spacing-large);
 
     .heading-section {
         display: flex;

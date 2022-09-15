@@ -158,7 +158,10 @@ function UserDashboard(props: Props) {
             {(userStatsLoading || filteredUserStatsLoading) && <PendingMessage />}
             <div
                 className={styles.headerSection}
-                style={{ backgroundImage: `url(${dashboardHeaderSvg})` }}
+                style={{
+                    backgroundImage: `url(${dashboardHeaderSvg})`,
+                    backgroundColor: '#000836',
+                }}
             >
                 <div className={styles.headerContainer}>
                     <Header

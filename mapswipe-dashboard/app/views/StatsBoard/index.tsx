@@ -21,6 +21,7 @@ import {
     Legend,
     Cell,
     BarChart,
+    CartesianGrid,
     Bar,
 } from 'recharts';
 // import { formatDuration, intervalToDuration } from 'date-fns';
@@ -187,16 +188,38 @@ function StatsBoard(props: Props) {
     } = props;
 
     // Timeseries
-    // FIXME: update this logic
-    const len = (contributionTimeStats ?? []).length;
-    let resolution: 'year' | 'month' | 'day';
-    if (len > 5 * 365) {
-        resolution = 'year';
-    } else if (len > 0.5 * 365) {
-        resolution = 'month';
-    } else {
-        resolution = 'day';
-    }
+
+    const resolution = useMemo(
+        (): 'year' | 'month' | 'day' => {
+            const timestamps = contributionTimeStats?.map(
+                (item) => new Date(item.date).getTime(),
+            ) ?? [];
+            if (timestamps.length <= 0) {
+                timestamps.push(new Date().getTime());
+            }
+
+            const minDate = new Date(Math.min(...timestamps));
+            const maxDate = new Date(Math.max(...timestamps));
+
+            const minDateYear = minDate.getFullYear();
+            const maxDateYear = maxDate.getFullYear();
+
+            const minDateMonth = minDate.getMonth();
+            const maxDateMonth = maxDate.getMonth();
+
+            const yearDiff = maxDateYear - minDateYear;
+            if (yearDiff + 1 >= 5) {
+                return 'year';
+            }
+
+            const monthDiff = ((maxDateYear - minDateYear) * 12) + (maxDateMonth - minDateMonth);
+            if (monthDiff + 1 >= 5) {
+                return 'month';
+            }
+            return 'day';
+        },
+        [contributionTimeStats],
+    );
 
     // eslint-disable-next-line no-nested-ternary
     const timeFormatter = resolution === 'day'
@@ -229,8 +252,14 @@ function StatsBoard(props: Props) {
 
     const contributionTimeSeriesWithoutGaps = useMemo(
         () => {
-            if (!contributionTimeSeries || contributionTimeSeries.length < 2) {
+            if (!contributionTimeSeries) {
                 return undefined;
+            }
+
+            if (contributionTimeSeries.length <= 0) {
+                return [
+                    { total: 0, date: resolveTime(new Date(), resolution) },
+                ];
             }
 
             const mapping = listToMap(
@@ -378,28 +407,30 @@ function StatsBoard(props: Props) {
                 />
             </div>
             <div className={styles.board}>
-                <StatsContainer
-                    title="Contribution Heatmap"
+                <InformationCard
+                    label="Contribution Heatmap"
+                    value={null}
+                    variant="stat"
                 >
                     <ContributionHeatmap
                         contributions={contributions}
                     />
-                </StatsContainer>
-                <StatsContainer
-                    title="Time Spent Contributing"
+                </InformationCard>
+                <InformationCard
+                    label="Time Spent Contributing"
+                    value={isDefined(totalContribution) && totalContribution > 0 && (
+                        <TextOutput
+                            className={styles.numberOutput}
+                            value={formatTimeDuration(totalContribution, ' ', true)}
+                        />
+                    )}
+                    variant="stat"
                     contentClassName={styles.timeSpentChartContainer}
                 >
-                    {/* eslint-disable-next-line max-len */}
-                    {contributionTimeSeriesWithoutGaps && contributionTimeSeriesWithoutGaps.length >= 2 && (
+                    {contributionTimeSeriesWithoutGaps && (
                         <ResponsiveContainer>
                             <AreaChart
                                 data={contributionTimeSeriesWithoutGaps}
-                                margin={{
-                                    top: 0,
-                                    bottom: 0,
-                                    left: 0,
-                                    right: 0,
-                                }}
                             >
                                 <defs>
                                     <linearGradient id="stat" x1="0" y1="0" x2="0" y2="1">
@@ -407,6 +438,10 @@ function StatsBoard(props: Props) {
                                         <stop offset="95%" stopColor="var(--color-primary-light)" stopOpacity={0} />
                                     </linearGradient>
                                 </defs>
+                                <CartesianGrid
+                                    strokeDasharray="0"
+                                    vertical={false}
+                                />
                                 <XAxis
                                     dataKey="date"
                                     type="number"
@@ -421,11 +456,13 @@ function StatsBoard(props: Props) {
                                     padding={{ left: 10, right: 30 }}
                                 />
                                 <YAxis
+                                    axisLine={false}
+                                    tickLine={false}
                                     type="number"
                                     dataKey="total"
                                     tickFormatter={(value) => formatTimeDuration(value, ' ', true)}
                                     // domain={[0.9, 'auto']}
-                                    padding={{ top: 20, bottom: 5 }}
+                                    padding={{ top: 0, bottom: 0 }}
                                     width={100}
                                 />
                                 <Tooltip
@@ -448,7 +485,7 @@ function StatsBoard(props: Props) {
                             </AreaChart>
                         </ResponsiveContainer>
                     )}
-                </StatsContainer>
+                </InformationCard>
                 <InformationCard
                     label="Time Spent Contributing by Day of Week"
                     value={isDefined(totalContribution) && totalContribution > 0 && (
@@ -460,23 +497,27 @@ function StatsBoard(props: Props) {
                     variant="stat"
                     contentClassName={styles.timeSpentChartContainer}
                 >
-                    {totalContributionByDay && (
-                        <ResponsiveContainer>
-                            <BarChart data={totalContributionByDay}>
-                                <Tooltip formatter={timeSpentLabelFormatter} />
-                                <XAxis dataKey="day" />
-                                <YAxis
-                                    tickFormatter={(value) => formatTimeDuration(value, ' ', true)}
-                                    padding={{ top: 20, bottom: 0 }}
-                                    width={100}
-                                />
-                                <Bar
-                                    dataKey="total"
-                                    fill="var(--color-primary-light)"
-                                />
-                            </BarChart>
-                        </ResponsiveContainer>
-                    )}
+                    <ResponsiveContainer>
+                        <BarChart data={totalContributionByDay}>
+                            <Tooltip formatter={timeSpentLabelFormatter} />
+                            <CartesianGrid
+                                strokeDasharray="0"
+                                vertical={false}
+                            />
+                            <XAxis dataKey="day" />
+                            <YAxis
+                                axisLine={false}
+                                tickLine={false}
+                                tickFormatter={(value) => formatTimeDuration(value, ' ', true)}
+                                padding={{ top: 0, bottom: 0 }}
+                                width={100}
+                            />
+                            <Bar
+                                dataKey="total"
+                                fill="var(--color-primary-light)"
+                            />
+                        </BarChart>
+                    </ResponsiveContainer>
                 </InformationCard>
                 <div className={styles.statsCardContainer}>
                     <InformationCard
