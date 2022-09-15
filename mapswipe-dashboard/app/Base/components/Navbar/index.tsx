@@ -41,14 +41,6 @@ function Navbar(props: Props) {
                                 src={mapSwipeLogo}
                                 alt="MapSwipe"
                             />
-                            <div className={styles.title}>
-                                <div className={styles.map}>
-                                    Map
-                                </div>
-                                <div className={styles.swipe}>
-                                    Swipe
-                                </div>
-                            </div>
                         </div>
                     </SmartNavLink>
                 </div>
