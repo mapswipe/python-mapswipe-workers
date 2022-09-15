@@ -1,4 +1,3 @@
-// eslint-disable-next-line import/prefer-default-export
 export function mergeItems<T, K extends string>(
     list: T[],
     keySelector: (item: T) => K,

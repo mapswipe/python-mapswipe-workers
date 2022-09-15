@@ -53,7 +53,6 @@ import {
     getTimestamps,
 } from '#utils/temporal';
 
-import StatsContainer from './StatsContainer';
 import styles from './styles.css';
 
 const UNKNOWN = '-1';
