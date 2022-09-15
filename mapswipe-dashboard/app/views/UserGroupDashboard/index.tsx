@@ -180,7 +180,10 @@ function UserGroupDashboard(props: Props) {
             {(userGroupStatsLoading || filteredUserGroupStatsLoading) && <PendingMessage />}
             <div
                 className={styles.headerSection}
-                style={{ backgroundImage: `url(${dashboardHeaderSvg})` }}
+                style={{
+                    backgroundImage: `url(${dashboardHeaderSvg})`,
+                    backgroundColor: '#000836',
+                }}
             >
                 <div className={styles.headerContainer}>
                     <Header

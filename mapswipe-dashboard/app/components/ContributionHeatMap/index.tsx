@@ -2,15 +2,20 @@ import React, { useMemo, useEffect } from 'react';
 import L, { HeatLatLngTuple, HeatMapOptions } from 'leaflet';
 import 'leaflet.heat';
 import { MapContainer, TileLayer, useMap } from 'react-leaflet';
-
+import { GestureHandling } from 'leaflet-gesture-handling';
 import { isDefined } from '@togglecorp/fujs';
 import bbox from '@turf/bbox';
+
+import 'leaflet-gesture-handling/dist/leaflet-gesture-handling.css';
+import 'leaflet/dist/leaflet.css';
 
 import {
     MapContributionTypeStats,
 } from '#generated/types';
-import 'leaflet/dist/leaflet.css';
+
 import styles from './styles.css';
+
+L.Map.addInitHook('addHandler', 'gestureHandling', GestureHandling);
 
 type ContributionGeoJSON = GeoJSON.FeatureCollection<
     GeoJSON.Point,
@@ -43,6 +48,10 @@ function HeatmapComponent(props: HeatmapComponentProps) {
     const { contributionGeojson } = props;
 
     const map = useMap();
+
+    useEffect(() => {
+        map.gestureHandling.enable();
+    }, [map]);
 
     useEffect(() => {
         if (contributionGeojson.features.length > 0) {

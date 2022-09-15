@@ -45,6 +45,7 @@
         "graphql": "^15.5.1",
         "graphql-anywhere": "^4.2.7",
         "leaflet": "^1.8.0",
+        "leaflet-gesture-handling": "^1.2.2",
         "leaflet.heat": "^0.2.0",
         "react": "^17.0.2",
         "react-calendar-heatmap": "^1.9.0",

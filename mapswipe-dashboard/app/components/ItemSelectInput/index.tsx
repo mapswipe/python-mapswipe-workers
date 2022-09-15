@@ -32,7 +32,7 @@ export type SearchItemType = {
 
 const USERS = gql`
 query UserOptions($search: String) {
-    users(filters: { search: $search }, pagination: { limit: 10, offset: 0 }) {
+    users(filters: { search: $search }, pagination: { limit: 5, offset: 0 }) {
         items {
             userId
             username
@@ -44,7 +44,7 @@ query UserOptions($search: String) {
 
 const USER_GROUPS = gql`
 query UserGroupOptions($search: String) {
-    userGroups(filters: { search: $search }, pagination: { limit: 10, offset: 0 }) {
+    userGroups(filters: { search: $search }, pagination: { limit: 5, offset: 0 }) {
         items {
             isArchived
             userGroupId
