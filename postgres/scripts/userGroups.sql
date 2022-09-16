@@ -110,6 +110,8 @@ ALTER TABLE users_temp ADD COLUMN updated_at timestamp;
 -- CREATE MATERIALIZED VIEW aggregated_project_user_timestamp__task_count_total_time AS WITH
 -- tasks_data AS (
 --   SELECT
+--     project_id,
+--     group_id,
 --     task_id,
 --     st_area(geom) as area
 --   From
@@ -137,7 +139,7 @@ ALTER TABLE users_temp ADD COLUMN updated_at timestamp;
 --     SUM(T.area) as area_swiped -- TODO: use task count instead contact @safar.ligal
 --   From
 --     results R
---     LEFT JOIN tasks_data T USING (task_id)
+--     LEFT JOIN tasks_data T USING (project_id, group_id, task_id)
 --   GROUP BY R.project_id, R.group_id, R.user_id
 -- )
 -- SELECT
@@ -159,6 +161,8 @@ ALTER TABLE users_temp ADD COLUMN updated_at timestamp;
 -- CREATE MATERIALIZED VIEW aggregated_project_user_group_timestamp__task_count_total_time AS
 -- WITH tasks_data AS (
 --   SELECT
+--     project_id,
+--     group_id,
 --     task_id,
 --     st_area(geom) as area
 --   From
@@ -177,7 +181,7 @@ ALTER TABLE users_temp ADD COLUMN updated_at timestamp;
 --         SUM(T.area) as area_swiped
 --     From results_user_groups ug
 --         LEFT JOIN results R USING (project_id, group_id, user_id)
---         LEFT JOIN tasks_data T USING (task_id)
+--         LEFT JOIN tasks_data T USING (project_id, group_id, task_id)
 --     GROUP BY ug.project_id, ug.group_id, ug.user_group_id, ug.user_id
 -- )
 -- SELECT

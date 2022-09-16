@@ -60,7 +60,7 @@ class CountList(Generic[DjangoModelTypeVar]):
         super().__init__(*args, **kwargs)
 
 
-class StrawberryDjangoCountList(StrawberryDjangoField):
+class StrawberryDjangoCountList(CountList[DjangoModelTypeVar], StrawberryDjangoField):
     @property
     def is_list(self):
         return True

@@ -63,6 +63,7 @@ INSTALLED_APPS = [
     "strawberry.django",
     # Internal apps
     "apps.existing_database",
+    "apps.aggregated",
 ]
 
 MIDDLEWARE = [
@@ -100,14 +101,8 @@ WSGI_APPLICATION = "mapswipe.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 
-MAPSWIPE_EXISTING_DB = "mapswipe-existing-db"
-
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
-    },
-    MAPSWIPE_EXISTING_DB: {
         "ENGINE": "django.contrib.gis.db.backends.postgis",
         "HOST": env("DJANGO_DB_HOST"),
         "PORT": env("DJANGO_DB_PORT"),
@@ -117,9 +112,6 @@ DATABASES = {
         "OPTIONS": {"options": "-c search_path=public"},
     },
 }
-
-
-DATABASE_ROUTERS = ["mapswipe.db_router.DatabaseRouter"]
 
 # Password validation
 # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators
