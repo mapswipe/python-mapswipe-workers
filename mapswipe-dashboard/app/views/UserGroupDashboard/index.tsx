@@ -5,7 +5,7 @@ import { useParams } from 'react-router-dom';
 
 import { CSVLink } from 'react-csv';
 
-import CalendarHeatMapContainer from '#components/CalendarHeatMapContainer';
+import CalendarHeatMapContainer, { Data } from '#components/CalendarHeatMapContainer';
 import { MapContributionType } from '#components/ContributionHeatMap';
 import Footer from '#components/Footer';
 import Header from '#components/Header';
@@ -25,7 +25,7 @@ import userSvg from '#resources/icons/user.svg';
 import swipeSvg from '#resources/icons/swipe.svg';
 import timeSvg from '#resources/icons/time.svg';
 import dashboardHeaderSvg from '#resources/img/dashboard.svg';
-import StatsBoard from '#views/StatsBoard';
+import StatsBoard, { ActualContributorTimeStatType } from '#views/StatsBoard';
 import { getThisMonth } from '#components/DateRangeInput/predefinedDateRange';
 import { formatTimeDuration } from '#utils/temporal';
 
@@ -54,10 +54,9 @@ const USER_GROUP_STATS = gql`
 `;
 
 const FILTERED_USER_GROUP_STATS = gql`
-    query FilteredUserGroupStats($pk: ID!) {
+    query FilteredUserGroupStats($pk: ID!, $fromDate: DateTime! $toDate: DateTime!) {
         userGroupStats(userGroupId: $pk) {
-            # TODO: pass date
-            filteredStats {
+            filteredStats(dateRange: { fromDate: $fromDate, toDate: $toDate}) {
                 userStats {
                     totalMappingProjects
                     totalSwipeTime
@@ -71,6 +70,7 @@ const FILTERED_USER_GROUP_STATS = gql`
                 }
                 areaSwipedByProjectType {
                     totalArea
+                    projectTypeDisplay
                     projectType
                 }
                 swipeByDate {
@@ -83,6 +83,7 @@ const FILTERED_USER_GROUP_STATS = gql`
                 }
                 swipeByProjectType {
                     projectType
+                    projectTypeDisplay
                     totalSwipes
                 }
                 swipeByOrganizationName {
@@ -94,7 +95,7 @@ const FILTERED_USER_GROUP_STATS = gql`
     }
 `;
 
-type UserGroupMember = NonNullable<NonNullable<UserGroupStatsQuery['userGroup']>['userStats']>[number];
+type UserGroupMember = NonNullable<NonNullable<NonNullable<FilteredUserGroupStatsQuery['userGroupStats']>['filteredStats']>['userStats']>[number];
 
 function memberKeySelector(member: UserGroupMember) {
     return member.userName;
@@ -141,8 +142,8 @@ function UserGroupDashboard(props: Props) {
         {
             variables: userGroupId ? {
                 pk: userGroupId,
-                // fromDate: dateRange.startDate,
-                // toDate: dateRange.endDate,
+                fromDate: dateRange.startDate,
+                toDate: dateRange.endDate,
             } : undefined,
             skip: !userGroupId,
         },
@@ -150,31 +151,31 @@ function UserGroupDashboard(props: Props) {
 
     const contributionData = useMemo(
         () => (
-            filteredUserGroupStats?.userGroupStats?.stats
-                ?.map((value) => ({ date: value.taskDate, count: value.totalSwipe }))
+            filteredUserGroupStats?.userGroupStats?.filteredStats.swipeTimeByDate
+                ?.map((value) => ({ date: value.date, count: value.totalSwipeTime }))
         ),
         [filteredUserGroupStats],
     );
 
     const data = useMemo(() => ([
         ['User', 'Total swipes', 'Mission contributed', 'Time spent(mins)'],
-        ...(userGroupStats?.userGroup.userStats?.map((user) => (
+        ...(filteredUserGroupStats?.userGroupStats.filteredStats.userStats.map((user) => (
             [user.userName, user.totalSwipes, user.totalMappingProjects, user.totalSwipeTime]
         )) ?? []),
-    ]), [userGroupStats?.userGroup.userStats]);
+    ]), [filteredUserGroupStats?.userGroupStats.filteredStats.userStats]);
 
     const memberRendererParams = useCallback((_: string, item: UserGroupMember) => (
         { member: item }
     ), []);
 
-    const totalSwipe = userGroupStats?.userGroup.stats?.totalSwipe;
-    const totalSwipeLastMonth = userGroupStats?.userGroup.userGroupLatest?.totalSwipes;
+    const totalSwipe = userGroupStats?.userGroupStats.stats.totalSwipes;
+    const totalSwipeLastMonth = userGroupStats?.userGroupStats.statsLatest.totalSwipes;
 
-    const totalSwipeTime = userGroupStats?.userGroup.stats?.totalSwipeTime;
-    const totalSwipeTimeLastMonth = userGroupStats?.userGroup.userGroupLatest?.totalSwipeTime;
+    const totalSwipeTime = userGroupStats?.userGroupStats.stats.totalSwipeTime as number;
+    const totalSwipeTimeLastMonth = userGroupStats?.userGroupStats.statsLatest.totalSwipeTime as number;
 
-    const totalContributors = userGroupStats?.userGroup.stats?.totalContributors;
-    const totalContributorsLastMonth = userGroupStats?.userGroup.userGroupLatest?.totalContributors;
+    const totalContributors = userGroupStats?.userGroupStats.stats.totalContributors;
+    const totalContributorsLastMonth = userGroupStats?.userGroupStats.statsLatest.totalContributors;
 
     const handleDateRangeChange = useCallback((value: DateRangeValue | undefined) => {
         if (value) {
@@ -284,23 +285,23 @@ function UserGroupDashboard(props: Props) {
             <div className={styles.content}>
                 <div className={styles.container}>
                     <CalendarHeatMapContainer
-                        data={contributionData}
+                        data={contributionData as Data[]}
                     />
                     <StatsBoard
                         heading="Group Statsboard"
-                        contributionTimeStats={filteredUserGroupStats?.userGroupStats.contributionTime}
-                        projectTypeStats={filteredUserGroupStats?.userGroupStats.projectTypeStats}
                         // eslint-disable-next-line max-len
-                        organizationTypeStats={filteredUserGroupStats?.userGroupStats.userGroupOrganizationStats}
-                        projectSwipeTypeStats={filteredUserGroupStats?.userGroupStats.projectSwipeType}
+                        contributionTimeStats={filteredUserGroupStats?.userGroupStats.filteredStats.swipeTimeByDate as ActualContributorTimeStatType[]}
+                        projectTypeStats={filteredUserGroupStats?.userGroupStats.filteredStats.areaSwipedByProjectType}
+                        // eslint-disable-next-line max-len
+                        organizationTypeStats={filteredUserGroupStats?.userGroupStats.filteredStats.swipeByOrganizationName}
+                        // eslint-disable-next-line max-len
+                        projectSwipeTypeStats={filteredUserGroupStats?.userGroupStats.filteredStats.swipeByProjectType}
                         dateRange={dateRange}
                         handleDateRangeChange={handleDateRangeChange}
-                        contributions={
-                            // eslint-disable-next-line max-len
-                            filteredUserGroupStats?.userGroup.userGroupGeoStats as MapContributionType[]
-                        }
+                        // eslint-disable-next-line max-len
+                        contributions={filteredUserGroupStats?.userGroupStats.filteredStats.contributionByGeo as MapContributionType[]}
                     />
-                    {(userGroupStats?.userGroup.userStats?.length ?? 0) > 0 && (
+                    {(filteredUserGroupStats?.userGroupStats.filteredStats.userStats.length ?? 0) > 0 && (
                         <div className={styles.members}>
                             <div className={styles.membersHeading}>
                                 {`${userGroupStats?.userGroup.name}'s Members`}
@@ -327,7 +328,7 @@ function UserGroupDashboard(props: Props) {
                                     </div>
                                 </div>
                                 <List
-                                    data={userGroupStats?.userGroup.userStats ?? []}
+                                    data={filteredUserGroupStats?.userGroupStats.filteredStats.userStats}
                                     keySelector={memberKeySelector}
                                     renderer={MemberItem}
                                     rendererParams={memberRendererParams}

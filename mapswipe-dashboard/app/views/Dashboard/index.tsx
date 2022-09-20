@@ -15,7 +15,7 @@ import Footer from '#components/Footer';
 import NumberOutput from '#components/NumberOutput';
 import TextOutput from '#components/TextOutput';
 import InformationCard from '#components/InformationCard';
-import StatsBoard from '#views/StatsBoard';
+import StatsBoard, { ActualContributorTimeStatType } from '#views/StatsBoard';
 import { getThisMonth } from '#components/DateRangeInput/predefinedDateRange';
 import {
     CommunityStatsQuery,
@@ -54,10 +54,12 @@ const FILTERED_COMMUNITY_STATS = gql`
             projectTypeStats {
                 totalArea
                 projectType
+                projectTypeDisplay
             }
             projectSwipeType {
                 projectType
                 totalSwipes
+                projectTypeDisplay
             }
             contributorTimeStats {
                 date
@@ -243,15 +245,13 @@ function Dashboard(props: Props) {
                     handleDateRangeChange={handleDateRangeChange}
                     className={styles.statsBoard}
                     // eslint-disable-next-line max-len
-                    contributionTimeStats={filteredCommunityStats?.filteredStats?.contributorTimeStats}
+                    contributionTimeStats={filteredCommunityStats?.filteredStats?.contributorTimeStats as ActualContributorTimeStatType[] | undefined}
                     projectTypeStats={filteredCommunityStats?.filteredStats?.projectTypeStats}
                     // eslint-disable-next-line max-len
                     organizationTypeStats={filteredCommunityStats?.filteredStats?.organizationTypeStats}
                     projectSwipeTypeStats={filteredCommunityStats?.filteredStats?.projectSwipeType}
-                    contributions={
-                        // eslint-disable-next-line max-len
-                        filteredCommunityStats?.filteredStats?.projectGeoContribution as MapContributionType[] | undefined
-                    }
+                    // eslint-disable-next-line max-len
+                    contributions={filteredCommunityStats?.filteredStats?.projectGeoContribution as MapContributionType[] | undefined}
                 />
             </div>
             <Footer />

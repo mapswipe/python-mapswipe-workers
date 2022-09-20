@@ -158,7 +158,7 @@ export function formatTimeDurationForSecs(
 
 // FIXME: this is a hack and needs to be fixed on the server
 export function formatTimeDuration(
-    minutes: number,
+    seconds: number,
     separator = ' ',
     shorten = false,
     stop = 2,
@@ -166,7 +166,6 @@ export function formatTimeDuration(
     currentState: DurationNumeric = 3,
     lastState: number | undefined = undefined,
 ) {
-    const seconds = minutes * 60;
     return formatTimeDurationForSecs(
         seconds,
         separator,
