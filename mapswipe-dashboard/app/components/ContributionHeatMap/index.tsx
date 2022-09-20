@@ -10,7 +10,7 @@ import 'leaflet-gesture-handling/dist/leaflet-gesture-handling.css';
 import 'leaflet/dist/leaflet.css';
 
 import {
-    MapContributionTypeStats,
+    MapContributionStatsType,
 } from '#generated/types';
 
 import styles from './styles.css';
@@ -22,7 +22,7 @@ type ContributionGeoJSON = GeoJSON.FeatureCollection<
     { totalContribution : number }
 >;
 
-export type MapContributionType = MapContributionTypeStats & {
+export type MapContributionType = MapContributionStatsType & {
     geojson: {
         type: string,
         coordinates: [number, number],
