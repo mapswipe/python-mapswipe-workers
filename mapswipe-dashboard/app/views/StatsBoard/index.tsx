@@ -36,10 +36,10 @@ import areaSvg from '#resources/icons/area.svg';
 import sceneSvg from '#resources/icons/scene.svg';
 import featureSvg from '#resources/icons/feature.svg';
 import {
-    ContributorTimeType,
-    OrganizationTypeStats,
-    ProjectSwipeTypeStats,
-    ProjectTypeStats,
+    ContributorTimeStatType,
+    OrganizationSwipeStatsType,
+    ProjectTypeSwipeStatsType,
+    ProjectTypeAreaStatsType,
 } from '#generated/types';
 import {
     mergeItems,
@@ -53,13 +53,13 @@ import {
     getTimestamps,
 } from '#utils/temporal';
 
+export type ActualContributorTimeStatType = ContributorTimeStatType & { totalSwipeTime: number };
 import styles from './styles.css';
-
 const UNKNOWN = '-1';
-const BUILD_AREA = '1';
-const FOOT_PRINT = '2';
-const CHANGE_DETECTION = '3';
-const COMPLETENESS = '4';
+const BUILD_AREA = 'BUILD_AREA';
+const FOOTPRINT = 'FOOTPRINT';
+const CHANGE_DETECTION = 'CHANGE_DETECTION';
+const COMPLETENESS = 'COMPLETENESS';
 
 const projectTypes: Record<string, { color: string, name: string }> = {
     [UNKNOWN]: {
@@ -70,7 +70,7 @@ const projectTypes: Record<string, { color: string, name: string }> = {
         color: '#f8a769',
         name: 'Build Area',
     },
-    [FOOT_PRINT]: {
+    [FOOTPRINT]: {
         color: '#bbcb7d',
         name: 'Footprint',
     },
@@ -164,10 +164,10 @@ interface DateRangeValue {
 interface Props {
     className?: string;
     heading?: string;
-    contributionTimeStats: ContributorTimeType[] | null | undefined;
-    projectTypeStats: ProjectTypeStats[] | null | undefined;
-    organizationTypeStats: OrganizationTypeStats[] | null | undefined;
-    projectSwipeTypeStats: ProjectSwipeTypeStats[] | null | undefined;
+    contributionTimeStats: ActualContributorTimeStatType[] | null | undefined;
+    projectTypeStats: ProjectTypeAreaStatsType[] | null | undefined;
+    organizationTypeStats: OrganizationSwipeStatsType[] | null | undefined;
+    projectSwipeTypeStats: ProjectTypeSwipeStatsType[] | null | undefined;
     contributions: MapContributionType[] | undefined | null;
     dateRange: DateRangeValue | undefined;
     handleDateRangeChange: (value: DateRangeValue | undefined) => void;
@@ -233,7 +233,7 @@ function StatsBoard(props: Props) {
                 .filter((contribution) => isDefined(contribution.date))
                 .map((contribution) => ({
                     date: resolveTime(contribution.date, resolution).getTime(),
-                    total: contribution.total,
+                    total: contribution.totalSwipeTime,
                 }))
                 .filter((contribution) => contribution.total > 0);
 
@@ -318,7 +318,7 @@ function StatsBoard(props: Props) {
     // Swipes by Mission
 
     const totalSwipes = projectSwipeTypeStats ? sum(
-        projectSwipeTypeStats.map((project) => (project.totalSwipe)),
+        projectSwipeTypeStats.map((project) => (project.totalSwipes)),
     ) : undefined;
 
     const sortedProjectSwipeType = useMemo(
@@ -328,7 +328,7 @@ function StatsBoard(props: Props) {
                     ...item,
                     projectType: item.projectType ?? '-1',
                 }))
-                .sort((a, b) => compareNumber(b.totalSwipe, a.totalSwipe)) ?? []
+                .sort((a, b) => compareNumber(b.totalSwipes, a.totalSwipes)) ?? []
         ),
         [projectSwipeTypeStats],
     );
@@ -336,7 +336,7 @@ function StatsBoard(props: Props) {
     // Swipes by Organization
 
     const totalSwipesByOrganization = organizationTypeStats ? sum(
-        organizationTypeStats?.map((organization) => (organization.totalSwipe ?? 0)),
+        organizationTypeStats?.map((organization) => (organization.totalSwipes ?? 0)),
     ) : undefined;
 
     const totalSwipesByOrganizationStats = useMemo(() => {
@@ -346,7 +346,7 @@ function StatsBoard(props: Props) {
                 organizationName: item.organizationName ?? 'Unknown',
             }))
             .filter((project) => isDefined(project.organizationName))
-            .sort((a, b) => compareNumber(b.totalSwipe, a.totalSwipe)) ?? [];
+            .sort((a, b) => compareNumber(b.totalSwipes, a.totalSwipes)) ?? [];
 
         if (sortedTotalSwipeByOrganization.length <= 5) {
             return sortedTotalSwipeByOrganization;
@@ -359,7 +359,7 @@ function StatsBoard(props: Props) {
                 totalSwipe: sum(
                     sortedTotalSwipeByOrganization
                         .slice(4)
-                        .map((item) => item.totalSwipe),
+                        .map((item) => item.totalSwipes),
                 ),
             },
         ];
@@ -369,13 +369,13 @@ function StatsBoard(props: Props) {
 
     const buildAreaTotalArea = projectTypeStats?.find(
         (project) => project.projectType === BUILD_AREA,
-    )?.area;
+    )?.totalArea as number | undefined;
     const changeDetectionTotalSwipes = projectSwipeTypeStats?.find(
         (project) => project.projectType === CHANGE_DETECTION,
-    )?.totalSwipe;
+    )?.totalSwipes;
     const footPrintTotalSwipes = projectSwipeTypeStats?.find(
-        (project) => project.projectType === FOOT_PRINT,
-    )?.totalSwipe;
+        (project) => project.projectType === FOOTPRINT,
+    )?.totalSwipes;
 
     const organizationColors = scaleOrdinal<string, string | undefined>()
         .domain(totalSwipesByOrganizationStats?.map(

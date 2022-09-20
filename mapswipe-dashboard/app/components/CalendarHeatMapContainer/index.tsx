@@ -41,7 +41,7 @@ function getDateRange(data: Data[] | null | undefined) {
     };
 }
 
-interface Data {
+export interface Data {
     date: string;
     count: number;
 }
