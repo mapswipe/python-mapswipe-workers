@@ -15,7 +15,12 @@ import MemberItem from '#components/MemberItem';
 import NumberOutput from '#components/NumberOutput';
 import PendingMessage from '#components/PendingMessage';
 import TextOutput from '#components/TextOutput';
-import { UserGroupStatsQuery, UserGroupStatsQueryVariables } from '#generated/types';
+import {
+    UserGroupStatsQuery,
+    UserGroupStatsQueryVariables,
+    FilteredUserGroupStatsQuery,
+    FilteredUserGroupStatsQueryVariables,
+} from '#generated/types';
 import userSvg from '#resources/icons/user.svg';
 import swipeSvg from '#resources/icons/swipe.svg';
 import timeSvg from '#resources/icons/time.svg';
@@ -27,59 +32,63 @@ import { formatTimeDuration } from '#utils/temporal';
 import styles from './styles.css';
 
 const USER_GROUP_STATS = gql`
-    query UserGroupStats($pk: ID) {
+    query UserGroupStats($pk: ID!) {
         userGroup(pk: $pk) {
             userGroupId
             name
             description
+        }
+        userGroupStats(userGroupId: $pk) {
             stats {
                 totalContributors
-                totalSwipe
+                totalSwipes
                 totalSwipeTime
             }
-            userGroupLatest {
+            statsLatest {
                 totalContributors
                 totalSwipeTime
                 totalSwipes
-            }
-            userStats {
-                totalMappingProjects
-                totalSwipeTime
-                totalSwipes
-                userName
-                userId
             }
         }
     }
 `;
 
 const FILTERED_USER_GROUP_STATS = gql`
-    query FilteredUserGroupStats($pk: ID) {
-        userGroup(pk: $pk) {
-            userGroupId
-            contributionStats {
-                taskDate
-                totalSwipe
-            }
-            contributionTime {
-                date
-                total
-            }
-            projectSwipeType {
-                projectType
-                totalSwipe
-            }
-            projectTypeStats {
-                area
-                projectType
-            }
-            userGroupGeoStats {
-                geojson
-                totalContribution
-            }
-            userGroupOrganizationStats {
-                organizationName
-                totalSwipe
+    query FilteredUserGroupStats($pk: ID!) {
+        userGroupStats(userGroupId: $pk) {
+            # TODO: pass date
+            filteredStats {
+                userStats {
+                    totalMappingProjects
+                    totalSwipeTime
+                    totalSwipes
+                    userName
+                    userId
+                }
+                contributionByGeo {
+                    geojson
+                    totalContribution
+                }
+                areaSwipedByProjectType {
+                    totalArea
+                    projectType
+                }
+                swipeByDate {
+                    taskDate
+                    totalSwipes
+                }
+                swipeTimeByDate {
+                    date
+                    totalSwipeTime
+                }
+                swipeByProjectType {
+                    projectType
+                    totalSwipes
+                }
+                swipeByOrganizationName {
+                    organizationName
+                    totalSwipes
+                }
             }
         }
     }
@@ -117,9 +126,9 @@ function UserGroupDashboard(props: Props) {
     } = useQuery<UserGroupStatsQuery, UserGroupStatsQueryVariables>(
         USER_GROUP_STATS,
         {
-            variables: {
+            variables: userGroupId ? {
                 pk: userGroupId,
-            },
+            } : undefined,
             skip: !userGroupId,
         },
     );
@@ -127,21 +136,21 @@ function UserGroupDashboard(props: Props) {
     const {
         data: filteredUserGroupStats,
         loading: filteredUserGroupStatsLoading,
-    } = useQuery<UserGroupStatsQuery, UserGroupStatsQueryVariables>(
+    } = useQuery<FilteredUserGroupStatsQuery, FilteredUserGroupStatsQueryVariables>(
         FILTERED_USER_GROUP_STATS,
         {
-            variables: {
+            variables: userGroupId ? {
                 pk: userGroupId,
                 // fromDate: dateRange.startDate,
                 // toDate: dateRange.endDate,
-            },
+            } : undefined,
             skip: !userGroupId,
         },
     );
 
     const contributionData = useMemo(
         () => (
-            filteredUserGroupStats?.userGroup.contributionStats
+            filteredUserGroupStats?.userGroupStats?.stats
                 ?.map((value) => ({ date: value.taskDate, count: value.totalSwipe }))
         ),
         [filteredUserGroupStats],
@@ -279,11 +288,11 @@ function UserGroupDashboard(props: Props) {
                     />
                     <StatsBoard
                         heading="Group Statsboard"
-                        contributionTimeStats={filteredUserGroupStats?.userGroup.contributionTime}
-                        projectTypeStats={filteredUserGroupStats?.userGroup.projectTypeStats}
+                        contributionTimeStats={filteredUserGroupStats?.userGroupStats.contributionTime}
+                        projectTypeStats={filteredUserGroupStats?.userGroupStats.projectTypeStats}
                         // eslint-disable-next-line max-len
-                        organizationTypeStats={filteredUserGroupStats?.userGroup.userGroupOrganizationStats}
-                        projectSwipeTypeStats={filteredUserGroupStats?.userGroup.projectSwipeType}
+                        organizationTypeStats={filteredUserGroupStats?.userGroupStats.userGroupOrganizationStats}
+                        projectSwipeTypeStats={filteredUserGroupStats?.userGroupStats.projectSwipeType}
                         dateRange={dateRange}
                         handleDateRangeChange={handleDateRangeChange}
                         contributions={

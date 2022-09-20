@@ -28,14 +28,14 @@ import styles from './styles.css';
 
 const COMMUNITY_STATS = gql`
     query CommunityStats {
-        communityStastLastest {
-            totalContributorsLastMonth
-            totalGroupsLastMonth
-            totalSwipesLastMonth
+        communityStatsLatest {
+            totalContributors
+            totalUserGroups
+            totalSwipes
         }
         communityStats {
             totalContributors
-            totalGroups
+            totalUserGroups
             totalSwipes
         }
     }
@@ -46,25 +46,27 @@ const FILTERED_COMMUNITY_STATS = gql`
         $fromDate: DateTime!
         $toDate: DateTime!
     ) {
-        projectGeoContribution {
-            geojson
-            totalContribution
-        }
-        projectTypeStats {
-            area
-            projectType
-        }
-        projectSwipeType {
-            projectType
-            totalSwipe
-        }
-        contributorTimeStats(fromDate: $fromDate, toDate: $toDate) {
-            date
-            total
-        }
-        organizationTypeStats {
-            organizationName
-            totalSwipe
+        filteredStats(dateRange: { fromDate: $fromDate, toDate: $toDate }) {
+            projectGeoContribution {
+                geojson
+                totalContribution
+            }
+            projectTypeStats {
+                totalArea
+                projectType
+            }
+            projectSwipeType {
+                projectType
+                totalSwipes
+            }
+            contributorTimeStats {
+                date
+                totalSwipeTime
+            }
+            organizationTypeStats {
+                organizationName
+                totalSwipes
+            }
         }
     }
 `;
@@ -115,13 +117,13 @@ function Dashboard(props: Props) {
 
     const totalContributors = communityStats?.communityStats.totalContributors;
     const totalContributorsLastMonth = communityStats
-        ?.communityStastLastest?.totalContributorsLastMonth;
+        ?.communityStatsLatest?.totalContributors;
 
-    const totalGroups = communityStats?.communityStats?.totalGroups;
-    const totalGroupsLastMonth = communityStats?.communityStastLastest?.totalGroupsLastMonth;
+    const totalUserGroups = communityStats?.communityStats?.totalUserGroups;
+    const totalUserGroupsLastMonth = communityStats?.communityStatsLatest?.totalUserGroups;
 
     const totalSwipes = communityStats?.communityStats?.totalSwipes;
-    const totalSwipesLastMonth = communityStats?.communityStastLastest?.totalSwipesLastMonth;
+    const totalSwipesLastMonth = communityStats?.communityStatsLatest?.totalSwipes;
 
     const handleDateRangeChange = useCallback((value: DateRangeValue | undefined) => {
         setDateRange(value ?? defaultDateRange);
@@ -213,17 +215,17 @@ function Dashboard(props: Props) {
                             )}
                             value={(
                                 <NumberOutput
-                                    value={totalGroups}
+                                    value={totalUserGroups}
                                     normal
                                 />
                             )}
                             label="Total Groups"
                             // eslint-disable-next-line max-len
-                            description={isDefined(totalGroupsLastMonth) && totalGroupsLastMonth > 0 && (
+                            description={isDefined(totalUserGroupsLastMonth) && totalUserGroupsLastMonth > 0 && (
                                 <TextOutput
                                     value={(
                                         <NumberOutput
-                                            value={totalGroupsLastMonth}
+                                            value={totalUserGroupsLastMonth}
                                             normal
                                         />
                                     )}
@@ -240,13 +242,15 @@ function Dashboard(props: Props) {
                     dateRange={dateRange}
                     handleDateRangeChange={handleDateRangeChange}
                     className={styles.statsBoard}
-                    contributionTimeStats={filteredCommunityStats?.contributorTimeStats}
-                    projectTypeStats={filteredCommunityStats?.projectTypeStats}
-                    organizationTypeStats={filteredCommunityStats?.organizationTypeStats}
-                    projectSwipeTypeStats={filteredCommunityStats?.projectSwipeType}
+                    // eslint-disable-next-line max-len
+                    contributionTimeStats={filteredCommunityStats?.filteredStats?.contributorTimeStats}
+                    projectTypeStats={filteredCommunityStats?.filteredStats?.projectTypeStats}
+                    // eslint-disable-next-line max-len
+                    organizationTypeStats={filteredCommunityStats?.filteredStats?.organizationTypeStats}
+                    projectSwipeTypeStats={filteredCommunityStats?.filteredStats?.projectSwipeType}
                     contributions={
                         // eslint-disable-next-line max-len
-                        filteredCommunityStats?.projectGeoContribution as MapContributionType[] | undefined
+                        filteredCommunityStats?.filteredStats?.projectGeoContribution as MapContributionType[] | undefined
                     }
                 />
             </div>
