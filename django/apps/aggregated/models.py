@@ -1,5 +1,4 @@
 from django.db import models
-from django.contrib.postgres.fields import ArrayField
 
 from mapswipe.db import Model
 from apps.existing_database.models import Project, User, UserGroup
@@ -10,22 +9,24 @@ class AggregatedTracking(Model):
         AGGREGATED_USER_STAT_DATA_LATEST_DATE = 0
         AGGREGATED_USER_GROUP_STAT_DATA_LATEST_DATE = 1
 
-    type = models.IntegerField(choices=Type.choices)
+    """
+    value: represents the date before which data is copied to aggregated tables.
+    """
+    type = models.IntegerField(choices=Type.choices, unique=True)
     updated_at = models.DateTimeField(auto_now=True)
-    value = models.CharField(max_length=225)
+    value = models.CharField(max_length=225, null=True)
 
 
 class AggregatedUserStatData(Model):
     # Ref Fields
-    user = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name='+')
-    project = models.ForeignKey(Project, on_delete=models.DO_NOTHING, related_name='+')
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='+')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='+')
     timestamp_date = models.DateField()
     # Aggregated Fields
-    total_time = models.DurationField()  # seconds
+    total_time = models.IntegerField()  # seconds
     task_count = models.FloatField()  # Number of tasks
     swipes = models.FloatField()  # Number of swipes
     area_swiped = models.FloatField()
-    user_group_ids = ArrayField(models.CharField(max_length=255))
 
     class Meta:
         unique_together = (
@@ -37,17 +38,16 @@ class AggregatedUserStatData(Model):
 
 class AggregatedUserGroupStatData(Model):
     # Ref Fields
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='+')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='+')
     user_group = models.ForeignKey(
-        UserGroup, on_delete=models.DO_NOTHING, related_name='+')
-    user = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name='+')
-    project = models.ForeignKey(Project, on_delete=models.DO_NOTHING, related_name='+')
+        UserGroup, on_delete=models.CASCADE, related_name='+')
     timestamp_date = models.DateField()
     # Aggregated Fields
-    total_time = models.DurationField()  # seconds
+    total_time = models.IntegerField()  # seconds
     task_count = models.FloatField()  # Number of tasks
     swipes = models.FloatField()  # Number of swipes
     area_swiped = models.FloatField()
-    total_user_groups = models.FloatField()
 
     class Meta:
         unique_together = (
