@@ -482,6 +482,12 @@ class UserGroupUserMembershipType:
     # timestamp: datetime.datetime
 
     @strawberry.field
+    async def id(
+        self, info: Info, root: UserGroupUserMembership
+    ) -> strawberry.ID:
+        return strawberry.ID("{root.user_group_id}-{root.user_id}")
+
+    @strawberry.field
     async def stats(
         self, info: Info, root: UserGroupUserMembership
     ) -> Optional[UserGroupUserStatsType]:
