@@ -43,9 +43,9 @@ def get_community_stats() -> CommunityStatsType:
         total_user_groups=models.Count("user_group", distinct=True),
     )
     return CommunityStatsType(
-        total_contributors=user_agg_data["total_users"],
-        total_user_groups=user_group_agg_data["total_user_groups"],
-        total_swipes=user_agg_data["swipes_sum"],
+        total_contributors=user_agg_data["total_users"] or 0,
+        total_user_groups=user_group_agg_data["total_user_groups"] or 0,
+        total_swipes=user_agg_data["swipes_sum"] or 0,
     )
 
 
@@ -66,9 +66,9 @@ def get_community_stats_latest() -> CommunityStatsType:
         total_user_groups=models.Count("user_group", distinct=True),
     )
     return CommunityStatsType(
-        total_contributors=user_agg_data["total_users"],
-        total_user_groups=user_group_agg_data["total_user_groups"],
-        total_swipes=user_agg_data["swipes_sum"],
+        total_contributors=user_agg_data["total_users"] or 0,
+        total_user_groups=user_group_agg_data["total_user_groups"] or 0,
+        total_swipes=user_agg_data["swipes_sum"] or 0,
     )
 
 
@@ -88,7 +88,7 @@ class FilteredStats:
     @strawberry.field
     async def contributor_time_stats(self) -> List[ContributorTimeStatType]:
         qs = self.qs\
-            .filters(total_time__isnull=False)\
+            .filter(total_time__isnull=False)\
             .order_by("timestamp_date").values("timestamp_date")\
             .annotate(total_time_sum=models.Sum("total_time"))\
             .values_list(
@@ -246,13 +246,13 @@ class Query:
     @strawberry.field
     async def user_stats(
         self,
-        user_id: str,
+        user_id: strawberry.ID,
     ) -> UserStats:
         return UserStats(user_id=user_id)
 
     @strawberry.field
     async def user_group_stats(
         self,
-        user_group_id: str,
+        user_group_id: strawberry.ID,
     ) -> UserGroupStats:
         return UserGroupStats(user_group_id=user_group_id)
