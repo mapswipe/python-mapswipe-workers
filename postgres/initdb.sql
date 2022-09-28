@@ -152,16 +152,17 @@ CREATE TABLE IF NOT EXISTS user_groups_temp (
 CREATE TYPE membership_action AS ENUM ('join', 'leave');
 
 CREATE TABLE IF NOT EXISTS user_groups_membership_logs (
+    membership_id varchar,
     user_group_id varchar,
     user_id varchar,
     action MEMBERSHIP_ACTION,
     "timestamp" timestamp,
-    PRIMARY KEY (user_group_id, user_id),
     FOREIGN KEY (user_id) REFERENCES users (user_id),
     FOREIGN KEY (user_group_id) REFERENCES user_groups (user_group_id)
 );
 
 CREATE TABLE IF NOT EXISTS user_groups_membership_logs_temp (
+    membership_id varchar,
     user_group_id varchar,
     user_id varchar,
     action MEMBERSHIP_ACTION,
