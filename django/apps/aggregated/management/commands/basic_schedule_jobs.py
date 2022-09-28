@@ -1,15 +1,16 @@
 import time
-import schedule
-from django.core.management.base import BaseCommand
 
-from apps.aggregated.management.commands.update_aggregated_data import Command \
-    as AggregateCommand
+import schedule
+from apps.aggregated.management.commands.update_aggregated_data import (
+    Command as AggregateCommand,
+)
+from django.core.management.base import BaseCommand
 
 
 class Command(BaseCommand):
     def handle(self, **_):
         AggregateCommand().run()
-        schedule.every().day.at("0:10").do(AggregateCommand().run)
+        schedule.every().day.at("00:10").do(AggregateCommand().run)
 
         while True:
             # TODO: Upgrade to better scheduler?

@@ -1,20 +1,14 @@
 from collections import defaultdict
 from typing import List
 
+from apps.aggregated.models import AggregatedUserGroupStatData
 from asgiref.sync import sync_to_async
 from django.db import models
 from django.utils.functional import cached_property
 from strawberry.dataloader import DataLoader
 
-from apps.aggregated.models import AggregatedUserGroupStatData
-
-from .models import (
-    UserGroupUserMembership,
-)
-from .types import (
-    UserGroupUserStatsType,
-    UserUserGroupType,
-)
+from .models import UserGroupUserMembership
+from .types import UserGroupUserStatsType, UserUserGroupType
 
 
 def load_user_group_user_stats(keys: List[str]):

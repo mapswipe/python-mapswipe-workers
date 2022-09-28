@@ -1,6 +1,5 @@
 from django.contrib.gis.db import models as gis_models
 from django.db import models
-
 from mapswipe.db import Model
 
 
@@ -22,9 +21,9 @@ class UserGroup(Model):
     name = models.CharField(max_length=999, null=True)
     description = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(blank=True, null=True)
-    created_by = models.ForeignKey(User, models.DO_NOTHING, related_name='+')
+    created_by = models.ForeignKey(User, models.DO_NOTHING, related_name="+")
     archived_at = models.DateTimeField(blank=True, null=True)
-    archived_by = models.ForeignKey(User, models.DO_NOTHING, related_name='+')
+    archived_by = models.ForeignKey(User, models.DO_NOTHING, related_name="+")
     is_archived = models.BooleanField(blank=True, null=True)
 
     class Meta:
@@ -41,8 +40,8 @@ class UserGroup(Model):
 
 
 class UserGroupUserMembership(Model):
-    user_group = models.ForeignKey(UserGroup, models.DO_NOTHING, related_name='+')
-    user = models.ForeignKey(User, models.DO_NOTHING, related_name='+')
+    user_group = models.ForeignKey(UserGroup, models.DO_NOTHING, related_name="+")
+    user = models.ForeignKey(User, models.DO_NOTHING, related_name="+")
     is_active = models.BooleanField(null=True, blank=True)
 
     class Meta:
@@ -72,7 +71,8 @@ class Project(Model):
     progress = models.IntegerField(blank=True, null=True)
     project_details = models.CharField(max_length=999, blank=True, null=True)
     project_type = models.IntegerField(
-        choices=ProjectType.choices, blank=True, null=True)
+        choices=ProjectType.choices, blank=True, null=True
+    )
     required_results = models.IntegerField(blank=True, null=True)
     result_count = models.IntegerField(blank=True, null=True)
     status = models.CharField(max_length=999, blank=True, null=True)
@@ -94,7 +94,7 @@ class Project(Model):
 class Group(Model):
     # NOTE: Primary Key: project_id, group_id
     group_id = models.CharField(primary_key=True, max_length=999)
-    project = models.ForeignKey("Project", models.DO_NOTHING, related_name='+')
+    project = models.ForeignKey("Project", models.DO_NOTHING, related_name="+")
     number_of_tasks = models.IntegerField(blank=True, null=True)
     finished_count = models.IntegerField(blank=True, null=True)
     required_count = models.IntegerField(blank=True, null=True)
@@ -113,7 +113,7 @@ class Group(Model):
 
 class Task(Model):
     # NOTE: Primary Key: project_id, group_id, tasks_id
-    project = models.ForeignKey(Project, models.DO_NOTHING, related_name='+')
+    project = models.ForeignKey(Project, models.DO_NOTHING, related_name="+")
     group_id = models.CharField(max_length=999)
     task_id = models.CharField(max_length=999)
     geom = gis_models.MultiPolygonField(blank=True, null=True)
@@ -137,10 +137,10 @@ class Task(Model):
 
 class Result(Model):
     # NOTE: Primary Key: project_id, group_id, tasks_id, user_id
-    project = models.ForeignKey(Project, models.DO_NOTHING, related_name='+')
+    project = models.ForeignKey(Project, models.DO_NOTHING, related_name="+")
     group_id = models.CharField(max_length=999)
     task_id = models.CharField(max_length=999)
-    user = models.ForeignKey(User, models.DO_NOTHING, related_name='+')
+    user = models.ForeignKey(User, models.DO_NOTHING, related_name="+")
     timestamp = models.DateTimeField(blank=True, null=True)
     start_time = models.DateTimeField(blank=True, null=True)
     end_time = models.DateTimeField(blank=True, null=True)
@@ -173,11 +173,11 @@ class Result(Model):
 
 
 class UserGroupResult(Model):
-    project = models.ForeignKey(Project, on_delete=models.DO_NOTHING, related_name='+')
+    project = models.ForeignKey(Project, on_delete=models.DO_NOTHING, related_name="+")
     group_id = models.CharField(max_length=999)
-    user = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name='+')
+    user = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="+")
     user_group = models.ForeignKey(
-        UserGroup, on_delete=models.DO_NOTHING, related_name='+'
+        UserGroup, on_delete=models.DO_NOTHING, related_name="+"
     )
 
     class Meta:

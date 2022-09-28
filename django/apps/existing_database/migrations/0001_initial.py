@@ -8,128 +8,199 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Group',
+            name="Group",
             fields=[
-                ('group_id', models.CharField(max_length=999, primary_key=True, serialize=False)),
-                ('number_of_tasks', models.IntegerField(blank=True, null=True)),
-                ('finished_count', models.IntegerField(blank=True, null=True)),
-                ('required_count', models.IntegerField(blank=True, null=True)),
-                ('progress', models.IntegerField(blank=True, null=True)),
-                ('project_type_specifics', models.TextField(blank=True, null=True)),
+                (
+                    "group_id",
+                    models.CharField(max_length=999, primary_key=True, serialize=False),
+                ),
+                ("number_of_tasks", models.IntegerField(blank=True, null=True)),
+                ("finished_count", models.IntegerField(blank=True, null=True)),
+                ("required_count", models.IntegerField(blank=True, null=True)),
+                ("progress", models.IntegerField(blank=True, null=True)),
+                ("project_type_specifics", models.TextField(blank=True, null=True)),
             ],
             options={
-                'db_table': 'groups',
-                'managed': False,
+                "db_table": "groups",
+                "managed": False,
             },
         ),
         migrations.CreateModel(
-            name='Project',
+            name="Project",
             fields=[
-                ('project_id', models.CharField(max_length=999, primary_key=True, serialize=False)),
-                ('created', models.DateTimeField(blank=True, null=True)),
-                ('created_by', models.CharField(blank=True, max_length=999, null=True)),
-                ('geom', django.contrib.gis.db.models.fields.GeometryField(blank=True, null=True, srid=4326)),
-                ('image', models.CharField(blank=True, max_length=999, null=True)),
-                ('is_featured', models.BooleanField(blank=True, null=True)),
-                ('look_for', models.CharField(blank=True, max_length=999, null=True)),
-                ('name', models.CharField(blank=True, max_length=999, null=True)),
-                ('progress', models.IntegerField(blank=True, null=True)),
-                ('project_details', models.CharField(blank=True, max_length=999, null=True)),
-                ('project_type', models.IntegerField(blank=True, choices=[(1, 'Build Area'), (2, 'Footprint'), (3, 'Change Detection'), (4, 'Completeness')], null=True)),
-                ('required_results', models.IntegerField(blank=True, null=True)),
-                ('result_count', models.IntegerField(blank=True, null=True)),
-                ('status', models.CharField(blank=True, max_length=999, null=True)),
-                ('verification_number', models.IntegerField(blank=True, null=True)),
-                ('project_type_specifics', models.TextField(blank=True, null=True)),
-                ('organization_name', models.CharField(blank=True, max_length=1000, null=True)),
+                (
+                    "project_id",
+                    models.CharField(max_length=999, primary_key=True, serialize=False),
+                ),
+                ("created", models.DateTimeField(blank=True, null=True)),
+                ("created_by", models.CharField(blank=True, max_length=999, null=True)),
+                (
+                    "geom",
+                    django.contrib.gis.db.models.fields.GeometryField(
+                        blank=True, null=True, srid=4326
+                    ),
+                ),
+                ("image", models.CharField(blank=True, max_length=999, null=True)),
+                ("is_featured", models.BooleanField(blank=True, null=True)),
+                ("look_for", models.CharField(blank=True, max_length=999, null=True)),
+                ("name", models.CharField(blank=True, max_length=999, null=True)),
+                ("progress", models.IntegerField(blank=True, null=True)),
+                (
+                    "project_details",
+                    models.CharField(blank=True, max_length=999, null=True),
+                ),
+                (
+                    "project_type",
+                    models.IntegerField(
+                        blank=True,
+                        choices=[
+                            (1, "Build Area"),
+                            (2, "Footprint"),
+                            (3, "Change Detection"),
+                            (4, "Completeness"),
+                        ],
+                        null=True,
+                    ),
+                ),
+                ("required_results", models.IntegerField(blank=True, null=True)),
+                ("result_count", models.IntegerField(blank=True, null=True)),
+                ("status", models.CharField(blank=True, max_length=999, null=True)),
+                ("verification_number", models.IntegerField(blank=True, null=True)),
+                ("project_type_specifics", models.TextField(blank=True, null=True)),
+                (
+                    "organization_name",
+                    models.CharField(blank=True, max_length=1000, null=True),
+                ),
             ],
             options={
-                'db_table': 'projects',
-                'managed': False,
+                "db_table": "projects",
+                "managed": False,
             },
         ),
         migrations.CreateModel(
-            name='Result',
+            name="Result",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('group_id', models.CharField(max_length=999)),
-                ('task_id', models.CharField(max_length=999)),
-                ('timestamp', models.DateTimeField(blank=True, null=True)),
-                ('start_time', models.DateTimeField(blank=True, null=True)),
-                ('end_time', models.DateTimeField(blank=True, null=True)),
-                ('result', models.IntegerField(blank=True, null=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("group_id", models.CharField(max_length=999)),
+                ("task_id", models.CharField(max_length=999)),
+                ("timestamp", models.DateTimeField(blank=True, null=True)),
+                ("start_time", models.DateTimeField(blank=True, null=True)),
+                ("end_time", models.DateTimeField(blank=True, null=True)),
+                ("result", models.IntegerField(blank=True, null=True)),
             ],
             options={
-                'db_table': 'results',
-                'managed': False,
+                "db_table": "results",
+                "managed": False,
             },
         ),
         migrations.CreateModel(
-            name='Task',
+            name="Task",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('group_id', models.CharField(max_length=999)),
-                ('task_id', models.CharField(max_length=999)),
-                ('geom', django.contrib.gis.db.models.fields.MultiPolygonField(blank=True, null=True, srid=4326)),
-                ('project_type_specifics', models.TextField(blank=True, null=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("group_id", models.CharField(max_length=999)),
+                ("task_id", models.CharField(max_length=999)),
+                (
+                    "geom",
+                    django.contrib.gis.db.models.fields.MultiPolygonField(
+                        blank=True, null=True, srid=4326
+                    ),
+                ),
+                ("project_type_specifics", models.TextField(blank=True, null=True)),
             ],
             options={
-                'db_table': 'tasks',
-                'managed': False,
+                "db_table": "tasks",
+                "managed": False,
             },
         ),
         migrations.CreateModel(
-            name='User',
+            name="User",
             fields=[
-                ('user_id', models.CharField(max_length=999, primary_key=True, serialize=False)),
-                ('username', models.CharField(blank=True, max_length=999, null=True)),
-                ('created', models.DateTimeField(blank=True, null=True)),
+                (
+                    "user_id",
+                    models.CharField(max_length=999, primary_key=True, serialize=False),
+                ),
+                ("username", models.CharField(blank=True, max_length=999, null=True)),
+                ("created", models.DateTimeField(blank=True, null=True)),
             ],
             options={
-                'db_table': 'users',
-                'managed': False,
+                "db_table": "users",
+                "managed": False,
             },
         ),
         migrations.CreateModel(
-            name='UserGroup',
+            name="UserGroup",
             fields=[
-                ('user_group_id', models.CharField(max_length=999, primary_key=True, serialize=False)),
-                ('name', models.CharField(max_length=999, null=True)),
-                ('description', models.TextField(blank=True, null=True)),
-                ('created_at', models.DateTimeField(blank=True, null=True)),
-                ('archived_at', models.DateTimeField(blank=True, null=True)),
-                ('is_archived', models.BooleanField(blank=True, null=True)),
+                (
+                    "user_group_id",
+                    models.CharField(max_length=999, primary_key=True, serialize=False),
+                ),
+                ("name", models.CharField(max_length=999, null=True)),
+                ("description", models.TextField(blank=True, null=True)),
+                ("created_at", models.DateTimeField(blank=True, null=True)),
+                ("archived_at", models.DateTimeField(blank=True, null=True)),
+                ("is_archived", models.BooleanField(blank=True, null=True)),
             ],
             options={
-                'db_table': 'user_groups',
-                'managed': False,
+                "db_table": "user_groups",
+                "managed": False,
             },
         ),
         migrations.CreateModel(
-            name='UserGroupResult',
+            name="UserGroupResult",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('group_id', models.CharField(max_length=999)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("group_id", models.CharField(max_length=999)),
             ],
             options={
-                'db_table': 'results_user_groups',
-                'managed': False,
+                "db_table": "results_user_groups",
+                "managed": False,
             },
         ),
         migrations.CreateModel(
-            name='UserGroupUserMembership',
+            name="UserGroupUserMembership",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('is_active', models.BooleanField(blank=True, null=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("is_active", models.BooleanField(blank=True, null=True)),
             ],
             options={
-                'db_table': 'user_groups_user_memberships',
-                'managed': False,
+                "db_table": "user_groups_user_memberships",
+                "managed": False,
             },
         ),
     ]

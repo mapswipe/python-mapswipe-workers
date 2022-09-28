@@ -4,27 +4,16 @@ from typing import List, Optional, Union
 
 import strawberry
 import strawberry_django
-from mapswipe.paginations import CountList, StrawberryDjangoCountList
-from strawberry.types import Info
-from django.db import models
+from apps.aggregated.models import AggregatedUserGroupStatData, AggregatedUserStatData
 from django.contrib.gis.db.models.functions import Centroid
+from django.db import models
 from django.utils import timezone
-
-from mapswipe.types import (
-    TimeInSeconds,
-    AreaSqKm,
-    GenericJSON,
-)
-from apps.aggregated.models import AggregatedUserStatData, AggregatedUserGroupStatData
+from mapswipe.paginations import CountList, StrawberryDjangoCountList
+from mapswipe.types import AreaSqKm, GenericJSON, TimeInSeconds
+from strawberry.types import Info
 
 from .enums import ProjectTypeEnum
-from .models import (
-    Project,
-    User,
-    UserGroup,
-    UserGroupResult,
-    UserGroupUserMembership,
-)
+from .models import Project, User, UserGroup, UserGroupResult, UserGroupUserMembership
 
 
 @strawberry.input
@@ -35,7 +24,7 @@ class DateRangeInput:
 
 @strawberry.type
 class CommunityStatsType:
-    total_swipes: int
+    total_swipes: float
     total_contributors: int
     total_user_groups: int
 
@@ -53,7 +42,7 @@ class ProjectTypeAreaStatsType:
 @strawberry.type
 class ProjectTypeSwipeStatsType:
     project_type: ProjectTypeEnum
-    total_swipes: int
+    total_swipes: float
 
     @strawberry.field
     def project_type_display(self) -> str:
@@ -62,7 +51,7 @@ class ProjectTypeSwipeStatsType:
 
 @strawberry.type
 class UserGroupStatsType:
-    total_swipes: int
+    total_swipes: float
     total_swipe_time: TimeInSeconds
     total_mapping_projects: int
     total_contributors: int
@@ -70,7 +59,7 @@ class UserGroupStatsType:
 
 @strawberry.type
 class UserGroupLatestStatsType:
-    total_swipes: int
+    total_swipes: float
     total_swipe_time: TimeInSeconds
     total_mapping_projects: int
     total_contributors: int
@@ -81,13 +70,13 @@ class UserGroupUserStatsType:
     user_id: str
     user_name: str
     total_mapping_projects: int
-    total_swipes: int
+    total_swipes: float
     total_swipe_time: TimeInSeconds
 
 
 @strawberry.type
 class UserStatType:
-    total_swipes: int
+    total_swipes: float
     total_swipe_time: TimeInSeconds
     total_mapping_projects: int
     total_user_groups: int
@@ -96,7 +85,7 @@ class UserStatType:
 @strawberry.type
 class ContributorSwipeStatType:
     task_date: datetime.date
-    total_swipes: int
+    total_swipes: float
 
 
 @strawberry.type
@@ -108,7 +97,7 @@ class ContributorTimeStatType:
 @strawberry.type
 class OrganizationSwipeStatsType:
     organization_name: str
-    total_swipes: int
+    total_swipes: float
 
 
 @strawberry.type
@@ -126,7 +115,7 @@ class UserUserGroupType:
 
 @strawberry.type
 class UserLatestStatsType:
-    total_swipes: int
+    total_swipes: float
     total_swipe_time: TimeInSeconds
     total_user_groups: int
 
@@ -137,21 +126,21 @@ class UserUserGroupBaseFilterStatsQuery:
     def qs(self):
         self._qs: strawberry.Private[models.QuerySet]
         if self._qs is None:
-            raise Exception('qs should be defined')
+            raise Exception("qs should be defined")
         return self._qs
 
     @strawberry.field
     async def swipe_by_date(self) -> List[ContributorSwipeStatType]:
-        qs = self.qs\
-            .filter(task_count__isnull=False)\
-            .order_by("timestamp_date")\
-            .values("timestamp_date")\
-            .annotate(
-                total_swipes=models.Sum("swipes")
-            ).values_list(
+        qs = (
+            self.qs.filter(task_count__isnull=False)
+            .order_by("timestamp_date")
+            .values("timestamp_date")
+            .annotate(total_swipes=models.Sum("swipes"))
+            .values_list(
                 "timestamp_date",
                 "total_swipes",
             )
+        )
         return [
             ContributorSwipeStatType(
                 task_date=task_date,
@@ -162,16 +151,18 @@ class UserUserGroupBaseFilterStatsQuery:
 
     @strawberry.field
     async def swipe_time_by_date(self) -> List[ContributorTimeStatType]:
-        qs = self.qs\
-            .filter(total_time__isnull=False)\
-            .order_by("timestamp_date")\
-            .values("timestamp_date")\
+        qs = (
+            self.qs.filter(total_time__isnull=False)
+            .order_by("timestamp_date")
+            .values("timestamp_date")
             .annotate(
                 total_time_sum=models.Sum("total_time"),
-            ).values_list(
+            )
+            .values_list(
                 "timestamp_date",
                 "total_time_sum",
             )
+        )
         return [
             ContributorTimeStatType(
                 date=date,
@@ -182,16 +173,18 @@ class UserUserGroupBaseFilterStatsQuery:
 
     @strawberry.field
     async def area_swiped_by_project_type(self) -> List[ProjectTypeAreaStatsType]:
-        qs = self.qs\
-            .filter(area_swiped__isnull=False)\
-            .order_by()\
-            .values("project__project_type")\
+        qs = (
+            self.qs.filter(area_swiped__isnull=False)
+            .order_by()
+            .values("project__project_type")
             .annotate(
                 total_area_swiped=models.Sum("area_swiped"),
-            ).values_list(
+            )
+            .values_list(
                 "project__project_type",
                 "total_area_swiped",
             )
+        )
         return [
             ProjectTypeAreaStatsType(
                 project_type=project_type,
@@ -202,16 +195,18 @@ class UserUserGroupBaseFilterStatsQuery:
 
     @strawberry.field
     async def swipe_by_project_type(self) -> List[ProjectTypeSwipeStatsType]:
-        qs = self.qs\
-            .filter(task_count__isnull=False)\
-            .order_by()\
-            .values("project__project_type")\
+        qs = (
+            self.qs.filter(task_count__isnull=False)
+            .order_by()
+            .values("project__project_type")
             .annotate(
                 total_swipes=models.Sum("swipes"),
-            ).values_list(
+            )
+            .values_list(
                 "project__project_type",
                 "total_swipes",
             )
+        )
         return [
             ProjectTypeSwipeStatsType(
                 project_type=project_type,
@@ -222,18 +217,20 @@ class UserUserGroupBaseFilterStatsQuery:
 
     @strawberry_django.field
     async def swipe_by_organization_name(self) -> List[OrganizationSwipeStatsType]:
-        qs = self.qs\
-            .order_by()\
-            .values("project__organization_name")\
+        qs = (
+            self.qs.order_by()
+            .values("project__organization_name")
             .annotate(
                 total_swipes=models.Sum("swipes"),
-            ).values_list(
+            )
+            .values_list(
                 "project__organization_name",
                 "total_swipes",
             )
+        )
         return [
             OrganizationSwipeStatsType(
-                organization_name=organization_name or 'N/A',
+                organization_name=organization_name or "N/A",
                 total_swipes=total_swipes,
             )
             async for organization_name, total_swipes in qs
@@ -241,15 +238,17 @@ class UserUserGroupBaseFilterStatsQuery:
 
     @strawberry.field
     async def contribution_by_geo(self) -> List[MapContributionStatsType]:
-        qs = self.qs\
-            .order_by()\
-            .values("project_id")\
+        qs = (
+            self.qs.order_by()
+            .values("project_id")
             .annotate(
                 total_swipes=models.Sum("swipes"),
-            ).values_list(
+            )
+            .values_list(
                 Centroid("project__geom"),
                 "total_swipes",
             )
+        )
         return [
             MapContributionStatsType(
                 geojson=geom.json,
@@ -266,7 +265,7 @@ class UserFilteredStats(UserUserGroupBaseFilterStatsQuery):
 
     def __post_init__(self, date_range, user_id):
         filters = {
-            'user_id': user_id,
+            "user_id": user_id,
         }
         if date_range:
             filters.update(
@@ -293,9 +292,7 @@ class UserStats:
             total_project=models.Count("project_id"),
         )
         user_group_count = (
-            await UserGroupResult.objects
-            .filter(user_id=self._user_id)
-            .aaggregate(
+            await UserGroupResult.objects.filter(user_id=self._user_id).aaggregate(
                 count=models.Count("user_group_id", distinct=True)
             )
         )["count"]
@@ -309,22 +306,19 @@ class UserStats:
     @strawberry.field(description="Stats from last 30 days")
     async def stats_latest(self) -> UserLatestStatsType:
         date_threshold = timezone.now() - datetime.timedelta(days=30)
-        agg_data = await self.qs\
-            .filter(timestamp_date__gte=date_threshold)\
-            .aaggregate(
-                total_swipes=models.Sum("swipes"),
-                total_time_sum=models.Sum("total_time"),
-            )
+        agg_data = await self.qs.filter(timestamp_date__gte=date_threshold).aaggregate(
+            total_swipes=models.Sum("swipes"),
+            total_time_sum=models.Sum("total_time"),
+        )
         total_group_count = (
-            await self.ug_qs
-            .aaggregate(
+            await self.ug_qs.aaggregate(
                 count=models.Count(
-                    'user_group_id',
+                    "user_group_id",
                     distinct=True,
                     filter=models.Q(user_group_id__isnull=False),
                 )
             )
-        )['count']
+        )["count"]
         return UserLatestStatsType(
             total_swipes=agg_data["total_swipes"] or 0,
             total_swipe_time=agg_data["total_time_sum"] or 0,
@@ -346,7 +340,7 @@ class UserGroupFilteredStats(UserUserGroupBaseFilterStatsQuery):
 
     def __post_init__(self, date_range, user_group_id):
         filters = {
-            'user_group_id': user_group_id,
+            "user_group_id": user_group_id,
         }
         if date_range:
             filters.update(
@@ -358,20 +352,22 @@ class UserGroupFilteredStats(UserUserGroupBaseFilterStatsQuery):
     # Additional fields
     @strawberry.field
     async def user_stats(self) -> List[UserGroupUserStatsType]:
-        qs = self.qs\
-            .order_by()\
-            .values("user_id")\
+        qs = (
+            self.qs.order_by()
+            .values("user_id")
             .annotate(
                 total_project=models.Count("project", distinct=True),
                 total_swipes=models.Sum("swipes"),
                 total_time_sum=models.Sum("total_time"),
-            ).values_list(
+            )
+            .values_list(
                 "user_id",
                 "user__username",
                 "total_project",
                 "total_swipes",
                 "total_time_sum",
             )
+        )
         return [
             UserGroupUserStatsType(
                 user_id=user_id,
@@ -396,18 +392,18 @@ class UserGroupStats:
 
     def __post_init__(self, user_group_id):
         self._user_group_id = user_group_id
-        self.qs = AggregatedUserGroupStatData.objects\
-            .filter(user_group_id=user_group_id)
+        self.qs = AggregatedUserGroupStatData.objects.filter(
+            user_group_id=user_group_id
+        )
 
     @strawberry.field
     async def stats(self) -> UserGroupStatsType:
-        agg_data = await self.qs\
-            .aaggregate(
-                total_swipes=models.Sum("swipes"),
-                total_time_sum=models.Sum("total_time"),
-                total_contributors=models.Count("user_id", distinct=True),
-                total_project=models.Count("project_id", distinct=True),
-            )
+        agg_data = await self.qs.aaggregate(
+            total_swipes=models.Sum("swipes"),
+            total_time_sum=models.Sum("total_time"),
+            total_contributors=models.Count("user_id", distinct=True),
+            total_project=models.Count("project_id", distinct=True),
+        )
         return UserGroupStatsType(
             total_swipes=agg_data["total_swipes"],
             total_swipe_time=agg_data["total_time_sum"],
@@ -418,14 +414,12 @@ class UserGroupStats:
     @strawberry.field(description="Stats from last 30 days")
     async def stats_latest(self) -> UserGroupLatestStatsType:
         date_threshold = timezone.now() - datetime.timedelta(days=30)
-        agg_data = await self.qs\
-            .filter(timestamp_date__gte=date_threshold)\
-            .aaggregate(
-                total_swipes=models.Sum("swipes"),
-                total_time_sum=models.Sum("total_time"),
-                total_contributors=models.Count("user_id", distinct=True),
-                total_project=models.Count("project_id", distinct=True),
-            )
+        agg_data = await self.qs.filter(timestamp_date__gte=date_threshold).aaggregate(
+            total_swipes=models.Sum("swipes"),
+            total_time_sum=models.Sum("total_time"),
+            total_contributors=models.Count("user_id", distinct=True),
+            total_project=models.Count("project_id", distinct=True),
+        )
         return UserGroupLatestStatsType(
             total_swipes=agg_data["total_swipes"],
             total_swipe_time=agg_data["total_time_sum"],
@@ -482,9 +476,7 @@ class UserGroupUserMembershipType:
     # timestamp: datetime.datetime
 
     @strawberry.field
-    async def id(
-        self, info: Info, root: UserGroupUserMembership
-    ) -> strawberry.ID:
+    async def id(self, info: Info, root: UserGroupUserMembership) -> strawberry.ID:
         return strawberry.ID("{root.user_group_id}-{root.user_id}")
 
     @strawberry.field
