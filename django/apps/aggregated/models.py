@@ -23,8 +23,8 @@ class AggregatedUserStatData(Model):
     timestamp_date = models.DateField()
     # Aggregated Fields
     total_time = models.IntegerField()  # seconds
-    task_count = models.FloatField()  # Number of tasks
-    swipes = models.FloatField()  # Number of swipes
+    task_count = models.IntegerField()  # Number of tasks
+    swipes = models.IntegerField()  # Number of swipes
     area_swiped = models.FloatField()  # sqkm
 
     class Meta:
