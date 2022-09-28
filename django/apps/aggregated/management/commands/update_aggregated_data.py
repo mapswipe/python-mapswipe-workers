@@ -38,7 +38,7 @@ UPDATE_USER_DATA_SQL = f"""
               project_id,
               group_id,
               task_id,
-              ST_Area(geom::geography(GEOMETRY,4326)) as area
+              ST_Area(geom::geography(GEOMETRY,4326)) / 1000000 as area -- sqkm
           FROM used_tasks
               INNER JOIN tasks T USING (project_id, group_id, task_id)
         ),
@@ -119,7 +119,7 @@ UPDATE_USER_GROUP_SQL = f"""
               project_id,
               group_id,
               task_id,
-              ST_Area(geom::geography(GEOMETRY,4326)) as area
+              ST_Area(geom::geography(GEOMETRY,4326)) / 1000000 as area -- sqkm
           FROM used_tasks
               INNER JOIN tasks T USING (project_id, group_id, task_id)
         ),

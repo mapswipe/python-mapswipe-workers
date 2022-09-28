@@ -8,13 +8,15 @@ from django_cte import CTEManager
 def calculate_geo_area(field):
     """
     ST_Area((field)::geography(GEOMETRY,4326))
-        - same to (ST_Area(geom::geography)/1000000)
+        - same to (ST_Area(geom::geography))
+    Response: area_sqkm
     """
     return Area(
         Cast(
             field,
             GeometryField(geography=True),  # to_sql: field::geography
         )
+        / 1000000
     )
 
 
