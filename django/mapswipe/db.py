@@ -19,7 +19,8 @@ def calculate_geo_area(field):
 
 
 class Model(models.Model):
-    objects = CTEManager()
+    cte_objects = CTEManager()
+    objects = models.Manager()
 
     class Meta:
         abstract = True
