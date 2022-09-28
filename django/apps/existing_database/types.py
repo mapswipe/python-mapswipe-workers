@@ -24,7 +24,7 @@ class DateRangeInput:
 
 @strawberry.type
 class CommunityStatsType:
-    total_swipes: float
+    total_swipes: int
     total_contributors: int
     total_user_groups: int
 
@@ -42,7 +42,7 @@ class ProjectTypeAreaStatsType:
 @strawberry.type
 class ProjectTypeSwipeStatsType:
     project_type: ProjectTypeEnum
-    total_swipes: float
+    total_swipes: int
 
     @strawberry.field
     def project_type_display(self) -> str:
@@ -51,7 +51,7 @@ class ProjectTypeSwipeStatsType:
 
 @strawberry.type
 class UserGroupStatsType:
-    total_swipes: float
+    total_swipes: int
     total_swipe_time: TimeInSeconds
     total_mapping_projects: int
     total_contributors: int
@@ -59,7 +59,7 @@ class UserGroupStatsType:
 
 @strawberry.type
 class UserGroupLatestStatsType:
-    total_swipes: float
+    total_swipes: int
     total_swipe_time: TimeInSeconds
     total_mapping_projects: int
     total_contributors: int
@@ -70,13 +70,13 @@ class UserGroupUserStatsType:
     user_id: str
     user_name: str
     total_mapping_projects: int
-    total_swipes: float
+    total_swipes: int
     total_swipe_time: TimeInSeconds
 
 
 @strawberry.type
 class UserStatType:
-    total_swipes: float
+    total_swipes: int
     total_swipe_time: TimeInSeconds
     total_mapping_projects: int
     total_user_groups: int
@@ -85,7 +85,7 @@ class UserStatType:
 @strawberry.type
 class ContributorSwipeStatType:
     task_date: datetime.date
-    total_swipes: float
+    total_swipes: int
 
 
 @strawberry.type
@@ -97,13 +97,13 @@ class ContributorTimeStatType:
 @strawberry.type
 class OrganizationSwipeStatsType:
     organization_name: str
-    total_swipes: float
+    total_swipes: int
 
 
 @strawberry.type
 class MapContributionStatsType:
     geojson: GenericJSON
-    total_contribution: float
+    total_contribution: int
 
 
 @strawberry.type
@@ -115,7 +115,7 @@ class UserUserGroupType:
 
 @strawberry.type
 class UserLatestStatsType:
-    total_swipes: float
+    total_swipes: int
     total_swipe_time: TimeInSeconds
     total_user_groups: int
 
