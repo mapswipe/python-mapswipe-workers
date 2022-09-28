@@ -157,7 +157,6 @@ CREATE TABLE IF NOT EXISTS user_groups_membership_logs (
     user_id varchar,
     action MEMBERSHIP_ACTION,
     "timestamp" timestamp,
-    PRIMARY KEY (membership_id, user_group_id, user_id),
     FOREIGN KEY (user_id) REFERENCES users (user_id),
     FOREIGN KEY (user_group_id) REFERENCES user_groups (user_group_id)
 );
