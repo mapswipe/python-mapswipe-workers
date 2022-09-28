@@ -103,7 +103,7 @@ class OrganizationSwipeStatsType:
 @strawberry.type
 class MapContributionStatsType:
     geojson: GenericJSON
-    total_contribution: int
+    total_contribution: float
 
 
 @strawberry.type
