@@ -1,8 +1,8 @@
 import json
 from typing import NewType
+
 import strawberry
 from strawberry.scalars import JSON
-
 
 # TODO:
 EnumDisplay = strawberry.scalar(

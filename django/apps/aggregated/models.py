@@ -1,7 +1,6 @@
-from django.db import models
-
-from mapswipe.db import Model
 from apps.existing_database.models import Project, User, UserGroup
+from django.db import models
+from mapswipe.db import Model
 
 
 class AggregatedTracking(Model):
@@ -19,8 +18,8 @@ class AggregatedTracking(Model):
 
 class AggregatedUserStatData(Model):
     # Ref Fields
-    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='+')
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='+')
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="+")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="+")
     timestamp_date = models.DateField()
     # Aggregated Fields
     total_time = models.IntegerField()  # seconds
@@ -30,18 +29,19 @@ class AggregatedUserStatData(Model):
 
     class Meta:
         unique_together = (
-            'project',
-            'user',
-            'timestamp_date',
+            "project",
+            "user",
+            "timestamp_date",
         )
 
 
 class AggregatedUserGroupStatData(Model):
     # Ref Fields
-    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='+')
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='+')
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="+")
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="+")
     user_group = models.ForeignKey(
-        UserGroup, on_delete=models.CASCADE, related_name='+')
+        UserGroup, on_delete=models.CASCADE, related_name="+"
+    )
     timestamp_date = models.DateField()
     # Aggregated Fields
     total_time = models.IntegerField()  # seconds
@@ -51,8 +51,8 @@ class AggregatedUserGroupStatData(Model):
 
     class Meta:
         unique_together = (
-            'project',
-            'user',
-            'user_group',
-            'timestamp_date',
+            "project",
+            "user",
+            "user_group",
+            "timestamp_date",
         )

@@ -46,6 +46,27 @@ x-mapswipe-workers: &base_mapswipe_workers
     - mapswipe_workers
     - postgres
 
+x-django: &base_django
+  build:
+    context: django/
+  environment:
+    DJANGO_DEBUG: 'true'
+    DJANGO_SECRET_KEY: 'simple-secret-key-dont-use-in-production'
+    DJANGO_ALLOWED_HOST: '*'
+    DJANGO_DB_NAME: '${POSTGRES_DB:-postgres}'
+    DJANGO_DB_USER: '${POSTGRES_USER:-postgres}'
+    DJANGO_DB_PWD: '${POSTGRES_PASSWORD:-postgres}'
+    DJANGO_DB_HOST: '${POSTGRES_HOST:-postgres}'
+    DJANGO_DB_PORT: '${POSTGRES_PORT:-5432}'
+    DJANGO_TIME_ZONE: 'Asia/Kathmandu'
+  volumes:
+    - ./django:/code
+    - ipython_data_local:/root/.ipython/profile_default   # persist ipython data, including ipython history
+  restart: unless-stopped
+  networks:
+    - postgres
+
+
 services:
   api:
     build:
@@ -110,26 +131,14 @@ services:
       - postgres
 
   django:
-    build:
-      context: django/
-    environment:
-      DJANGO_DEBUG: 'true'
-      DJANGO_SECRET_KEY: 'simple-secret-key-dont-use-in-production'
-      DJANGO_ALLOWED_HOST: '*'
-      DJANGO_DB_NAME: '${POSTGRES_DB:-postgres}'
-      DJANGO_DB_USER: '${POSTGRES_USER:-postgres}'
-      DJANGO_DB_PWD: '${POSTGRES_PASSWORD:-postgres}'
-      DJANGO_DB_HOST: '${POSTGRES_HOST:-postgres}'
-      DJANGO_DB_PORT: '${POSTGRES_PORT:-5432}'
-    volumes:
-      - ./django:/code
-      - ipython_data_local:/root/.ipython/profile_default   # persist ipython data, including ipython history
-    restart: unless-stopped
+    <<: *base_django
     command: ./scripts/run_develop.sh
-    networks:
-      - postgres
     ports:
-      - "8113:80"
+    - "8113:80"
+
+  django-schedule-task:
+    <<: *base_django
+    command: bash -c "python3 ./manage.py basic_schedule_jobs"
 
 volumes:
   ipython_data_local:

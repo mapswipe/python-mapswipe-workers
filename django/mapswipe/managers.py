@@ -1,4 +1,5 @@
 from collections import defaultdict
+
 from django.apps import apps
 
 
@@ -18,7 +19,7 @@ class BaseBulkManager(object):
         self.chunk_size = chunk_size
 
     def _commit(self, _):
-        raise Exception('This is not implemented yet.')
+        raise Exception("This is not implemented yet.")
 
     def _process_obj(self, obj):
         return obj

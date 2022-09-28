@@ -1,6 +1,6 @@
-from django.db import models
 from django.contrib.gis.db.models import GeometryField
 from django.contrib.gis.db.models.functions import Area
+from django.db import models
 from django.db.models.functions import Cast
 from django_cte import CTEManager
 

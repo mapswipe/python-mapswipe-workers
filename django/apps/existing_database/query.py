@@ -1,19 +1,17 @@
 import datetime
 import json
-from typing import List, Union
 from dataclasses import InitVar
+from typing import List, Union
 
 import strawberry
 import strawberry_django
-from django_cte import With
+from apps.aggregated.models import AggregatedUserGroupStatData, AggregatedUserStatData
+from django.contrib.gis.db.models.functions import Centroid
 from django.db import models
 from django.utils import timezone
-from django.contrib.gis.db.models.functions import Centroid
-
+from django_cte import With
 from mapswipe.paginations import CountList, StrawberryDjangoCountList
 from mapswipe.types import AreaSqKm
-
-from apps.aggregated.models import AggregatedUserGroupStatData, AggregatedUserStatData
 
 from .filters import ProjectFilter, UserFilter, UserGroupFilter
 from .models import Project
@@ -24,13 +22,13 @@ from .types import (
     DateRangeInput,
     MapContributionStatsType,
     OrganizationSwipeStatsType,
-    ProjectTypeSwipeStatsType,
     ProjectType,
     ProjectTypeAreaStatsType,
-    UserGroupType,
-    UserType,
-    UserStats,
+    ProjectTypeSwipeStatsType,
     UserGroupStats,
+    UserGroupType,
+    UserStats,
+    UserType,
 )
 
 
@@ -88,14 +86,16 @@ class FilteredStats:
 
     @strawberry.field
     async def contributor_time_stats(self) -> List[ContributorTimeStatType]:
-        qs = self.qs\
-            .filter(total_time__isnull=False)\
-            .order_by("timestamp_date").values("timestamp_date")\
-            .annotate(total_time_sum=models.Sum("total_time"))\
+        qs = (
+            self.qs.filter(total_time__isnull=False)
+            .order_by("timestamp_date")
+            .values("timestamp_date")
+            .annotate(total_time_sum=models.Sum("total_time"))
             .values_list(
                 "timestamp_date",
                 "total_time_sum",
             )
+        )
         return [
             ContributorTimeStatType(
                 date=date,
@@ -106,13 +106,15 @@ class FilteredStats:
 
     @strawberry.field
     async def project_swipe_type(self) -> List[ProjectTypeSwipeStatsType]:
-        qs = self.qs\
-            .order_by().values("project__project_type")\
-            .annotate(swipes_sum=models.Sum("swipes"))\
+        qs = (
+            self.qs.order_by()
+            .values("project__project_type")
+            .annotate(swipes_sum=models.Sum("swipes"))
             .values_list(
                 "project__project_type",
                 "swipes_sum",
             )
+        )
         return [
             ProjectTypeSwipeStatsType(
                 project_type=project_type,
@@ -123,14 +125,16 @@ class FilteredStats:
 
     @strawberry.field
     async def project_type_stats(self) -> List[ProjectTypeAreaStatsType]:
-        qs = self.qs\
-            .filter(area_swiped__isnull=False)\
-            .order_by().values("project__project_type")\
-            .annotate(total_area_swiped=models.Sum("area_swiped"))\
+        qs = (
+            self.qs.filter(area_swiped__isnull=False)
+            .order_by()
+            .values("project__project_type")
+            .annotate(total_area_swiped=models.Sum("area_swiped"))
             .values_list(
                 "project__project_type",
                 "total_area_swiped",
             )
+        )
         return [
             ProjectTypeAreaStatsType(
                 project_type=project_type,
@@ -141,16 +145,18 @@ class FilteredStats:
 
     @strawberry.field
     async def organization_type_stats(self) -> List[OrganizationSwipeStatsType]:
-        qs = self.qs\
-            .order_by().values("project__organization_name")\
-            .annotate(swipes_sum=models.Sum("swipes"))\
+        qs = (
+            self.qs.order_by()
+            .values("project__organization_name")
+            .annotate(swipes_sum=models.Sum("swipes"))
             .values_list(
                 "project__organization_name",
                 "swipes_sum",
             )
+        )
         return [
             OrganizationSwipeStatsType(
-                organization_name=organization or 'N/A',
+                organization_name=organization or "N/A",
                 total_swipes=swipes_sum,
             )
             async for organization, swipes_sum in qs
@@ -158,21 +164,23 @@ class FilteredStats:
 
     @strawberry.field
     async def project_geo_contribution(self) -> List[MapContributionStatsType]:
-        project_qs = Project.cte_objects\
-            .filter(geom__isnull=False)\
-            .annotate(centroid=Centroid("geom"))\
+        project_qs = (
+            Project.cte_objects.filter(geom__isnull=False)
+            .annotate(centroid=Centroid("geom"))
             .values("project_id", "centroid")
-        agg_data_qs = self.qs_cte\
-            .order_by().values('project')\
-            .annotate(
-                swipes_sum=models.Sum("swipes")
-            ).values_list(
+        )
+        agg_data_qs = (
+            self.qs_cte.order_by()
+            .values("project")
+            .annotate(swipes_sum=models.Sum("swipes"))
+            .values_list(
                 "project_id",
                 "swipes_sum",
             )
+        )
 
-        project_qs_with = With(project_qs, name='project_data')
-        agg_data_qs_with = With(agg_data_qs, name='aggregated_data')
+        project_qs_with = With(project_qs, name="project_data")
+        agg_data_qs_with = With(agg_data_qs, name="aggregated_data")
         qs = (
             project_qs_with.join(
                 agg_data_qs_with.queryset(),
@@ -201,7 +209,7 @@ class UserFilterdStats:
 
     def __post_init__(self, user_id, date_range):
         filters = {
-            'user_id': user_id,
+            "user_id": user_id,
         }
         if date_range:
             filters.update(
@@ -225,8 +233,7 @@ class Query:
     )
 
     users: CountList[UserType] = StrawberryDjangoCountList(
-        pagination=True,
-        filters=UserFilter
+        pagination=True, filters=UserFilter
     )
     user: UserType = strawberry_django.field()
 
