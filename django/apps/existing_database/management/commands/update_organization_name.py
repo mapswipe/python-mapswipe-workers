@@ -1,7 +1,6 @@
+from apps.existing_database.models import Project
 from django.core.management.base import BaseCommand
 from django.db import models
-
-from apps.existing_database.models import Project
 
 EMTPY_TEXT = ""
 

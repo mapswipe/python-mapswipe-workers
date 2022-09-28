@@ -1,18 +1,17 @@
 import datetime
 import time
-from django.core.management.base import BaseCommand
-from django.utils import timezone
-from django.db import connection, models, transaction
 
-from apps.existing_database.models import Result
 from apps.aggregated.models import (
-    AggregatedUserStatData,
-    AggregatedUserGroupStatData,
     AggregatedTracking,
+    AggregatedUserGroupStatData,
+    AggregatedUserStatData,
 )
+from apps.existing_database.models import Result
+from django.core.management.base import BaseCommand
+from django.db import connection, models, transaction
+from django.utils import timezone
 
-
-UPDATE_USER_DATA_SQL = f'''
+UPDATE_USER_DATA_SQL = f"""
     INSERT INTO "{AggregatedUserStatData._meta.db_table}" (
         project_id,
         user_id,
@@ -88,10 +87,10 @@ UPDATE_USER_DATA_SQL = f'''
         task_count = EXCLUDED.task_count,
         area_swiped = EXCLUDED.area_swiped,
         swipes = EXCLUDED.swipes;
-'''
+"""
 
 
-UPDATE_USER_GROUP_SQL = f'''
+UPDATE_USER_GROUP_SQL = f"""
     INSERT INTO "{AggregatedUserGroupStatData._meta.db_table}" (
         project_id,
         user_id,
@@ -172,7 +171,7 @@ UPDATE_USER_GROUP_SQL = f'''
         task_count = EXCLUDED.task_count,
         area_swiped = EXCLUDED.area_swiped,
         swipes = EXCLUDED.swipes;
-'''
+"""
 
 
 INTERVAL_RANGE_DAYS = 30
@@ -188,14 +187,15 @@ class Command(BaseCommand):
         if tracker.value is not None:
             from_date = datetime.datetime.strptime(tracker.value, "%Y-%m-%d").date()
         else:
-            self.stdout.write('Last tracker data not found.')
-            timestamp_min = Result.objects\
-                .aggregate(timestamp_min=models.Min('timestamp'))['timestamp_min']
+            self.stdout.write(f"{label.title()} Last tracker data not found.")
+            timestamp_min = Result.objects.aggregate(
+                timestamp_min=models.Min("timestamp")
+            )["timestamp_min"]
             if timestamp_min:
-                self.stdout.write(f'Using min timestamp from database {timestamp_min}')
+                self.stdout.write(f"Using min timestamp from database {timestamp_min}")
                 from_date = timestamp_min.date()
             else:
-                self.stdout.write('Nothing found from database.')
+                self.stdout.write("Nothing found from database.")
                 from_date = now
         while True:
             until_date = min(
@@ -203,7 +203,7 @@ class Command(BaseCommand):
                 from_date + datetime.timedelta(days=INTERVAL_RANGE_DAYS),
             )
             if from_date >= until_date:
-                self.stdout.write("Nothing to do here.....")
+                self.stdout.write(f"{label.title()} Nothing to do here.....")
                 break
             params = dict(
                 from_date=from_date.strftime("%Y-%m-%d"),
@@ -220,18 +220,18 @@ class Command(BaseCommand):
                     )
                 )
                 tracker.value = from_date = until_date
-                self.stdout.write(f'Saving date {tracker.value} as last tracker')
+                self.stdout.write(f"Saving date {tracker.value} as last tracker")
                 tracker.save()
 
     def run(self):
         self._track(
             AggregatedTracking.Type.AGGREGATED_USER_STAT_DATA_LATEST_DATE,
-            'user',
+            "user",
             UPDATE_USER_DATA_SQL,
         )
         self._track(
             AggregatedTracking.Type.AGGREGATED_USER_GROUP_STAT_DATA_LATEST_DATE,
-            'user_group',
+            "user_group",
             UPDATE_USER_GROUP_SQL,
         )
 
