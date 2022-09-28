@@ -84,6 +84,7 @@ class FilteredStats:
                 timestamp_date__lte=date_range.to_date,
             )
         self.qs = AggregatedUserStatData.objects.filter(**filters)
+        self.qs_cte = AggregatedUserStatData.cte_objects.filter(**filters)
 
     @strawberry.field
     async def contributor_time_stats(self) -> List[ContributorTimeStatType]:
@@ -157,11 +158,11 @@ class FilteredStats:
 
     @strawberry.field
     async def project_geo_contribution(self) -> List[MapContributionStatsType]:
-        project_qs = Project.objects\
+        project_qs = Project.cte_objects\
             .filter(geom__isnull=False)\
             .annotate(centroid=Centroid("geom"))\
             .values("project_id", "centroid")
-        agg_data_qs = self.qs\
+        agg_data_qs = self.qs_cte\
             .order_by().values('project')\
             .annotate(
                 swipes_sum=models.Sum("swipes")
