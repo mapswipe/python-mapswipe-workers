@@ -55,6 +55,7 @@ function CalendarHeatMapContainer(props: Props) {
         data,
     } = props;
 
+    // FIXME: memoize this
     const range = getDateRange(data);
 
     useEffect(() => {
