@@ -55,6 +55,8 @@ class UserGroupStatsType:
     total_swipe_time: TimeInSeconds
     total_mapping_projects: int
     total_contributors: int
+    total_area_swiped: AreaSqKm
+    total_organization: int
 
 
 @strawberry.type
@@ -80,6 +82,8 @@ class UserStatType:
     total_swipe_time: TimeInSeconds
     total_mapping_projects: int
     total_user_groups: int
+    total_area_swiped: AreaSqKm
+    total_organization: int
 
 
 @strawberry.type
@@ -290,6 +294,11 @@ class UserStats:
             total_swipes=models.Sum("swipes"),
             total_time_sum=models.Sum("total_time"),
             total_project=models.Count("project_id"),
+            total_area_swiped=models.Sum("area_swiped"),
+            total_organization=models.Count(
+                "project__organization_name",
+                distinct=True,
+            ),
         )
         user_group_count = (
             await UserGroupResult.objects.filter(user_id=self._user_id).aaggregate(
@@ -300,6 +309,8 @@ class UserStats:
             total_swipes=agg_data["total_swipes"] or 0,
             total_swipe_time=agg_data["total_time_sum"] or 0,
             total_mapping_projects=agg_data["total_project"] or 0,
+            total_area_swiped=agg_data["total_area_swiped"] or 0,
+            total_organization=agg_data["total_organization"] or 0,
             total_user_groups=user_group_count or 0,
         )
 
@@ -403,12 +414,19 @@ class UserGroupStats:
             total_time_sum=models.Sum("total_time"),
             total_contributors=models.Count("user_id", distinct=True),
             total_project=models.Count("project_id", distinct=True),
+            total_area_swiped=models.Sum("area_swiped"),
+            total_organization=models.Count(
+                "project__organization_name",
+                distinct=True,
+            ),
         )
         return UserGroupStatsType(
-            total_swipes=agg_data["total_swipes"],
-            total_swipe_time=agg_data["total_time_sum"],
-            total_contributors=agg_data["total_contributors"],
-            total_mapping_projects=agg_data["total_project"],
+            total_swipes=agg_data["total_swipes"] or 0,
+            total_swipe_time=agg_data["total_time_sum"] or 0,
+            total_contributors=agg_data["total_contributors"] or 0,
+            total_mapping_projects=agg_data["total_project"] or 0,
+            total_area_swiped=agg_data["total_area_swiped"] or 0,
+            total_organization=agg_data["total_organization"] or 0,
         )
 
     @strawberry.field(description="Stats from last 30 days")
