@@ -19,6 +19,7 @@ volumes:
 
 
 x-django: &base_django
+  image: mapswipe/django:latest  # To be used as local image only
   build:
       context: django/
   environment:
