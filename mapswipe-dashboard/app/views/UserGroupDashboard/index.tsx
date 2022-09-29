@@ -5,7 +5,6 @@ import { useParams } from 'react-router-dom';
 
 import { CSVLink } from 'react-csv';
 
-import CalendarHeatMapContainer from '#components/CalendarHeatMapContainer';
 import { MapContributionType } from '#components/ContributionHeatMap';
 import Footer from '#components/Footer';
 import Header from '#components/Header';
@@ -26,7 +25,7 @@ import swipeSvg from '#resources/icons/swipe.svg';
 import timeSvg from '#resources/icons/time.svg';
 import dashboardHeaderSvg from '#resources/img/dashboard.svg';
 import StatsBoard from '#views/StatsBoard';
-import { getThisMonth } from '#components/DateRangeInput/predefinedDateRange';
+import { getThisYear } from '#components/DateRangeInput/predefinedDateRange';
 import { formatTimeDuration } from '#utils/temporal';
 
 import styles from './styles.css';
@@ -106,7 +105,7 @@ interface DateRangeValue {
     endDate: string;
 }
 
-const { startDate, endDate } = getThisMonth();
+const { startDate, endDate } = getThisYear();
 const defaultDateRange: DateRangeValue = {
     startDate: encodeDate(startDate),
     endDate: encodeDate(endDate),
@@ -147,14 +146,6 @@ function UserGroupDashboard(props: Props) {
             } : undefined,
             skip: !userGroupId,
         },
-    );
-
-    const contributionData = useMemo(
-        () => (
-            filteredUserGroupStats?.userGroupStats?.filteredStats.swipeTimeByDate
-                ?.map((value) => ({ date: value.date, count: value.totalSwipeTime }))
-        ),
-        [filteredUserGroupStats],
     );
 
     const data = useMemo(() => ([
@@ -284,9 +275,6 @@ function UserGroupDashboard(props: Props) {
             </div>
             <div className={styles.content}>
                 <div className={styles.container}>
-                    <CalendarHeatMapContainer
-                        data={contributionData}
-                    />
                     <StatsBoard
                         heading="Group Statsboard"
                         // eslint-disable-next-line max-len

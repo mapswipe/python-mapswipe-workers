@@ -1,7 +1,6 @@
 .chart-container {
     display: flex;
     flex-grow: 1;
-    margin-bottom: var(--spacing-extra-large);
 
     .heat-map-legend {
         display: flex;

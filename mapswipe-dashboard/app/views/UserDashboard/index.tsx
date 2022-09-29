@@ -1,10 +1,9 @@
-import React, { useMemo, useState, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import { gql, useQuery } from '@apollo/client';
 import { _cs, isDefined, encodeDate } from '@togglecorp/fujs';
 import { useParams, generatePath, Link } from 'react-router-dom';
 
 import routes from '#base/configs/routes';
-import CalendarHeatMapContainer from '#components/CalendarHeatMapContainer';
 import { MapContributionType } from '#components/ContributionHeatMap';
 import Footer from '#components/Footer';
 import Header from '#components/Header';
@@ -138,14 +137,6 @@ function UserDashboard(props: Props) {
         },
     );
 
-    const contributionData = useMemo(
-        () => (
-            filteredUserStats?.userStats?.filteredStats.swipeTimeByDate
-                ?.map((value) => ({ date: value.date, count: value.totalSwipeTime }))
-        ),
-        [filteredUserStats],
-    );
-
     const totalSwipe = userStats?.userStats?.stats?.totalSwipes;
     const totalSwipeLastMonth = userStats?.userStats?.statsLatest?.totalSwipes;
 
@@ -262,9 +253,6 @@ function UserDashboard(props: Props) {
             </div>
             <div className={styles.content}>
                 <div className={styles.container}>
-                    <CalendarHeatMapContainer
-                        data={contributionData}
-                    />
                     <StatsBoard
                         heading="User Statsboard"
                         dateRange={dateRange}
