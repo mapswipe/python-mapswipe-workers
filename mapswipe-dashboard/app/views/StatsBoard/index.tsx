@@ -29,6 +29,7 @@ import {
 import ContributionHeatmap, { MapContributionType } from '#components/ContributionHeatMap';
 import NumberOutput from '#components/NumberOutput';
 import TextOutput from '#components/TextOutput';
+import SegmentInput from '#components/SegmentInput';
 import Heading from '#components/Heading';
 import DateRangeInput from '#components/DateRangeInput';
 import InformationCard from '#components/InformationCard';
@@ -52,9 +53,9 @@ import {
     resolveTime,
     getTimestamps,
 } from '#utils/temporal';
+import styles from './styles.css';
 
 export type ActualContributorTimeStatType = ContributorTimeStatType & { totalSwipeTime: number };
-import styles from './styles.css';
 const UNKNOWN = '-1';
 const BUILD_AREA = 'BUILD_AREA';
 const FOOTPRINT = 'FOOTPRINT';
@@ -84,21 +85,22 @@ const projectTypes: Record<string, { color: string, name: string }> = {
     },
 };
 
+type ResolutionType = 'day' | 'month' | 'year';
+
+const resolutionOptions: {
+    value: ResolutionType,
+    label: string,
+}[] = [
+    { value: 'day', label: 'Day' },
+    { value: 'month', label: 'Month' },
+    { value: 'year', label: 'Year' },
+];
+
 /*
 function formatTimeDuration(value: number) {
     return formatDuration(intervalToDuration({ start: 0, end: value * 60000 }));
 }
 */
-
-// Swipes by mission
-
-function projectTypeFormatter(value: string) {
-    return projectTypes[value].name;
-}
-
-const projectTypeTotalSwipeFormatter = (value: number, name: string) => (
-    [value.toLocaleString(), projectTypeFormatter(name)]
-);
 
 // Swipes by organization
 
@@ -186,10 +188,11 @@ function StatsBoard(props: Props) {
         handleDateRangeChange,
     } = props;
 
-    // Timeseries
+    const [resolution, setResolution] = React.useState<'year' | 'month' | 'day'>('day');
 
-    const resolution = useMemo(
-        (): 'year' | 'month' | 'day' => {
+    // Timeseries
+    React.useEffect(
+        () => {
             const timestamps = contributionTimeStats?.map(
                 (item) => new Date(item.date).getTime(),
             ) ?? [];
@@ -207,15 +210,18 @@ function StatsBoard(props: Props) {
             const maxDateMonth = maxDate.getMonth();
 
             const yearDiff = maxDateYear - minDateYear;
-            if (yearDiff + 1 >= 5) {
-                return 'year';
+            if (yearDiff + 1 >= 10) {
+                setResolution('year');
+                return;
             }
 
             const monthDiff = ((maxDateYear - minDateYear) * 12) + (maxDateMonth - minDateMonth);
-            if (monthDiff + 1 >= 5) {
-                return 'month';
+            if (monthDiff + 1 >= 15) {
+                setResolution('month');
+                return;
             }
-            return 'day';
+
+            setResolution('day');
         },
         [contributionTimeStats],
     );
@@ -271,22 +277,34 @@ function StatsBoard(props: Props) {
                 contributionTimeSeries[0].date,
                 contributionTimeSeries[contributionTimeSeries.length - 1].date,
                 resolution,
-            )
-                .map((item) => ({
-                    total: mapping[item] ?? 0,
-                    date: item,
-                }));
+            ).map((item) => ({
+                total: mapping[item] ?? 0,
+                date: item,
+            }));
         },
         [contributionTimeSeries, resolution],
+    );
+
+    const dataAvailableForTimeseries = useMemo(
+        () => {
+            if (!contributionTimeSeriesWithoutGaps) {
+                return false;
+            }
+
+            return contributionTimeSeriesWithoutGaps.some(
+                (item) => item.total > 0,
+            );
+        },
+        [contributionTimeSeriesWithoutGaps],
     );
 
     // Timeseries by Day of Week
 
     const totalContributionByDay = useMemo(() => {
         const dayWiseContribution = listToGroupList(
-            contributionTimeSeries,
+            contributionTimeStats,
             (d) => new Date(d.date).getDay(),
-            (d) => d.total,
+            (d) => d.totalSwipeTime,
         );
 
         // NOTE: add emptyContribution so that there is no gap between days
@@ -309,17 +327,13 @@ function StatsBoard(props: Props) {
         );
 
         return result;
-    }, [contributionTimeSeries]);
+    }, [contributionTimeStats]);
 
     const totalContribution = useMemo(() => (
         sum(totalContributionByDay.map((contribution) => contribution.total))
     ), [totalContributionByDay]);
 
     // Swipes by Mission
-
-    const totalSwipes = projectSwipeTypeStats ? sum(
-        projectSwipeTypeStats.map((project) => (project.totalSwipes)),
-    ) : undefined;
 
     const sortedProjectSwipeType = useMemo(
         () => (
@@ -356,7 +370,7 @@ function StatsBoard(props: Props) {
             ...sortedTotalSwipeByOrganization.slice(0, 4),
             {
                 organizationName: 'Others',
-                totalSwipe: sum(
+                totalSwipes: sum(
                     sortedTotalSwipeByOrganization
                         .slice(4)
                         .map((item) => item.totalSwipes),
@@ -370,6 +384,7 @@ function StatsBoard(props: Props) {
     const buildAreaTotalArea = projectTypeStats?.find(
         (project) => project.projectType === BUILD_AREA,
     )?.totalArea as number | undefined;
+
     const changeDetectionTotalSwipes = projectSwipeTypeStats?.find(
         (project) => project.projectType === CHANGE_DETECTION,
     )?.totalSwipes;
@@ -417,15 +432,26 @@ function StatsBoard(props: Props) {
                 </InformationCard>
                 <InformationCard
                     label="Time Spent Contributing"
-                    value={isDefined(totalContribution) && totalContribution > 0 && (
-                        <TextOutput
-                            className={styles.numberOutput}
-                            value={formatTimeDuration(totalContribution, ' ', true)}
-                        />
-                    )}
                     variant="stat"
                     contentClassName={styles.timeSpentChartContainer}
+                    actions={(
+                        <SegmentInput
+                            className={styles.resolutionInput}
+                            name="resolution"
+                            options={resolutionOptions}
+                            keySelector={(d) => d.value}
+                            labelSelector={(d) => d.label}
+                            value={resolution}
+                            onChange={setResolution}
+                            disabled={!dataAvailableForTimeseries}
+                        />
+                    )}
                 >
+                    {!dataAvailableForTimeseries && (
+                        <div className={styles.empty}>
+                            Data not available!
+                        </div>
+                    )}
                     {contributionTimeSeriesWithoutGaps && (
                         <ResponsiveContainer>
                             <AreaChart
@@ -462,16 +488,18 @@ function StatsBoard(props: Props) {
                                     tickFormatter={(value) => formatTimeDuration(value, ' ', true)}
                                     // domain={[0.9, 'auto']}
                                     padding={{ top: 0, bottom: 0 }}
-                                    width={100}
+                                    width={120}
                                 />
-                                <Tooltip
-                                    labelFormatter={timeFormatter}
-                                    formatter={timeSpentLabelFormatter}
-                                />
+                                {dataAvailableForTimeseries && (
+                                    <Tooltip
+                                        labelFormatter={timeFormatter}
+                                        formatter={timeSpentLabelFormatter}
+                                    />
+                                )}
                                 <Area
                                     // type="step"
-                                    type="linear"
-                                    // type="monotoneX"
+                                    // type="linear"
+                                    type="monotoneX"
                                     // type="natural"
                                     dataKey="total"
                                     stroke="var(--color-primary-light)"
@@ -487,18 +515,19 @@ function StatsBoard(props: Props) {
                 </InformationCard>
                 <InformationCard
                     label="Time Spent Contributing by Day of Week"
-                    value={isDefined(totalContribution) && totalContribution > 0 && (
-                        <TextOutput
-                            className={styles.numberOutput}
-                            value={formatTimeDuration(totalContribution, ' ', true)}
-                        />
-                    )}
                     variant="stat"
                     contentClassName={styles.timeSpentChartContainer}
                 >
+                    {!dataAvailableForTimeseries && (
+                        <div className={styles.empty}>
+                            Data not available!
+                        </div>
+                    )}
                     <ResponsiveContainer>
                         <BarChart data={totalContributionByDay}>
-                            <Tooltip formatter={timeSpentLabelFormatter} />
+                            {dataAvailableForTimeseries && (
+                                <Tooltip formatter={timeSpentLabelFormatter} />
+                            )}
                             <CartesianGrid
                                 strokeDasharray="0"
                                 vertical={false}
@@ -509,7 +538,7 @@ function StatsBoard(props: Props) {
                                 tickLine={false}
                                 tickFormatter={(value) => formatTimeDuration(value, ' ', true)}
                                 padding={{ top: 0, bottom: 0 }}
-                                width={100}
+                                width={120}
                             />
                             <Bar
                                 dataKey="total"
@@ -526,6 +555,7 @@ function StatsBoard(props: Props) {
                                 className={styles.numberOutput}
                                 value={buildAreaTotalArea}
                                 normal
+                                invalidText={0}
                             />
                         )}
                         label="Area Reviewed (in sq km)"
@@ -539,6 +569,7 @@ function StatsBoard(props: Props) {
                                 className={styles.numberOutput}
                                 value={footPrintTotalSwipes}
                                 normal
+                                invalidText={0}
                             />
                         )}
                         label="Features Checked (# of swipes)"
@@ -552,6 +583,7 @@ function StatsBoard(props: Props) {
                                 className={styles.numberOutput}
                                 value={changeDetectionTotalSwipes}
                                 normal
+                                invalidText={0}
                             />
                         )}
                         label="Scene Comparision (# of swipes)"
@@ -559,33 +591,54 @@ function StatsBoard(props: Props) {
                         variant="stat"
                     />
                 </div>
-                <div className={styles.otherStatsContainer}>
+                <div className={styles.overallStatsContainer}>
                     <InformationCard
                         value={(
                             <NumberOutput
                                 className={styles.numberOutput}
-                                value={totalSwipes}
+                                value={totalSwipesByOrganization}
                                 normal
                             />
                         )}
+                        label="Total Swipes"
+                        variant="stat"
+                    />
+                    <InformationCard
+                        label="Total Time Spent Contributing"
+                        value={(isDefined(totalContribution) && totalContribution > 0) ? (
+                            <TextOutput
+                                className={styles.numberOutput}
+                                value={formatTimeDuration(totalContribution, ' ', true)}
+                            />
+                        ) : (
+                            <NumberOutput
+                                className={styles.numberOutput}
+                                value={0}
+                            />
+                        )}
+                        variant="stat"
+                    />
+                </div>
+                <div className={styles.otherStatsContainer}>
+                    <InformationCard
                         label="Swipes by Mission Type"
                         variant="stat"
                         contentClassName={styles.pieChartContainer}
                     >
                         <ResponsiveContainer>
                             <PieChart>
-                                <Tooltip formatter={projectTypeTotalSwipeFormatter} />
+                                <Tooltip />
                                 <Legend
                                     align="right"
                                     layout="vertical"
                                     verticalAlign="middle"
-                                    formatter={projectTypeFormatter}
+                                    // formatter={projectTypeFormatter}
                                     iconType="circle"
                                 />
                                 <Pie
                                     data={sortedProjectSwipeType}
-                                    dataKey="totalSwipe"
-                                    nameKey="projectType"
+                                    dataKey="totalSwipes"
+                                    nameKey="projectTypeDisplay"
                                     cx="50%"
                                     cy="50%"
                                     outerRadius="90%"
@@ -602,13 +655,6 @@ function StatsBoard(props: Props) {
                         </ResponsiveContainer>
                     </InformationCard>
                     <InformationCard
-                        value={(
-                            <NumberOutput
-                                className={styles.numberOutput}
-                                value={totalSwipesByOrganization}
-                                normal
-                            />
-                        )}
                         label="Swipes by Organization"
                         variant="stat"
                         contentClassName={styles.pieChartContainer}
@@ -620,12 +666,12 @@ function StatsBoard(props: Props) {
                                     align="right"
                                     layout="vertical"
                                     verticalAlign="middle"
-                                    formatter={organizationNameFormatter}
+                                    // formatter={organizationNameFormatter}
                                     iconType="circle"
                                 />
                                 <Pie
                                     data={totalSwipesByOrganizationStats ?? undefined}
-                                    dataKey="totalSwipe"
+                                    dataKey="totalSwipes"
                                     nameKey="organizationName"
                                     cx="50%"
                                     cy="50%"

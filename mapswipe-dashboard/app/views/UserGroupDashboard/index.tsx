@@ -172,7 +172,8 @@ function UserGroupDashboard(props: Props) {
     const totalSwipeLastMonth = userGroupStats?.userGroupStats.statsLatest.totalSwipes;
 
     const totalSwipeTime = userGroupStats?.userGroupStats.stats.totalSwipeTime as number;
-    const totalSwipeTimeLastMonth = userGroupStats?.userGroupStats.statsLatest.totalSwipeTime as number;
+    const totalSwipeTimeLastMonth = userGroupStats?.userGroupStats
+        .statsLatest.totalSwipeTime as number;
 
     const totalContributors = userGroupStats?.userGroupStats.stats.totalContributors;
     const totalContributorsLastMonth = userGroupStats?.userGroupStats.statsLatest.totalContributors;
@@ -291,7 +292,8 @@ function UserGroupDashboard(props: Props) {
                         heading="Group Statsboard"
                         // eslint-disable-next-line max-len
                         contributionTimeStats={filteredUserGroupStats?.userGroupStats.filteredStats.swipeTimeByDate as ActualContributorTimeStatType[]}
-                        projectTypeStats={filteredUserGroupStats?.userGroupStats.filteredStats.areaSwipedByProjectType}
+                        projectTypeStats={filteredUserGroupStats?.userGroupStats
+                            .filteredStats.areaSwipedByProjectType}
                         // eslint-disable-next-line max-len
                         organizationTypeStats={filteredUserGroupStats?.userGroupStats.filteredStats.swipeByOrganizationName}
                         // eslint-disable-next-line max-len
@@ -301,7 +303,8 @@ function UserGroupDashboard(props: Props) {
                         // eslint-disable-next-line max-len
                         contributions={filteredUserGroupStats?.userGroupStats.filteredStats.contributionByGeo as MapContributionType[]}
                     />
-                    {(filteredUserGroupStats?.userGroupStats.filteredStats.userStats.length ?? 0) > 0 && (
+                    {(filteredUserGroupStats?.userGroupStats
+                        .filteredStats.userStats.length ?? 0) > 0 && (
                         <div className={styles.members}>
                             <div className={styles.membersHeading}>
                                 {`${userGroupStats?.userGroup.name}'s Members`}
@@ -328,7 +331,8 @@ function UserGroupDashboard(props: Props) {
                                     </div>
                                 </div>
                                 <List
-                                    data={filteredUserGroupStats?.userGroupStats.filteredStats.userStats}
+                                    data={filteredUserGroupStats?.userGroupStats
+                                        .filteredStats.userStats}
                                     keySelector={memberKeySelector}
                                     renderer={MemberItem}
                                     rendererParams={memberRendererParams}

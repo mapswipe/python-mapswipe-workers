@@ -43,7 +43,7 @@ export function getTimestamps(
 export function formatDate(value: number | string) {
     const date = new Date(value);
     return new Intl.DateTimeFormat(
-        'en-US',
+        navigator.language,
         { year: 'numeric', month: 'short', day: 'numeric' },
     ).format(date);
 }
@@ -51,7 +51,7 @@ export function formatDate(value: number | string) {
 export function formatMonth(value: number | string) {
     const date = new Date(value);
     return new Intl.DateTimeFormat(
-        'en-US',
+        navigator.language,
         { year: 'numeric', month: 'short' },
     ).format(date);
 }
@@ -59,7 +59,7 @@ export function formatMonth(value: number | string) {
 export function formatYear(value: number | string) {
     const date = new Date(value);
     return new Intl.DateTimeFormat(
-        'en-US',
+        navigator.language,
         { year: 'numeric' },
     ).format(date);
 }
@@ -68,7 +68,9 @@ function suffix(num: number, suffixStr: string, skipZero: boolean) {
     if (num === 0) {
         return skipZero ? '' : '0';
     }
-    return `${num.toLocaleString()} ${suffixStr}${num !== 1 ? 's' : ''}`;
+
+    const formatter = Intl.NumberFormat(navigator.language, { notation: 'compact' });
+    return `${formatter.format(num)} ${suffixStr}${num !== 1 ? 's' : ''}`;
 }
 
 type DurationNumeric = 0 | 1 | 2 | 3 | 4 | 5;
@@ -124,6 +126,7 @@ export function formatTimeDurationForSecs(
     if (isDefined(lastState) && currentState >= lastState) {
         return '';
     }
+
     if (currentState === 5) {
         return suffix(seconds, shorten ? 'sec' : 'second', isDefined(lastState));
     }

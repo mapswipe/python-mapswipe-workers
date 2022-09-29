@@ -13,6 +13,7 @@ interface Props {
     children?: React.ReactNode;
     subHeading?: React.ReactNode;
     contentClassName?: string;
+    actions?: React.ReactNode;
 }
 
 function InformationCard(props: Props) {
@@ -26,57 +27,65 @@ function InformationCard(props: Props) {
         subHeading,
         children,
         contentClassName,
+        actions,
     } = props;
 
     return (
         <div className={_cs(className, styles.informationCard)}>
-            <div className={styles.headingSection}>
-                {variant === 'stat' && (
-                    <div className={styles.statHeading}>
-                        {(icon || subHeading) && (
-                            <div className={styles.icons}>
+            <header className={styles.header}>
+                <div className={styles.headingSection}>
+                    {variant === 'stat' && (
+                        <div className={styles.statHeading}>
+                            {(icon || subHeading) && (
+                                <div className={styles.icons}>
+                                    {icon && (
+                                        <div className={styles.icon}>
+                                            {icon}
+                                        </div>
+                                    )}
+                                    {subHeading && (
+                                        <div className={styles.subHeading}>
+                                            {subHeading}
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+                            <div>
+                                {label}
+                            </div>
+                        </div>
+                    )}
+                    {variant === 'info' && (
+                        <div className={styles.headingContainer}>
+                            <div className={styles.heading}>
+                                <div>
+                                    {label}
+                                </div>
                                 {icon && (
                                     <div className={styles.icon}>
                                         {icon}
                                     </div>
                                 )}
-                                {subHeading && (
-                                    <div className={styles.subHeading}>
-                                        {subHeading}
-                                    </div>
-                                )}
                             </div>
-                        )}
-                        <div>
-                            {label}
-                        </div>
-                    </div>
-                )}
-                {variant === 'info' && (
-                    <div className={styles.headingContainer}>
-                        <div className={styles.heading}>
-                            <div>
-                                {label}
-                            </div>
-                            {icon && (
-                                <div className={styles.icon}>
-                                    {icon}
+                            {subHeading && (
+                                <div className={styles.subHeading}>
+                                    {subHeading}
                                 </div>
                             )}
                         </div>
-                        {subHeading && (
-                            <div className={styles.subHeading}>
-                                {subHeading}
-                            </div>
-                        )}
+                    )}
+                    {value && (
+                        <div className={styles.valueContainer}>
+                            {value}
+                        </div>
+                    )}
+                </div>
+                {actions && (
+                    <div className={styles.actions}>
+                        {actions}
                     </div>
                 )}
-                {value && (
-                    <div className={styles.valueContainer}>
-                        {value}
-                    </div>
-                )}
-            </div>
+            </header>
             {description && (
                 <div className={styles.description}>
                     {description}
