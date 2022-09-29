@@ -14,6 +14,11 @@
             text-align: right;
         }
     }
+
+    .resolution-input {
+        padding: 0;
+    }
+
     .board {
         display: flex;
         flex-direction: column;
@@ -21,7 +26,24 @@
         gap: var(--spacing-large);
 
         .time-spent-chart-container {
+            position: relative;
             height: 20rem;
+
+            .empty {
+                display: flex;
+                position: absolute;
+                top: 0;
+                left: 0;
+                align-items: center;
+                justify-content: center;
+                opacity: 0.5;
+                z-index: 1;
+                background-color: var(--color-foreground);
+                padding: var(--spacing-large);
+                width: 100%;
+                height: 100%;
+                font-size: var(--font-size-large);
+            }
         }
 
         .stats-card-container {
@@ -32,7 +54,27 @@
             >* {
                 flex-basis: 0;
                 flex-grow: 1;
+                min-width: 10rem;
+
+                @media (max-width: 50rem) {
+                    min-width: 100%;
+                }
+            }
+        }
+
+        .overall-stats-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--spacing-large);
+
+            >* {
+                flex-basis: 0;
+                flex-grow: 1;
                 min-width: 20rem;
+
+                @media (max-width: 50rem) {
+                    min-width: 100%;
+                }
             }
         }
 
@@ -44,9 +86,9 @@
             >* {
                 flex-basis: 0;
                 flex-grow: 1;
-                min-width: 30rem;
+                min-width: 20rem;
 
-                @media (max-width: 40rem) {
+                @media (max-width: 50rem) {
                     min-width: 100%;
                 }
             }
@@ -90,5 +132,6 @@
     .number-output {
         display: flex;
         gap: var(--spacing-small);
+        font-family: var(--font-family-sans-serif);
     }
 }

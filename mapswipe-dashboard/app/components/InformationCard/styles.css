@@ -8,14 +8,22 @@
     padding: var(--spacing-large);
     gap: var(--spacing-large);
 
+    .header {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-medium);
+    }
+
     .heading-section {
         display: flex;
         flex-direction: column;
+        flex-grow: 1;
     }
 
     .heading-container {
         display: flex;
         flex-direction: column;
+        flex-grow: 1;
         gap: var(--spacing-large);
 
         .heading {

@@ -23,7 +23,7 @@ import swipeSvg from '#resources/icons/swipe.svg';
 import timeSvg from '#resources/icons/time.svg';
 import dashboardHeaderSvg from '#resources/img/dashboard.svg';
 import StatsBoard, { ActualContributorTimeStatType } from '#views/StatsBoard';
-import { getThisMonth } from '#components/DateRangeInput/predefinedDateRange';
+import { getThisYear } from '#components/DateRangeInput/predefinedDateRange';
 import { formatTimeDuration } from '#utils/temporal';
 
 import styles from './styles.css';
@@ -94,7 +94,7 @@ interface DateRangeValue {
     endDate: string;
 }
 
-const { startDate, endDate } = getThisMonth();
+const { startDate, endDate } = getThisYear();
 const defaultDateRange: DateRangeValue = {
     startDate: encodeDate(startDate),
     endDate: encodeDate(endDate),

@@ -1,3 +1,5 @@
+import { isDefined } from '@togglecorp/fujs';
+
 export function mergeItems<T, K extends string>(
     list: T[],
     keySelector: (item: T) => K,
@@ -10,12 +12,13 @@ export function mergeItems<T, K extends string>(
         const key = keySelector(item);
         const prev = mapping[key];
         if (!prev) {
-            mapping[key] = prev;
+            mapping[key] = item;
         } else {
             mapping[key] = merge(prev, item, key);
         }
     });
-    return Object.values(list);
+
+    return Object.values(mapping).filter(isDefined);
 }
 
 export function max<T>(list: T[], comparator: (val: T) => number) {
