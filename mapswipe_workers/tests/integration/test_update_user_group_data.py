@@ -71,14 +71,14 @@ class TestUpdateProjectData(BaseTestCase):
         }
         MEMBERHSHIP_LOG_DATA = {
             "membership-1": {
-                "user_group_id": "user-group-1",
-                "user_id": "user-1",
+                "userGroupId": "user-group-1",
+                "userId": "user-1",
                 "action": "join",
                 "timestamp": 1663039597857,
             },
             "membership-2": {
-                "user_group_id": "user-group-2",
-                "user_id": "user-2",
+                "userGroupId": "user-group-2",
+                "userId": "user-2",
                 "action": "leave",
                 "timestamp": 1663039599857,
             },
