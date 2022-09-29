@@ -383,7 +383,7 @@ function StatsBoard(props: Props) {
 
     const buildAreaTotalArea = projectTypeStats?.find(
         (project) => project.projectType === BUILD_AREA,
-    )?.totalArea as number | undefined;
+    )?.totalArea;
 
     const changeDetectionTotalSwipes = projectSwipeTypeStats?.find(
         (project) => project.projectType === CHANGE_DETECTION,

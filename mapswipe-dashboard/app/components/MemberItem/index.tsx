@@ -11,7 +11,7 @@ import styles from './styles.css';
 interface Props {
     member: {
         totalMappingProjects: number;
-        totalSwipeTime: unknown;
+        totalSwipeTime: number;
         totalSwipes: number;
         userName: string;
         userId: string;
@@ -49,7 +49,7 @@ function MemberItem(props: Props) {
             </div>
             <div className={styles.item}>
                 <div>
-                    {isDefined(member.totalSwipeTime) ? formatTimeDuration(member.totalSwipeTime as number) : '-'}
+                    {isDefined(member.totalSwipeTime) ? formatTimeDuration(member.totalSwipeTime) : '-'}
                 </div>
             </div>
         </div>

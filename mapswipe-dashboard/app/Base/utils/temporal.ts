@@ -120,7 +120,7 @@ export function formatTimeDurationForSecs(
     shorten = false,
     stop = 2,
 
-    currentState: DurationNumeric = 3,
+    currentState: DurationNumeric = 0,
     lastState: number | undefined = undefined,
 ): string {
     if (isDefined(lastState) && currentState >= lastState) {
@@ -166,7 +166,7 @@ export function formatTimeDuration(
     shorten = false,
     stop = 2,
 
-    currentState: DurationNumeric = 3,
+    currentState: DurationNumeric = 0,
     lastState: number | undefined = undefined,
 ) {
     return formatTimeDurationForSecs(
