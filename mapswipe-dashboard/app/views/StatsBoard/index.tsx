@@ -27,6 +27,7 @@ import {
 // import { formatDuration, intervalToDuration } from 'date-fns';
 
 import ContributionHeatmap, { MapContributionType } from '#components/ContributionHeatMap';
+import CalendarHeatMapContainer from '#components/CalendarHeatMapContainer';
 import NumberOutput from '#components/NumberOutput';
 import TextOutput from '#components/TextOutput';
 import SegmentInput from '#components/SegmentInput';
@@ -173,6 +174,7 @@ interface Props {
     contributions: MapContributionType[] | undefined | null;
     dateRange: DateRangeValue | undefined;
     handleDateRangeChange: (value: DateRangeValue | undefined) => void;
+    calendarHeatmapHidden?: boolean;
 }
 
 function StatsBoard(props: Props) {
@@ -186,6 +188,7 @@ function StatsBoard(props: Props) {
         contributions,
         dateRange,
         handleDateRangeChange,
+        calendarHeatmapHidden,
     } = props;
 
     const [resolution, setResolution] = React.useState<'year' | 'month' | 'day'>('day');
@@ -232,6 +235,14 @@ function StatsBoard(props: Props) {
         : resolution === 'month'
             ? formatMonth
             : formatYear;
+
+    const contributionData = useMemo(
+        () => (
+            contributionTimeStats
+                ?.map((value) => ({ date: value.date, count: value.totalSwipeTime }))
+        ),
+        [contributionTimeStats],
+    );
 
     const contributionTimeSeries = useMemo(
         () => {
@@ -421,6 +432,11 @@ function StatsBoard(props: Props) {
                 />
             </div>
             <div className={styles.board}>
+                {!calendarHeatmapHidden && (
+                    <CalendarHeatMapContainer
+                        data={contributionData}
+                    />
+                )}
                 <InformationCard
                     label="Contribution Heatmap"
                     value={null}

@@ -16,7 +16,7 @@ import NumberOutput from '#components/NumberOutput';
 import TextOutput from '#components/TextOutput';
 import InformationCard from '#components/InformationCard';
 import StatsBoard from '#views/StatsBoard';
-import { getThisMonth } from '#components/DateRangeInput/predefinedDateRange';
+import { getThisYear } from '#components/DateRangeInput/predefinedDateRange';
 import {
     CommunityStatsQuery,
     CommunityStatsQueryVariables,
@@ -78,7 +78,7 @@ interface DateRangeValue {
     endDate: string;
 }
 
-const { startDate, endDate } = getThisMonth();
+const { startDate, endDate } = getThisYear();
 const defaultDateRange: DateRangeValue = {
     startDate: encodeDate(startDate),
     endDate: encodeDate(endDate),
@@ -242,6 +242,7 @@ function Dashboard(props: Props) {
                 <StatsBoard
                     heading="Community Statsboard"
                     dateRange={dateRange}
+                    calendarHeatmapHidden
                     handleDateRangeChange={handleDateRangeChange}
                     className={styles.statsBoard}
                     // eslint-disable-next-line max-len
