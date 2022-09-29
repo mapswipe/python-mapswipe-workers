@@ -36,6 +36,7 @@ p {
 }
 
 :root {
+    --font-family-sans-serif: 'Noto Sans', sans-serif;
     --spacing-extra-small: 0.2rem;
     --spacing-small: 0.4rem;
     --spacing-medium: 0.8rem;

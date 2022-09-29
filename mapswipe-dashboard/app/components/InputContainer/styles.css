@@ -10,8 +10,9 @@
         gap: var(--spacing-medium);
 
         .input {
+            display: flex;
+            align-items: baseline;
             flex-grow: 1;
-            padding: var(--spacing-small) 0;
         }
 
     }

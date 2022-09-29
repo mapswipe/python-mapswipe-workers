@@ -11,7 +11,7 @@ const githubColors = [' #eeeeee', '#d6e685', '#8cc665', '#44a340', '#1e6823'];
 const githubColorsClass = ['color-github-0', 'color-github-1', 'color-github-2', 'color-github-3', 'color-github-4'];
 
 function getDateRange(data: Data[] | null | undefined) {
-    if (!data) {
+    if (!data || data.length === 0) {
         const currentDate = new Date();
         return {
             startDate: encodeDate(new Date(currentDate.getFullYear(), 0, 1)),
@@ -54,6 +54,7 @@ function CalendarHeatMapContainer(props: Props) {
     const {
         data,
     } = props;
+
     const range = getDateRange(data);
 
     useEffect(() => {

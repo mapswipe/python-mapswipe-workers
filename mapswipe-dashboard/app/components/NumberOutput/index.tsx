@@ -63,7 +63,7 @@ function NumberOutput(props: Props) {
             }
             options.useGrouping = !separatorHidden;
 
-            const newValue = new Intl.NumberFormat(undefined, options)
+            const newValue = new Intl.NumberFormat(navigator.language, options)
                 .format(value);
 
             return newValue;

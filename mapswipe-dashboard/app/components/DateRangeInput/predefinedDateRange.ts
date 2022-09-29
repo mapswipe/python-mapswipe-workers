@@ -29,6 +29,21 @@ export const getThisMonth = () => {
     };
 };
 
+export const getThisYear = () => {
+    const startDate = new Date();
+    startDate.setMonth(0);
+    startDate.setDate(1);
+
+    const endDate = new Date();
+    endDate.setMonth(endDate.getMonth() + 1);
+    endDate.setDate(0);
+
+    return {
+        startDate,
+        endDate,
+    };
+};
+
 export const predefinedDateRangeOptions: PredefinedDateRangeOption[] = [
     /*
     {
