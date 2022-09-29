@@ -21,6 +21,8 @@ generates:
         CustomDate: 'string'
         CustomDateTime: 'string'
         EnumDescription: 'string'
+        AreaSqKm: 'number'
+        TimeInSeconds: 'number'
   ./generated/schema.json:
     plugins:
       - "introspection"

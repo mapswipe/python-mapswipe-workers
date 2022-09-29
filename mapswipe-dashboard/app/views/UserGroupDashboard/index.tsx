@@ -5,7 +5,7 @@ import { useParams } from 'react-router-dom';
 
 import { CSVLink } from 'react-csv';
 
-import CalendarHeatMapContainer, { Data } from '#components/CalendarHeatMapContainer';
+import CalendarHeatMapContainer from '#components/CalendarHeatMapContainer';
 import { MapContributionType } from '#components/ContributionHeatMap';
 import Footer from '#components/Footer';
 import Header from '#components/Header';
@@ -25,7 +25,7 @@ import userSvg from '#resources/icons/user.svg';
 import swipeSvg from '#resources/icons/swipe.svg';
 import timeSvg from '#resources/icons/time.svg';
 import dashboardHeaderSvg from '#resources/img/dashboard.svg';
-import StatsBoard, { ActualContributorTimeStatType } from '#views/StatsBoard';
+import StatsBoard from '#views/StatsBoard';
 import { getThisMonth } from '#components/DateRangeInput/predefinedDateRange';
 import { formatTimeDuration } from '#utils/temporal';
 
@@ -171,9 +171,8 @@ function UserGroupDashboard(props: Props) {
     const totalSwipe = userGroupStats?.userGroupStats.stats.totalSwipes;
     const totalSwipeLastMonth = userGroupStats?.userGroupStats.statsLatest.totalSwipes;
 
-    const totalSwipeTime = userGroupStats?.userGroupStats.stats.totalSwipeTime as number;
-    const totalSwipeTimeLastMonth = userGroupStats?.userGroupStats
-        .statsLatest.totalSwipeTime as number;
+    const totalSwipeTime = userGroupStats?.userGroupStats.stats.totalSwipeTime;
+    const totalSwipeTimeLastMonth = userGroupStats?.userGroupStats.statsLatest.totalSwipeTime;
 
     const totalContributors = userGroupStats?.userGroupStats.stats.totalContributors;
     const totalContributorsLastMonth = userGroupStats?.userGroupStats.statsLatest.totalContributors;
@@ -286,12 +285,12 @@ function UserGroupDashboard(props: Props) {
             <div className={styles.content}>
                 <div className={styles.container}>
                     <CalendarHeatMapContainer
-                        data={contributionData as Data[]}
+                        data={contributionData}
                     />
                     <StatsBoard
                         heading="Group Statsboard"
                         // eslint-disable-next-line max-len
-                        contributionTimeStats={filteredUserGroupStats?.userGroupStats.filteredStats.swipeTimeByDate as ActualContributorTimeStatType[]}
+                        contributionTimeStats={filteredUserGroupStats?.userGroupStats.filteredStats.swipeTimeByDate}
                         projectTypeStats={filteredUserGroupStats?.userGroupStats
                             .filteredStats.areaSwipedByProjectType}
                         // eslint-disable-next-line max-len

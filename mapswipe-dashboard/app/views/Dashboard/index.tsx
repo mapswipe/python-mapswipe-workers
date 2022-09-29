@@ -15,7 +15,7 @@ import Footer from '#components/Footer';
 import NumberOutput from '#components/NumberOutput';
 import TextOutput from '#components/TextOutput';
 import InformationCard from '#components/InformationCard';
-import StatsBoard, { ActualContributorTimeStatType } from '#views/StatsBoard';
+import StatsBoard from '#views/StatsBoard';
 import { getThisMonth } from '#components/DateRangeInput/predefinedDateRange';
 import {
     CommunityStatsQuery,
@@ -245,7 +245,7 @@ function Dashboard(props: Props) {
                     handleDateRangeChange={handleDateRangeChange}
                     className={styles.statsBoard}
                     // eslint-disable-next-line max-len
-                    contributionTimeStats={filteredCommunityStats?.filteredStats?.contributorTimeStats as ActualContributorTimeStatType[] | undefined}
+                    contributionTimeStats={filteredCommunityStats?.filteredStats?.contributorTimeStats}
                     projectTypeStats={filteredCommunityStats?.filteredStats?.projectTypeStats}
                     // eslint-disable-next-line max-len
                     organizationTypeStats={filteredCommunityStats?.filteredStats?.organizationTypeStats}
