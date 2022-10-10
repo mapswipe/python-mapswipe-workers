@@ -14,6 +14,7 @@ import os
 from pathlib import Path
 
 import environ
+from mapswipe import sentry
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -32,6 +33,13 @@ env = environ.Env(
     # Static, Media configs
     DJANGO_STATIC_ROOT=(str, os.path.join(BASE_DIR, "assets/static")),  # Where to store
     DJANGO_MEDIA_ROOT=(str, os.path.join(BASE_DIR, "assets/media")),  # Where to store
+    # Sentry
+    SENTRY_DSN=(str, None),
+    SENTRY_SAMPLE_RATE=(float, 0.2),
+    # Misc
+    RELEASE=(str, "develop"),
+    MAPSWIPE_ENVIRONMENT=(str, "Dev"),
+    APP_TYPE=str,
 )
 
 
@@ -45,6 +53,8 @@ SECRET_KEY = env("DJANGO_SECRET_KEY")
 DEBUG = env("DJANGO_DEBUG")
 
 ALLOWED_HOSTS = env("DJANGO_ALLOWED_HOST")
+MAPSWIPE_ENVIRONMENT = env("MAPSWIPE_ENVIRONMENT")
+APP_TYPE = env("APP_TYPE")
 
 
 # Application definition
@@ -193,3 +203,23 @@ CORS_ALLOW_HEADERS = (
     "x-requested-with",
     "sentry-trace",
 )
+
+# Sentry Config
+SENTRY_DSN = env("SENTRY_DSN")
+SENTRY_SAMPLE_RATE = env("SENTRY_SAMPLE_RATE")
+
+if SENTRY_DSN:
+    SENTRY_CONFIG = {
+        "dsn": SENTRY_DSN,
+        "send_default_pii": True,
+        "release": env("RELEASE"),  # XXX: 'release': sentry.fetch_git_sha(BASE_DIR),
+        "environment": MAPSWIPE_ENVIRONMENT,
+        "debug": DEBUG,
+        "tags": {
+            "site": ",".join(set(ALLOWED_HOSTS)),
+        },
+    }
+    sentry.init_sentry(
+        app_type=APP_TYPE,
+        **SENTRY_CONFIG,
+    )
