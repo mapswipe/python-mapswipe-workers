@@ -1,9 +1,10 @@
-import React, { useState, useCallback } from 'react';
+import React from 'react';
 import { _cs, isDefined, encodeDate } from '@togglecorp/fujs';
 import {
     gql,
     useQuery,
 } from '@apollo/client';
+import useUrlState from '#hooks/useUrlState';
 import { MapContributionType } from '#components/ContributionHeatMap';
 import Header from '#components/Header';
 import PendingMessage from '#components/PendingMessage';
@@ -93,7 +94,19 @@ function Dashboard(props: Props) {
         className,
     } = props;
 
-    const [dateRange, setDateRange] = useState<DateRangeValue>(defaultDateRange);
+    const [
+        dateRange = defaultDateRange,
+        setDateRange,
+    ] = useUrlState<DateRangeValue>(
+        (params) => ({
+            startDate: params.from,
+            endDate: params.to,
+        }),
+        (value) => ({
+            from: value?.startDate,
+            to: value?.endDate,
+        }),
+    );
 
     const {
         data: communityStats,
@@ -126,10 +139,6 @@ function Dashboard(props: Props) {
 
     const totalSwipes = communityStats?.communityStats?.totalSwipes;
     const totalSwipesLastMonth = communityStats?.communityStatsLatest?.totalSwipes;
-
-    const handleDateRangeChange = useCallback((value: DateRangeValue | undefined) => {
-        setDateRange(value ?? defaultDateRange);
-    }, []);
 
     return (
         <div className={_cs(styles.dashboard, className)}>
@@ -243,7 +252,7 @@ function Dashboard(props: Props) {
                     heading="Community Statsboard"
                     dateRange={dateRange}
                     calendarHeatmapHidden
-                    handleDateRangeChange={handleDateRangeChange}
+                    handleDateRangeChange={setDateRange}
                     className={styles.statsBoard}
                     // eslint-disable-next-line max-len
                     contributionTimeStats={filteredCommunityStats?.filteredStats?.contributorTimeStats}
