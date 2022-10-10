@@ -1,8 +1,9 @@
-import React, { useState, useCallback } from 'react';
+import React from 'react';
 import { gql, useQuery } from '@apollo/client';
 import { _cs, isDefined, encodeDate } from '@togglecorp/fujs';
 import { useParams, generatePath, Link } from 'react-router-dom';
 
+import useUrlState from '#hooks/useUrlState';
 import routes from '#base/configs/routes';
 import { MapContributionType } from '#components/ContributionHeatMap';
 import Footer from '#components/Footer';
@@ -107,7 +108,19 @@ function UserDashboard(props: Props) {
     const { className } = props;
 
     const { userId } = useParams<{ userId: string | undefined }>();
-    const [dateRange, setDateRange] = useState<DateRangeValue>(defaultDateRange);
+    const [
+        dateRange = defaultDateRange,
+        setDateRange,
+    ] = useUrlState<DateRangeValue>(
+        (params) => ({
+            startDate: params.from,
+            endDate: params.to,
+        }),
+        (value) => ({
+            from: value?.startDate,
+            to: value?.endDate,
+        }),
+    );
 
     const {
         data: userStats,
@@ -145,14 +158,6 @@ function UserDashboard(props: Props) {
 
     const totalUserGroup = userStats?.userStats?.stats?.totalUserGroups;
     const totalUserGroupLastMonth = userStats?.userStats?.statsLatest?.totalUserGroups;
-
-    const handleDateRangeChange = useCallback((value: DateRangeValue | undefined) => {
-        if (value) {
-            setDateRange(value);
-        } else {
-            setDateRange(defaultDateRange);
-        }
-    }, []);
 
     return (
         <div className={_cs(className, styles.userDashboard)}>
@@ -256,7 +261,7 @@ function UserDashboard(props: Props) {
                     <StatsBoard
                         heading="User Statsboard"
                         dateRange={dateRange}
-                        handleDateRangeChange={handleDateRangeChange}
+                        handleDateRangeChange={setDateRange}
                         // eslint-disable-next-line max-len
                         contributionTimeStats={filteredUserStats?.userStats.filteredStats.swipeTimeByDate}
                         // eslint-disable-next-line max-len
