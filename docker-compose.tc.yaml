@@ -49,7 +49,7 @@ x-mapswipe-workers: &base_mapswipe_workers
 x-django: &base_django
   build:
     context: django/
-  environment:
+  environment: &base_django_environment
     DJANGO_DEBUG: 'true'
     DJANGO_SECRET_KEY: 'simple-secret-key-dont-use-in-production'
     DJANGO_ALLOWED_HOST: '*'
@@ -58,7 +58,10 @@ x-django: &base_django
     DJANGO_DB_PWD: '${POSTGRES_PASSWORD:-postgres}'
     DJANGO_DB_HOST: '${POSTGRES_HOST:-postgres}'
     DJANGO_DB_PORT: '${POSTGRES_PORT:-5432}'
-    DJANGO_TIME_ZONE: 'Asia/Kathmandu'
+    SENTRY_DSN: ${DJANGO_SENTRY_DSN}
+    SENTRY_SAMPLE_RATE: ${DJANGO_SENTRY_SAMPLE_RATE:-0.2}
+    MAPSWIPE_ENVIRONMENT: ${MAPSWIPE_ENVIRONMENT:-dev}
+    RELEASE: '${DJANGO_RELEASE:-latest}'
   volumes:
     - ./django:/code
     - ipython_data_local:/root/.ipython/profile_default   # persist ipython data, including ipython history
@@ -132,12 +135,18 @@ services:
 
   django:
     <<: *base_django
+    environment:
+        <<: *base_django_environment
+        APP_TYPE: API
     command: ./scripts/run_develop.sh
     ports:
     - "8113:80"
 
   django-schedule-task:
     <<: *base_django
+    environment:
+        <<: *base_django_environment
+        APP_TYPE: WORKER
     command: bash -c "python3 ./manage.py basic_schedule_jobs"
 
 volumes:

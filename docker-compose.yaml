@@ -22,7 +22,7 @@ x-django: &base_django
   image: mapswipe/django:latest  # To be used as local image only
   build:
       context: django/
-  environment:
+  environment: &base_django_environment
       DJANGO_DEBUG: 'false'
       DJANGO_SECRET_KEY: '${DJANGO_ALLOWED_HOST}'
       DJANGO_ALLOWED_HOST: '${DJANGO_ALLOWED_HOST:-*}'
@@ -33,6 +33,10 @@ x-django: &base_django
       DJANGO_DB_PORT: 5432
       DJANGO_STATIC_ROOT: '/assets/static/'
       DJANGO_MEDIA_ROOT: '/assets/media/'
+      SENTRY_DSN: ${DJANGO_SENTRY_DSN}
+      SENTRY_SAMPLE_RATE: ${DJANGO_SENTRY_SAMPLE_RATE:-0.2}
+      MAPSWIPE_ENVIRONMENT: ${MAPSWIPE_ENVIRONMENT:-dev}
+      RELEASE: '${DJANGO_RELEASE:-latest}'
   volumes:
       - ipython_data_local:/root/.ipython/profile_default   # persist ipython data, including ipython history
       - django-media:/assets/media/
@@ -226,8 +230,14 @@ services:
 
     django:
         <<: *base_django
+        environment:
+            <<: *base_django_environment
+            APP_TYPE: API
         command: ./scripts/run_prod.sh
 
     django-schedule-task:
         <<: *base_django
+        environment:
+            <<: *base_django_environment
+            APP_TYPE: WORKER
         command: bash -c "python3 ./manage.py basic_schedule_jobs"

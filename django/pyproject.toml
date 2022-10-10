@@ -6,7 +6,6 @@ authors = ["Mapswipe <info@mapswipe.org>"]
 license = "Apache License 2.0"
 
 [tool.poetry.dependencies]
-python = "^3.10.2"  # Same as .python-version
 Django = "^4.1.1"
 django-cors-headers = "*"
 django-cte = "*"
@@ -14,11 +13,13 @@ django-environ = "*"
 factory-boy = "^3.2.1"
 gunicorn = "^20.1.0"
 psycopg2 = "^2.9.3"
+python = "^3.10.2"  # Same as .python-version
+schedule = "^1.1.0"
+sentry-sdk = "*"
 starlette = "^0.20.3"
 strawberry-django-plus = "^1.14.1"
 strawberry-graphql = "^0.114.1"
 strawberry-graphql-django = "==0.3"
-schedule = "^1.1.0"
 
 [tool.poetry.dev-dependencies]
 pytest-profiling = "*"
