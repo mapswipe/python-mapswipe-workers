@@ -1,10 +1,11 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { gql, useQuery } from '@apollo/client';
 import { _cs, isDefined, encodeDate } from '@togglecorp/fujs';
 import { useParams } from 'react-router-dom';
 
 import { CSVLink } from 'react-csv';
 
+import useUrlState from '#hooks/useUrlState';
 import { MapContributionType } from '#components/ContributionHeatMap';
 import Footer from '#components/Footer';
 import Header from '#components/Header';
@@ -118,7 +119,19 @@ function UserGroupDashboard(props: Props) {
     const { className } = props;
 
     const { userGroupId } = useParams<{ userGroupId: string | undefined }>();
-    const [dateRange, setDateRange] = useState<DateRangeValue>(defaultDateRange);
+    const [
+        dateRange = defaultDateRange,
+        setDateRange,
+    ] = useUrlState<DateRangeValue>(
+        (params) => ({
+            startDate: params.from,
+            endDate: params.to,
+        }),
+        (value) => ({
+            from: value?.startDate,
+            to: value?.endDate,
+        }),
+    );
 
     const {
         data: userGroupStats,
@@ -167,14 +180,6 @@ function UserGroupDashboard(props: Props) {
 
     const totalContributors = userGroupStats?.userGroupStats.stats.totalContributors;
     const totalContributorsLastMonth = userGroupStats?.userGroupStats.statsLatest.totalContributors;
-
-    const handleDateRangeChange = useCallback((value: DateRangeValue | undefined) => {
-        if (value) {
-            setDateRange(value);
-        } else {
-            setDateRange(defaultDateRange);
-        }
-    }, []);
 
     return (
         <div className={_cs(className, styles.userGroupDashboard)}>
@@ -286,7 +291,7 @@ function UserGroupDashboard(props: Props) {
                         // eslint-disable-next-line max-len
                         projectSwipeTypeStats={filteredUserGroupStats?.userGroupStats.filteredStats.swipeByProjectType}
                         dateRange={dateRange}
-                        handleDateRangeChange={handleDateRangeChange}
+                        handleDateRangeChange={setDateRange}
                         // eslint-disable-next-line max-len
                         contributions={filteredUserGroupStats?.userGroupStats.filteredStats.contributionByGeo as MapContributionType[]}
                     />
