@@ -75,7 +75,7 @@ UPDATE_USER_DATA_SQL = f"""
         SELECT
           user_agg_data.*,
           CASE
-              WHEN P.project_type = 1 THEN ROUND(task_count/6)
+              WHEN P.project_type in (1, 4) THEN ROUND(task_count/6)
               ELSE task_count
           END as swipes
           FROM user_agg_data

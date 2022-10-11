@@ -1,5 +1,4 @@
 from collections import defaultdict
-from typing import List
 
 from apps.aggregated.models import AggregatedUserGroupStatData
 from asgiref.sync import sync_to_async
@@ -11,7 +10,7 @@ from .models import UserGroupUserMembership
 from .types import UserGroupUserStatsType, UserUserGroupType
 
 
-def load_user_group_user_stats(keys: List[str]):
+def load_user_group_user_stats(keys: list[str]) -> list[list[UserGroupUserStatsType]]:
     """
     Load user stats under user_group
     """
@@ -50,10 +49,10 @@ def load_user_group_user_stats(keys: List[str]):
                 total_mapping_projects=mapped_project_count or 0,
             )
         )
-    return [_map.get(key) for key in keys]
+    return [_map.get(key, []) for key in keys]
 
 
-def load_user_usergroup_stats(keys: List[str]):
+def load_user_usergroup_stats(keys: list[str]) -> list[list[UserUserGroupType]]:
     # Fetch user and user_group set
     user_user_groups_qs = UserGroupUserMembership.objects.filter(
         user_id__in=keys
@@ -86,14 +85,14 @@ def load_user_usergroup_stats(keys: List[str]):
                 **user_groups_map[user_group_id],
             )
         )
-    return [_map.get(key) for key in keys]
+    return [_map.get(key, []) for key in keys]
 
 
 class ExistingDatabaseDataLoader:
     @cached_property
-    def load_user_group_user_stats(self):
+    def load_user_group_user_stats(self) -> list[list[UserGroupUserStatsType]]:
         return DataLoader(load_fn=sync_to_async(load_user_group_user_stats))
 
     @cached_property
-    def load_user_usergroup_stats(self):
+    def load_user_usergroup_stats(self) -> list[list[UserUserGroupType]]:
         return DataLoader(load_fn=sync_to_async(load_user_usergroup_stats))

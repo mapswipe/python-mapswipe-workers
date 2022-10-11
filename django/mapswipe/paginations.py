@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import copy
-from typing import Any, Generic, List, TypeVar
+from typing import Any, Generic, TypeVar
 
 import strawberry
 from asgiref.sync import sync_to_async
@@ -53,7 +53,7 @@ class CountList(Generic[DjangoModelTypeVar]):
         return items
 
     count: int = strawberry.field(resolver=resolve_count)
-    items: List[DjangoModelTypeVar] = strawberry.field(resolver=resolve_items)
+    items: list[DjangoModelTypeVar] = strawberry.field(resolver=resolve_items)
 
     def __init__(self, *args, **kwargs):
         self.node = kwargs.pop("node", {})
