@@ -191,12 +191,12 @@ def results_to_file(results, projectId):
 
     logger.info(f"Got {len(results.items())} groups for project {projectId}")
     for groupId, users in results.items():
-        for userId, result in users.items():
+        for userId, result_data in users.items():
 
             # check if all attributes are set,
             # if not don't transfer the results for this group
             try:
-                start_time = result["startTime"]
+                start_time = result_data["startTime"]
             except KeyError as e:
                 sentry.capture_exception(e)
                 sentry.capture_message(
@@ -211,7 +211,7 @@ def results_to_file(results, projectId):
                 continue
 
             try:
-                end_time = result["endTime"]
+                end_time = result_data["endTime"]
             except KeyError as e:
                 sentry.capture_exception(e)
                 sentry.capture_message(
@@ -226,7 +226,7 @@ def results_to_file(results, projectId):
                 continue
 
             try:
-                result_results = result["results"]
+                result_results = result_data["results"]
             except KeyError as e:
                 sentry.capture_exception(e)
                 sentry.capture_message(
@@ -242,7 +242,9 @@ def results_to_file(results, projectId):
 
             user_group_ids = [
                 user_group_id
-                for user_group_id, is_selected in result.get("userGroups", {}).items()
+                for user_group_id, is_selected in result_data.get(
+                    "userGroups", {}
+                ).items()
                 if is_selected
             ]
             start_time = dateutil.parser.parse(start_time)
@@ -450,7 +452,6 @@ def save_user_group_results_to_postgres(
             SELECT * FROM results_user_groups_temp
         ON CONFLICT (project_id, group_id, user_id, user_group_id)
         DO NOTHING;
-        -- TRUNCATE results_user_groups_temp; ??
     """
     p_con.query(query_insert_results)
     del p_con

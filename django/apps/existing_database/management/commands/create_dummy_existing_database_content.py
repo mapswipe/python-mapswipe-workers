@@ -25,6 +25,21 @@ from django.core.management.base import BaseCommand
 
 
 class Command(BaseCommand):
+    """
+    Used to generate some dummy data in the database.
+    Make sure to read the code before using.
+    Models cleaned/populated
+    - Group
+    - Organization
+    - Project
+    - Result
+    - Task
+    - User
+    - UserGroup
+    - UserGroupMembership
+    - UserGroupResult
+    """
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.skip_confirm = False
