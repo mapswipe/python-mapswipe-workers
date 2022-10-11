@@ -15,7 +15,7 @@ RUN apt-get update -y \
         # For postgis
         gdal-bin \
     # Upgrade pip and install python packages for code
-    && pip install --upgrade --no-cache-dir pip poetry \
+    && pip install --upgrade --no-cache-dir pip poetry==1.2.1 \
         && poetry --version \
         # Configure to use system instead of virtualenvs
         && poetry config virtualenvs.create false \

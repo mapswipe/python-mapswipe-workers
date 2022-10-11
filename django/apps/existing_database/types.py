@@ -1,6 +1,6 @@
 import datetime
 from dataclasses import InitVar
-from typing import List, Optional, Union
+from typing import Optional
 
 import strawberry
 import strawberry_django
@@ -134,7 +134,7 @@ class UserUserGroupBaseFilterStatsQuery:
         return self._qs
 
     @strawberry.field
-    async def swipe_by_date(self) -> List[ContributorSwipeStatType]:
+    async def swipe_by_date(self) -> list[ContributorSwipeStatType]:
         qs = (
             self.qs.filter(task_count__isnull=False)
             .order_by("timestamp_date")
@@ -154,7 +154,7 @@ class UserUserGroupBaseFilterStatsQuery:
         ]
 
     @strawberry.field
-    async def swipe_time_by_date(self) -> List[ContributorTimeStatType]:
+    async def swipe_time_by_date(self) -> list[ContributorTimeStatType]:
         qs = (
             self.qs.filter(total_time__isnull=False)
             .order_by("timestamp_date")
@@ -176,7 +176,7 @@ class UserUserGroupBaseFilterStatsQuery:
         ]
 
     @strawberry.field
-    async def area_swiped_by_project_type(self) -> List[ProjectTypeAreaStatsType]:
+    async def area_swiped_by_project_type(self) -> list[ProjectTypeAreaStatsType]:
         qs = (
             self.qs.filter(area_swiped__isnull=False)
             .order_by()
@@ -198,7 +198,7 @@ class UserUserGroupBaseFilterStatsQuery:
         ]
 
     @strawberry.field
-    async def swipe_by_project_type(self) -> List[ProjectTypeSwipeStatsType]:
+    async def swipe_by_project_type(self) -> list[ProjectTypeSwipeStatsType]:
         qs = (
             self.qs.filter(task_count__isnull=False)
             .order_by()
@@ -220,7 +220,7 @@ class UserUserGroupBaseFilterStatsQuery:
         ]
 
     @strawberry_django.field
-    async def swipe_by_organization_name(self) -> List[OrganizationSwipeStatsType]:
+    async def swipe_by_organization_name(self) -> list[OrganizationSwipeStatsType]:
         qs = (
             self.qs.order_by()
             .values("project__organization_name")
@@ -241,7 +241,7 @@ class UserUserGroupBaseFilterStatsQuery:
         ]
 
     @strawberry.field
-    async def contribution_by_geo(self) -> List[MapContributionStatsType]:
+    async def contribution_by_geo(self) -> list[MapContributionStatsType]:
         qs = (
             self.qs.order_by()
             .values("project_id")
@@ -259,12 +259,13 @@ class UserUserGroupBaseFilterStatsQuery:
                 total_contribution=total_swipes,
             )
             async for geom, total_swipes in qs
+            if geom is not None
         ]
 
 
 @strawberry.type
 class UserFilteredStats(UserUserGroupBaseFilterStatsQuery):
-    date_range: InitVar[Union[DateRangeInput, None]]
+    date_range: InitVar[DateRangeInput | None]
     user_id: InitVar[str]
 
     def __post_init__(self, date_range, user_id):
@@ -339,14 +340,14 @@ class UserStats:
     @strawberry.field
     async def filtered_stats(
         self,
-        date_range: Union[DateRangeInput, None] = None,
+        date_range: DateRangeInput | None = None,
     ) -> UserFilteredStats:
         return UserFilteredStats(user_id=self._user_id, date_range=date_range)
 
 
 @strawberry.type
 class UserGroupFilteredStats(UserUserGroupBaseFilterStatsQuery):
-    date_range: InitVar[Union[DateRangeInput, None]]
+    date_range: InitVar[DateRangeInput | None]
     user_group_id: InitVar[str]
 
     def __post_init__(self, date_range, user_group_id):
@@ -362,7 +363,7 @@ class UserGroupFilteredStats(UserUserGroupBaseFilterStatsQuery):
 
     # Additional fields
     @strawberry.field
-    async def user_stats(self) -> List[UserGroupUserStatsType]:
+    async def user_stats(self) -> list[UserGroupUserStatsType]:
         qs = (
             self.qs.order_by()
             .values("user_id")
@@ -422,10 +423,10 @@ class UserGroupStats:
         )
         return UserGroupStatsType(
             total_swipes=agg_data["total_swipes"] or 0,
-            total_swipe_time=agg_data["total_time_sum"] or 0,
+            total_swipe_time=agg_data["total_time_sum"] or TimeInSeconds(0),
             total_contributors=agg_data["total_contributors"] or 0,
             total_mapping_projects=agg_data["total_project"] or 0,
-            total_area_swiped=agg_data["total_area_swiped"] or 0,
+            total_area_swiped=agg_data["total_area_swiped"] or AreaSqKm(0),
             total_organization=agg_data["total_organization"] or 0,
         )
 
@@ -439,16 +440,16 @@ class UserGroupStats:
             total_project=models.Count("project_id", distinct=True),
         )
         return UserGroupLatestStatsType(
-            total_swipes=agg_data["total_swipes"],
-            total_swipe_time=agg_data["total_time_sum"],
-            total_contributors=agg_data["total_contributors"],
-            total_mapping_projects=agg_data["total_project"],
+            total_swipes=agg_data["total_swipes"] or 0,
+            total_swipe_time=agg_data["total_time_sum"] or TimeInSeconds(0),
+            total_contributors=agg_data["total_contributors"] or 0,
+            total_mapping_projects=agg_data["total_project"] or 0,
         )
 
     @strawberry.field
     async def filtered_stats(
         self,
-        date_range: Union[DateRangeInput, None] = None,
+        date_range: DateRangeInput | None = None,
     ) -> UserGroupFilteredStats:
         return UserGroupFilteredStats(
             user_group_id=self._user_group_id,
@@ -464,7 +465,7 @@ class UserType:
     @strawberry.field
     async def user_in_user_groups(
         self, info: Info, root: User
-    ) -> Optional[List[UserUserGroupType]]:
+    ) -> list[UserUserGroupType]:
         return await info.context[
             "dl"
         ].existing_database.load_user_usergroup_stats.load(root.user_id)

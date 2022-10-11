@@ -1,7 +1,6 @@
 import datetime
 import json
 from dataclasses import InitVar
-from typing import List, Union
 
 import strawberry
 import strawberry_django
@@ -72,7 +71,7 @@ def get_community_stats_latest() -> CommunityStatsType:
 
 @strawberry.type
 class FilteredStats:
-    date_range: InitVar[Union[DateRangeInput, None]]
+    date_range: InitVar[DateRangeInput | None]
 
     def __post_init__(self, date_range):
         filters = {}
@@ -85,7 +84,7 @@ class FilteredStats:
         self.qs_cte = AggregatedUserStatData.cte_objects.filter(**filters)
 
     @strawberry.field
-    async def contributor_time_stats(self) -> List[ContributorTimeStatType]:
+    async def contributor_time_stats(self) -> list[ContributorTimeStatType]:
         qs = (
             self.qs.filter(total_time__isnull=False)
             .order_by("timestamp_date")
@@ -105,7 +104,7 @@ class FilteredStats:
         ]
 
     @strawberry.field
-    async def project_swipe_type(self) -> List[ProjectTypeSwipeStatsType]:
+    async def project_swipe_type(self) -> list[ProjectTypeSwipeStatsType]:
         qs = (
             self.qs.order_by()
             .values("project__project_type")
@@ -124,7 +123,7 @@ class FilteredStats:
         ]
 
     @strawberry.field
-    async def project_type_stats(self) -> List[ProjectTypeAreaStatsType]:
+    async def project_type_stats(self) -> list[ProjectTypeAreaStatsType]:
         qs = (
             self.qs.filter(area_swiped__isnull=False)
             .order_by()
@@ -144,7 +143,7 @@ class FilteredStats:
         ]
 
     @strawberry.field
-    async def organization_type_stats(self) -> List[OrganizationSwipeStatsType]:
+    async def organization_type_stats(self) -> list[OrganizationSwipeStatsType]:
         qs = (
             self.qs.order_by()
             .values("project__organization_name")
@@ -163,7 +162,7 @@ class FilteredStats:
         ]
 
     @strawberry.field
-    async def project_geo_contribution(self) -> List[MapContributionStatsType]:
+    async def project_geo_contribution(self) -> list[MapContributionStatsType]:
         project_qs = (
             Project.cte_objects.filter(geom__isnull=False)
             .annotate(centroid=Centroid("geom"))
@@ -205,7 +204,7 @@ class FilteredStats:
 @strawberry.type
 class UserFilterdStats:
     user_id: InitVar[str]
-    date_range: InitVar[Union[DateRangeInput, None]]
+    date_range: InitVar[DateRangeInput | None]
 
     def __post_init__(self, user_id, date_range):
         filters = {
@@ -247,7 +246,7 @@ class Query:
     @strawberry.field
     async def filtered_stats(
         self,
-        date_range: Union[DateRangeInput, None] = None,
+        date_range: DateRangeInput | None = None,
     ) -> FilteredStats:
         return FilteredStats(date_range=date_range)
 

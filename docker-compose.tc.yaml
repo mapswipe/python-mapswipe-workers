@@ -140,7 +140,7 @@ services:
         APP_TYPE: API
     command: ./scripts/run_develop.sh
     ports:
-    - "8113:80"
+    - "8113:8113"
 
   django-schedule-task:
     <<: *base_django

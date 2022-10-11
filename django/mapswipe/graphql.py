@@ -1,10 +1,9 @@
-from typing import Any, Union
+from typing import Any
 
 import sentry_sdk
 import strawberry
 from apps.existing_database.query import Query as ExistingDatabaseQuery
-from starlette.requests import Request
-from starlette.websockets import WebSocket
+from django.http import HttpRequest
 from strawberry.django.views import AsyncGraphQLView
 from strawberry.types import ExecutionResult
 
@@ -16,7 +15,7 @@ from .dataloaders import GobalDataLoader
 class CustomAsyncGraphQLView(AsyncGraphQLView):
     async def get_context(
         self,
-        request: Union[Request, WebSocket],
+        request: HttpRequest,
         **_,
     ) -> Any:
         return {
