@@ -3,6 +3,11 @@ FROM mdillon/postgis
 COPY initdb.sql docker-entrypoint-initdb.d/
 COPY serviceAccountKey.json serviceAccountKey.json
 
+# use our version controlled config files instead of the
+# ones found in the data volume
+COPY pg_hba.conf pg_hba.conf
+COPY postgresql.conf postgresql.conf
+
 # Copy backup scripts and make them executable
 COPY backup/make_basebackup.sh make_basebackup.sh
 COPY backup/archive_command.sh archive_command.sh
