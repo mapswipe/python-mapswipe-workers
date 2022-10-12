@@ -21,6 +21,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 env = environ.Env(
+    DJANGO_LOG_LEVEL=(str, "INFO"),  # DEBUG, INFO, WARNING, ERROR, CRITICAL
     DJANGO_DEBUG=(bool, False),
     DJANGO_SECRET_KEY=str,
     DJANGO_ALLOWED_HOST=(list, ["*"]),
@@ -38,7 +39,7 @@ env = environ.Env(
     SENTRY_SAMPLE_RATE=(float, 0.2),
     # Misc
     RELEASE=(str, "develop"),
-    MAPSWIPE_ENVIRONMENT=(str, "Dev"),
+    MAPSWIPE_ENVIRONMENT=(str, "dev"),  # prod
     APP_TYPE=str,
 )
 
@@ -207,6 +208,7 @@ CORS_ALLOW_HEADERS = (
 # Sentry Config
 SENTRY_DSN = env("SENTRY_DSN")
 SENTRY_SAMPLE_RATE = env("SENTRY_SAMPLE_RATE")
+SENTRY_ENABLED = False
 
 if SENTRY_DSN:
     SENTRY_CONFIG = {
@@ -223,3 +225,36 @@ if SENTRY_DSN:
         app_type=APP_TYPE,
         **SENTRY_CONFIG,
     )
+    SENTRY_ENABLED = True
+
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "simple": {
+            "format": ("%(asctime)s: - %(levelname)s - %(name)s - %(message)s"),
+            "datefmt": "%Y-%m-%dT%H:%M:%S",
+        },
+    },
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "simple",
+        },
+        "file": {
+            "class": "logging.FileHandler",
+            "filename": "//django-data/django.log",
+            "formatter": "simple",
+        },
+    },
+    "root": {
+        "handlers": ["console", "file"],
+        "level": env("DJANGO_LOG_LEVEL"),
+    },
+    "loggers": {
+        "django": {
+            "level": env("DJANGO_LOG_LEVEL"),
+        },
+    },
+}
