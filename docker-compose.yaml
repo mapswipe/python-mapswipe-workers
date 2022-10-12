@@ -144,7 +144,7 @@ services:
     community_dashboard:
         container_name: community_dashboard
         build:
-            context: mapswipe-dashboard/
+            context: mapswipe-dashboard/  # TODO: Rename to community-dashboard
         environment:
             REACT_APP_ENVIRONMENT: ${MAPSWIPE_ENVIRONMENT:-dev}
             GRAPHQL_CODEGEN_ENDPOINT: ${COMMUNITY_DASHBOARD_GRAPHQL_CODEGEN_ENDPOINT}

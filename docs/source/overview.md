@@ -24,6 +24,9 @@
 #### Mapswipe Client (Manager Dashboard) - Realtime Database
 - Using the Manager Dashboard user can submitt new project drafts to Firebase (`project_drafts.projectDraftId.`)
 
+#### Community Dashboard - Aggregated Cached data from Database
+- Using the community Dashboard user can view aggregated stats of contribution to the mapswipe.
+
 #### Mapswipe Workers - Realtime Database
 - projectCreation:
     - requests `projectDrafts` from Realtime Database
@@ -32,8 +35,15 @@
     - requests `results` from Realtime Database
     - deletes `results` from Realtime Database
 
-#### MapSwipe Workers - Postgres Database  
+#### MapSwipe Workers - Postgres Database
 - projectCreation - Postgres
     - writes projectDraft, project, groups and tasks to Postgres
 - tansfer_results - Postgres
     - writes results to Postgres
+
+#### Django - Stats webserver
+- aggregateStatData:
+    - requires user contribution related to user_group and project data from Postgres Database
+
+#### Mapswipe Dashboard (Community Dashboard)
+- React based static server which uses Django webserver to show overall mapswipe contribution data.
