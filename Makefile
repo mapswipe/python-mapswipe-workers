@@ -9,3 +9,6 @@ workers_status:
 
 danger_restart_project_creation_worker:
         docker compose up -d mapswipe_workers_creation
+
+make_project_manager:
+        @echo "run with email=thing@domain.com to give PM rights"; docker compose run mapswipe_workers_creation mapswipe_workers -v user-management --action=add-manager-rights --email=$(email)
