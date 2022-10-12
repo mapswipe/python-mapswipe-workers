@@ -1,6 +1,6 @@
 server {
-    listen 80;
-    server_name $NGINX_MAIN_DOMAIN;
+    listen 80 default_server;
+    server_name _;
 
     location / {
         return 301 https://$host$request_uri;
@@ -75,10 +75,10 @@ server {
 server {
     listen 443 ssl;
 
-    server_name $NGINX_WEB_DASHBOARD_DOMAIN;
+    server_name $NGINX_COMMUNITY_DASHBOARD_DOMAIN;
 
-    ssl_certificate /etc/letsencrypt/live/$NGINX_WEB_DASHBOARD_DOMAIN/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/$NGINX_WEB_DASHBOARD_DOMAIN/privkey.pem;
+    ssl_certificate /etc/letsencrypt/live/$NGINX_COMMUNITY_DASHBOARD_DOMAIN/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/$NGINX_COMMUNITY_DASHBOARD_DOMAIN/privkey.pem;
 
     location / {
         alias /mapswipe-dashboard-static/;
