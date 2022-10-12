@@ -9,6 +9,9 @@ const appName = process.env.MY_APP_ID;
 
 const sentryDsn = process.env.REACT_APP_SENTRY_DSN;
 
+const tracesSampleRateFromEnv = Number(process.env.REACT_APP_SENTRY_DSN);
+const tracesSampleRate = Number.isNaN(tracesSampleRateFromEnv) ? 0.2 : tracesSampleRateFromEnv;
+
 const env = process.env.REACT_APP_ENVIRONMENT;
 
 const sentryConfig: BrowserOptions | undefined = sentryDsn ? {
@@ -16,6 +19,7 @@ const sentryConfig: BrowserOptions | undefined = sentryDsn ? {
     release: appName,
     environment: env,
     // sendDefaultPii: true,
+    tracesSampleRate,
     normalizeDepth: 5,
     integrations: [
         new Integrations.BrowserTracing({
