@@ -89,64 +89,71 @@ The Service Account Key (`serviceAccountKey.json`) should be saved to `postgres/
 Please refer to the official [documentation](https://firebase.google.com/docs/web/learn-more#config-object) if you set up your own firebase. 
 Otherwise you can request guidance on the settings from the mapswipe team. The structure of your app.js should look like below.
 
-`manager_dashboard/manager_dashboard/js/app.js`
+### Firebase
+- MANAGER_DASHBOARD_FIREBASE_API_KEY
+- MANAGER_DASHBOARD_FIREBASE_AUTH_DOMAIN
+- MANAGER_DASHBOARD_FIREBASE_DATABASE_URL
+- MANAGER_DASHBOARD_FIREBASE_PROJECT_ID
+- MANAGER_DASHBOARD_FIREBASE_STORAGE_BUCKET
+- MANAGER_DASHBOARD_FIREBASE_MESSAGING_SENDER_ID
+- MANAGER_DASHBOARD_FIREBASE_APP_ID
 
-```
-// Your web app's Firebase configuration
-var firebaseConfig = {
-    apiKey: "",
-    authDomain: "",
-    databaseURL: "",
-    projectId: "",
-    storageBucket: "",
-    messagingSenderId: "",
-    appId: ""
-};
-// Initialize Firebase
-firebase.initializeApp(firebaseConfig);
-```
+### Sentry
+- MANAGER_DASHBOARD_SENTRY_DSN
+- MANAGER_DASHBOARD_SENTRY_TRACES_SAMPLE_RATE
+
+## Community Dashboard
+
+### Django API
+- COMMUNITY_DASHBOARD_GRAPHQL_CODEGEN_ENDPOINT
+- COMMUNITY_DASHBOARD_GRAPHQL_ENDPOINT
+
+### Sentry
+- COMMUNITY_DASHBOARD_SENTRY_DSN
+- COMMUNITY_DASHBOARD_SENTRY_TRACES_SAMPLE_RATE
+
+### Elaboration
+**COMMUNITY_DASHBOARD_GRAPHQL_CODEGEN_ENDPOINT**: Graphql endpoint of the Django API. Eg: https://api.example.com/graphql/
+**COMMUNITY_DASHBOARD_GRAPHQL_ENDPOINT**: Same as COMMUNITY_DASHBOARD_GRAPHQL_CODEGEN_ENDPOINT
+
+## Django API
+
+All configuration values for Django are stored in environment variables.
+
+Required environment variables are:
+### Django
+- DJANGO_SECRET_KEY
+- DJANGO_ALLOWED_HOST
+
+### Optional environment variables:
+- DJANGO_SENTRY_DSN
+- DJANGO_SENTRY_SAMPLE_RATE
+- DJANGO_RELEASE
+- Postgres (NOTE: Database configuration are pulled from postgres configuration directly in docker-compose files.)
+    - DJANGO_DB_NAME
+    - DJANGO_DB_USER
+    - DJANGO_DB_PWD
+    - DJANGO_DB_HOST
+    - DJANGO_DB_PORT
+
+### Elaboration
+**DJANGO_SECRET_KEY**: A secret key for a particular Django installation. This is used to provide cryptographic signing, and should be set to a unique, unpredictable value.
+**DJANGO_SENTRY_SAMPLE_RATE**: Sample rate by which sentry send transaction metadata. Value should be between 0 to 1. https://docs.sentry.io/platforms/python/guides/django/configuration/sampling/
+
 
 ## NGINX
 
-`nginx/nginx.conf`:
+`nginx/nginx.conf.template`:
 
-```
-server {
-    listen 80;
-    server_name dev.mapswipe.org;
+### Domains
+- NGINX_MAIN_DOMAIN
+- NGINX_DJANGO_DOMAIN
+- NGINX_MANAGER_DASHBOARD_DOMAIN
+- NGINX_COMMUNITY_DASHBOARD_DOMAIN
 
-    location / {
-        return 301 https://$host$request_uri;
-    }
-}
-
-
-server {
-    listen 443 ssl;
-
-    ssl_certificate /etc/letsencrypt/live/dev.mapswipe.org/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/dev.mapswipe.org/privkey.pem;
-
-    server_name dev.mapswipe.org;
-
-    location /api/ {
-        proxy_pass  http://api:80/;
-    }
-
-    location /api {
-        rewrite ^ /api/ permanent;
-    }
-
-    location /manager_dashboard/ {
-        proxy_pass  http://manager_dashboard:80/;
-    }
-
-    location /manager_dashboard {
-        rewrite ^ /manager_dashboard/ permanent;
-    }
-
-    location / {
-        rewrite ^ /manager_dashboard/ permanent;
-    }
-}
-```
+> NOTE: Make sure the used domain have valid certificates in /etc/letsencrypt/
+### Elaboration
+**NGINX_MAIN_DOMAIN**: Domain for main mapswipe static api server.
+**NGINX_DJANGO_DOMAIN**: Domain for django web server.
+**NGINX_MANAGER_DASHBOARD_DOMAIN**: Domain for manager dashboard.
+**NGINX_COMMUNITY_DASHBOARD_DOMAIN**: Domain for community dashboard.

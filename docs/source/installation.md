@@ -8,8 +8,9 @@ Please consult the [Configuration Reference](configuration.html) for this setup 
 2. Postgres
 3. MapSwipe Workers
 4. API
-5. Manager Dashboard
-6. Lets Encrypt and NGINX as proxy
+5. Django API
+6. Manager Dashboard
+7. Lets Encrypt and NGINX as proxy
 
 For this setup the main repository is required:
 
@@ -137,6 +138,14 @@ Currently the API is a simple Nginx server which serves static files. Those file
 
 ```
 docker-compose up -d api
+```
+
+## Django API
+
+Currently the django API is a web server build using django which provides stats information.
+
+```
+docker-compose up -d django
 ```
 
 
