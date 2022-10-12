@@ -118,6 +118,7 @@ ENV/
 # don´t upload data dir
 data/
 mapswipe-data/
+django-data/
 postgres-data/
 pgdata_restored/
 django/db.sqlite3

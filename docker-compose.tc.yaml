@@ -50,6 +50,7 @@ x-django: &base_django
   build:
     context: django/
   environment: &base_django_environment
+    DJANGO_LOG_LEVEL: '${DJANGO_LOG_LEVEL:-INFO}'
     DJANGO_DEBUG: 'true'
     DJANGO_SECRET_KEY: 'simple-secret-key-dont-use-in-production'
     DJANGO_ALLOWED_HOST: '*'
@@ -65,6 +66,7 @@ x-django: &base_django
   volumes:
     - ./django:/code
     - ipython_data_local:/root/.ipython/profile_default   # persist ipython data, including ipython history
+    - ./django-data/:/django-data/
   restart: unless-stopped
   networks:
     - postgres
@@ -82,24 +84,21 @@ services:
     networks:
       - api
 
-  mapswipe_dashboard:
-    container_name: mapswipe_dashboard
+  community_dashboard:
+    container_name: community_dashboard
     build:
       context: mapswipe-dashboard/
     environment:
       REACT_APP_ENVIRONMENT: ${REACT_APP_ENVIRONMENT:-development}
-      GRAPHQL_CODEGEN_ENDPOINT: ${GRAPHQL_CODEGEN_ENDPOINT:-https://192.168.88.151:8113/graphql/}
-      REACT_APP_GRAPHQL_ENDPOINT: ${REACT_APP_GRAPHQL_ENDPOINT:-https://192.168.88.151:8113/graphql/}
-      REACT_APP_GA_TRACKING_ID: ${REACT_APP_GA_TRACKING_ID}
-      REACT_APP_SENTRY_DSN: ${REACT_APP_SENTRY_DSN}
-      REACT_APP_MAPBOX_STYLE: ${REACT_APP_MAPBOX_STYLE}
-      REACT_APP_MAPBOX_ACCESS_TOKEN: ${REACT_APP_MAPBOX_ACCESS_TOKEN}
+      GRAPHQL_CODEGEN_ENDPOINT: ${COMMUNITY_DASHBOARD_GRAPHQL_CODEGEN_ENDPOINT}
+      REACT_APP_GRAPHQL_ENDPOINT: ${COMMUNITY_DASHBOARD_GRAPHQL_ENDPOINT}
+      REACT_APP_SENTRY_DSN: ${COMMUNITY_DASHBOARD_SENTRY_DSN}
+      REACT_APP_SENTRY_TRACES_SAMPLE_RATE: ${COMMUNITY_DASHBOARD_SENTRY_TRACES_SAMPLE_RATE}
     volumes:
       - ./mapswipe-dashboard/:/code/
     ports:
       - "8211:3081"
     command: bash -c 'yarn install --frozen-lockfile && yarn start'
-
 
   mapswipe_workers_creation:
     <<: *base_mapswipe_workers

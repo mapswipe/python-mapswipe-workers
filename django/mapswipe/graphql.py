@@ -3,6 +3,7 @@ from typing import Any
 import sentry_sdk
 import strawberry
 from apps.existing_database.query import Query as ExistingDatabaseQuery
+from django.conf import settings
 from django.http import HttpRequest
 from strawberry.django.views import AsyncGraphQLView
 from strawberry.types import ExecutionResult
@@ -33,6 +34,8 @@ class Query(
 
 class Schema(strawberry.Schema):
     def _scope_with_sentry(self, execute_func, *args, **kwargs) -> ExecutionResult:
+        if not settings.SENTRY_ENABLED:
+            return execute_func(*args, **kwargs)
         operation_name = kwargs.get("operation_name")
         with sentry_sdk.configure_scope() as scope:
             scope.set_tag("kind", operation_name)
