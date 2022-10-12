@@ -1,5 +1,5 @@
 # Based on latest stable postgres.
-FROM mdillon/postgis
+FROM postgis/postgis:14-3.3
 
 COPY init_recovery.sh /usr/local/bin/
 COPY restore_command.sh .

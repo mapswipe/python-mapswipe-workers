@@ -1,6 +1,6 @@
 # This Dockerfile is for development purposes.
 # Backups are disabled.
 
-FROM mdillon/postgis
+FROM postgis/postgis:14-3.3
 
 COPY initdb.sql docker-entrypoint-initdb.d/
