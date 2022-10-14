@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 """
 
 import os
+import sys
 from pathlib import Path
 
 import environ
@@ -41,6 +42,8 @@ env = environ.Env(
     RELEASE=(str, "develop"),
     MAPSWIPE_ENVIRONMENT=(str, "dev"),  # prod
     APP_TYPE=str,
+    # Testing
+    PYTEST_XDIST_WORKER=(str, None),
 )
 
 
@@ -258,3 +261,23 @@ LOGGING = {
         },
     },
 }
+
+
+# See if we are inside a test environment (pytest)
+TESTING = (
+    any(
+        [
+            arg in sys.argv
+            for arg in [
+                "test",
+                "pytest",
+                "/usr/local/bin/pytest",
+                "py.test",
+                "/usr/local/bin/py.test",
+                "/usr/local/lib/python3.6/dist-packages/py/test.py",
+            ]
+            # Provided by pytest-xdist
+        ]
+    )
+    or env("PYTEST_XDIST_WORKER") is not None
+)
