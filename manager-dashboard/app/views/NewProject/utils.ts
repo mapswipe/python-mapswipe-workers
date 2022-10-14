@@ -23,15 +23,15 @@ import {
     tileServerFieldsSchema,
 } from '#components/TileServerInput';
 
-import { getNoMoreThanNCharacterCondition } from '#utils/common';
-
-// FIXME: these are common types
-export type ProjectType = 1 | 2 | 3 | 4;
-export type ProjectInputType = 'aoi_file' | 'link' | 'TMId';
-export const PROJECT_TYPE_BUILD_AREA = 1;
-export const PROJECT_TYPE_FOOTPRINT = 2;
-export const PROJECT_TYPE_CHANGE_DETECTION = 3;
-export const PROJECT_TYPE_COMPLETENESS = 4;
+import {
+    getNoMoreThanNCharacterCondition,
+    ProjectType,
+    ProjectInputType,
+    PROJECT_TYPE_BUILD_AREA,
+    PROJECT_TYPE_FOOTPRINT,
+    PROJECT_TYPE_CHANGE_DETECTION,
+    PROJECT_TYPE_COMPLETENESS,
+} from '#utils/common';
 
 export interface ProjectFormType {
     projectTopic: string;

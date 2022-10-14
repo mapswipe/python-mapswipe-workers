@@ -13,19 +13,12 @@ import useFirebaseDatabase from '#hooks/useFirebaseDatabase';
 import usePagination from '#hooks/usePagination';
 import PendingMessage from '#components/PendingMessage';
 import Pager from '#components/Pager';
+import {
+    ProjectType,
+    projectTypeLabelMap,
+} from '#utils/common';
 
 import styles from './styles.css';
-
-// FIXME: these are common types
-export type ProjectType = 1 | 2 | 3 | 4;
-const projectTypeLabelMap: {
-    [key in ProjectType]: string
-} = {
-    1: 'Build Area',
-    2: 'Footprint',
-    3: 'Change Detection',
-    4: 'Completeness',
-};
 
 interface Tutorial {
     name: string;
@@ -38,9 +31,7 @@ interface Props {
 }
 
 function TutorialList(props: Props) {
-    const {
-        className,
-    } = props;
+    const { className } = props;
 
     const tutorialsQuery = React.useMemo(
         () => {
