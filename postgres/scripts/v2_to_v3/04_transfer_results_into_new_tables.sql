@@ -4,7 +4,7 @@
  * - 'mapping_sessions' and
  * - 'mapping_sessions_results'
  */
-set search_path = 'replica_mini';
+set search_path = 'public';
 
 insert into mapping_sessions 
 (
@@ -16,7 +16,9 @@ select
   ,Min(start_time) as start_time
   ,Max(end_time) as end_time
   ,count(*) as items_count
-from results r 
+from (
+	select * from results -- limit 100000
+) as foo
 group by project_id, group_id, user_id
 )
 on conflict do nothing;
