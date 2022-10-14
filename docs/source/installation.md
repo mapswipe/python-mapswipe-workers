@@ -8,9 +8,10 @@ Please consult the [Configuration Reference](configuration.html) for this setup 
 2. Postgres
 3. MapSwipe Workers
 4. API
-5. Django API
-6. Manager Dashboard
-7. Lets Encrypt and NGINX as proxy
+5. Manager Dashboard
+6. Django API
+7. Community Dashboard
+8. Lets Encrypt and NGINX as proxy
 
 For this setup the main repository is required:
 
@@ -24,7 +25,7 @@ cd python-mapswipe-workers
 Download a Service Account Key File for MapSwipe Workers:
 
 1. In the Firebase console, open Settings > Service Accounts.
-2. Click Generate New Private Key, download it and store it to `mapswipe_workers/serviceAccountKey.json`
+2. Click Generate New Private Key, download it and use it to set the environment variables in .env.
 
 Configure your API Keys in Google APIs & Services
 1. Open [Google APIs & Services > Credentials](https://console.cloud.google.com/apis/credentials)

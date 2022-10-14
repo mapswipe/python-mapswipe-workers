@@ -12,7 +12,7 @@ Logs are written to directly to the terminal (stdout). The easiest way is theref
 Logs are also writing to file inside the Docker container (`~/.local/share/mapswipe_workers/mapswipe_workers.log`). The parent directory of the file is the data directory of MapSwipe Workers. This directory is mounted (as a Docker volume) locally to disk (`mapswipe-data/`). Logs can therefore be accessed as text file as well: `cat mapswipe-data/mapswipe_workers.log`
 
 ## Logs - Django web server.
-- `docker logs django`
+- `docker compose logs django`
 - or
 - `cat django-data/django.log`
 

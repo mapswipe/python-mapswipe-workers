@@ -143,7 +143,7 @@ Required environment variables are:
 
 ## NGINX
 
-`nginx/nginx.conf.template`:
+The configuration for nginx is defined in `nginx/nginx.conf.template` file.
 
 ### Domains
 - NGINX_MAIN_DOMAIN
