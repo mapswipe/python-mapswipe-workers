@@ -18,7 +18,7 @@ import {
     getNoMoreThanNCharacterCondition,
 } from '#utils/common';
 
-export type TileServerType = 'bing' | 'mapbox' | 'maxar_standard' | 'maxar_premium' | 'esri' | 'esri_beta' | 'sinergise' | 'custom';
+export type TileServerType = 'bing' | 'mapbox' | 'maxar_standard' | 'maxar_premium' | 'esri' | 'esri_beta' | 'custom';
 export interface TileServer {
     name: TileServerType;
     url?: string;
@@ -32,7 +32,6 @@ const TILE_SERVER_MAXAR_STANDARD = 'maxar_standard';
 const TILE_SERVER_MAXAR_PREMIUM = 'maxar_premium';
 const TILE_SERVER_ESRI = 'esri';
 const TILE_SERVER_ESRI_BETA = 'esri_beta';
-const TILE_SERVER_SINERGISE = 'sinergise';
 const TILE_SERVER_CUSTOM = 'custom';
 
 const tileServerNameOptions: {
@@ -45,7 +44,6 @@ const tileServerNameOptions: {
     { value: TILE_SERVER_MAXAR_PREMIUM, label: 'Maxar Premium' },
     { value: TILE_SERVER_ESRI, label: 'Esri World Imagery' },
     { value: TILE_SERVER_ESRI_BETA, label: 'Esri World Imagery (Clarity) Beta' },
-    { value: TILE_SERVER_SINERGISE, label: 'Sinergise' },
     { value: TILE_SERVER_CUSTOM, label: 'Custom' },
 ];
 
@@ -56,7 +54,6 @@ export const tileServerDefaultCredits: Record<TileServerType, string> = {
     [TILE_SERVER_ESRI]: '© 2019 ESRI',
     [TILE_SERVER_ESRI_BETA]: '© 2019 ESRI',
     [TILE_SERVER_MAPBOX]: '© 2019 MapBox',
-    [TILE_SERVER_SINERGISE]: '© 2019 Sinergise',
     // FIXME: we should be able to just remove this
     [TILE_SERVER_CUSTOM]: 'Please add imagery credits here.',
 };
@@ -94,12 +91,6 @@ export function tileServerFieldsSchema(value: TileServerInputType | undefined): 
                 getNoMoreThanNCharacterCondition(1000),
             ],
             wmtsLayerName: [requiredCondition, getNoMoreThanNCharacterCondition(1000)],
-        };
-    }
-    if (value?.name === TILE_SERVER_SINERGISE) {
-        return {
-            ...basicFields,
-            wmtsLayerName: [requiredStringCondition, getNoMoreThanNCharacterCondition(1000)],
         };
     }
     return basicFields;
@@ -174,12 +165,12 @@ function TileServerInput<Name extends string | number>(props: Props<Name>) {
                     disabled={disabled}
                 />
             )}
-            {(value?.name === TILE_SERVER_CUSTOM || value?.name === TILE_SERVER_SINERGISE) && (
+            {value?.name === TILE_SERVER_CUSTOM && (
                 <TextInput
                     name={'wmtsLayerName' as const}
                     value={value?.wmtsLayerName}
                     label="WMTS Layer Name"
-                    hint="Enter the name of the layer of the WMTS offered by Sinergise."
+                    hint="Enter the name of the layer of the WMTS"
                     error={error?.wmtsLayerName}
                     onChange={setFieldValue}
                     disabled={disabled}
