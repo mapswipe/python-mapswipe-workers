@@ -11,7 +11,7 @@ networks:
     postgres:
 
 volumes:
-    mapswipe-dashboard-static:
+    community-dashboard-static:
     manager-dashboard-static:
     django-media:
     django-static:
@@ -100,7 +100,7 @@ services:
             - django-media:/django-assets/media/
             - django-static:/django-assets/static/
             - manager-dashboard-static:/manager-dashboard-static/
-            - mapswipe-dashboard-static:/mapswipe-dashboard-static/
+            - community-dashboard-static:/community-dashboard-static/
         restart: unless-stopped
         ports:
             - '80:80'
@@ -144,7 +144,7 @@ services:
     community_dashboard:
         container_name: community_dashboard
         build:
-            context: mapswipe-dashboard/  # TODO: Rename to community-dashboard
+            context: community-dashboard/
         environment:
             REACT_APP_ENVIRONMENT: ${MAPSWIPE_ENVIRONMENT:-dev}
             GRAPHQL_CODEGEN_ENDPOINT: ${COMMUNITY_DASHBOARD_GRAPHQL_CODEGEN_ENDPOINT}
@@ -152,7 +152,7 @@ services:
             REACT_APP_SENTRY_DSN: ${COMMUNITY_DASHBOARD_SENTRY_DSN}
             REACT_APP_SENTRY_TRACES_SAMPLE_RATE: ${COMMUNITY_DASHBOARD_SENTRY_TRACES_SAMPLE_RATE}
         volumes:
-            - mapswipe-dashboard-static:/code/build/
+            - community-dashboard-static:/code/build/
         command: bash -c 'yarn build'
 
     mapswipe_workers_creation:
