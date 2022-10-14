@@ -81,7 +81,7 @@ server {
     ssl_certificate_key /etc/letsencrypt/live/$NGINX_COMMUNITY_DASHBOARD_DOMAIN/privkey.pem;
 
     location / {
-        alias /mapswipe-dashboard-static/;
+        alias /community-dashboard-static/;
         try_files $uri /index.html;
     }
 }

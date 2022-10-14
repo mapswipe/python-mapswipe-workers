@@ -1,8 +1,8 @@
 {
-    "name": "mapswipe-manager-dashboard",
-    "longName": "MapSwipe Manager Dashboard",
+    "name": "community-dashboard",
+    "longName": "MapSwipe Community Dashboard",
     "version": "1.0.0",
-    "description": "Manager Dashboard for MapSwipe",
+    "description": "Community Dashboard for the MapSwipe",
     "scripts": {
         "test": "jest",
         "test:coverage": "jest --coverage",
@@ -23,15 +23,15 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/mapswipe/manager-dashboard.git"
+        "url": "git+https://github.com/mapswipe/python-mapswipe-workers.git"
     },
     "keywords": [],
     "author": "",
     "license": "ISC",
     "bugs": {
-        "url": "https://github.com/mapswipe/manager-dashboard/issues"
+        "url": "https://github.com/mapswipe/python-mapswipe-workers/issues"
     },
-    "homepage": "https://github.com/mapswipe/manager-dashboard#readme",
+    "homepage": "https://github.com/mapswipe/python-mapswipe-workers#readme",
     "dependencies": {
         "@apollo/client": "^3.3.21",
         "@babel/runtime": "^7.11.2",
