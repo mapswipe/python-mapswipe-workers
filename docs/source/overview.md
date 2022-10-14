@@ -21,7 +21,7 @@
 - Mapswipe Client is writing to `results.projectId.groupId.userId1.` in form of `timestamp` and `resultCount` attributes when and how many results were generated.
 - The result itself will be written to `results.projectId.groupId.userId1.taskId1.result`.
 
-#### Mapswipe Client (Manager Dashboard) - Realtime Database
+#### Manager Dashboard - Realtime Database
 - Using the Manager Dashboard user can submitt new project drafts to Firebase (`project_drafts.projectDraftId.`)
 
 #### Community Dashboard - Aggregated Cached data from Database

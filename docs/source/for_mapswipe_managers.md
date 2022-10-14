@@ -5,6 +5,10 @@ Any of the Missing Maps members can request a MapSwipe mission. If you want to a
 
 To set up a new mission you can create a project draft through the [Manager Dashboard](https://dev.mapswipe.org/manager_dashboard/). Sign in with your MapSwipe account. In order to create new projects you need dedicated *project manager credentials*. Reach out to the MapSwipe community if you don't have these already. Once you're signed in, you will see a screen similar to the one below.
 
+![Manager Dashboard](_static/img/manager_dashboard_screenshot.png)
+
+You can directly go to create **New Project** page from here, or you can navigate to the **Projects** page from the navbar at the top and then click on **Add New Project** button on the top right. You'll be navigate to the New Project Page which will look like following.
+
 ![Project Import Form](_static/img/manager_dashboard_create_screenshot.png)
 
 General points of attention: 
@@ -24,8 +28,8 @@ For Footprint projects:
 
 Once you submit, the task should appear relatively quickly in the manager dashboard. You will receive a message in Slack. 
 But it's still not active and not visible to the MapSwipe app users. 
-You need to set the project status to `active` through the manager dashboard. Just click on the respective button. 
-If the new project does not appear in the app after about 1 hour, check Slack for an error message, and see Troubleshooting below.
+You need to set the project status to `active` through the manager dashboard. Just navigate to the **Projects** page and then change the Project Status on the left filter pane to show **Inactive** projects. You'll find the project you've just created here. Now, you can set the project status to be **Active** from the dropdown as shown in the screenshot below.
+If the new project does not appear in the app after about 1 hour, check Slack for an error message, and see Troubleshooting section below.
 
 ![Project Management](_static/img/manager_dashboard_manage_screenshot.png)
  
