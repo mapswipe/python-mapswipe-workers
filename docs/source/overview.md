@@ -25,7 +25,7 @@
 - Using the Manager Dashboard user can submitt new project drafts to Firebase (`project_drafts.projectDraftId.`)
 
 #### Community Dashboard - Aggregated Cached data from Database
-- Using the community Dashboard user can view aggregated stats of contribution to the mapswipe.
+- React based static server which uses Django webserver to show overall mapswipe aggregated contribution data.
 
 #### Mapswipe Workers - Realtime Database
 - projectCreation:
@@ -44,6 +44,3 @@
 #### Django - Stats webserver
 - aggregateStatData:
     - requires user contribution related to user_group and project data from Postgres Database
-
-#### Mapswipe Dashboard (Community Dashboard)
-- React based static server which uses Django webserver to show overall mapswipe contribution data.
