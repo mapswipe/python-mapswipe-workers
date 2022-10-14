@@ -4,7 +4,6 @@ from factory.django import DjangoModelFactory
 
 from .models import (
     Group,
-    Organization,
     Project,
     Result,
     Task,
@@ -21,13 +20,6 @@ class UserFactory(DjangoModelFactory):
 
     class Meta:
         model = User
-
-
-class OrganizationFactory(DjangoModelFactory):
-    organization_id = factory.Sequence(lambda n: f"dummy-organization-id-{n}")
-
-    class Meta:
-        model = Organization
 
 
 class ProjectFactory(DjangoModelFactory):

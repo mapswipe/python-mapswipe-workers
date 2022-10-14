@@ -9,7 +9,6 @@ from django.core.management.base import BaseCommand
 
 class Command(BaseCommand):
     def handle(self, **_):
-        AggregateCommand().run()
         schedule.every().day.at("00:10").do(AggregateCommand().run)
 
         while True:
