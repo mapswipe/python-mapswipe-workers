@@ -46,6 +46,9 @@ import Button from '#components/Button';
 import {
     valueSelector,
     labelSelector,
+    PROJECT_TYPE_BUILD_AREA,
+    PROJECT_TYPE_COMPLETENESS,
+    PROJECT_TYPE_CHANGE_DETECTION,
 } from '#utils/common';
 
 import {
@@ -53,9 +56,6 @@ import {
     TutorialFormType,
     PartialTutorialFormType,
     projectTypeOptions,
-    PROJECT_TYPE_BUILD_AREA,
-    PROJECT_TYPE_COMPLETENESS,
-    PROJECT_TYPE_CHANGE_DETECTION,
 } from './utils';
 import styles from './styles.css';
 

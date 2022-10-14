@@ -50,21 +50,21 @@ import AnimatedSwipeIcon from '#components/AnimatedSwipeIcon';
 import {
     valueSelector,
     labelSelector,
+    ProjectType,
+    ProjectInputType,
+    PROJECT_TYPE_BUILD_AREA,
+    PROJECT_TYPE_FOOTPRINT,
+    PROJECT_TYPE_COMPLETENESS,
+    PROJECT_TYPE_CHANGE_DETECTION,
 } from '#utils/common';
 
 import {
     projectFormSchema,
-    ProjectType,
-    ProjectInputType,
     ProjectFormType,
     PartialProjectFormType,
     projectTypeOptions,
     projectInputTypeOptions,
     filterOptions,
-    PROJECT_TYPE_BUILD_AREA,
-    PROJECT_TYPE_FOOTPRINT,
-    PROJECT_TYPE_COMPLETENESS,
-    PROJECT_TYPE_CHANGE_DETECTION,
     PROJECT_INPUT_TYPE_UPLOAD,
     PROJECT_INPUT_TYPE_LINK,
     PROJECT_INPUT_TYPE_TASKING_MANAGER_ID,

@@ -18,23 +18,16 @@ import SelectInput from '#components/SelectInput';
 import Checkbox from '#components/Checkbox';
 import PendingMessage from '#components/PendingMessage';
 import { TileServerType } from '#components/TileServerInput';
-import { labelSelector, valueSelector } from '#utils/common';
+import {
+    labelSelector,
+    valueSelector,
+    ProjectType,
+    projectTypeLabelMap,
+    ProjectInputType,
+    ProjectStatus,
+} from '#utils/common';
 
 import styles from './styles.css';
-
-// FIXME: these are common types
-type ProjectType = 1 | 2 | 3 | 4;
-type ProjectInputType = 'aoi_file' | 'link' | 'TMId';
-type ProjectStatus = 'private_active' | 'private_inactive' | 'active' | 'inactive' | 'finished' | 'archived' | 'tutorial';
-
-const projectTypeLabelMap: {
-    [key in ProjectType]: string
-} = {
-    1: 'Build Area',
-    2: 'Footprint',
-    3: 'Change Detection',
-    4: 'Completeness',
-};
 
 export interface Project {
     contributorCount: number;
