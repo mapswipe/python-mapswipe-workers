@@ -87,7 +87,7 @@ services:
   community_dashboard:
     container_name: community_dashboard
     build:
-      context: mapswipe-dashboard/
+      context: community-dashboard/
     environment:
       REACT_APP_ENVIRONMENT: ${REACT_APP_ENVIRONMENT:-development}
       GRAPHQL_CODEGEN_ENDPOINT: ${COMMUNITY_DASHBOARD_GRAPHQL_CODEGEN_ENDPOINT}
@@ -95,7 +95,7 @@ services:
       REACT_APP_SENTRY_DSN: ${COMMUNITY_DASHBOARD_SENTRY_DSN}
       REACT_APP_SENTRY_TRACES_SAMPLE_RATE: ${COMMUNITY_DASHBOARD_SENTRY_TRACES_SAMPLE_RATE}
     volumes:
-      - ./mapswipe-dashboard/:/code/
+      - ./community-dashboard/:/code/
     ports:
       - "8211:3081"
     command: bash -c 'yarn install --frozen-lockfile && yarn start'
