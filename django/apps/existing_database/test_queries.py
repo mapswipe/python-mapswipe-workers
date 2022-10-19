@@ -3,7 +3,7 @@ import datetime
 from apps.aggregated.management.commands.update_aggregated_data import (
     Command as AggregateCommand,
 )
-from apps.existing_database.factories import (  # UserGroupMembershipFactory,; UserGroupResultFactory,
+from apps.existing_database.factories import (
     GroupFactory,
     ProjectFactory,
     ResultFactory,

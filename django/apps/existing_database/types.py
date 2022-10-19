@@ -8,7 +8,8 @@ from apps.aggregated.models import AggregatedUserGroupStatData, AggregatedUserSt
 from django.contrib.gis.db.models.functions import Centroid
 from django.db import models
 from django.utils import timezone
-from mapswipe.paginations import CountList, StrawberryDjangoCountList
+
+# from mapswipe.paginations import CountList, StrawberryDjangoCountList
 from mapswipe.types import AreaSqKm, GenericJSON, TimeInSeconds
 from strawberry.types import Info
 
@@ -114,7 +115,7 @@ class MapContributionStatsType:
 class UserUserGroupType:
     user_group_id: str
     user_group_name: str
-    members_count: int
+    members_count: int  # TODO: Change this to contributors_count
 
 
 @strawberry.type
@@ -528,12 +529,12 @@ class UserGroupType:
     archived_at: strawberry.auto
     is_archived: strawberry.auto
 
-    # XXX: N+1
-    user_memberships: CountList[
-        UserGroupUserMembershipType
-    ] = StrawberryDjangoCountList(
-        pagination=True,
-    )
+    # XXX: N+1, Needs single primary key to work
+    # user_memberships: CountList[
+    #     UserGroupUserMembershipType
+    # ] = StrawberryDjangoCountList(
+    #     pagination=True,
+    # )
 
     def get_queryset(self, queryset, info, **kwargs):
         # Filter out user group without name. They aren't sync yet.

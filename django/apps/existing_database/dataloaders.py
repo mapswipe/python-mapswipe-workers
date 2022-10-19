@@ -6,7 +6,6 @@ from django.db import models
 from django.utils.functional import cached_property
 from strawberry.dataloader import DataLoader
 
-from .models import UserGroupUserMembership
 from .types import UserGroupUserStatsType, UserUserGroupType
 
 
@@ -54,37 +53,45 @@ def load_user_group_user_stats(keys: list[str]) -> list[list[UserGroupUserStatsT
 
 def load_user_usergroup_stats(keys: list[str]) -> list[list[UserUserGroupType]]:
     # Fetch user and user_group set
-    user_user_groups_qs = UserGroupUserMembership.objects.filter(
-        user_id__in=keys
-    ).values_list("user_id", "user_group_id")
-    user_user_groups_map = {
-        user_id: user_group_id for user_id, user_group_id in user_user_groups_qs
-    }
-    # Fetch user_group from above set
-    user_group_qs = (
+    user_user_groups_qs = (
         AggregatedUserGroupStatData.objects.filter(
-            user_group_id__in=user_user_groups_map.values()
+            user_id__in=keys,
+        )
+        .values_list("user_id", "user_group_id")
+        .distinct()
+    )
+    user_user_groups_map = defaultdict(list)
+    user_group_ids_set = set()
+    for user_id, user_group_id in user_user_groups_qs:
+        user_group_ids_set.add(user_group_id)
+        user_user_groups_map[user_id].append(user_group_id)
+    # Fetch user_group from above set
+    user_group_with_contribution_qs = (
+        AggregatedUserGroupStatData.objects.filter(
+            user_group_id__in=user_group_ids_set,
         )
         .order_by()
         .values("user_group_id")
-        .annotate(members_count=models.Count("user_id"))
+        .annotate(members_count=models.Count("user_id", distinct=True))
         .values_list("user_group_id", "user_group__name", "members_count")
     )
-    user_groups_map = {
-        user_group_id: {
-            "user_group_id": user_group_id,
-            "user_group_name": user_group_name,
-            "members_count": members_count,
-        }
-        for user_group_id, user_group_name, members_count in user_group_qs
-    }
-    _map = defaultdict(list)
-    for user_id, user_group_id in user_user_groups_map.items():
-        _map[user_id].append(
-            UserUserGroupType(
-                **user_groups_map[user_group_id],
-            )
+    user_group_id_data = {
+        _id: UserUserGroupType(
+            user_group_id=_id,
+            user_group_name=name,
+            members_count=count,
         )
+        for _id, name, count in user_group_with_contribution_qs
+    }
+    # Map user_group data by user_id
+    _map = {
+        user_id: [
+            user_group_id_data[user_group_id]
+            for user_group_id in user_group_ids
+            if user_group_id in user_group_id_data
+        ]
+        for user_id, user_group_ids in user_user_groups_map.items()
+    }
     return [_map.get(key, []) for key in keys]
 
 
