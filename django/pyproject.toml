@@ -21,11 +21,12 @@ strawberry-graphql = "^0.114.1"
 strawberry-graphql-django = "==0.3"
 
 [tool.poetry.dev-dependencies]
-pytest-profiling = "*"
-pytest-ordering = "*"
+django-stubs = { version = "*", allow-prereleases = true }
+ipython = "*"
 pytest-django = "*"
 pytest-icdiff = "*"
-ipython = "*"
+pytest-ordering = "*"
+pytest-profiling = "*"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

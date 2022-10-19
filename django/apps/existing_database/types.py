@@ -308,9 +308,9 @@ class UserStats:
         )["count"]
         return UserStatType(
             total_swipes=agg_data["total_swipes"] or 0,
-            total_swipe_time=agg_data["total_time_sum"] or 0,
+            total_swipe_time=TimeInSeconds(agg_data["total_time_sum"] or 0),
             total_mapping_projects=agg_data["total_project"] or 0,
-            total_area_swiped=agg_data["total_area_swiped"] or 0,
+            total_area_swiped=AreaSqKm(agg_data["total_area_swiped"] or 0),
             total_organization=agg_data["total_organization"] or 0,
             total_user_groups=user_group_count or 0,
         )
@@ -333,7 +333,7 @@ class UserStats:
         )["count"]
         return UserLatestStatsType(
             total_swipes=agg_data["total_swipes"] or 0,
-            total_swipe_time=agg_data["total_time_sum"] or 0,
+            total_swipe_time=TimeInSeconds(agg_data["total_time_sum"] or 0),
             total_user_groups=total_group_count or 0,
         )
 
@@ -423,10 +423,10 @@ class UserGroupStats:
         )
         return UserGroupStatsType(
             total_swipes=agg_data["total_swipes"] or 0,
-            total_swipe_time=agg_data["total_time_sum"] or TimeInSeconds(0),
+            total_swipe_time=TimeInSeconds(agg_data["total_time_sum"] or 0),
             total_contributors=agg_data["total_contributors"] or 0,
             total_mapping_projects=agg_data["total_project"] or 0,
-            total_area_swiped=agg_data["total_area_swiped"] or AreaSqKm(0),
+            total_area_swiped=AreaSqKm(agg_data["total_area_swiped"] or 0),
             total_organization=agg_data["total_organization"] or 0,
         )
 
@@ -441,7 +441,7 @@ class UserGroupStats:
         )
         return UserGroupLatestStatsType(
             total_swipes=agg_data["total_swipes"] or 0,
-            total_swipe_time=agg_data["total_time_sum"] or TimeInSeconds(0),
+            total_swipe_time=TimeInSeconds(agg_data["total_time_sum"] or 0),
             total_contributors=agg_data["total_contributors"] or 0,
             total_mapping_projects=agg_data["total_project"] or 0,
         )

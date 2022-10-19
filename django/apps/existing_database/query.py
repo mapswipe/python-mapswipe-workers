@@ -177,7 +177,6 @@ class FilteredStats:
                 "swipes_sum",
             )
         )
-
         project_qs_with = With(project_qs, name="project_data")
         agg_data_qs_with = With(agg_data_qs, name="aggregated_data")
         qs = (

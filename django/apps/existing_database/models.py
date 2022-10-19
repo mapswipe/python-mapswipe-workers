@@ -44,6 +44,10 @@ class UserGroupUserMembership(Model):
     user = models.ForeignKey(User, models.DO_NOTHING, related_name="+")
     is_active = models.BooleanField(null=True, blank=True)
 
+    # Django derived fields from ForeignKey
+    user_id: str
+    user_group_id: str
+
     class Meta:
         managed = False
         db_table = "user_groups_user_memberships"
@@ -102,6 +106,9 @@ class Group(Model):
     # Database uses JSON instead of JSONB (not supported by django)
     project_type_specifics = models.TextField(blank=True, null=True)
 
+    # Django derived fields from ForeignKey
+    project_id: str
+
     class Meta:
         managed = False
         db_table = "groups"
@@ -119,6 +126,9 @@ class Task(Model):
     geom = gis_models.MultiPolygonField(blank=True, null=True)
     # Database uses JSON instead of JSONB (not supported by django)
     project_type_specifics = models.TextField(blank=True, null=True)
+
+    # Django derived fields from ForeignKey
+    project_id: str
 
     class Meta:
         managed = False
@@ -145,6 +155,10 @@ class Result(Model):
     start_time = models.DateTimeField(blank=True, null=True)
     end_time = models.DateTimeField(blank=True, null=True)
     result = models.IntegerField(blank=True, null=True)
+
+    # Django derived fields from ForeignKey
+    project_id: str
+    user_id: str
 
     class Meta:
         managed = False
@@ -179,6 +193,11 @@ class UserGroupResult(Model):
     user_group = models.ForeignKey(
         UserGroup, on_delete=models.DO_NOTHING, related_name="+"
     )
+
+    # Django derived fields from ForeignKey
+    project_id: str
+    user_id: str
+    user_group_id: str
 
     class Meta:
         managed = False

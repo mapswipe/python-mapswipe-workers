@@ -198,7 +198,11 @@ def update_user_group_data(user_group_ids: Optional[List[str]] = None) -> List[s
     return new_user_group_ids
 
 
-def create_update_user_data(user_ids: Optional[List[str]] = None) -> List[str]:
+def create_update_user_data(user_ids: Optional[List[str]] = None):
+    if not user_ids:
+        # Nothing to do here.
+        return
+
     fb_db = auth.firebaseDB()
 
     user_file = io.StringIO("")
@@ -410,7 +414,11 @@ def update_user_group_full_data(user_group_ids: List[str]):
 
 def create_update_membership_data(
     membership_ids: Optional[List[str]] = None,
-) -> List[str]:
+):
+    if not membership_ids:
+        # Nothing to do here
+        return
+
     fb_db = auth.firebaseDB()
 
     membership_file = io.StringIO("")

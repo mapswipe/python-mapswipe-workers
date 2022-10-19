@@ -2,7 +2,6 @@ import datetime
 
 from apps.existing_database.factories import (
     GroupFactory,
-    OrganizationFactory,
     ProjectFactory,
     ResultFactory,
     TaskFactory,
@@ -101,15 +100,9 @@ class Command(BaseCommand):
                     user_group=user_group,
                     is_active=is_active,
                 )
-        (
-            organization1,
-            organization2,
-            organization3,
-            _,
-        ) = OrganizationFactory.create_batch(4)
-        project1 = ProjectFactory.create(organization=organization1)
-        project2 = ProjectFactory.create(organization=organization2)
-        project3 = ProjectFactory.create(organization=organization3)
+        project1 = ProjectFactory.create()
+        project2 = ProjectFactory.create()
+        project3 = ProjectFactory.create()
 
         # Group
         p1_group1, p1_group2, _ = GroupFactory.create_batch(3, project=project1)

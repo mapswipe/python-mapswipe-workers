@@ -1,5 +1,6 @@
 import csv
 import io
+from typing import List
 
 import dateutil.parser
 import psycopg2
@@ -82,14 +83,18 @@ def transfer_results_for_project(project_id, results, filter_mode: bool = False)
         # The user_id is used as a key in the postgres database for the results
         # and thus users need to be inserted before results get inserted.
         results_user_id_list = get_user_ids_from_results(results)
-        results_user_group_id_list = set(
-            [
-                user_group_id
-                for _, users in results.items()
-                for _, results in users.items()
-                for user_group_id, is_selected in results.get("userGroups", {}).items()
-                if is_selected
-            ]
+        results_user_group_id_list = list(
+            set(
+                [
+                    user_group_id
+                    for _, users in results.items()
+                    for _, results in users.items()
+                    for user_group_id, is_selected in results.get(
+                        "userGroups", {}
+                    ).items()
+                    if is_selected
+                ]
+            )
         )
         update_data.update_user_data(results_user_id_list)
         if results_user_group_id_list:
@@ -476,17 +481,17 @@ def truncate_temp_user_groups_results():
     return
 
 
-def get_user_ids_from_results(results):
+def get_user_ids_from_results(results) -> List[str]:
     """
     Get all users based on the ids provided in the results
     """
 
     user_ids = set([])
-    for groupId, users in results.items():
+    for _, users in results.items():
         for userId, results in users.items():
             user_ids.add(userId)
 
-    return user_ids
+    return list(user_ids)
 
 
 def get_projects_from_postgres():

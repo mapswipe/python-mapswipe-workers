@@ -17,7 +17,13 @@ from strawberry_django.pagination import apply as apply_pagination
 
 
 class CountBeforePaginationMonkeyPatch(StrawberryDjangoPagination):
-    def get_queryset(self, queryset: QuerySet[Any], info, pagination=UNSET, **kwargs):
+    def get_queryset(
+        self,
+        queryset: QuerySet[Any],
+        info,
+        pagination=UNSET,
+        **kwargs,
+    ) -> QuerySet:
         _current_queryset = copy.copy(queryset)
 
         @sync_to_async
@@ -27,7 +33,9 @@ class CountBeforePaginationMonkeyPatch(StrawberryDjangoPagination):
         self.count_callback = _get_count
         queryset = apply_pagination(pagination, queryset)
         return super(StrawberryDjangoPagination, self).get_queryset(
-            queryset, info, **kwargs
+            queryset,
+            info,
+            **kwargs,
         )
 
 
