@@ -1,6 +1,6 @@
 # https://github.com/OSGeo/gdal/tree/master/gdal/docker
 # Image includes python3.8, gdal-python, gdal-bin
-FROM osgeo/gdal:ubuntu-small-latest
+FROM osgeo/gdal:ubuntu-small-3.4.2
 
 # Set C.UTF-8 locale as default (Needed by the Click library)
 ENV LC_ALL=C.UTF-8
