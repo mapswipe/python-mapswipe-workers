@@ -6,7 +6,6 @@ from sys import stdin
 from apps.aggregated.models import AggregatedTracking, AggregatedUserStatData
 from django.core.management.base import BaseCommand
 from django.db import models
-from django.db.models.functions import Round
 from mapswipe.managers import BulkCreateManager
 
 DEFAULT_CHUNK_SIZE = 100000
@@ -64,17 +63,10 @@ class Command(BaseCommand):
                     total_time=int(float(row["total_time"] or 0)),
                     task_count=row["task_count"],
                     area_swiped=row["area_swiped"],
-                    swipes=0,  # Will calculate this later
+                    swipes=row["swipes"],
                 )
             )
-        self.stdout.write("Post-processing...")
-        # Re-calcuate data for swipes using project_type
-        AggregatedUserStatData.objects.exclude(project__project_type=1).update(
-            swipes=models.F("task_count")
-        )
-        AggregatedUserStatData.objects.filter(project__project_type=1).update(
-            swipes=Round(models.F("task_count") / 6),
-        )
+        self.stdout.write("Updating tracker info...")
         # Update tracker
         max_aggregated_date = AggregatedUserStatData.objects.aggregate(
             max_timestamp_date=models.Max("timestamp_date"),
