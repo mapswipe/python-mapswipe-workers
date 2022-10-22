@@ -1,0 +1,13 @@
+.icons {
+    flex-shrink: 0;
+}
+
+.children {
+    display: flex;
+    align-items: center;
+    flex-grow: 1;
+}
+
+.actions {
+    flex-shrink: 0;
+}

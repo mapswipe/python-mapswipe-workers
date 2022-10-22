@@ -2,6 +2,12 @@
   "g115" : {
     "test_build_area" : {
       "endTime" : "2020-02-03T15:39:39.332Z",
+      "userGroups" : {
+          "dummy-user-group-1": true,
+          "dummy-user-group-2": true,
+          "dummy-user-group-3": false,
+          "dummy-user-group-4": true
+      },
       "results" : {
         "18-156540-142783" : 1,
         "18-156540-142784" : 1,

@@ -43,8 +43,9 @@ class BaseTutorial(metaclass=ABCMeta):
 
         if not self.projectId or self.projectId == "":
             raise CustomError(
-                f"""Given argument resulted in invalid Firebase Realtime Database reference.
-                    Project Id is invalid: {self.projectId}"""
+                "Given argument resulted in invalid "
+                "Firebase Realtime Database reference. "
+                f"Project Id is invalid: {self.projectId}"
             )
 
         if self.projectType in [ProjectType.FOOTPRINT.value]:

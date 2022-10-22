@@ -1,0 +1,102 @@
+.new-tutorial {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    background-color: var(--color-background);
+    padding: var(--spacing-large);
+    overflow: auto;
+
+    .container {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        max-width: 70rem;
+        gap: var(--spacing-large);
+
+        .input-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--spacing-extra-large);
+
+            >* {
+                flex-basis: 0;
+                flex-grow: 1;
+                min-width: 20rem;
+            }
+        }
+    }
+
+    .error-message {
+        text-align: center;
+        color: var(--color-danger);
+    }
+
+    .actions {
+        display: flex;
+        align-items: center;
+        flex-shrink: 0;
+        justify-content: center;
+    }
+}
+
+.submission-status-modal {
+    padding: var(--spacing-large);
+    width: calc(100% - 2 * var(--spacing-large));
+    max-width: 30rem;
+    height: calc(100% - 2 * var(--spacing-large));
+    max-height: 30rem;
+    color: var(--color-text);
+
+    .body {
+        display: flex;
+        align-items: center;
+        flex-direction: column;
+        justify-content: center;
+        gap: var(--spacing-large);
+
+        .swipe-icon {
+            animation: wiggle 1s ease-in-out infinite;
+            color: var(--color-text-light);
+            font-size: 10rem;
+        }
+
+        .success-icon {
+            color: var(--color-success);
+            font-size: 10rem;
+        }
+
+        .failure-icon {
+            color: var(--color-danger);
+            font-size: 10rem;
+        }
+
+        .message {
+            font-size: var(--font-size-medium);
+        }
+
+        .post-submission-message {
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            text-align: center;
+            font-size: var(--font-size-medium);
+        }
+    }
+
+    .actions {
+        display: flex;
+        justify-content: flex-end;
+    }
+}
+
+@keyframes wiggle {
+    0% {
+        transform: rotate(0deg) translateX(0);
+    }
+    25% {
+        transform: rotateY(30deg) rotate(-10deg) translateX(-50px);
+    }
+    100% {
+        transform: rotate(0deg) translateX(0);
+    }
+}

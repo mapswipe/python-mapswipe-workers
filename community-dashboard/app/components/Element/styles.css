@@ -1,0 +1,9 @@
+.element {
+    --spacing: var(--spacing-medium);
+    display: flex;
+    gap: var(--spacing);
+
+    &.fit-content {
+        width: fit-content;
+    }
+}

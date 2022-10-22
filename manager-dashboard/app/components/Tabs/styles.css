@@ -1,0 +1,13 @@
+.tab {
+    text-align: left;
+
+    &.active {
+        color: var(--color-accent);
+    }
+}
+
+.tab-list {
+    display: flex;
+    gap: var(--spacing-large);
+    padding: var(--spacing-medium);
+}

@@ -1,0 +1,116 @@
+.user-group-item {
+    display: flex;
+    flex-direction: column;
+    border-radius: var(--radius-card-border);
+    box-shadow: var(--shadow-card);
+    background-color: var(--color-foreground);
+    padding: var(--spacing-large);
+    gap: var(--spacing-large);
+
+    .header {
+        display: flex;
+        flex-direction: column;
+
+        .heading {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-medium);
+
+            .user-group-name {
+                flex-grow: 1;
+            }
+
+            .archived-badge {
+                flex-shrink: 0;
+                border: var(--width-separator-thin) solid var(--color-separator);
+                border-radius: var(--radius-badge-border);
+                background-color: var(--color-background);
+                padding: var(--spacing-super-small) var(--spacing-medium);
+                color: var(--color-text-light);
+            }
+
+            .expand-toggle-button {
+                flex-shrink: 0;
+                font-size: var(--font-size-large);
+            }
+        }
+    }
+
+    .token {
+        color: var(--color-text-light);
+    }
+
+    .details {
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-medium);
+    }
+
+    .user-list {
+        display: table;
+        width: 100%;
+
+        .user-details-heading {
+            .task-contributions,
+            .group-contributions,
+            .project-contributions,
+            .user-name {
+                background-color: var(--color-background);
+                font-weight: var(--font-weight-bold);
+            }
+        }
+
+        .user-details-heading,
+        .user-details {
+            display: table-row;
+
+            &:hover {
+                background-color: var(--color-hover-background);
+            }
+
+            .user-name {
+                display: table-cell;
+                padding: var(--spacing-small) var(--spacing-medium);
+            }
+
+            .project-contributions {
+                display: table-cell;
+                padding: var(--spacing-small) var(--spacing-medium);
+            }
+
+            .group-contributions {
+                display: table-cell;
+                padding: var(--spacing-small) var(--spacing-medium);
+            }
+
+            .task-contributions {
+                display: table-cell;
+                padding: var(--spacing-small) var(--spacing-medium);
+            }
+        }
+    }
+
+    .action {
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    .pending-message {
+        padding: var(--spacing-small) var(--spacing-medium);
+    }
+
+    .empty-message {
+        padding: 0 var(--spacing-medium);
+        color: var(--color-text-watermark);
+    }
+}
+
+.archive-confirmation-modal {
+    padding: var(--spacing-large);
+
+    .confirmation-actions {
+        display: flex;
+        gap: var(--spacing-large);
+        justify-content: flex-end;
+    }
+}

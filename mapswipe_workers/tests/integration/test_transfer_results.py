@@ -3,7 +3,7 @@ import os
 import unittest
 
 import set_up
-import tear_down
+from base import BaseTestCase
 
 from mapswipe_workers import auth
 from mapswipe_workers.firebase_to_postgres.transfer_results import (
@@ -12,14 +12,12 @@ from mapswipe_workers.firebase_to_postgres.transfer_results import (
 )
 
 
-class TestTranserResultsProject(unittest.TestCase):
+class TestTranserResultsProject(BaseTestCase):
     def setUp(self):
+        super().setUp()
         self.project_id = set_up.create_test_project(
             "tile_map_service_grid", "build_area", results=True
         )
-
-    def tearDown(self):
-        tear_down.delete_test_data(self.project_id)
 
     def test_changes_given_project_id(self):
         """Test if results are deleted from Firebase for given project id."""
@@ -185,6 +183,40 @@ class TestTranserResultsProject(unittest.TestCase):
         # check if new results for the group 'g115' are still in Firebase
         ref = fb_db.reference(f"v2/results/{self.project_id}/g115/new_user/results")
         self.assertEqual(len(ref.get(shallow=True)), 252)
+
+    def test_results_with_user_groups(self):
+        pg_db = auth.postgresDB()
+
+        # run transfer results function
+        transfer_results()
+
+        UG_QUERY = "SELECT user_group_id FROM user_groups ORDER BY user_group_id"
+        RUG_QUERY = (
+            "SELECT user_group_id FROM results_user_groups ORDER BY user_group_id"
+        )
+        for query, expected_value in [
+            (
+                UG_QUERY,
+                [
+                    ("dummy-user-group-1",),
+                    ("dummy-user-group-2",),
+                    ("dummy-user-group-4",),  # NOTE: This is a non existing group.
+                ],
+            ),
+            (
+                RUG_QUERY,
+                [
+                    ("dummy-user-group-1",),
+                    ("dummy-user-group-2",),
+                    ("dummy-user-group-4",),  # NOTE: This is a non existing group.
+                ],
+            ),
+        ]:
+            self.assertEqual(
+                expected_value,
+                pg_db.retr_query(UG_QUERY),
+                query,
+            )
 
 
 if __name__ == "__main__":
