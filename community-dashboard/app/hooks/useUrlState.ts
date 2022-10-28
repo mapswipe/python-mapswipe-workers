@@ -5,9 +5,9 @@ import { isDefined, mapToList } from '@togglecorp/fujs';
 function useUrlState<T>(
     inTransformer: (
         params: Record<string, string>,
-    ) => T | undefined,
+    ) => T,
     outTransformer: (
-        value: T | undefined,
+        value: T,
     ) => Record<string, string | undefined | null>,
 ) {
     const history = useHistory();
@@ -19,7 +19,7 @@ function useUrlState<T>(
     });
 
     const setStateSafe = useCallback(
-        (value: T | undefined) => {
+        (value: T) => {
             setState(value);
 
             const paramsFromState = outTransformer(value);

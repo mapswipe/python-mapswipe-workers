@@ -95,16 +95,22 @@ function Dashboard(props: Props) {
     } = props;
 
     const [
-        dateRange = defaultDateRange,
+        dateRange,
         setDateRange,
     ] = useUrlState<DateRangeValue>(
-        (params) => ({
-            startDate: params.from,
-            endDate: params.to,
-        }),
+        (params) => {
+            if (!params.from || !params.to) {
+                return defaultDateRange;
+            }
+
+            return {
+                startDate: params.from,
+                endDate: params.to,
+            };
+        },
         (value) => ({
-            from: value?.startDate,
-            to: value?.endDate,
+            from: value.startDate,
+            to: value.endDate,
         }),
     );
 
@@ -127,6 +133,10 @@ function Dashboard(props: Props) {
             },
         },
     );
+
+    const setDateRangeSafe = React.useCallback((newValue: DateRangeValue | undefined) => {
+        setDateRange(newValue ?? defaultDateRange);
+    }, [setDateRange]);
 
     const pending = communityStatsLoading || filteredCommunityStatsLoading;
 
@@ -252,7 +262,7 @@ function Dashboard(props: Props) {
                     heading="Community Statsboard"
                     dateRange={dateRange}
                     calendarHeatmapHidden
-                    handleDateRangeChange={setDateRange}
+                    handleDateRangeChange={setDateRangeSafe}
                     className={styles.statsBoard}
                     // eslint-disable-next-line max-len
                     contributionTimeStats={filteredCommunityStats?.filteredStats?.contributorTimeStats}
