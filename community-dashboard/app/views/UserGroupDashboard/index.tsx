@@ -120,13 +120,19 @@ function UserGroupDashboard(props: Props) {
 
     const { userGroupId } = useParams<{ userGroupId: string | undefined }>();
     const [
-        dateRange = defaultDateRange,
+        dateRange,
         setDateRange,
     ] = useUrlState<DateRangeValue>(
-        (params) => ({
-            startDate: params.from,
-            endDate: params.to,
-        }),
+        (params) => {
+            if (!params.from || !params.to) {
+                return defaultDateRange;
+            }
+
+            return {
+                startDate: params.from,
+                endDate: params.to,
+            };
+        },
         (value) => ({
             from: value?.startDate,
             to: value?.endDate,
@@ -171,6 +177,10 @@ function UserGroupDashboard(props: Props) {
     const memberRendererParams = useCallback((_: string, item: UserGroupMember) => (
         { member: item }
     ), []);
+
+    const setDateRangeSafe = React.useCallback((newValue: DateRangeValue | undefined) => {
+        setDateRange(newValue ?? defaultDateRange);
+    }, [setDateRange]);
 
     const totalSwipe = userGroupStats?.userGroupStats.stats.totalSwipes;
     const totalSwipeLastMonth = userGroupStats?.userGroupStats.statsLatest.totalSwipes;
@@ -291,7 +301,7 @@ function UserGroupDashboard(props: Props) {
                         // eslint-disable-next-line max-len
                         projectSwipeTypeStats={filteredUserGroupStats?.userGroupStats.filteredStats.swipeByProjectType}
                         dateRange={dateRange}
-                        handleDateRangeChange={setDateRange}
+                        handleDateRangeChange={setDateRangeSafe}
                         // eslint-disable-next-line max-len
                         contributions={filteredUserGroupStats?.userGroupStats.filteredStats.contributionByGeo as MapContributionType[]}
                     />
@@ -299,7 +309,9 @@ function UserGroupDashboard(props: Props) {
                         .filteredStats.userStats.length ?? 0) > 0 && (
                         <div className={styles.members}>
                             <div className={styles.membersHeading}>
-                                {`${userGroupStats?.userGroup.name}'s Members`}
+                                <div>
+                                    Group Members
+                                </div>
                                 <CSVLink
                                     className={styles.exportLink}
                                     data={data}

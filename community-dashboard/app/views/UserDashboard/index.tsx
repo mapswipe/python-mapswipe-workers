@@ -112,10 +112,16 @@ function UserDashboard(props: Props) {
         dateRange = defaultDateRange,
         setDateRange,
     ] = useUrlState<DateRangeValue>(
-        (params) => ({
-            startDate: params.from,
-            endDate: params.to,
-        }),
+        (params) => {
+            if (!params.from || !params.to) {
+                return defaultDateRange;
+            }
+
+            return {
+                startDate: params.from,
+                endDate: params.to,
+            };
+        },
         (value) => ({
             from: value?.startDate,
             to: value?.endDate,
@@ -149,6 +155,10 @@ function UserDashboard(props: Props) {
             skip: !userId,
         },
     );
+
+    const setDateRangeSafe = React.useCallback((newValue: DateRangeValue | undefined) => {
+        setDateRange(newValue ?? defaultDateRange);
+    }, [setDateRange]);
 
     const totalSwipe = userStats?.userStats?.stats?.totalSwipes;
     const totalSwipeLastMonth = userStats?.userStats?.statsLatest?.totalSwipes;
@@ -261,7 +271,7 @@ function UserDashboard(props: Props) {
                     <StatsBoard
                         heading="User Statsboard"
                         dateRange={dateRange}
-                        handleDateRangeChange={setDateRange}
+                        handleDateRangeChange={setDateRangeSafe}
                         // eslint-disable-next-line max-len
                         contributionTimeStats={filteredUserStats?.userStats.filteredStats.swipeTimeByDate}
                         // eslint-disable-next-line max-len
@@ -276,7 +286,7 @@ function UserDashboard(props: Props) {
                     {(userStats?.user?.userInUserGroups?.length ?? 0) > 0 && (
                         <div className={styles.groups}>
                             <div className={styles.groupsHeading}>
-                                Group membership
+                                Groups
                             </div>
                             <div className={styles.groupsContainer}>
                                 {userStats?.user?.userInUserGroups?.map((group) => (
