@@ -212,9 +212,9 @@ class Migration(migrations.Migration):
                         verbose_name="ID",
                     ),
                 ),
-                ("is_active", models.BooleanField(blank=True, null=True)),
-                ("user_group_id", models.BooleanField(blank=True, null=True)),
-                ("user_id", models.BooleanField(blank=True, null=True)),
+                ("is_active", models.BooleanField(default=True)),
+                ("user_group_id", models.CharField(max_length=999)),
+                ("user_id", models.CharField(max_length=999)),
             ],
             options={
                 "db_table": "user_groups_user_memberships",

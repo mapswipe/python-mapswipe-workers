@@ -60,6 +60,8 @@ jobs:
         POSTGRES_USER: postgres
         POSTGRES_DB: postgres
         OSMCHA_API_KEY: ${{ secrets.OSMCHA_API_KEY }}
+        DJANGO_SECRET_KEY: test-django-secret-key
       run: |
         docker-compose run --rm mapswipe_workers_creation python -m unittest discover --verbose --start-directory tests/unittests/
         docker-compose run --rm mapswipe_workers_creation bash -c 'pip install pytest && pytest -ra -v --durations=10 tests/integration/'
+        docker-compose run --rm django pytest -ra -v --durations=10

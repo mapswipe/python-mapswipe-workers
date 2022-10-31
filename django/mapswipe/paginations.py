@@ -7,7 +7,6 @@ import strawberry
 from asgiref.sync import sync_to_async
 from django.conf import settings
 from django.db.models import QuerySet
-from strawberry.arguments import UNSET
 from strawberry_django import utils
 from strawberry_django.fields.field import StrawberryDjangoField
 from strawberry_django.pagination import (
@@ -18,7 +17,7 @@ from strawberry_django.pagination import (
 
 def apply_pagination(pagination, queryset):
     # strawberry_django.pagination.apply
-    if pagination is UNSET or pagination is None:
+    if pagination is strawberry.UNSET or pagination is None:
         return queryset
 
     limit = pagination.limit
@@ -35,7 +34,7 @@ class CountBeforePaginationMonkeyPatch(StrawberryDjangoPagination):
         self,
         queryset: QuerySet[Any],
         info,
-        pagination=UNSET,
+        pagination=strawberry.UNSET,
         **kwargs,
     ) -> QuerySet:
         _current_queryset = copy.copy(queryset)
@@ -107,7 +106,7 @@ class StrawberryDjangoCountList(CountList[DjangoModelTypeVar], StrawberryDjangoF
             )
         )
 
-    def get_queryset(self, queryset, info, order=UNSET, **kwargs):
+    def get_queryset(self, queryset, info, order=strawberry.UNSET, **kwargs):
         type_ = self._base_type or self.child.type
         type_ = utils.unwrap_type(type_)
         get_queryset = getattr(type_, "get_queryset", None)

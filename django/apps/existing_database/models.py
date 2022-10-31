@@ -42,7 +42,7 @@ class UserGroup(Model):
 class UserGroupUserMembership(Model):
     user_group = models.ForeignKey(UserGroup, models.DO_NOTHING, related_name="+")
     user = models.ForeignKey(User, models.DO_NOTHING, related_name="+")
-    is_active = models.BooleanField(null=True, blank=True)
+    is_active = models.BooleanField(default=True)
 
     # Django derived fields from ForeignKey
     user_id: str

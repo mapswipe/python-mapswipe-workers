@@ -69,7 +69,7 @@ class UserGroupLatestStatsType:
 @strawberry.type
 class UserGroupUserStatsType:
     user_id: str
-    user_name: str
+    username: str
     total_mapping_projects: int
     total_swipes: int
     total_swipe_time: TimeInSeconds
@@ -107,13 +107,6 @@ class OrganizationSwipeStatsType:
 class MapContributionStatsType:
     geojson: GenericJSON
     total_contribution: int
-
-
-@strawberry.type
-class UserUserGroupType:
-    user_group_id: str
-    user_group_name: str
-    members_count: int  # TODO: Change this to contributors_count
 
 
 @strawberry.type
@@ -382,7 +375,7 @@ class UserGroupFilteredStats(UserUserGroupBaseFilterStatsQuery):
         return [
             UserGroupUserStatsType(
                 user_id=user_id,
-                user_name=username,
+                username=username,
                 total_swipes=total_swipes,
                 total_swipe_time=total_time_sum,
                 total_mapping_projects=total_project,
@@ -475,24 +468,28 @@ class UserType:
         root: User,
         pagination: strawberry_django.pagination.OffsetPaginationInput,
     ) -> CountList[UserUserGroupMembershipType]:
-        qs = UserGroup.objects.filter(
-            user_group_id__in=UserGroupUserMembership.objects.filter(
-                user_id=root.user_id
-            ).values("user_group_id")
-        ).annotate(
-            members_count=models.functions.Coalesce(
-                models.Subquery(
-                    UserGroupUserMembership.objects.filter(
-                        user_group_id=models.OuterRef("user_group_id"),
-                    )
-                    .order_by()
-                    .values("user_group_id")
-                    .annotate(c=models.Count("user_id"))
-                    .values("c")[:1],
-                    output_field=models.IntegerField(),
+        qs = (
+            UserGroup.objects.filter(
+                user_group_id__in=UserGroupUserMembership.objects.filter(
+                    user_id=root.user_id
+                ).values("user_group_id")
+            )
+            .annotate(
+                members_count=models.functions.Coalesce(
+                    models.Subquery(
+                        UserGroupUserMembership.objects.filter(
+                            user_group_id=models.OuterRef("user_group_id"),
+                        )
+                        .order_by()
+                        .values("user_group_id")
+                        .annotate(c=models.Count("user_id"))
+                        .values("c")[:1],
+                        output_field=models.IntegerField(),
+                    ),
+                    0,
                 ),
-                0,
-            ),
+            )
+            .order_by("user_group_id")
         )
         paginated_qs = apply_pagination(pagination, qs)
         return CountList[UserUserGroupMembershipType](
@@ -531,7 +528,7 @@ class ProjectType:
 @strawberry.type
 class UserGroupUserMembershipType:
     user_id: str
-    user_name: str
+    username: str
     is_active: bool
     # Stats
     total_mapping_projects: int
@@ -577,7 +574,7 @@ class UserGroupType:
         qs = (
             UserGroupUserMembership.objects.filter(user_group_id=root.user_group_id)
             .annotate(
-                user_name=models.F("user__username"),
+                username=models.F("user__username"),
                 # Stats Data
                 total_mapping_projects=_subquery_generator(
                     models.Count("project", distinct=True)
@@ -585,7 +582,7 @@ class UserGroupType:
                 total_swipes=_subquery_generator(models.Sum("task_count")),
                 total_swipe_time=_subquery_generator(models.Sum("total_time")),
             )
-            .order_by("user_group_id")
+            .order_by("user_id")
         )
         paginated_qs = apply_pagination(pagination, qs)
         return CountList[UserGroupUserMembershipType](
@@ -599,7 +596,7 @@ class UserGroupType:
                         "user_id",
                         "is_active",
                         # Annotate fields
-                        "user_name",
+                        "username",
                         "total_mapping_projects",
                         "total_swipes",
                         "total_swipe_time",
