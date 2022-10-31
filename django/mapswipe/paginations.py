@@ -5,6 +5,7 @@ from typing import Any, Generic, TypeVar
 
 import strawberry
 from asgiref.sync import sync_to_async
+from django.conf import settings
 from django.db.models import QuerySet
 from strawberry.arguments import UNSET
 from strawberry_django import utils
@@ -13,7 +14,20 @@ from strawberry_django.pagination import (
     OffsetPaginationInput,
     StrawberryDjangoPagination,
 )
-from strawberry_django.pagination import apply as apply_pagination
+
+
+def apply_pagination(pagination, queryset):
+    # strawberry_django.pagination.apply
+    if pagination is UNSET or pagination is None:
+        return queryset
+
+    limit = pagination.limit
+    if limit == -1:
+        limit = settings.DEFAULT_PAGINATION_MAX
+
+    start = pagination.offset
+    stop = start + limit
+    return queryset[start:stop]
 
 
 class CountBeforePaginationMonkeyPatch(StrawberryDjangoPagination):
@@ -53,12 +67,10 @@ class CountList(Generic[DjangoModelTypeVar]):
 
     @staticmethod
     async def resolve_items(root):
-        @sync_to_async
-        def _get_list():
-            return list(root.node["queryset"])
-
-        items = await _get_list()
-        return items
+        qs = root.node["queryset"]
+        if type(qs) in [list, tuple]:
+            return qs
+        return [d async for d in qs]
 
     count: int = strawberry.field(resolver=resolve_count)
     items: list[DjangoModelTypeVar] = strawberry.field(resolver=resolve_items)
