@@ -471,7 +471,8 @@ class UserType:
         qs = (
             UserGroup.objects.filter(
                 user_group_id__in=UserGroupUserMembership.objects.filter(
-                    user_id=root.user_id
+                    user_id=root.user_id,
+                    is_active=True,
                 ).values("user_group_id")
             )
             .annotate(
@@ -496,9 +497,7 @@ class UserType:
             node=dict(
                 count_callback=lambda: qs.acount(),
                 queryset=[
-                    UserUserGroupMembershipType(
-                        **data,
-                    )
+                    UserUserGroupMembershipType(**data)
                     async for data in paginated_qs.values(
                         "user_group_id",
                         "members_count",
@@ -589,9 +588,7 @@ class UserGroupType:
             node=dict(
                 count_callback=lambda: qs.acount(),
                 queryset=[
-                    UserGroupUserMembershipType(
-                        **data,
-                    )
+                    UserGroupUserMembershipType(**data)
                     async for data in paginated_qs.values(
                         "user_id",
                         "is_active",
