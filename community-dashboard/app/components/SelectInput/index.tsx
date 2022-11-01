@@ -14,7 +14,7 @@ export type SelectInputProps<
     // eslint-disable-next-line @typescript-eslint/ban-types
     O extends object,
     P extends Def,
-> = SearchSelectInputProps<T, K, O, P, 'onSearchValueChange' | 'searchOptions' | 'onShowDropdownChange' | 'totalOptionsCount'>;
+> = SearchSelectInputProps<T, K, O, P, 'onSearchValueChange' | 'searchOptions' | 'onShowDropdownChange' | 'totalOptionsCount' | 'optionRenderer' | 'optionRendererParams'>;
 
 // eslint-disable-next-line @typescript-eslint/ban-types
 function SelectInput<T extends OptionKey, K extends string, O extends object, P extends Def>(

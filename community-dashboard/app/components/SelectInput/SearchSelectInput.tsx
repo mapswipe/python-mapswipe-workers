@@ -58,7 +58,7 @@ export type SearchSelectInputProps<
         optionRendererParams?: (optionKey: OptionKey, option: O) => P;
     }, OMISSION> & (
         SelectInputContainerProps<T, K, O, P,
-            'name'
+            | 'name'
             | 'nonClearable'
             | 'onClear'
             | 'onOptionClick'
@@ -76,6 +76,8 @@ export type SearchSelectInputProps<
             | 'focusedKey'
             | 'onFocusedKeyChange'
             | 'hasValue'
+            | 'optionRenderer'
+            | 'optionRendererParams'
         >
     ) & (
         { nonClearable: true; onChange: (newValue: T, name: K) => void }
