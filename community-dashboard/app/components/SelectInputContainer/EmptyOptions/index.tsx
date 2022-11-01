@@ -7,6 +7,8 @@ interface DefaultEmptyComponentProps {
     filtered?: boolean;
     optionsCount: number;
     totalOptionsCount: number | undefined;
+    emptyMessage?: React.ReactNode;
+    emptyFilteredMessage?: React.ReactNode;
 }
 
 function EmptyOptions(props: DefaultEmptyComponentProps) {
@@ -15,6 +17,8 @@ function EmptyOptions(props: DefaultEmptyComponentProps) {
         pending = false,
         optionsCount,
         totalOptionsCount = 0,
+        emptyMessage = 'No options available',
+        emptyFilteredMessage = 'No matching options available',
     } = props;
 
     if (pending) {
@@ -30,13 +34,13 @@ function EmptyOptions(props: DefaultEmptyComponentProps) {
         if (filtered) {
             return (
                 <div className={styles.empty}>
-                    No matching options available.
+                    {emptyFilteredMessage}
                 </div>
             );
         }
         return (
             <div className={styles.empty}>
-                No options available.
+                {emptyMessage}
             </div>
         );
     }

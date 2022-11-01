@@ -2,7 +2,7 @@
     display: flex;
     flex-direction: column;
     flex-grow: 1;
-    gap: var(--spacing-large);
+    gap: var(--spacing-extra-large);
 
     .heading-container {
         display: flex;
@@ -23,7 +23,7 @@
         display: flex;
         flex-direction: column;
         flex-grow: 1;
-        gap: var(--spacing-large);
+        gap: var(--spacing-extra-large);
 
         .time-spent-chart-container {
             position: relative;
@@ -49,14 +49,14 @@
         .stats-card-container {
             display: flex;
             flex-wrap: wrap;
-            gap: var(--spacing-large);
+            gap: var(--spacing-medium);
 
             >* {
                 flex-basis: 0;
                 flex-grow: 1;
-                min-width: 10rem;
+                min-width: 12rem;
 
-                @media (max-width: 50rem) {
+                @media (max-width: 48rem) {
                     min-width: 100%;
                 }
             }
@@ -65,14 +65,14 @@
         .overall-stats-container {
             display: flex;
             flex-wrap: wrap;
-            gap: var(--spacing-large);
+            gap: var(--spacing-medium);
 
             >* {
                 flex-basis: 0;
                 flex-grow: 1;
                 min-width: 20rem;
 
-                @media (max-width: 50rem) {
+                @media (max-width: 48rem) {
                     min-width: 100%;
                 }
             }
@@ -81,14 +81,14 @@
         .other-stats-container {
             display: flex;
             flex-wrap: wrap;
-            gap: var(--spacing-large);
+            gap: var(--spacing-medium);
 
             >* {
                 flex-basis: 0;
                 flex-grow: 1;
                 min-width: 20rem;
 
-                @media (max-width: 50rem) {
+                @media (max-width: 56rem) {
                     min-width: 100%;
                 }
             }
@@ -99,6 +99,7 @@
 
                 :global {
                     .recharts-legend-wrapper {
+                        width: 30%!important;
                         max-width: 12rem;
                     }
 
@@ -133,5 +134,16 @@
         display: flex;
         gap: var(--spacing-small);
         font-family: var(--font-family-sans-serif);
+    }
+
+    .info-label {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--spacing-small);
+        line-height: 1;
+
+        small {
+            color: var(--color-text-watermark);
+        }
     }
 }

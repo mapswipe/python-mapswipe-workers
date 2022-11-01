@@ -6,6 +6,7 @@ import { useParams } from 'react-router-dom';
 import { CSVLink } from 'react-csv';
 
 import useUrlState from '#hooks/useUrlState';
+
 import { MapContributionType } from '#components/ContributionHeatMap';
 import Footer from '#components/Footer';
 import Header from '#components/Header';
@@ -15,6 +16,9 @@ import MemberItem from '#components/MemberItem';
 import NumberOutput from '#components/NumberOutput';
 import PendingMessage from '#components/PendingMessage';
 import TextOutput from '#components/TextOutput';
+import { useButtonFeatures } from '#components/Button';
+import Pager from '#components/Pager';
+
 import {
     UserGroupStatsQuery,
     UserGroupStatsQueryVariables,
@@ -28,15 +32,27 @@ import dashboardHeaderSvg from '#resources/img/dashboard.svg';
 import StatsBoard from '#views/StatsBoard';
 import { getThisYear } from '#components/DateRangeInput/predefinedDateRange';
 import { formatTimeDuration } from '#utils/temporal';
+import { defaultPagePerItemOptions } from '#utils/common';
 
 import styles from './styles.css';
 
 const USER_GROUP_STATS = gql`
-    query UserGroupStats($pk: ID!) {
+    query UserGroupStats($pk: ID!, $limit: Int!, $offset: Int!) {
         userGroup(pk: $pk) {
             userGroupId
             name
             description
+            userMemberships(pagination: { limit: $limit, offset: $offset }) {
+                count
+                items {
+                    userId
+                    username
+                    isActive
+                    totalMappingProjects
+                    totalSwipeTime
+                    totalSwipes
+                }
+            }
         }
         userGroupStats(userGroupId: $pk) {
             stats {
@@ -61,7 +77,7 @@ const FILTERED_USER_GROUP_STATS = gql`
                     totalMappingProjects
                     totalSwipeTime
                     totalSwipes
-                    userName
+                    username
                     userId
                 }
                 contributionByGeo {
@@ -95,10 +111,10 @@ const FILTERED_USER_GROUP_STATS = gql`
     }
 `;
 
-type UserGroupMember = NonNullable<NonNullable<NonNullable<FilteredUserGroupStatsQuery['userGroupStats']>['filteredStats']>['userStats']>[number];
+type UserGroupMember = NonNullable<NonNullable<NonNullable<UserGroupStatsQuery['userGroup']>['userMemberships']>['items']>[number];
 
 function memberKeySelector(member: UserGroupMember) {
-    return member.userName;
+    return member.username;
 }
 
 interface DateRangeValue {
@@ -117,6 +133,9 @@ interface Props {
 
 function UserGroupDashboard(props: Props) {
     const { className } = props;
+    const buttonProps = useButtonFeatures({
+        variant: 'primary',
+    });
 
     const { userGroupId } = useParams<{ userGroupId: string | undefined }>();
     const [
@@ -139,6 +158,9 @@ function UserGroupDashboard(props: Props) {
         }),
     );
 
+    const [activePage, setActivePage] = React.useState(1);
+    const [pagePerItem, setPagePerItem] = React.useState(10);
+
     const {
         data: userGroupStats,
         loading: userGroupStatsLoading,
@@ -147,6 +169,8 @@ function UserGroupDashboard(props: Props) {
         {
             variables: userGroupId ? {
                 pk: userGroupId,
+                limit: pagePerItem,
+                offset: (activePage - 1) * pagePerItem,
             } : undefined,
             skip: !userGroupId,
         },
@@ -167,12 +191,20 @@ function UserGroupDashboard(props: Props) {
         },
     );
 
+    const memberList = userGroupStats?.userGroup?.userMemberships?.items;
+    const totalMembers = userGroupStats?.userGroup?.userMemberships?.count;
+
     const data = useMemo(() => ([
         ['User', 'Total swipes', 'Mission contributed', 'Time spent(mins)'],
-        ...(filteredUserGroupStats?.userGroupStats.filteredStats.userStats.map((user) => (
-            [user.userName, user.totalSwipes, user.totalMappingProjects, user.totalSwipeTime]
+        ...(memberList?.map((user) => (
+            [
+                user.username,
+                user.totalSwipes,
+                user.totalMappingProjects,
+                user.totalSwipeTime,
+            ]
         )) ?? []),
-    ]), [filteredUserGroupStats?.userGroupStats.filteredStats.userStats]);
+    ]), [memberList]);
 
     const memberRendererParams = useCallback((_: string, item: UserGroupMember) => (
         { member: item }
@@ -309,39 +341,48 @@ function UserGroupDashboard(props: Props) {
                         .filteredStats.userStats.length ?? 0) > 0 && (
                         <div className={styles.members}>
                             <div className={styles.membersHeading}>
-                                <div>
+                                <div className={styles.membersTitle}>
                                     Group Members
                                 </div>
                                 <CSVLink
-                                    className={styles.exportLink}
                                     data={data}
+                                    {...buttonProps}
                                 >
                                     Export
                                 </CSVLink>
                             </div>
                             <div className={styles.membersContainer}>
                                 <div className={styles.memberListHeading}>
-                                    <div className={styles.heading}>
+                                    <div className={styles.tableHeading}>
                                         User
                                     </div>
-                                    <div className={styles.heading}>
+                                    <div className={styles.tableHeading}>
                                         Total Swipes
                                     </div>
-                                    <div className={styles.heading}>
+                                    <div className={styles.tableHeading}>
                                         Mission contributed
                                     </div>
-                                    <div className={styles.heading}>
+                                    <div className={styles.tableHeading}>
                                         Time Spent
                                     </div>
                                 </div>
                                 <List
-                                    data={filteredUserGroupStats?.userGroupStats
-                                        .filteredStats.userStats}
+                                    data={memberList}
                                     keySelector={memberKeySelector}
                                     renderer={MemberItem}
                                     rendererParams={memberRendererParams}
                                 />
                             </div>
+                            {isDefined(totalMembers) && totalMembers > 0 && (
+                                <Pager
+                                    pagePerItem={pagePerItem}
+                                    onPagePerItemChange={setPagePerItem}
+                                    activePage={activePage}
+                                    onActivePageChange={setActivePage}
+                                    totalItems={totalMembers}
+                                    pagePerItemOptions={defaultPagePerItemOptions}
+                                />
+                            )}
                         </div>
                     )}
                 </div>

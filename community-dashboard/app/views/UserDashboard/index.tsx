@@ -12,6 +12,8 @@ import InformationCard from '#components/InformationCard';
 import NumberOutput from '#components/NumberOutput';
 import PendingMessage from '#components/PendingMessage';
 import TextOutput from '#components/TextOutput';
+import Heading from '#components/Heading';
+import Pager from '#components/Pager';
 import {
     UserStatsQuery,
     UserStatsQueryVariables,
@@ -25,18 +27,22 @@ import dashboardHeaderSvg from '#resources/img/dashboard.svg';
 import StatsBoard from '#views/StatsBoard';
 import { getThisYear } from '#components/DateRangeInput/predefinedDateRange';
 import { formatTimeDuration } from '#utils/temporal';
+import { defaultPagePerItemOptions } from '#utils/common';
 
 import styles from './styles.css';
 
 const USER_STATS = gql`
-    query UserStats($pk: ID!) {
+    query UserStats($pk: ID!, $limit: Int!, $offset: Int!) {
         user(pk: $pk) {
             userId
             username
-            userInUserGroups {
-                membersCount
-                userGroupName
-                userGroupId
+            userInUserGroups(pagination: {limit: $limit, offset: $offset}) {
+                count
+                items {
+                    userGroupId
+                    userGroupName
+                    membersCount
+                }
             }
         }
         userStats(userId: $pk) {
@@ -128,6 +134,9 @@ function UserDashboard(props: Props) {
         }),
     );
 
+    const [activePage, setActivePage] = React.useState(1);
+    const [pagePerItem, setPagePerItem] = React.useState(10);
+
     const {
         data: userStats,
         loading: userStatsLoading,
@@ -136,6 +145,8 @@ function UserDashboard(props: Props) {
         {
             variables: userId ? {
                 pk: userId,
+                limit: pagePerItem,
+                offset: (activePage - 1) * pagePerItem,
             } : undefined,
             skip: !userId,
         },
@@ -168,6 +179,8 @@ function UserDashboard(props: Props) {
 
     const totalUserGroup = userStats?.userStats?.stats?.totalUserGroups;
     const totalUserGroupLastMonth = userStats?.userStats?.statsLatest?.totalUserGroups;
+
+    const userGroupsLength = userStats?.user?.userInUserGroups?.items?.length ?? 0;
 
     return (
         <div className={_cs(className, styles.userDashboard)}>
@@ -283,13 +296,13 @@ function UserDashboard(props: Props) {
                         // eslint-disable-next-line max-len
                         contributions={filteredUserStats?.userStats.filteredStats.contributionByGeo as MapContributionType[] | undefined}
                     />
-                    {(userStats?.user?.userInUserGroups?.length ?? 0) > 0 && (
+                    {(userStats?.user?.userInUserGroups?.items?.length ?? 0) > 0 && (
                         <div className={styles.groups}>
-                            <div className={styles.groupsHeading}>
-                                Groups
-                            </div>
+                            <Heading size="extraLarge">
+                                Current Groups
+                            </Heading>
                             <div className={styles.groupsContainer}>
-                                {userStats?.user?.userInUserGroups?.map((group) => (
+                                {userStats?.user?.userInUserGroups?.items?.map((group) => (
                                     <InformationCard
                                         key={group.userGroupId}
                                         className={styles.group}
@@ -318,15 +331,21 @@ function UserDashboard(props: Props) {
                                     />
                                 ))}
                                 {Array.from(
-                                    new Array(
-                                        (3 - (
-                                            (userStats?.user?.userInUserGroups?.length ?? 0) % 3)
-                                        ) % 3,
-                                    ).keys(),
-                                ).map((key) => (
-                                    <div key={key} className={styles.group} />
-                                ))}
+                                    new Array((3 - ((userGroupsLength) % 3)) % 3).keys(),
+                                ).map(
+                                    (key) => <div key={key} className={styles.group} />,
+                                )}
                             </div>
+                            {userGroupsLength > 0 && (
+                                <Pager
+                                    pagePerItem={pagePerItem}
+                                    onPagePerItemChange={setPagePerItem}
+                                    activePage={activePage}
+                                    onActivePageChange={setActivePage}
+                                    totalItems={userGroupsLength}
+                                    pagePerItemOptions={defaultPagePerItemOptions}
+                                />
+                            )}
                         </div>
                     )}
                 </div>

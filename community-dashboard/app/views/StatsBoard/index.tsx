@@ -419,7 +419,7 @@ function StatsBoard(props: Props) {
         <div className={_cs(className, styles.statsBoard)}>
             <div className={styles.headingContainer}>
                 {heading && (
-                    <Heading size="large">
+                    <Heading size="extraLarge">
                         {heading}
                     </Heading>
                 )}
@@ -574,7 +574,16 @@ function StatsBoard(props: Props) {
                                 invalidText={0}
                             />
                         )}
-                        label="Area Reviewed (in sq km)"
+                        label={(
+                            <div className={styles.infoLabel}>
+                                <div>
+                                    Area Reviewed
+                                </div>
+                                <small>
+                                    (in sq. km.)
+                                </small>
+                            </div>
+                        )}
                         subHeading="Build Area"
                         variant="stat"
                     />
@@ -588,7 +597,16 @@ function StatsBoard(props: Props) {
                                 invalidText={0}
                             />
                         )}
-                        label="Features Checked (# of swipes)"
+                        label={(
+                            <div className={styles.infoLabel}>
+                                <div>
+                                    Features Checked
+                                </div>
+                                <small>
+                                    (# of swipes)
+                                </small>
+                            </div>
+                        )}
                         subHeading="Footprint"
                         variant="stat"
                     />
@@ -602,7 +620,16 @@ function StatsBoard(props: Props) {
                                 invalidText={0}
                             />
                         )}
-                        label="Scene Comparision (# of swipes)"
+                        label={(
+                            <div className={styles.infoLabel}>
+                                <div>
+                                    Scene Comparision
+                                </div>
+                                <small>
+                                    (# of swipes)
+                                </small>
+                            </div>
+                        )}
                         subHeading="Change Detection"
                         variant="stat"
                     />
@@ -677,7 +704,9 @@ function StatsBoard(props: Props) {
                     >
                         <ResponsiveContainer>
                             <PieChart>
-                                <Tooltip formatter={organizationTotalSwipeFormatter} />
+                                <Tooltip
+                                    formatter={organizationTotalSwipeFormatter}
+                                />
                                 <Legend
                                     align="right"
                                     layout="vertical"

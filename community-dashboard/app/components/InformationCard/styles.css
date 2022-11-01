@@ -64,6 +64,7 @@
 
             .icon {
                 flex-grow: 1;
+                height: var(--icon-height);
             }
 
             .sub-heading {
@@ -72,11 +73,17 @@
                 font-size: var(--font-size-small);
             }
         }
+
+        .label {
+            color: var(--color-primary);
+            font-size: var(--font-size-large);
+            font-weight: var(--font-weight-medium);
+        }
     }
 
     .value-container {
         color: var(--color-primary);
-        font-size: var(--font-size-extra-large);
+        font-size: var(--font-size-super-large);
         font-weight: var(--font-weight-bold);
     }
 

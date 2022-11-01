@@ -1,0 +1,27 @@
+.pager {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-medium);
+
+    .items-per-page {
+        width: 10rem;
+    }
+
+    .page-list {
+        display: flex;
+        gap: var(--spacing-extra-small);
+        align-items: baseline;
+
+        .page {
+            padding: var(--spacing-small) var(--spacing-medium);
+
+            &.active {
+                background-color: var(--color-background-accent-hint);
+            }
+        }
+
+        .ellipsis {
+            padding: var(--spacing-medium);
+        }
+    }
+}

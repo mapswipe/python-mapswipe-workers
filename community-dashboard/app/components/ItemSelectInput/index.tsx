@@ -145,6 +145,7 @@ function ItemSelectInput<Name extends string>(props: ItemSelectInputProps<Name>)
     const {
         previousData: previousUserData,
         data: userData = previousUserData,
+        error,
         loading: userDataLoading,
     } = useQuery<UserOptionsQuery, UserOptionsQueryVariables>(
         USERS,

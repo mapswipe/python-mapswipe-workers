@@ -3,6 +3,7 @@
         display: flex;
         align-items: center;
         flex-direction: column;
+        flex-shrink: 0;
         justify-content: flex-end;
         background-position: top center;
         background-size: cover;
@@ -41,16 +42,16 @@
                     flex-basis: 0;
                     flex-grow: 1;
                     padding: var(--spacing-large);
-                    min-width: 20rem;
+                    min-width: 16rem;
 
-                    @media (max-width: 40rem) {
+                    @media (max-width: 56rem) {
                         min-width: 100%;
                     }
                 }
 
                 .image {
-                    object-fit: contain;
                     height: var(--icon-height);
+                    object-fit: contain;
                 }
 
                 .value {
@@ -79,19 +80,15 @@
             flex-direction: column;
             gap: var(--spacing-medium);
 
-            .groups-heading {
-                font-size: var(--font-size-large);
-                font-weight: var(--font-weight-bold);
-            }
-
             .groups-container {
                 display: flex;
                 flex-wrap: wrap;
                 gap: var(--spacing-medium);
 
                 .group {
-                    flex-basis: calc(100% / 3 - var(--spacing-medium));
+                    flex-basis: calc(100% / 3 - 2 * var(--spacing-medium));
                     flex-grow: 1;
+                    min-width: 18rem;
 
                     .link {
                         color: var(--color-primary);
