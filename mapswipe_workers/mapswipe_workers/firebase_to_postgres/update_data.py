@@ -256,12 +256,10 @@ def update_user_group_full_data(user_group_ids: List[str]):
         if ug is None:  # userGroup doesn't exists in FB
             continue
         # New/Updated user group
-        created_at = convert_firebase_datetime_to_database_format(ug.get("created_at"))
-        archived_at = convert_firebase_datetime_to_database_format(
-            ug.get("archived_at")
-        )
-        archived_by_id = ug.get("archived_by", None)
-        created_by_id = ug.get("created_by", None)
+        created_at = convert_timestamp_to_database_format(ug.get("createdAt"))
+        archived_at = convert_timestamp_to_database_format(ug.get("archivedAt"))
+        archived_by_id = ug.get("archivedBy", None)
+        created_by_id = ug.get("createdBy", None)
 
         is_archived = archived_by_id is not None
 

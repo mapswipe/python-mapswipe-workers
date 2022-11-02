@@ -255,11 +255,8 @@ def results_to_file(results, projectId):
             start_time = dateutil.parser.parse(start_time)
             end_time = dateutil.parser.parse(end_time)
             timestamp = end_time
-            results_added = False
 
             if type(result_results) is dict:
-                if result_results:
-                    results_added = True
                 for taskId, result in result_results.items():
                     w.writerow(
                         [
@@ -279,8 +276,6 @@ def results_to_file(results, projectId):
                 # if key is a integer firebase will return a list
                 # if first key (list index) is 5
                 # list indicies 0-4 will have value None
-                if result_results:
-                    results_added = True
                 for taskId, result in enumerate(result_results):
                     if result is None:
                         continue
@@ -300,7 +295,7 @@ def results_to_file(results, projectId):
             else:
                 raise TypeError
 
-            if results_added:
+            if type(result_results) in [dict, list] and result_results:
                 user_group_results_csv.writerows(
                     [
                         [
