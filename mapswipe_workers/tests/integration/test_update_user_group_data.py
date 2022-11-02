@@ -26,7 +26,7 @@ class TestUpdateProjectData(BaseTestCase):
                     "user-3": True,
                 },
                 "userGroupMembershipLogs": {
-                    "user_id": "user-1",
+                    "userId": "user-1",
                     "action": "join",
                     "timestamp": 1663039591857,
                 },
