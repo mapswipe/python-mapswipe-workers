@@ -6,12 +6,20 @@
 
     .heading-container {
         display: flex;
-        align-items: center;
+        align-items: baseline;
         flex-grow: 1;
+        flex-wrap: wrap;
         justify-content: space-between;
+        gap: var(--spacing-large);
 
         .hint {
             text-align: right;
+        }
+
+        @media (max-width: 42rem) {
+            >* {
+                flex-basis: 100%;
+            }
         }
     }
 
@@ -102,6 +110,10 @@
                 display: flex;
                 height: 20rem;
 
+                @media (max-width: 700px) {
+                    height: 30rem;
+                }
+
                 .empty {
                     display: flex;
                     align-items: center;
@@ -122,8 +134,10 @@
 
                 :global {
                     .recharts-legend-wrapper {
-                        width: 30%!important;
-                        max-width: 12rem;
+                        @media (min-width: 700px) {
+                            right: 0;
+                            max-width: 12rem;
+                        }
                     }
 
                     .recharts-default-legend {
@@ -133,6 +147,10 @@
                         flex-wrap: wrap;
                         justify-content: center;
                         gap: var(--spacing-medium);
+
+                        @media (max-width: 700px) {
+                            flex-direction: row;
+                        }
 
                         .recharts-legend-item {
                             display: flex!important;

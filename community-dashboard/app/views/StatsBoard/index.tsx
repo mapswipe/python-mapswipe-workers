@@ -31,6 +31,7 @@ import {
 } from 'react-icons/ai';
 // import { formatDuration, intervalToDuration } from 'date-fns';
 
+import useDocumentSize from '#hooks/useDocumentSize';
 import ContributionHeatmap, { MapContributionType } from '#components/ContributionHeatMap';
 import CalendarHeatMapContainer from '#components/CalendarHeatMapContainer';
 import NumberOutput from '#components/NumberOutput';
@@ -58,6 +59,8 @@ import {
     getTimestamps,
 } from '#utils/temporal';
 import styles from './styles.css';
+
+const CHART_BREAKPOINT = 700;
 
 export type ActualContributorTimeStatType = ContributorTimeStatType & { totalSwipeTime: number };
 const UNKNOWN = '-1';
@@ -125,31 +128,31 @@ interface Day {
 const days: Day[] = [
     {
         key: '0',
-        title: 'Sunday',
+        title: 'Sun',
     },
     {
         key: '1',
-        title: 'Monday',
+        title: 'Mon',
     },
     {
         key: '2',
-        title: 'Tuesday',
+        title: 'Tue',
     },
     {
         key: '3',
-        title: 'Wednesday',
+        title: 'Wed',
     },
     {
         key: '4',
-        title: 'Thursday',
+        title: 'Thu',
     },
     {
         key: '5',
-        title: 'Friday',
+        title: 'Fri',
     },
     {
         key: '6',
-        title: 'Saturday',
+        title: 'Sat',
     },
 ];
 
@@ -193,6 +196,8 @@ function StatsBoard(props: Props) {
         handleDateRangeChange,
         calendarHeatmapHidden,
     } = props;
+
+    const { width: documentWidth } = useDocumentSize();
 
     const [resolution, setResolution] = React.useState<'year' | 'month' | 'day'>('day');
 
@@ -434,11 +439,9 @@ function StatsBoard(props: Props) {
     return (
         <div className={_cs(className, styles.statsBoard)}>
             <div className={styles.headingContainer}>
-                {heading && (
-                    <Heading size="extraLarge">
-                        {heading}
-                    </Heading>
-                )}
+                <Heading size="extraLarge">
+                    {heading}
+                </Heading>
                 <DateRangeInput
                     name="date-range"
                     value={dateRange}
@@ -522,6 +525,7 @@ function StatsBoard(props: Props) {
                                     // domain={[0.9, 'auto']}
                                     padding={{ top: 0, bottom: 0 }}
                                     width={120}
+                                    hide={documentWidth <= CHART_BREAKPOINT}
                                 />
                                 {dataAvailableForTimeseries && (
                                     <Tooltip
@@ -573,6 +577,7 @@ function StatsBoard(props: Props) {
                                 tickFormatter={(value) => formatTimeDuration(value, ' ', true)}
                                 padding={{ top: 0, bottom: 0 }}
                                 width={120}
+                                hide={documentWidth <= CHART_BREAKPOINT}
                             />
                             <Bar
                                 dataKey="total"
@@ -724,9 +729,9 @@ function StatsBoard(props: Props) {
                                 <PieChart>
                                     <Tooltip />
                                     <Legend
-                                        align="right"
-                                        layout="vertical"
-                                        verticalAlign="middle"
+                                        align={documentWidth <= CHART_BREAKPOINT ? 'center' : 'right'}
+                                        layout={documentWidth <= CHART_BREAKPOINT ? 'horizontal' : 'vertical'}
+                                        verticalAlign={documentWidth <= CHART_BREAKPOINT ? 'bottom' : 'middle'}
                                         // formatter={projectTypeFormatter}
                                         iconType="circle"
                                     />
@@ -767,10 +772,10 @@ function StatsBoard(props: Props) {
                                         formatter={organizationTotalSwipeFormatter}
                                     />
                                     <Legend
-                                        align="right"
-                                        layout="vertical"
-                                        verticalAlign="middle"
-                                        // formatter={organizationNameFormatter}
+                                        // align="right"
+                                        layout={documentWidth <= CHART_BREAKPOINT ? 'horizontal' : 'vertical'}
+                                        verticalAlign={documentWidth <= CHART_BREAKPOINT ? 'bottom' : 'middle'}
+                                        align={documentWidth <= CHART_BREAKPOINT ? 'center' : 'right'}
                                         iconType="circle"
                                     />
                                     <Pie

@@ -58,7 +58,7 @@ export type SearchSelectInputProps<
         optionRendererParams?: (optionKey: OptionKey, option: O) => P;
     }, OMISSION> & (
         SelectInputContainerProps<T, K, O, P,
-            | 'name'
+            'name'
             | 'nonClearable'
             | 'onClear'
             | 'onOptionClick'
