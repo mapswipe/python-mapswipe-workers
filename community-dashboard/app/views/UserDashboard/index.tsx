@@ -1,19 +1,15 @@
 import React from 'react';
 import { gql, useQuery } from '@apollo/client';
-import { _cs, isDefined, encodeDate } from '@togglecorp/fujs';
+import { encodeDate } from '@togglecorp/fujs';
 import { useParams, generatePath, Link } from 'react-router-dom';
 
 import useUrlState from '#hooks/useUrlState';
 import routes from '#base/configs/routes';
 import { MapContributionType } from '#components/ContributionHeatMap';
-import Footer from '#components/Footer';
-import Header from '#components/Header';
 import InformationCard from '#components/InformationCard';
-import NumberOutput from '#components/NumberOutput';
-import PendingMessage from '#components/PendingMessage';
-import TextOutput from '#components/TextOutput';
 import Heading from '#components/Heading';
 import Pager from '#components/Pager';
+import Page from '#components/Page';
 import {
     UserStatsQuery,
     UserStatsQueryVariables,
@@ -21,12 +17,8 @@ import {
     FilteredUserStatsQueryVariables,
 } from '#generated/types';
 import groupSvg from '#resources/icons/group.svg';
-import swipeSvg from '#resources/icons/swipe.svg';
-import timeSvg from '#resources/icons/time.svg';
-import dashboardHeaderSvg from '#resources/img/dashboard.svg';
 import StatsBoard from '#views/StatsBoard';
 import { getThisYear } from '#components/DateRangeInput/predefinedDateRange';
-import { formatTimeDuration } from '#utils/temporal';
 import { defaultPagePerItemOptions } from '#utils/common';
 
 import styles from './styles.css';
@@ -171,8 +163,8 @@ function UserDashboard(props: Props) {
         setDateRange(newValue ?? defaultDateRange);
     }, [setDateRange]);
 
-    const totalSwipe = userStats?.userStats?.stats?.totalSwipes;
-    const totalSwipeLastMonth = userStats?.userStats?.statsLatest?.totalSwipes;
+    const totalSwipes = userStats?.userStats?.stats?.totalSwipes;
+    const totalSwipesLastMonth = userStats?.userStats?.statsLatest?.totalSwipes;
 
     const totalSwipeTime = userStats?.userStats?.stats?.totalSwipeTime;
     const totalSwipeTimeLastMonth = userStats?.userStats?.statsLatest?.totalSwipeTime;
@@ -181,177 +173,86 @@ function UserDashboard(props: Props) {
     const totalUserGroupLastMonth = userStats?.userStats?.statsLatest?.totalUserGroups;
 
     const userGroupsLength = userStats?.user?.userInUserGroups?.items?.length ?? 0;
+    const excessUserGroups = Array.from(new Array((3 - ((userGroupsLength) % 3)) % 3).keys());
 
     return (
-        <div className={_cs(className, styles.userDashboard)}>
-            {(userStatsLoading || filteredUserStatsLoading) && <PendingMessage />}
-            <div
-                className={styles.headerSection}
-                style={{
-                    backgroundImage: `url(${dashboardHeaderSvg})`,
-                    backgroundColor: '#000836',
-                }}
-            >
-                <div className={styles.headerContainer}>
-                    <Header
-                        heading={userStats?.user.username}
-                        className={styles.header}
-                        headingClassName={styles.heading}
-                        headingSize="small"
-                        descriptionClassName={styles.description}
-                    />
-                    <div className={styles.stats}>
-                        <InformationCard
-                            icon={(<img src={swipeSvg} alt="swipe icon" className={styles.image} />)}
-                            label="Total Swipes"
-                            value={(
-                                <NumberOutput
-                                    className={styles.value}
-                                    value={totalSwipe}
-                                    normal
-                                />
-                            )}
-                            // eslint-disable-next-line max-len
-                            description={isDefined(totalSwipeLastMonth) && totalSwipeLastMonth > 0 && (
-                                <TextOutput
-                                    className={styles.value}
-                                    value={(
-                                        <NumberOutput
-                                            className={styles.value}
-                                            value={totalSwipeLastMonth}
-                                            normal
-                                        />
-                                    )}
-                                    description="total swipes in the last 30 days"
-                                />
-                            )}
-                        />
-                        <InformationCard
-                            icon={(<img src={timeSvg} alt="time icon" className={styles.image} />)}
-                            label="Total Time Spent"
-                            value={(
-                                <div
-                                    className={styles.value}
-                                >
-                                    {isDefined(totalSwipeTime) ? formatTimeDuration(totalSwipeTime, ' ', true) : '-'}
-                                </div>
-                            )}
-                            // eslint-disable-next-line max-len
-                            description={isDefined(totalSwipeTimeLastMonth) && totalSwipeTimeLastMonth > 0 && (
-                                <TextOutput
-                                    className={styles.value}
-                                    value={(
-                                        <div
-                                            className={styles.value}
-                                        >
-                                            {formatTimeDuration(totalSwipeTimeLastMonth, ' ', true)}
-                                        </div>
-                                    )}
-                                    description="in the last 30 days"
-                                />
-                            )}
-                        />
-                        <InformationCard
-                            icon={(<img src={groupSvg} alt="group icon" className={styles.image} />)}
-                            label="Groups Joined"
-                            value={(
-                                <NumberOutput
-                                    className={styles.value}
-                                    value={totalUserGroup}
-                                />
-                            )}
-                            // eslint-disable-next-line max-len
-                            description={isDefined(totalUserGroupLastMonth) && totalUserGroupLastMonth > 0 && (
-                                <TextOutput
-                                    className={styles.value}
-                                    label="Active in"
-                                    value={(
-                                        <NumberOutput
-                                            className={styles.value}
-                                            value={totalUserGroupLastMonth}
-                                        />
-                                    )}
-                                    hideLabelColon
-                                    description="groups last 30 days"
-                                />
-                            )}
-                        />
-                    </div>
-                </div>
-            </div>
-            <div className={styles.content}>
-                <div className={styles.container}>
-                    <StatsBoard
-                        heading="User Statsboard"
-                        dateRange={dateRange}
-                        handleDateRangeChange={setDateRangeSafe}
-                        // eslint-disable-next-line max-len
-                        contributionTimeStats={filteredUserStats?.userStats.filteredStats.swipeTimeByDate}
-                        // eslint-disable-next-line max-len
-                        projectTypeStats={filteredUserStats?.userStats.filteredStats.areaSwipedByProjectType}
-                        // eslint-disable-next-line max-len
-                        organizationTypeStats={filteredUserStats?.userStats.filteredStats.swipeByOrganizationName}
-                        // eslint-disable-next-line max-len
-                        projectSwipeTypeStats={filteredUserStats?.userStats.filteredStats.swipeByProjectType}
-                        // eslint-disable-next-line max-len
-                        contributions={filteredUserStats?.userStats.filteredStats.contributionByGeo as MapContributionType[] | undefined}
-                    />
-                    {(userStats?.user?.userInUserGroups?.items?.length ?? 0) > 0 && (
-                        <div className={styles.groups}>
-                            <Heading size="extraLarge">
-                                Current Groups
-                            </Heading>
-                            <div className={styles.groupsContainer}>
-                                {userStats?.user?.userInUserGroups?.items?.map((group) => (
-                                    <InformationCard
-                                        key={group.userGroupId}
-                                        className={styles.group}
-                                        icon={(<img src={groupSvg} alt="swipe icon" />)}
-                                        // subHeading={(
-                                        //     <TextOutput
-                                        //         className={styles.value}
-                                        //         label="Joined on"
-                                        //         // FIXME: fill this value
-                                        //         value={undefined}
-                                        //         hideLabelColon
-                                        //     />
-                                        // )}
-                                        label={(
-                                            <Link
-                                                className={styles.link}
-                                                to={generatePath(
-                                                    routes.userGroupDashboard.path,
-                                                    { userGroupId: group.userGroupId },
-                                                )}
-                                            >
-                                                {group.userGroupName}
-                                            </Link>
+        <Page
+            className={className}
+            variant="user"
+            heading={userStats?.user.username}
+            totalSwipes={totalSwipes}
+            totalSwipesLastMonth={totalSwipesLastMonth}
+            totalTimeSpent={totalSwipeTime}
+            totalTimeSpentLastMonth={totalSwipeTimeLastMonth}
+            groupsJoined={totalUserGroup}
+            activeInGroupsLastMonth={totalUserGroupLastMonth}
+            pending={userStatsLoading || filteredUserStatsLoading}
+            content={(
+                <StatsBoard
+                    heading="User Statsboard"
+                    dateRange={dateRange}
+                    handleDateRangeChange={setDateRangeSafe}
+                    // eslint-disable-next-line max-len
+                    contributionTimeStats={filteredUserStats?.userStats.filteredStats.swipeTimeByDate}
+                    // eslint-disable-next-line max-len
+                    areaSwipedByProjectType={filteredUserStats?.userStats.filteredStats.areaSwipedByProjectType}
+                    // eslint-disable-next-line max-len
+                    organizationTypeStats={filteredUserStats?.userStats.filteredStats.swipeByOrganizationName}
+                    // eslint-disable-next-line max-len
+                    swipeByProjectType={filteredUserStats?.userStats.filteredStats.swipeByProjectType}
+                    // eslint-disable-next-line max-len
+                    contributions={filteredUserStats?.userStats.filteredStats.contributionByGeo as MapContributionType[] | undefined}
+                />
+            )}
+            additionalContent={userGroupsLength > 0 && (
+                <div className={styles.groups}>
+                    <Heading size="extraLarge">
+                        Current Groups
+                    </Heading>
+                    <div className={styles.groupsContainer}>
+                        {userStats?.user?.userInUserGroups?.items?.map((group) => (
+                            <InformationCard
+                                key={group.userGroupId}
+                                className={styles.group}
+                                icon={(<img src={groupSvg} alt="swipe icon" />)}
+                                // subHeading={(
+                                //     <TextOutput
+                                //         className={styles.value}
+                                //         label="Joined on"
+                                //         // FIXME: fill this value
+                                //         value={undefined}
+                                //         hideLabelColon
+                                //     />
+                                // )}
+                                label={(
+                                    <Link
+                                        className={styles.link}
+                                        to={generatePath(
+                                            routes.userGroupDashboard.path,
+                                            { userGroupId: group.userGroupId },
                                         )}
-                                        description={`${group.membersCount} ${group.membersCount > 1 ? 'members' : 'member'}`}
-                                    />
-                                ))}
-                                {Array.from(
-                                    new Array((3 - ((userGroupsLength) % 3)) % 3).keys(),
-                                ).map(
-                                    (key) => <div key={key} className={styles.group} />,
+                                    >
+                                        {group.userGroupName}
+                                    </Link>
                                 )}
-                            </div>
-                            {userGroupsLength > 0 && (
-                                <Pager
-                                    pagePerItem={pagePerItem}
-                                    onPagePerItemChange={setPagePerItem}
-                                    activePage={activePage}
-                                    onActivePageChange={setActivePage}
-                                    totalItems={userGroupsLength}
-                                    pagePerItemOptions={defaultPagePerItemOptions}
-                                />
-                            )}
-                        </div>
-                    )}
+                                description={`${group.membersCount} ${group.membersCount > 1 ? 'members' : 'member'}`}
+                            />
+                        ))}
+                        {excessUserGroups.map(
+                            (key) => <div key={key} className={styles.group} />,
+                        )}
+                    </div>
+                    <Pager
+                        pagePerItem={pagePerItem}
+                        onPagePerItemChange={setPagePerItem}
+                        activePage={activePage}
+                        onActivePageChange={setActivePage}
+                        totalItems={userGroupsLength}
+                        pagePerItemOptions={defaultPagePerItemOptions}
+                    />
                 </div>
-            </div>
-            <Footer />
-        </div>
+            )}
+        />
     );
 }
 

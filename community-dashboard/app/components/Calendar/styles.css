@@ -90,13 +90,3 @@
         width: 100%!important;
     }
 }
-
-.dummy-date {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: var(--width-calendar-date);
-    height: var(--width-calendar-date);
-    color: var(--color-text-disabled-light);
-}
-

@@ -133,7 +133,14 @@
     .number-output {
         display: flex;
         gap: var(--spacing-small);
-        font-family: var(--font-family-sans-serif);
+    }
+
+    .area-output {
+        display: flex;
+        gap: var(--spacing-small);
+        justify-content: flex-end;
+        color: var(--color-text-light);
+        font-size: var(--font-size-small);
     }
 
     .info-label {

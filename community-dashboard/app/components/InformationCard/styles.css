@@ -54,7 +54,6 @@
         justify-content: space-between;
         color: var(--color-text);
         font-size: var(--font-size-large);
-        font-weight: var(--font-weight-bold);
         gap: var(--spacing-large);
 
         .icons {
@@ -69,15 +68,14 @@
 
             .sub-heading {
                 text-align: right;
-                color: var(--color-text-light);
-                font-size: var(--font-size-small);
+                color: var(--color-accent);
+                gap: var(--spacing-small);
             }
         }
 
         .label {
             color: var(--color-primary);
             font-size: var(--font-size-large);
-            font-weight: var(--font-weight-medium);
         }
     }
 

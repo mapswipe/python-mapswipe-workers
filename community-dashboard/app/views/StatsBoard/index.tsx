@@ -168,9 +168,9 @@ interface Props {
     className?: string;
     heading?: string;
     contributionTimeStats: ActualContributorTimeStatType[] | null | undefined;
-    projectTypeStats: ProjectTypeAreaStatsType[] | null | undefined;
+    areaSwipedByProjectType: ProjectTypeAreaStatsType[] | null | undefined;
     organizationTypeStats: OrganizationSwipeStatsType[] | null | undefined;
-    projectSwipeTypeStats: ProjectTypeSwipeStatsType[] | null | undefined;
+    swipeByProjectType: ProjectTypeSwipeStatsType[] | null | undefined;
     contributions: MapContributionType[] | undefined | null;
     dateRange: DateRangeValue | undefined;
     handleDateRangeChange: (value: DateRangeValue | undefined) => void;
@@ -182,9 +182,9 @@ function StatsBoard(props: Props) {
         className,
         heading,
         contributionTimeStats,
-        projectTypeStats,
+        areaSwipedByProjectType,
         organizationTypeStats,
-        projectSwipeTypeStats,
+        swipeByProjectType,
         contributions,
         dateRange,
         handleDateRangeChange,
@@ -348,14 +348,14 @@ function StatsBoard(props: Props) {
 
     const sortedProjectSwipeType = useMemo(
         () => (
-            projectSwipeTypeStats
+            swipeByProjectType
                 ?.map((item) => ({
                     ...item,
                     projectType: item.projectType ?? '-1',
                 }))
                 .sort((a, b) => compareNumber(b.totalSwipes, a.totalSwipes)) ?? []
         ),
-        [projectSwipeTypeStats],
+        [swipeByProjectType],
     );
 
     // Swipes by Organization
@@ -392,14 +392,27 @@ function StatsBoard(props: Props) {
 
     // Others
 
-    const buildAreaTotalArea = projectTypeStats?.find(
+    const buildAreaTotalArea = areaSwipedByProjectType?.find(
         (project) => project.projectType === BUILD_AREA,
     )?.totalArea;
 
-    const changeDetectionTotalSwipes = projectSwipeTypeStats?.find(
+    const changeDetectionTotalArea = areaSwipedByProjectType?.find(
+        (project) => project.projectType === CHANGE_DETECTION,
+    )?.totalArea;
+
+    const footprintTotalArea = areaSwipedByProjectType?.find(
+        (project) => project.projectType === FOOTPRINT,
+    )?.totalArea;
+
+    const buildAreaTotalSwipes = swipeByProjectType?.find(
+        (project) => project.projectType === BUILD_AREA,
+    )?.totalSwipes;
+
+    const changeDetectionTotalSwipes = swipeByProjectType?.find(
         (project) => project.projectType === CHANGE_DETECTION,
     )?.totalSwipes;
-    const footPrintTotalSwipes = projectSwipeTypeStats?.find(
+
+    const footPrintTotalSwipes = swipeByProjectType?.find(
         (project) => project.projectType === FOOTPRINT,
     )?.totalSwipes;
 
@@ -569,7 +582,7 @@ function StatsBoard(props: Props) {
                         value={(
                             <NumberOutput
                                 className={styles.numberOutput}
-                                value={buildAreaTotalArea}
+                                value={buildAreaTotalSwipes}
                                 normal
                                 invalidText={0}
                             />
@@ -580,11 +593,22 @@ function StatsBoard(props: Props) {
                                     Area Reviewed
                                 </div>
                                 <small>
-                                    (in sq. km.)
+                                    (# of swipes)
                                 </small>
                             </div>
                         )}
-                        subHeading="Build Area"
+                        subHeading={(
+                            <>
+                                Build Area
+                                <NumberOutput
+                                    className={styles.areaOutput}
+                                    value={buildAreaTotalArea}
+                                    normal
+                                    invalidText=""
+                                    unit="Sq. Km."
+                                />
+                            </>
+                        )}
                         variant="stat"
                     />
                     <InformationCard
@@ -607,7 +631,18 @@ function StatsBoard(props: Props) {
                                 </small>
                             </div>
                         )}
-                        subHeading="Footprint"
+                        subHeading={(
+                            <>
+                                Footprint
+                                <NumberOutput
+                                    className={styles.areaOutput}
+                                    value={footprintTotalArea}
+                                    normal
+                                    invalidText=""
+                                    unit="Sq. Km."
+                                />
+                            </>
+                        )}
                         variant="stat"
                     />
                     <InformationCard
@@ -630,7 +665,18 @@ function StatsBoard(props: Props) {
                                 </small>
                             </div>
                         )}
-                        subHeading="Change Detection"
+                        subHeading={(
+                            <>
+                                Change Detection
+                                <NumberOutput
+                                    className={styles.areaOutput}
+                                    value={changeDetectionTotalArea}
+                                    normal
+                                    invalidText=""
+                                    unit="Sq. Km."
+                                />
+                            </>
+                        )}
                         variant="stat"
                     />
                 </div>

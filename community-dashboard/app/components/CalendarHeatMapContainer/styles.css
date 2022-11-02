@@ -8,6 +8,7 @@
         align-items: center;
         justify-content: flex-end;
     }
+
     :global {
         .react-calendar-heatmap text {
             font-size: var(--font-size-extra-small);
