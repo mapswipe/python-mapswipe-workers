@@ -24,6 +24,11 @@ import {
     CartesianGrid,
     Bar,
 } from 'recharts';
+import {
+    AiOutlineLineChart,
+    AiOutlineBarChart,
+    AiOutlinePieChart,
+} from 'react-icons/ai';
 // import { formatDuration, intervalToDuration } from 'date-fns';
 
 import ContributionHeatmap, { MapContributionType } from '#components/ContributionHeatMap';
@@ -43,9 +48,7 @@ import {
     ProjectTypeSwipeStatsType,
     ProjectTypeAreaStatsType,
 } from '#generated/types';
-import {
-    mergeItems,
-} from '#utils/common';
+import { mergeItems } from '#utils/common';
 import {
     formatTimeDuration,
     formatDate,
@@ -478,6 +481,7 @@ function StatsBoard(props: Props) {
                 >
                     {!dataAvailableForTimeseries && (
                         <div className={styles.empty}>
+                            <AiOutlineLineChart className={styles.icon} />
                             Data not available!
                         </div>
                     )}
@@ -549,6 +553,7 @@ function StatsBoard(props: Props) {
                 >
                     {!dataAvailableForTimeseries && (
                         <div className={styles.empty}>
+                            <AiOutlineBarChart className={styles.icon} />
                             Data not available!
                         </div>
                     )}
@@ -714,72 +719,86 @@ function StatsBoard(props: Props) {
                         variant="stat"
                         contentClassName={styles.pieChartContainer}
                     >
-                        <ResponsiveContainer>
-                            <PieChart>
-                                <Tooltip />
-                                <Legend
-                                    align="right"
-                                    layout="vertical"
-                                    verticalAlign="middle"
-                                    // formatter={projectTypeFormatter}
-                                    iconType="circle"
-                                />
-                                <Pie
-                                    data={sortedProjectSwipeType}
-                                    dataKey="totalSwipes"
-                                    nameKey="projectTypeDisplay"
-                                    cx="50%"
-                                    cy="50%"
-                                    outerRadius="90%"
-                                    innerRadius="50%"
-                                >
-                                    {sortedProjectSwipeType.map((item) => (
-                                        <Cell
-                                            key={item.projectType}
-                                            fill={projectTypes[item.projectType].color}
-                                        />
-                                    ))}
-                                </Pie>
-                            </PieChart>
-                        </ResponsiveContainer>
+                        {sortedProjectSwipeType.length > 0 ? (
+                            <ResponsiveContainer>
+                                <PieChart>
+                                    <Tooltip />
+                                    <Legend
+                                        align="right"
+                                        layout="vertical"
+                                        verticalAlign="middle"
+                                        // formatter={projectTypeFormatter}
+                                        iconType="circle"
+                                    />
+                                    <Pie
+                                        data={sortedProjectSwipeType}
+                                        dataKey="totalSwipes"
+                                        nameKey="projectTypeDisplay"
+                                        cx="50%"
+                                        cy="50%"
+                                        outerRadius="90%"
+                                        innerRadius="50%"
+                                    >
+                                        {sortedProjectSwipeType.map((item) => (
+                                            <Cell
+                                                key={item.projectType}
+                                                fill={projectTypes[item.projectType].color}
+                                            />
+                                        ))}
+                                    </Pie>
+                                </PieChart>
+                            </ResponsiveContainer>
+                        ) : (
+                            <div className={styles.empty}>
+                                <AiOutlinePieChart className={styles.icon} />
+                                Data not available
+                            </div>
+                        )}
                     </InformationCard>
                     <InformationCard
                         label="Swipes by Organization"
                         variant="stat"
                         contentClassName={styles.pieChartContainer}
                     >
-                        <ResponsiveContainer>
-                            <PieChart>
-                                <Tooltip
-                                    formatter={organizationTotalSwipeFormatter}
-                                />
-                                <Legend
-                                    align="right"
-                                    layout="vertical"
-                                    verticalAlign="middle"
-                                    // formatter={organizationNameFormatter}
-                                    iconType="circle"
-                                />
-                                <Pie
-                                    data={totalSwipesByOrganizationStats ?? undefined}
-                                    dataKey="totalSwipes"
-                                    nameKey="organizationName"
-                                    cx="50%"
-                                    cy="50%"
-                                    outerRadius="90%"
-                                    innerRadius="50%"
-                                >
-                                    {totalSwipesByOrganizationStats?.map((item) => (
-                                        <Cell
-                                            key={item.organizationName}
-                                            fill={item.organizationName
-                                                ? organizationColors(item.organizationName) ?? '#808080'
-                                                : '#808080'}
-                                        />
-                                    ))}
-                                </Pie>
-                            </PieChart>
-                        </ResponsiveContainer>
+                        {totalSwipesByOrganizationStats.length > 0 ? (
+                            <ResponsiveContainer>
+                                <PieChart>
+                                    <Tooltip
+                                        formatter={organizationTotalSwipeFormatter}
+                                    />
+                                    <Legend
+                                        align="right"
+                                        layout="vertical"
+                                        verticalAlign="middle"
+                                        // formatter={organizationNameFormatter}
+                                        iconType="circle"
+                                    />
+                                    <Pie
+                                        data={totalSwipesByOrganizationStats}
+                                        dataKey="totalSwipes"
+                                        nameKey="organizationName"
+                                        cx="50%"
+                                        cy="50%"
+                                        outerRadius="90%"
+                                        innerRadius="50%"
+                                    >
+                                        {totalSwipesByOrganizationStats.map((item) => (
+                                            <Cell
+                                                key={item.organizationName}
+                                                fill={item.organizationName
+                                                    ? organizationColors(item.organizationName) ?? '#808080'
+                                                    : '#808080'}
+                                            />
+                                        ))}
+                                    </Pie>
+                                </PieChart>
+                            </ResponsiveContainer>
+                        ) : (
+                            <div className={styles.empty}>
+                                <AiOutlinePieChart className={styles.icon} />
+                                Data not available
+                            </div>
+                        )}
                     </InformationCard>
                 </div>
             </div>
