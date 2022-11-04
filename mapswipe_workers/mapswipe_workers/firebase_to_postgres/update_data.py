@@ -198,7 +198,11 @@ def update_user_group_data(user_group_ids: Optional[List[str]] = None) -> List[s
     return new_user_group_ids
 
 
-def create_update_user_data(user_ids: Optional[List[str]] = None) -> List[str]:
+def create_update_user_data(user_ids: Optional[List[str]] = None):
+    if not user_ids:
+        # Nothing to do here.
+        return
+
     fb_db = auth.firebaseDB()
 
     user_file = io.StringIO("")
@@ -252,12 +256,10 @@ def update_user_group_full_data(user_group_ids: List[str]):
         if ug is None:  # userGroup doesn't exists in FB
             continue
         # New/Updated user group
-        created_at = convert_firebase_datetime_to_database_format(ug.get("created_at"))
-        archived_at = convert_firebase_datetime_to_database_format(
-            ug.get("archived_at")
-        )
-        archived_by_id = ug.get("archived_by", None)
-        created_by_id = ug.get("created_by", None)
+        created_at = convert_timestamp_to_database_format(ug.get("createdAt"))
+        archived_at = convert_timestamp_to_database_format(ug.get("archivedAt"))
+        archived_by_id = ug.get("archivedBy", None)
+        created_by_id = ug.get("createdBy", None)
 
         is_archived = archived_by_id is not None
 
@@ -410,7 +412,11 @@ def update_user_group_full_data(user_group_ids: List[str]):
 
 def create_update_membership_data(
     membership_ids: Optional[List[str]] = None,
-) -> List[str]:
+):
+    if not membership_ids:
+        # Nothing to do here
+        return
+
     fb_db = auth.firebaseDB()
 
     membership_file = io.StringIO("")

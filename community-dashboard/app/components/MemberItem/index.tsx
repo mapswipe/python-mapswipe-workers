@@ -13,8 +13,9 @@ interface Props {
         totalMappingProjects: number;
         totalSwipeTime: number;
         totalSwipes: number;
-        userName: string;
+        username: string;
         userId: string;
+        isActive: boolean;
     };
 }
 
@@ -33,8 +34,13 @@ function MemberItem(props: Props) {
                     className={styles.link}
                     to={path}
                 >
-                    {member.userName}
+                    {member.username}
                 </Link>
+                {!member.isActive && (
+                    <div className={styles.inactive}>
+                        No longer a member
+                    </div>
+                )}
             </div>
             <div className={styles.item}>
                 <NumberOutput

@@ -1,6 +1,5 @@
 import datetime
 from dataclasses import InitVar
-from typing import Optional
 
 import strawberry
 import strawberry_django
@@ -8,7 +7,7 @@ from apps.aggregated.models import AggregatedUserGroupStatData, AggregatedUserSt
 from django.contrib.gis.db.models.functions import Centroid
 from django.db import models
 from django.utils import timezone
-from mapswipe.paginations import CountList, StrawberryDjangoCountList
+from mapswipe.paginations import CountList, apply_pagination
 from mapswipe.types import AreaSqKm, GenericJSON, TimeInSeconds
 from strawberry.types import Info
 
@@ -70,7 +69,7 @@ class UserGroupLatestStatsType:
 @strawberry.type
 class UserGroupUserStatsType:
     user_id: str
-    user_name: str
+    username: str
     total_mapping_projects: int
     total_swipes: int
     total_swipe_time: TimeInSeconds
@@ -108,13 +107,6 @@ class OrganizationSwipeStatsType:
 class MapContributionStatsType:
     geojson: GenericJSON
     total_contribution: int
-
-
-@strawberry.type
-class UserUserGroupType:
-    user_group_id: str
-    user_group_name: str
-    members_count: int
 
 
 @strawberry.type
@@ -308,9 +300,9 @@ class UserStats:
         )["count"]
         return UserStatType(
             total_swipes=agg_data["total_swipes"] or 0,
-            total_swipe_time=agg_data["total_time_sum"] or 0,
+            total_swipe_time=TimeInSeconds(agg_data["total_time_sum"] or 0),
             total_mapping_projects=agg_data["total_project"] or 0,
-            total_area_swiped=agg_data["total_area_swiped"] or 0,
+            total_area_swiped=AreaSqKm(agg_data["total_area_swiped"] or 0),
             total_organization=agg_data["total_organization"] or 0,
             total_user_groups=user_group_count or 0,
         )
@@ -333,7 +325,7 @@ class UserStats:
         )["count"]
         return UserLatestStatsType(
             total_swipes=agg_data["total_swipes"] or 0,
-            total_swipe_time=agg_data["total_time_sum"] or 0,
+            total_swipe_time=TimeInSeconds(agg_data["total_time_sum"] or 0),
             total_user_groups=total_group_count or 0,
         )
 
@@ -383,7 +375,7 @@ class UserGroupFilteredStats(UserUserGroupBaseFilterStatsQuery):
         return [
             UserGroupUserStatsType(
                 user_id=user_id,
-                user_name=username,
+                username=username,
                 total_swipes=total_swipes,
                 total_swipe_time=total_time_sum,
                 total_mapping_projects=total_project,
@@ -423,10 +415,10 @@ class UserGroupStats:
         )
         return UserGroupStatsType(
             total_swipes=agg_data["total_swipes"] or 0,
-            total_swipe_time=agg_data["total_time_sum"] or TimeInSeconds(0),
+            total_swipe_time=TimeInSeconds(agg_data["total_time_sum"] or 0),
             total_contributors=agg_data["total_contributors"] or 0,
             total_mapping_projects=agg_data["total_project"] or 0,
-            total_area_swiped=agg_data["total_area_swiped"] or AreaSqKm(0),
+            total_area_swiped=AreaSqKm(agg_data["total_area_swiped"] or 0),
             total_organization=agg_data["total_organization"] or 0,
         )
 
@@ -441,7 +433,7 @@ class UserGroupStats:
         )
         return UserGroupLatestStatsType(
             total_swipes=agg_data["total_swipes"] or 0,
-            total_swipe_time=agg_data["total_time_sum"] or TimeInSeconds(0),
+            total_swipe_time=TimeInSeconds(agg_data["total_time_sum"] or 0),
             total_contributors=agg_data["total_contributors"] or 0,
             total_mapping_projects=agg_data["total_project"] or 0,
         )
@@ -457,6 +449,13 @@ class UserGroupStats:
         )
 
 
+@strawberry.type
+class UserUserGroupMembershipType:
+    user_group_id: strawberry.ID
+    user_group_name: str
+    members_count: int
+
+
 @strawberry_django.type(User)
 class UserType:
     user_id: strawberry.ID
@@ -464,11 +463,49 @@ class UserType:
 
     @strawberry.field
     async def user_in_user_groups(
-        self, info: Info, root: User
-    ) -> list[UserUserGroupType]:
-        return await info.context[
-            "dl"
-        ].existing_database.load_user_usergroup_stats.load(root.user_id)
+        self,
+        info: Info,
+        root: User,
+        pagination: strawberry_django.pagination.OffsetPaginationInput,
+    ) -> CountList[UserUserGroupMembershipType]:
+        qs = (
+            UserGroup.objects.filter(
+                user_group_id__in=UserGroupUserMembership.objects.filter(
+                    user_id=root.user_id,
+                    is_active=True,
+                ).values("user_group_id")
+            )
+            .annotate(
+                members_count=models.functions.Coalesce(
+                    models.Subquery(
+                        UserGroupUserMembership.objects.filter(
+                            user_group_id=models.OuterRef("user_group_id"),
+                        )
+                        .order_by()
+                        .values("user_group_id")
+                        .annotate(c=models.Count("user_id"))
+                        .values("c")[:1],
+                        output_field=models.IntegerField(),
+                    ),
+                    0,
+                ),
+            )
+            .order_by("user_group_id")
+        )
+        paginated_qs = apply_pagination(pagination, qs)
+        return CountList[UserUserGroupMembershipType](
+            node=dict(
+                count_callback=lambda: qs.acount(),
+                queryset=[
+                    UserUserGroupMembershipType(**data)
+                    async for data in paginated_qs.values(
+                        "user_group_id",
+                        "members_count",
+                        user_group_name=models.F("name"),
+                    )
+                ],
+            )
+        )
 
 
 @strawberry_django.type(Project)
@@ -487,34 +524,15 @@ class ProjectType:
     organization_name: str
 
 
-@strawberry_django.type(UserGroupUserMembership)
+@strawberry.type
 class UserGroupUserMembershipType:
-    user: UserType
-    is_active: strawberry.auto
-    # action: strawberry.auto
-    # timestamp: datetime.datetime
-
-    @strawberry.field
-    async def id(self, info: Info, root: UserGroupUserMembership) -> strawberry.ID:
-        return strawberry.ID("{root.user_group_id}-{root.user_id}")
-
-    @strawberry.field
-    async def stats(
-        self, info: Info, root: UserGroupUserMembership
-    ) -> Optional[UserGroupUserStatsType]:
-        return await info.context[
-            "dl"
-        ].existing_database.load_user_group_user_stats.load(root.user_group_id)
-
-    @strawberry.field
-    async def contributors_stats(
-        self, info: Info, root: UserGroupUserMembership
-    ) -> ContributorSwipeStatType:
-        return await info.context[
-            "dl"
-        ].existing_database.load_user_group_user_contributors_stats.load(
-            root.user_group_id
-        )
+    user_id: str
+    username: str
+    is_active: bool
+    # Stats
+    total_mapping_projects: int
+    total_swipes: int
+    total_swipe_time: TimeInSeconds
 
 
 @strawberry_django.type(UserGroup)
@@ -528,12 +546,61 @@ class UserGroupType:
     archived_at: strawberry.auto
     is_archived: strawberry.auto
 
-    # XXX: N+1
-    user_memberships: CountList[
-        UserGroupUserMembershipType
-    ] = StrawberryDjangoCountList(
-        pagination=True,
-    )
+    # TODO: Make this a generic module
+    @strawberry.field
+    async def user_memberships(
+        self,
+        info: Info,
+        root: UserGroup,
+        pagination: strawberry_django.pagination.OffsetPaginationInput,
+    ) -> CountList[UserGroupUserMembershipType]:
+        def _subquery_generator(agg_func):
+            return models.functions.Coalesce(
+                models.Subquery(
+                    AggregatedUserGroupStatData.objects.filter(
+                        user_id=models.OuterRef("user_id"),
+                        user_group_id=models.OuterRef("user_group_id"),
+                    )
+                    .order_by()
+                    .values("user_id")
+                    .annotate(c=agg_func)
+                    .values("c")[:1],
+                    output_field=models.IntegerField(),
+                ),
+                0,
+            )
+
+        qs = (
+            UserGroupUserMembership.objects.filter(user_group_id=root.user_group_id)
+            .annotate(
+                username=models.F("user__username"),
+                # Stats Data
+                total_mapping_projects=_subquery_generator(
+                    models.Count("project", distinct=True)
+                ),
+                total_swipes=_subquery_generator(models.Sum("task_count")),
+                total_swipe_time=_subquery_generator(models.Sum("total_time")),
+            )
+            .order_by("user_id")
+        )
+        paginated_qs = apply_pagination(pagination, qs)
+        return CountList[UserGroupUserMembershipType](
+            node=dict(
+                count_callback=lambda: qs.acount(),
+                queryset=[
+                    UserGroupUserMembershipType(**data)
+                    async for data in paginated_qs.values(
+                        "user_id",
+                        "is_active",
+                        # Annotate fields
+                        "username",
+                        "total_mapping_projects",
+                        "total_swipes",
+                        "total_swipe_time",
+                    )
+                ],
+            )
+        )
 
     def get_queryset(self, queryset, info, **kwargs):
         # Filter out user group without name. They aren't sync yet.

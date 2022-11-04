@@ -25,7 +25,7 @@ x-django: &base_django
   environment: &base_django_environment
       DJANGO_LOG_LEVEL: 'INFO'
       DJANGO_DEBUG: 'false'
-      DJANGO_SECRET_KEY: '${DJANGO_ALLOWED_HOST}'
+      DJANGO_SECRET_KEY: '${DJANGO_SECRET_KEY}'
       DJANGO_ALLOWED_HOST: '${DJANGO_ALLOWED_HOST:-*}'
       DJANGO_DB_NAME: '${POSTGRES_DB}'
       DJANGO_DB_USER: '${POSTGRES_USER}'

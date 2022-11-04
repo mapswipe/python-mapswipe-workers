@@ -281,3 +281,5 @@ TESTING = (
     )
     or env("PYTEST_XDIST_WORKER") is not None
 )
+
+DEFAULT_PAGINATION_MAX = 50

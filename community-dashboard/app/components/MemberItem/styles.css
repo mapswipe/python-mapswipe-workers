@@ -2,18 +2,23 @@
     display: flex;
     flex-grow: 1;
     gap: var(--spacing-medium);
-    border-bottom: var(--width-separator-thin) solid var(--color-separator);
+    border-top: var(--width-separator-thin) solid var(--color-separator);
     padding: var(--spacing-medium);
 
     .member-name {
         flex-basis: 20%;
         flex-grow: 1;
-        cursor: pointer;
         color: var(--color-primary);
 
         .link {
+            cursor: pointer;
             color: var(--color-primary);
             font-weight: var(--font-weight-bold);
+        }
+
+        .inactive {
+            color: var(--color-text-watermark);
+            font-size: var(--font-size-small);
         }
     }
     .item {

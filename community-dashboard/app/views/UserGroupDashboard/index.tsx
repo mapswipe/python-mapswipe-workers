@@ -1,42 +1,48 @@
 import React, { useCallback, useMemo } from 'react';
 import { gql, useQuery } from '@apollo/client';
-import { _cs, isDefined, encodeDate } from '@togglecorp/fujs';
+import { encodeDate } from '@togglecorp/fujs';
 import { useParams } from 'react-router-dom';
-
 import { CSVLink } from 'react-csv';
 
+import StatsBoard from '#views/StatsBoard';
+
 import useUrlState from '#hooks/useUrlState';
-import { MapContributionType } from '#components/ContributionHeatMap';
-import Footer from '#components/Footer';
-import Header from '#components/Header';
-import InformationCard from '#components/InformationCard';
 import List from '#components/List';
 import MemberItem from '#components/MemberItem';
-import NumberOutput from '#components/NumberOutput';
-import PendingMessage from '#components/PendingMessage';
-import TextOutput from '#components/TextOutput';
+import Heading from '#components/Heading';
+import Pager from '#components/Pager';
+import Page from '#components/Page';
+import { MapContributionType } from '#components/ContributionHeatMap';
+import { useButtonFeatures } from '#components/Button';
+import { getThisYear } from '#components/DateRangeInput/predefinedDateRange';
+
 import {
     UserGroupStatsQuery,
     UserGroupStatsQueryVariables,
     FilteredUserGroupStatsQuery,
     FilteredUserGroupStatsQueryVariables,
 } from '#generated/types';
-import userSvg from '#resources/icons/user.svg';
-import swipeSvg from '#resources/icons/swipe.svg';
-import timeSvg from '#resources/icons/time.svg';
-import dashboardHeaderSvg from '#resources/img/dashboard.svg';
-import StatsBoard from '#views/StatsBoard';
-import { getThisYear } from '#components/DateRangeInput/predefinedDateRange';
-import { formatTimeDuration } from '#utils/temporal';
+import { defaultPagePerItemOptions } from '#utils/common';
 
 import styles from './styles.css';
 
 const USER_GROUP_STATS = gql`
-    query UserGroupStats($pk: ID!) {
+    query UserGroupStats($pk: ID!, $limit: Int!, $offset: Int!) {
         userGroup(pk: $pk) {
             userGroupId
             name
             description
+            userMemberships(pagination: { limit: $limit, offset: $offset }) {
+                count
+                items {
+                    userId
+                    username
+                    isActive
+                    totalMappingProjects
+                    totalSwipeTime
+                    totalSwipes
+                }
+            }
         }
         userGroupStats(userGroupId: $pk) {
             stats {
@@ -61,7 +67,7 @@ const FILTERED_USER_GROUP_STATS = gql`
                     totalMappingProjects
                     totalSwipeTime
                     totalSwipes
-                    userName
+                    username
                     userId
                 }
                 contributionByGeo {
@@ -95,10 +101,10 @@ const FILTERED_USER_GROUP_STATS = gql`
     }
 `;
 
-type UserGroupMember = NonNullable<NonNullable<NonNullable<FilteredUserGroupStatsQuery['userGroupStats']>['filteredStats']>['userStats']>[number];
+type UserGroupMember = NonNullable<NonNullable<NonNullable<UserGroupStatsQuery['userGroup']>['userMemberships']>['items']>[number];
 
 function memberKeySelector(member: UserGroupMember) {
-    return member.userName;
+    return member.username;
 }
 
 interface DateRangeValue {
@@ -117,6 +123,9 @@ interface Props {
 
 function UserGroupDashboard(props: Props) {
     const { className } = props;
+    const buttonProps = useButtonFeatures({
+        variant: 'primary',
+    });
 
     const { userGroupId } = useParams<{ userGroupId: string | undefined }>();
     const [
@@ -139,6 +148,9 @@ function UserGroupDashboard(props: Props) {
         }),
     );
 
+    const [activePage, setActivePage] = React.useState(1);
+    const [pagePerItem, setPagePerItem] = React.useState(10);
+
     const {
         data: userGroupStats,
         loading: userGroupStatsLoading,
@@ -147,6 +159,8 @@ function UserGroupDashboard(props: Props) {
         {
             variables: userGroupId ? {
                 pk: userGroupId,
+                limit: pagePerItem,
+                offset: (activePage - 1) * pagePerItem,
             } : undefined,
             skip: !userGroupId,
         },
@@ -167,12 +181,20 @@ function UserGroupDashboard(props: Props) {
         },
     );
 
+    const memberList = userGroupStats?.userGroup?.userMemberships?.items;
+    const totalMembers = userGroupStats?.userGroup?.userMemberships?.count ?? 0;
+
     const data = useMemo(() => ([
         ['User', 'Total swipes', 'Mission contributed', 'Time spent(mins)'],
-        ...(filteredUserGroupStats?.userGroupStats.filteredStats.userStats.map((user) => (
-            [user.userName, user.totalSwipes, user.totalMappingProjects, user.totalSwipeTime]
+        ...(memberList?.map((user) => (
+            [
+                user.username,
+                user.totalSwipes,
+                user.totalMappingProjects,
+                user.totalSwipeTime,
+            ]
         )) ?? []),
-    ]), [filteredUserGroupStats?.userGroupStats.filteredStats.userStats]);
+    ]), [memberList]);
 
     const memberRendererParams = useCallback((_: string, item: UserGroupMember) => (
         { member: item }
@@ -182,8 +204,8 @@ function UserGroupDashboard(props: Props) {
         setDateRange(newValue ?? defaultDateRange);
     }, [setDateRange]);
 
-    const totalSwipe = userGroupStats?.userGroupStats.stats.totalSwipes;
-    const totalSwipeLastMonth = userGroupStats?.userGroupStats.statsLatest.totalSwipes;
+    const totalSwipes = userGroupStats?.userGroupStats.stats.totalSwipes;
+    const totalSwipesLastMonth = userGroupStats?.userGroupStats.statsLatest.totalSwipes;
 
     const totalSwipeTime = userGroupStats?.userGroupStats.stats.totalSwipeTime;
     const totalSwipeTimeLastMonth = userGroupStats?.userGroupStats.statsLatest.totalSwipeTime;
@@ -192,162 +214,80 @@ function UserGroupDashboard(props: Props) {
     const totalContributorsLastMonth = userGroupStats?.userGroupStats.statsLatest.totalContributors;
 
     return (
-        <div className={_cs(className, styles.userGroupDashboard)}>
-            {(userGroupStatsLoading || filteredUserGroupStatsLoading) && <PendingMessage />}
-            <div
-                className={styles.headerSection}
-                style={{
-                    backgroundImage: `url(${dashboardHeaderSvg})`,
-                    backgroundColor: '#000836',
-                }}
-            >
-                <div className={styles.headerContainer}>
-                    <Header
-                        heading={userGroupStats?.userGroup.name}
-                        className={styles.header}
-                        headingClassName={styles.heading}
-                        headingSize="small"
-                        descriptionClassName={styles.description}
-                        description={userGroupStats?.userGroup.description}
-                    />
-                    <div className={styles.stats}>
-                        <InformationCard
-                            icon={(<img src={swipeSvg} alt="swipe icon" className={styles.image} />)}
-                            label="Total Swipes"
-                            value={(
-                                <NumberOutput
-                                    className={styles.value}
-                                    value={totalSwipe}
-                                    normal
-                                />
-                            )}
-                            // eslint-disable-next-line max-len
-                            description={isDefined(totalSwipeLastMonth) && totalSwipeLastMonth > 0 && (
-                                <TextOutput
-                                    className={styles.value}
-                                    value={(
-                                        <NumberOutput
-                                            className={styles.value}
-                                            value={totalSwipeLastMonth}
-                                            normal
-                                        />
-                                    )}
-                                    description="total swipes in the last 30 days"
-                                />
-                            )}
-                        />
-                        <InformationCard
-                            icon={(<img src={timeSvg} alt="time icon" className={styles.image} />)}
-                            label="Total Time Spent"
-                            value={(
-                                <div
-                                    className={styles.value}
-                                >
-                                    {isDefined(totalSwipeTime) ? formatTimeDuration(totalSwipeTime, ' ', true) : '-'}
-                                </div>
-                            )}
-                            // eslint-disable-next-line max-len
-                            description={isDefined(totalSwipeTimeLastMonth) && totalSwipeTimeLastMonth > 0 && (
-                                <TextOutput
-                                    className={styles.value}
-                                    value={(
-                                        <div
-                                            className={styles.value}
-                                        >
-                                            {formatTimeDuration(totalSwipeTimeLastMonth, ' ', true)}
-                                        </div>
-                                    )}
-                                    description="in the last 30 days"
-                                />
-                            )}
-                        />
-                        <InformationCard
-                            icon={(<img src={userSvg} alt="user icon" className={styles.image} />)}
-                            label="Total Contributors"
-                            value={(
-                                <NumberOutput
-                                    className={styles.value}
-                                    value={totalContributors}
-                                />
-                            )}
-                            // eslint-disable-next-line max-len
-                            description={isDefined(totalContributorsLastMonth) && totalContributorsLastMonth > 0 && (
-                                <TextOutput
-                                    className={styles.value}
-                                    value={(
-                                        <NumberOutput
-                                            className={styles.value}
-                                            value={totalContributorsLastMonth}
-                                        />
-                                    )}
-                                    hideLabelColon
-                                    description="active contributors in the last 30 days"
-                                />
-                            )}
-                        />
+        <Page
+            className={className}
+            variant="userGroup"
+            heading={userGroupStats?.userGroup.name}
+            totalSwipes={totalSwipes}
+            totalSwipesLastMonth={totalSwipesLastMonth}
+            totalTimeSpent={totalSwipeTime}
+            totalTimeSpentLastMonth={totalSwipeTimeLastMonth}
+            totalContributors={totalContributors}
+            totalContributorsLastMonth={totalContributorsLastMonth}
+            pending={userGroupStatsLoading || filteredUserGroupStatsLoading}
+            content={(
+                <StatsBoard
+                    heading="Group Statsboard"
+                    // eslint-disable-next-line max-len
+                    contributionTimeStats={filteredUserGroupStats?.userGroupStats.filteredStats.swipeTimeByDate}
+                    areaSwipedByProjectType={filteredUserGroupStats?.userGroupStats
+                        .filteredStats.areaSwipedByProjectType}
+                    // eslint-disable-next-line max-len
+                    organizationTypeStats={filteredUserGroupStats?.userGroupStats.filteredStats.swipeByOrganizationName}
+                    // eslint-disable-next-line max-len
+                    swipeByProjectType={filteredUserGroupStats?.userGroupStats.filteredStats.swipeByProjectType}
+                    dateRange={dateRange}
+                    handleDateRangeChange={setDateRangeSafe}
+                    // eslint-disable-next-line max-len
+                    contributions={filteredUserGroupStats?.userGroupStats.filteredStats.contributionByGeo as MapContributionType[]}
+                />
+            )}
+            additionalContent={totalMembers > 0 && (
+                <div className={styles.members}>
+                    <div className={styles.membersHeading}>
+                        <Heading size="extraLarge">
+                            Group Members
+                        </Heading>
+                        <CSVLink
+                            data={data}
+                            {...buttonProps}
+                        >
+                            Export
+                        </CSVLink>
                     </div>
-                </div>
-            </div>
-            <div className={styles.content}>
-                <div className={styles.container}>
-                    <StatsBoard
-                        heading="Group Statsboard"
-                        // eslint-disable-next-line max-len
-                        contributionTimeStats={filteredUserGroupStats?.userGroupStats.filteredStats.swipeTimeByDate}
-                        projectTypeStats={filteredUserGroupStats?.userGroupStats
-                            .filteredStats.areaSwipedByProjectType}
-                        // eslint-disable-next-line max-len
-                        organizationTypeStats={filteredUserGroupStats?.userGroupStats.filteredStats.swipeByOrganizationName}
-                        // eslint-disable-next-line max-len
-                        projectSwipeTypeStats={filteredUserGroupStats?.userGroupStats.filteredStats.swipeByProjectType}
-                        dateRange={dateRange}
-                        handleDateRangeChange={setDateRangeSafe}
-                        // eslint-disable-next-line max-len
-                        contributions={filteredUserGroupStats?.userGroupStats.filteredStats.contributionByGeo as MapContributionType[]}
-                    />
-                    {(filteredUserGroupStats?.userGroupStats
-                        .filteredStats.userStats.length ?? 0) > 0 && (
-                        <div className={styles.members}>
-                            <div className={styles.membersHeading}>
-                                <div>
-                                    Group Members
-                                </div>
-                                <CSVLink
-                                    className={styles.exportLink}
-                                    data={data}
-                                >
-                                    Export
-                                </CSVLink>
+                    <div className={styles.membersContainer}>
+                        <div className={styles.memberListHeading}>
+                            <div className={styles.tableHeading}>
+                                User
                             </div>
-                            <div className={styles.membersContainer}>
-                                <div className={styles.memberListHeading}>
-                                    <div className={styles.heading}>
-                                        User
-                                    </div>
-                                    <div className={styles.heading}>
-                                        Total Swipes
-                                    </div>
-                                    <div className={styles.heading}>
-                                        Mission contributed
-                                    </div>
-                                    <div className={styles.heading}>
-                                        Time Spent
-                                    </div>
-                                </div>
-                                <List
-                                    data={filteredUserGroupStats?.userGroupStats
-                                        .filteredStats.userStats}
-                                    keySelector={memberKeySelector}
-                                    renderer={MemberItem}
-                                    rendererParams={memberRendererParams}
-                                />
+                            <div className={styles.tableHeading}>
+                                Total Swipes
+                            </div>
+                            <div className={styles.tableHeading}>
+                                Mission contributed
+                            </div>
+                            <div className={styles.tableHeading}>
+                                Time Spent
                             </div>
                         </div>
-                    )}
+                        <List
+                            data={memberList}
+                            keySelector={memberKeySelector}
+                            renderer={MemberItem}
+                            rendererParams={memberRendererParams}
+                        />
+                    </div>
+                    <Pager
+                        pagePerItem={pagePerItem}
+                        onPagePerItemChange={setPagePerItem}
+                        activePage={activePage}
+                        onActivePageChange={setActivePage}
+                        totalItems={totalMembers}
+                        pagePerItemOptions={defaultPagePerItemOptions}
+                    />
                 </div>
-            </div>
-            <Footer />
-        </div>
+            )}
+        />
     );
 }
 

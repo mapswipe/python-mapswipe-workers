@@ -1,21 +1,12 @@
 import React from 'react';
-import { _cs, isDefined, encodeDate } from '@togglecorp/fujs';
+import { encodeDate } from '@togglecorp/fujs';
 import {
     gql,
     useQuery,
 } from '@apollo/client';
 import useUrlState from '#hooks/useUrlState';
 import { MapContributionType } from '#components/ContributionHeatMap';
-import Header from '#components/Header';
-import PendingMessage from '#components/PendingMessage';
-import dashboardHeaderSvg from '#resources/img/dashboard.svg';
-import userSvg from '#resources/icons/user.svg';
-import groupSvg from '#resources/icons/group.svg';
-import swipeSvg from '#resources/icons/swipe.svg';
-import Footer from '#components/Footer';
-import NumberOutput from '#components/NumberOutput';
-import TextOutput from '#components/TextOutput';
-import InformationCard from '#components/InformationCard';
+import Page from '#components/Page';
 import StatsBoard from '#views/StatsBoard';
 import { getThisYear } from '#components/DateRangeInput/predefinedDateRange';
 import {
@@ -24,8 +15,6 @@ import {
     FilteredCommunityStatsQuery,
     FilteredCommunityStatsQueryVariables,
 } from '#generated/types';
-
-import styles from './styles.css';
 
 const COMMUNITY_STATS = gql`
     query CommunityStats {
@@ -52,12 +41,12 @@ const FILTERED_COMMUNITY_STATS = gql`
                 geojson
                 totalContribution
             }
-            projectTypeStats {
+            areaSwipedByProjectType {
                 totalArea
                 projectType
                 projectTypeDisplay
             }
-            projectSwipeType {
+            swipeByProjectType {
                 projectType
                 totalSwipes
                 projectTypeDisplay
@@ -151,131 +140,36 @@ function Dashboard(props: Props) {
     const totalSwipesLastMonth = communityStats?.communityStatsLatest?.totalSwipes;
 
     return (
-        <div className={_cs(styles.dashboard, className)}>
-            {pending && <PendingMessage message="Getting latest data..." />}
-            <div
-                className={styles.headerSection}
-                style={{
-                    backgroundImage: `url(${dashboardHeaderSvg})`,
-                    backgroundColor: '#000836',
-                }}
-            >
-                <div className={styles.headerContainer}>
-                    <Header
-                        heading="MapSwipe Community"
-                        className={styles.header}
-                        headingClassName={styles.heading}
-                        headingSize="small"
-                        headingContainerClassName={styles.headingContainer}
-                        description="Improving humanitarian action through open, geospatial data."
-                    />
-                    <div className={styles.stats}>
-                        <InformationCard
-                            icon={(
-                                <img
-                                    src={swipeSvg}
-                                    alt="swipe icon"
-                                    className={styles.image}
-                                />
-                            )}
-                            value={(
-                                <NumberOutput
-                                    value={totalSwipes}
-                                    normal
-                                />
-                            )}
-                            label="Total Swipes"
-                            // eslint-disable-next-line max-len
-                            description={isDefined(totalSwipesLastMonth) && totalSwipesLastMonth > 0 && (
-                                <TextOutput
-                                    value={(
-                                        <NumberOutput
-                                            value={totalSwipesLastMonth}
-                                            normal
-                                        />
-                                    )}
-                                    description="swipes in the last 30 days"
-                                />
-                            )}
-                        />
-                        <InformationCard
-                            icon={(
-                                <img
-                                    src={userSvg}
-                                    alt="user icon"
-                                    className={styles.image}
-                                />
-                            )}
-                            value={(
-                                <NumberOutput
-                                    value={totalContributors}
-                                    normal
-                                />
-                            )}
-                            label="Total Contributors"
-                            // eslint-disable-next-line max-len
-                            description={isDefined(totalContributorsLastMonth) && totalContributorsLastMonth > 0 && (
-                                <TextOutput
-                                    value={(
-                                        <NumberOutput
-                                            value={totalContributorsLastMonth}
-                                            normal
-                                        />
-                                    )}
-                                    description="total contributors in the last 30 days"
-                                />
-                            )}
-                        />
-                        <InformationCard
-                            icon={(
-                                <img
-                                    src={groupSvg}
-                                    alt="group icon"
-                                    className={styles.image}
-                                />
-                            )}
-                            value={(
-                                <NumberOutput
-                                    value={totalUserGroups}
-                                    normal
-                                />
-                            )}
-                            label="Total Groups"
-                            // eslint-disable-next-line max-len
-                            description={isDefined(totalUserGroupsLastMonth) && totalUserGroupsLastMonth > 0 && (
-                                <TextOutput
-                                    value={(
-                                        <NumberOutput
-                                            value={totalUserGroupsLastMonth}
-                                            normal
-                                        />
-                                    )}
-                                    description="active groups in the last 30 days"
-                                />
-                            )}
-                        />
-                    </div>
-                </div>
-            </div>
-            <div className={styles.content}>
+        <Page
+            className={className}
+            variant="main"
+            heading="MapSwipe Community"
+            description="Improving humanitarian action through open, geospatial data"
+            totalSwipes={totalSwipes}
+            totalSwipesLastMonth={totalSwipesLastMonth}
+            totalContributors={totalContributors}
+            totalContributorsLastMonth={totalContributorsLastMonth}
+            totalUserGroups={totalUserGroups}
+            totalUserGroupsLastMonth={totalUserGroupsLastMonth}
+            pending={pending}
+            content={(
                 <StatsBoard
                     heading="Community Statsboard"
                     dateRange={dateRange}
                     calendarHeatmapHidden
                     handleDateRangeChange={setDateRangeSafe}
-                    className={styles.statsBoard}
                     // eslint-disable-next-line max-len
                     contributionTimeStats={filteredCommunityStats?.filteredStats?.contributorTimeStats}
-                    projectTypeStats={filteredCommunityStats?.filteredStats?.projectTypeStats}
+                    // eslint-disable-next-line max-len
+                    areaSwipedByProjectType={filteredCommunityStats?.filteredStats?.areaSwipedByProjectType}
                     // eslint-disable-next-line max-len
                     organizationTypeStats={filteredCommunityStats?.filteredStats?.organizationTypeStats}
-                    projectSwipeTypeStats={filteredCommunityStats?.filteredStats?.projectSwipeType}
+                    swipeByProjectType={filteredCommunityStats?.filteredStats?.swipeByProjectType}
                     // eslint-disable-next-line max-len
                     contributions={filteredCommunityStats?.filteredStats?.projectGeoContribution as MapContributionType[] | undefined}
                 />
-            </div>
-            <Footer />
-        </div>
+            )}
+        />
     );
 }
 

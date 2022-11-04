@@ -100,12 +100,53 @@ function UserGroupItem(props: Props) {
         },
         [groupKey, mountedRef, user?.id],
     );
+
+    const handleUnarchive = React.useCallback(
+        () => {
+            async function submitToFirebase() {
+                setArchivePending(true);
+
+                try {
+                    const db = getDatabase();
+                    const updates = {
+                        [`v2/userGroups/${groupKey}/archivedBy`]: null,
+                        [`v2/userGroups/${groupKey}/archivedAt`]: null,
+                    };
+
+                    await update(databaseRef(db), updates);
+                    if (!mountedRef.current) {
+                        return;
+                    }
+                    setArchivePending(false);
+                } catch (submissionError) {
+                    // eslint-disable-next-line no-console
+                    console.error(submissionError);
+
+                    if (!mountedRef.current) {
+                        return;
+                    }
+                    setArchivePending(false);
+                }
+            }
+
+            submitToFirebase();
+        },
+        [groupKey, mountedRef],
+    );
+
     const {
         showConfirmation: showArchiveConfirmation,
         setShowConfirmationTrue: setShowArchiveConfirmationTrue,
         onConfirmButtonClick: onArchiveConfirmButtonClick,
         onDenyButtonClick: onArchiveDenyButtonClick,
     } = useConfirmation(handleArchive);
+
+    const {
+        showConfirmation: showUnarchiveConfirmation,
+        setShowConfirmationTrue: setShowUnarchiveConfirmationTrue,
+        onConfirmButtonClick: onUnarchiveConfirmButtonClick,
+        onDenyButtonClick: onUnarchiveDenyButtonClick,
+    } = useConfirmation(handleUnarchive);
 
     React.useEffect(
         () => {
@@ -250,10 +291,12 @@ function UserGroupItem(props: Props) {
                     <div className={styles.action}>
                         <Button
                             name={undefined}
-                            onClick={setShowArchiveConfirmationTrue}
-                            disabled={archivePending || isArchived}
+                            onClick={isArchived
+                                ? setShowUnarchiveConfirmationTrue
+                                : setShowArchiveConfirmationTrue}
+                            disabled={archivePending}
                         >
-                            Archive this Group
+                            {isArchived ? 'Unarchive this Group' : 'Archive this Group'}
                         </Button>
                     </div>
                 </div>
@@ -283,6 +326,33 @@ function UserGroupItem(props: Props) {
                     )}
                 >
                     Are you sure you want to archive the User Group?
+                </Modal>
+            )}
+            {showUnarchiveConfirmation && (
+                <Modal
+                    className={styles.archiveConfirmationModal}
+                    heading="Unarchive User Group"
+                    footerClassName={styles.confirmationActions}
+                    closeButtonHidden
+                    footer={(
+                        <>
+                            <Button
+                                name={undefined}
+                                onClick={onUnarchiveDenyButtonClick}
+                                variant="action"
+                            >
+                                Cancel
+                            </Button>
+                            <Button
+                                name={undefined}
+                                onClick={onUnarchiveConfirmButtonClick}
+                            >
+                                Yes
+                            </Button>
+                        </>
+                    )}
+                >
+                    Are you sure you want to Unarchive the User Group?
                 </Modal>
             )}
         </div>

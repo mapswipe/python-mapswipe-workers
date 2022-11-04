@@ -104,7 +104,7 @@ class FilteredStats:
         ]
 
     @strawberry.field
-    async def project_swipe_type(self) -> list[ProjectTypeSwipeStatsType]:
+    async def swipe_by_project_type(self) -> list[ProjectTypeSwipeStatsType]:
         qs = (
             self.qs.order_by()
             .values("project__project_type")
@@ -123,7 +123,7 @@ class FilteredStats:
         ]
 
     @strawberry.field
-    async def project_type_stats(self) -> list[ProjectTypeAreaStatsType]:
+    async def area_swiped_by_project_type(self) -> list[ProjectTypeAreaStatsType]:
         qs = (
             self.qs.filter(area_swiped__isnull=False)
             .order_by()
@@ -177,7 +177,6 @@ class FilteredStats:
                 "swipes_sum",
             )
         )
-
         project_qs_with = With(project_qs, name="project_data")
         agg_data_qs_with = With(agg_data_qs, name="aggregated_data")
         qs = (

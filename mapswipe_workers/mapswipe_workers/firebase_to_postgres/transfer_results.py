@@ -1,5 +1,6 @@
 import csv
 import io
+from typing import List
 
 import dateutil.parser
 import psycopg2
@@ -82,14 +83,18 @@ def transfer_results_for_project(project_id, results, filter_mode: bool = False)
         # The user_id is used as a key in the postgres database for the results
         # and thus users need to be inserted before results get inserted.
         results_user_id_list = get_user_ids_from_results(results)
-        results_user_group_id_list = set(
-            [
-                user_group_id
-                for _, users in results.items()
-                for _, results in users.items()
-                for user_group_id, is_selected in results.get("userGroups", {}).items()
-                if is_selected
-            ]
+        results_user_group_id_list = list(
+            set(
+                [
+                    user_group_id
+                    for _, users in results.items()
+                    for _, results in users.items()
+                    for user_group_id, is_selected in results.get(
+                        "userGroups", {}
+                    ).items()
+                    if is_selected
+                ]
+            )
         )
         update_data.update_user_data(results_user_id_list)
         if results_user_group_id_list:
@@ -250,11 +255,8 @@ def results_to_file(results, projectId):
             start_time = dateutil.parser.parse(start_time)
             end_time = dateutil.parser.parse(end_time)
             timestamp = end_time
-            results_added = False
 
             if type(result_results) is dict:
-                if result_results:
-                    results_added = True
                 for taskId, result in result_results.items():
                     w.writerow(
                         [
@@ -274,8 +276,6 @@ def results_to_file(results, projectId):
                 # if key is a integer firebase will return a list
                 # if first key (list index) is 5
                 # list indicies 0-4 will have value None
-                if result_results:
-                    results_added = True
                 for taskId, result in enumerate(result_results):
                     if result is None:
                         continue
@@ -295,7 +295,7 @@ def results_to_file(results, projectId):
             else:
                 raise TypeError
 
-            if results_added:
+            if type(result_results) in [dict, list] and result_results:
                 user_group_results_csv.writerows(
                     [
                         [
@@ -476,17 +476,17 @@ def truncate_temp_user_groups_results():
     return
 
 
-def get_user_ids_from_results(results):
+def get_user_ids_from_results(results) -> List[str]:
     """
     Get all users based on the ids provided in the results
     """
 
     user_ids = set([])
-    for groupId, users in results.items():
+    for _, users in results.items():
         for userId, results in users.items():
             user_ids.add(userId)
 
-    return user_ids
+    return list(user_ids)
 
 
 def get_projects_from_postgres():

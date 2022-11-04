@@ -113,7 +113,7 @@ function Option(props: OptionProps) {
             </div>
             <div className={styles.meta}>
                 {isArchived && (
-                    <div className={styles.archived}>
+                    <div>
                         Archived
                     </div>
                 )}

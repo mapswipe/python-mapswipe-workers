@@ -25,21 +25,6 @@
             .logo {
                 height: 2rem;
             }
-
-            .title {
-                display: flex;
-                color: var(--color-primary);
-                font-size: var(--font-size-extra-large);
-
-                .map {
-                    font-weight: var(--font-weight-bold);
-                }
-
-                .swipe {
-                    font-weight: var(--font-weight-medium);
-                    font-style: italic;
-                }
-            }
         }
 
         .nav-links {

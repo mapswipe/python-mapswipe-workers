@@ -50,7 +50,7 @@ function InformationCard(props: Props) {
                                     )}
                                 </div>
                             )}
-                            <div>
+                            <div className={styles.label}>
                                 {label}
                             </div>
                         </div>
@@ -81,7 +81,7 @@ function InformationCard(props: Props) {
                     )}
                 </div>
                 {actions && (
-                    <div className={styles.actions}>
+                    <div>
                         {actions}
                     </div>
                 )}

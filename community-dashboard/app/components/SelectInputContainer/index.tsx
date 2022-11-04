@@ -83,6 +83,7 @@ export type SelectInputContainerProps<
     hasValue: boolean;
     nonClearable?: boolean;
     onClear: () => void;
+    emptyMessage?: React.ReactNode;
 }, OMISSION> & Omit<InputContainerProps, 'input'> & ({
     grouped: true;
     groupLabelSelector: (option: O) => string;
@@ -143,6 +144,7 @@ function SelectInputContainer<
         dropdownShown,
         onDropdownShownChange,
         totalOptionsCount,
+        emptyMessage,
         hasValue,
     } = props;
 
@@ -391,6 +393,7 @@ function SelectInputContainer<
                 >
                     {popup}
                     <EmptyOptions
+                        emptyMessage={emptyMessage}
                         filtered={optionsFiltered}
                         pending={optionsPending}
                         optionsCount={options.length}

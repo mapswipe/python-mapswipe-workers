@@ -31,6 +31,8 @@ export interface Props {
     tooltip?: number | string | null | undefined;
 
     currency?: boolean;
+
+    unit?: React.ReactNode;
 }
 
 /**
@@ -45,6 +47,7 @@ function NumberOutput(props: Props) {
         currency,
         value,
         tooltip,
+        unit,
     } = props;
 
     const val = useMemo(
@@ -77,6 +80,11 @@ function NumberOutput(props: Props) {
             title={isDefined(tooltip) ? String(tooltip) : undefined}
         >
             {val}
+            {isDefined(value) && unit && (
+                <span>
+                    {unit}
+                </span>
+            )}
         </div>
     );
 }

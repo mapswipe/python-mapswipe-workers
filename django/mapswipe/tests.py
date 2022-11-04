@@ -10,9 +10,19 @@ class TestCase(BaseTestCase):
     def logout(self):
         self.client.logout()
 
-    def query_check(self, query: str, with_assert: bool = True) -> Dict:
+    def query_check(
+        self,
+        query: str,
+        with_assert: bool = True,
+        variables: dict | None = None,
+    ) -> Dict:
         response = self.client.post(
-            "/graphql/", data={"query": query}, content_type="application/json"
+            "/graphql/",
+            data={
+                "query": query,
+                "variables": variables,
+            },
+            content_type="application/json",
         )
         if with_assert:
             self.assertEqual(response.status_code, 200)

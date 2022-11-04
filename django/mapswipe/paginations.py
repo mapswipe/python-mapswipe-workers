@@ -5,19 +5,38 @@ from typing import Any, Generic, TypeVar
 
 import strawberry
 from asgiref.sync import sync_to_async
+from django.conf import settings
 from django.db.models import QuerySet
-from strawberry.arguments import UNSET
 from strawberry_django import utils
 from strawberry_django.fields.field import StrawberryDjangoField
 from strawberry_django.pagination import (
     OffsetPaginationInput,
     StrawberryDjangoPagination,
 )
-from strawberry_django.pagination import apply as apply_pagination
+
+
+def apply_pagination(pagination, queryset):
+    # strawberry_django.pagination.apply
+    if pagination is strawberry.UNSET or pagination is None:
+        return queryset
+
+    limit = pagination.limit
+    if limit == -1:
+        limit = settings.DEFAULT_PAGINATION_MAX
+
+    start = pagination.offset
+    stop = start + limit
+    return queryset[start:stop]
 
 
 class CountBeforePaginationMonkeyPatch(StrawberryDjangoPagination):
-    def get_queryset(self, queryset: QuerySet[Any], info, pagination=UNSET, **kwargs):
+    def get_queryset(
+        self,
+        queryset: QuerySet[Any],
+        info,
+        pagination=strawberry.UNSET,
+        **kwargs,
+    ) -> QuerySet:
         _current_queryset = copy.copy(queryset)
 
         @sync_to_async
@@ -27,7 +46,9 @@ class CountBeforePaginationMonkeyPatch(StrawberryDjangoPagination):
         self.count_callback = _get_count
         queryset = apply_pagination(pagination, queryset)
         return super(StrawberryDjangoPagination, self).get_queryset(
-            queryset, info, **kwargs
+            queryset,
+            info,
+            **kwargs,
         )
 
 
@@ -45,12 +66,10 @@ class CountList(Generic[DjangoModelTypeVar]):
 
     @staticmethod
     async def resolve_items(root):
-        @sync_to_async
-        def _get_list():
-            return list(root.node["queryset"])
-
-        items = await _get_list()
-        return items
+        qs = root.node["queryset"]
+        if type(qs) in [list, tuple]:
+            return qs
+        return [d async for d in qs]
 
     count: int = strawberry.field(resolver=resolve_count)
     items: list[DjangoModelTypeVar] = strawberry.field(resolver=resolve_items)
@@ -87,7 +106,7 @@ class StrawberryDjangoCountList(CountList[DjangoModelTypeVar], StrawberryDjangoF
             )
         )
 
-    def get_queryset(self, queryset, info, order=UNSET, **kwargs):
+    def get_queryset(self, queryset, info, order=strawberry.UNSET, **kwargs):
         type_ = self._base_type or self.child.type
         type_ = utils.unwrap_type(type_)
         get_queryset = getattr(type_, "get_queryset", None)

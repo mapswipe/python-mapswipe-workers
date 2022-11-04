@@ -28,7 +28,7 @@ def get_tileserver_url(tileserver: str) -> str:
         return IMAGE_URLS[tileserver]
 
 
-def firebaseDB() -> object:
+def firebaseDB() -> db:
     try:
         # Is an App instance already initialized?
         firebase_admin.get_app()

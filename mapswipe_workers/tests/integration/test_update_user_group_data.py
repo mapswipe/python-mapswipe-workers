@@ -16,17 +16,17 @@ class TestUpdateProjectData(BaseTestCase):
             "user-group-1": {
                 "name": "User Group 1",
                 "description": "User Group 1 description",
-                "created_by": "user-1",
-                "created_at": "2022-07-11T09:32:02",
-                "archived_by": "user-2",
-                "archived_at": "2022-07-15T09:32:02",
+                "createdBy": "user-1",
+                "createdAt": 1663039591857,
+                "archivedBy": "user-2",
+                "archivedAt": 1663039591887,
                 "users": {
                     "user-1": True,
                     "user-2": True,
                     "user-3": True,
                 },
                 "userGroupMembershipLogs": {
-                    "user_id": "user-1",
+                    "userId": "user-1",
                     "action": "join",
                     "timestamp": 1663039591857,
                 },
@@ -43,10 +43,10 @@ class TestUpdateProjectData(BaseTestCase):
             "user-group-3": {
                 "name": "User Group 3",
                 "description": "User Group 3 description",
-                "created_by": "user-1",
-                "created_at": "2022-07-11T09:32:02",
-                "archived_by": "user-2",
-                "archived_at": "2022-07-15T09:32:02",
+                "createdBy": "user-1",
+                "createdAt": 1663039591857,
+                "archivedBy": "user-2",
+                "archivedAt": 1663039591887,
                 "users": {
                     "user-2": True,
                 },

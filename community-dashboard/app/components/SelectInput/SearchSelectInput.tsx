@@ -76,6 +76,8 @@ export type SearchSelectInputProps<
             | 'focusedKey'
             | 'onFocusedKeyChange'
             | 'hasValue'
+            | 'optionRenderer'
+            | 'optionRendererParams'
         >
     ) & (
         { nonClearable: true; onChange: (newValue: T, name: K) => void }

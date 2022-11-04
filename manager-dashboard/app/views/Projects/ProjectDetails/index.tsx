@@ -228,7 +228,7 @@ function ProjectDetails(props: Props) {
                             </div>
                             <div className={styles.textOutput}>
                                 <div className={styles.label}>
-                                    Verification Number
+                                    Verification Number:
                                 </div>
                                 <div className={styles.value}>
                                     {data.verificationNumber}
@@ -236,7 +236,7 @@ function ProjectDetails(props: Props) {
                             </div>
                             <div className={styles.textOutput}>
                                 <div className={styles.label}>
-                                    Number of Contributors
+                                    Number of Contributors:
                                 </div>
                                 <div className={styles.value}>
                                     {data.contributorCount}

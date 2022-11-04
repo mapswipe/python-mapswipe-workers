@@ -29,13 +29,14 @@ jobs:
         isort --check --settings-file setup.cfg mapswipe_workers/ ../django/
     - name:  Setup Postgres Database Container
       env:
-        POSTGRES_PASSWORD: test
-        POSTGRES_USER: test
-        POSTGRES_DB: test
+        POSTGRES_PASSWORD: postgres
+        POSTGRES_USER: postgres
+        POSTGRES_DB: postgres
       run: |
         # Create a mock file for wal-g setup
         touch postgres/serviceAccountKey.json
         docker-compose up --build --detach postgres
+        for i in {1..5}; do docker-compose exec -T postgres pg_isready && s=0 && break || s=$? && sleep 5; done; (docker-compose logs postgres && exit $s)
     - name: Deploy Firebase Rules and Functions
       env:
         FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
@@ -55,10 +56,12 @@ jobs:
       env:
         FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
         FIREBASE_DB: ${{ secrets.FIREBASE_DB }}
-        POSTGRES_PASSWORD: test
-        POSTGRES_USER: test
-        POSTGRES_DB: test
+        POSTGRES_PASSWORD: postgres
+        POSTGRES_USER: postgres
+        POSTGRES_DB: postgres
         OSMCHA_API_KEY: ${{ secrets.OSMCHA_API_KEY }}
+        DJANGO_SECRET_KEY: test-django-secret-key
       run: |
         docker-compose run --rm mapswipe_workers_creation python -m unittest discover --verbose --start-directory tests/unittests/
         docker-compose run --rm mapswipe_workers_creation bash -c 'pip install pytest && pytest -ra -v --durations=10 tests/integration/'
+        docker-compose run --rm django pytest -ra -v --durations=10

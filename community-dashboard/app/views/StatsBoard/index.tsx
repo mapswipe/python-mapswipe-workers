@@ -24,8 +24,14 @@ import {
     CartesianGrid,
     Bar,
 } from 'recharts';
+import {
+    AiOutlineLineChart,
+    AiOutlineBarChart,
+    AiOutlinePieChart,
+} from 'react-icons/ai';
 // import { formatDuration, intervalToDuration } from 'date-fns';
 
+import useDocumentSize from '#hooks/useDocumentSize';
 import ContributionHeatmap, { MapContributionType } from '#components/ContributionHeatMap';
 import CalendarHeatMapContainer from '#components/CalendarHeatMapContainer';
 import NumberOutput from '#components/NumberOutput';
@@ -43,9 +49,7 @@ import {
     ProjectTypeSwipeStatsType,
     ProjectTypeAreaStatsType,
 } from '#generated/types';
-import {
-    mergeItems,
-} from '#utils/common';
+import { mergeItems } from '#utils/common';
 import {
     formatTimeDuration,
     formatDate,
@@ -55,6 +59,8 @@ import {
     getTimestamps,
 } from '#utils/temporal';
 import styles from './styles.css';
+
+const CHART_BREAKPOINT = 700;
 
 export type ActualContributorTimeStatType = ContributorTimeStatType & { totalSwipeTime: number };
 const UNKNOWN = '-1';
@@ -122,31 +128,31 @@ interface Day {
 const days: Day[] = [
     {
         key: '0',
-        title: 'Sunday',
+        title: 'Sun',
     },
     {
         key: '1',
-        title: 'Monday',
+        title: 'Mon',
     },
     {
         key: '2',
-        title: 'Tuesday',
+        title: 'Tue',
     },
     {
         key: '3',
-        title: 'Wednesday',
+        title: 'Wed',
     },
     {
         key: '4',
-        title: 'Thursday',
+        title: 'Thu',
     },
     {
         key: '5',
-        title: 'Friday',
+        title: 'Fri',
     },
     {
         key: '6',
-        title: 'Saturday',
+        title: 'Sat',
     },
 ];
 
@@ -168,9 +174,9 @@ interface Props {
     className?: string;
     heading?: string;
     contributionTimeStats: ActualContributorTimeStatType[] | null | undefined;
-    projectTypeStats: ProjectTypeAreaStatsType[] | null | undefined;
+    areaSwipedByProjectType: ProjectTypeAreaStatsType[] | null | undefined;
     organizationTypeStats: OrganizationSwipeStatsType[] | null | undefined;
-    projectSwipeTypeStats: ProjectTypeSwipeStatsType[] | null | undefined;
+    swipeByProjectType: ProjectTypeSwipeStatsType[] | null | undefined;
     contributions: MapContributionType[] | undefined | null;
     dateRange: DateRangeValue | undefined;
     handleDateRangeChange: (value: DateRangeValue | undefined) => void;
@@ -182,14 +188,16 @@ function StatsBoard(props: Props) {
         className,
         heading,
         contributionTimeStats,
-        projectTypeStats,
+        areaSwipedByProjectType,
         organizationTypeStats,
-        projectSwipeTypeStats,
+        swipeByProjectType,
         contributions,
         dateRange,
         handleDateRangeChange,
         calendarHeatmapHidden,
     } = props;
+
+    const { width: documentWidth } = useDocumentSize();
 
     const [resolution, setResolution] = React.useState<'year' | 'month' | 'day'>('day');
 
@@ -348,14 +356,14 @@ function StatsBoard(props: Props) {
 
     const sortedProjectSwipeType = useMemo(
         () => (
-            projectSwipeTypeStats
+            swipeByProjectType
                 ?.map((item) => ({
                     ...item,
                     projectType: item.projectType ?? '-1',
                 }))
                 .sort((a, b) => compareNumber(b.totalSwipes, a.totalSwipes)) ?? []
         ),
-        [projectSwipeTypeStats],
+        [swipeByProjectType],
     );
 
     // Swipes by Organization
@@ -392,14 +400,27 @@ function StatsBoard(props: Props) {
 
     // Others
 
-    const buildAreaTotalArea = projectTypeStats?.find(
+    const buildAreaTotalArea = areaSwipedByProjectType?.find(
         (project) => project.projectType === BUILD_AREA,
     )?.totalArea;
 
-    const changeDetectionTotalSwipes = projectSwipeTypeStats?.find(
+    const changeDetectionTotalArea = areaSwipedByProjectType?.find(
+        (project) => project.projectType === CHANGE_DETECTION,
+    )?.totalArea;
+
+    const footprintTotalArea = areaSwipedByProjectType?.find(
+        (project) => project.projectType === FOOTPRINT,
+    )?.totalArea;
+
+    const buildAreaTotalSwipes = swipeByProjectType?.find(
+        (project) => project.projectType === BUILD_AREA,
+    )?.totalSwipes;
+
+    const changeDetectionTotalSwipes = swipeByProjectType?.find(
         (project) => project.projectType === CHANGE_DETECTION,
     )?.totalSwipes;
-    const footPrintTotalSwipes = projectSwipeTypeStats?.find(
+
+    const footPrintTotalSwipes = swipeByProjectType?.find(
         (project) => project.projectType === FOOTPRINT,
     )?.totalSwipes;
 
@@ -418,11 +439,9 @@ function StatsBoard(props: Props) {
     return (
         <div className={_cs(className, styles.statsBoard)}>
             <div className={styles.headingContainer}>
-                {heading && (
-                    <Heading size="large">
-                        {heading}
-                    </Heading>
-                )}
+                <Heading size="extraLarge">
+                    {heading}
+                </Heading>
                 <DateRangeInput
                     name="date-range"
                     value={dateRange}
@@ -465,6 +484,7 @@ function StatsBoard(props: Props) {
                 >
                     {!dataAvailableForTimeseries && (
                         <div className={styles.empty}>
+                            <AiOutlineLineChart className={styles.icon} />
                             Data not available!
                         </div>
                     )}
@@ -505,6 +525,7 @@ function StatsBoard(props: Props) {
                                     // domain={[0.9, 'auto']}
                                     padding={{ top: 0, bottom: 0 }}
                                     width={120}
+                                    hide={documentWidth <= CHART_BREAKPOINT}
                                 />
                                 {dataAvailableForTimeseries && (
                                     <Tooltip
@@ -536,6 +557,7 @@ function StatsBoard(props: Props) {
                 >
                     {!dataAvailableForTimeseries && (
                         <div className={styles.empty}>
+                            <AiOutlineBarChart className={styles.icon} />
                             Data not available!
                         </div>
                     )}
@@ -555,6 +577,7 @@ function StatsBoard(props: Props) {
                                 tickFormatter={(value) => formatTimeDuration(value, ' ', true)}
                                 padding={{ top: 0, bottom: 0 }}
                                 width={120}
+                                hide={documentWidth <= CHART_BREAKPOINT}
                             />
                             <Bar
                                 dataKey="total"
@@ -569,13 +592,33 @@ function StatsBoard(props: Props) {
                         value={(
                             <NumberOutput
                                 className={styles.numberOutput}
-                                value={buildAreaTotalArea}
+                                value={buildAreaTotalSwipes}
                                 normal
                                 invalidText={0}
                             />
                         )}
-                        label="Area Reviewed (in sq km)"
-                        subHeading="Build Area"
+                        label={(
+                            <div className={styles.infoLabel}>
+                                <div>
+                                    Area Reviewed
+                                </div>
+                                <small>
+                                    (# of swipes)
+                                </small>
+                            </div>
+                        )}
+                        subHeading={(
+                            <>
+                                Build Area
+                                <NumberOutput
+                                    className={styles.areaOutput}
+                                    value={buildAreaTotalArea}
+                                    normal
+                                    invalidText=""
+                                    unit="Sq. Km."
+                                />
+                            </>
+                        )}
                         variant="stat"
                     />
                     <InformationCard
@@ -588,8 +631,28 @@ function StatsBoard(props: Props) {
                                 invalidText={0}
                             />
                         )}
-                        label="Features Checked (# of swipes)"
-                        subHeading="Footprint"
+                        label={(
+                            <div className={styles.infoLabel}>
+                                <div>
+                                    Features Checked
+                                </div>
+                                <small>
+                                    (# of swipes)
+                                </small>
+                            </div>
+                        )}
+                        subHeading={(
+                            <>
+                                Footprint
+                                <NumberOutput
+                                    className={styles.areaOutput}
+                                    value={footprintTotalArea}
+                                    normal
+                                    invalidText=""
+                                    unit="Sq. Km."
+                                />
+                            </>
+                        )}
                         variant="stat"
                     />
                     <InformationCard
@@ -602,8 +665,28 @@ function StatsBoard(props: Props) {
                                 invalidText={0}
                             />
                         )}
-                        label="Scene Comparision (# of swipes)"
-                        subHeading="Change Detection"
+                        label={(
+                            <div className={styles.infoLabel}>
+                                <div>
+                                    Scene Comparision
+                                </div>
+                                <small>
+                                    (# of swipes)
+                                </small>
+                            </div>
+                        )}
+                        subHeading={(
+                            <>
+                                Change Detection
+                                <NumberOutput
+                                    className={styles.areaOutput}
+                                    value={changeDetectionTotalArea}
+                                    normal
+                                    invalidText=""
+                                    unit="Sq. Km."
+                                />
+                            </>
+                        )}
                         variant="stat"
                     />
                 </div>
@@ -641,70 +724,86 @@ function StatsBoard(props: Props) {
                         variant="stat"
                         contentClassName={styles.pieChartContainer}
                     >
-                        <ResponsiveContainer>
-                            <PieChart>
-                                <Tooltip />
-                                <Legend
-                                    align="right"
-                                    layout="vertical"
-                                    verticalAlign="middle"
-                                    // formatter={projectTypeFormatter}
-                                    iconType="circle"
-                                />
-                                <Pie
-                                    data={sortedProjectSwipeType}
-                                    dataKey="totalSwipes"
-                                    nameKey="projectTypeDisplay"
-                                    cx="50%"
-                                    cy="50%"
-                                    outerRadius="90%"
-                                    innerRadius="50%"
-                                >
-                                    {sortedProjectSwipeType.map((item) => (
-                                        <Cell
-                                            key={item.projectType}
-                                            fill={projectTypes[item.projectType].color}
-                                        />
-                                    ))}
-                                </Pie>
-                            </PieChart>
-                        </ResponsiveContainer>
+                        {sortedProjectSwipeType.length > 0 ? (
+                            <ResponsiveContainer>
+                                <PieChart>
+                                    <Tooltip />
+                                    <Legend
+                                        align={documentWidth <= CHART_BREAKPOINT ? 'center' : 'right'}
+                                        layout={documentWidth <= CHART_BREAKPOINT ? 'horizontal' : 'vertical'}
+                                        verticalAlign={documentWidth <= CHART_BREAKPOINT ? 'bottom' : 'middle'}
+                                        // formatter={projectTypeFormatter}
+                                        iconType="circle"
+                                    />
+                                    <Pie
+                                        data={sortedProjectSwipeType}
+                                        dataKey="totalSwipes"
+                                        nameKey="projectTypeDisplay"
+                                        cx="50%"
+                                        cy="50%"
+                                        outerRadius="90%"
+                                        innerRadius="50%"
+                                    >
+                                        {sortedProjectSwipeType.map((item) => (
+                                            <Cell
+                                                key={item.projectType}
+                                                fill={projectTypes[item.projectType].color}
+                                            />
+                                        ))}
+                                    </Pie>
+                                </PieChart>
+                            </ResponsiveContainer>
+                        ) : (
+                            <div className={styles.empty}>
+                                <AiOutlinePieChart className={styles.icon} />
+                                Data not available
+                            </div>
+                        )}
                     </InformationCard>
                     <InformationCard
                         label="Swipes by Organization"
                         variant="stat"
                         contentClassName={styles.pieChartContainer}
                     >
-                        <ResponsiveContainer>
-                            <PieChart>
-                                <Tooltip formatter={organizationTotalSwipeFormatter} />
-                                <Legend
-                                    align="right"
-                                    layout="vertical"
-                                    verticalAlign="middle"
-                                    // formatter={organizationNameFormatter}
-                                    iconType="circle"
-                                />
-                                <Pie
-                                    data={totalSwipesByOrganizationStats ?? undefined}
-                                    dataKey="totalSwipes"
-                                    nameKey="organizationName"
-                                    cx="50%"
-                                    cy="50%"
-                                    outerRadius="90%"
-                                    innerRadius="50%"
-                                >
-                                    {totalSwipesByOrganizationStats?.map((item) => (
-                                        <Cell
-                                            key={item.organizationName}
-                                            fill={item.organizationName
-                                                ? organizationColors(item.organizationName) ?? '#808080'
-                                                : '#808080'}
-                                        />
-                                    ))}
-                                </Pie>
-                            </PieChart>
-                        </ResponsiveContainer>
+                        {totalSwipesByOrganizationStats.length > 0 ? (
+                            <ResponsiveContainer>
+                                <PieChart>
+                                    <Tooltip
+                                        formatter={organizationTotalSwipeFormatter}
+                                    />
+                                    <Legend
+                                        // align="right"
+                                        layout={documentWidth <= CHART_BREAKPOINT ? 'horizontal' : 'vertical'}
+                                        verticalAlign={documentWidth <= CHART_BREAKPOINT ? 'bottom' : 'middle'}
+                                        align={documentWidth <= CHART_BREAKPOINT ? 'center' : 'right'}
+                                        iconType="circle"
+                                    />
+                                    <Pie
+                                        data={totalSwipesByOrganizationStats}
+                                        dataKey="totalSwipes"
+                                        nameKey="organizationName"
+                                        cx="50%"
+                                        cy="50%"
+                                        outerRadius="90%"
+                                        innerRadius="50%"
+                                    >
+                                        {totalSwipesByOrganizationStats.map((item) => (
+                                            <Cell
+                                                key={item.organizationName}
+                                                fill={item.organizationName
+                                                    ? organizationColors(item.organizationName) ?? '#808080'
+                                                    : '#808080'}
+                                            />
+                                        ))}
+                                    </Pie>
+                                </PieChart>
+                            </ResponsiveContainer>
+                        ) : (
+                            <div className={styles.empty}>
+                                <AiOutlinePieChart className={styles.icon} />
+                                Data not available
+                            </div>
+                        )}
                     </InformationCard>
                 </div>
             </div>

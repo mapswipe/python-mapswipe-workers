@@ -2,16 +2,24 @@
     display: flex;
     flex-direction: column;
     flex-grow: 1;
-    gap: var(--spacing-large);
+    gap: var(--spacing-extra-large);
 
     .heading-container {
         display: flex;
-        align-items: center;
+        align-items: baseline;
         flex-grow: 1;
+        flex-wrap: wrap;
         justify-content: space-between;
+        gap: var(--spacing-large);
 
         .hint {
             text-align: right;
+        }
+
+        @media (max-width: 42rem) {
+            >* {
+                flex-basis: 100%;
+            }
         }
     }
 
@@ -23,7 +31,7 @@
         display: flex;
         flex-direction: column;
         flex-grow: 1;
-        gap: var(--spacing-large);
+        gap: var(--spacing-extra-large);
 
         .time-spent-chart-container {
             position: relative;
@@ -35,28 +43,33 @@
                 top: 0;
                 left: 0;
                 align-items: center;
+                flex-direction: column;
                 justify-content: center;
-                opacity: 0.5;
+                opacity: 0.3;
                 z-index: 1;
                 background-color: var(--color-foreground);
-                padding: var(--spacing-large);
+                padding: 0 var(--spacing-medium) var(--spacing-medium) var(--spacing-medium);
                 width: 100%;
                 height: 100%;
                 font-size: var(--font-size-large);
+
+                .icon {
+                    font-size: 6em;
+                }
             }
         }
 
         .stats-card-container {
             display: flex;
             flex-wrap: wrap;
-            gap: var(--spacing-large);
+            gap: var(--spacing-medium);
 
             >* {
                 flex-basis: 0;
                 flex-grow: 1;
-                min-width: 10rem;
+                min-width: 12rem;
 
-                @media (max-width: 50rem) {
+                @media (max-width: 48rem) {
                     min-width: 100%;
                 }
             }
@@ -65,14 +78,14 @@
         .overall-stats-container {
             display: flex;
             flex-wrap: wrap;
-            gap: var(--spacing-large);
+            gap: var(--spacing-medium);
 
             >* {
                 flex-basis: 0;
                 flex-grow: 1;
                 min-width: 20rem;
 
-                @media (max-width: 50rem) {
+                @media (max-width: 48rem) {
                     min-width: 100%;
                 }
             }
@@ -81,14 +94,14 @@
         .other-stats-container {
             display: flex;
             flex-wrap: wrap;
-            gap: var(--spacing-large);
+            gap: var(--spacing-medium);
 
             >* {
                 flex-basis: 0;
                 flex-grow: 1;
                 min-width: 20rem;
 
-                @media (max-width: 50rem) {
+                @media (max-width: 56rem) {
                     min-width: 100%;
                 }
             }
@@ -97,9 +110,34 @@
                 display: flex;
                 height: 20rem;
 
+                @media (max-width: 700px) {
+                    height: 30rem;
+                }
+
+                .empty {
+                    display: flex;
+                    align-items: center;
+                    flex-direction: column;
+                    justify-content: center;
+                    opacity: 0.3;
+                    z-index: 1;
+                    padding: var(--spacing-large);
+                    width: 100%;
+                    height: 100%;
+                    font-size: var(--font-size-large);
+                    gap: var(--spacing-medium);
+
+                    .icon {
+                        font-size: 6rem;
+                    }
+                }
+
                 :global {
                     .recharts-legend-wrapper {
-                        max-width: 12rem;
+                        @media (min-width: 700px) {
+                            right: 0;
+                            max-width: 12rem;
+                        }
                     }
 
                     .recharts-default-legend {
@@ -109,6 +147,10 @@
                         flex-wrap: wrap;
                         justify-content: center;
                         gap: var(--spacing-medium);
+
+                        @media (max-width: 700px) {
+                            flex-direction: row;
+                        }
 
                         .recharts-legend-item {
                             display: flex!important;
@@ -132,6 +174,24 @@
     .number-output {
         display: flex;
         gap: var(--spacing-small);
-        font-family: var(--font-family-sans-serif);
+    }
+
+    .area-output {
+        display: flex;
+        gap: var(--spacing-small);
+        justify-content: flex-end;
+        color: var(--color-text-light);
+        font-size: var(--font-size-small);
+    }
+
+    .info-label {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--spacing-small);
+        line-height: 1;
+
+        small {
+            color: var(--color-text-watermark);
+        }
     }
 }
