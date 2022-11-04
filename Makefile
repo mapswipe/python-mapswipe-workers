@@ -24,4 +24,4 @@ update_firebase_functions_and_db_rules:
 	docker compose run --rm firebase_deploy
 
 deploy_latest_workers_version:
-	git pull; docker compose build postgres manager_dashboard community_dashboard nginx api mapswipe_workers_creation mapswipe_workers_stats mapswipe_workers_firebase_to_postgres firebase_deploy; docker compose up -d postgres manager_dashboard community_dashboard nginx api mapswipe_workers_creation mapswipe_workers_stats mapswipe_workers_firebase_to_postgres firebase_deploy
+	git pull; docker compose build postgres django django-schedule-task manager_dashboard community_dashboard nginx api mapswipe_workers_creation mapswipe_workers_stats mapswipe_workers_firebase_to_postgres firebase_deploy; docker compose up -d postgres django django-schedule-task manager_dashboard community_dashboard nginx api mapswipe_workers_creation mapswipe_workers_stats mapswipe_workers_firebase_to_postgres firebase_deploy
