@@ -24,6 +24,11 @@ server {
     location /api {
         rewrite ^ /api/ permanent;
     }
+
+    # NOTE: Redirect everything else to New Manager dashboard domain.
+    location / {
+        return 301 https://$NGINX_MANAGER_DASHBOARD_DOMAIN;
+    }
 }
 
 server {
