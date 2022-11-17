@@ -123,12 +123,28 @@ exports.groupUsersCounter = functions.database.ref('/v2/results/{projectId}/{gro
                         if (!allUserGroupsSnapshot.exists()) {
                             return null;
                         }
-                        const allUserGroups = allUserGroupsSnapshot.val();
 
                         const userGroupsOfTheUserKeyList = Object.keys(userGroupsOfTheUserSnapshot.val());
-                        const nonArchivedUserGroupKeys = userGroupsOfTheUserKeyList.filter((key) => (
-                            !allUserGroups[key].archivedAt && !allUserGroups[key].archivedBy
-                        ));
+                        if (userGroupsOfTheUserKeyList.length <= 0) {
+                            return null;
+                        }
+
+                        const allUserGroups = allUserGroupsSnapshot.val();
+                        const nonArchivedUserGroupKeys = userGroupsOfTheUserKeyList.filter((key) => {
+                            const currentUserGroup = allUserGroups[key];
+
+                            // User might have joined some group that was removed but not cleared from their list
+                            if (!currentUserGroup) {
+                                return false;
+                            }
+
+                            // Skip groups that have been archived
+                            if (currentUserGroup.archivedAt) {
+                                return false;
+                            }
+
+                            return true;
+                        });
 
                         if (nonArchivedUserGroupKeys.length === 0) {
                             return null;
