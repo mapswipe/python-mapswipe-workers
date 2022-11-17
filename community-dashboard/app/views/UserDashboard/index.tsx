@@ -175,6 +175,8 @@ function UserDashboard(props: Props) {
     const userGroupsLength = userStats?.user?.userInUserGroups?.items?.length ?? 0;
     const excessUserGroups = Array.from(new Array((3 - ((userGroupsLength) % 3)) % 3).keys());
 
+    const filteredStats = filteredUserStats?.userStats?.filteredStats;
+
     return (
         <Page
             className={className}
@@ -192,16 +194,13 @@ function UserDashboard(props: Props) {
                     heading="User Statsboard"
                     dateRange={dateRange}
                     handleDateRangeChange={setDateRangeSafe}
+                    contributionSwipeStats={filteredStats?.swipeByDate}
+                    contributionTimeStats={filteredStats?.swipeTimeByDate}
+                    areaSwipedByProjectType={filteredStats?.areaSwipedByProjectType}
+                    organizationTypeStats={filteredStats?.swipeByOrganizationName}
+                    swipeByProjectType={filteredStats?.swipeByProjectType}
                     // eslint-disable-next-line max-len
-                    contributionTimeStats={filteredUserStats?.userStats.filteredStats.swipeTimeByDate}
-                    // eslint-disable-next-line max-len
-                    areaSwipedByProjectType={filteredUserStats?.userStats.filteredStats.areaSwipedByProjectType}
-                    // eslint-disable-next-line max-len
-                    organizationTypeStats={filteredUserStats?.userStats.filteredStats.swipeByOrganizationName}
-                    // eslint-disable-next-line max-len
-                    swipeByProjectType={filteredUserStats?.userStats.filteredStats.swipeByProjectType}
-                    // eslint-disable-next-line max-len
-                    contributions={filteredUserStats?.userStats.filteredStats.contributionByGeo as MapContributionType[] | undefined}
+                    contributions={filteredStats?.contributionByGeo as MapContributionType[] | undefined}
                 />
             )}
             additionalContent={userGroupsLength > 0 && (

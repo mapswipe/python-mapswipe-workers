@@ -213,6 +213,8 @@ function UserGroupDashboard(props: Props) {
     const totalContributors = userGroupStats?.userGroupStats.stats.totalContributors;
     const totalContributorsLastMonth = userGroupStats?.userGroupStats.statsLatest.totalContributors;
 
+    const filteredStats = filteredUserGroupStats?.userGroupStats?.filteredStats;
+
     return (
         <Page
             className={className}
@@ -228,18 +230,14 @@ function UserGroupDashboard(props: Props) {
             content={(
                 <StatsBoard
                     heading="Group Statsboard"
-                    // eslint-disable-next-line max-len
-                    contributionTimeStats={filteredUserGroupStats?.userGroupStats.filteredStats.swipeTimeByDate}
-                    areaSwipedByProjectType={filteredUserGroupStats?.userGroupStats
-                        .filteredStats.areaSwipedByProjectType}
-                    // eslint-disable-next-line max-len
-                    organizationTypeStats={filteredUserGroupStats?.userGroupStats.filteredStats.swipeByOrganizationName}
-                    // eslint-disable-next-line max-len
-                    swipeByProjectType={filteredUserGroupStats?.userGroupStats.filteredStats.swipeByProjectType}
+                    contributionSwipeStats={filteredStats?.swipeByDate}
+                    contributionTimeStats={filteredStats?.swipeTimeByDate}
+                    areaSwipedByProjectType={filteredStats?.areaSwipedByProjectType}
+                    organizationTypeStats={filteredStats?.swipeByOrganizationName}
+                    swipeByProjectType={filteredStats?.swipeByProjectType}
                     dateRange={dateRange}
                     handleDateRangeChange={setDateRangeSafe}
-                    // eslint-disable-next-line max-len
-                    contributions={filteredUserGroupStats?.userGroupStats.filteredStats.contributionByGeo as MapContributionType[]}
+                    contributions={filteredStats?.contributionByGeo as MapContributionType[]}
                 />
             )}
             additionalContent={totalMembers > 0 && (

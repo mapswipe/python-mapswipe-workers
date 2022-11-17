@@ -48,6 +48,7 @@ import {
     OrganizationSwipeStatsType,
     ProjectTypeSwipeStatsType,
     ProjectTypeAreaStatsType,
+    ContributorSwipeStatType,
 } from '#generated/types';
 import { mergeItems } from '#utils/common';
 import {
@@ -174,6 +175,7 @@ interface Props {
     className?: string;
     heading?: string;
     contributionTimeStats: ActualContributorTimeStatType[] | null | undefined;
+    contributionSwipeStats: ContributorSwipeStatType[] | null | undefined;
     areaSwipedByProjectType: ProjectTypeAreaStatsType[] | null | undefined;
     organizationTypeStats: OrganizationSwipeStatsType[] | null | undefined;
     swipeByProjectType: ProjectTypeSwipeStatsType[] | null | undefined;
@@ -188,6 +190,7 @@ function StatsBoard(props: Props) {
         className,
         heading,
         contributionTimeStats,
+        contributionSwipeStats,
         areaSwipedByProjectType,
         organizationTypeStats,
         swipeByProjectType,
@@ -246,10 +249,10 @@ function StatsBoard(props: Props) {
 
     const contributionData = useMemo(
         () => (
-            contributionTimeStats
-                ?.map((value) => ({ date: value.date, count: value.totalSwipeTime }))
+            contributionSwipeStats
+                ?.map((value) => ({ date: value.taskDate, count: value.totalSwipes }))
         ),
-        [contributionTimeStats],
+        [contributionSwipeStats],
     );
 
     const contributionTimeSeries = useMemo(
