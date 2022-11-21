@@ -571,7 +571,7 @@ class UserGroupType:
                 total_mapping_projects=_subquery_generator(
                     models.Count("project", distinct=True)
                 ),
-                total_swipes=_subquery_generator(models.Sum("task_count")),
+                total_swipes=_subquery_generator(models.Sum("swipes")),
                 total_swipe_time=_subquery_generator(models.Sum("total_time")),
             )
             .order_by("user_id")
