@@ -5,6 +5,7 @@ import {
     IoChevronDown,
     IoChevronUp,
 } from 'react-icons/io5';
+import { MdSearch } from 'react-icons/md';
 
 import route from '#base/configs/routes';
 import SmartLink from '#base/components/SmartLink';
@@ -14,6 +15,8 @@ import Button from '#components/Button';
 import OrganisationFormModal from '#components/OrganisationFormModal';
 import TutorialList from '#components/TutorialList';
 import OrganisationList from '#components/OrganisationList';
+import TextInput from '#components/TextInput';
+import useInputState from '#hooks/useInputState';
 
 import styles from './styles.css';
 
@@ -30,6 +33,7 @@ function Home(props: Props) {
         setShowOrganisationFormModalFalse,
     ] = useBooleanState(false);
 
+    const [searchText, setSearchText] = useInputState<string | undefined>(undefined);
     const [showOrganisationList, setShowOrganisationList] = React.useState(false);
     const [showTutorialList, setShowTutorialList] = React.useState(false);
 
@@ -90,6 +94,15 @@ function Home(props: Props) {
                         <h2 className={styles.heading}>
                             Tutorials
                         </h2>
+                        {showTutorialList && (
+                            <TextInput
+                                icons={<MdSearch />}
+                                name={undefined}
+                                value={searchText}
+                                onChange={setSearchText}
+                                placeholder="Search by title"
+                            />
+                        )}
                         <SmartLink
                             route={route.newTutorial}
                         >
@@ -97,7 +110,10 @@ function Home(props: Props) {
                         </SmartLink>
                     </div>
                     {showTutorialList && (
-                        <TutorialList className={styles.tutorialList} />
+                        <TutorialList
+                            className={styles.tutorialList}
+                            searchText={searchText}
+                        />
                     )}
                     <Button
                         name={!showTutorialList}

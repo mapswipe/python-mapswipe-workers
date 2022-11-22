@@ -13,6 +13,7 @@ import useFirebaseDatabase from '#hooks/useFirebaseDatabase';
 import usePagination from '#hooks/usePagination';
 import PendingMessage from '#components/PendingMessage';
 import Pager from '#components/Pager';
+import { rankedSearchOnList } from '#components/SelectInput/utils';
 import {
     ProjectType,
     projectTypeLabelMap,
@@ -28,11 +29,11 @@ interface Tutorial {
 
 interface Props {
     className?: string;
+    searchText?: string;
 }
 
 function TutorialList(props: Props) {
-    const { className } = props;
-
+    const { className, searchText } = props;
     const tutorialsQuery = React.useMemo(
         () => {
             const db = getDatabase();
@@ -57,6 +58,16 @@ function TutorialList(props: Props) {
         [tutorials],
     );
 
+    const filteredTutorialList = React.useMemo(
+        () => rankedSearchOnList(
+            tutorialList,
+            searchText,
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            ([_, tutorial]) => tutorial.name,
+        ),
+        [tutorialList, searchText],
+    );
+
     const {
         showPager,
         activePage,
@@ -66,7 +77,7 @@ function TutorialList(props: Props) {
         pagePerItemOptions,
         totalItems,
         items: tutorialListInCurrentPage,
-    } = usePagination(tutorialList);
+    } = usePagination(filteredTutorialList);
 
     return (
         <div className={_cs(styles.tutorialList, className)}>
@@ -100,6 +111,11 @@ function TutorialList(props: Props) {
             {!pending && (!tutorialListInCurrentPage || tutorialListInCurrentPage.length === 0) && (
                 <div className={styles.emptyList}>
                     No tutorials yet!
+                </div>
+            )}
+            {!pending && tutorialListInCurrentPage.length > 0 && (
+                <div className={styles.tutorialCount}>
+                    {`${totalItems} ${totalItems > 1 ? 'tutorials' : 'tutorial'}`}
                 </div>
             )}
             {!pending && showPager && (

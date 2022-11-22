@@ -36,6 +36,10 @@
         }
     }
 
+    .tutorial-count {
+        font-weight: var(--font-weight-bold);
+    }
+
     .footer-actions {
         display: flex;
         justify-content: flex-end;
