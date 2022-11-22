@@ -41,7 +41,6 @@ const USER_STATS = gql`
             stats {
                 totalSwipes
                 totalSwipeTime
-                totalUserGroups
             }
             statsLatest {
                 totalSwipes
@@ -169,7 +168,7 @@ function UserDashboard(props: Props) {
     const totalSwipeTime = userStats?.userStats?.stats?.totalSwipeTime;
     const totalSwipeTimeLastMonth = userStats?.userStats?.statsLatest?.totalSwipeTime;
 
-    const totalUserGroup = userStats?.userStats?.stats?.totalUserGroups;
+    const totalUserGroup = userStats?.user?.userInUserGroups?.count ?? 0;
     const totalUserGroupLastMonth = userStats?.userStats?.statsLatest?.totalUserGroups;
 
     const userGroupsLength = userStats?.user?.userInUserGroups?.items?.length ?? 0;
