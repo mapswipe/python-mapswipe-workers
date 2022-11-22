@@ -13,6 +13,7 @@ from apps.existing_database.factories import (
     UserGroupFactory,
     UserGroupMembershipFactory,
 )
+from apps.existing_database.models import Project
 from django.utils import timezone
 from mapswipe.tests import TestCase
 
@@ -93,7 +94,7 @@ class ExistingDatabaseTestCase(TestCase):
             }
         """
         user_group = UserGroupFactory.create()
-        project = ProjectFactory.create()
+        project = ProjectFactory.create(project_type=Project.Type.BUILD_AREA)
         users = UserFactory.create_batch(4)
         # Create some memberships
         for index, user in enumerate(users, start=1):
@@ -118,7 +119,7 @@ class ExistingDatabaseTestCase(TestCase):
                         "isActive": True,
                         "totalMappingProjects": 1,
                         "totalSwipeTime": 10,
-                        "totalSwipes": 11,
+                        "totalSwipes": 12,
                         "userId": users[0].user_id,
                         "username": users[0].username,
                     },
@@ -126,7 +127,7 @@ class ExistingDatabaseTestCase(TestCase):
                         "isActive": True,
                         "totalMappingProjects": 1,
                         "totalSwipeTime": 20,
-                        "totalSwipes": 22,
+                        "totalSwipes": 24,
                         "userId": users[1].user_id,
                         "username": users[1].username,
                     },
@@ -139,7 +140,7 @@ class ExistingDatabaseTestCase(TestCase):
                         "isActive": True,
                         "totalMappingProjects": 1,
                         "totalSwipeTime": 30,
-                        "totalSwipes": 33,
+                        "totalSwipes": 36,
                         "userId": users[2].user_id,
                         "username": users[2].username,
                     },
