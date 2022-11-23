@@ -184,7 +184,12 @@ function ProjectDetails(props: Props) {
 
     const [title, org] = data.name.split('\n');
 
-    const isPrivateProject = data.teamId;
+    /* This is probably due to a faulty dataset in the dev instance of firebase that
+     * one of the active private project doesn't have teamId and it's producing inconsistent
+     * result.Let's overcome that adding following check for now.
+     */
+    const isPrivateProject = data.teamId || data.status === 'private_active'
+        || data.status === 'private_inactive';
 
     const projectStatusOptionsByType = isPrivateProject
         ? privateStatusOptions : publicStatusOptions;
