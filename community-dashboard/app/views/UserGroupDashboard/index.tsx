@@ -1,19 +1,18 @@
-import React, { useCallback, useMemo } from 'react';
-import { gql, useQuery } from '@apollo/client';
+import React, { useCallback } from 'react';
+import { gql, useQuery, useLazyQuery } from '@apollo/client';
 import { encodeDate } from '@togglecorp/fujs';
 import { useParams } from 'react-router-dom';
-import { CSVLink } from 'react-csv';
 
 import StatsBoard from '#views/StatsBoard';
 
 import useUrlState from '#hooks/useUrlState';
+import Button from '#components/Button';
 import List from '#components/List';
 import MemberItem from '#components/MemberItem';
 import Heading from '#components/Heading';
 import Pager from '#components/Pager';
 import Page from '#components/Page';
 import { MapContributionType } from '#components/ContributionHeatMap';
-import { useButtonFeatures } from '#components/Button';
 import { getThisYear } from '#components/DateRangeInput/predefinedDateRange';
 
 import {
@@ -123,9 +122,6 @@ interface Props {
 
 function UserGroupDashboard(props: Props) {
     const { className } = props;
-    const buttonProps = useButtonFeatures({
-        variant: 'primary',
-    });
 
     const { userGroupId } = useParams<{ userGroupId: string | undefined }>();
     const [
@@ -166,6 +162,54 @@ function UserGroupDashboard(props: Props) {
         },
     );
 
+    const [
+        getUserGroupStatsDownload,
+        {
+            loading: userGroupStatsDownloadLoading,
+        },
+    ] = useLazyQuery<UserGroupStatsQuery, UserGroupStatsQueryVariables>(
+        USER_GROUP_STATS,
+        {
+            variables: userGroupId ? {
+                pk: userGroupId,
+                limit: 500, // NOTE this is a temporary fix we need to do recursive fetch later
+                offset: 0,
+            } : undefined,
+            onCompleted: (data) => {
+                const userGroupData = [
+                    ['User', 'Total swipes', 'Mission contributed', 'Time spent(mins)'],
+                    ...(data.userGroup.userMemberships.items.map((user) => (
+                        [
+                            user.username,
+                            user.totalSwipes,
+                            user.totalMappingProjects,
+                            user.totalSwipeTime,
+                        ]
+                    )) ?? [])];
+                let csvContent = '';
+                userGroupData.forEach((row) => {
+                    csvContent += `${row.join(',')} \n`;
+                });
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8,' });
+                const objUrl = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = objUrl;
+                link.download = `${userGroupStats.userGroup.name}.csv`;
+                document.body.appendChild(link);
+                link.dispatchEvent(
+                    new MouseEvent('click', {
+                        bubbles: true,
+                        cancelable: true,
+                        view: window,
+                    }),
+                );
+                document.body.removeChild(link);
+                window.URL.revokeObjectURL(objUrl);
+            },
+            skip: !userGroupId,
+        },
+    );
+
     const {
         data: filteredUserGroupStats,
         loading: filteredUserGroupStatsLoading,
@@ -183,18 +227,6 @@ function UserGroupDashboard(props: Props) {
 
     const memberList = userGroupStats?.userGroup?.userMemberships?.items;
     const totalMembers = userGroupStats?.userGroup?.userMemberships?.count ?? 0;
-
-    const data = useMemo(() => ([
-        ['User', 'Total swipes', 'Mission contributed', 'Time spent(mins)'],
-        ...(memberList?.map((user) => (
-            [
-                user.username,
-                user.totalSwipes,
-                user.totalMappingProjects,
-                user.totalSwipeTime,
-            ]
-        )) ?? []),
-    ]), [memberList]);
 
     const memberRendererParams = useCallback((_: string, item: UserGroupMember) => (
         { member: item }
@@ -246,12 +278,12 @@ function UserGroupDashboard(props: Props) {
                         <Heading size="extraLarge">
                             Group Members
                         </Heading>
-                        <CSVLink
-                            data={data}
-                            {...buttonProps}
+                        <Button
+                            disabled={userGroupStatsDownloadLoading}
+                            onClick={getUserGroupStatsDownload}
                         >
-                            Export
-                        </CSVLink>
+                            { userGroupStatsDownloadLoading ? 'Exporting' : 'Export' }
+                        </Button>
                     </div>
                     <div className={styles.membersContainer}>
                         <div className={styles.memberListHeading}>
