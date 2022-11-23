@@ -51,9 +51,7 @@
         width: 100%;
 
         .user-details-heading {
-            .task-contributions,
-            .group-contributions,
-            .project-contributions,
+            .community-link,
             .user-name {
                 background-color: var(--color-background);
                 font-weight: var(--font-weight-bold);
@@ -73,17 +71,7 @@
                 padding: var(--spacing-small) var(--spacing-medium);
             }
 
-            .project-contributions {
-                display: table-cell;
-                padding: var(--spacing-small) var(--spacing-medium);
-            }
-
-            .group-contributions {
-                display: table-cell;
-                padding: var(--spacing-small) var(--spacing-medium);
-            }
-
-            .task-contributions {
+            .community-link {
                 display: table-cell;
                 padding: var(--spacing-small) var(--spacing-medium);
             }
