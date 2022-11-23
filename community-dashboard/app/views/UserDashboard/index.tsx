@@ -202,7 +202,7 @@ function UserDashboard(props: Props) {
                     contributions={filteredStats?.contributionByGeo as MapContributionType[] | undefined}
                 />
             )}
-            additionalContent={userGroupsLength > 0 && (
+            additionalContent={totalUserGroup > 0 && (
                 <div className={styles.groups}>
                     <Heading size="extraLarge">
                         Current Groups
@@ -245,7 +245,7 @@ function UserDashboard(props: Props) {
                         onPagePerItemChange={setPagePerItem}
                         activePage={activePage}
                         onActivePageChange={setActivePage}
-                        totalItems={userGroupsLength}
+                        totalItems={totalUserGroup}
                         pagePerItemOptions={defaultPagePerItemOptions}
                     />
                 </div>

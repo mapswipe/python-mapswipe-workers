@@ -411,9 +411,11 @@ function StatsBoard(props: Props) {
         (project) => project.projectType === CHANGE_DETECTION,
     )?.totalArea;
 
+    /*
     const footprintTotalArea = areaSwipedByProjectType?.find(
         (project) => project.projectType === FOOTPRINT,
     )?.totalArea;
+    */
 
     const buildAreaTotalSwipes = swipeByProjectType?.find(
         (project) => project.projectType === BUILD_AREA,
