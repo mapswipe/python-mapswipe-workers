@@ -74,6 +74,14 @@
             .community-link {
                 display: table-cell;
                 padding: var(--spacing-small) var(--spacing-medium);
+
+                .anchor {
+                    display: flex;
+                    align-items: center;
+                    gap: var(--spacing-small);
+                    word-break: break-all;
+                    color: var(--color-primary);
+                }
             }
         }
     }

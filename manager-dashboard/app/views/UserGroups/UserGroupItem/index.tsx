@@ -9,6 +9,7 @@ import {
 import {
     IoChevronDown,
     IoChevronUp,
+    IoOpenOutline,
 } from 'react-icons/io5';
 
 import { getValueFromFirebase } from '#utils/firebase';
@@ -255,11 +256,13 @@ function UserGroupItem(props: Props) {
                                 </div>
                                 <div className={styles.communityLink}>
                                     <a
+                                        className={styles.anchor}
                                         href={`${communityLink}/user/${groupUser.id}/`}
                                         target="_blank"
                                         rel="noopener noreferrer"
                                     >
                                         {groupUser.id}
+                                        <IoOpenOutline />
                                     </a>
                                 </div>
                             </div>

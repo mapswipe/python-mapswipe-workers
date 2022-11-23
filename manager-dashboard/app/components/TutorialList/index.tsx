@@ -113,13 +113,13 @@ function TutorialList(props: Props) {
                     No tutorials yet!
                 </div>
             )}
-            {!pending && tutorialListInCurrentPage.length > 0 && (
-                <div className={styles.tutorialCount}>
-                    {`${totalItems} ${totalItems > 1 ? 'tutorials' : 'tutorial'}`}
-                </div>
-            )}
             {!pending && showPager && (
                 <div className={styles.footerActions}>
+                    {tutorialListInCurrentPage.length > 0 && (
+                        <div className={styles.tutorialCount}>
+                            {`${totalItems} ${totalItems > 1 ? 'tutorials' : 'tutorial'}`}
+                        </div>
+                    )}
                     <Pager
                         pagePerItem={pagePerItem}
                         onPagePerItemChange={setPagePerItem}

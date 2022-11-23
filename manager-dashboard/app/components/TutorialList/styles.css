@@ -42,6 +42,8 @@
 
     .footer-actions {
         display: flex;
+        align-items: center;
+        gap: var(--spacing-large);
         justify-content: flex-end;
     }
 }
