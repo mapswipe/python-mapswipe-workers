@@ -229,6 +229,10 @@ class TestTransferResultsProject(BaseTestCase):
                 query,
             )
 
+    def test_get_contributor_count_from_postgres(self):
+        contributor_count = get_contributor_count_from_postgres(self.project_id)
+        self.assertEqual(contributor_count, 1)
+
 
 if __name__ == "__main__":
     unittest.main()
