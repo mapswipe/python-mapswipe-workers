@@ -10,7 +10,7 @@ from mapswipe_workers import auth
 from mapswipe_workers.firebase_to_postgres import transfer_results
 
 
-class TestTranserResultsProject(BaseTestCase):
+class TestTransferResultsProject(BaseTestCase):
     def setUp(self):
         super().setUp()
         project_type = "tile_map_service_grid"
