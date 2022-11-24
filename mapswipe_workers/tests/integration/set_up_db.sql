@@ -229,3 +229,35 @@ CREATE TABLE IF NOT EXISTS mapping_sessions_results (
     FOREIGN KEY (mapping_session_id)
     references mapping_sessions (mapping_session_id)
 );
+
+CREATE OR REPLACE FUNCTION mapping_sessions_results_constraint() RETURNS trigger
+    LANGUAGE plpgsql AS
+$$
+DECLARE v mapping_sessions;
+BEGIN
+    IF NOT EXISTS(
+        SELECT 1
+        FROM tasks
+        JOIN mapping_sessions ms
+        ON ms.mapping_session_id = NEW.mapping_session_id
+        WHERE tasks.task_id = NEW.task_id AND
+            tasks.group_id = ms.group_id AND
+            tasks.project_id = ms.project_id AND
+            ms.mapping_session_id = NEW.mapping_session_id
+        )
+    THEN
+        SELECT ms.project_id, ms.group_id, ms.user_id
+        FROM mapping_sessions ms
+        WHERE ms.mapping_session_id = NEW.mapping_session_id
+        INTO v;
+        RAISE EXCEPTION
+        'Tried to insert invalid result: Project: % Group: % Task: % - User: %', v.project_id, v.group_id, NEW.task_id, v.user_id
+            USING ERRCODE = '23503';
+    END IF;
+
+    RETURN NEW;
+END;
+$$;
+
+CREATE OR REPLACE TRIGGER insert_mapping_sessions_results BEFORE INSERT ON mapping_sessions_results
+    FOR EACH ROW EXECUTE PROCEDURE mapping_sessions_results_constraint();

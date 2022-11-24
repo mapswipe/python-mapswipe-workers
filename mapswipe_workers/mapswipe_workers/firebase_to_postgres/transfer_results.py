@@ -112,6 +112,11 @@ def transfer_results_for_project(project_id, results, filter_mode: bool = False)
             user_group_results_file, project_id, filter_mode=filter_mode
         )
     except psycopg2.errors.ForeignKeyViolation as e:
+        # if we get here, we were in the middle of a transaction block
+        # that failed because of a constraint trigger. To allow new commands
+        # to be issued to postgres, we need to ROLLBACK first.
+        p_con = auth.postgresDB()
+        p_con.query("ROLLBACK");
 
         sentry.capture_exception(e)
         sentry.capture_message(
