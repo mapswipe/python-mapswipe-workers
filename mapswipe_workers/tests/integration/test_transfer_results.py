@@ -3,6 +3,7 @@ import os
 import unittest
 
 import set_up
+import tear_down
 from base import BaseTestCase
 
 from mapswipe_workers import auth
@@ -18,6 +19,9 @@ class TestTranserResultsProject(BaseTestCase):
         self.project_id = set_up.create_test_project(
             "tile_map_service_grid", "build_area", results=True
         )
+
+    def tearDown(self):
+        tear_down.delete_test_data(self.project_id)
 
     def test_changes_given_project_id(self):
         """Test if results are deleted from Firebase for given project id."""
@@ -44,6 +48,7 @@ class TestTranserResultsProject(BaseTestCase):
         fb_db = auth.firebaseDB()
         ref = fb_db.reference("v2/results/{0}".format(self.project_id))
         self.assertIsNone(ref.get())
+        expected_items_count = 252
 
         pg_db = auth.postgresDB()
         sql_query = (
@@ -122,7 +127,7 @@ class TestTranserResultsProject(BaseTestCase):
         pg_db = auth.postgresDB()
         sql_query = (
             f"SELECT * "
-            f"FROM results "
+            f"FROM mapping_sessions "
             f"WHERE project_id = '{self.project_id}' "
             f"AND user_id = '{self.project_id}'"
         )
@@ -216,8 +221,19 @@ class TestTranserResultsProject(BaseTestCase):
                 expected_value,
                 pg_db.retr_query(UG_QUERY),
                 query,
-            )
+        self.assertEqual(len(result), 1)
+        self.assertEqual(result[0][6], expected_items_count)
 
+        q2 = (
+            "SELECT msr.* "
+            "FROM mapping_sessions_results msr "
+            "JOIN mapping_sessions ms ON ms.mapping_session_id = msr.mapping_session_id "
+            f"WHERE ms.project_id = '{self.project_id}' "
+            f"AND ms.user_id = '{self.project_id}'"
+            )
+        result2 = pg_db.retr_query(q2)
+        self.assertIsNotNone(result2)
+        self.assertEqual(len(result2), expected_items_count)
 
 if __name__ == "__main__":
     unittest.main()
