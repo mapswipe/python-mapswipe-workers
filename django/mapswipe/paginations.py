@@ -22,8 +22,9 @@ def apply_pagination(pagination, queryset):
 
     limit = pagination.limit
     if limit == -1:
-        limit = settings.DEFAULT_PAGINATION_MAX
+        limit = settings.DEFAULT_PAGINATION_LIMIT
 
+    limit = min(limit, settings.MAX_PAGINATION_LIMIT)
     start = pagination.offset
     stop = start + limit
     return queryset[start:stop]

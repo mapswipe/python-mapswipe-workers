@@ -9,6 +9,7 @@ import {
     IoChevronDown,
     IoChevronUp,
 } from 'react-icons/io5';
+import { MdLock } from 'react-icons/md';
 
 import useConfirmation from '#hooks/useConfirmation';
 import useMountedRef from '#hooks/useMountedRef';
@@ -51,6 +52,7 @@ export interface Project {
     requiredResults: number;
     resultCount: number;
     status: ProjectStatus;
+    teamId?: string; // NOTE private projects have teamId
     tileServer: {
         apiKey: string;
         credits: string;
@@ -69,6 +71,26 @@ export const projectStatusOptions: {
     { value: 'private_active', label: 'Active (Private)' },
     { value: 'inactive', label: 'Inactive' },
     { value: 'private_inactive', label: 'Inactive (Private)' },
+    { value: 'finished', label: 'Finished' },
+    { value: 'archived', label: 'Archived' },
+];
+
+const privateStatusOptions: {
+    value: ProjectStatus;
+    label: string;
+}[] = [
+    { value: 'private_active', label: 'Active' },
+    { value: 'private_inactive', label: 'Inactive' },
+    { value: 'finished', label: 'Finished' },
+    { value: 'archived', label: 'Archived' },
+];
+
+const publicStatusOptions: {
+    value: ProjectStatus;
+    label: string;
+}[] = [
+    { value: 'active', label: 'Active' },
+    { value: 'inactive', label: 'Inactive' },
     { value: 'finished', label: 'Finished' },
     { value: 'archived', label: 'Archived' },
 ];
@@ -161,6 +183,16 @@ function ProjectDetails(props: Props) {
     } = useConfirmation(updateFeatured);
 
     const [title, org] = data.name.split('\n');
+
+    /* This is probably due to a faulty dataset in the dev instance of firebase that
+     * one of the active private project doesn't have teamId and it's producing inconsistent
+     * result.Let's overcome that adding following check for now.
+     */
+    const isPrivateProject = data.teamId || data.status === 'private_active'
+        || data.status === 'private_inactive';
+
+    const projectStatusOptionsByType = isPrivateProject
+        ? privateStatusOptions : publicStatusOptions;
 
     return (
         <div className={_cs(styles.projectDetails, className)}>
@@ -264,7 +296,7 @@ function ProjectDetails(props: Props) {
                 <div className={styles.dbActions}>
                     <SelectInput
                         name="status"
-                        options={projectStatusOptions}
+                        options={projectStatusOptionsByType}
                         value={data.status}
                         keySelector={valueSelector}
                         labelSelector={labelSelector}
@@ -279,6 +311,12 @@ function ProjectDetails(props: Props) {
                         onChange={setShowFeaturedUpdateConfirmationTrue}
                         disabled={featuredUpdatePending || statusUpdatePending}
                     />
+                    {isPrivateProject && (
+                        <div className={styles.projectVisibility}>
+                            <MdLock />
+                            Private Project
+                        </div>
+                    )}
                 </div>
                 <div className={styles.progressBar}>
                     <div className={styles.value}>

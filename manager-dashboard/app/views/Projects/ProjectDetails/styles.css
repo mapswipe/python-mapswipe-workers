@@ -102,6 +102,12 @@
             flex-grow: 1;
             flex-wrap: wrap;
             gap: var(--spacing-large);
+
+            .project-visibility {
+                display: flex;
+                align-items: center;
+                gap: var(--spacing-small);
+            }
         }
 
         .progress-bar {

@@ -58,7 +58,7 @@ class UserGroupUserMembership(Model):
 
 
 class Project(Model):
-    class ProjectType(models.IntegerChoices):
+    class Type(models.IntegerChoices):
         BUILD_AREA = 1, "Build Area"
         FOOTPRINT = 2, "Footprint"
         CHANGE_DETECTION = 3, "Change Detection"
@@ -74,9 +74,7 @@ class Project(Model):
     name = models.CharField(max_length=999, blank=True, null=True)
     progress = models.IntegerField(blank=True, null=True)
     project_details = models.CharField(max_length=999, blank=True, null=True)
-    project_type = models.IntegerField(
-        choices=ProjectType.choices, blank=True, null=True
-    )
+    project_type = models.IntegerField(choices=Type.choices, blank=True, null=True)
     required_results = models.IntegerField(blank=True, null=True)
     result_count = models.IntegerField(blank=True, null=True)
     status = models.CharField(max_length=999, blank=True, null=True)

@@ -51,9 +51,7 @@
         width: 100%;
 
         .user-details-heading {
-            .task-contributions,
-            .group-contributions,
-            .project-contributions,
+            .community-link,
             .user-name {
                 background-color: var(--color-background);
                 font-weight: var(--font-weight-bold);
@@ -73,19 +71,17 @@
                 padding: var(--spacing-small) var(--spacing-medium);
             }
 
-            .project-contributions {
+            .community-link {
                 display: table-cell;
                 padding: var(--spacing-small) var(--spacing-medium);
-            }
 
-            .group-contributions {
-                display: table-cell;
-                padding: var(--spacing-small) var(--spacing-medium);
-            }
-
-            .task-contributions {
-                display: table-cell;
-                padding: var(--spacing-small) var(--spacing-medium);
+                .anchor {
+                    display: flex;
+                    align-items: center;
+                    gap: var(--spacing-small);
+                    word-break: break-all;
+                    color: var(--color-primary);
+                }
             }
         }
     }

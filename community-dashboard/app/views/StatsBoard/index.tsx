@@ -411,9 +411,11 @@ function StatsBoard(props: Props) {
         (project) => project.projectType === CHANGE_DETECTION,
     )?.totalArea;
 
+    /*
     const footprintTotalArea = areaSwipedByProjectType?.find(
         (project) => project.projectType === FOOTPRINT,
     )?.totalArea;
+    */
 
     const buildAreaTotalSwipes = swipeByProjectType?.find(
         (project) => project.projectType === BUILD_AREA,
@@ -602,12 +604,7 @@ function StatsBoard(props: Props) {
                         )}
                         label={(
                             <div className={styles.infoLabel}>
-                                <div>
-                                    Area Reviewed
-                                </div>
-                                <small>
-                                    (# of swipes)
-                                </small>
+                                Area Reviewed
                             </div>
                         )}
                         subHeading={(
@@ -636,26 +633,10 @@ function StatsBoard(props: Props) {
                         )}
                         label={(
                             <div className={styles.infoLabel}>
-                                <div>
-                                    Features Checked
-                                </div>
-                                <small>
-                                    (# of swipes)
-                                </small>
+                                Features Checked
                             </div>
                         )}
-                        subHeading={(
-                            <>
-                                Footprint
-                                <NumberOutput
-                                    className={styles.areaOutput}
-                                    value={footprintTotalArea}
-                                    normal
-                                    invalidText=""
-                                    unit="Sq. Km."
-                                />
-                            </>
-                        )}
+                        subHeading="Footprint"
                         variant="stat"
                     />
                     <InformationCard
@@ -670,12 +651,7 @@ function StatsBoard(props: Props) {
                         )}
                         label={(
                             <div className={styles.infoLabel}>
-                                <div>
-                                    Scene Comparision
-                                </div>
-                                <small>
-                                    (# of swipes)
-                                </small>
+                                Scene Comparision
                             </div>
                         )}
                         subHeading={(

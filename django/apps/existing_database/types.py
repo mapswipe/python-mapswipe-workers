@@ -12,7 +12,7 @@ from mapswipe.types import AreaSqKm, GenericJSON, TimeInSeconds
 from strawberry.types import Info
 
 from .enums import ProjectTypeEnum
-from .models import Project, User, UserGroup, UserGroupResult, UserGroupUserMembership
+from .models import Project, User, UserGroup, UserGroupUserMembership
 
 
 @strawberry.input
@@ -80,7 +80,6 @@ class UserStatType:
     total_swipes: int
     total_swipe_time: TimeInSeconds
     total_mapping_projects: int
-    total_user_groups: int
     total_area_swiped: AreaSqKm
     total_organization: int
 
@@ -293,18 +292,12 @@ class UserStats:
                 distinct=True,
             ),
         )
-        user_group_count = (
-            await UserGroupResult.objects.filter(user_id=self._user_id).aaggregate(
-                count=models.Count("user_group_id", distinct=True)
-            )
-        )["count"]
         return UserStatType(
             total_swipes=agg_data["total_swipes"] or 0,
             total_swipe_time=TimeInSeconds(agg_data["total_time_sum"] or 0),
             total_mapping_projects=agg_data["total_project"] or 0,
             total_area_swiped=AreaSqKm(agg_data["total_area_swiped"] or 0),
             total_organization=agg_data["total_organization"] or 0,
-            total_user_groups=user_group_count or 0,
         )
 
     @strawberry.field(description="Stats from last 30 days")
@@ -578,7 +571,7 @@ class UserGroupType:
                 total_mapping_projects=_subquery_generator(
                     models.Count("project", distinct=True)
                 ),
-                total_swipes=_subquery_generator(models.Sum("task_count")),
+                total_swipes=_subquery_generator(models.Sum("swipes")),
                 total_swipe_time=_subquery_generator(models.Sum("total_time")),
             )
             .order_by("user_id")

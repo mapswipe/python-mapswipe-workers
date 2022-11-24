@@ -148,6 +148,11 @@ function Projects(props: Props) {
                             No projects found!
                         </div>
                     )}
+                    {!pending && filteredProjectListInCurrentPage.length > 0 && (
+                        <div className={styles.projectCount}>
+                            {`${totalItems} ${totalItems > 1 ? 'projects' : 'project'}`}
+                        </div>
+                    )}
                     {!pending && filteredProjectListInCurrentPage.map((project) => (
                         <ProjectDetails
                             key={project.projectId}

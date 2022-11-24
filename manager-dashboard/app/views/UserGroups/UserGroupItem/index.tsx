@@ -9,6 +9,7 @@ import {
 import {
     IoChevronDown,
     IoChevronUp,
+    IoOpenOutline,
 } from 'react-icons/io5';
 
 import { getValueFromFirebase } from '#utils/firebase';
@@ -43,6 +44,7 @@ interface User {
     groupContributionCount: number;
     userGroupId: string;
     username: string;
+    id: string;
 }
 
 interface Props {
@@ -50,6 +52,7 @@ interface Props {
     className?: string;
     data: UserGroup;
 }
+const communityLink = process.env.REACT_APP_COMMUNITY_DASHBOARD_URL;
 
 function UserGroupItem(props: Props) {
     const {
@@ -171,8 +174,9 @@ function UserGroupItem(props: Props) {
                         return getValueFromFirebase(userRef);
                     }));
                     const members = memberSnapshots.map((snapshot) => {
-                        const userDetail = snapshot.val() as (User | null);
-                        return userDetail;
+                        const userDetail = snapshot.val();
+                        const id = snapshot.key;
+                        return { ...userDetail, id } as (User | null);
                     }).filter(isDefined);
                     if (!mountedRef.current) {
                         return;
@@ -238,14 +242,8 @@ function UserGroupItem(props: Props) {
                             <div className={styles.userName}>
                                 User Name
                             </div>
-                            <div className={styles.projectContributions}>
-                                Project Contributions
-                            </div>
-                            <div className={styles.groupContributions}>
-                                Group Contributions
-                            </div>
-                            <div className={styles.taskContributions}>
-                                Task Contributions
+                            <div className={styles.communityLink}>
+                                User Id
                             </div>
                         </div>
                         {!userListPending && userListInCurrentPage.map((groupUser) => (
@@ -256,14 +254,16 @@ function UserGroupItem(props: Props) {
                                 <div className={styles.userName}>
                                     {groupUser.username}
                                 </div>
-                                <div className={styles.projectContributions}>
-                                    {groupUser.projectContributionCount ?? 0}
-                                </div>
-                                <div className={styles.groupContributions}>
-                                    {groupUser.groupContributionCount ?? 0}
-                                </div>
-                                <div className={styles.taskContributions}>
-                                    {groupUser.taskContributionCount ?? 0}
+                                <div className={styles.communityLink}>
+                                    <a
+                                        className={styles.anchor}
+                                        href={`${communityLink}/user/${groupUser.id}/`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                    >
+                                        {groupUser.id}
+                                        <IoOpenOutline />
+                                    </a>
                                 </div>
                             </div>
                         ))}
