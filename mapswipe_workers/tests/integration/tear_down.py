@@ -50,7 +50,7 @@ def delete_test_data(project_id: str) -> None:
     pg_db = auth.postgresDB()
     sql_query = (
         "DELETE FROM mapping_sessions_results "
-        "WHERE mapping_session_id = ("
+        "WHERE mapping_session_id IN ("
         "SELECT mapping_session_id "
         "FROM mapping_sessions WHERE project_id = %s)"
          )
