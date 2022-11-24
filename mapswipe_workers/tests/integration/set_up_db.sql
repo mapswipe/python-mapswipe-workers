@@ -254,10 +254,9 @@ BEGIN
         'Tried to insert invalid result: Project: % Group: % Task: % - User: %', v.project_id, v.group_id, NEW.task_id, v.user_id
             USING ERRCODE = '23503';
     END IF;
-
     RETURN NEW;
 END;
 $$;
 
-CREATE OR REPLACE TRIGGER insert_mapping_sessions_results BEFORE INSERT ON mapping_sessions_results
+CREATE TRIGGER insert_mapping_sessions_results BEFORE INSERT ON mapping_sessions_results
     FOR EACH ROW EXECUTE PROCEDURE mapping_sessions_results_constraint();

@@ -259,5 +259,5 @@ BEGIN
 END;
 $$;
 
-CREATE OR REPLACE TRIGGER insert_mapping_sessions_results BEFORE INSERT ON mapping_sessions_results
+CREATE TRIGGER insert_mapping_sessions_results BEFORE INSERT ON mapping_sessions_results
     FOR EACH ROW EXECUTE PROCEDURE mapping_sessions_results_constraint();
