@@ -1,5 +1,7 @@
 """Helper functions for test tear down"""
+import os
 import re
+import tempfile
 import time
 from typing import List
 
@@ -53,7 +55,7 @@ def delete_test_data(project_id: str) -> None:
         "WHERE mapping_session_id IN ("
         "SELECT mapping_session_id "
         "FROM mapping_sessions WHERE project_id = %s)"
-         )
+    )
     pg_db.query(sql_query, [project_id])
     sql_query = "DELETE FROM mapping_sessions WHERE project_id = %s"
     pg_db.query(sql_query, [project_id])
@@ -79,6 +81,14 @@ def delete_test_data(project_id: str) -> None:
     pg_db.query(sql_query)
     sql_query = "DELETE FROM users_temp WHERE user_id = 'test_build_area_heidelberg'"
     pg_db.query(sql_query)
+
+    filename = os.path.join(
+        tempfile._get_default_tempdir(), f"results_{project_id}.csv.gz"
+    )
+    try:
+        os.remove(filename)
+    except FileNotFoundError:
+        pass
 
 
 def delete_test_user_group(user_group_ids: List) -> None:
