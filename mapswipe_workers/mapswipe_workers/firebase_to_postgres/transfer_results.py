@@ -375,13 +375,36 @@ def save_results_to_postgres(results_file, project_id, filter_mode: bool):
         """
         p_con.query(filter_query, {"project_id": project_id})
 
-    query_insert_results = """
-        INSERT INTO results
-            SELECT * FROM results_temp
-        ON CONFLICT (project_id,group_id,user_id,task_id)
+    query_insert_mapping_sessions = """
+        BEGIN;
+        INSERT INTO mapping_sessions
+            SELECT
+                project_id,
+                group_id,
+                user_id,
+                nextval('mapping_sessions_mapping_session_id_seq'),
+                min(start_time),
+                max(end_time),
+                count(*)
+            FROM results_temp
+            GROUP BY project_id, group_id, user_id
+        ON CONFLICT (project_id,group_id,user_id)
         DO NOTHING;
+        INSERT INTO mapping_sessions_results
+            SELECT
+                ms.mapping_session_id,
+                r.task_id,
+                r.result
+            FROM results_temp r
+            JOIN mapping_sessions ms ON
+                ms.project_id = r.project_id
+                AND ms.group_id = r.group_id
+                AND ms.user_id = r.user_id
+        ON CONFLICT (mapping_session_id, task_id)
+        DO NOTHING;
+        COMMIT;
     """
-    p_con.query(query_insert_results)
+    p_con.query(query_insert_mapping_sessions)
     del p_con
     logger.info("copied results into postgres.")
 
