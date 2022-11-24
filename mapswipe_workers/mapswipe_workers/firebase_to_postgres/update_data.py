@@ -566,6 +566,7 @@ def update_project_data(project_ids: list = []):
 
     logger.info("Finished status update projects.")
 
+
 def get_project_progress(project_id: str) -> int:
     """
     Calculate overall project progress as the average progress for all groups.
@@ -622,6 +623,7 @@ def get_project_progress(project_id: str) -> int:
     """
     data = [project_id]
     return pg_db.retr_query(query, data)[0][0]
+
 
 def set_progress_in_firebase(project_id: str):
     """Update the project progress value in Firebase."""
