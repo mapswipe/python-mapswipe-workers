@@ -1,21 +1,106 @@
 version: '3'
+
 networks:
     mapswipe_network:
         driver: bridge
         ipam:
             config: [{subnet: 172.20.0.0/16}]
     api:
-    manager_dashboard:
     mapswipe_workers:
+    django:
     postgres:
+
+volumes:
+    community-dashboard-static:
+    manager-dashboard-static:
+    django-media:
+    django-static:
+    ipython_data_local:
+
+
+x-django: &base_django
+  image: mapswipe/django:latest  # To be used as local image only
+  build:
+      context: django/
+  environment: &base_django_environment
+      DJANGO_LOG_LEVEL: 'INFO'
+      DJANGO_DEBUG: 'false'
+      DJANGO_SECRET_KEY: '${DJANGO_SECRET_KEY}'
+      DJANGO_ALLOWED_HOST: '${DJANGO_ALLOWED_HOST:-*}'
+      DJANGO_DB_NAME: '${POSTGRES_DB}'
+      DJANGO_DB_USER: '${POSTGRES_USER}'
+      DJANGO_DB_PWD: '${POSTGRES_PASSWORD}'
+      DJANGO_DB_HOST: 'postgres'
+      DJANGO_DB_PORT: 5432
+      DJANGO_STATIC_ROOT: '/assets/static/'
+      DJANGO_MEDIA_ROOT: '/assets/media/'
+      SENTRY_DSN: ${DJANGO_SENTRY_DSN}
+      SENTRY_SAMPLE_RATE: ${DJANGO_SENTRY_SAMPLE_RATE:-0.2}
+      MAPSWIPE_ENVIRONMENT: ${MAPSWIPE_ENVIRONMENT:-dev}
+      RELEASE: '${DJANGO_RELEASE:-latest}'
+  volumes:
+      - ipython_data_local:/root/.ipython/profile_default   # persist ipython data, including ipython history
+      - ./django-data/:/django-data/
+      - django-media:/assets/media/
+      - django-static:/assets/static/
+  restart: unless-stopped
+  command: ./scripts/run_prod.sh
+  depends_on:
+      - postgres
+  networks:
+      - postgres
+      - django
+
+x-mapswipe-workers: &base_mapswipe_workers
+    build:
+        context: mapswipe_workers/
+    environment:
+        FIREBASE_DB: '${FIREBASE_DB}'
+        FIREBASE_API_KEY: '${FIREBASE_API_KEY}'
+        FIREBASE_TOKEN: '${FIREBASE_TOKEN}'
+        GOOGLE_APPLICATION_CREDENTIALS: 'serviceAccountKey.json'
+        POSTGRES_PASSWORD: '${POSTGRES_PASSWORD}'
+        POSTGRES_USER: '${POSTGRES_USER}'
+        POSTGRES_DB: '${POSTGRES_DB}'
+        POSTGRES_HOST: 'postgres'
+        POSTGRES_PORT: 5432
+        PGDATA: '/var/lib/postgresql/mapswipe'
+        IMAGE_BING_API_KEY: '${IMAGE_BING_API_KEY}'
+        IMAGE_ESRI_API_KEY: '${IMAGE_ESRI_API_KEY}'
+        IMAGE_ESRI_BETA_API_KEY: '${IMAGE_ESRI_BETA_API_KEY}'
+        IMAGE_MAPBOX_API_KEY: '${IMAGE_MAPBOX_API_KEY}'
+        IMAGE_MAXAR_PREMIUM_API_KEY: '${IMAGE_MAXAR_PREMIUM_API_KEY}'
+        IMAGE_MAXAR_STANDARD_API_KEY: '${IMAGE_MAXAR_STANDARD_API_KEY}'
+        SLACK_TOKEN: '${SLACK_TOKEN}'
+        SLACK_CHANNEL: '${SLACK_CHANNEL}'
+        SENTRY_DSN: '${SENTRY_DSN}'
+        OSMCHA_API_KEY: '${OSMCHA_API_KEY}'
+    depends_on:
+        - postgres
+    volumes:
+        - ./mapswipe-data:/root/.local/share/mapswipe_workers
+    restart: "no"
+    networks:
+        - mapswipe_workers
+        - postgres
 
 services:
     nginx:
+        image: nginx:stable  # XXX: Maybe use specific versions?
         container_name: nginx
-        build:
-            context: nginx/
+        environment:
+            NGINX_MAIN_DOMAIN: '${NGINX_MAIN_DOMAIN}'
+            NGINX_DJANGO_DOMAIN: '${NGINX_DJANGO_DOMAIN}'
+            NGINX_MANAGER_DASHBOARD_DOMAIN: '${NGINX_MANAGER_DASHBOARD_DOMAIN}'
+            NGINX_COMMUNITY_DASHBOARD_DOMAIN: '${NGINX_COMMUNITY_DASHBOARD_DOMAIN}'
         volumes:
             - /etc/letsencrypt/:/etc/letsencrypt/:ro
+            - ./nginx/nginx.conf.template:/etc/nginx/templates/default.conf.template:ro
+            # Assets storages
+            - django-media:/django-assets/media/
+            - django-static:/django-assets/static/
+            - manager-dashboard-static:/manager-dashboard-static/
+            - community-dashboard-static:/community-dashboard-static/
         restart: unless-stopped
         ports:
             - '80:80'
@@ -23,7 +108,7 @@ services:
         networks:
             - mapswipe_network
             - api
-            - manager_dashboard
+            - django
 
     api:
         container_name: api
@@ -40,119 +125,51 @@ services:
     manager_dashboard:
         container_name: manager_dashboard
         build:
-            context: manager_dashboard/
-        restart: unless-stopped
-        expose:
-            - "80"
+            context: manager-dashboard/
+        environment:
+            REACT_APP_ENVIRONMENT: ${REACT_APP_ENVIRONMENT:-prod}
+            REACT_APP_FIREBASE_API_KEY: ${MANAGER_DASHBOARD_FIREBASE_API_KEY}
+            REACT_APP_FIREBASE_AUTH_DOMAIN: ${MANAGER_DASHBOARD_FIREBASE_AUTH_DOMAIN}
+            REACT_APP_FIREBASE_DATABASE_URL: ${MANAGER_DASHBOARD_FIREBASE_DATABASE_URL}
+            REACT_APP_FIREBASE_PROJECT_ID: ${MANAGER_DASHBOARD_FIREBASE_PROJECT_ID}
+            REACT_APP_FIREBASE_STORAGE_BUCKET: ${MANAGER_DASHBOARD_FIREBASE_STORAGE_BUCKET}
+            REACT_APP_FIREBASE_MESSAGING_SENDER_ID: ${MANAGER_DASHBOARD_FIREBASE_MESSAGING_SENDER_ID}
+            REACT_APP_FIREBASE_APP_ID: ${MANAGER_DASHBOARD_FIREBASE_APP_ID}
+            REACT_APP_SENTRY_DSN: ${MANAGER_DASHBOARD_SENTRY_DSN}
+            REACT_APP_SENTRY_TRACES_SAMPLE_RATE: ${MANAGER_DASHBOARD_SENTRY_TRACES_SAMPLE_RATE}
+            REACT_APP_COMMUNITY_DASHBOARD_URL: ${MANAGER_DASHBOARD_COMMUNITY_DASHBOARD_URL}
         volumes:
-            - ./manager_dashboard/manager_dashboard:/usr/share/nginx/html/manager_dashboard
-        networks:
-            - manager_dashboard
+            - manager-dashboard-static:/code/build/
+        command: bash -c 'yarn build'
+
+    community_dashboard:
+        container_name: community_dashboard
+        build:
+            context: community-dashboard/
+        environment:
+            REACT_APP_ENVIRONMENT: ${MAPSWIPE_ENVIRONMENT:-dev}
+            GRAPHQL_CODEGEN_ENDPOINT: ${COMMUNITY_DASHBOARD_GRAPHQL_CODEGEN_ENDPOINT}
+            REACT_APP_GRAPHQL_ENDPOINT: ${COMMUNITY_DASHBOARD_GRAPHQL_ENDPOINT}
+            REACT_APP_SENTRY_DSN: ${COMMUNITY_DASHBOARD_SENTRY_DSN}
+            REACT_APP_SENTRY_TRACES_SAMPLE_RATE: ${COMMUNITY_DASHBOARD_SENTRY_TRACES_SAMPLE_RATE}
+        volumes:
+            - community-dashboard-static:/code/build/
+        command: bash -c 'yarn build'
 
     mapswipe_workers_creation:
+        <<: *base_mapswipe_workers
         container_name: mapswipe_workers_creation
-        build:
-            context: mapswipe_workers/
-        environment:
-            FIREBASE_DB: '${FIREBASE_DB}'
-            FIREBASE_API_KEY: '${FIREBASE_API_KEY}'
-            FIREBASE_TOKEN: '${FIREBASE_TOKEN}'
-            GOOGLE_APPLICATION_CREDENTIALS: 'serviceAccountKey.json'
-            POSTGRES_PASSWORD: '${POSTGRES_PASSWORD}'
-            POSTGRES_USER: '${POSTGRES_USER}'
-            POSTGRES_DB: '${POSTGRES_DB}'
-            POSTGRES_HOST: 'postgres'
-            POSTGRES_PORT: 5432
-            PGDATA: '/var/lib/postgresql/mapswipe'
-            IMAGE_BING_API_KEY: '${IMAGE_BING_API_KEY}'
-            IMAGE_ESRI_API_KEY: '${IMAGE_ESRI_API_KEY}'
-            IMAGE_ESRI_BETA_API_KEY: '${IMAGE_ESRI_BETA_API_KEY}'
-            IMAGE_MAPBOX_API_KEY: '${IMAGE_MAPBOX_API_KEY}'
-            IMAGE_MAXAR_PREMIUM_API_KEY: '${IMAGE_MAXAR_PREMIUM_API_KEY}'
-            IMAGE_MAXAR_STANDARD_API_KEY: '${IMAGE_MAXAR_STANDARD_API_KEY}'
-            SLACK_TOKEN: '${SLACK_TOKEN}'
-            SLACK_CHANNEL: '${SLACK_CHANNEL}'
-            SENTRY_DSN: '${SENTRY_DSN}'
-            OSMCHA_API_KEY: '${OSMCHA_API_KEY}'
-        depends_on:
-            - postgres
         command: mapswipe_workers --verbose run --analysis_type=creation --schedule --time_interval=5
-        volumes:
-            - ./mapswipe-data:/root/.local/share/mapswipe_workers
-        restart: "no"
-        networks:
-            - mapswipe_workers
-            - postgres
 
     mapswipe_workers_stats:
+        <<: *base_mapswipe_workers
         container_name: mapswipe_workers_stats
-        build:
-            context: mapswipe_workers/
-        environment:
-            FIREBASE_DB: '${FIREBASE_DB}'
-            FIREBASE_API_KEY: '${FIREBASE_API_KEY}'
-            FIREBASE_TOKEN: '${FIREBASE_TOKEN}'
-            GOOGLE_APPLICATION_CREDENTIALS: 'serviceAccountKey.json'
-            POSTGRES_PASSWORD: '${POSTGRES_PASSWORD}'
-            POSTGRES_USER: '${POSTGRES_USER}'
-            POSTGRES_DB: '${POSTGRES_DB}'
-            POSTGRES_HOST: 'postgres'
-            POSTGRES_PORT: 5432
-            PGDATA: '/var/lib/postgresql/mapswipe'
-            IMAGE_BING_API_KEY: '${IMAGE_BING_API_KEY}'
-            IMAGE_ESRI_API_KEY: '${IMAGE_ESRI_API_KEY}'
-            IMAGE_ESRI_BETA_API_KEY: '${IMAGE_ESRI_BETA_API_KEY}'
-            IMAGE_MAPBOX_API_KEY: '${IMAGE_MAPBOX_API_KEY}'
-            IMAGE_MAXAR_PREMIUM_API_KEY: '${IMAGE_MAXAR_PREMIUM_API_KEY}'
-            IMAGE_MAXAR_STANDARD_API_KEY: '${IMAGE_MAXAR_STANDARD_API_KEY}'
-            SLACK_TOKEN: '${SLACK_TOKEN}'
-            SLACK_CHANNEL: '${SLACK_CHANNEL}'
-            SENTRY_DSN: '${SENTRY_DSN}'
-            OSMCHA_API_KEY: '${OSMCHA_API_KEY}'
-        depends_on:
-            - postgres
         command: mapswipe_workers --verbose run --analysis_type=generate-stats --schedule --time_interval=60
-        volumes:
-            - ./mapswipe-data:/root/.local/share/mapswipe_workers
-        restart: "no"
-        networks:
-            - mapswipe_workers
-            - postgres
 
     mapswipe_workers_firebase_to_postgres:
+        <<: *base_mapswipe_workers
         container_name: mapswipe_workers_firebase_to_postgres
-        build:
-            context: mapswipe_workers/
-        environment:
-            FIREBASE_DB: '${FIREBASE_DB}'
-            FIREBASE_API_KEY: '${FIREBASE_API_KEY}'
-            FIREBASE_TOKEN: '${FIREBASE_TOKEN}'
-            GOOGLE_APPLICATION_CREDENTIALS: 'serviceAccountKey.json'
-            POSTGRES_PASSWORD: '${POSTGRES_PASSWORD}'
-            POSTGRES_USER: '${POSTGRES_USER}'
-            POSTGRES_DB: '${POSTGRES_DB}'
-            POSTGRES_HOST: 'postgres'
-            POSTGRES_PORT: 5432
-            PGDATA: '/var/lib/postgresql/mapswipe'
-            IMAGE_BING_API_KEY: '${IMAGE_BING_API_KEY}'
-            IMAGE_ESRI_API_KEY: '${IMAGE_ESRI_API_KEY}'
-            IMAGE_ESRI_BETA_API_KEY: '${IMAGE_ESRI_BETA_API_KEY}'
-            IMAGE_MAPBOX_API_KEY: '${IMAGE_MAPBOX_API_KEY}'
-            IMAGE_MAXAR_PREMIUM_API_KEY: '${IMAGE_MAXAR_PREMIUM_API_KEY}'
-            IMAGE_MAXAR_STANDARD_API_KEY: '${IMAGE_MAXAR_STANDARD_API_KEY}'
-            SLACK_TOKEN: '${SLACK_TOKEN}'
-            SLACK_CHANNEL: '${SLACK_CHANNEL}'
-            SENTRY_DSN: '${SENTRY_DSN}'
-            OSMCHA_API_KEY: '${OSMCHA_API_KEY}'
-        depends_on:
-            - postgres
         command: mapswipe_workers --verbose run --analysis_type=firebase-to-postgres --schedule --time_interval=2
-        volumes:
-            - ./mapswipe-data:/root/.local/share/mapswipe_workers
-        restart: "no"
-        networks:
-            - mapswipe_workers
-            - postgres
 
     postgres:
         container_name: postgres
@@ -215,4 +232,18 @@ services:
           osm.api_url=\"$OSM_OAUTH_API_URL\"
           osm.client_id=\"$OSM_OAUTH_CLIENT_ID\"
           osm.client_secret=\"$OSM_OAUTH_CLIENT_SECRET\" &&
-          firebase deploy --token $FIREBASE_TOKEN --only functions,hosting,database:rules"
+          firebase deploy --token $FIREBASE_TOKEN --only functions,hosting,database"
+
+    django:
+        <<: *base_django
+        environment:
+            <<: *base_django_environment
+            APP_TYPE: API
+        command: ./scripts/run_prod.sh
+
+    django-schedule-task:
+        <<: *base_django
+        environment:
+            <<: *base_django_environment
+            APP_TYPE: WORKER
+        command: bash -c "python3 ./manage.py basic_schedule_jobs"

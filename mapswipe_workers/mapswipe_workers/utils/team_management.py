@@ -82,8 +82,9 @@ def delete_team(team_id):
         ref = fb_db.reference(f"v2/teams/{team_id}")
         if not re.match(r"/v2/\w+/[-a-zA-Z0-9]+", ref.path):
             raise CustomError(
-                f"""Given argument resulted in invalid Firebase Realtime Database reference.
-                        {ref.path}"""
+                "Given argument resulted in invalid "
+                "Firebase Realtime Database reference. "
+                f"{ref.path}"
             )
 
         # delete team in firebase
@@ -110,8 +111,9 @@ def renew_team_token(team_id):
         ref = fb_db.reference(f"v2/teams/{team_id}")
         if not re.match(r"/v2/\w+/[-a-zA-Z0-9]+", ref.path):
             raise CustomError(
-                f"""Given argument resulted in invalid Firebase Realtime Database reference.
-                        {ref.path}"""
+                "Given argument resulted in invalid "
+                "Firebase Realtime Database reference. "
+                f"{ref.path}"
             )
 
         # generate new uuid4 token

@@ -1,0 +1,51 @@
+.login {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    justify-content: center;
+    background-color: var(--color-background);
+
+    .container {
+        box-shadow: var(--shadow-card);
+        width: 100%;
+        max-width: 30rem;
+
+        .app-brand {
+            display: flex;
+            align-items: flex-start;
+            flex-direction: column;
+            border-top-left-radius: var(--radius-card-border);
+            border-top-right-radius: var(--radius-card-border);
+            background-color: var(--color-primary);
+            padding: var(--spacing-large);
+            gap: var(--spacing-medium);
+
+            .logo {
+                height: 2.6rem;
+            }
+
+            .text {
+                color: var(--color-text-on-light);
+            }
+        }
+
+        .login-form-container {
+            display: flex;
+            flex-direction: column;
+            border-bottom-left-radius: var(--radius-card-border);
+            border-bottom-right-radius: var(--radius-card-border);
+            background-color: var(--color-foreground);
+            padding: var(--spacing-large);
+            gap: var(--spacing-large);
+
+            .error-message {
+                color: var(--color-danger);
+            }
+
+            .actions {
+                display: flex;
+                justify-content: flex-end;
+            }
+        }
+    }
+}

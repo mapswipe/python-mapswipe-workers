@@ -1,0 +1,86 @@
+.team-item {
+    display: flex;
+    flex-direction: column;
+    border-radius: var(--radius-card-border);
+    box-shadow: var(--shadow-card);
+    background-color: var(--color-foreground);
+    padding: var(--spacing-large);
+    gap: var(--spacing-medium);
+
+    .heading {
+        display: flex;
+        align-items: center;
+
+        .team-name {
+            flex-grow: 1;
+        }
+
+        .expand-toggle-button {
+            flex-shrink: 0;
+            font-size: var(--font-size-large);
+        }
+    }
+
+    .token {
+        color: var(--color-text-light);
+    }
+
+    .user-list {
+        display: table;
+        width: 100%;
+
+        .user-details-heading {
+            .task-contributions,
+            .group-contributions,
+            .project-contributions,
+            .user-name {
+                background-color: var(--color-background);
+                font-weight: var(--font-weight-bold);
+            }
+        }
+
+        .user-details-heading,
+        .user-details {
+            display: table-row;
+
+            &:hover {
+                background-color: var(--color-hover-background);
+            }
+
+            .user-name {
+                display: table-cell;
+                padding: var(--spacing-small) var(--spacing-medium);
+            }
+
+            .project-contributions {
+                display: table-cell;
+                padding: var(--spacing-small) var(--spacing-medium);
+            }
+
+            .group-contributions {
+                display: table-cell;
+                padding: var(--spacing-small) var(--spacing-medium);
+            }
+
+            .task-contributions {
+                display: table-cell;
+                padding: var(--spacing-small) var(--spacing-medium);
+            }
+        }
+
+    }
+
+    .pending-message {
+        padding: var(--spacing-small) var(--spacing-medium);
+    }
+
+    .empty-message {
+        padding: var(--spacing-small) var(--spacing-medium);
+        color: var(--color-text-watermark);
+    }
+
+    .footer-actions {
+        display: flex;
+        justify-content: flex-end;
+    }
+}

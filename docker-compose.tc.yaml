@@ -1,0 +1,152 @@
+# NOTE: This is for development only.
+# Copied from docker-compose.yml
+# Maybe we can define a base docker-compose.yml and then docker-compose.development.yml and docker-compose.production.yml from there (https://docs.docker.com/compose/extends/)
+version: '3'
+
+networks:
+  api:
+  manager_dashboard:
+  mapswipe_workers:
+  postgres:
+
+x-mapswipe-workers: &base_mapswipe_workers
+  build:
+    context: mapswipe_workers/
+  environment:
+    FIREBASE_DB: '${FIREBASE_DB}'
+    FIREBASE_API_KEY: '${FIREBASE_API_KEY}'
+    FIREBASE_TOKEN: '${FIREBASE_TOKEN}'
+    GOOGLE_APPLICATION_CREDENTIALS: '/root/.local/share/mapswipe_workers/serviceAccountKey.json'
+    POSTGRES_PASSWORD: '${POSTGRES_PASSWORD:-postgres}'
+    POSTGRES_USER: '${POSTGRES_USER:-postgres}'
+    POSTGRES_DB: '${POSTGRES_DB:-postgres}'
+    POSTGRES_HOST: '${POSTGRES_HOST:-postgres}'
+    POSTGRES_PORT: ${POSTGRES_PORT:-5432}
+    PGDATA: '/var/lib/postgresql/mapswipe'
+    IMAGE_BING_API_KEY: '${IMAGE_BING_API_KEY}'
+    IMAGE_ESRI_API_KEY: '${IMAGE_ESRI_API_KEY}'
+    IMAGE_ESRI_BETA_API_KEY: '${IMAGE_ESRI_BETA_API_KEY}'
+    IMAGE_MAPBOX_API_KEY: '${IMAGE_MAPBOX_API_KEY}'
+    IMAGE_MAXAR_PREMIUM_API_KEY: '${IMAGE_MAXAR_PREMIUM_API_KEY}'
+    IMAGE_MAXAR_STANDARD_API_KEY: '${IMAGE_MAXAR_STANDARD_API_KEY}'
+    SLACK_TOKEN: '${SLACK_TOKEN}'
+    SLACK_CHANNEL: '${SLACK_CHANNEL}'
+    SENTRY_DSN: '${SENTRY_DSN}'
+    OSMCHA_API_KEY: '${OSMCHA_API_KEY}'
+  depends_on:
+    - postgres
+  volumes:
+    - ./mapswipe_workers/mapswipe_workers:/usr/local/lib/python3.10/dist-packages/mapswipe_workers/:ro
+    - ./mapswipe_workers/mapswipe_workers:/usr/local/lib/python3.8/dist-packages/mapswipe_workers/:ro
+    - ./mapswipe_workers/mapswipe_workers:/root/mapswipe_workers/:ro
+    - ./mapswipe_workers/tests:/root/tests/:ro
+    - ./mapswipe-data:/root/.local/share/mapswipe_workers
+  restart: "no"
+  networks:
+    - mapswipe_workers
+    - postgres
+
+x-django: &base_django
+  build:
+    context: django/
+  environment: &base_django_environment
+    DJANGO_LOG_LEVEL: '${DJANGO_LOG_LEVEL:-INFO}'
+    DJANGO_DEBUG: 'true'
+    DJANGO_SECRET_KEY: 'simple-secret-key-dont-use-in-production'
+    DJANGO_ALLOWED_HOST: '*'
+    DJANGO_DB_NAME: '${POSTGRES_DB:-postgres}'
+    DJANGO_DB_USER: '${POSTGRES_USER:-postgres}'
+    DJANGO_DB_PWD: '${POSTGRES_PASSWORD:-postgres}'
+    DJANGO_DB_HOST: '${POSTGRES_HOST:-postgres}'
+    DJANGO_DB_PORT: '${POSTGRES_PORT:-5432}'
+    SENTRY_DSN: ${DJANGO_SENTRY_DSN}
+    SENTRY_SAMPLE_RATE: ${DJANGO_SENTRY_SAMPLE_RATE:-0.2}
+    MAPSWIPE_ENVIRONMENT: ${MAPSWIPE_ENVIRONMENT:-dev}
+    RELEASE: '${DJANGO_RELEASE:-latest}'
+  volumes:
+    - ./django:/code
+    - ipython_data_local:/root/.ipython/profile_default   # persist ipython data, including ipython history
+    - ./django-data/:/django-data/
+  restart: unless-stopped
+  networks:
+    - postgres
+
+
+services:
+  api:
+    build:
+      context: api/
+    volumes:
+      - ./mapswipe-data/api:/usr/share/nginx/html/api/:ro
+    restart: unless-stopped
+    ports:
+      - "8111:80"
+    networks:
+      - api
+
+  community_dashboard:
+    container_name: community_dashboard
+    build:
+      context: community-dashboard/
+    environment:
+      REACT_APP_ENVIRONMENT: ${REACT_APP_ENVIRONMENT:-development}
+      GRAPHQL_CODEGEN_ENDPOINT: ${COMMUNITY_DASHBOARD_GRAPHQL_CODEGEN_ENDPOINT}
+      REACT_APP_GRAPHQL_ENDPOINT: ${COMMUNITY_DASHBOARD_GRAPHQL_ENDPOINT}
+      REACT_APP_SENTRY_DSN: ${COMMUNITY_DASHBOARD_SENTRY_DSN}
+      REACT_APP_SENTRY_TRACES_SAMPLE_RATE: ${COMMUNITY_DASHBOARD_SENTRY_TRACES_SAMPLE_RATE}
+    volumes:
+      - ./community-dashboard/:/code/
+    ports:
+      - "8211:3081"
+    command: bash -c 'yarn install --frozen-lockfile && yarn start'
+
+  mapswipe_workers_creation:
+    <<: *base_mapswipe_workers
+    command: mapswipe_workers --verbose run --analysis_type=creation --schedule --time_interval=1
+
+  # mapswipe_workers_stats:
+  #   <<: *base_mapswipe_workers
+  #   command: mapswipe_workers --verbose run --analysis_type=generate-stats --schedule --time_interval=60
+
+  mapswipe_workers_firebase_to_postgres:
+    <<: *base_mapswipe_workers
+    command: mapswipe_workers --verbose run --analysis_type=firebase-to-postgres --schedule --time_interval=1
+
+  postgres:
+    build:
+      context: postgres/
+      dockerfile: Dockerfile-dev
+    environment:
+      POSTGRES_PASSWORD: '${POSTGRES_PASSWORD:-postgres}'
+      POSTGRES_USER: '${POSTGRES_USER:-postgres}'
+      POSTGRES_DB: '${POSTGRES_DB:-postgres}'
+      PGDATA: '/var/lib/postgresql/mapswipe'
+    command: postgres
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/mapswipe
+    restart: unless-stopped
+    expose:
+      - "54320"
+    ports:
+      - "127.0.0.1:54320:5432"
+    networks:
+      - postgres
+
+  django:
+    <<: *base_django
+    environment:
+        <<: *base_django_environment
+        APP_TYPE: API
+    command: ./scripts/run_develop.sh
+    ports:
+    - "8113:8113"
+
+  django-schedule-task:
+    <<: *base_django
+    environment:
+        <<: *base_django_environment
+        APP_TYPE: WORKER
+    command: bash -c "python3 ./manage.py basic_schedule_jobs"
+
+volumes:
+  ipython_data_local:

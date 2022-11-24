@@ -1,0 +1,53 @@
+.file-input {
+    .input {
+        display: none;
+    }
+
+    .label-container {
+        flex-shrink: 0;
+
+        .label {
+            display: flex;
+            cursor: pointer;
+
+            .content {
+                display: flex;
+                align-items: center;
+                gap: var(--spacing-small);
+            }
+        }
+    }
+
+    .status {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        color: var(--color-text-light);
+    }
+
+    .input-section {
+        display: flex;
+        gap: var(--spacing-large);
+    }
+}
+
+.no-preview {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-medium);
+    width: 100%;
+    max-width: 30rem;
+    height: 20rem;
+    color: var(--color-text-watermark);
+    font-size: var(--font-size-large);
+}
+
+.preview {
+    background-color: var(--color-input-background);
+    width: 100%;
+    max-width: 30rem;
+    height: 20rem;
+    object-fit: contain;
+    object-position: center center;
+}

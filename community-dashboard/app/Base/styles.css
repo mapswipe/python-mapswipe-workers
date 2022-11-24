@@ -1,0 +1,109 @@
+body {
+    font-size: var(--font-size-medium);
+}
+
+a {
+    text-decoration: none;
+}
+
+.base {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+
+    .navbar {
+        flex-shrink: 0;
+
+        &.hidden {
+            display: none;
+        }
+    }
+
+    .view {
+        flex-grow: 1;
+        overflow: auto;
+    }
+}
+
+h1, h2, h3, h4, h5, h6 {
+    margin: 0;
+}
+
+p {
+    margin: 0;
+}
+
+:root {
+    --font-family-sans-serif: 'Noto Sans', sans-serif;
+    --spacing-extra-small: 0.2rem;
+    --spacing-small: 0.4rem;
+    --spacing-medium: 0.8rem;
+    --spacing-large: 1.6rem;
+    --spacing-extra-large: 2.8rem;
+    --spacing-super-large: 4.4rem;
+    --spacing-mega-large: 6rem;
+    --spacing-ultra-large: 12rem;
+
+    --color-background: #f3f3f3;
+    --color-foreground: #ffffff;
+    --color-backdrop: #EDF2FB;
+    --color-gray: #9ca3af;
+
+    --color-background-primary-hint: #0F193F20;
+    --color-background-accent-hint: #239A3B10;
+    --color-background-hover: #239A3B10;
+
+    --color-primary: #0F193F;
+    --color-primary-light: #589AE2;
+    --color-text: rgba(0, 0, 0, .7);
+    --color-text-dark: rgba(0, 0, 0, 1);
+    --color-text-light: rgba(0, 0, 0, .5);
+    --color-text-on-dark: #ffffff;
+    --color-text-watermark: rgba(0, 0, 0, .4);
+    --color-text-on-accent: rgba(255, 255, 255, .9);
+    --color-text-disabled: #bdbdbd;
+    --color-background-hover-light: rgba(0, 0, 0, .1);
+    --color-accent: #239A3B;
+    --color-danger: #e04656;
+    --color-success: #53b391;
+    --color-separator: rgba(0, 0, 0, 0.1);
+    --color-shadow: rgba(0, 0, 0, 0.3);
+    --color-scrollbar-foreground: rgba(0, 0, 0, .2);
+    --color-scrollbar-background: rgba(0, 0, 0, .01);
+
+    --color-input-background: rgba(14, 45, 80, 0.1);
+
+    --font-size-extra-small: 0.5rem;
+    --font-size-small: 0.78rem;
+    --font-size-medium: 0.85rem;
+    --font-size-large: 1.125rem;
+    --font-size-extra-large: 1.5rem;
+    --font-size-super-large: 2rem;
+    --font-size-mega-large: 2.75rem;
+    --font-size-ultra-large: 4rem;
+
+    --font-weight-medium: 400;
+    --font-weight-bold: 600;
+
+    --opacity-disabled-element: 0.5;
+
+    --width-separator-thin: 1px;
+    --width-scrollbar: 0.75rem;
+    --width-page-content-max: 70rem;
+    --width-navbar-content-max: 70rem;
+    --width-calendar-date: 2.4rem;
+
+    --radius-popup-border: 0.25rem;
+    --radius-scrollbar-border: 0.25rem;
+    --radius-blur-shadow: 5px;
+    --radius-modal: 0.25rem;
+    --radius-button-border: 0.25rem;
+    --radius-input-border: 0.25rem;
+    --radius-card-border: 0.25rem;
+
+    --icon-height: 3rem;
+
+    --shadow-card: 0 2px 4px -2px var(--color-shadow);
+}

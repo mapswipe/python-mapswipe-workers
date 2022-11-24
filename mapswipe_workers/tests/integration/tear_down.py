@@ -34,8 +34,32 @@ def delete_test_data(project_id: str) -> None:
     ref = fb_db.reference(f"v2/users/{project_id}")
     ref.delete()
 
+    # Clear out the user-group used in test.
+    # XXX: Use a firebase simulator for running test.
+    # For CI/CD, use a real firebase with scope using commit hash,
+    # and clear all data at the end.
+    for user_group_id in [
+        "dummy-user-group-1",
+        "dummy-user-group-2",
+        "dummy-user-group-3",
+        "dummy-user-group-4",
+    ]:
+        ref = fb_db.reference(f"v2/userGroups/{user_group_id}")
+        ref.delete()
+
     pg_db = auth.postgresDB()
+    sql_query = (
+        "DELETE FROM mapping_sessions_results "
+        "WHERE mapping_session_id IN ("
+        "SELECT mapping_session_id "
+        "FROM mapping_sessions WHERE project_id = %s)"
+         )
+    pg_db.query(sql_query, [project_id])
+    sql_query = "DELETE FROM mapping_sessions WHERE project_id = %s"
+    pg_db.query(sql_query, [project_id])
     sql_query = "DELETE FROM results WHERE project_id = %s"
+    pg_db.query(sql_query, [project_id])
+    sql_query = "DELETE FROM results_user_groups WHERE project_id = %s"
     pg_db.query(sql_query, [project_id])
     sql_query = "DELETE FROM results_temp WHERE project_id = %s"
     pg_db.query(sql_query, [project_id])
@@ -55,6 +79,23 @@ def delete_test_data(project_id: str) -> None:
     pg_db.query(sql_query)
     sql_query = "DELETE FROM users_temp WHERE user_id = 'test_build_area_heidelberg'"
     pg_db.query(sql_query)
+
+
+def delete_test_user_group(user_group_ids: List) -> None:
+    # Make sure delete_test_data is runned first.
+    fb_db = auth.firebaseDB()
+    ref = fb_db.reference("v2/usersGroups")
+    ref.delete()
+
+    pg_db = auth.postgresDB()
+    pg_db.query(
+        "DELETE FROM user_groups_user_memberships WHERE user_group_id = ANY(%s);",
+        [user_group_ids],
+    )
+    pg_db.query(
+        "DELETE FROM user_groups WHERE user_group_id = ANY(%s);",
+        [user_group_ids],
+    )
 
 
 def delete_test_user(user_ids: List) -> None:

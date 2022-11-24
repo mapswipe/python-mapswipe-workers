@@ -1,0 +1,13 @@
+.auth-popup {
+    padding: var(--spacing-medium);
+
+    .action-buttons-row {
+        display: flex;
+        gap: var(--spacing-medium);
+        justify-content: flex-end;
+
+        .action-button {
+            flex-shrink: 0;
+        }
+    }
+}

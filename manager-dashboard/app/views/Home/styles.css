@@ -1,0 +1,98 @@
+.home {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    background-color: var(--color-background);
+    padding: var(--spacing-large);
+
+    .container {
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+        width: 100%;
+        max-width: var(--width-page-content-max);
+        gap: var(--spacing-large);
+
+        .introduction {
+            display: flex;
+            flex-direction: column;
+            border-radius: var(--radius-card-border);
+            box-shadow: var(--shadow-card);
+            background-color: var(--color-foreground);
+            padding: var(--spacing-extra-large);
+            gap: var(--spacing-medium);
+
+            .greetings {
+                .welcome {
+                    font-size: var(--font-size-large);
+                }
+
+                .app-name {
+                    color: var(--color-primary);
+                    font-size: var(--font-size-super-large);
+                    font-weight: var(--font-weight-bold);
+                }
+            }
+
+            .description {
+                color: var(--color-text-light);
+            }
+        }
+
+        .organisation-container {
+            display: flex;
+            flex-direction: column;
+            border-radius: var(--radius-card-border);
+            box-shadow: var(--shadow-card);
+            background-color: var(--color-foreground);
+            padding: var(--spacing-large);
+            gap: var(--spacing-medium);
+
+            .header {
+                display: flex;
+
+                .heading {
+                    flex-grow: 1;
+                }
+
+                .add-button {
+                    flex-shrink: 0;
+                }
+            }
+
+            .organisation-list {
+                border-top: var(--width-separator-thin) solid var(--color-separator);
+                border-bottom: var(--width-separator-thin) solid var(--color-separator);
+            }
+        }
+
+        .tutorials-container {
+            display: flex;
+            flex-direction: column;
+            border-radius: var(--radius-card-border);
+            box-shadow: var(--shadow-card);
+            background-color: var(--color-foreground);
+            padding: var(--spacing-large);
+            gap: var(--spacing-medium);
+
+            .header {
+                display: flex;
+                gap: var(--spacing-medium);
+
+                .heading {
+                    flex-grow: 1;
+                }
+
+                .add-button {
+                    flex-shrink: 0;
+                }
+            }
+
+            .tutorial-list {
+                border-top: var(--width-separator-thin) solid var(--color-separator);
+                border-bottom: var(--width-separator-thin) solid var(--color-separator);
+                padding: var(--spacing-medium) 0;
+            }
+        }
+    }
+}

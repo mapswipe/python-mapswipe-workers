@@ -1,0 +1,37 @@
+.popup {
+    padding-top: var(--spacing-medium);
+    padding-bottom: var(--spacing-medium);
+
+    .popup-content {
+        display: flex;
+        flex-direction: column;
+
+        .group {
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+
+            .group-header {
+                padding: var(--spacing-small);
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                color: var(--color-text-light);
+                font-weight: var(--font-weight-bold);
+            }
+
+            .group-children {
+                display: flex;
+                flex-direction: column;
+            }
+        }
+
+        .list-item {
+            flex-shrink: 0;
+
+            &:hover {
+                background-color: var(--color-background-accent-hint);
+            }
+        }
+    }
+}
