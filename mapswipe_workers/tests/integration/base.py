@@ -81,6 +81,7 @@ class TestDbTransactionMixin:
         # NOTE: Not using context manager because it will start a transaction.
         # https://stackoverflow.com/a/68112827/3436502
         con = psycopg2.connect(
+            database=POSTGRES_DB,
             host=POSTGRES_HOST,
             password=POSTGRES_PASSWORD,
             port=POSTGRES_PORT,
@@ -130,6 +131,7 @@ class TestDbTransactionMixin:
         # NOTE: Not using context manager because it will start a transaction.
         # https://stackoverflow.com/a/68112827/3436502
         con = psycopg2.connect(
+            database=POSTGRES_DB,
             host=POSTGRES_HOST,
             password=POSTGRES_PASSWORD,
             port=POSTGRES_PORT,
