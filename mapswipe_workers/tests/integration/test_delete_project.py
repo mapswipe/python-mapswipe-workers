@@ -121,6 +121,14 @@ class TestDeleteProject(BaseTestCase):
         self.verify_firebase_not_empty()
         self.verify_postgres_not_empty()
 
+    def test_project_id_empty(self):
+        """Test deletion of empty project_id list."""
+        delete_project.delete_project([])
+        time.sleep(5)  # Wait for Firebase Functions to complete
+
+        self.verify_firebase_not_empty()
+        self.verify_postgres_not_empty()
+
     def test_project_id_equals_none(self):
         """Test for project id which does not exists."""
         delete_project.delete_project([None])

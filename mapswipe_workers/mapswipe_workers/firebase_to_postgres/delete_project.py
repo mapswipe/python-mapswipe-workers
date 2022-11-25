@@ -22,6 +22,12 @@ def delete_project(project_ids: list) -> bool:
     Deletes project, groups, tasks and results from Firebase and Postgres.
     """
     for project_id in project_ids:
+        if project_id is None:
+            logger.info(
+                f"Will not delete Null project_id."
+            )
+            continue
+
         logger.info(
             f"Delete project, groups, tasks and results of project: {project_id}"
         )
