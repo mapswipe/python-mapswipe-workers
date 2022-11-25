@@ -78,37 +78,6 @@ CREATE TABLE IF NOT EXISTS users_temp (
     updated_at timestamp
 );
 
-CREATE TABLE IF NOT EXISTS results (
-    project_id varchar,
-    group_id varchar,
-    user_id varchar,
-    task_id varchar,
-    "timestamp" timestamp,
-    start_time timestamp DEFAULT NULL,
-    end_time timestamp DEFAULT NULL,
-    result int,
-    PRIMARY KEY (project_id, group_id, task_id, user_id),
-    FOREIGN KEY (project_id) REFERENCES projects (project_id),
-    FOREIGN KEY (project_id, group_id) REFERENCES groups (project_id, group_id),
-    FOREIGN KEY (project_id, group_id, task_id) REFERENCES tasks (project_id, group_id, task_id),
-    FOREIGN KEY (user_id) REFERENCES users (user_id)
-);
-
-CREATE INDEX IF NOT EXISTS results_projectid ON public.results
-    USING btree (project_id);
-
-CREATE INDEX IF NOT EXISTS results_groupid ON public.results
-    USING btree (group_id);
-
-CREATE INDEX IF NOT EXISTS results_taskid ON public.results
-    USING btree (task_id);
-
-CREATE INDEX IF NOT EXISTS results_userid ON public.results
-    USING btree (user_id);
-
-CREATE INDEX IF NOT EXISTS results_timestamp_date_idx
-    ON public.results ("timestamp" DESC);
-
 
 -- create table for results import through csv
 CREATE TABLE IF NOT EXISTS results_temp (
