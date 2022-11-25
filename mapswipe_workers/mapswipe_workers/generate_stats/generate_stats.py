@@ -12,10 +12,6 @@ def get_recent_projects(hours: int = 3):
     query_insert_results = """
         select project_id
         from mapping_sessions
-        -- Using timestamp attribute here which is set for all projects
-        -- and also represents the start_time for newer projects.
-        -- "Old" projects have no start_time attribute.
-        -- There is an index defined on "timestamp".
         where start_time >= %(timestamp)s
         group by project_id
     """
