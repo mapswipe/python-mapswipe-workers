@@ -23,9 +23,7 @@ def delete_project(project_ids: list) -> bool:
     """
     for project_id in project_ids:
         if project_id is None:
-            logger.info(
-                f"Will not delete Null project_id."
-            )
+            logger.info("Will not delete Null project_id.")
             continue
 
         logger.info(
