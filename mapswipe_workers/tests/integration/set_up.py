@@ -39,7 +39,6 @@ def set_postgres_test_data(
     file_path = os.path.join(
         test_dir, "fixtures", project_type, data_type, fixture_name
     )
-
     pg_db = auth.postgresDB()
     with open(file_path) as test_file:
         pg_db.copy_from(test_file, data_type)

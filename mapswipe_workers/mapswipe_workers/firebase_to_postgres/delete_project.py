@@ -90,7 +90,18 @@ def delete_project(project_ids: list) -> bool:
         ref.delete()
 
         pg_db = auth.postgresDB()
-        sql_query = "DELETE FROM results WHERE project_id = %(project_id)s;"
+        sql_query = """
+            DELETE FROM mapping_sessions_results msr
+            USING mapping_sessions ms
+            WHERE ms.mapping_session_id = msr.mapping_session_id
+                AND ms.project_id = %(project_id)s;
+        """
+        pg_db.query(sql_query, {"project_id": project_id})
+        sql_query = """
+            DELETE
+            FROM mapping_sessions
+            WHERE project_id = %(project_id)s ;
+        """
         pg_db.query(sql_query, {"project_id": project_id})
         sql_query = "DELETE FROM tasks WHERE project_id = %(project_id)s;"
         pg_db.query(sql_query, {"project_id": project_id})
