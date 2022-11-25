@@ -37,7 +37,7 @@ def get_agg_results_by_user_id(
     ] - (raw_contributions_df["agreeing_contributions"] + 1)
 
     agg_results_by_user_id_df = raw_contributions_df.groupby(
-        ["project_id", "user_id", "username"]
+        ["project_id", "user_id"]
     ).agg(
         groups_completed=pd.NamedAgg(column="group_id", aggfunc=pd.Series.nunique),
         total_contributions=pd.NamedAgg(column="user_id", aggfunc="count"),
