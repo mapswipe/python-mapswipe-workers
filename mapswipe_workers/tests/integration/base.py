@@ -57,7 +57,6 @@ class TestDbTransactionMixin:
                 TRUNCATE TABLE users_temp;
                 TRUNCATE TABLE user_groups_membership_logs_temp;
                 -- normal tables
-                TRUNCATE TABLE results CASCADE;
                 TRUNCATE TABLE results_user_groups CASCADE;
                 TRUNCATE TABLE tasks CASCADE;
                 TRUNCATE TABLE user_groups_user_memberships CASCADE;
