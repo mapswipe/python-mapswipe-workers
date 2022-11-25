@@ -104,8 +104,19 @@ def get_results(filename: str, project_id: str) -> pd.DataFrame:
     sql_query = sql.SQL(
         """
         COPY (
-            SELECT results.*, U.username
-            FROM results
+            SELECT
+                ms.project_id,
+                ms.group_id,
+                ms.user_id,
+                msr.task_id,
+                ms.start_time as timestamp,
+                ms.start_time,
+                ms.end_time,
+                msr.result,
+                U.username
+            FROM mapping_sessions_results msr
+            LEFT JOIN mapping_sessions ms ON
+                ms.mapping_session_id = msr.mapping_session_id
             LEFT JOIN users U USING (user_id)
             WHERE project_id = {}
         ) TO STDOUT WITH CSV HEADER

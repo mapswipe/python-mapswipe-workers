@@ -567,21 +567,22 @@ def update_project_data(project_ids: list = []):
     logger.info("Finished status update projects.")
 
 
-def set_progress_in_firebase(project_id: str):
-    """Update the project progress value in Firebase."""
+def get_project_progress(project_id: str) -> int:
+    """
+    Calculate overall project progress as the average progress for all groups.
+    This is not hundred percent exact, since groups can have a different number of tasks
+    but it is still "good enough" and gives almost correct progress.
+    But it is easier to compute than considering the actual number of tasks per group.
 
+    NOTE: the cast to integer in postgres rounds decimals. This means that for 99.5%
+    progress, we return 100% here. We should evaluate if this is what we want if/when
+    we introduce automated project rotation upon completion (as the reported completion
+    would happen 0.5% before actual completion).
+    """
     pg_db = auth.postgresDB()
     query = """
-        -- Calculate overall project progress as
-        -- the average progress for all groups.
-        -- This is not hundred percent exact,
-        -- since groups can have a different number of tasks
-        -- but it is still "good enough" and gives almost correct progress.
-        -- But it is easier to compute
-        -- than considering the actual number of tasks per group.
         select
-          project_id
-          ,avg(group_progress)::integer as progress
+          avg(group_progress)::integer as progress
         from
         (
             -- Get all groups for this project and
@@ -605,15 +606,15 @@ def set_progress_in_firebase(project_id: str):
                 -- even if more users than required submitted results.
                 -- The verification number of a project is used here.
                 select
-                  r.group_id
-                  ,r.project_id
+                  ms.group_id
+                  ,ms.project_id
                   ,case
                     when count(distinct user_id) >= p.verification_number then 100
                     else 100 * count(distinct user_id) / p.verification_number
                   end as group_progress
-                from results r, projects p
-                where r.project_id = p.project_id
-                group by group_id, r.project_id, p.verification_number
+                from mapping_sessions ms, projects p
+                where ms.project_id = p.project_id
+                group by group_id, ms.project_id, p.verification_number
             ) bar
             on bar.group_id = g.group_id and bar.project_id = g.project_id
             where g.project_id = %s
@@ -621,7 +622,12 @@ def set_progress_in_firebase(project_id: str):
         group by project_id
     """
     data = [project_id]
-    progress = pg_db.retr_query(query, data)[0][1]
+    return pg_db.retr_query(query, data)[0][0]
+
+
+def set_progress_in_firebase(project_id: str):
+    """Update the project progress value in Firebase."""
+    progress = get_project_progress(project_id)
 
     fb_db = auth.firebaseDB()
     project_progress_ref = fb_db.reference(f"v2/projects/{project_id}/progress")
@@ -629,22 +635,23 @@ def set_progress_in_firebase(project_id: str):
     logger.info(f"set progress for project {project_id}: {progress}")
 
 
-def set_contributor_count_in_firebase(project_id: str):
-    """Update the project contributors value in Firebase."""
-
+def get_contributor_count_from_postgres(project_id: str) -> int:
     pg_db = auth.postgresDB()
     query = """
         select
-          project_id
-          ,count(distinct user_id) contributor_count
-        from results r
+          count(distinct user_id)
+        from mapping_sessions ms
         where
           project_id = %s
-        group by project_id
     """
     data = [project_id]
-    contributor_count = pg_db.retr_query(query, data)[0][1]
+    return pg_db.retr_query(query, data)[0][0]
 
+
+def set_contributor_count_in_firebase(project_id: str):
+    """Update the project contributors value in Firebase."""
+
+    contributor_count = get_contributor_count_from_postgres(project_id)
     fb_db = auth.firebaseDB()
     project_progress_ref = fb_db.reference(f"v2/projects/{project_id}/contributorCount")
     project_progress_ref.set(contributor_count)

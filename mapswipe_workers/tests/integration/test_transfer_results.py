@@ -13,7 +13,7 @@ from mapswipe_workers.firebase_to_postgres.transfer_results import (
 )
 
 
-class TestTranserResultsProject(BaseTestCase):
+class TestTransferResultsProject(BaseTestCase):
     def setUp(self):
         super().setUp()
         project_type = "tile_map_service_grid"
@@ -24,7 +24,9 @@ class TestTranserResultsProject(BaseTestCase):
         # add some results in firebase
         set_up.set_firebase_test_data(project_type, "users", "user", self.project_id)
         set_up.set_firebase_test_data(project_type, "userGroups", "user_group", "")
-        set_up.set_firebase_test_data(project_type, "results", fixture_name, self.project_id)
+        set_up.set_firebase_test_data(
+            project_type, "results", fixture_name, self.project_id
+        )
 
     def tearDown(self):
         tear_down.delete_test_data(self.project_id)
@@ -49,10 +51,11 @@ class TestTranserResultsProject(BaseTestCase):
         q2 = (
             "SELECT msr.* "
             "FROM mapping_sessions_results msr "
-            "JOIN mapping_sessions ms ON ms.mapping_session_id = msr.mapping_session_id "
+            "JOIN mapping_sessions ms ON "
+            "ms.mapping_session_id = msr.mapping_session_id "
             f"WHERE ms.project_id = '{self.project_id}' "
             f"AND ms.user_id = '{self.project_id}'"
-            )
+        )
         result2 = pg_db.retr_query(q2)
         self.assertEqual(len(result2), expected_items_count)
 
@@ -93,7 +96,9 @@ class TestTranserResultsProject(BaseTestCase):
 
         transfer_results()
 
-        sql_query = "SELECT user_id FROM users WHERE user_id = '{0}'".format(self.project_id)
+        sql_query = "SELECT user_id FROM users WHERE user_id = '{0}'".format(
+            self.project_id
+        )
         result = pg_db.retr_query(sql_query)
         self.assertEqual(len(result), 1)
         # FIXME: the name is misleading here, it is the user_id
@@ -222,7 +227,8 @@ class TestTranserResultsProject(BaseTestCase):
                 expected_value,
                 pg_db.retr_query(UG_QUERY),
                 query,
-                )
+            )
+
 
 if __name__ == "__main__":
     unittest.main()
