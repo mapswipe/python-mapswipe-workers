@@ -325,7 +325,13 @@ function DateRangeInput<N extends NameType>(props: Props<N>) {
                 labelContainerClassName={labelContainerClassName}
                 readOnly={readOnly}
                 input={(
-                    <>
+                    <div
+                        className={styles.inputWrapper}
+                        onClick={toggleShowCalendar}
+                        onKeyPress={toggleShowCalendar}
+                        role="button"
+                        tabIndex={0}
+                    >
                         <RawInput<string>
                             name="startDate"
                             className={_cs(
@@ -366,7 +372,7 @@ function DateRangeInput<N extends NameType>(props: Props<N>) {
                             onFocus={setShowCalendarTrue}
                             type="date"
                         />
-                    </>
+                    </div>
                 )}
             />
             {!readOnly && showCalendar && (

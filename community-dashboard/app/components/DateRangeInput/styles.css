@@ -1,9 +1,16 @@
 .input-container {
     display: flex;
     flex-direction: row;
+    cursor: pointer;
+
+    .input-wrapper {
+        display: flex;
+        align-items: center;
+    }
 
     .input {
         --color: var(--color-text);
+        cursor: pointer;
         color: var(--color);
 
         &.empty {
