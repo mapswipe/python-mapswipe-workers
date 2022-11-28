@@ -175,7 +175,7 @@ interface Props {
     className?: string;
     heading?: string;
     contributionTimeStats: ActualContributorTimeStatType[] | null | undefined;
-    contributionSwipeStats: ContributorSwipeStatType[] | null | undefined;
+    contributionSwipeStats?: ContributorSwipeStatType[] | null | undefined;
     areaSwipedByProjectType: ProjectTypeAreaStatsType[] | null | undefined;
     organizationTypeStats: OrganizationSwipeStatsType[] | null | undefined;
     swipeByProjectType: ProjectTypeSwipeStatsType[] | null | undefined;
