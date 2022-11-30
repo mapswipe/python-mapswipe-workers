@@ -33,6 +33,10 @@ class TestUserStats(unittest.TestCase):
         )
         agg_results_by_user_id_df.sort_index(inplace=True)
 
+        print(agg_results_by_user_id_df)
+
+        print(self.user_stats_df)
+
         assert_frame_equal(
             agg_results_by_user_id_df, self.user_stats_df, check_dtype=False
         )

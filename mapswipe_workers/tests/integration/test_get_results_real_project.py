@@ -24,7 +24,6 @@ class TestGetResults(BaseTestCase):
             "mapping_sessions",
             "mapping_sessions_results",
         ]:
-            print(data_type)
             set_up.set_postgres_test_data(project_type, data_type, fixture_name)
 
         self.results_filename = os.path.join(
