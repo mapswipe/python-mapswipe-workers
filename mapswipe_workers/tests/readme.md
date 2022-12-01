@@ -47,6 +47,7 @@ These 3 tables contain a column in json format. When exporting this into a csv f
 * save with `:w` for (write) and quit with `:q`
 
 * for the projects file make sure to check if there is no unwanted line break in the csv file.
+* also you need to make sure that you remote api keys, e.g. for the tile server if existing
 
 ```
 \copy (
