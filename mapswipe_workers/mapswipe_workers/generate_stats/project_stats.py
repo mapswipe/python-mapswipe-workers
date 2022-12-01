@@ -185,6 +185,14 @@ def get_tasks(filename: str, project_id: str) -> pd.DataFrame:
         write_sql_to_gzipped_csv(filename, sql_query)
 
     df = load_df_from_csv(filename)
+
+    # Tasks for the "footprint" project type can contain a "username" attribute.
+    # We rename this attribute into "osm_username" to be able to distinguish it
+    # later from the username of the MapSwipe user.
+    # The optional OSM username in the tasks of the "footprint" project type refers
+    # to the OSM user who has last edited the OSM object.
+    if "username" in df.columns:
+        df.rename(columns={"username": "osm_username"}, inplace=True)
     return df
 
 
