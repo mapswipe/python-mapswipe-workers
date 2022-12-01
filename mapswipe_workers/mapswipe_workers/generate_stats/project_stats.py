@@ -112,7 +112,14 @@ def get_results(filename: str, project_id: str) -> pd.DataFrame:
                 ms.start_time,
                 ms.end_time,
                 msr.result,
-                U.username
+                -- the username for users which login to MapSwipe with their
+                -- OSM account is not defined or ''.
+                -- We capture this here as it will cause problems
+                -- for the user stats generation.
+                CASE
+                    WHEN U.username IS NULL or U.username = '' THEN 'unknown'
+                    ELSE U.username
+                END as username
             FROM mapping_sessions_results msr
             LEFT JOIN mapping_sessions ms ON
                 ms.mapping_session_id = msr.mapping_session_id

@@ -27,7 +27,7 @@ You can extract the data into csv files like this. Make sure to adjust the where
 	where
 		project_id = '-NFNr55R_LYJvxP7wmte'
 		and group_id in ('g101', 'g102', 'g103', 'g104', 'g105', 'g106', 'g107', 'g108', 'g109' )
-) to 'test_groups.csv' delimiter E'\t' NULL '\N' cs
+) to 'test_groups.csv' delimiter E'\t' NULL '\N' csv
 ```
 
 ```
@@ -36,7 +36,7 @@ You can extract the data into csv files like this. Make sure to adjust the where
 	where
 		project_id = '-NFNr55R_LYJvxP7wmte'
 		and group_id in ('g101', 'g102', 'g103', 'g104', 'g105', 'g106', 'g107', 'g108', 'g109' )
-) to 'test_tasks.csv' delimiter E'\t' csv
+) to 'test_tasks.csv' delimiter E'\t'  NULL '\N' csv
 ```
 
 These 3 tables contain a column in json format. When exporting this into a csv file there is an issue with the quotes, which prevents us from importing the csv file correctly into the test database. Hence you need to adjust the quotes manually in the csv file.
@@ -46,12 +46,14 @@ These 3 tables contain a column in json format. When exporting this into a csv f
 * hit enter, then do the same with the second command: `%s/""/"/g` (it's a search/replace expression, like sed, :%s/thing_to_search/repalcement/g)
 * save with `:w` for (write) and quit with `:q`
 
+* for the projects file make sure to check if there is no unwanted line break in the csv file.
+
 ```
 \copy (
 	select * from mapping_sessions ms
 	where project_id = '-NFNr55R_LYJvxP7wmte'
 	and group_id in ('g101', 'g102', 'g103', 'g104', 'g105', 'g106', 'g107', 'g108', 'g109' )
-) to 'test_mapping_sessions.csv' delimiter E'\t' csv
+) to 'test_mapping_sessions.csv' delimiter E'\t'  NULL '\N' csv
 ```
 
 ```
@@ -61,7 +63,7 @@ These 3 tables contain a column in json format. When exporting this into a csv f
 	where
 		ms.project_id = '-NFNr55R_LYJvxP7wmte'
 		and group_id in ('g101', 'g102', 'g103', 'g104', 'g105', 'g106', 'g107', 'g108', 'g109' )
-) to 'test_mapping_sessions_results.csv' delimiter E'\t' csv
+) to 'test_mapping_sessions_results.csv' delimiter E'\t'  NULL '\N' csv
 ```
 
 ```
