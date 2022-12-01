@@ -51,7 +51,6 @@ def normalize_project_type_specifics(path):
                     columns={column: column.replace("properties.", "")}, inplace=True
                 )
 
-    df.dropna(inplace=True, axis=0)
     df.to_csv(path)
 
 
