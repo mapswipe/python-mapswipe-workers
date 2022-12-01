@@ -678,11 +678,11 @@ function StatsBoard(props: Props) {
                                 normal
                             />
                         )}
-                        label="Total Swipes"
+                        label="Swipes"
                         variant="stat"
                     />
                     <InformationCard
-                        label="Total Time Spent Contributing"
+                        label="Time Spent Contributing"
                         value={(isDefined(totalContribution) && totalContribution > 0) ? (
                             <TextOutput
                                 className={styles.numberOutput}
