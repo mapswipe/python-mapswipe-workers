@@ -64,9 +64,12 @@ function InfoStatCard(props: InfoStatCardProps) {
                     <TextOutput
                         label={secondaryValueLabel}
                         hideLabelColon
-                        valueType="number"
-                        value={secondaryValue}
-                        valueProps={{ normal: true }}
+                        valueType="text"
+                        value={(
+                            <TextOutput
+                                value={formatTimeDuration(secondaryValue, ' ', true)}
+                            />
+                        )}
                         description={secondaryValueDescription}
                     />
                 )}
