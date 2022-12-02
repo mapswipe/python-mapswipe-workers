@@ -2,6 +2,9 @@ from django.contrib.gis.db import models as gis_models
 from django.db import models
 from mapswipe.db import Model
 
+# NOTE: Django model defination and existing table structure doesn't entirely matches.
+# This is to be used for testing only.
+
 
 class User(Model):
     user_id = models.CharField(primary_key=True, max_length=999)
@@ -152,7 +155,7 @@ class Result(Model):
     timestamp = models.DateTimeField(blank=True, null=True)
     start_time = models.DateTimeField(blank=True, null=True)
     end_time = models.DateTimeField(blank=True, null=True)
-    result = models.IntegerField(blank=True, null=True)
+    result = models.SmallIntegerField(blank=True, null=True)
 
     # Django derived fields from ForeignKey
     project_id: str
@@ -237,7 +240,7 @@ class MappingSession(Model):
 class MappingSessionResult(Model):
     mapping_session = models.ForeignKey(MappingSession, on_delete=models.DO_NOTHING)
     task_id = models.CharField(max_length=999)
-    result = models.IntegerField(blank=True, null=True)
+    result = models.SmallIntegerField(blank=True, null=True)
 
     class Meta:
         managed = False
@@ -254,4 +257,4 @@ class MappingSessionUserGroup(Model):
     class Meta:
         managed = False
         db_table = "mapping_sessions_user_groups"
-        unique_together = (("mapping_session", "user_group_id"),)
+        unique_together = (("mapping_session", "user_group"),)

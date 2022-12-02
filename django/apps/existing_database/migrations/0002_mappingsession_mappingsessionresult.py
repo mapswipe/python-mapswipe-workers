@@ -36,7 +36,7 @@ class Migration(migrations.Migration):
             fields=[
                 ("mapping_session_id", models.BigIntegerField()),
                 ("task_id", models.CharField(max_length=999)),
-                ("result", models.IntegerField(blank=True, null=True)),
+                ("result", models.SmallIntegerField(blank=True, null=True)),
             ],
             options={
                 "db_table": "mapping_sessions_results",

@@ -212,7 +212,8 @@ CREATE TABLE IF NOT EXISTS mapping_sessions_user_groups (
     mapping_session_id int8,
     user_group_id varchar,  -- user group primary key
     PRIMARY KEY (mapping_session_id, user_group_id),
-    FOREIGN KEY (mapping_session_id) REFERENCES mapping_sessions (mapping_session_id)
+    FOREIGN KEY (mapping_session_id) REFERENCES mapping_sessions (mapping_session_id),
+    FOREIGN KEY (user_group_id) REFERENCES user_groups (user_group_id)
 );
 
 -- create table for user_group_results import through csv

@@ -58,9 +58,10 @@ def fetch_git_sha(path, head=None):
         return str(fh.read()).strip()
 
 
-def raise_if_field_not_found(obj, fields, custom_exception=Exception):
+def raise_if_field_not_found(obj: dict, fields: list[str], custom_exception=Exception):
     """
     NOTE: This is for making sure dev pass this variables manually in the test.
+    Don't catch this exception
     """
     empty_keys = [field for field in fields if obj.get(field) is None]
     if empty_keys:

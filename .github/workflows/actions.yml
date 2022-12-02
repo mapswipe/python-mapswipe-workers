@@ -30,7 +30,7 @@ jobs:
     - name: Assert check
       run: |
           cmp --silent ./postgres/initdb.sql ./mapswipe_workers/tests/integration/set_up_db.sql || {
-            echo 'The set_up_db.sql is not same as initdb.sql. Please do `cp ./postgres/initdb.sql ./mapswipe_workers/tests/integration/set_up_db.sql` and push';
+            echo 'The set_up_db.sql is not same as initdb.sql. Please sync this files and push';
             diff ./postgres/initdb.sql ./mapswipe_workers/tests/integration/set_up_db.sql;
             exit 1;
           }
