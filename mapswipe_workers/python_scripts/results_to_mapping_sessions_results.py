@@ -16,7 +16,7 @@ def copy_results_batch(first_timestamp, last_timestamp):
         -- create table with results for given time span
         drop table if exists results_batch;
         create table results_batch as
-        select r.*
+        select ms.mapping_session_id, r.task_id, r."result"
         from mapping_sessions ms, results r
         where
             ms.start_time >= %(first_timestamp)s
