@@ -152,22 +152,6 @@ CREATE TABLE IF NOT EXISTS user_groups_user_memberships_temp (
     user_id varchar
 );
 
--- Used to group results by user groups
-CREATE TABLE IF NOT EXISTS mapping_sessions_user_groups (
-    mapping_session_id int8,
-    user_group_id varchar,  -- user group primary key
-    PRIMARY KEY (mapping_session_id, user_group_id),
-    FOREIGN KEY (mapping_session_id) REFERENCES mapping_sessions (mapping_session_id),
-);
-
--- create table for user_group_results import through csv
-CREATE TABLE IF NOT EXISTS results_user_groups_temp (
-    project_id varchar,
-    group_id varchar,
-    user_id varchar,
-    user_group_id varchar
-);
-
 CREATE TABLE IF NOT EXISTS mapping_sessions (
     project_id varchar,
     group_id varchar,
@@ -222,3 +206,19 @@ $$;
 
 CREATE TRIGGER insert_mapping_sessions_results BEFORE INSERT ON mapping_sessions_results
     FOR EACH ROW EXECUTE PROCEDURE mapping_sessions_results_constraint();
+
+-- Used to group results by user groups
+CREATE TABLE IF NOT EXISTS mapping_sessions_user_groups (
+    mapping_session_id int8,
+    user_group_id varchar,  -- user group primary key
+    PRIMARY KEY (mapping_session_id, user_group_id),
+    FOREIGN KEY (mapping_session_id) REFERENCES mapping_sessions (mapping_session_id)
+);
+
+-- create table for user_group_results import through csv
+CREATE TABLE IF NOT EXISTS results_user_groups_temp (
+    project_id varchar,
+    group_id varchar,
+    user_id varchar,
+    user_group_id varchar
+);

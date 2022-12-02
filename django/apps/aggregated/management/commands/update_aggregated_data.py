@@ -6,7 +6,7 @@ from apps.aggregated.models import (
     AggregatedUserGroupStatData,
     AggregatedUserStatData,
 )
-from apps.existing_database.models import Result
+from apps.existing_database.models import MappingSession
 from django.core.management.base import BaseCommand
 from django.db import connection, models, transaction
 from django.utils import timezone
@@ -59,7 +59,7 @@ UPDATE_USER_DATA_SQL = f"""
                 INNER JOIN mapping_sessions MS USING (mapping_session_id)
                 INNER JOIN task_data T USING (project_id, group_id, task_id)
             WHERE
-                R.timestamp >= %(from_date)s and R.timestamp < %(until_date)s
+                MS.start_time >= %(from_date)s and MS.start_time < %(until_date)s
             GROUP BY MS.project_id, MS.group_id, MS.user_id
         ),
         -- Aggregate group data
@@ -114,7 +114,7 @@ UPDATE_USER_GROUP_SQL = f"""
                 INNER JOIN mapping_sessions_results MSR USING (mapping_session_id)
                 INNER JOIN tasks T USING (project_id, group_id, task_id)
             WHERE
-                R.timestamp >= %(from_date)s and R.timestamp < %(until_date)s
+                MS.start_time >= %(from_date)s and MS.start_time < %(until_date)s
             GROUP BY project_id, group_id, task_id
         ),
         -- Calculated task area.
@@ -144,8 +144,8 @@ UPDATE_USER_GROUP_SQL = f"""
                 INNER JOIN mapping_sessions_results MSR USING (mapping_session_id)
                 INNER JOIN task_data T USING (task_id)
             WHERE
-                R.timestamp >= %(from_date)s and R.timestamp < %(until_date)s
-            GROUP BY ug.project_id, ug.group_id, ug.user_id, ug.user_group_id
+                MS.start_time >= %(from_date)s and MS.start_time < %(until_date)s
+            GROUP BY MS.project_id, MS.group_id, MS.user_id, MSUR.user_group_id
         ),
         -- Aggregate group data
         user_group_agg_data as (
@@ -193,8 +193,8 @@ class Command(BaseCommand):
             from_date = datetime.datetime.strptime(tracker.value, "%Y-%m-%d").date()
         else:
             self.stdout.write(f"{label.title()} Last tracker data not found.")
-            timestamp_min = Result.objects.aggregate(
-                timestamp_min=models.Min("timestamp")
+            timestamp_min = MappingSession.objects.aggregate(
+                timestamp_min=models.Min("start_time")
             )["timestamp_min"]
             if timestamp_min:
                 self.stdout.write(f"Using min timestamp from database {timestamp_min}")

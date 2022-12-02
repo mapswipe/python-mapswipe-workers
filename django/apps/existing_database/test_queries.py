@@ -6,8 +6,9 @@ from apps.aggregated.management.commands.update_aggregated_data import (
 )
 from apps.existing_database.factories import (
     GroupFactory,
+    MappingSessionFactory,
+    MappingSessionResultFactory,
     ProjectFactory,
-    ResultFactory,
     TaskFactory,
     UserFactory,
     UserGroupFactory,
@@ -31,14 +32,21 @@ class ExistingDatabaseTestCase(TestCase):
             for group in cls.groups
             for task in TaskFactory.create_batch(3, group=group)
         ]
+        cls.mapping_sessions = {
+            group.group_id: MappingSessionFactory(
+                project_id=group.project_id,
+                group_id=group.group_id,
+                user=cls.user,
+                start_time=now,
+                end_time=now,
+            )
+            for group in cls.groups
+        }
         cls.results = {
             value: [
-                ResultFactory.create(
-                    task=task,
-                    user=cls.user,
-                    timestamp=now,
-                    start_time=now,
-                    end_time=now,
+                MappingSessionResultFactory.create(
+                    mapping_session=cls.mapping_sessions.get(task.group_id),
+                    task_id=task.task_id,
                     result=value,
                 )
                 for task in tasks

@@ -214,3 +214,44 @@ class UserGroupResult(Model):
             project=self.project,
             group_id=self.group_id,
         ).first()
+
+
+# New Mapping sesssions tables
+class MappingSession(Model):
+    # This should be primary key instead
+    mapping_session_id = models.BigAutoField(primary_key=True)
+    # NOTE: Primary Key: project_id, group_id, tasks_id, user_id
+    project = models.ForeignKey(Project, models.DO_NOTHING, related_name="+")
+    group_id = models.CharField(max_length=999)
+    user = models.ForeignKey(User, models.DO_NOTHING, related_name="+")
+    start_time = models.DateTimeField(blank=True, null=True)
+    end_time = models.DateTimeField(blank=True, null=True)
+    items_count = models.SmallIntegerField(null=False, default=0)
+
+    class Meta:
+        managed = False
+        db_table = "mapping_sessions"
+        unique_together = (("project", "group_id", "user"),)
+
+
+class MappingSessionResult(Model):
+    mapping_session = models.ForeignKey(MappingSession, on_delete=models.DO_NOTHING)
+    task_id = models.CharField(max_length=999)
+    result = models.IntegerField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = "mapping_sessions_results"
+        unique_together = (("mapping_session", "task_id"),)
+
+
+class MappingSessionUserGroup(Model):
+    mapping_session = models.ForeignKey(MappingSession, on_delete=models.DO_NOTHING)
+    user_group = models.ForeignKey(
+        UserGroup, on_delete=models.DO_NOTHING, related_name="+"
+    )
+
+    class Meta:
+        managed = False
+        db_table = "mapping_sessions_user_groups"
+        unique_together = (("mapping_session", "user_group_id"),)

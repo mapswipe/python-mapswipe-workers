@@ -56,3 +56,12 @@ def fetch_git_sha(path, head=None):
 
     with open(revision_file) as fh:
         return str(fh.read()).strip()
+
+
+def raise_if_field_not_found(obj, fields, custom_exception=Exception):
+    """
+    NOTE: This is for making sure dev pass this variables manually in the test.
+    """
+    empty_keys = [field for field in fields if obj.get(field) is None]
+    if empty_keys:
+        raise custom_exception(f"Please define this fields {empty_keys}")

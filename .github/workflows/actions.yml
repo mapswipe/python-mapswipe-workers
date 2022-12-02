@@ -27,6 +27,13 @@ jobs:
         black --check mapswipe_workers ../django
         flake8 --count --config setup.cfg mapswipe_workers/ ../django/
         isort --check --settings-file setup.cfg mapswipe_workers/ ../django/
+    - name: Assert check
+      run: |
+          cmp --silent ./postgres/initdb.sql ./mapswipe_workers/tests/integration/set_up_db.sql || {
+            echo 'The set_up_db.sql is not same as initdb.sql. Please do `cp ./postgres/initdb.sql ./mapswipe_workers/tests/integration/set_up_db.sql` and push';
+            diff ./postgres/initdb.sql ./mapswipe_workers/tests/integration/set_up_db.sql;
+            exit 1;
+          }
     - name:  Setup Postgres Database Container
       env:
         POSTGRES_PASSWORD: postgres

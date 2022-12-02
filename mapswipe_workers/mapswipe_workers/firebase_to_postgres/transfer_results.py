@@ -482,7 +482,7 @@ def save_user_group_results_to_postgres(
                 rug_temp.user_group_id
             FROM results_user_groups_temp rug_temp
                 JOIN mapping_sessions ms USING (project_id, group_id, user_id)
-        ON CONFLICT (project_id, group_id, user_id, user_group_id)
+        ON CONFLICT (mapping_session_id, user_group_id)
         DO NOTHING;
     """
     p_con.query(query_insert_results)
