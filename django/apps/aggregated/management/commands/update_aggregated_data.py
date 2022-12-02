@@ -109,8 +109,9 @@ UPDATE_USER_GROUP_SQL = f"""
         WITH used_tasks as (
             SELECT
               project_id, group_id, task_id
-            From results_user_groups ug
-                INNER JOIN results R USING (project_id, group_id, user_id)
+            From mapping_sessions_user_groups MSUR
+                INNER JOIN mapping_sessions MS USING (mapping_session_id)
+                INNER JOIN mapping_sessions_results MSR USING (mapping_session_id)
                 INNER JOIN tasks T USING (project_id, group_id, task_id)
             WHERE
                 R.timestamp >= %(from_date)s and R.timestamp < %(until_date)s
@@ -129,17 +130,18 @@ UPDATE_USER_GROUP_SQL = f"""
         -- Aggregate data by group
         user_group_data as (
             SELECT
-                ug.project_id,
-                ug.group_id,
-                ug.user_id,
-                ug.user_group_id,
-                MAX(R.timestamp::date) as timestamp_date,
-                MIN(R.start_time) as start_time,
-                MAX(R.end_time) as end_time,
-                COUNT(DISTINCT R.task_id) as task_count,
+                MS.project_id,
+                MS.group_id,
+                MS.user_id,
+                MSUR.user_group_id,
+                MAX(MS.start_time::date) as timestamp_date,
+                MIN(MS.start_time) as start_time,
+                MAX(MS.end_time) as end_time,
+                COUNT(DISTINCT T.task_id) as task_count,
                 SUM(T.area) as area_swiped
-            From results_user_groups ug
-                INNER JOIN results R USING (project_id, group_id, user_id)
+            From mapping_sessions_user_groups MSUR
+                INNER JOIN mapping_sessions MS USING (mapping_session_id)
+                INNER JOIN mapping_sessions_results MSR USING (mapping_session_id)
                 INNER JOIN task_data T USING (task_id)
             WHERE
                 R.timestamp >= %(from_date)s and R.timestamp < %(until_date)s
