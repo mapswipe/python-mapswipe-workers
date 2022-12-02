@@ -27,10 +27,8 @@ def copy_results_batch(first_timestamp, last_timestamp):
         insert into mapping_sessions_results
         (
         select
-            m.mapping_session_id
-            ,r.task_id
-            ,r."result"
-        from results_batch r, mapping_sessions m
+            r.*
+        from results_batch r
         where
             r.project_id = m.project_id and
             r.group_id = m.group_id and
