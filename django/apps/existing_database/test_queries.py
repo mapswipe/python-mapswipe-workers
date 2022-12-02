@@ -8,6 +8,7 @@ from apps.existing_database.factories import (
     GroupFactory,
     MappingSessionFactory,
     MappingSessionResultFactory,
+    MappingSessionUserGroupFactory,
     ProjectFactory,
     TaskFactory,
     UserFactory,
@@ -52,10 +53,23 @@ class ExistingDatabaseTestCase(TestCase):
                 for task in tasks
             ]
             for value, tasks in [
-                (0, cls.tasks[:10]),
-                (1, cls.tasks[10:]),
+                (0, cls.tasks[:5]),
+                (1, cls.tasks[5:]),
             ]
         }
+        cls.user_groups = UserGroupFactory.create_batch(4)
+        cls.user_group_results = [
+            MappingSessionUserGroupFactory(
+                mapping_session=result.mapping_session,
+                user_group=user_group,
+            )
+            for results_set, user_groups in [
+                (cls.results[0], cls.user_groups[:2]),
+                (cls.results[1], cls.user_groups[3:]),
+            ]
+            for result in results_set
+            for user_group in user_groups
+        ]
         AggregateCommand().run()
 
     def test_community_stats(self):
@@ -66,18 +80,77 @@ class ExistingDatabaseTestCase(TestCase):
                 totalSwipes
                 totalUserGroups
               }
+              communityStatsLatest {
+                totalContributors
+                totalSwipes
+                totalUserGroups
+              }
             }
         """
 
         resp = self.query_check(query)
         self.assertEqual(
-            resp["data"]["communityStats"],
+            resp["data"],
             dict(
-                totalContributors=1,
-                totalSwipes=9,
-                totalUserGroups=0,
+                communityStats=dict(
+                    totalContributors=1,
+                    totalSwipes=9,
+                    totalUserGroups=3,
+                ),
+                communityStatsLatest=dict(
+                    totalContributors=1,
+                    totalSwipes=9,
+                    totalUserGroups=3,
+                ),
             ),
         )
+
+    def test_user_group_aggregated_calc(self):
+        query = """
+            query MyQuery($userGroupId: ID!) {
+              userGroupStats(userGroupId: $userGroupId) {
+                stats {
+                  totalAreaSwiped
+                  totalContributors
+                  totalMappingProjects
+                  totalOrganization
+                  totalSwipeTime
+                  totalSwipes
+                }
+              }
+            }
+        """
+        with_data = dict(
+            totalAreaSwiped=0,
+            totalContributors=1,
+            totalMappingProjects=1,
+            totalOrganization=0,
+            totalSwipeTime=0,
+            totalSwipes=6,
+        )
+        without_data = dict(
+            totalAreaSwiped=0,
+            totalContributors=0,
+            totalMappingProjects=0,
+            totalOrganization=0,
+            totalSwipeTime=0,
+            totalSwipes=0,
+        )
+        resp_collection = {}
+        for user_group in self.user_groups:
+            resp = self.query_check(
+                query,
+                variables=dict(
+                    userGroupId=user_group.user_group_id,
+                ),
+            )
+            resp_collection[user_group.user_group_id] = resp["data"]["userGroupStats"][
+                "stats"
+            ]
+        assert resp_collection == {
+            user_group.user_group_id: (without_data if index == 2 else with_data)
+            for index, user_group in enumerate(self.user_groups)
+        }
 
     def test_user_group_query(self):
         query = """
