@@ -23,13 +23,15 @@ UPDATE_USER_DATA_SQL = f"""
     )
     (
         -- Retrieve used tasks
+        -- task_id is not the primary key. project_id-group_id-task_id is
         WITH used_tasks as (
             SELECT
-              project_id, group_id, task_id
-            FROM results R
-              INNER JOIN tasks T USING (project_id, group_id, task_id)
+              MS.project_id, MS.group_id, MSR.task_id
+            FROM mapping_sessions_results MSR
+                INNER JOIN mapping_sessions MS USING (mapping_session_id)
+                INNER JOIN tasks T USING (project_id, group_id, task_id)
             WHERE
-                R.timestamp >= %(from_date)s and R.timestamp < %(until_date)s
+                MS.start_time >= %(from_date)s and MS.start_time < %(until_date)s
             GROUP BY project_id, group_id, task_id
         ),
         -- Calculated task area.
@@ -45,19 +47,20 @@ UPDATE_USER_DATA_SQL = f"""
         -- Aggregate data by group
         user_data as (
             SELECT
-              R.project_id,
-              R.group_id,
-              R.user_id,
-              MAX(R.timestamp::date) as timestamp_date,
-              MIN(R.start_time) as start_time,
-              MAX(R.end_time) as end_time,
-              COUNT(DISTINCT R.task_id) as task_count,
+              MS.project_id,
+              MS.group_id,
+              MS.user_id,
+              MAX(MS.start_time::date) as timestamp_date,
+              MIN(MS.start_time) as start_time,
+              MAX(MS.end_time) as end_time,
+              COUNT(DISTINCT MSR.task_id) as task_count,
               SUM(T.area) as area_swiped
-            From results R
-              INNER JOIN task_data T USING (project_id, group_id, task_id)
+            FROM mapping_sessions_results MSR
+                INNER JOIN mapping_sessions MS USING (mapping_session_id)
+                INNER JOIN task_data T USING (project_id, group_id, task_id)
             WHERE
                 R.timestamp >= %(from_date)s and R.timestamp < %(until_date)s
-            GROUP BY R.project_id, R.group_id, R.user_id
+            GROUP BY MS.project_id, MS.group_id, MS.user_id
         ),
         -- Aggregate group data
         user_agg_data as (
