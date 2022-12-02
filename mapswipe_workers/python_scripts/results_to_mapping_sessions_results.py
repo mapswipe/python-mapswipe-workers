@@ -25,15 +25,7 @@ def copy_results_batch(first_timestamp, last_timestamp):
             and ms.group_id = r.group_id
             and ms.user_id = r.user_id;
         insert into mapping_sessions_results
-        (
-        select
-            r.*
-        from results_batch r
-        where
-            r.project_id = m.project_id and
-            r.group_id = m.group_id and
-            r.user_id = m.user_id
-        )
+            (select r.* from results_batch r)
         on conflict do nothing;
     """
     p_con.query(
