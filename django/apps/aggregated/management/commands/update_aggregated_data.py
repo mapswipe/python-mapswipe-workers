@@ -22,47 +22,44 @@ UPDATE_USER_DATA_SQL = f"""
         swipes
     )
     (
-        -- Retrieve used tasks
-        -- task_id is not the primary key. project_id-group_id-task_id is
-        WITH used_tasks as (
+        -- Retrieve used task groups
+        WITH used_task_groups as (
             SELECT
-              MS.project_id, MS.group_id, MSR.task_id
-            FROM mapping_sessions_results MSR
-                INNER JOIN mapping_sessions MS USING (mapping_session_id)
-                INNER JOIN tasks T USING (project_id, group_id, task_id)
+              MS.project_id, MS.group_id
+            FROM mapping_sessions MS
             WHERE
                 MS.start_time >= %(from_date)s and MS.start_time < %(until_date)s
-            GROUP BY project_id, group_id, task_id
+            GROUP BY project_id, group_id -- To get unique
         ),
-        -- Calculated task area.
-        task_data as (
+        -- Calculated area by task_groups
+        task_group_data as (
           SELECT
               project_id,
               group_id,
-              task_id,
-              ST_Area(geom::geography(GEOMETRY,4326)) / 1000000 as area -- sqkm
-          FROM used_tasks
-              INNER JOIN tasks T USING (project_id, group_id, task_id)
+              SUM(
+                ST_Area(geom::geography(GEOMETRY,4326)) / 1000000
+              ) as total_task_group_area -- sqkm
+          FROM tasks T
+              INNER JOIN used_task_groups UG USING (project_id, group_id)
+          GROUP BY project_id, group_id
         ),
-        -- Aggregate data by group
+        -- Aggregate data by user
         user_data as (
             SELECT
               MS.project_id,
               MS.group_id,
               MS.user_id,
-              MAX(MS.start_time::date) as timestamp_date,
-              MIN(MS.start_time) as start_time,
-              MAX(MS.end_time) as end_time,
-              COUNT(DISTINCT MSR.task_id) as task_count,
-              SUM(T.area) as area_swiped
-            FROM mapping_sessions_results MSR
-                INNER JOIN mapping_sessions MS USING (mapping_session_id)
-                INNER JOIN task_data T USING (project_id, group_id, task_id)
+              MS.start_time::date as timestamp_date,
+              MS.start_time,
+              MS.end_time,
+              MS.items_count as task_count,
+              TG.total_task_group_area as area_swiped
+            FROM mapping_sessions MS
+                INNER JOIN task_group_data TG USING (project_id, group_id)
             WHERE
                 MS.start_time >= %(from_date)s and MS.start_time < %(until_date)s
-            GROUP BY MS.project_id, MS.group_id, MS.user_id
         ),
-        -- Aggregate group data
+        -- Additional aggregate by timestamp_date
         user_agg_data as (
           SELECT
             project_id,
@@ -105,49 +102,47 @@ UPDATE_USER_GROUP_SQL = f"""
         swipes
     )
     (
-        -- Retrieve used tasks
-        WITH used_tasks as (
+        -- Retrieve used task groups
+        WITH used_task_groups as (
             SELECT
-              project_id, group_id, task_id
+              MS.project_id, MS.group_id
             From mapping_sessions_user_groups MSUR
                 INNER JOIN mapping_sessions MS USING (mapping_session_id)
-                INNER JOIN mapping_sessions_results MSR USING (mapping_session_id)
-                INNER JOIN tasks T USING (project_id, group_id, task_id)
             WHERE
                 MS.start_time >= %(from_date)s and MS.start_time < %(until_date)s
-            GROUP BY project_id, group_id, task_id
+            GROUP BY project_id, group_id -- To get unique
         ),
-        -- Calculated task area.
-        task_data as (
+        -- Calculated area by task_groups
+        task_group_data as (
           SELECT
               project_id,
               group_id,
-              task_id,
-              ST_Area(geom::geography(GEOMETRY,4326)) / 1000000 as area -- sqkm
-          FROM used_tasks
-              INNER JOIN tasks T USING (project_id, group_id, task_id)
+              SUM(
+                ST_Area(geom::geography(GEOMETRY,4326)) / 1000000
+              ) as total_task_group_area -- sqkm
+          FROM tasks T
+              INNER JOIN used_task_groups UG USING (project_id, group_id)
+          GROUP BY project_id, group_id
         ),
-        -- Aggregate data by group
+        -- Aggregate data by user-group
         user_group_data as (
             SELECT
                 MS.project_id,
                 MS.group_id,
                 MS.user_id,
                 MSUR.user_group_id,
-                MAX(MS.start_time::date) as timestamp_date,
-                MIN(MS.start_time) as start_time,
-                MAX(MS.end_time) as end_time,
-                COUNT(DISTINCT T.task_id) as task_count,
-                SUM(T.area) as area_swiped
+                MS.start_time::date as timestamp_date,
+                MS.start_time as start_time,
+                MS.end_time as end_time,
+                MS.items_count as task_count,
+                TG.total_task_group_area as area_swiped
             From mapping_sessions_user_groups MSUR
                 INNER JOIN mapping_sessions MS USING (mapping_session_id)
-                INNER JOIN mapping_sessions_results MSR USING (mapping_session_id)
-                INNER JOIN task_data T USING (task_id)
+                INNER JOIN task_group_data TG USING (project_id, group_id)
             WHERE
                 MS.start_time >= %(from_date)s and MS.start_time < %(until_date)s
-            GROUP BY MS.project_id, MS.group_id, MS.user_id, MSUR.user_group_id
         ),
-        -- Aggregate group data
+        -- Additional aggregate by timestamp_date
         user_group_agg_data as (
           SELECT
             project_id,

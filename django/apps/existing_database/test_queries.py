@@ -27,11 +27,11 @@ class ExistingDatabaseTestCase(TestCase):
         cls.user = UserFactory.create()
         # Project, Group, Task
         cls.project = ProjectFactory.create()
-        cls.groups = GroupFactory.create_batch(3, project=cls.project)
+        cls.groups = GroupFactory.create_batch(4, project=cls.project)
         cls.tasks = [
             task
             for group in cls.groups
-            for task in TaskFactory.create_batch(3, group=group)
+            for task in TaskFactory.create_batch(4, group=group)
         ]
         cls.mapping_sessions = {
             group.group_id: MappingSessionFactory(
@@ -40,6 +40,7 @@ class ExistingDatabaseTestCase(TestCase):
                 user=cls.user,
                 start_time=now,
                 end_time=now,
+                items_count=2,
             )
             for group in cls.groups
         }
@@ -53,8 +54,8 @@ class ExistingDatabaseTestCase(TestCase):
                 for task in tasks
             ]
             for value, tasks in [
-                (0, cls.tasks[:5]),
-                (1, cls.tasks[5:]),
+                (0, cls.tasks[:8]),
+                (1, cls.tasks[8:]),
             ]
         }
         cls.user_groups = UserGroupFactory.create_batch(4)
@@ -89,19 +90,16 @@ class ExistingDatabaseTestCase(TestCase):
         """
 
         resp = self.query_check(query)
-        self.assertEqual(
-            resp["data"],
-            dict(
-                communityStats=dict(
-                    totalContributors=1,
-                    totalSwipes=9,
-                    totalUserGroups=3,
-                ),
-                communityStatsLatest=dict(
-                    totalContributors=1,
-                    totalSwipes=9,
-                    totalUserGroups=3,
-                ),
+        assert resp["data"] == dict(
+            communityStats=dict(
+                totalContributors=1,
+                totalSwipes=8,
+                totalUserGroups=3,
+            ),
+            communityStatsLatest=dict(
+                totalContributors=1,
+                totalSwipes=8,
+                totalUserGroups=3,
             ),
         )
 
@@ -126,7 +124,7 @@ class ExistingDatabaseTestCase(TestCase):
             totalMappingProjects=1,
             totalOrganization=0,
             totalSwipeTime=0,
-            totalSwipes=6,
+            totalSwipes=16,
         )
         without_data = dict(
             totalAreaSwiped=0,
