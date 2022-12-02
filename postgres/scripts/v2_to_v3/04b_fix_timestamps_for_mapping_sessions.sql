@@ -25,3 +25,4 @@ on conflict (project_id, group_id, user_id)
 DO UPDATE SET
     start_time = EXCLUDED.start_time,
     end_time = EXCLUDED.end_time;
+
