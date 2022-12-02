@@ -14,7 +14,7 @@ insert into mapping_sessions
          ,group_id
          ,user_id
          ,nextval('mapping_sessions_mapping_session_id_seq') as mapping_session_id
-         ,Min(timestamp) as start_time
+         ,Min(timestamp) - INTERVAL '2 Minutes' as start_time
          ,Max(timestamp) as end_time
          ,count(*) as items_count
     from results
