@@ -1,15 +1,17 @@
 import factory
 import factory.fuzzy
 from factory.django import DjangoModelFactory
+from mapswipe.utils import raise_if_field_not_found
 
 from .models import (
     Group,
+    MappingSession,
+    MappingSessionResult,
+    MappingSessionUserGroup,
     Project,
-    Result,
     Task,
     User,
     UserGroup,
-    UserGroupResult,
     UserGroupUserMembership,
 )
 
@@ -44,40 +46,29 @@ class TaskFactory(DjangoModelFactory):
 
     @classmethod
     def _create(cls, model_class, *args, **kwargs):
-        if "group" not in kwargs:
-            raise Exception("Please define group")
+        raise_if_field_not_found(kwargs, ["group"])
         group = kwargs.pop("group")
         kwargs["project"] = group.project
         kwargs["group_id"] = group.group_id
         return super()._create(model_class, *args, **kwargs)
 
 
-class ResultFactory(DjangoModelFactory):
+class MappingSessionFactory(DjangoModelFactory):
     class Meta:
-        model = Result
+        model = MappingSession
+
+
+class MappingSessionResultFactory(DjangoModelFactory):
+    class Meta:
+        model = MappingSessionResult
+
+
+class MappingSessionUserGroupFactory(DjangoModelFactory):
+    class Meta:
+        model = MappingSessionUserGroup
 
     @classmethod
     def _create(cls, model_class, *args, **kwargs):
-        if "task" not in kwargs:
-            raise Exception("Please define task")
-        task = kwargs.pop("task")
-        kwargs["project"] = task.project
-        kwargs["group_id"] = task.group_id
-        kwargs["task_id"] = task.task_id
-        return super()._create(model_class, *args, **kwargs)
-
-
-class UserGroupResultFactory(DjangoModelFactory):
-    class Meta:
-        model = UserGroupResult
-
-    @classmethod
-    def _create(cls, model_class, *args, **kwargs):
-        if "group" not in kwargs:
-            raise Exception("Please define group")
-        group = kwargs.pop("group")
-        kwargs["project"] = group.project
-        kwargs["group_id"] = group.group_id
         return super()._create(model_class, *args, **kwargs)
 
 

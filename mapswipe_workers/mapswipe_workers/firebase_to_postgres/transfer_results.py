@@ -476,9 +476,13 @@ def save_user_group_results_to_postgres(
         p_con.query(filter_query, {"project_id": project_id})
 
     query_insert_results = """
-        INSERT INTO results_user_groups
-            SELECT * FROM results_user_groups_temp
-        ON CONFLICT (project_id, group_id, user_id, user_group_id)
+        INSERT INTO mapping_sessions_user_groups
+            SELECT
+                ms.mapping_session_id,
+                rug_temp.user_group_id
+            FROM results_user_groups_temp rug_temp
+                JOIN mapping_sessions ms USING (project_id, group_id, user_id)
+        ON CONFLICT (mapping_session_id, user_group_id)
         DO NOTHING;
     """
     p_con.query(query_insert_results)

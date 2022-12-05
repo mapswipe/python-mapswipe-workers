@@ -50,6 +50,7 @@ def delete_test_data(project_id: str) -> None:
         ref.delete()
 
     pg_db = auth.postgresDB()
+    # Delete user results data
     sql_query = (
         "DELETE FROM mapping_sessions_results "
         "WHERE mapping_session_id IN ("
@@ -57,9 +58,16 @@ def delete_test_data(project_id: str) -> None:
         "FROM mapping_sessions WHERE project_id = %s)"
     )
     pg_db.query(sql_query, [project_id])
-    sql_query = "DELETE FROM mapping_sessions WHERE project_id = %s"
+    # Delete user-groups results data
+    sql_query = (
+        "DELETE FROM mapping_sessions_user_groups "
+        "WHERE mapping_session_id IN ("
+        "SELECT mapping_session_id "
+        "FROM mapping_sessions WHERE project_id = %s)"
+    )
     pg_db.query(sql_query, [project_id])
-    sql_query = "DELETE FROM results_user_groups WHERE project_id = %s"
+    # Delete mapping sessions
+    sql_query = "DELETE FROM mapping_sessions WHERE project_id = %s"
     pg_db.query(sql_query, [project_id])
     sql_query = "DELETE FROM results_temp WHERE project_id = %s"
     pg_db.query(sql_query, [project_id])
