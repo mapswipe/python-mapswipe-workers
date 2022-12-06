@@ -131,6 +131,7 @@ function DateRangeInput<N extends NameType>(props: Props<N>) {
         endDate: undefined,
     });
     const [calendarMonthSelectionPopupClassName] = React.useState(randomString(16));
+    const [rangeInputClassName] = React.useState(randomString(16));
     const createdContainerRef = React.useRef<HTMLDivElement>(null);
     const popupRef = React.useRef<HTMLDivElement>(null);
 
@@ -166,6 +167,15 @@ function DateRangeInput<N extends NameType>(props: Props<N>) {
         },
         [hideCalendar, calendarMonthSelectionPopupClassName],
     );
+
+    React.useEffect(() => {
+        if (showCalendar && window.innerWidth <= 528) {
+            const el = document.getElementsByClassName(
+                rangeInputClassName,
+            )?.[0];
+            el?.scrollIntoView(true);
+        }
+    }, [showCalendar, rangeInputClassName]);
 
     useBlurEffect(
         showCalendar,
@@ -311,7 +321,7 @@ function DateRangeInput<N extends NameType>(props: Props<N>) {
                     </>
                 )}
                 actionsContainerClassName={actionsContainerClassName}
-                className={className}
+                className={_cs(rangeInputClassName, className)}
                 disabled={disabled}
                 error={error}
                 errorContainerClassName={errorContainerClassName}
@@ -395,23 +405,24 @@ function DateRangeInput<N extends NameType>(props: Props<N>) {
                             </RawButton>
                         ))}
                     </div>
-
-                    <Calendar
-                        onDateClick={handleCalendarDateClick}
-                        className={styles.calendar}
-                        monthSelectionPopupClassName={calendarMonthSelectionPopupClassName}
-                        dateRenderer={DateRenderer}
-                        rendererParams={dateRendererParams}
-                        initialDate={firstInitialDate}
-                    />
-                    <Calendar
-                        onDateClick={handleCalendarDateClick}
-                        className={styles.calendar}
-                        monthSelectionPopupClassName={calendarMonthSelectionPopupClassName}
-                        dateRenderer={DateRenderer}
-                        rendererParams={dateRendererParams}
-                        initialDate={secondInitialDate}
-                    />
+                    <div className={styles.calendars}>
+                        <Calendar
+                            onDateClick={handleCalendarDateClick}
+                            className={styles.calendar}
+                            monthSelectionPopupClassName={calendarMonthSelectionPopupClassName}
+                            dateRenderer={DateRenderer}
+                            rendererParams={dateRendererParams}
+                            initialDate={firstInitialDate}
+                        />
+                        <Calendar
+                            onDateClick={handleCalendarDateClick}
+                            className={styles.calendar}
+                            monthSelectionPopupClassName={calendarMonthSelectionPopupClassName}
+                            dateRenderer={DateRenderer}
+                            rendererParams={dateRendererParams}
+                            initialDate={secondInitialDate}
+                        />
+                    </div>
                 </Popup>
             )}
         </>

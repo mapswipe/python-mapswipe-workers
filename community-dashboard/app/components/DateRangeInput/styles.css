@@ -48,10 +48,14 @@
         max-width: unset!important;
         max-height: unset!important;
 
-        .calendar {
-            --padding: var(--spacing-medium);
-            width: calc(var(--width-calendar-date) * 7 + 2 * var(--padding));
-            height: 100%;
+        .calendars {
+            display: flex;
+
+            .calendar {
+                --padding: var(--spacing-medium);
+                width: calc(var(--width-calendar-date) * 7 + 2 * var(--padding));
+                height: 100%;
+            }
         }
 
         .predefined-options {
@@ -68,6 +72,45 @@
                 &:hover {
                     background-color: var(--color-background-hover-light);
                 }
+            }
+        }
+    }
+
+    @media screen and (max-width: 50rem) {
+        height: auto;
+
+        .popup-content {
+            flex-wrap: wrap;
+
+            .calendars {
+                order: 1;
+
+                .calendar {
+                    flex-grow: 1;
+                    width: auto;
+                    height: unset;
+                }
+            }
+
+            .predefined-options {
+                flex-direction: row;
+                flex-wrap: wrap;
+                order: 2;
+                text-align: initial;
+
+                .option {
+                    justify-content: unset;
+                    width: auto;
+                }
+            }
+
+        }
+    }
+
+    @media screen and (max-width: 33rem) {
+        .popup-content {
+            .calendars {
+                flex-wrap: wrap;
             }
         }
     }
