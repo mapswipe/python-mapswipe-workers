@@ -175,7 +175,7 @@ interface Props {
     className?: string;
     heading?: string;
     contributionTimeStats: ActualContributorTimeStatType[] | null | undefined;
-    contributionSwipeStats: ContributorSwipeStatType[] | null | undefined;
+    contributionSwipeStats?: ContributorSwipeStatType[] | null | undefined;
     areaSwipedByProjectType: ProjectTypeAreaStatsType[] | null | undefined;
     organizationTypeStats: OrganizationSwipeStatsType[] | null | undefined;
     swipeByProjectType: ProjectTypeSwipeStatsType[] | null | undefined;
@@ -364,7 +364,7 @@ function StatsBoard(props: Props) {
                     ...item,
                     projectType: item.projectType ?? '-1',
                 }))
-                .sort((a, b) => compareNumber(b.totalSwipes, a.totalSwipes)) ?? []
+                .sort((a, b) => compareNumber(a.totalSwipes, b.totalSwipes)) ?? []
         ),
         [swipeByProjectType],
     );
@@ -382,7 +382,7 @@ function StatsBoard(props: Props) {
                 organizationName: item.organizationName ?? 'Unknown',
             }))
             .filter((project) => isDefined(project.organizationName))
-            .sort((a, b) => compareNumber(b.totalSwipes, a.totalSwipes)) ?? [];
+            .sort((a, b) => compareNumber(a.totalSwipes, b.totalSwipes)) ?? [];
 
         if (sortedTotalSwipeByOrganization.length <= 5) {
             return sortedTotalSwipeByOrganization;
@@ -678,11 +678,11 @@ function StatsBoard(props: Props) {
                                 normal
                             />
                         )}
-                        label="Total Swipes"
+                        label="Swipes"
                         variant="stat"
                     />
                     <InformationCard
-                        label="Total Time Spent Contributing"
+                        label="Time Spent Contributing"
                         value={(isDefined(totalContribution) && totalContribution > 0) ? (
                             <TextOutput
                                 className={styles.numberOutput}
@@ -722,6 +722,7 @@ function StatsBoard(props: Props) {
                                         cy="50%"
                                         outerRadius="90%"
                                         innerRadius="50%"
+                                        startAngle={-270}
                                     >
                                         {sortedProjectSwipeType.map((item) => (
                                             <Cell
@@ -765,6 +766,7 @@ function StatsBoard(props: Props) {
                                         cy="50%"
                                         outerRadius="90%"
                                         innerRadius="50%"
+                                        startAngle={-270}
                                     >
                                         {totalSwipesByOrganizationStats.map((item) => (
                                             <Cell

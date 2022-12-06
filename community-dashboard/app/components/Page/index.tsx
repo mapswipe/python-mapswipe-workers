@@ -18,6 +18,7 @@ import groupSvg from '#resources/icons/group.svg';
 import swipeSvg from '#resources/icons/swipe.svg';
 import timeSvg from '#resources/icons/time.svg';
 
+import { formatTimeDuration } from '#utils/temporal';
 import styles from './styles.css';
 
 interface InfoStatCardProps {
@@ -28,6 +29,7 @@ interface InfoStatCardProps {
     secondaryValue?: number;
     secondaryValueLabel?: React.ReactNode;
     secondaryValueDescription?: React.ReactNode;
+    variant?: 'time' | 'number';
 }
 
 function InfoStatCard(props: InfoStatCardProps) {
@@ -39,7 +41,41 @@ function InfoStatCard(props: InfoStatCardProps) {
         secondaryValue,
         secondaryValueLabel,
         secondaryValueDescription,
+        variant,
     } = props;
+
+    if (variant === 'time' && isDefined(value)) {
+        return (
+            <InformationCard
+                icon={(
+                    <img
+                        src={iconUrl}
+                        alt={iconAlt}
+                        className={styles.image}
+                    />
+                )}
+                value={(
+                    <TextOutput
+                        value={formatTimeDuration(value, ' ', true)}
+                    />
+                )}
+                label={label}
+                description={isDefined(secondaryValue) && secondaryValue > 0 && (
+                    <TextOutput
+                        label={secondaryValueLabel}
+                        hideLabelColon
+                        valueType="text"
+                        value={(
+                            <TextOutput
+                                value={formatTimeDuration(secondaryValue, ' ', true)}
+                            />
+                        )}
+                        description={secondaryValueDescription}
+                    />
+                )}
+            />
+        );
+    }
 
     return (
         <InformationCard
@@ -174,6 +210,7 @@ function Page(props: Props) {
                                 // eslint-disable-next-line react/destructuring-assignment
                                 secondaryValue={props.totalTimeSpentLastMonth}
                                 secondaryValueDescription="in the last 30 days"
+                                variant="time"
                             />
                         )}
                         {/* eslint-disable-next-line react/destructuring-assignment */}

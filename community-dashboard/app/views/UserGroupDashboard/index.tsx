@@ -194,7 +194,7 @@ function UserGroupDashboard(props: Props) {
                 const objUrl = URL.createObjectURL(blob);
                 const link = document.createElement('a');
                 link.href = objUrl;
-                link.download = `${userGroupStats.userGroup.name}.csv`;
+                link.download = `${userGroupStats?.userGroup?.name ?? 'users'}.csv`;
                 document.body.appendChild(link);
                 link.dispatchEvent(
                     new MouseEvent('click', {
@@ -206,7 +206,6 @@ function UserGroupDashboard(props: Props) {
                 document.body.removeChild(link);
                 window.URL.revokeObjectURL(objUrl);
             },
-            skip: !userGroupId,
         },
     );
 
@@ -281,6 +280,7 @@ function UserGroupDashboard(props: Props) {
                         <Button
                             disabled={userGroupStatsDownloadLoading}
                             onClick={getUserGroupStatsDownload}
+                            name="export"
                         >
                             { userGroupStatsDownloadLoading ? 'Exporting' : 'Export' }
                         </Button>
