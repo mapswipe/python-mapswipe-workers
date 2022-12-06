@@ -88,8 +88,8 @@ def transfer_results_for_project(project_id, results, filter_mode: bool = False)
                 [
                     user_group_id
                     for _, users in results.items()
-                    for _, results in users.items()
-                    for user_group_id, is_selected in results.get(
+                    for _, _results in users.items()
+                    for user_group_id, is_selected in _results.get(
                         "userGroups", {}
                     ).items()
                     if is_selected

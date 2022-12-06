@@ -25,14 +25,17 @@ UPDATE_USER_DATA_SQL = f"""
         -- Retrieve used task groups
         WITH used_task_groups as (
             SELECT
-              MS.project_id, MS.group_id
+              MS.project_id,
+              MS.group_id
             FROM mapping_sessions MS
+                INNER JOIN projects P USING (project_id)
             WHERE
                 MS.start_time >= %(from_date)s and MS.start_time < %(until_date)s
+                AND P.project_type != 2 -- Skip for footprint type missions
             GROUP BY project_id, group_id -- To get unique
         ),
         -- Calculated area by task_groups
-        task_group_data as (
+        task_group_area_data as (
           SELECT
               project_id,
               group_id,
@@ -53,9 +56,9 @@ UPDATE_USER_DATA_SQL = f"""
               MS.start_time,
               MS.end_time,
               MS.items_count as task_count,
-              TG.total_task_group_area as area_swiped
+              Coalesce(TG.total_task_group_area, 0) as area_swiped
             FROM mapping_sessions MS
-                INNER JOIN task_group_data TG USING (project_id, group_id)
+                LEFT JOIN task_group_area_data TG USING (project_id, group_id)
             WHERE
                 MS.start_time >= %(from_date)s and MS.start_time < %(until_date)s
         ),
@@ -105,15 +108,18 @@ UPDATE_USER_GROUP_SQL = f"""
         -- Retrieve used task groups
         WITH used_task_groups as (
             SELECT
-              MS.project_id, MS.group_id
+              MS.project_id,
+              MS.group_id
             From mapping_sessions_user_groups MSUR
                 INNER JOIN mapping_sessions MS USING (mapping_session_id)
+                INNER JOIN projects P USING (project_id)
             WHERE
                 MS.start_time >= %(from_date)s and MS.start_time < %(until_date)s
+                AND P.project_type != 2 -- Skip for footprint type missions
             GROUP BY project_id, group_id -- To get unique
         ),
         -- Calculated area by task_groups
-        task_group_data as (
+        task_group_area_data as (
           SELECT
               project_id,
               group_id,
@@ -135,10 +141,10 @@ UPDATE_USER_GROUP_SQL = f"""
                 MS.start_time as start_time,
                 MS.end_time as end_time,
                 MS.items_count as task_count,
-                TG.total_task_group_area as area_swiped
+                Coalesce(TG.total_task_group_area, 0) as area_swiped
             From mapping_sessions_user_groups MSUR
                 INNER JOIN mapping_sessions MS USING (mapping_session_id)
-                INNER JOIN task_group_data TG USING (project_id, group_id)
+                LEFT JOIN task_group_area_data TG USING (project_id, group_id)
             WHERE
                 MS.start_time >= %(from_date)s and MS.start_time < %(until_date)s
         ),

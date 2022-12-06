@@ -51,6 +51,7 @@ server {
 
     location / {
         proxy_pass http://django:80/;
+        proxy_cache_valid 502 503 0;  # Don't cache this error code.
         proxy_set_header Connection "upgrade";
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Host $host;
