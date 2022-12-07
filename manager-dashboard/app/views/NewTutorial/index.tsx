@@ -55,9 +55,10 @@ import {
     tutorialFormSchema,
     TutorialFormType,
     PartialTutorialFormType,
-    projectTypeOptions,
 } from './utils';
 import styles from './styles.css';
+
+import projectTypeOptions from '#base/configs/projectTypes';
 
 const defaultTutorialFormValue: PartialTutorialFormType = {
     projectType: PROJECT_TYPE_BUILD_AREA,
