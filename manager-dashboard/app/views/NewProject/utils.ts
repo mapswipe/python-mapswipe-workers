@@ -58,16 +58,6 @@ export interface ProjectFormType {
     tileServerB?: TileServer;
 }
 
-export const projectTypeOptions: {
-    value: ProjectType;
-    label: string;
-}[] = [
-    { value: PROJECT_TYPE_BUILD_AREA, label: 'Build Area' },
-    { value: PROJECT_TYPE_FOOTPRINT, label: 'Footprint' },
-    { value: PROJECT_TYPE_CHANGE_DETECTION, label: 'Change Detection' },
-    { value: PROJECT_TYPE_COMPLETENESS, label: 'Completeness' },
-];
-
 export const PROJECT_INPUT_TYPE_UPLOAD = 'aoi_file';
 export const PROJECT_INPUT_TYPE_LINK = 'link';
 export const PROJECT_INPUT_TYPE_TASKING_MANAGER_ID = 'TMId';
