@@ -40,6 +40,7 @@ export interface ProjectFormType {
     projectNumber: number;
     requestingOrganisation: string;
     name: string;
+    language: string;
     visibility: string;
     lookFor: string;
     tutorialId: string;
@@ -175,6 +176,7 @@ export const projectFormSchema: ProjectFormSchema = {
             projectNumber: [requiredCondition, integerCondition, greaterThanCondition(0)],
             requestingOrganisation: [requiredStringCondition],
             name: [requiredStringCondition],
+            language: [requiredCondition],
             visibility: [requiredCondition],
             lookFor: [getNoMoreThanNCharacterCondition(25)],
             projectDetails: [requiredStringCondition, getNoMoreThanNCharacterCondition(10000)],

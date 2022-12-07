@@ -35,3 +35,12 @@ export const projectTypeLabelMap: {
     [PROJECT_TYPE_CHANGE_DETECTION]: 'Change Detection',
     [PROJECT_TYPE_COMPLETENESS]: 'Completeness',
 };
+
+export const languageOptions: {
+    value: string;
+    label: string;
+}[] = [
+    { value: 'de-de', label: 'German' },
+    { value: 'en-us', label: 'English' },
+    { value: 'fr-fr', label: 'French' },
+];

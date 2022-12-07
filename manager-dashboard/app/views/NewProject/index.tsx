@@ -56,6 +56,7 @@ import {
     PROJECT_TYPE_FOOTPRINT,
     PROJECT_TYPE_COMPLETENESS,
     PROJECT_TYPE_CHANGE_DETECTION,
+    languageOptions,
 } from '#utils/common';
 
 import {
@@ -81,6 +82,7 @@ import styles from './styles.css';
 const defaultProjectFormValue: PartialProjectFormType = {
     projectType: PROJECT_TYPE_BUILD_AREA,
     projectNumber: 1,
+    language: 'en-us',
     visibility: 'public',
     verificationNumber: 3,
     zoomLevel: 18,
@@ -482,6 +484,18 @@ function NewProject(props: Props) {
                         placeholder="[Project Topic] - [Project Region] ([Task Number]) [Requesting Organisation]"
                         // error={error?.name}
                         disabled={submissionPending}
+                    />
+                    <SelectInput
+                        name={'language' as const}
+                        value={value?.language}
+                        options={languageOptions}
+                        onChange={setFieldValue}
+                        error={error?.language}
+                        label="Language"
+                        hint="What is the project language?"
+                        disabled={submissionPending}
+                        keySelector={valueSelector}
+                        labelSelector={labelSelector}
                     />
                     <div className={styles.inputGroup}>
                         <SelectInput

@@ -32,6 +32,7 @@ import UserContext from '#base/context/UserContext';
 import useMountedRef from '#hooks/useMountedRef';
 import Modal from '#components/Modal';
 import TextInput from '#components/TextInput';
+import SelectInput from '#components/SelectInput';
 import NumberInput from '#components/NumberInput';
 import SegmentInput from '#components/SegmentInput';
 import FileInput from '#components/FileInput';
@@ -49,6 +50,7 @@ import {
     PROJECT_TYPE_BUILD_AREA,
     PROJECT_TYPE_COMPLETENESS,
     PROJECT_TYPE_CHANGE_DETECTION,
+    languageOptions,
 } from '#utils/common';
 
 import {
@@ -61,6 +63,7 @@ import styles from './styles.css';
 
 const defaultTutorialFormValue: PartialTutorialFormType = {
     projectType: PROJECT_TYPE_BUILD_AREA,
+    language: 'en-us',
     zoomLevel: 18,
     tileServer: {
         name: TILE_SERVER_BING,
@@ -244,6 +247,18 @@ function NewTutorial(props: Props) {
                             disabled={submissionPending}
                         />
                     </div>
+                    <SelectInput
+                        name={'language' as const}
+                        value={value?.language}
+                        options={languageOptions}
+                        onChange={setFieldValue}
+                        error={error?.language}
+                        label="Language"
+                        hint="What is the project language?"
+                        disabled={submissionPending}
+                        keySelector={valueSelector}
+                        labelSelector={labelSelector}
+                    />
                     <div className={styles.inputGroup}>
                         <JsonFileInput
                             name={'screens' as const}

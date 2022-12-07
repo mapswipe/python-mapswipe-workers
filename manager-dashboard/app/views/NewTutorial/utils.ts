@@ -65,6 +65,7 @@ export const tutorialFormSchema: TutorialFormSchema = {
             projectType: [requiredCondition],
             lookFor: [requiredStringCondition, getNoMoreThanNCharacterCondition(25)],
             name: [requiredStringCondition, getNoMoreThanNCharacterCondition(1000)],
+            language: [requiredStringCondition],
             tileServer: {
                 fields: tileServerFieldsSchema,
             },
