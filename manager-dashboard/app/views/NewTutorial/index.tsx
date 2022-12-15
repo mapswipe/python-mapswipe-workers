@@ -205,6 +205,9 @@ function NewTutorial(props: Props) {
         || tutorialSubmissionStatus === 'tutorialSubmit'
     );
 
+    const tileServerBVisible = value?.projectType === PROJECT_TYPE_CHANGE_DETECTION
+        || value?.projectType === PROJECT_TYPE_COMPLETENESS;
+
     return (
         <div className={_cs(styles.newTutorial, className)}>
             <div className={styles.container}>
@@ -307,7 +310,7 @@ function NewTutorial(props: Props) {
                     </InputSection>
                 )}
                 <InputSection
-                    heading="Tile Server A"
+                    heading={tileServerBVisible ? 'Tile Server A' : 'Tile Server'}
                 >
                     <TileServerInput
                         name={'tileServer' as const}
@@ -317,8 +320,7 @@ function NewTutorial(props: Props) {
                         disabled={submissionPending}
                     />
                 </InputSection>
-                {(value?.projectType === PROJECT_TYPE_CHANGE_DETECTION
-                    || value?.projectType === PROJECT_TYPE_COMPLETENESS) && (
+                {tileServerBVisible && (
                     <InputSection
                         heading="Tile Server B"
                     >

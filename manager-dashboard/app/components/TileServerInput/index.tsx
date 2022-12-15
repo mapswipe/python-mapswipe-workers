@@ -59,18 +59,22 @@ export const tileServerDefaultCredits: Record<TileServerType, string> = {
 };
 
 function imageryUrlCondition(value: string | null | undefined) {
-    if (value && (
-        (
-            !value.includes('{z}')
-            || !value.includes('{x}')
-            || (!value.includes('{y}') && !value.includes('{-y}'))
-        ) || (
-            !value.includes('{quad_key}')
-        )
-    )) {
-        return 'Imagery url must contain {x}, {y} (or {-y}) & {z} placeholders or {quad_key} placeholder.';
+    if (!value) {
+        return undefined;
     }
-    return undefined;
+
+    if (value.includes('{quad_key}')) {
+        return undefined;
+    }
+
+    if (
+        value.includes('{z}')
+        && value.includes('{x}')
+        && (value.includes('{y}') || value.includes('{-y}'))
+    ) {
+        return undefined;
+    }
+    return 'Imagery url must contain {x}, {y} (or {-y}) & {z} placeholders or {quad_key} placeholder.';
 }
 
 type TileServerInputType = PartialForm<TileServer>;

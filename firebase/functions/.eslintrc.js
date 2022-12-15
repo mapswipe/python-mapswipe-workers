@@ -26,6 +26,11 @@ module.exports = {
         'promise',
     ],
     rules: {
+        '@typescript-eslint/no-unnecessary-condition': 'warn',
+        '@typescript-eslint/no-unused-vars': 1,
+        '@typescript-eslint/no-use-before-define': 1,
+        '@typescript-eslint/no-shadow': ['error'],
+
         'max-len': ['error', 200],
         'indent': ['error', 4],
         'quotes': ['error', 'single'],
