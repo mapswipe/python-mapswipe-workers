@@ -411,6 +411,9 @@ function NewProject(props: Props) {
         || projectSubmissionStatus === 'projectSubmit'
     );
 
+    const tileServerBVisible = value?.projectType === PROJECT_TYPE_CHANGE_DETECTION
+        || value?.projectType === PROJECT_TYPE_COMPLETENESS;
+
     return (
         <div className={_cs(styles.newProject, className)}>
             <div className={styles.container}>
@@ -712,7 +715,7 @@ function NewProject(props: Props) {
                 </InputSection>
 
                 <InputSection
-                    heading="Tile Server A"
+                    heading={tileServerBVisible ? 'Tile Server A' : 'Tile Server'}
                 >
                     <TileServerInput
                         name={'tileServer' as const}
@@ -723,10 +726,9 @@ function NewProject(props: Props) {
                     />
                 </InputSection>
 
-                {(value?.projectType === PROJECT_TYPE_CHANGE_DETECTION
-                    || value?.projectType === PROJECT_TYPE_COMPLETENESS) && (
+                {tileServerBVisible && (
                     <InputSection
-                        heading="Tile Server"
+                        heading="Tile Server B"
                     >
                         <TileServerInput
                             name={'tileServerB' as const}
