@@ -88,8 +88,8 @@ def transfer_results_for_project(project_id, results, filter_mode: bool = False)
                 [
                     user_group_id
                     for _, users in results.items()
-                    for _, results in users.items()
-                    for user_group_id, is_selected in results.get(
+                    for _, _results in users.items()
+                    for user_group_id, is_selected in _results.get(
                         "userGroups", {}
                     ).items()
                     if is_selected
@@ -476,9 +476,13 @@ def save_user_group_results_to_postgres(
         p_con.query(filter_query, {"project_id": project_id})
 
     query_insert_results = """
-        INSERT INTO results_user_groups
-            SELECT * FROM results_user_groups_temp
-        ON CONFLICT (project_id, group_id, user_id, user_group_id)
+        INSERT INTO mapping_sessions_user_groups
+            SELECT
+                ms.mapping_session_id,
+                rug_temp.user_group_id
+            FROM results_user_groups_temp rug_temp
+                JOIN mapping_sessions ms USING (project_id, group_id, user_id)
+        ON CONFLICT (mapping_session_id, user_group_id)
         DO NOTHING;
     """
     p_con.query(query_insert_results)

@@ -244,12 +244,12 @@ async function createFirebaseAccount(admin: any, osmID: any, displayName: any, a
     await Promise.all([userCreationTask, databaseTask, profileTask]);
     // Create a Firebase custom auth token.
     functions.logger.log('In createFirebaseAccount: createCustomToken');
-    let token;
+    let authToken;
     try {
-        token = await admin.auth().createCustomToken(uid);
+        authToken = await admin.auth().createCustomToken(uid);
     } catch (error) {
         functions.logger.error('Failed to create custom FB token', error);
     }
     functions.logger.log('Created Custom token for UID:', uid);
-    return token;
+    return authToken;
 }

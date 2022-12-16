@@ -96,19 +96,19 @@ exports.groupUsersCounter = functions.database.ref('/v2/results/{projectId}/{gro
                 console.log('group contribution exists already. user: '+context.params.userId+' project: '+context.params.projectId+' group: '+context.params.groupId);
                 return null;
             }
-            const numberOfTasks = Object.keys(result['results']).length;
+            const latestNumberOfTasks = Object.keys(result['results']).length;
 
             return Promise.all([
                 userContributionRef.child(context.params.groupId).set(true),
                 groupUsersRef.child(context.params.userId).set(true),
                 totalTaskContributionCountRef.transaction((currentCount) => {
-                    return currentCount + numberOfTasks;
+                    return currentCount + latestNumberOfTasks;
                 }),
                 totalGroupContributionCountRef.transaction((currentCount) => {
                     return currentCount + 1;
                 }),
                 taskContributionCountRef.transaction((currentCount) => {
-                    return currentCount + numberOfTasks;
+                    return currentCount + latestNumberOfTasks;
                 }),
 
                 // Tag userGroups of the user in the result

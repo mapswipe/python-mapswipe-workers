@@ -203,7 +203,7 @@ class TestTransferResultsProject(BaseTestCase):
 
         UG_QUERY = "SELECT user_group_id FROM user_groups ORDER BY user_group_id"
         RUG_QUERY = (
-            "SELECT user_group_id FROM results_user_groups ORDER BY user_group_id"
+            "SELECT user_group_id FROM mapping_sessions_user_groups ORDER BY user_group_id"
         )
         for query, expected_value in [
             (

@@ -6,7 +6,7 @@ from apps.aggregated.models import (
     AggregatedUserGroupStatData,
     AggregatedUserStatData,
 )
-from apps.existing_database.models import Result
+from apps.existing_database.models import MappingSession
 from django.core.management.base import BaseCommand
 from django.db import connection, models, transaction
 from django.utils import timezone
@@ -22,44 +22,47 @@ UPDATE_USER_DATA_SQL = f"""
         swipes
     )
     (
-        -- Retrieve used tasks
-        WITH used_tasks as (
+        -- Retrieve used task groups
+        WITH used_task_groups as (
             SELECT
-              project_id, group_id, task_id
-            FROM results R
-              INNER JOIN tasks T USING (project_id, group_id, task_id)
+              MS.project_id,
+              MS.group_id
+            FROM mapping_sessions MS
+                INNER JOIN projects P USING (project_id)
             WHERE
-                R.timestamp >= %(from_date)s and R.timestamp < %(until_date)s
-            GROUP BY project_id, group_id, task_id
+                MS.start_time >= %(from_date)s and MS.start_time < %(until_date)s
+                AND P.project_type != 2 -- Skip for footprint type missions
+            GROUP BY project_id, group_id -- To get unique
         ),
-        -- Calculated task area.
-        task_data as (
+        -- Calculated area by task_groups
+        task_group_area_data as (
           SELECT
               project_id,
               group_id,
-              task_id,
-              ST_Area(geom::geography(GEOMETRY,4326)) / 1000000 as area -- sqkm
-          FROM used_tasks
-              INNER JOIN tasks T USING (project_id, group_id, task_id)
+              SUM(
+                ST_Area(geom::geography(GEOMETRY,4326)) / 1000000
+              ) as total_task_group_area -- sqkm
+          FROM tasks T
+              INNER JOIN used_task_groups UG USING (project_id, group_id)
+          GROUP BY project_id, group_id
         ),
-        -- Aggregate data by group
+        -- Aggregate data by user
         user_data as (
             SELECT
-              R.project_id,
-              R.group_id,
-              R.user_id,
-              MAX(R.timestamp::date) as timestamp_date,
-              MIN(R.start_time) as start_time,
-              MAX(R.end_time) as end_time,
-              COUNT(DISTINCT R.task_id) as task_count,
-              SUM(T.area) as area_swiped
-            From results R
-              INNER JOIN task_data T USING (project_id, group_id, task_id)
+              MS.project_id,
+              MS.group_id,
+              MS.user_id,
+              MS.start_time::date as timestamp_date,
+              MS.start_time,
+              MS.end_time,
+              MS.items_count as task_count,
+              Coalesce(TG.total_task_group_area, 0) as area_swiped
+            FROM mapping_sessions MS
+                LEFT JOIN task_group_area_data TG USING (project_id, group_id)
             WHERE
-                R.timestamp >= %(from_date)s and R.timestamp < %(until_date)s
-            GROUP BY R.project_id, R.group_id, R.user_id
+                MS.start_time >= %(from_date)s and MS.start_time < %(until_date)s
         ),
-        -- Aggregate group data
+        -- Additional aggregate by timestamp_date
         user_agg_data as (
           SELECT
             project_id,
@@ -102,47 +105,50 @@ UPDATE_USER_GROUP_SQL = f"""
         swipes
     )
     (
-        -- Retrieve used tasks
-        WITH used_tasks as (
+        -- Retrieve used task groups
+        WITH used_task_groups as (
             SELECT
-              project_id, group_id, task_id
-            From results_user_groups ug
-                INNER JOIN results R USING (project_id, group_id, user_id)
-                INNER JOIN tasks T USING (project_id, group_id, task_id)
+              MS.project_id,
+              MS.group_id
+            From mapping_sessions_user_groups MSUR
+                INNER JOIN mapping_sessions MS USING (mapping_session_id)
+                INNER JOIN projects P USING (project_id)
             WHERE
-                R.timestamp >= %(from_date)s and R.timestamp < %(until_date)s
-            GROUP BY project_id, group_id, task_id
+                MS.start_time >= %(from_date)s and MS.start_time < %(until_date)s
+                AND P.project_type != 2 -- Skip for footprint type missions
+            GROUP BY project_id, group_id -- To get unique
         ),
-        -- Calculated task area.
-        task_data as (
+        -- Calculated area by task_groups
+        task_group_area_data as (
           SELECT
               project_id,
               group_id,
-              task_id,
-              ST_Area(geom::geography(GEOMETRY,4326)) / 1000000 as area -- sqkm
-          FROM used_tasks
-              INNER JOIN tasks T USING (project_id, group_id, task_id)
+              SUM(
+                ST_Area(geom::geography(GEOMETRY,4326)) / 1000000
+              ) as total_task_group_area -- sqkm
+          FROM tasks T
+              INNER JOIN used_task_groups UG USING (project_id, group_id)
+          GROUP BY project_id, group_id
         ),
-        -- Aggregate data by group
+        -- Aggregate data by user-group
         user_group_data as (
             SELECT
-                ug.project_id,
-                ug.group_id,
-                ug.user_id,
-                ug.user_group_id,
-                MAX(R.timestamp::date) as timestamp_date,
-                MIN(R.start_time) as start_time,
-                MAX(R.end_time) as end_time,
-                COUNT(DISTINCT R.task_id) as task_count,
-                SUM(T.area) as area_swiped
-            From results_user_groups ug
-                INNER JOIN results R USING (project_id, group_id, user_id)
-                INNER JOIN task_data T USING (task_id)
+                MS.project_id,
+                MS.group_id,
+                MS.user_id,
+                MSUR.user_group_id,
+                MS.start_time::date as timestamp_date,
+                MS.start_time as start_time,
+                MS.end_time as end_time,
+                MS.items_count as task_count,
+                Coalesce(TG.total_task_group_area, 0) as area_swiped
+            From mapping_sessions_user_groups MSUR
+                INNER JOIN mapping_sessions MS USING (mapping_session_id)
+                LEFT JOIN task_group_area_data TG USING (project_id, group_id)
             WHERE
-                R.timestamp >= %(from_date)s and R.timestamp < %(until_date)s
-            GROUP BY ug.project_id, ug.group_id, ug.user_id, ug.user_group_id
+                MS.start_time >= %(from_date)s and MS.start_time < %(until_date)s
         ),
-        -- Aggregate group data
+        -- Additional aggregate by timestamp_date
         user_group_agg_data as (
           SELECT
             project_id,
@@ -188,8 +194,8 @@ class Command(BaseCommand):
             from_date = datetime.datetime.strptime(tracker.value, "%Y-%m-%d").date()
         else:
             self.stdout.write(f"{label.title()} Last tracker data not found.")
-            timestamp_min = Result.objects.aggregate(
-                timestamp_min=models.Min("timestamp")
+            timestamp_min = MappingSession.objects.aggregate(
+                timestamp_min=models.Min("start_time")
             )["timestamp_min"]
             if timestamp_min:
                 self.stdout.write(f"Using min timestamp from database {timestamp_min}")

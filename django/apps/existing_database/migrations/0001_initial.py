@@ -102,7 +102,7 @@ class Migration(migrations.Migration):
                 ("timestamp", models.DateTimeField(blank=True, null=True)),
                 ("start_time", models.DateTimeField(blank=True, null=True)),
                 ("end_time", models.DateTimeField(blank=True, null=True)),
-                ("result", models.IntegerField(blank=True, null=True)),
+                ("result", models.SmallIntegerField(blank=True, null=True)),
             ],
             options={
                 "db_table": "results",

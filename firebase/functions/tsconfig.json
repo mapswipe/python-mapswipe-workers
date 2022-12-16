@@ -5,7 +5,19 @@
     "noUnusedLocals": true,
     "outDir": "lib",
     "sourceMap": true,
+
     "strict": true,
+    "alwaysStrict": true,
+    "strictNullChecks": true,
+    "noUncheckedIndexedAccess": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitOverride": true,
+    "noImplicitAny": true,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+
     "target": "es2017",
 
     "noFallthroughCasesInSwitch": true,

@@ -228,6 +228,14 @@ function ProjectDetails(props: Props) {
                         <>
                             <div className={styles.textOutput}>
                                 <div className={styles.label}>
+                                    Project Id
+                                </div>
+                                <div className={styles.value}>
+                                    {data.projectId}
+                                </div>
+                            </div>
+                            <div className={styles.textOutput}>
+                                <div className={styles.label}>
                                     Look For:
                                 </div>
                                 <div className={styles.value}>
