@@ -1,7 +1,16 @@
 import { isDefined } from '@togglecorp/fujs';
 
+export function getDateSafe(value: Date | number | string) {
+    if (typeof value === 'string') {
+        return new Date(`${value}T00:00`);
+    }
+
+    return new Date(value);
+}
+
 export function resolveTime(date: Date | number | string, resolution: 'day' | 'month' | 'year'): Date {
-    const newDate = new Date(date);
+    const newDate = getDateSafe(date);
+
     if (resolution === 'day' || resolution === 'month' || resolution === 'year') {
         newDate.setUTCHours(0, 0, 0, 0);
     }
@@ -41,7 +50,7 @@ export function getTimestamps(
 }
 
 export function formatDate(value: number | string) {
-    const date = new Date(value);
+    const date = getDateSafe(value);
     return new Intl.DateTimeFormat(
         navigator.language,
         { year: 'numeric', month: 'short', day: 'numeric' },
@@ -49,7 +58,7 @@ export function formatDate(value: number | string) {
 }
 
 export function formatMonth(value: number | string) {
-    const date = new Date(value);
+    const date = getDateSafe(value);
     return new Intl.DateTimeFormat(
         navigator.language,
         { year: 'numeric', month: 'short' },
@@ -57,7 +66,7 @@ export function formatMonth(value: number | string) {
 }
 
 export function formatYear(value: number | string) {
-    const date = new Date(value);
+    const date = getDateSafe(value);
     return new Intl.DateTimeFormat(
         navigator.language,
         { year: 'numeric' },

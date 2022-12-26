@@ -58,6 +58,7 @@ import {
     formatYear,
     resolveTime,
     getTimestamps,
+    getDateSafe,
 } from '#utils/temporal';
 import styles from './styles.css';
 
@@ -208,14 +209,15 @@ function StatsBoard(props: Props) {
     React.useEffect(
         () => {
             const timestamps = contributionTimeStats?.map(
-                (item) => new Date(item.date).getTime(),
+                (item) => getDateSafe(item.date).getTime(),
             ) ?? [];
+
             if (timestamps.length <= 0) {
                 timestamps.push(new Date().getTime());
             }
 
-            const minDate = new Date(Math.min(...timestamps));
-            const maxDate = new Date(Math.max(...timestamps));
+            const minDate = getDateSafe(Math.min(...timestamps));
+            const maxDate = getDateSafe(Math.max(...timestamps));
 
             const minDateYear = minDate.getFullYear();
             const maxDateYear = maxDate.getFullYear();
@@ -325,7 +327,7 @@ function StatsBoard(props: Props) {
     const totalContributionByDay = useMemo(() => {
         const dayWiseContribution = listToGroupList(
             contributionTimeStats,
-            (d) => new Date(d.date).getDay(),
+            (d) => getDateSafe(d.date).getDay(),
             (d) => d.totalSwipeTime,
         );
 
