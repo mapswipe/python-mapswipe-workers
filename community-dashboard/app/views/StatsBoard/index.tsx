@@ -297,11 +297,13 @@ function StatsBoard(props: Props) {
                 (item) => item.total,
             );
 
-            return getTimestamps(
+            const timestamps = getTimestamps(
                 contributionTimeSeries[0].date,
                 contributionTimeSeries[contributionTimeSeries.length - 1].date,
                 resolution,
-            ).map((item) => ({
+            );
+
+            return timestamps.map((item) => ({
                 total: mapping[item] ?? 0,
                 date: item,
             }));
@@ -366,7 +368,7 @@ function StatsBoard(props: Props) {
                     ...item,
                     projectType: item.projectType ?? '-1',
                 }))
-                .sort((a, b) => compareNumber(a.totalSwipes, b.totalSwipes)) ?? []
+                .sort((a, b) => compareNumber(a.totalSwipes, b.totalSwipes, -1)) ?? []
         ),
         [swipeByProjectType],
     );
@@ -384,7 +386,7 @@ function StatsBoard(props: Props) {
                 organizationName: item.organizationName ?? 'Unknown',
             }))
             .filter((project) => isDefined(project.organizationName))
-            .sort((a, b) => compareNumber(a.totalSwipes, b.totalSwipes)) ?? [];
+            .sort((a, b) => compareNumber(a.totalSwipes, b.totalSwipes, -1)) ?? [];
 
         if (sortedTotalSwipeByOrganization.length <= 5) {
             return sortedTotalSwipeByOrganization;

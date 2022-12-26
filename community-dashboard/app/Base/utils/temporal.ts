@@ -31,22 +31,31 @@ export function getTimestamps(
     const sanitizedStartDate = resolveTime(startDate, resolution);
     const sanitizedEndDate = resolveTime(endDate, resolution);
 
-    const returns: number[] = [
+    const timestamps: number[] = [
         sanitizedStartDate.getTime(),
     ];
 
-    while (sanitizedStartDate < sanitizedEndDate) {
+    let increment = 1;
+    while (true) {
+        const myDate = new Date(sanitizedStartDate);
         if (resolution === 'year') {
-            sanitizedStartDate.setFullYear(sanitizedStartDate.getFullYear() + 1);
+            myDate.setFullYear(sanitizedStartDate.getFullYear() + increment);
         } else if (resolution === 'month') {
-            sanitizedStartDate.setMonth(sanitizedStartDate.getMonth() + 1);
+            myDate.setMonth(sanitizedStartDate.getMonth() + increment);
         } else {
-            sanitizedStartDate.setDate(sanitizedStartDate.getDate() + 1);
+            myDate.setDate(sanitizedStartDate.getDate() + increment);
         }
-        returns.push(sanitizedStartDate.getTime());
+        myDate.setUTCHours(0, 0, 0, 0);
+
+        if (myDate > sanitizedEndDate) {
+            break;
+        }
+
+        timestamps.push(myDate.getTime());
+        increment += 1;
     }
 
-    return returns;
+    return timestamps;
 }
 
 export function formatDate(value: number | string) {
