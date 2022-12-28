@@ -121,6 +121,10 @@ const organizationTotalSwipeFormatter = (value: number, name: string) => (
     [value.toLocaleString(), organizationNameFormatter(name)]
 );
 
+const missionTypeTotalSwipeFormatter = (value: number, name: string) => (
+    [value.toLocaleString(), name]
+);
+
 // Timeseries by week day
 
 interface Day {
@@ -710,7 +714,9 @@ function StatsBoard(props: Props) {
                         {sortedProjectSwipeType.length > 0 ? (
                             <ResponsiveContainer>
                                 <PieChart>
-                                    <Tooltip />
+                                    <Tooltip
+                                        formatter={missionTypeTotalSwipeFormatter}
+                                    />
                                     <Legend
                                         align={documentWidth <= CHART_BREAKPOINT ? 'center' : 'right'}
                                         layout={documentWidth <= CHART_BREAKPOINT ? 'horizontal' : 'vertical'}
