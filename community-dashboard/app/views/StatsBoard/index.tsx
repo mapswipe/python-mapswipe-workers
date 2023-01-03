@@ -58,6 +58,7 @@ import {
     formatYear,
     resolveTime,
     getTimestamps,
+    getDateSafe,
 } from '#utils/temporal';
 import styles from './styles.css';
 
@@ -118,6 +119,10 @@ function organizationNameFormatter(value: string) {
 
 const organizationTotalSwipeFormatter = (value: number, name: string) => (
     [value.toLocaleString(), organizationNameFormatter(name)]
+);
+
+const missionTypeTotalSwipeFormatter = (value: number, name: string) => (
+    [value.toLocaleString(), name]
 );
 
 // Timeseries by week day
@@ -208,14 +213,15 @@ function StatsBoard(props: Props) {
     React.useEffect(
         () => {
             const timestamps = contributionTimeStats?.map(
-                (item) => new Date(item.date).getTime(),
+                (item) => getDateSafe(item.date).getTime(),
             ) ?? [];
+
             if (timestamps.length <= 0) {
                 timestamps.push(new Date().getTime());
             }
 
-            const minDate = new Date(Math.min(...timestamps));
-            const maxDate = new Date(Math.max(...timestamps));
+            const minDate = getDateSafe(Math.min(...timestamps));
+            const maxDate = getDateSafe(Math.max(...timestamps));
 
             const minDateYear = minDate.getFullYear();
             const maxDateYear = maxDate.getFullYear();
@@ -295,11 +301,13 @@ function StatsBoard(props: Props) {
                 (item) => item.total,
             );
 
-            return getTimestamps(
+            const timestamps = getTimestamps(
                 contributionTimeSeries[0].date,
                 contributionTimeSeries[contributionTimeSeries.length - 1].date,
                 resolution,
-            ).map((item) => ({
+            );
+
+            return timestamps.map((item) => ({
                 total: mapping[item] ?? 0,
                 date: item,
             }));
@@ -325,7 +333,7 @@ function StatsBoard(props: Props) {
     const totalContributionByDay = useMemo(() => {
         const dayWiseContribution = listToGroupList(
             contributionTimeStats,
-            (d) => new Date(d.date).getDay(),
+            (d) => getDateSafe(d.date).getDay(),
             (d) => d.totalSwipeTime,
         );
 
@@ -364,7 +372,7 @@ function StatsBoard(props: Props) {
                     ...item,
                     projectType: item.projectType ?? '-1',
                 }))
-                .sort((a, b) => compareNumber(a.totalSwipes, b.totalSwipes)) ?? []
+                .sort((a, b) => compareNumber(a.totalSwipes, b.totalSwipes, -1)) ?? []
         ),
         [swipeByProjectType],
     );
@@ -382,7 +390,7 @@ function StatsBoard(props: Props) {
                 organizationName: item.organizationName ?? 'Unknown',
             }))
             .filter((project) => isDefined(project.organizationName))
-            .sort((a, b) => compareNumber(a.totalSwipes, b.totalSwipes)) ?? [];
+            .sort((a, b) => compareNumber(a.totalSwipes, b.totalSwipes, -1)) ?? [];
 
         if (sortedTotalSwipeByOrganization.length <= 5) {
             return sortedTotalSwipeByOrganization;
@@ -706,7 +714,9 @@ function StatsBoard(props: Props) {
                         {sortedProjectSwipeType.length > 0 ? (
                             <ResponsiveContainer>
                                 <PieChart>
-                                    <Tooltip />
+                                    <Tooltip
+                                        formatter={missionTypeTotalSwipeFormatter}
+                                    />
                                     <Legend
                                         align={documentWidth <= CHART_BREAKPOINT ? 'center' : 'right'}
                                         layout={documentWidth <= CHART_BREAKPOINT ? 'horizontal' : 'vertical'}

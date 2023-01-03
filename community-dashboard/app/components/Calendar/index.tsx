@@ -11,6 +11,8 @@ import {
     IoCalendarOutline,
 } from 'react-icons/io5';
 
+import { getDateSafe } from '#utils/temporal';
+
 import Button from '../Button';
 import NumberInput from '../NumberInput';
 import SelectInput from '../SelectInput';
@@ -124,7 +126,7 @@ function Calendar<P extends CalendarDateProps>(props: Props<P>) {
     } = props;
 
     const today = new Date();
-    const current = initialDate ? new Date(initialDate) : today;
+    const current = initialDate ? getDateSafe(initialDate) : today;
     const currentYear = current.getFullYear();
     const currentMonth = current.getMonth();
 
@@ -193,8 +195,8 @@ function Calendar<P extends CalendarDateProps>(props: Props<P>) {
                                 styles.monthSelectionPopup,
                             )}
                             optionsPopupContentClassName={styles.popupContent}
-                            optionRenderer={undefined}
-                            optionRendererParams={undefined}
+                            // optionRenderer={undefined}
+                            // optionRendererParams={undefined}
                         />
                     </div>
                 </div>

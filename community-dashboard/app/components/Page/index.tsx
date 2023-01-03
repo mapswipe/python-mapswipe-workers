@@ -195,7 +195,7 @@ function Page(props: Props) {
                                     value={props.totalUserGroups}
                                     label="Total Groups"
                                     // eslint-disable-next-line react/destructuring-assignment
-                                    secondaryValue={props.totalContributorsLastMonth}
+                                    secondaryValue={props.totalUserGroupsLastMonth}
                                     secondaryValueDescription="active groups in the last 30 days"
                                 />
                             </>
