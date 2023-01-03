@@ -5,6 +5,8 @@ import { scaleQuantile } from 'd3-scale';
 import ReactTooltip from 'react-tooltip';
 import InformationCard from '#components/InformationCard';
 
+import { getDateSafe } from '#utils/temporal';
+
 import styles from './styles.css';
 
 const githubColors = [' #eeeeee', '#d6e685', '#8cc665', '#44a340', '#1e6823'];
@@ -24,15 +26,16 @@ function getDateRange(data: Data[] | null | undefined) {
     const startDate = sortedData[0].date;
     const endDate = sortedData[sortedData.length - 1].date;
 
-    if (getDifferenceInDays(new Date(endDate).getTime(), new Date(startDate).getTime()) <= 365) {
-        const currentYear = new Date(startDate).getFullYear();
+    if (getDifferenceInDays(getDateSafe(endDate).getTime(),
+        getDateSafe(startDate).getTime()) <= 365) {
+        const currentYear = getDateSafe(startDate).getFullYear();
         return {
             startDate: encodeDate(new Date(currentYear, 0, 1)),
             endDate: encodeDate(new Date(currentYear, 11, 31)),
         };
     }
-    const startDateTime = new Date(startDate);
-    const endDateTime = new Date(endDate);
+    const startDateTime = getDateSafe(startDate);
+    const endDateTime = getDateSafe(endDate);
 
     return {
         startDate: encodeDate(new Date(startDateTime.getFullYear(), startDateTime.getMonth(), 1)),

@@ -1,7 +1,16 @@
 import { isDefined } from '@togglecorp/fujs';
 
+export function getDateSafe(value: Date | number | string) {
+    if (typeof value === 'string') {
+        return new Date(`${value}T00:00`);
+    }
+
+    return new Date(value);
+}
+
 export function resolveTime(date: Date | number | string, resolution: 'day' | 'month' | 'year'): Date {
-    const newDate = new Date(date);
+    const newDate = getDateSafe(date);
+
     if (resolution === 'day' || resolution === 'month' || resolution === 'year') {
         newDate.setUTCHours(0, 0, 0, 0);
     }
@@ -22,26 +31,35 @@ export function getTimestamps(
     const sanitizedStartDate = resolveTime(startDate, resolution);
     const sanitizedEndDate = resolveTime(endDate, resolution);
 
-    const returns: number[] = [
+    const timestamps: number[] = [
         sanitizedStartDate.getTime(),
     ];
 
-    while (sanitizedStartDate < sanitizedEndDate) {
+    let increment = 1;
+    while (true) {
+        const myDate = new Date(sanitizedStartDate);
         if (resolution === 'year') {
-            sanitizedStartDate.setFullYear(sanitizedStartDate.getFullYear() + 1);
+            myDate.setFullYear(sanitizedStartDate.getFullYear() + increment);
         } else if (resolution === 'month') {
-            sanitizedStartDate.setMonth(sanitizedStartDate.getMonth() + 1);
+            myDate.setMonth(sanitizedStartDate.getMonth() + increment);
         } else {
-            sanitizedStartDate.setDate(sanitizedStartDate.getDate() + 1);
+            myDate.setDate(sanitizedStartDate.getDate() + increment);
         }
-        returns.push(sanitizedStartDate.getTime());
+        myDate.setUTCHours(0, 0, 0, 0);
+
+        if (myDate > sanitizedEndDate) {
+            break;
+        }
+
+        timestamps.push(myDate.getTime());
+        increment += 1;
     }
 
-    return returns;
+    return timestamps;
 }
 
 export function formatDate(value: number | string) {
-    const date = new Date(value);
+    const date = getDateSafe(value);
     return new Intl.DateTimeFormat(
         navigator.language,
         { year: 'numeric', month: 'short', day: 'numeric' },
@@ -49,7 +67,7 @@ export function formatDate(value: number | string) {
 }
 
 export function formatMonth(value: number | string) {
-    const date = new Date(value);
+    const date = getDateSafe(value);
     return new Intl.DateTimeFormat(
         navigator.language,
         { year: 'numeric', month: 'short' },
@@ -57,7 +75,7 @@ export function formatMonth(value: number | string) {
 }
 
 export function formatYear(value: number | string) {
-    const date = new Date(value);
+    const date = getDateSafe(value);
     return new Intl.DateTimeFormat(
         navigator.language,
         { year: 'numeric' },
