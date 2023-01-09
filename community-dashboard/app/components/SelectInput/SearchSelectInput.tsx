@@ -32,7 +32,11 @@ function Option(props: OptionProps) {
     );
 }
 
-type Def = { containerClassName?: string, title?: string };
+type Def = {
+    containerClassName?: string,
+    children?: React.ReactNode,
+    title?: string,
+};
 type OptionKey = string | number;
 
 export type SearchSelectInputProps<
@@ -41,7 +45,7 @@ export type SearchSelectInputProps<
     O extends object, // eslint-disable-line
     P extends Def,
     OMISSION extends string,
-    > = Omit<{
+> = Omit<{
         value: T | undefined | null;
         options: O[] | undefined | null;
         searchOptions?: O[] | undefined | null;
@@ -55,7 +59,7 @@ export type SearchSelectInputProps<
         onSearchValueChange?: (value: string) => void;
         onShowDropdownChange?: (value: boolean) => void;
         optionRenderer?: (props: Pick<P, Exclude<keyof P, 'containerClassName' | 'title'>>) => React.ReactNode;
-        optionRendererParams?: (optionKey: OptionKey, option: O) => P;
+        optionRendererParams?: (optionKey: T, option: O) => P;
     }, OMISSION> & (
         SelectInputContainerProps<T, K, O, P,
             'name'
@@ -218,7 +222,7 @@ function SearchSelectInput<
     );
 
     const optionRendererParamsDefault = useCallback(
-        (key: OptionKey, option: O) => {
+        (key: T, option: O) => {
             const isActive = key === value;
 
             return {
