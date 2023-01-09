@@ -225,7 +225,7 @@ class UserUserGroupBaseFilterStatsQuery:
         )
         return [
             OrganizationSwipeStatsType(
-                organization_name=organization_name or "Mapswipe",
+                organization_name=organization_name or "MapSwipe",
                 total_swipes=total_swipes,
             )
             async for organization_name, total_swipes in qs
