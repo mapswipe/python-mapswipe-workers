@@ -155,7 +155,7 @@ class FilteredStats:
         )
         return [
             OrganizationSwipeStatsType(
-                organization_name=organization or "N/A",
+                organization_name=organization or "Mapswipe",
                 total_swipes=swipes_sum,
             )
             async for organization, swipes_sum in qs
