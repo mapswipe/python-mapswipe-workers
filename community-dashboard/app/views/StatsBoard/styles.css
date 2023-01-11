@@ -182,6 +182,7 @@
         justify-content: flex-end;
         color: var(--color-text-light);
         font-size: var(--font-size-small);
+        font-weight: var(--font-weight-medium);
     }
 
     .info-label {
