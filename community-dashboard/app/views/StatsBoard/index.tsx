@@ -601,23 +601,20 @@ function StatsBoard(props: Props) {
                 </InformationCard>
                 <div className={styles.statsCardContainer}>
                     <InformationCard
-                        icon={(<img src={areaSvg} alt="user icon" />)}
-                        value={(
-                            <NumberOutput
-                                className={styles.numberOutput}
-                                value={buildAreaTotalSwipes}
-                                normal
-                                invalidText={0}
+                        icon={(
+                            <img
+                                src={areaSvg}
+                                alt="user icon"
                             />
                         )}
-                        label={(
-                            <div className={styles.infoLabel}>
-                                Area Reviewed
-                            </div>
-                        )}
-                        subHeading={(
+                        value={(
                             <>
-                                Build Area
+                                <NumberOutput
+                                    className={styles.numberOutput}
+                                    value={buildAreaTotalSwipes}
+                                    normal
+                                    invalidText={0}
+                                />
                                 <NumberOutput
                                     className={styles.areaOutput}
                                     value={buildAreaTotalArea}
@@ -627,10 +624,21 @@ function StatsBoard(props: Props) {
                                 />
                             </>
                         )}
+                        label={(
+                            <div className={styles.infoLabel}>
+                                Area Swipes
+                            </div>
+                        )}
+                        subHeading="Build Area"
                         variant="stat"
                     />
                     <InformationCard
-                        icon={(<img src={featureSvg} alt="group icon" />)}
+                        icon={(
+                            <img
+                                src={featureSvg}
+                                alt="group icon"
+                            />
+                        )}
                         value={(
                             <NumberOutput
                                 className={styles.numberOutput}
@@ -648,23 +656,20 @@ function StatsBoard(props: Props) {
                         variant="stat"
                     />
                     <InformationCard
-                        icon={(<img src={sceneSvg} alt="swipe icon" />)}
-                        value={(
-                            <NumberOutput
-                                className={styles.numberOutput}
-                                value={changeDetectionTotalSwipes}
-                                normal
-                                invalidText={0}
+                        icon={(
+                            <img
+                                src={sceneSvg}
+                                alt="swipe icon"
                             />
                         )}
-                        label={(
-                            <div className={styles.infoLabel}>
-                                Scene Comparision
-                            </div>
-                        )}
-                        subHeading={(
+                        value={(
                             <>
-                                Change Detection
+                                <NumberOutput
+                                    className={styles.numberOutput}
+                                    value={changeDetectionTotalSwipes}
+                                    normal
+                                    invalidText={0}
+                                />
                                 <NumberOutput
                                     className={styles.areaOutput}
                                     value={changeDetectionTotalArea}
@@ -674,6 +679,12 @@ function StatsBoard(props: Props) {
                                 />
                             </>
                         )}
+                        label={(
+                            <div className={styles.infoLabel}>
+                                Scene Compared
+                            </div>
+                        )}
+                        subHeading="Change Detection"
                         variant="stat"
                     />
                 </div>

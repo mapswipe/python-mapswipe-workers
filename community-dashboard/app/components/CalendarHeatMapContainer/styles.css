@@ -2,14 +2,35 @@
     display: flex;
     flex-grow: 1;
 
-    .heat-map-legend {
+    .content {
         display: flex;
-        gap: var(--spacing-small);
-        align-items: center;
-        justify-content: flex-end;
+        flex-direction: column;
+        gap: var(--spacing-medium);
+
+        .calendar {
+            overflow-x: hidden;
+            overflow-y: hidden;
+
+            &:hover {
+                overflow-x: auto;
+            }
+        }
+
+        .heat-map-legend {
+            display: flex;
+            gap: var(--spacing-small);
+            align-items: center;
+            justify-content: flex-end;
+        }
     }
 
+
     :global {
+        .react-calendar-heatmap {
+            margin-bottom: -2.4rem;
+            min-height: 10rem;
+        }
+
         .react-calendar-heatmap text {
             font-size: var(--font-size-extra-small);
             fill: var(--color-text);

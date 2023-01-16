@@ -280,7 +280,7 @@ function UserGroupDashboard(props: Props) {
                         <Button
                             disabled={userGroupStatsDownloadLoading}
                             onClick={getUserGroupStatsDownload}
-                            name="export"
+                            name={undefined}
                         >
                             { userGroupStatsDownloadLoading ? 'Exporting' : 'Export' }
                         </Button>
