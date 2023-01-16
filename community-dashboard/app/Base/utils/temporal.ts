@@ -12,7 +12,10 @@ export function resolveTime(date: Date | number | string, resolution: 'day' | 'm
     const newDate = getDateSafe(date);
 
     if (resolution === 'day' || resolution === 'month' || resolution === 'year') {
-        newDate.setUTCHours(0, 0, 0, 0);
+        newDate.setHours(0);
+        newDate.setMinutes(0);
+        newDate.setSeconds(0);
+        newDate.setMilliseconds(0);
     }
     if (resolution === 'month' || resolution === 'year') {
         newDate.setDate(1);
@@ -45,7 +48,10 @@ export function getTimestamps(
         } else {
             myDate.setDate(sanitizedStartDate.getDate() + increment);
         }
-        myDate.setUTCHours(0, 0, 0, 0);
+        myDate.setHours(0);
+        myDate.setMinutes(0);
+        myDate.setSeconds(0);
+        myDate.setMilliseconds(0);
 
         if (myDate > sanitizedEndDate) {
             break;

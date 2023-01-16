@@ -80,6 +80,9 @@
         }
 
         .value-container {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
             color: var(--color-primary);
             font-size: var(--font-size-super-large);
             font-weight: var(--font-weight-bold);

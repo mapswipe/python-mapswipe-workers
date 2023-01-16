@@ -85,22 +85,29 @@ function CalendarHeatMapContainer(props: Props) {
             label="Contributions"
             variant="stat"
             className={styles.chartContainer}
+            contentClassName={styles.content}
         >
-            <CalendarHeatmap
-                startDate={range.startDate}
-                endDate={range.endDate}
-                values={data ?? []}
-                classForValue={getClassForValue}
-                tooltipDataAttrs={(value: { date?: string, count?: string }) => {
-                    if (value?.count && value?.date) {
-                        return { 'data-tip': `${value?.count} swipes on ${value?.date}` };
-                    }
-                    return undefined;
-                }}
-                showWeekdayLabels
-            />
+            <div className={styles.calendar}>
+                <CalendarHeatmap
+                    startDate={range.startDate}
+                    endDate={range.endDate}
+                    values={data ?? []}
+                    classForValue={getClassForValue}
+                    tooltipDataAttrs={(value: { date?: string, count?: string }) => {
+                        if (value?.count && value?.date) {
+                            return { 'data-tip': `${value?.count} swipes on ${value?.date}` };
+                        }
+                        return undefined;
+                    }}
+                    showWeekdayLabels
+                    showMonthLabels
+                    showOutOfRangeDays
+                />
+            </div>
             <div className={styles.heatMapLegend}>
-                <div>Low Contribution</div>
+                <div>
+                    Low Contribution
+                </div>
                 <svg
                     width="90"
                     height="15"
@@ -133,7 +140,9 @@ function CalendarHeatMapContainer(props: Props) {
                         );
                     })}
                 </svg>
-                <div>High Contribution</div>
+                <div>
+                    High Contribution
+                </div>
             </div>
             <ReactTooltip />
         </InformationCard>
