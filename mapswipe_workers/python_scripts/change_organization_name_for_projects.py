@@ -51,9 +51,7 @@ def update_projects(
             new_project_name = project_name.replace(
                 old_organization_name, new_organization_name
             )
-            fb_db.reference(f"v2/projects/{project_id}/organizationName").set(
-                new_project_name
-            )
+            fb_db.reference(f"v2/projects/{project_id}/name").set(new_project_name)
             logger.info(
                 f"#{i} set project name '{new_project_name}' for project '{project_id}'"
             )
