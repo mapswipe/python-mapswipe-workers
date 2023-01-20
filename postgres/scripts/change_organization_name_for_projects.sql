@@ -1,0 +1,2 @@
+update projects set organization_name = 'Arizona State University' where organization_name = 'ASU';
+update projects set name = replace(name,  'ASU', 'Arizona State University') where organization_name = 'Arizona State University';
