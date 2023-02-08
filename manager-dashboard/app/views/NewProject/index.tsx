@@ -335,6 +335,7 @@ function NewProject(props: Props) {
                     setProjectSubmissionStatus('failed');
                     return;
                 }
+                valuesToCopy.geometry = res.geometry;
             }
 
             const storage = getStorage();
