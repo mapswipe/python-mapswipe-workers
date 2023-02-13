@@ -4,6 +4,22 @@ Base React App
 
 ## Development
 
+Install yarn package manager:
+```bash
+npm install --global yarn
+```
+
+Configure app with `.env`
+- adjust `.env.example` and name it `.env`
+
+Install dependencies and start:
+```bash
+yarn install --frozen-lockfile 
+
+yarn start
+```
+
+
 ```bash
 # Generate graphql files
 yarn generate
