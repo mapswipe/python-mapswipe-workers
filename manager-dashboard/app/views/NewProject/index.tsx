@@ -62,7 +62,6 @@ import {
     projectFormSchema,
     ProjectFormType,
     PartialProjectFormType,
-    projectTypeOptions,
     projectInputTypeOptions,
     filterOptions,
     PROJECT_INPUT_TYPE_UPLOAD,
@@ -77,6 +76,8 @@ import {
 } from './utils';
 import useProjectOptions from './useProjectOptions';
 import styles from './styles.css';
+
+import projectTypeOptions from '#base/configs/projectTypes';
 
 const defaultProjectFormValue: PartialProjectFormType = {
     projectType: PROJECT_TYPE_BUILD_AREA,
