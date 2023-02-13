@@ -56,6 +56,7 @@ import {
     PROJECT_TYPE_FOOTPRINT,
     PROJECT_TYPE_COMPLETENESS,
     PROJECT_TYPE_CHANGE_DETECTION,
+    PROJECT_TYPE_TILE_CLASSIFICATION,
 } from '#utils/common';
 
 import {
@@ -216,6 +217,7 @@ function NewProject(props: Props) {
 
     const handleTestAoi = React.useCallback(() => {
         const finalValues = value;
+
         async function submitToFirebase() {
             if (!mountedRef.current) {
                 return;
@@ -271,6 +273,7 @@ function NewProject(props: Props) {
 
             setTestPending(false);
         }
+
         submitToFirebase();
     }, [mountedRef, setError, value]);
 
@@ -464,7 +467,17 @@ function NewProject(props: Props) {
                             error={error?.projectNumber}
                             disabled={submissionPending}
                         />
-                        <SelectInput
+                        <TextInput
+                            name={'requestingOrganisation' as const}
+                            value={value?.requestingOrganisation}
+                            onChange={setFieldValueAndGenerateName}
+                            error={error?.requestingOrganisation}
+                            label="Requesting Organisation"
+                            hint="Which group, institution or community is requesting this project?"
+                            disabled={submissionPending}
+                        />
+                        {/* TODO: get Requesting Organizations from DB */}
+                        {/* <SelectInput
                             name={'requestingOrganisation' as const}
                             value={value?.requestingOrganisation}
                             options={organisationOptions}
@@ -475,7 +488,7 @@ function NewProject(props: Props) {
                             disabled={submissionPending || organisationsPending}
                             keySelector={valueSelector}
                             labelSelector={labelSelector}
-                        />
+                        /> */}
                     </div>
                     <TextInput
                         name={'name' as const}
@@ -510,6 +523,29 @@ function NewProject(props: Props) {
                             disabled={submissionPending}
                         />
                     </div>
+                    {(value?.projectType === PROJECT_TYPE_TILE_CLASSIFICATION) && (
+                        <SelectInput
+                            label="Language"
+                            hint="Choose which language should be used for this project."
+                            name={'language' as const}
+                            value={value?.language}
+                            onChange={setFieldValue}
+                            options={[
+                                {
+                                    label: 'English',
+                                    value: 'en-us',
+                                },
+                                {
+                                    label: 'Deutsch',
+                                    value: 'de-de',
+                                },
+                            ]}
+                            error={error?.language}
+                            keySelector={valueSelector}
+                            labelSelector={labelSelector}
+                            disabled={submissionPending}
+                        />
+                    )}
                     <TextArea
                         name={'projectDetails' as const}
                         value={value?.projectDetails}
@@ -567,7 +603,8 @@ function NewProject(props: Props) {
                 </InputSection>
                 {(value?.projectType === PROJECT_TYPE_BUILD_AREA
                     || value?.projectType === PROJECT_TYPE_CHANGE_DETECTION
-                    || value?.projectType === PROJECT_TYPE_COMPLETENESS) && (
+                    || value?.projectType === PROJECT_TYPE_COMPLETENESS
+                    || value?.projectType === PROJECT_TYPE_TILE_CLASSIFICATION) && (
                     <InputSection
                         heading="Zoom Level"
                     >
@@ -584,7 +621,8 @@ function NewProject(props: Props) {
                 )}
                 {(value?.projectType === PROJECT_TYPE_BUILD_AREA
                     || value?.projectType === PROJECT_TYPE_CHANGE_DETECTION
-                    || value?.projectType === PROJECT_TYPE_COMPLETENESS) && (
+                    || value?.projectType === PROJECT_TYPE_COMPLETENESS
+                    || value?.projectType === PROJECT_TYPE_TILE_CLASSIFICATION) && (
                     <InputSection
                         heading="Project AOI Geometry"
                     >
