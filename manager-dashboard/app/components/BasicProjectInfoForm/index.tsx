@@ -128,16 +128,6 @@ function BasicProjectInfoForm(props: Props) {
                     error={error?.projectNumber}
                     disabled={submissionPending}
                 />
-                {/* <TextInput */}
-                {/*     name={'requestingOrganisation' as const} */}
-                {/*     value={value?.requestingOrganisation} */}
-                {/*     onChange={setFieldValueAndGenerateName} */}
-                {/*     error={error?.requestingOrganisation} */}
-                {/*     label="Requesting Organisation" */}
-                {/*     hint="Which group, institution or community is requesting this project?" */}
-                {/*     disabled={submissionPending} */}
-                {/* /> */}
-
                 <SelectInput
                     name={'requestingOrganisation' as const}
                     value={value?.requestingOrganisation}
@@ -162,19 +152,18 @@ function BasicProjectInfoForm(props: Props) {
                 disabled={submissionPending}
             />
             <div className={styles.inputGroup}>
-                {/* <SelectInput */}
-                {/*     name={'visibility' as const} */}
-                {/*     value={value?.visibility} */}
-                {/*     onChange={setFieldValue} */}
-                {/*     keySelector={valueSelector} */}
-                {/*     labelSelector={labelSelector} */}
-                {/*     options={teamOptions} */}
-                {/*     label="Visibility" */}
-                {/* eslint-disable-next-line max-len */}
-                {/*     hint="Choose either 'public' or select the team for which this project should be displayed" */}
-                {/*     error={error?.visibility} */}
-                {/*     disabled={submissionPending || teamsPending} */}
-                {/* /> */}
+                <SelectInput
+                    name={'visibility' as const}
+                    value={value?.visibility}
+                    onChange={setFieldValue}
+                    keySelector={valueSelector}
+                    labelSelector={labelSelector}
+                    options={teamOptions}
+                    label="Visibility"
+                    hint="Choose either 'public' or select the team for which this project should be displayed"
+                    error={error?.visibility}
+                    disabled={submissionPending || teamsPending}
+                />
                 <TextInput
                     name={'lookFor' as const}
                     value={value?.lookFor}
@@ -231,19 +220,18 @@ function BasicProjectInfoForm(props: Props) {
                     disabled={submissionPending}
                 />
                 <div className={styles.verticalInputGroup}>
-                    {/* <SelectInput */}
-                    {/*     label="Tutorial" */}
-                    {/* eslint-disable-next-line max-len */}
-                    {/*     hint="Choose which tutorial should be used for this project. Make sure that this aligns with what you are looking for." */}
-                    {/*     name={'tutorialId' as const} */}
-                    {/*     value={value?.tutorialId} */}
-                    {/*     onChange={setFieldValue} */}
-                    {/*     options={tutorialOptions} */}
-                    {/*     error={error?.tutorialId} */}
-                    {/*     keySelector={valueSelector} */}
-                    {/*     labelSelector={labelSelector} */}
-                    {/*     disabled={submissionPending || tutorialsPending} */}
-                    {/* /> */}
+                    <SelectInput
+                        label="Tutorial"
+                        hint="Choose which tutorial should be used for this project. Make sure that this aligns with what you are looking for."
+                        name={'tutorialId' as const}
+                        value={value?.tutorialId}
+                        onChange={setFieldValue}
+                        options={tutorialOptions}
+                        error={error?.tutorialId}
+                        keySelector={valueSelector}
+                        labelSelector={labelSelector}
+                        disabled={submissionPending || tutorialsPending}
+                    />
                     <NumberInput
                         name={'verificationNumber' as const}
                         value={value?.verificationNumber}
