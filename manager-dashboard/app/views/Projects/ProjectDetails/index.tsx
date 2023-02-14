@@ -23,12 +23,12 @@ import {
     labelSelector,
     valueSelector,
     ProjectType,
-    projectTypeLabelMap,
     ProjectInputType,
     ProjectStatus,
 } from '#utils/common';
 
 import styles from './styles.css';
+import projectTypeOptions from '../../../Base/configs/projectTypes';
 
 export interface Project {
     contributorCount: number;
@@ -221,7 +221,10 @@ function ProjectDetails(props: Props) {
                             Type:
                         </div>
                         <div className={styles.value}>
-                            {projectTypeLabelMap[data.projectType]}
+                            {projectTypeOptions.find((projType: {
+                                value: ProjectType;
+                                label: string;
+                            }) => projType.value === data.projectType)?.label}
                         </div>
                     </div>
                     {detailsShown && (

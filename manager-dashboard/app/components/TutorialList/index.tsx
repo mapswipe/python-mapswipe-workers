@@ -16,10 +16,10 @@ import Pager from '#components/Pager';
 import { rankedSearchOnList } from '#components/SelectInput/utils';
 import {
     ProjectType,
-    projectTypeLabelMap,
 } from '#utils/common';
 
 import styles from './styles.css';
+import projectTypeOptions from '../../Base/configs/projectTypes';
 
 interface Tutorial {
     name: string;
@@ -101,7 +101,10 @@ function TutorialList(props: Props) {
                                     </div>
                                 </div>
                                 <div className={styles.lookFor}>
-                                    {projectTypeLabelMap[tutorial.projectType]}
+                                    {projectTypeOptions.find((projType: {
+                                            value: ProjectType;
+                                            label: string;
+                                        }) => projType.value === tutorial.projectType)?.label}
                                 </div>
                             </div>
                         );
