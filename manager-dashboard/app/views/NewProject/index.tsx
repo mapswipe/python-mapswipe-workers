@@ -522,7 +522,7 @@ function NewProject(props: Props) {
                             disabled={submissionPending}
                         />
                     </div>
-                    {(value?.projectType === PROJECT_TYPE_TILE_CLASSIFICATION) && (
+                    {(PROJECT_CONFIG_NAME === 'crowdmap') && (
                         <SelectInput
                             label="Language"
                             hint="Choose which language should be used for this project."
