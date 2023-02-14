@@ -56,7 +56,6 @@ import {
     PROJECT_TYPE_FOOTPRINT,
     PROJECT_TYPE_COMPLETENESS,
     PROJECT_TYPE_CHANGE_DETECTION,
-    PROJECT_TYPE_TILE_CLASSIFICATION,
 } from '#utils/common';
 
 import {
@@ -78,7 +77,7 @@ import {
 import useProjectOptions from './useProjectOptions';
 import styles from './styles.css';
 
-import projectTypeOptions from '#base/configs/projectTypes';
+import projectTypeOptions, { PROJECT_CONFIG_NAME } from '#base/configs/projectTypes';
 
 const defaultProjectFormValue: PartialProjectFormType = {
     projectType: PROJECT_TYPE_BUILD_AREA,
@@ -416,7 +415,7 @@ function NewProject(props: Props) {
     );
 
     const tileServerBVisible = value?.projectType === PROJECT_TYPE_CHANGE_DETECTION
-        || value?.projectType === PROJECT_TYPE_COMPLETENESS;
+        || (value?.projectType === PROJECT_TYPE_COMPLETENESS && PROJECT_CONFIG_NAME === 'crowdmap');
 
     return (
         <div className={_cs(styles.newProject, className)}>

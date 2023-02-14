@@ -25,9 +25,7 @@ export const PROJECT_TYPE_FOOTPRINT = 2;
 export const PROJECT_TYPE_CHANGE_DETECTION = 3;
 export const PROJECT_TYPE_COMPLETENESS = 4;
 
-export const PROJECT_TYPE_TILE_CLASSIFICATION = 7;
-
-export type ProjectType = 1 | 2 | 3 | 4 | 7;
+export type ProjectType = 1 | 2 | 3 | 4;
 
 export const projectTypeLabelMap: {
     [key in ProjectType]: string
@@ -36,5 +34,4 @@ export const projectTypeLabelMap: {
     [PROJECT_TYPE_FOOTPRINT]: 'Footprint',
     [PROJECT_TYPE_CHANGE_DETECTION]: 'Change Detection',
     [PROJECT_TYPE_COMPLETENESS]: 'Completeness',
-    [PROJECT_TYPE_TILE_CLASSIFICATION]: 'Tile Classification',
 };
