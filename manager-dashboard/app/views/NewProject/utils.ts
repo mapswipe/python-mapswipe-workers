@@ -325,7 +325,8 @@ export async function validateAoiOnOhsome(
     featureCollection: GeoJSON.GeoJSON | string | undefined | null,
     filter: string | undefined | null,
 ): (
-    Promise<{ errored: true, error: string } | { errored: false, message: string }>
+    Promise<{ errored: true, error: string }
+    | { errored: false, message: string }>
 ) {
     if (isNotDefined(featureCollection)) {
         return { errored: true, error: 'AOI is not defined' };
@@ -352,12 +353,13 @@ export async function validateAoiOnOhsome(
         return { errored: true, error: 'Could not find the no. of objects in given AOI' };
     }
 
-    const answer = await response.json() as {
+    interface OhsomeResonse {
         result: {
             value: number | null | undefined,
             timestamp: string | null | undefined,
         }[] | undefined;
-    };
+    }
+    const answer = await response.json() as OhsomeResonse;
 
     const count = answer.result?.[0].value;
 
@@ -380,7 +382,7 @@ export async function validateAoiOnOhsome(
 
 async function fetchAoiFromHotTaskingManager(projectId: number | string): (
     Promise<{ errored: true, error: string }
-    | { errored: false, response: GeoJSON.GeoJSON }>
+    | { errored: false, response: GeoJSON.Geometry }>
 ) {
     type Res = GeoJSON.Geometry;
     type Err = { Error: string, SubCode: string };
@@ -414,10 +416,7 @@ async function fetchAoiFromHotTaskingManager(projectId: number | string): (
     }
     return {
         errored: false,
-        response: {
-            type: 'FeatureCollection',
-            features: [{ type: 'Feature', geometry: answer, properties: {} }],
-        },
+        response: answer,
     };
 }
 
@@ -425,7 +424,8 @@ export async function validateProjectIdOnHotTaskingManager(
     projectId: number | string | undefined | null,
     filter: string | undefined | null,
 ): (
-    Promise<{ errored: true, error: string } | { errored: false, message: string }>
+    Promise<{ errored: true, error: string }
+    | { errored: false, message: string, geometry: GeoJSON.Geometry }>
 ) {
     if (isNotDefined(projectId)) {
         return {
@@ -438,6 +438,23 @@ export async function validateProjectIdOnHotTaskingManager(
         return aoi;
     }
 
-    const res = await validateAoiOnOhsome(aoi.response, filter);
-    return res;
+    const res = await validateAoiOnOhsome(
+        {
+            type: 'FeatureCollection' as const,
+            features: [{
+                type: 'Feature' as const,
+                geometry: aoi.response,
+                properties: {},
+            }],
+        },
+        filter,
+    );
+    if (res.errored) {
+        return res;
+    }
+    return {
+        errored: false,
+        message: res.message,
+        geometry: aoi.response,
+    };
 }
