@@ -46,7 +46,7 @@ interface UserGroupFormFields {
 type UserGroupFormSchema = ObjectSchema<UserGroupFormFields>;
 type UserGroupFormSchemaFields = ReturnType<UserGroupFormSchema['fields']>
 
-const MAX_CHARS_NAME = 30;
+const MAX_CHARS_NAME = 40;
 const MAX_CHARS_DESCRIPTION = 100;
 
 const userGroupFormSchema: UserGroupFormSchema = {
