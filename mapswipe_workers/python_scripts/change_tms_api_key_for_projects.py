@@ -56,21 +56,26 @@ def add_api_key_to_projects(project_id_list, api_key):
 
 if __name__ == "__main__":
     """change_tms_api_key_for_projects.py maxar_premium"""
-    tms_name = sys.argv[1]
-
     logger.info(
         "This script currently supports only the following project types:"
-        "build_area, footprint, completeness\n"
+        "build_area, footprint, completeness. "
         "The new api key will be obtained from the .env file. "
         "Make sure to update this file first."
     )
 
-    if tms_name in IMAGE_API_KEYS.keys():
-        new_api_key = IMAGE_API_KEYS[tms_name]
-        project_id_list = get_all_projects_by_tms(tms_name)
-        add_api_key_to_projects(project_id_list, new_api_key)
-    else:
+    try:
+        tms_name = sys.argv[1]
+        if tms_name in IMAGE_API_KEYS.keys():
+            new_api_key = IMAGE_API_KEYS[tms_name]
+            project_id_list = get_all_projects_by_tms(tms_name)
+            add_api_key_to_projects(project_id_list, new_api_key)
+        else:
+            logger.info(
+                f"'{tms_name}' is not a valid TMS provider name. "
+                f"Valid options are: {list(IMAGE_API_KEYS.keys())}"
+            )
+    except IndexError:
         logger.info(
-            f"'{tms_name}' is not a valid TMS provider name. "
+            "Provide a valid TMS provider name as an argument to this script. "
             f"Valid options are: {list(IMAGE_API_KEYS.keys())}"
         )
