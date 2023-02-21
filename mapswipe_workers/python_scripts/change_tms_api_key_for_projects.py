@@ -60,7 +60,9 @@ if __name__ == "__main__":
 
     logger.info(
         "This script currently supports only the following project types:"
-        "build_area, footprint, completeness"
+        "build_area, footprint, completeness\n"
+        "The new api key will be obtained from the .env file. "
+        "Make sure to update this file first."
     )
 
     if tms_name in IMAGE_API_KEYS.keys():
