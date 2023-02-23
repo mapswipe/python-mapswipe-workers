@@ -13,7 +13,7 @@ def get_all_projects_by_tms(tms_name: str):
 
     # we neglect private projects here
     # since there are no projects set up in production yet
-    status_list = ["active", "inactive"]
+    status_list = ["active", "inactive", "tutorial"]
 
     for status in status_list:
         logger.info(f"query {status} projects")
