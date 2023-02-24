@@ -120,6 +120,7 @@ function ContributionHeatMap(props: Props) {
                 className={styles.mapContainer}
                 maxZoom-={13}
                 minZoom={1}
+                worldCopyJump
             >
                 <HeatmapComponent
                     contributionGeojson={contributionGeojson}
