@@ -1,64 +1,34 @@
 import React from 'react';
-import { EntriesAsList, getErrorObject, useForm } from '@togglecorp/toggle-form';
+import { EntriesAsList, ObjectError, SetBaseValueArg } from '@togglecorp/toggle-form';
 import TextInput from '../TextInput';
-import {
-    FILTER_BUILDINGS,
-    generateProjectName, getGroupSize,
-    PartialProjectFormType, PROJECT_INPUT_TYPE_UPLOAD,
-    projectFormSchema,
-} from '../../views/NewProject/utils';
-import { labelSelector, PROJECT_TYPE_BUILD_AREA, valueSelector } from '../../utils/common';
-import { TILE_SERVER_BING, tileServerDefaultCredits } from '../TileServerInput';
+import { generateProjectName, PartialProjectFormType } from '#views/NewProject/utils';
+import { labelSelector, valueSelector } from '#utils/common';
 import NumberInput from '../NumberInput';
 import TextArea from '../TextArea';
 import ImageInput from '../ImageInput';
 import SelectInput from '../SelectInput';
-import { PROJECT_CONFIG_NAME } from '../../Base/configs/projectTypes';
-import useProjectOptions from '../../views/NewProject/useProjectOptions';
+import useProjectOptions from '#views/NewProject/useProjectOptions';
+import styles from '#views/NewProject/styles.css';
 
-const defaultProjectFormValue: PartialProjectFormType = {
-    projectType: PROJECT_TYPE_BUILD_AREA,
-    projectNumber: 1,
-    visibility: 'public',
-    verificationNumber: 3,
-    zoomLevel: 18,
-    groupSize: getGroupSize(PROJECT_TYPE_BUILD_AREA),
-    tileServer: {
-        name: TILE_SERVER_BING,
-        credits: tileServerDefaultCredits[TILE_SERVER_BING],
-    },
-    tileServerB: {
-        name: TILE_SERVER_BING,
-        credits: tileServerDefaultCredits[TILE_SERVER_BING],
-    },
-    // maxTasksPerUser: -1,
-    inputType: PROJECT_INPUT_TYPE_UPLOAD,
-    filter: FILTER_BUILDINGS,
-};
-
-export interface Props {
-    styles: any;
+export interface Props<T extends PartialProjectFormType> {
     className?: string;
     submissionPending: boolean;
     showLanguage: boolean;
+    value: T;
+    setValue: (value: SetBaseValueArg<T>, doNotReset?: boolean) => void;
+    setFieldValue: (...entries: EntriesAsList<T>) => void;
+    error: ObjectError<T> | undefined;
 }
 
-function BasicProjectInfoForm(props: Props) {
+function BasicProjectInfoForm(props: Props<PartialProjectFormType>) {
     const {
-        className,
-        styles,
         submissionPending,
         showLanguage,
-    } = props;
-
-    const {
-        setFieldValue,
         value,
-        error: formError,
-        validate,
-        setError,
         setValue,
-    } = useForm(projectFormSchema, defaultProjectFormValue);
+        setFieldValue,
+        error,
+    } = props;
 
     const {
         teamOptions,
@@ -69,10 +39,9 @@ function BasicProjectInfoForm(props: Props) {
         organisationsPending,
     } = useProjectOptions(value?.projectType);
 
-    const error = React.useMemo(
-        () => getErrorObject(formError),
-        [formError],
-    );
+    React.useEffect(() => {
+        setFieldValue(tutorialOptions?.[0]?.value, 'tutorialId');
+    }, [setFieldValue, value?.projectType, tutorialOptions]);
 
     const setFieldValueAndGenerateName = React.useCallback(
         (...entries: EntriesAsList<PartialProjectFormType>) => {
@@ -80,7 +49,7 @@ function BasicProjectInfoForm(props: Props) {
             setFieldValue(...entries);
 
             setValue((oldValue) => {
-                const projectName = generateProjectName(
+                const name = generateProjectName(
                     oldValue.projectTopic,
                     oldValue.projectNumber,
                     oldValue.projectRegion,
@@ -88,7 +57,7 @@ function BasicProjectInfoForm(props: Props) {
                 );
                 return {
                     ...oldValue,
-                    projectName,
+                    name,
                 };
             }, true);
         },
@@ -141,7 +110,7 @@ function BasicProjectInfoForm(props: Props) {
                     labelSelector={labelSelector}
                 />
             </div>
-            <TextInput
+            <TextArea
                 name={'name' as const}
                 value={value?.name}
                 label="Name"

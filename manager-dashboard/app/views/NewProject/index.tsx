@@ -1,43 +1,28 @@
 import React from 'react';
+import { _cs, isDefined } from '@togglecorp/fujs';
 import {
-    _cs,
-    isDefined,
-} from '@togglecorp/fujs';
-import {
-    useForm,
-    getErrorObject,
-    createSubmitHandler,
     analyzeErrors,
-    EntriesAsList,
+    createSubmitHandler,
+    getErrorObject,
     internal,
+    useForm,
 } from '@togglecorp/toggle-form';
-import {
-    getStorage,
-    ref as storageRef,
-    uploadBytes,
-    getDownloadURL,
-} from 'firebase/storage';
+import { getDownloadURL, getStorage, ref as storageRef, uploadBytes } from 'firebase/storage';
 import {
     getDatabase,
-    ref as databaseRef,
     push as pushToDatabase,
+    ref as databaseRef,
     set as setToDatabase,
 } from 'firebase/database';
-import {
-    MdOutlinePublishedWithChanges,
-    MdOutlineUnpublished,
-} from 'react-icons/md';
+import { MdOutlinePublishedWithChanges, MdOutlineUnpublished } from 'react-icons/md';
 import { Link } from 'react-router-dom';
 
 import UserContext from '#base/context/UserContext';
 import useMountedRef from '#hooks/useMountedRef';
 import Modal from '#components/Modal';
-import SelectInput from '#components/SelectInput';
 import TextInput from '#components/TextInput';
-import TextArea from '#components/TextArea';
 import NumberInput from '#components/NumberInput';
 import SegmentInput from '#components/SegmentInput';
-import ImageInput from '#components/ImageInput';
 import GeoJsonFileInput from '#components/GeoJsonFileInput';
 import TileServerInput, {
     TILE_SERVER_BING,
@@ -48,37 +33,36 @@ import Button from '#components/Button';
 import AnimatedSwipeIcon from '#components/AnimatedSwipeIcon';
 
 import {
-    valueSelector,
     labelSelector,
-    ProjectType,
-    ProjectInputType,
     PROJECT_TYPE_BUILD_AREA,
-    PROJECT_TYPE_FOOTPRINT,
-    PROJECT_TYPE_COMPLETENESS,
     PROJECT_TYPE_CHANGE_DETECTION,
+    PROJECT_TYPE_COMPLETENESS,
+    PROJECT_TYPE_FOOTPRINT,
+    ProjectInputType,
+    ProjectType,
+    valueSelector,
 } from '#utils/common';
 
 import {
-    projectFormSchema,
-    ProjectFormType,
-    PartialProjectFormType,
-    projectInputTypeOptions,
-    filterOptions,
-    PROJECT_INPUT_TYPE_UPLOAD,
-    PROJECT_INPUT_TYPE_LINK,
-    PROJECT_INPUT_TYPE_TASKING_MANAGER_ID,
     FILTER_BUILDINGS,
     FILTER_OTHERS,
-    generateProjectName,
+    filterOptions,
     getGroupSize,
+    PartialProjectFormType,
+    PROJECT_INPUT_TYPE_LINK,
+    PROJECT_INPUT_TYPE_TASKING_MANAGER_ID,
+    PROJECT_INPUT_TYPE_UPLOAD,
+    projectFormSchema,
+    ProjectFormType,
+    projectInputTypeOptions,
     validateAoiOnOhsome,
     validateProjectIdOnHotTaskingManager,
 } from './utils';
-import useProjectOptions from './useProjectOptions';
-import styles from './styles.css';
-
 import projectTypeOptions, { PROJECT_CONFIG_NAME } from '#base/configs/projectTypes';
-import BasicProjectInfoForm from '../../components/BasicProjectInfoForm';
+import BasicProjectInfoForm from '#components/BasicProjectInfoForm';
+
+// eslint-disable-next-line postcss-modules/no-unused-class
+import styles from './styles.css';
 
 const defaultProjectFormValue: PartialProjectFormType = {
     projectType: PROJECT_TYPE_BUILD_AREA,
@@ -122,15 +106,6 @@ function NewProject(props: Props) {
         setValue,
     } = useForm(projectFormSchema, defaultProjectFormValue);
 
-    const {
-        teamOptions,
-        tutorialOptions,
-        teamsPending,
-        tutorialsPending,
-        organisationOptions,
-        organisationsPending,
-    } = useProjectOptions(value?.projectType);
-
     const [testPending, setTestPending] = React.useState(false);
     const [geometryDescription, setGeometryDescription] = React.useState<string>();
     const [TMIdDescription, setTMIdDescription] = React.useState<string>();
@@ -143,32 +118,6 @@ function NewProject(props: Props) {
     const error = React.useMemo(
         () => getErrorObject(formError),
         [formError],
-    );
-
-    React.useEffect(() => {
-        setFieldValue(tutorialOptions?.[0]?.value, 'tutorialId');
-    }, [setFieldValue, value?.projectType, tutorialOptions]);
-
-    // TODO delete
-    const setFieldValueAndGenerateName = React.useCallback(
-        (...entries: EntriesAsList<PartialProjectFormType>) => {
-            // NOTE: we need to use setFieldValue to set error on change
-            setFieldValue(...entries);
-
-            setValue((oldValue) => {
-                const name = generateProjectName(
-                    oldValue.projectTopic,
-                    oldValue.projectNumber,
-                    oldValue.projectRegion,
-                    oldValue.requestingOrganisation,
-                );
-                return {
-                    ...oldValue,
-                    name,
-                };
-            }, true);
-        },
-        [setFieldValue, setValue],
     );
 
     const handleProjectTypeChange = React.useCallback(
@@ -416,10 +365,11 @@ function NewProject(props: Props) {
         || projectSubmissionStatus === 'projectSubmit'
     );
 
-    const tileServerBVisible = value?.projectType === PROJECT_TYPE_CHANGE_DETECTION
-        || (value?.projectType === PROJECT_TYPE_COMPLETENESS && PROJECT_CONFIG_NAME === 'crowdmap');
-
     const isCrowdmap = PROJECT_CONFIG_NAME === 'crowdmap';
+
+    const tileServerBVisible = value?.projectType === PROJECT_TYPE_CHANGE_DETECTION
+        || (value?.projectType === PROJECT_TYPE_COMPLETENESS && isCrowdmap);
+
     return (
         <div className={_cs(styles.newProject, className)}>
             <div className={styles.container}>
@@ -439,7 +389,10 @@ function NewProject(props: Props) {
                         disabled={submissionPending || testPending}
                     />
                     <BasicProjectInfoForm
-                        styles={styles}
+                        value={value}
+                        setValue={setValue}
+                        setFieldValue={setFieldValue}
+                        error={error}
                         submissionPending={submissionPending}
                         showLanguage={isCrowdmap}
                     />
