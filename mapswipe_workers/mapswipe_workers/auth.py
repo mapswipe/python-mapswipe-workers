@@ -80,6 +80,12 @@ class postgresDB(object):
         self._db_connection.commit()
         self._db_cur.close()
 
+    def table_exists(self, table_name):
+        resp = self.retr_query(
+            "SELECT to_regclass(%(table_name)s);", {"table_name": table_name}
+        )
+        return resp[0][0] is not None
+
     def retr_query(self, query, data=None):
         self._db_cur = self._db_connection.cursor()
         self._db_cur.execute(query, data)
