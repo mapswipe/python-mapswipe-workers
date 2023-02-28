@@ -36,7 +36,7 @@ x-django: &base_django
       DJANGO_MEDIA_ROOT: '/assets/media/'
       SENTRY_DSN: ${DJANGO_SENTRY_DSN}
       SENTRY_SAMPLE_RATE: ${DJANGO_SENTRY_SAMPLE_RATE:-0.2}
-      MAPSWIPE_ENVIRONMENT: ${MAPSWIPE_ENVIRONMENT:-dev}
+      MAPSWIPE_ENVIRONMENT: ${MAPSWIPE_ENVIRONMENT:-prod}
       RELEASE: '${DJANGO_RELEASE:-latest}'
   volumes:
       - ipython_data_local:/root/.ipython/profile_default   # persist ipython data, including ipython history
@@ -147,7 +147,7 @@ services:
         build:
             context: community-dashboard/
         environment:
-            REACT_APP_ENVIRONMENT: ${MAPSWIPE_ENVIRONMENT:-dev}
+            REACT_APP_ENVIRONMENT: ${MAPSWIPE_ENVIRONMENT:-prod}
             GRAPHQL_CODEGEN_ENDPOINT: ${COMMUNITY_DASHBOARD_GRAPHQL_CODEGEN_ENDPOINT}
             REACT_APP_GRAPHQL_ENDPOINT: ${COMMUNITY_DASHBOARD_GRAPHQL_ENDPOINT}
             REACT_APP_SENTRY_DSN: ${COMMUNITY_DASHBOARD_SENTRY_DSN}
