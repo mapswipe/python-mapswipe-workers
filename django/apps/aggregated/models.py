@@ -16,6 +16,7 @@ class AggregatedTracking(Model):
     value = models.CharField(max_length=225, null=True)
 
 
+# NOTE: Django generated table_name is used in mapswipe_workers->delete_project.py
 class AggregatedUserStatData(Model):
     # Ref Fields
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="+")
@@ -35,6 +36,7 @@ class AggregatedUserStatData(Model):
         )
 
 
+# NOTE: Django generated table_name is used in mapswipe_workers->delete_project.py
 class AggregatedUserGroupStatData(Model):
     # Ref Fields
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="+")

@@ -111,6 +111,14 @@ def delete_project(project_ids: list) -> bool:
         pg_db.query(sql_query, {"project_id": project_id})
         sql_query = "DELETE FROM groups WHERE project_id = %(project_id)s;"
         pg_db.query(sql_query, {"project_id": project_id})
+        # -- Table from django/apps/aggregated/models.py. Used to cache stats data
+        # NOTE: Django doesn't support database-level CASCADE delete
+        #  https://docs.djangoproject.com/en/4.1/ref/models/fields/#django.db.models.ForeignKey.on_delete
+        sql_query = "DELETE FROM aggregated_aggregateduserstatdata WHERE project_id = %(project_id)s;"
+        pg_db.query(sql_query, {"project_id": project_id})
+        sql_query = "DELETE FROM aggregated_aggregatedusergroupstatdata WHERE project_id = %(project_id)s;"
+        pg_db.query(sql_query, {"project_id": project_id})
+        # Finally delete the project
         sql_query = "DELETE FROM projects WHERE project_id = %(project_id)s;"
         pg_db.query(sql_query, {"project_id": project_id})
 
