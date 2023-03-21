@@ -2,7 +2,7 @@ import { isDefined } from '@togglecorp/fujs';
 
 export function getDateSafe(value: Date | number | string) {
     if (typeof value === 'string') {
-        return new Date(`${value}T00:00`);
+        return new Date(`${value}T00:00:00.000`);
     }
 
     return new Date(value);
@@ -11,17 +11,26 @@ export function getDateSafe(value: Date | number | string) {
 export function resolveTime(date: Date | number | string, resolution: 'day' | 'month' | 'year'): Date {
     const newDate = getDateSafe(date);
 
-    if (resolution === 'day' || resolution === 'month' || resolution === 'year') {
+    if (resolution === 'day') {
         newDate.setHours(0);
         newDate.setMinutes(0);
         newDate.setSeconds(0);
         newDate.setMilliseconds(0);
     }
-    if (resolution === 'month' || resolution === 'year') {
+    if (resolution === 'month') {
         newDate.setDate(1);
+        newDate.setHours(0);
+        newDate.setMinutes(0);
+        newDate.setSeconds(0);
+        newDate.setMilliseconds(0);
     }
     if (resolution === 'year') {
         newDate.setMonth(0);
+        newDate.setDate(1);
+        newDate.setHours(0);
+        newDate.setMinutes(0);
+        newDate.setSeconds(0);
+        newDate.setMilliseconds(0);
     }
     return newDate;
 }
