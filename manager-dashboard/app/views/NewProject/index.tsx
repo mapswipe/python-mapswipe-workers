@@ -339,7 +339,8 @@ function NewProject(props: Props) {
             }
 
             const storage = getStorage();
-            const uploadedImageRef = storageRef(storage, `projectImages/${projectImage.name}`);
+            const timestamp = (new Date()).getTime();
+            const uploadedImageRef = storageRef(storage, `projectImages/${timestamp}-project-image-${projectImage.name}`);
 
             setProjectSubmissionStatus('imageUpload');
             try {
