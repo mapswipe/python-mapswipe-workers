@@ -1,13 +1,10 @@
-# base-react-app
-
-Base React App
+# Manager Dashboard
+A web interface for create and manage
+missions, tutorials, groups for the MapSwipe.
 
 ## Development
 
 ```bash
-# Generate graphql files
-yarn generate
-
 # Start web app
 yarn start
 
@@ -18,11 +15,9 @@ yarn build
 yarn typecheck
 
 # Eslint check
-yarn eslint
+yarn lint
 
 # Check unused files
 yarn check-unused
 
-# Run tests
-yarn test
 ```

@@ -129,8 +129,9 @@ function NewTutorial(props: Props) {
             } = finalValues;
 
             const storage = getStorage();
-            const uploadedImage1Ref = storageRef(storage, `projectImages/${exampleImage1}`);
-            const uploadedImage2Ref = storageRef(storage, `projectImages/${exampleImage2}`);
+            const timestamp = (new Date()).getTime();
+            const uploadedImage1Ref = storageRef(storage, `projectImages/${timestamp}-tutorial-image-1-${exampleImage1.name}`);
+            const uploadedImage2Ref = storageRef(storage, `projectImages/${timestamp}-tutorial-image-2-${exampleImage2.name}`);
 
             setTutorialSubmissionStatus('imageUpload');
             try {
