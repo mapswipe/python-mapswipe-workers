@@ -40,7 +40,7 @@ env = environ.Env(
     SENTRY_SAMPLE_RATE=(float, 0.2),
     # Misc
     RELEASE=(str, "develop"),
-    MAPSWIPE_ENVIRONMENT=(str, "dev"),  # prod
+    MAPSWIPE_ENVIRONMENT=str,  # dev/prod
     APP_TYPE=str,
     # Testing
     PYTEST_XDIST_WORKER=(str, None),
