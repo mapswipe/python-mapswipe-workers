@@ -271,7 +271,7 @@ function StatsBoard(props: Props) {
                 }))
                 .filter((contribution) => contribution.total > 0);
 
-            return mergeItems(
+            const mergedItems = mergeItems(
                 values,
                 (item) => String(item.date),
                 (foo, bar) => ({
@@ -279,6 +279,8 @@ function StatsBoard(props: Props) {
                     total: foo.total + bar.total,
                 }),
             ).sort((a, b) => (a.date - b.date));
+
+            return mergedItems;
         },
         [contributionTimeStats, resolution],
     );
