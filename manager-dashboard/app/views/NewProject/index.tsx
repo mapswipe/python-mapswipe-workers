@@ -8,7 +8,6 @@ import {
     getErrorObject,
     createSubmitHandler,
     analyzeErrors,
-    EntriesAsList,
     internal,
 } from '@togglecorp/toggle-form';
 import {
@@ -32,12 +31,9 @@ import { Link } from 'react-router-dom';
 import UserContext from '#base/context/UserContext';
 import useMountedRef from '#hooks/useMountedRef';
 import Modal from '#components/Modal';
-import SelectInput from '#components/SelectInput';
 import TextInput from '#components/TextInput';
-import TextArea from '#components/TextArea';
 import NumberInput from '#components/NumberInput';
 import SegmentInput from '#components/SegmentInput';
-import ImageInput from '#components/ImageInput';
 import GeoJsonFileInput from '#components/GeoJsonFileInput';
 import TileServerInput, {
     TILE_SERVER_BING,
@@ -46,6 +42,7 @@ import TileServerInput, {
 import InputSection from '#components/InputSection';
 import Button from '#components/Button';
 import AnimatedSwipeIcon from '#components/AnimatedSwipeIcon';
+import BasicProjectInfoForm from './BasicProjectInfoForm';
 
 import {
     valueSelector,
@@ -69,12 +66,11 @@ import {
     PROJECT_INPUT_TYPE_TASKING_MANAGER_ID,
     FILTER_BUILDINGS,
     FILTER_OTHERS,
-    generateProjectName,
     getGroupSize,
     validateAoiOnOhsome,
     validateProjectIdOnHotTaskingManager,
 } from './utils';
-import useProjectOptions from './useProjectOptions';
+// eslint-disable-next-line postcss-modules/no-unused-class
 import styles from './styles.css';
 
 import projectTypeOptions from '#base/configs/projectTypes';
@@ -121,15 +117,6 @@ function NewProject(props: Props) {
         setValue,
     } = useForm(projectFormSchema, defaultProjectFormValue);
 
-    const {
-        teamOptions,
-        tutorialOptions,
-        teamsPending,
-        tutorialsPending,
-        organisationOptions,
-        organisationsPending,
-    } = useProjectOptions(value?.projectType);
-
     const [testPending, setTestPending] = React.useState(false);
     const [geometryDescription, setGeometryDescription] = React.useState<string>();
     const [TMIdDescription, setTMIdDescription] = React.useState<string>();
@@ -142,31 +129,6 @@ function NewProject(props: Props) {
     const error = React.useMemo(
         () => getErrorObject(formError),
         [formError],
-    );
-
-    React.useEffect(() => {
-        setFieldValue(tutorialOptions?.[0]?.value, 'tutorialId');
-    }, [setFieldValue, value?.projectType, tutorialOptions]);
-
-    const setFieldValueAndGenerateName = React.useCallback(
-        (...entries: EntriesAsList<PartialProjectFormType>) => {
-            // NOTE: we need to use setFieldValue to set error on change
-            setFieldValue(...entries);
-
-            setValue((oldValue) => {
-                const name = generateProjectName(
-                    oldValue.projectTopic,
-                    oldValue.projectNumber,
-                    oldValue.projectRegion,
-                    oldValue.requestingOrganisation,
-                );
-                return {
-                    ...oldValue,
-                    name,
-                };
-            }, true);
-        },
-        [setFieldValue, setValue],
     );
 
     const handleProjectTypeChange = React.useCallback(
@@ -435,137 +397,13 @@ function NewProject(props: Props) {
                         error={error?.projectType}
                         disabled={submissionPending || testPending}
                     />
-                    <div className={styles.inputGroup}>
-                        <TextInput
-                            name={'projectTopic' as const}
-                            value={value?.projectTopic}
-                            onChange={setFieldValueAndGenerateName}
-                            error={error?.projectTopic}
-                            label="Project Topic"
-                            hint="Enter the topic of your project (50 char max)."
-                            disabled={submissionPending}
-                            autoFocus
-                        />
-                        <TextInput
-                            name={'projectRegion' as const}
-                            value={value?.projectRegion}
-                            onChange={setFieldValueAndGenerateName}
-                            label="Project Region"
-                            hint="Enter name of your project Region (50 chars max)"
-                            error={error?.projectRegion}
-                            disabled={submissionPending}
-                        />
-                    </div>
-                    <div className={styles.inputGroup}>
-                        <NumberInput
-                            name={'projectNumber' as const}
-                            value={value?.projectNumber}
-                            onChange={setFieldValueAndGenerateName}
-                            label="Project Number"
-                            hint="Is this project part of a bigger campaign with multiple projects?"
-                            error={error?.projectNumber}
-                            disabled={submissionPending}
-                        />
-                        <SelectInput
-                            name={'requestingOrganisation' as const}
-                            value={value?.requestingOrganisation}
-                            options={organisationOptions}
-                            onChange={setFieldValueAndGenerateName}
-                            error={error?.requestingOrganisation}
-                            label="Requesting Organisation"
-                            hint="Which group, institution or community is requesting this project?"
-                            disabled={submissionPending || organisationsPending}
-                            keySelector={valueSelector}
-                            labelSelector={labelSelector}
-                        />
-                    </div>
-                    <TextInput
-                        name={'name' as const}
-                        value={value?.name}
-                        label="Name"
-                        hint="We will generate you project name based on your inputs above."
-                        readOnly
-                        placeholder="[Project Topic] - [Project Region] ([Task Number]) [Requesting Organisation]"
-                        // error={error?.name}
-                        disabled={submissionPending}
+                    <BasicProjectInfoForm
+                        value={value}
+                        setValue={setValue}
+                        setFieldValue={setFieldValue}
+                        error={error}
+                        submissionPending={submissionPending}
                     />
-                    <div className={styles.inputGroup}>
-                        <SelectInput
-                            name={'visibility' as const}
-                            value={value?.visibility}
-                            onChange={setFieldValue}
-                            keySelector={valueSelector}
-                            labelSelector={labelSelector}
-                            options={teamOptions}
-                            label="Visibility"
-                            hint="Choose either 'public' or select the team for which this project should be displayed"
-                            error={error?.visibility}
-                            disabled={submissionPending || teamsPending}
-                        />
-                        <TextInput
-                            name={'lookFor' as const}
-                            value={value?.lookFor}
-                            onChange={setFieldValue}
-                            error={error?.lookFor}
-                            label="Look For"
-                            hint="What should the users look for (e.g. buildings, cars, trees)? (25 chars max)"
-                            disabled={submissionPending}
-                        />
-                    </div>
-                    <TextArea
-                        name={'projectDetails' as const}
-                        value={value?.projectDetails}
-                        onChange={setFieldValue}
-                        error={error?.projectDetails}
-                        label="Project Details"
-                        hint="Enter the description for your project. (markdown syntax is supported)."
-                        disabled={submissionPending}
-                        rows={4}
-                    />
-                    <div className={styles.inputGroup}>
-                        <ImageInput
-                            name={'projectImage' as const}
-                            value={value?.projectImage}
-                            onChange={setFieldValue}
-                            label="Upload Project Image (Image)"
-                            hint="Make sure you have the rights to use the image. It should end with .jpg or .png."
-                            showPreview
-                            error={error?.projectImage}
-                            disabled={submissionPending}
-                        />
-                        <div className={styles.verticalInputGroup}>
-                            <SelectInput
-                                label="Tutorial"
-                                hint="Choose which tutorial should be used for this project. Make sure that this aligns with what you are looking for."
-                                name={'tutorialId' as const}
-                                value={value?.tutorialId}
-                                onChange={setFieldValue}
-                                options={tutorialOptions}
-                                error={error?.tutorialId}
-                                keySelector={valueSelector}
-                                labelSelector={labelSelector}
-                                disabled={submissionPending || tutorialsPending}
-                            />
-                            <NumberInput
-                                name={'verificationNumber' as const}
-                                value={value?.verificationNumber}
-                                onChange={setFieldValue}
-                                label="Verification Number"
-                                hint="How many people do you want to see every tile before you consider it finished? (default is 3 - more is recommended for harder tasks, but this will also make project take longer)"
-                                error={error?.verificationNumber}
-                                disabled={submissionPending}
-                            />
-                            <NumberInput
-                                name={'groupSize' as const}
-                                value={value?.groupSize}
-                                onChange={setFieldValue}
-                                label="Group Size"
-                                hint="How big should a mapping session be? Group size refers to the number of tasks per mapping session."
-                                error={error?.groupSize}
-                                disabled={submissionPending}
-                            />
-                        </div>
-                    </div>
                 </InputSection>
                 {(value?.projectType === PROJECT_TYPE_BUILD_AREA
                     || value?.projectType === PROJECT_TYPE_CHANGE_DETECTION
