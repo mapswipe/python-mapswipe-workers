@@ -1,32 +1,31 @@
 import React from 'react';
-import booleanValid from '@turf/boolean-valid';
+import { check, HintError } from '@placemarkio/check-geojson';
 
 import FileInput, { Props as FileInputProps } from '#components/FileInput';
 import useMountedRef from '#hooks/useMountedRef';
 import GeoJsonPreview from '#components/GeoJsonPreview';
 
-function validateGeoJSON(value: GeoJSON.GeoJSON): boolean {
+type ParseGeoJSONResponse = {
+    errored?: false,
+    value: GeoJSON.GeoJSON,
+} | {
+    errored: true,
+    errors: HintError['issues'],
+};
+
+// FIXME: Move to utils
+function parseGeoJSON(value: string): ParseGeoJSONResponse {
     try {
-        if (value.type === 'FeatureCollection') {
-            return value.features.every(
-                (item) => validateGeoJSON(item),
-            );
-        }
-
-        if (value.type === 'Feature') {
-            return validateGeoJSON(value.geometry);
-        }
-
-        if (value.type === 'GeometryCollection') {
-            return value.geometries.every(
-                (item) => validateGeoJSON(item),
-            );
-        }
-        // NOTE: booleanValid does not support FeatureCollection and GeometryCollection
-        // NOTE: booleanValid does seem to support Feature but it does not
-        return booleanValid(value);
-    } catch {
-        return false;
+        const parsedValues = check(value);
+        return {
+            value: parsedValues,
+        };
+    } catch (ex: unknown) {
+        const err = ex as HintError;
+        return {
+            errored: true,
+            errors: err.issues,
+        };
     }
 }
 
@@ -108,11 +107,12 @@ function GeoJsonFileInput<N>(props: Props<N>) {
                         onChange(undefined, name);
                         return;
                     }
-                    fileAsJson = JSON.parse(text) as GeoJSON.GeoJSON;
 
-                    const isValidGeoJson = validateGeoJSON(fileAsJson);
-                    if (!isValidGeoJson) {
-                        setInternalErrorMessage('The geojson is not valid.');
+                    const parsedGeoJSON = parseGeoJSON(text);
+                    if (!parsedGeoJSON.errored) {
+                        fileAsJson = parsedGeoJSON.value;
+                    } else {
+                        setInternalErrorMessage(parsedGeoJSON.errors.map((err) => err.message).join('\n'));
                         setTempValue(newValue);
                         onChange(undefined, name);
                         return;
