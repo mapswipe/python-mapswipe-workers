@@ -409,23 +409,6 @@ function NewProject(props: Props) {
                     || value?.projectType === PROJECT_TYPE_CHANGE_DETECTION
                     || value?.projectType === PROJECT_TYPE_COMPLETENESS) && (
                     <InputSection
-                        heading="Zoom Level"
-                    >
-                        <NumberInput
-                            name={'zoomLevel' as const}
-                            value={value?.zoomLevel}
-                            onChange={setFieldValue}
-                            label="Zoom Level"
-                            hint="We use the Tile Map Service zoom levels. Please check for your area which zoom level is available. For example, Bing imagery is available at zoomlevel 18 for most regions. If you use a custom tile server you may be able to use even higher zoom levels."
-                            error={error?.zoomLevel}
-                            disabled={submissionPending}
-                        />
-                    </InputSection>
-                )}
-                {(value?.projectType === PROJECT_TYPE_BUILD_AREA
-                    || value?.projectType === PROJECT_TYPE_CHANGE_DETECTION
-                    || value?.projectType === PROJECT_TYPE_COMPLETENESS) && (
-                    <InputSection
                         heading="Project AOI Geometry"
                     >
                         <GeoJsonFileInput
@@ -580,6 +563,25 @@ function NewProject(props: Props) {
                         />
                     </InputSection>
                 )}
+
+                {(value?.projectType === PROJECT_TYPE_BUILD_AREA
+                    || value?.projectType === PROJECT_TYPE_CHANGE_DETECTION
+                    || value?.projectType === PROJECT_TYPE_COMPLETENESS) && (
+                    <InputSection
+                        heading="Zoom Level"
+                    >
+                        <NumberInput
+                            name={'zoomLevel' as const}
+                            value={value?.zoomLevel}
+                            onChange={setFieldValue}
+                            label="Zoom Level"
+                            hint="We use the Tile Map Service zoom levels. Please check for your area which zoom level is available. For example, Bing imagery is available at zoomlevel 18 for most regions. If you use a custom tile server you may be able to use even higher zoom levels."
+                            error={error?.zoomLevel}
+                            disabled={submissionPending}
+                        />
+                    </InputSection>
+                )}
+
                 {hasErrors && (
                     <div className={styles.errorMessage}>
                         Please correct all the errors above before submission!
