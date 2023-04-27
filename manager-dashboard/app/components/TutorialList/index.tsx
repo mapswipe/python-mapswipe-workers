@@ -77,11 +77,6 @@ function TutorialList(props: Props) {
         items: tutorialListInCurrentPage,
     } = usePagination(filteredTutorialList);
 
-    const projectTypeLabel = projectTypeOptions.find((projType: {
-        value: ProjectType;
-        label: string;
-    }) => projType.value === tutorial.projectType)?.label;
-
     return (
         <div className={_cs(styles.tutorialList, className)}>
             {pending && (
@@ -104,7 +99,10 @@ function TutorialList(props: Props) {
                                     </div>
                                 </div>
                                 <div className={styles.lookFor}>
-                                    {projectTypeLabel}
+                                    {projectTypeOptions.find((projType: {
+                                        value: ProjectType;
+                                        label: string;
+                                    }) => projType.value === tutorial.projectType)?.label}
                                 </div>
                             </div>
                         );
