@@ -18,14 +18,14 @@ const mapswipeProjectTypeOptions: {
     { value: PROJECT_TYPE_COMPLETENESS, label: 'Completeness' },
 ];
 
-const crowdmapProjectTypeOptions: {
+const webappProjectTypeOptions: {
     value: ProjectType;
     label: string;
 }[] = [
-    { value: PROJECT_TYPE_BUILD_AREA, label: 'Build Area' },
-    { value: PROJECT_TYPE_COMPLETENESS, label: 'Completeness' },
+    { value: PROJECT_TYPE_BUILD_AREA, label: 'Tile Classification' },
+    { value: PROJECT_TYPE_COMPLETENESS, label: 'Comparison' },
 ];
 
-const projectTypeOptions = PROJECT_CONFIG_NAME === 'crowdmap' ? crowdmapProjectTypeOptions : mapswipeProjectTypeOptions;
+const projectTypeOptions = PROJECT_CONFIG_NAME === 'webapp' ? webappProjectTypeOptions : mapswipeProjectTypeOptions;
 
 export default projectTypeOptions;
