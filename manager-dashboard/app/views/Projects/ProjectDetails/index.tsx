@@ -23,10 +23,10 @@ import {
     labelSelector,
     valueSelector,
     ProjectType,
-    projectTypeLabelMap,
     ProjectInputType,
     ProjectStatus,
 } from '#utils/common';
+import projectTypeOptions from '#base/configs/projectTypes';
 
 import styles from './styles.css';
 
@@ -184,6 +184,11 @@ function ProjectDetails(props: Props) {
 
     const [title, org] = data.name.split('\n');
 
+    const projectTypeLabel = projectTypeOptions.find((projType: {
+        value: ProjectType;
+        label: string;
+    }) => projType.value === data.projectType)?.label;
+
     /* This is probably due to a faulty dataset in the dev instance of firebase that
      * one of the active private project doesn't have teamId and it's producing inconsistent
      * result.Let's overcome that adding following check for now.
@@ -221,7 +226,7 @@ function ProjectDetails(props: Props) {
                             Type:
                         </div>
                         <div className={styles.value}>
-                            {projectTypeLabelMap[data.projectType]}
+                            {projectTypeLabel}
                         </div>
                     </div>
                     {detailsShown && (

@@ -14,10 +14,8 @@ import usePagination from '#hooks/usePagination';
 import PendingMessage from '#components/PendingMessage';
 import Pager from '#components/Pager';
 import { rankedSearchOnList } from '#components/SelectInput/utils';
-import {
-    ProjectType,
-    projectTypeLabelMap,
-} from '#utils/common';
+import { ProjectType } from '#utils/common';
+import projectTypeOptions from '#base/configs/projectTypes';
 
 import styles from './styles.css';
 
@@ -79,6 +77,11 @@ function TutorialList(props: Props) {
         items: tutorialListInCurrentPage,
     } = usePagination(filteredTutorialList);
 
+    const projectTypeLabel = projectTypeOptions.find((projType: {
+        value: ProjectType;
+        label: string;
+    }) => projType.value === tutorial.projectType)?.label;
+
     return (
         <div className={_cs(styles.tutorialList, className)}>
             {pending && (
@@ -101,7 +104,7 @@ function TutorialList(props: Props) {
                                     </div>
                                 </div>
                                 <div className={styles.lookFor}>
-                                    {projectTypeLabelMap[tutorial.projectType]}
+                                    {projectTypeLabel}
                                 </div>
                             </div>
                         );
