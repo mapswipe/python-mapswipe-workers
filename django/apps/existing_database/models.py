@@ -106,6 +106,8 @@ class Group(Model):
     progress = models.IntegerField(blank=True, null=True)
     # Database uses JSON instead of JSONB (not supported by django)
     project_type_specifics = models.TextField(blank=True, null=True)
+    total_area = models.FloatField(blank=True, null=True)
+    time_spent_max_allowed = models.FloatField(blank=True, null=True)
 
     # Django derived fields from ForeignKey
     project_id: str
