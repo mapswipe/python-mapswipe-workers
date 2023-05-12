@@ -105,9 +105,10 @@ class Group(Model):
     required_count = models.IntegerField(blank=True, null=True)
     progress = models.IntegerField(blank=True, null=True)
     # Database uses JSON instead of JSONB (not supported by django)
-    project_type_specifics = models.TextField(blank=True, null=True)
-    total_area = models.FloatField(blank=True, null=True)
-    time_spent_max_allowed = models.FloatField(blank=True, null=True)
+    project_type_specifics = models.TextField(blank=True, null=True, default=None)
+    # Used by aggreagated module
+    total_area = models.FloatField(blank=True, null=True, default=None)
+    time_spent_max_allowed = models.FloatField(blank=True, null=True, default=None)
 
     # Django derived fields from ForeignKey
     project_id: str
