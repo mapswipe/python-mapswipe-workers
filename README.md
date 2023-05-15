@@ -23,6 +23,26 @@ Please refer to the documentation for more information: https://mapswipe-workers
 
 ## Setup 
 
+.env
+- FIREBASE_API_KEY
+- FIREBASE_DB
+- GOOGLE_APPLICATION_CREDENTIALS: add path to Firebase serviceAccountKey 
+- 
+```bash
+export $(cat .env | xargs)
+cd mapswipe_workers
+python3 -m venv venv
+source venv/bin/activate
+python setup.py install
+pip install GDAL 
+cd ..
+pip install --editable mapswipe_workers/
+
+sudo docker-compose -f docker-compose.development.yaml up -d
+
+mapswipe_workers --help
+```
+
 ## Contributing Guidelines
 
 ### Feature Branch
