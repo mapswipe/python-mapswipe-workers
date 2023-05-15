@@ -21,6 +21,8 @@ Please refer to the documentation for more information: https://mapswipe-workers
 - MapSwipe OSM-Wiki: https://wiki.openstreetmap.org/wiki/MapSwipe
 
 
+## Setup 
+
 ## Contributing Guidelines
 
 ### Feature Branch
