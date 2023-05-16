@@ -61,6 +61,7 @@ class BaseProject(metaclass=ABCMeta):
         self.createdBy = project_draft["createdBy"]
         self.groupMaxSize = project_draft.get("groupMaxSize", 0)
         self.groups = list()
+        self.groupSize = project_draft["groupSize"]
         self.image = project_draft["image"]
         self.isFeatured = False
         self.lookFor = project_draft["lookFor"]
@@ -106,6 +107,7 @@ class BaseProject(metaclass=ABCMeta):
         ------
             Boolean: True = Successful
         """
+        # todo: maby refactor this in own firbase class as well
         logger.info(f"{self.projectId}" f" - start creating a project")
 
         # Convert object attributes to dictionaries
@@ -262,7 +264,7 @@ class BaseProject(metaclass=ABCMeta):
                     )
                     task_upload_dict = {}
         else:
-            # For all other projects (build_area, completeness, change detection)
+            # For all other projects (tile_classification, completeness, change detection)
             # tasks are not needed in Firebase.
             # The task urls are generated in the app based on the tile server
             # information which is set in the project attributes in Firebase
@@ -655,7 +657,7 @@ class BaseProject(metaclass=ABCMeta):
             )
 
     @abstractmethod
-    def validate_geometries():
+    def validate_geometries(self):
         pass
 
     @abstractmethod
