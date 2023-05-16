@@ -25,7 +25,7 @@ services:
             - manager_dashboard
 
     postgres:
-        container_name: postgres_mapswipe_workers
+        container_name: postgres
         build:
             context: postgres/
             dockerfile: Dockerfile-dev
@@ -39,6 +39,6 @@ services:
           - ./postgres-data:/var/lib/postgresql/mapswipe
         restart: unless-stopped
         ports:
-          - "5431:5432"
+          - "${POSTGRES_PORT}:5432"
         networks:
             - postgres
