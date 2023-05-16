@@ -66,6 +66,6 @@ This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENS
 See also the list of [contributors](contributors.md) who participated in this project.
 
 
-## Acknowledgements
+## Acknowledgements 
 
 * Humanitarian organizations can't help people if they can't find them.
