@@ -172,11 +172,15 @@ class BaseProject(metaclass=ABCMeta):
             raise CustomError(e)
 
         try:
-            self.save_to_firebase(
+            self.save_project_to_firebase(project)
+            self.save_groups_to_firebase(project["projectId"], groups)
+            self.save_tasks_to_firebase(project["projectId"], groupsOfTasks)
+
+            """self.save_to_firebase(
                 project,
                 groups,
                 groupsOfTasks,
-            )
+            )"""
             logger.info(
                 f"{self.projectId}" f" - the project has been saved" f" to firebase"
             )
@@ -196,6 +200,18 @@ class BaseProject(metaclass=ABCMeta):
             raise CustomError(e)
 
         return True
+
+    @abstractmethod
+    def save_project_to_firebase(self, project):
+        pass
+
+    @abstractmethod
+    def save_groups_to_firebase(self, projectId: str, groups: list):
+        pass
+
+    @abstractmethod
+    def save_tasks_to_firebase(self, projectId: str, tasks: list):
+        pass
 
     def save_to_firebase(self, project, groups, groupsOfTasks):
 
