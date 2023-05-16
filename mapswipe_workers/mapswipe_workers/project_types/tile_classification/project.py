@@ -1,9 +1,10 @@
 from mapswipe_workers.firebase.firebase import Firebase
 from mapswipe_workers.project_types.base.project import BaseProject
-
 from mapswipe_workers.project_types.base.tile_server import BaseTileServer
-
-from mapswipe_workers.utils.validate_input import validate_geometries
+from mapswipe_workers.utils.validate_input import (
+    save_geojson_to_file,
+    validate_geometries,
+)
 
 
 class TileClassification(BaseProject):
@@ -15,9 +16,15 @@ class TileClassification(BaseProject):
         self.tileServer = vars(BaseTileServer(project_draft["tileServer"]))
 
     def validate_geometries(self):
-        wkt_geometry, self.validInputGeometries = validate_geometries(self.projectId, self.geometry, self.zoomLevel)
+        self.validInputGeometries = save_geojson_to_file(self.projectId, self.geometry)
+        wkt_geometry, self.validInputGeometries = validate_geometries(
+            self.projectId, self.validInputGeometries, self.zoomLevel
+        )
         return wkt_geometry
 
+    def create_groups(self):
+        pass
+     
     def save_project_to_firebase(self, project):
         firebase = Firebase()
         firebase.save_project_to_firebase(project)
@@ -28,3 +35,5 @@ class TileClassification(BaseProject):
 
     def save_tasks_to_firebase(self, projectId: str, tasks: list):
         pass
+
+      

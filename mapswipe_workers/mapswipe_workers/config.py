@@ -1,5 +1,9 @@
 import os
 
+from dotenv import load_dotenv
+
+load_dotenv()
+
 FIREBASE_API_KEY = os.environ["FIREBASE_API_KEY"]
 FIREBASE_DB = os.getenv("FIREBASE_DB", default="mapswipe")
 
