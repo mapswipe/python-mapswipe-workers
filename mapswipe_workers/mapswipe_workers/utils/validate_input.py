@@ -1,24 +1,33 @@
 import json
 import os
 
-from mapswipe_workers.definitions import CustomError, logger, MAX_INPUT_GEOMETRIES, DATA_PATH
 from osgeo import ogr, osr
 
+from mapswipe_workers.definitions import (
+    DATA_PATH,
+    MAX_INPUT_GEOMETRIES,
+    CustomError,
+    logger,
+)
 
-def validate_geometries(projectId, geometry, zoomLevel):
-    raw_input_file = (
-        f"{DATA_PATH}/input_geometries/" f"raw_input_{projectId}.geojson"
+
+def save_geojson_to_file(project_id, geometry):
+    output_file_path = (
+        f"{DATA_PATH}/input_geometries/" f"raw_input_{project_id}.geojson"
     )
     # check if a 'data' folder exists and create one if not
     if not os.path.isdir("{}/input_geometries".format(DATA_PATH)):
         os.mkdir("{}/input_geometries".format(DATA_PATH))
 
     # write string to geom file
-    with open(raw_input_file, "w") as geom_file:
+    with open(output_file_path, "w") as geom_file:
         json.dump(geometry, geom_file)
+    return output_file_path
 
+
+def validate_geometries(projectId, zoomLevel, input_file_path):
     driver = ogr.GetDriverByName("GeoJSON")
-    datasource = driver.Open(raw_input_file, 0)
+    datasource = driver.Open(input_file_path, 0)
 
     try:
         layer = datasource.GetLayer()
@@ -147,11 +156,9 @@ def validate_geometries(projectId, geometry, zoomLevel):
     del datasource
     del layer
 
-    logger.info(
-        f"{projectId}" f" - validate geometry - " f"input geometry is correct."
-    )
+    logger.info(f"{projectId}" f" - validate geometry - " f"input geometry is correct.")
 
     dissolved_geometry = geometry_collection.UnionCascaded()
     wkt_geometry_collection = dissolved_geometry.ExportToWkt()
 
-    return wkt_geometry_collection, raw_input_file
+    return wkt_geometry_collection

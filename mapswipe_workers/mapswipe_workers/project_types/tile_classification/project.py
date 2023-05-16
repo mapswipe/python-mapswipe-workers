@@ -1,6 +1,9 @@
 from mapswipe_workers.project_types.base.project import BaseProject
 from mapswipe_workers.project_types.base.tile_server import BaseTileServer
-from mapswipe_workers.utils.validate_input import validate_geometries
+from mapswipe_workers.utils.validate_input import (
+    save_geojson_to_file,
+    validate_geometries,
+)
 
 
 class TileClassificationProject(BaseProject):
@@ -13,8 +16,9 @@ class TileClassificationProject(BaseProject):
         self.tileServer = vars(BaseTileServer(project_draft["tileServer"]))
 
     def validate_geometries(self):
+        self.validInputGeometries = save_geojson_to_file(self.projectId, self.geometry)
         wkt_geometry, self.validInputGeometries = validate_geometries(
-            self.projectId, self.geometry, self.zoomLevel
+            self.projectId, self.validInputGeometries, self.zoomLevel
         )
         return wkt_geometry
 
