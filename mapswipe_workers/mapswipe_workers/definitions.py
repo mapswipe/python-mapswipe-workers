@@ -139,12 +139,15 @@ class ProjectType(Enum):
         from mapswipe_workers.project_types.arbitrary_geometry.project import (
             Project as ag_project,
         )
+        from mapswipe_workers.project_types.tile_classification.project import (
+            TileClassificationProject,
+        )
         from mapswipe_workers.project_types.tile_map_service_grid.project import (
             Project as tmsg_project,
         )
 
         project_type_classes = {
-            1: tmsg_project,
+            1: TileClassificationProject,
             2: ag_project,
             3: tmsg_project,
             4: tmsg_project,
