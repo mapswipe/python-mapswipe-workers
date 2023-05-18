@@ -23,24 +23,24 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/mapswipe/python-mapswipe-dashboard.git"
+        "url": "git+https://github.com/mapswipe/python-mapswipe-workers.git"
     },
     "keywords": [],
     "author": "",
     "license": "ISC",
     "bugs": {
-        "url": "https://github.com/mapswipe/python-mapswipe-dashboard/issues"
+        "url": "https://github.com/mapswipe/python-mapswipe-workers/issues"
     },
-    "homepage": "https://github.com/mapswipe/python-mapswipe-dashboard#readme",
+    "homepage": "https://github.com/mapswipe/python-mapswipe-workers#readme",
     "dependencies": {
         "@apollo/client": "^3.3.21",
         "@babel/runtime": "^7.11.2",
+        "@placemarkio/check-geojson": "^0.1.12",
         "@sentry/react": "^6.9.0",
         "@sentry/tracing": "^6.9.0",
         "@togglecorp/fujs": "^1.9.2",
         "@togglecorp/toggle-form": "^1.2.1",
         "@turf/area": "^6.5.0",
-        "@turf/boolean-valid": "^6.5.0",
         "@turf/invariant": "^6.5.0",
         "apollo-link": "^1.2.14",
         "apollo-link-batch-http": "^1.2.14",
