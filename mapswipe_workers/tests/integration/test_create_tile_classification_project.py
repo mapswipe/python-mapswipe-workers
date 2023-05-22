@@ -18,7 +18,7 @@ class TestCreateTileClassificationProject(unittest.TestCase):
     def tearDown(self):
         tear_down.delete_test_data(self.project_id)
 
-    def test_create_build_area_project(self):
+    def test_create_tile_classification_project(self):
         runner = CliRunner()
         runner.invoke(mapswipe_workers.run_create_projects)
 
