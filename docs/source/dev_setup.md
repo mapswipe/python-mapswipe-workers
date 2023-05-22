@@ -73,6 +73,7 @@ cd mapswipe_workers
 python -m venv --system-site-packages venv
 source venv/bin/activate
 pip install --editable .
+pre-commit install
 mkdir --parents ~/.local/share/mapswipe_workers
 ```
 
