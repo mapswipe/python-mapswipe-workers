@@ -1,8 +1,8 @@
 import time
 import unittest
 
-import set_up
-import tear_down
+from . import set_up
+from . import tear_down
 from base import BaseTestCase
 
 from mapswipe_workers import auth
