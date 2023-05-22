@@ -19,7 +19,6 @@ class TileClassificationProject(BaseProject):
         self.zoomLevel = int(project_draft.get("zoomLevel", 18))
         self.tileServer = vars(BaseTileServer(project_draft["tileServer"]))
 
-
     def validate_geometries(self):
         # TODO rename attribute validInputGeometries, it is a path to a geojson.
         self.validInputGeometries = save_geojson_to_file(self.projectId, self.geometry)
@@ -27,7 +26,7 @@ class TileClassificationProject(BaseProject):
             self.projectId, self.zoomLevel, self.validInputGeometries
         )
         return wkt_geometry
-      
+
     def save_to_firebase(self, project, groups, groupsOfTasks):
         self.save_project_to_firebase(project)
         self.save_groups_to_firebase(project["projectId"], groups)
@@ -42,6 +41,8 @@ class TileClassificationProject(BaseProject):
         firebase.save_groups_to_firebase(projectId, groups)
 
     def save_tasks_to_firebase(self, projectId: str, tasks: list):
+        # Tasks are not saved to firebase for this project type.
+        # Clients can derive tasks themselves from group information.
         pass
 
     def create_groups(self):
