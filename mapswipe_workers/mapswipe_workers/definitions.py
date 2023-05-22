@@ -160,6 +160,9 @@ class ProjectType(Enum):
         from mapswipe_workers.project_types.arbitrary_geometry.tutorial import (
             Tutorial as ArbitraryGeometryTutorial,
         )
+        from mapswipe_workers.project_types.tile_classification.tutorial import (
+            TileClassificationTutorial,
+        )
         from mapswipe_workers.project_types.tile_map_service_grid.tutorial import (
             Tutorial as tmsg_tutorial,
         )
@@ -170,7 +173,7 @@ class ProjectType(Enum):
         # )
 
         project_type_classes = {
-            1: tmsg_tutorial,
+            1: TileClassificationTutorial,
             2: ArbitraryGeometryTutorial,
             3: tmsg_tutorial,
             4: tmsg_tutorial,
