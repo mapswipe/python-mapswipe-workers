@@ -91,6 +91,13 @@ class BaseProject(metaclass=ABCMeta):
 
         self.tutorialId = project_draft.get("tutorialId", None)
 
+        # currently crowdmap specific attributes todo: discuss in group if empty attributes in mapswipe postgres are ok
+        self.language = "en-us" if "language" not in project_draft.keys() else project_draft["language"]
+        self.appId = None if "appId" not in project_draft.keys() else project_draft["appId"]
+        self.manualUrl = None if "manualUrl" not in project_draft.keys() else project_draft["manualUrl"]
+
+
+
     # TODO: Implement resultRequiredCounter as property.
     # Does not work because for some reason project['group'] = vars()
     # and then del project['group'] will delete also project.group.
@@ -172,15 +179,11 @@ class BaseProject(metaclass=ABCMeta):
             raise CustomError(e)
 
         try:
-            self.save_project_to_firebase(project)
-            self.save_groups_to_firebase(project["projectId"], groups)
-            self.save_tasks_to_firebase(project["projectId"], groupsOfTasks)
-
-            """self.save_to_firebase(
+            self.save_to_firebase(
                 project,
                 groups,
                 groupsOfTasks,
-            )"""
+            )
             logger.info(
                 f"{self.projectId}" f" - the project has been saved" f" to firebase"
             )

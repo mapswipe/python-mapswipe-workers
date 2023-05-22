@@ -8,13 +8,14 @@ from mapswipe_workers.utils.validate_input import (
 )
 
 
-class TileClassification(BaseProject):
+class TileClassificationProject(BaseProject):
     def __init__(self, project_draft: dict):
         super().__init__(project_draft)
         # Note: this will be overwritten by validate_geometry in mapswipe_workers.py
         self.geometry = project_draft["geometry"]
         self.zoomLevel = int(project_draft.get("zoomLevel", 18))
         self.tileServer = vars(BaseTileServer(project_draft["tileServer"]))
+
 
     def validate_geometries(self):
         # TODO rename attribute validInputGeometries, it is a path to a geojson.
@@ -23,7 +24,12 @@ class TileClassification(BaseProject):
             self.projectId, self.validInputGeometries, self.zoomLevel
         )
         return wkt_geometry
-     
+
+    def save_to_firebase(self, project, groups, groupsOfTasks):
+        self.save_project_to_firebase(project)
+        self.save_groups_to_firebase(project["projectId"], groups)
+        self.save_tasks_to_firebase(project["projectId"], groupsOfTasks)
+
     def save_project_to_firebase(self, project):
         firebase = Firebase()
         firebase.save_project_to_firebase(project)
