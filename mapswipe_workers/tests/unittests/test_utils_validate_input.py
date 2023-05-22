@@ -10,11 +10,12 @@ from mapswipe_workers.utils.validate_input import (
     validate_geometries,
 )
 
+CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+
 
 def get_project_draft(path):
     # pre steps for outputting result of function
-    test_dir = os.path.dirname(os.path.abspath(__file__))
-    with open(os.path.join(test_dir, path)) as json_file:
+    with open(os.path.join(CURRENT_DIR, path)) as json_file:
         project_draft = json.load(json_file)
 
     path_to_geometries = save_geojson_to_file(1, project_draft["geometry"])
@@ -64,11 +65,10 @@ class TestValidateGeometries(unittest.TestCase):
     def test_single_geom_validation(self):
         path = "fixtures/completeness/projectDraft_single.json"
         project_draft, path_to_geometries = get_project_draft(path)
-
         test_dir = os.path.dirname(os.path.abspath(__file__))
         path = os.path.join(test_dir, "fixtures/completeness/single_polygon.geojson")
         driver = ogr.GetDriverByName("GeoJSON")
-        datasource = driver.Open(path, 0)
+        datasource = driver.Open(os.path.join(CURRENT_DIR, path), 0)
 
         geometry_collection = ogr.Geometry(ogr.wkbMultiPolygon)
         # Get the data layer
@@ -100,7 +100,7 @@ class TestValidateGeometries(unittest.TestCase):
         path = os.path.join(test_dir, "fixtures/completeness/overlappingGeoms.geojson")
 
         driver = ogr.GetDriverByName("GeoJSON")
-        datasource = driver.Open(path, 0)
+        datasource = driver.Open(os.path.join(CURRENT_DIR, path), 0)
 
         geometry_collection = ogr.Geometry(ogr.wkbMultiPolygon)
         # Get the data layer
