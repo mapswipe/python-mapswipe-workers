@@ -46,17 +46,6 @@ The path to the Service Account Key is defined in the `GOOGLE_APPLICATION_CREDEN
 You could also set up your own Firebase instance. However, this is not recommended. 
 If you still want to do it, get your Service Account Key from Firebase from [Google Cloud Service Accounts](https://console.cloud.google.com/iam-admin/serviceaccounts).
 
-#### Directories
-
-MapSwipe Workers needs access to a data directory for logs and data for the API:
-
-To create this directories run:
-```
-mkdir --parents ~/.local/share/mapswipe_workers
-```
-
-> Note: XDG Base Directory Specification is respected
-
 
 ### Database
 
@@ -74,19 +63,30 @@ Or set up Postgres using the `initdb.sql` file in the `postgres/` folder.
 
 ### Mapswipe-Workers Python Package
 
-1. Export environment variables to current shell.
-2. Create a Python virtual environment with `system-site-packages` option enabled to get access to GDAL/OGR Python packages
-3. Activate the virtual environment.
-5. Install MapSwipe Workers using pip.
-6. Run it.
+#### Installation
+
+The Python virtual environment needs to be created wiht `system-site-packages` option enabled to get access to GDAL/OGR Python packages.
+Also the MapSwipe Workers Python Package needs access to a data directory for logs and data for the API.
 
 ```bash
-export $(cat .env | xargs)
 cd mapswipe_workers
 python -m venv --system-site-packages venv
 source venv/bin/activate
-pip install --editable mapswipe_workers/
+pip install --editable .
+mkdir --parents ~/.local/share/mapswipe_workers
+```
+
+#### Usage
+
+```bash
+export $(cat .env | xargs)  # See section on Configuration above
 mapswipe_workers --help
+```
+
+#### Tests
+
+```bash
+python -m unittest
 ```
 
 > Yeah! If you reached this point, you are ready to get into coding. Below you find some more information on Logging, Firebase Functions and Database Backup. However, you don't need this to get started for now.
