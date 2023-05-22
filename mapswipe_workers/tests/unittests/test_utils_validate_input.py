@@ -65,7 +65,8 @@ class TestValidateGeometries(unittest.TestCase):
         path = "fixtures/completeness/projectDraft_single.json"
         project_draft, path_to_geometries = get_project_draft(path)
 
-        path = "fixtures/completeness/single_polygon.geojson"
+        test_dir = os.path.dirname(os.path.abspath(__file__))
+        path = os.path.join(test_dir, "fixtures/completeness/single_polygon.geojson")
         driver = ogr.GetDriverByName("GeoJSON")
         datasource = driver.Open(path, 0)
 
@@ -95,7 +96,9 @@ class TestValidateGeometries(unittest.TestCase):
         project_draft, path_to_geometries = get_project_draft(path)
 
         # prepare data that is expected
-        path = "fixtures/completeness/overlappingGeoms.geojson"
+        test_dir = os.path.dirname(os.path.abspath(__file__))
+        path = os.path.join(test_dir, "fixtures/completeness/overlappingGeoms.geojson")
+
         driver = ogr.GetDriverByName("GeoJSON")
         datasource = driver.Open(path, 0)
 
