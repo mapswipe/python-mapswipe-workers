@@ -91,12 +91,11 @@ class BaseProject(metaclass=ABCMeta):
 
         self.tutorialId = project_draft.get("tutorialId", None)
 
-        # currently crowdmap specific attributes todo: discuss in group if empty attributes in mapswipe postgres are ok
+        # currently crowdmap specific attributes
+        # todo: discuss in group if empty attributes in mapswipe postgres are ok
         self.language = project_draft.get("language", "en-us")
         self.appId = project_draft.get("appId", None)
         self.manualUrl = project_draft.get("manualUrl", None)
-
-
 
     # TODO: Implement resultRequiredCounter as property.
     # Does not work because for some reason project['group'] = vars()
@@ -107,14 +106,13 @@ class BaseProject(metaclass=ABCMeta):
 
     def save_project(self):
         """
-        Creates a projects with groups and tasks
-        and saves it in firebase and postgres
+        Save all project info with groups and tasks
+        in firebase and postgres.
 
         Returns
         ------
             Boolean: True = Successful
         """
-        # todo: maby refactor this in own firbase class as well
         logger.info(f"{self.projectId}" f" - start creating a project")
 
         # Convert object attributes to dictionaries
@@ -204,15 +202,21 @@ class BaseProject(metaclass=ABCMeta):
 
         return True
 
-    @abstractmethod
+    # ToDo: Implement for every children class
+    # Then add abstract method decorator
+    # @abstractmethod
     def save_project_to_firebase(self, project):
         pass
 
-    @abstractmethod
+    # ToDo: Implement for every children class
+    # Then add abstract method decorator
+    # @abstractmethod
     def save_groups_to_firebase(self, projectId: str, groups: list):
         pass
 
-    @abstractmethod
+    # ToDo: Implement for every children class
+    # Then add abstract method decorator
+    # @abstractmethod
     def save_tasks_to_firebase(self, projectId: str, tasks: list):
         pass
 
@@ -283,7 +287,8 @@ class BaseProject(metaclass=ABCMeta):
                     )
                     task_upload_dict = {}
         else:
-            # For all other projects (tile_classification, completeness, change detection)
+            # For all other projects:
+            # tile_classification, completeness, change detection)
             # tasks are not needed in Firebase.
             # The task urls are generated in the app based on the tile server
             # information which is set in the project attributes in Firebase
