@@ -92,9 +92,9 @@ class BaseProject(metaclass=ABCMeta):
         self.tutorialId = project_draft.get("tutorialId", None)
 
         # currently crowdmap specific attributes todo: discuss in group if empty attributes in mapswipe postgres are ok
-        self.language = "en-us" if "language" not in project_draft.keys() else project_draft["language"]
-        self.appId = None if "appId" not in project_draft.keys() else project_draft["appId"]
-        self.manualUrl = None if "manualUrl" not in project_draft.keys() else project_draft["manualUrl"]
+        self.language = project_draft.get("language", "en-us")
+        self.appId = project_draft.get("appId", None)
+        self.manualUrl = project_draft.get("manualUrl", None)
 
 
 
