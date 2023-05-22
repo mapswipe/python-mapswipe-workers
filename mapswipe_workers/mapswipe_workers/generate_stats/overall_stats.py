@@ -66,6 +66,11 @@ def get_project_static_info(filename: str) -> pd.DataFrame:
                 ,project_type
                 -- add an array of the tile server names
                 ,CASE
+                  WHEN project_type_specifics-> 'answerLabels' IS NOT NULL THEN
+                  ARRAY(SELECT json_array_elements(project_type_specifics->'answerLabels')->>'value')
+                END as answer_label_values
+
+                ,CASE
                   WHEN project_type_specifics->'tileServer'->'name' IS NOT NULL THEN
                   Array[project_type_specifics->'tileServer'->>'name']
                   ELSE Array[project_type_specifics->'tileServerA'->>'name',
