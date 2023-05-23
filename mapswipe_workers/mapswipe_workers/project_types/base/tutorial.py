@@ -1,15 +1,16 @@
-from abc import ABCMeta, abstractmethod
+from abc import ABC, abstractmethod
 
 from mapswipe_workers import auth
 from mapswipe_workers.definitions import CustomError, ProjectType, logger
+from mapswipe_workers.project_types.base import BaseGroup, BaseTask
 from mapswipe_workers.utils import gzip_str
 
 
-class BaseTutorial(metaclass=ABCMeta):
-    """The base class for creating."""
-
+class BaseTutorial(ABC):
     def __init__(self, tutorial_draft):
-        """The function to initialize a new tutorial."""
+        # TODO: should be abstract attributes
+        self.groups: dict[str, BaseGroup]
+        self.tasks: dict[str, list[BaseTask]]  # dict keys are group ids
 
         # the id of the tutorial
         self.projectId = f"tutorial_{tutorial_draft['tutorialDraftId']}"
@@ -67,5 +68,9 @@ class BaseTutorial(metaclass=ABCMeta):
         ref.set({})
 
     @abstractmethod
-    def create_tutorial_groups():
+    def create_tutorial_groups(self):
+        pass
+
+    @abstractmethod
+    def create_tutorial_tasks(self):
         pass

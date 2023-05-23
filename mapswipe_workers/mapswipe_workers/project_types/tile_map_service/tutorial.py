@@ -1,15 +1,32 @@
+from dataclasses import dataclass
+
 from mapswipe_workers.definitions import logger
 from mapswipe_workers.project_types.base.tile_server import BaseTileServer
 from mapswipe_workers.project_types.base.tutorial import BaseTutorial
+from mapswipe_workers.project_types.tile_map_service.project import (
+    TileMapServiceBaseGroup,
+    TileMapServiceBaseTask,
+)
 from mapswipe_workers.utils import tile_functions as t
 
 
-class TileClassificationTutorial(BaseTutorial):
+@dataclass
+class TileMapServiceBaseTutorialTask(TileMapServiceBaseTask):
+    taskId_real: str
+    referenceAnswer: int
+    screen: int
+
+
+class TileMapServiceBaseTutorial(BaseTutorial):
     """The subclass for an TMS Grid based Tutorial."""
 
     def __init__(self, tutorial_draft):
-        # this will create the basis attributes
         super().__init__(tutorial_draft)
+
+        self.groups: dict[str, TileMapServiceBaseGroup] = {}
+        self.tasks: dict[
+            str, list[TileMapServiceBaseTutorialTask]
+        ] = {}  # dict keys are group ids
 
         self.projectType = tutorial_draft["projectType"]
         self.zoomLevel = int(tutorial_draft.get("zoomLevel", 18))
@@ -23,23 +40,25 @@ class TileClassificationTutorial(BaseTutorial):
         # load examples/tasks from file
 
         number_of_screens = len(self.screens)
-        # create the groups dict to be uploaded in Firebase
-        self.groups[101] = {
-            "xMax": 100
-            + (2 * number_of_screens)
-            - 1,  # this depends on the number of screens/tasks to show
-            "xMin": 100,  # this will be always set to 100
-            "yMax": 131074,  # this is set to be at the equator
-            "yMin": 131072,  # this is set to be at the equator
-            "requiredCount": 5,  # not needed from backend perspective, maybe for client
-            "finishedCount": 0,  # not needed from backend perspective, maybe for client
-            "groupId": 101,  # a tutorial has only one group
-            "projectId": self.projectId,
-            "numberOfTasks": len(
-                self.tutorial_tasks
-            ),  # this depends on the number of screens/tasks to show
-            "progress": 0,  # not needed from backend perspective, maybe for client
-        }
+        # TODO: refactor
+        self.groups[101] = TileMapServiceBaseGroup(
+            **{
+                "xMax": 100
+                + (2 * number_of_screens)
+                - 1,  # this depends on the number of screens/tasks to show
+                "xMin": 100,  # this will be always set to 100
+                "yMax": 131074,  # this is set to be at the equator
+                "yMin": 131072,  # this is set to be at the equator
+                "requiredCount": 5,  # not needed from backend perspective (client?)
+                "finishedCount": 0,  # not needed from backend perspective (client?)
+                "groupId": 101,  # a tutorial has only one group
+                "projectId": self.projectId,
+                "numberOfTasks": len(
+                    self.tutorial_tasks
+                ),  # this depends on the number of screens/tasks to show
+                "progress": 0,  # not needed from backend perspective, maybe for client
+            }
+        )
 
         logger.info(
             f"{self.projectId}"
@@ -49,8 +68,6 @@ class TileClassificationTutorial(BaseTutorial):
 
     def create_tutorial_tasks(self):
         """Create the tasks dict based on provided examples in geojson file."""
-
-        self.tasks = dict()
         self.tasks[101] = list()
         number_of_screens = len(self.screens)
 
@@ -85,19 +102,27 @@ class TileClassificationTutorial(BaseTutorial):
                 elif i in [2, 5]:
                     tile_y_tutorial = int(self.groups[101]["yMin"]) + 2
 
-                task = {
-                    "taskId_real": f"{self.zoomLevel}-{tile_x}-{tile_y}",
-                    "taskId": f"{self.zoomLevel}-{tile_x_tutorial}-{tile_y_tutorial}",
-                    "taskX": tile_x_tutorial,  # need to set correctly based on screen
-                    "taskY": tile_y_tutorial,  # need to set correctly based on screen
-                    "groupId": 101,  # a tutorial has only one group
-                    "projectId": self.projectId,
-                    "referenceAnswer": raw_task["properties"]["reference"],
-                    "screen": raw_task["properties"]["screen"],
-                    "url": t.tile_coords_zoom_and_tileserver_to_url(
-                        tile_x, tile_y, self.zoomLevel, self.tileServer
-                    ),
-                }
+                task = TileMapServiceBaseTutorialTask(
+                    **{
+                        "taskId_real": f"{self.zoomLevel}-{tile_x}-{tile_y}",
+                        "taskId": (
+                            f"{self.zoomLevel}-"
+                            + f"{tile_x_tutorial}-"
+                            + f"{tile_y_tutorial}"
+                        ),
+                        # need to set correctly based on screen
+                        "taskX": tile_x_tutorial,
+                        "taskY": tile_y_tutorial,
+                        "groupId": "101",  # a tutorial has only one group
+                        "projectId": self.projectId,
+                        "referenceAnswer": raw_task["properties"]["reference"],
+                        "screen": raw_task["properties"]["screen"],
+                        "url": t.tile_coords_zoom_and_tileserver_to_url(
+                            tile_x, tile_y, self.zoomLevel, self.tileServer
+                        ),
+                        "geometry": "",  # TODO: does this work?
+                    }
+                )
 
                 self.tasks[101].append(task)
 
