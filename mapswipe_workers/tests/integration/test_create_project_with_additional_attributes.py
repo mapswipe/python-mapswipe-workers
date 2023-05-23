@@ -28,7 +28,7 @@ class TestCreateTileClassificationProject(unittest.TestCase):
         pg_db = auth.postgresDB()
         query = """
             SELECT project_type_specifics -> 'language'
-            FROM projects WHERE project_id = %s"
+            FROM projects WHERE project_id = %s
         """
         result = pg_db.retr_query(query, [self.project_id])[0][0]
         self.assertEqual(result, "de-de")
