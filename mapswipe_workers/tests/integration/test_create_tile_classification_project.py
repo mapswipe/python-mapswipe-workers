@@ -1,7 +1,7 @@
 import unittest
 
-import set_up
-import tear_down
+from . import set_up
+from . import tear_down
 from click.testing import CliRunner
 import pandas as pd
 from mapswipe_workers import auth, mapswipe_workers

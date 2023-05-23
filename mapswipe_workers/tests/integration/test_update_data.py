@@ -2,9 +2,9 @@ import os
 import tempfile
 import unittest
 
-import set_up
-import tear_down
-from base import BaseTestCase
+from . import set_up
+from . import tear_down
+from .base import BaseTestCase
 
 from mapswipe_workers.firebase_to_postgres.update_data import (
     get_contributor_count_from_postgres,

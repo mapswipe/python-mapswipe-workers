@@ -9,22 +9,21 @@ class Firebase:
         self.ref = self.fb_db.reference("")
 
     def save_project_to_firebase(self, project):
-        # if a geometry exists in projects we want to delete it since it is not used in clients.
+        # if a geometry exists in projects we want to delete it.
+        # This geometry is not used in clients.
         project.pop("geometry", None)
         # save project
         self.ref.update({f"v2/projects/{project['projectId']}": project})
         logger.info(
-            f"{project['projectId']} -" f" uploaded project to firebase realtime database"
+            f"{project['projectId']} -"
+            f" uploaded project to firebase realtime database"
         )
-
 
     def save_groups_to_firebase(self, projectId, groups):
 
         # save groups
         self.ref.update({f"v2/groups/{projectId}": groups})
-        logger.info(
-            f"{projectId} -" f" uploaded groups to firebase realtime database"
-        )
+        logger.info(f"{projectId} -" f" uploaded groups to firebase realtime database")
 
     def save_tasks_to_firebase(self, projectId, groupsOfTasks, useCompression: bool):
         task_upload_dict = {}
@@ -44,9 +43,7 @@ class Firebase:
 
                 tasks_list = gzip_str.compress_tasks(tasks_list)
 
-            task_upload_dict[
-                f"v2/tasks/{projectId}/{group_id}"
-            ] = tasks_list
+            task_upload_dict[f"v2/tasks/{projectId}/{group_id}"] = tasks_list
 
             # we upload tasks in batches of maximum 150 groups
             # this is to avoid the maximum write size limit in firebase

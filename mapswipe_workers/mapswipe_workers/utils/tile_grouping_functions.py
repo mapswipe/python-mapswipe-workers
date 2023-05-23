@@ -7,23 +7,6 @@ from mapswipe_workers.definitions import logger
 from mapswipe_workers.utils import tile_functions as t
 
 
-def groups_to_tasks(raw_groups, zoomLevel):
-
-    for group_id, slice in raw_groups.items():
-        tasks = []
-        for TileX in range(int(slice["xMin"]), int(slice["xMax"]) + 1):
-            for TileY in range(int(slice["yMin"]), int(slice["yMax"]) + 1):
-                task = {
-                    "taskId": "{}-{}-{}".format(zoomLevel, TileX, TileY),
-                    "taskX": str(TileX),
-                    "taskY": str(TileY),
-                    "geometry": t.geometry_from_tile_coords(TileX, TileY, zoomLevel),
-                }
-                tasks.append(task)
-
-    logger.info("create_groups - created groups dictionary")
-
-
 def get_geometry_from_file(infile: str):
     """
     The function to load input geometries from an .shp, .kml or .geojson file
