@@ -13,15 +13,21 @@
         max-width: 70rem;
         gap: var(--spacing-large);
 
+        .card {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-extra-large);
+        }
+
         .input-group {
             display: flex;
+            flex-direction: column;
             flex-wrap: wrap;
-            gap: var(--spacing-extra-large);
+            gap: var(--spacing-small);
 
             >* {
                 flex-basis: 0;
-                flex-grow: 1;
-                min-width: 20rem;
+                width: 60%
             }
         }
     }

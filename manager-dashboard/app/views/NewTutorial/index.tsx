@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import {
     _cs,
     isDefined,
@@ -30,12 +30,19 @@ import { Link } from 'react-router-dom';
 
 import UserContext from '#base/context/UserContext';
 import useMountedRef from '#hooks/useMountedRef';
+import Card from '#components/Card';
 import Modal from '#components/Modal';
 import TextInput from '#components/TextInput';
 import NumberInput from '#components/NumberInput';
 import SegmentInput from '#components/SegmentInput';
 import FileInput from '#components/FileInput';
 import GeoJsonFileInput from '#components/GeoJsonFileInput';
+import {
+    Tabs,
+    Tab,
+    TabList,
+    TabPanel,
+} from '#components/Tabs';
 import JsonFileInput from '#components/JsonFileInput';
 import TileServerInput, {
     TILE_SERVER_BING,
@@ -99,6 +106,7 @@ function NewTutorial(props: Props) {
         setTutorialSubmissionStatus,
     ] = React.useState<'started' | 'imageUpload' | 'tutorialSubmit' | 'success' | 'failed' | undefined>();
 
+    const [activeTab, setActiveTab] = React.useState();
     const error = React.useMemo(
         () => getErrorObject(formError),
         [formError],
@@ -210,46 +218,59 @@ function NewTutorial(props: Props) {
     const tileServerBVisible = value?.projectType === PROJECT_TYPE_CHANGE_DETECTION
         || value?.projectType === PROJECT_TYPE_COMPLETENESS;
 
+    // const handleGeoJsonFile = useCallback((
+    //     geoProps: PartialTutorialFormType['tutorialTasks'],
+    // ) => (
+    // ), []);
+
     return (
         <div className={_cs(styles.newTutorial, className)}>
             <div className={styles.container}>
                 <InputSection
-                    heading="Basic Tutorial Information"
+                    heading="Create New Tutorial"
                 >
-                    <SegmentInput
-                        name={'projectType' as const}
-                        onChange={setFieldValue}
-                        value={value?.projectType}
-                        label="Project Type"
-                        hint="Select the type of your project."
-                        options={projectTypeOptions}
-                        keySelector={valueSelector}
-                        labelSelector={labelSelector}
-                        error={error?.projectType}
-                        disabled={submissionPending}
-                    />
-                    <div className={styles.inputGroup}>
-                        <TextInput
-                            name={'lookFor' as const}
-                            value={value?.lookFor}
+                    <Card
+                        title="Basic Information"
+                        contentClassName={styles.card}
+                    >
+                        <SegmentInput
+                            name={'projectType' as const}
                             onChange={setFieldValue}
-                            label="Look For"
-                            hint="What should the users look for (e.g. buildings, cars, trees)? (25 chars max)."
-                            error={error?.lookFor}
-                            disabled={submissionPending}
-                            autoFocus
-                        />
-                        <TextInput
-                            name={'name' as const}
-                            value={value?.name}
-                            onChange={setFieldValue}
-                            label="Name"
-                            hint="Provide a clear name for your tutorial. You can select tutorials based on their name later during the project creation."
-                            error={error?.name}
+                            value={value?.projectType}
+                            label="Project Type"
+                            hint="Select the type of your project."
+                            options={projectTypeOptions}
+                            keySelector={valueSelector}
+                            labelSelector={labelSelector}
+                            error={error?.projectType}
                             disabled={submissionPending}
                         />
-                    </div>
-                    <div className={styles.inputGroup}>
+                        <div className={styles.inputGroup}>
+                            <TextInput
+                                name={'name' as const}
+                                value={value?.name}
+                                onChange={setFieldValue}
+                                label="Name of the Tutorial"
+                                hint="Provide a clear name for your tutorial. You can select tutorials based on their name later during the project creation."
+                                error={error?.name}
+                                disabled={submissionPending}
+                            />
+                            <TextInput
+                                name={'lookFor' as const}
+                                value={value?.lookFor}
+                                onChange={setFieldValue}
+                                label="Look For"
+                                hint="What should the users look for (e.g. buildings, cars, trees)? (25 chars max)."
+                                error={error?.lookFor}
+                                disabled={submissionPending}
+                                autoFocus
+                            />
+                        </div>
+                    </Card>
+                    <Card
+                        title="Upload GeoJSON file"
+                        contentClassName={styles.inputGroup}
+                    >
                         <JsonFileInput
                             name={'screens' as const}
                             value={value?.screens}
@@ -263,13 +284,12 @@ function NewTutorial(props: Props) {
                             name={'tutorialTasks' as const}
                             value={value?.tutorialTasks}
                             onChange={setFieldValue}
-                            label="Upload Tutorial Tasks as GeoJSON"
                             hint="It should end with .geojson or .geo.json"
                             error={error?.tutorialTasks}
                             disabled={submissionPending}
                         />
-                    </div>
-                    <div className={styles.inputGroup}>
+                    </Card>
+                    <Card contentClassName={styles.inputGroup}>
                         <FileInput
                             name={'exampleImage1' as const}
                             value={value?.exampleImage1}
@@ -292,7 +312,24 @@ function NewTutorial(props: Props) {
                             error={error?.exampleImage2}
                             disabled={submissionPending}
                         />
-                    </div>
+                    </Card>
+                    <Card
+                        title="Describe Scenarios"
+                    >
+                        <Tabs
+                            value={activeTab}
+                            onChange={setActiveTab}
+                        >
+                            <TabList>
+                                <Tab name="scenario 2">
+                                    scenario 2
+                                </Tab>
+                            </TabList>
+                            <TabPanel name="scenario 2">
+                                scenarios 2
+                            </TabPanel>
+                        </Tabs>
+                    </Card>
                 </InputSection>
                 {(value?.projectType === PROJECT_TYPE_BUILD_AREA
                     || value?.projectType === PROJECT_TYPE_CHANGE_DETECTION

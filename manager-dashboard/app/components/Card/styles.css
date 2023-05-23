@@ -1,0 +1,25 @@
+.card {
+    border: 0.5px;
+    background-color: var(--color-foreground);
+    padding: var(--spacing);
+
+    .title {
+        padding: var(--spacing-medium);
+        font-weight: var(--font-weight-bold);
+    }
+
+    .content {
+        padding: var(--spacing-medium);
+    }
+
+    &.multi-column {
+        .content {
+            display: flex;
+
+            >* {
+                flex-basis: 0;
+                flex-grow: 1;
+            }
+        }
+    }
+}
