@@ -268,12 +268,15 @@ def calc_share(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def calc_count(df: pd.DataFrame) -> pd.DataFrame:
-    return df.filter(like="count").sum(axis=1)
+    df_new = df.filter(like="count")
+    df_new_sum = df_new.sum(axis=1)
+    return df_new_sum
 
 
 def calc_quadkey(row: pd.Series) -> str:
     """Calculate quadkey based on task id."""
-    # todo: this does not make sense for media type, digtitalization etc. -> move to project classes
+    # ToDo: This does not make sense for media type, digtitalization.
+    #  For these projects types we should move to project classes.
     try:
         tile_z, tile_x, tile_y = row["task_id"].split("-")
         quadkey = tile_functions.tile_coords_and_zoom_to_quadKey(
@@ -338,7 +341,7 @@ def get_agg_results_by_task_id(
     results_by_task_id_df = results_by_task_id_df.add_suffix("_count")
 
     # calculate total count of votes per task
-    results_by_task_id_df[["total_count"]] = calc_count(results_by_task_id_df)
+    results_by_task_id_df["total_count"] = calc_count(results_by_task_id_df)
 
     # calculate share based on counts
     results_by_task_id_df = calc_share(results_by_task_id_df)
@@ -357,7 +360,7 @@ def get_agg_results_by_task_id(
         lambda row: calc_quadkey(row), axis=1
     )
 
-    # this currently joins all project_type_specifics that are saved in tasks to the result
+    # this joins all project_type_specifics in tasks to the result
     tasks_df.drop(columns=["project_id", "group_id"], inplace=True)
     agg_results_df = results_by_task_id_df.merge(
         tasks_df,
