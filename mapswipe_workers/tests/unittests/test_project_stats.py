@@ -1,5 +1,7 @@
 import unittest
+
 import pandas as pd
+
 from mapswipe_workers.generate_stats.project_stats import (
     calc_agreement,
     calc_count,
