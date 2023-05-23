@@ -255,21 +255,21 @@ def calc_agreement(row: pd.Series) -> float:
     if n == 1 or n == 0:
         agreement = None
     else:
-        agreement = (sum([i ** 2 for i in row]) - n) / (n * (n - 1))
+        agreement = (sum([i**2 for i in row]) - n) / (n * (n - 1))
 
     return agreement
 
 
 def calc_share(df: pd.DataFrame) -> pd.DataFrame:
     """Calculate the share of each category on the total count."""
-    share_df = df.filter(like='count').div(df.total_count, axis=0)
+    share_df = df.filter(like="count").div(df.total_count, axis=0)
     share_df.drop("total_count", inplace=True, axis=1)
     share_df.columns = share_df.columns.str.replace("_count", "_share")
     return df.join(share_df)
 
 
 def calc_count(df: pd.DataFrame) -> pd.DataFrame:
-    return df.filter(like='count').sum(axis=1)
+    return df.filter(like="count").sum(axis=1)
 
 
 def calc_quadkey(row: pd.Series) -> str:
@@ -287,13 +287,17 @@ def calc_quadkey(row: pd.Series) -> str:
     return quadkey
 
 
-def add_missing_result_columns(df: pd.DataFrame, all_answer_label_values: pd.Series) -> pd.DataFrame:
+def add_missing_result_columns(
+    df: pd.DataFrame, all_answer_label_values: pd.Series
+) -> pd.DataFrame:
     """
     Check if all possible answers columns are included in the grouped results
     data frame and add columns if missing.
     """
 
-    all_answer_label_values_list = list(ast.literal_eval(all_answer_label_values.item()))
+    all_answer_label_values_list = list(
+        ast.literal_eval(all_answer_label_values.item())
+    )
     df = df.reindex(columns=all_answer_label_values_list, fill_value=0)
     return df
 
@@ -327,7 +331,9 @@ def get_agg_results_by_task_id(
     )
 
     # add columns for answer options that were not chosen for any task
-    results_by_task_id_df = add_missing_result_columns(results_by_task_id_df, answer_label_values)
+    results_by_task_id_df = add_missing_result_columns(
+        results_by_task_id_df, answer_label_values
+    )
 
     # needed for ogr2ogr todo: might be legacy?
     results_by_task_id_df = results_by_task_id_df.add_suffix("_count")
@@ -403,7 +409,9 @@ def get_per_project_statistics(project_id: str, project_info: pd.Series) -> dict
             add_metadata = False
 
         # aggregate results by task id
-        agg_results_df = get_agg_results_by_task_id(results_df, tasks_df, project_info["answer_label_values"])
+        agg_results_df = get_agg_results_by_task_id(
+            results_df, tasks_df, project_info["answer_label_values"]
+        )
         agg_results_df.to_csv(agg_results_filename, index_label="idx")
 
         geojson_functions.gzipped_csv_to_gzipped_geojson(

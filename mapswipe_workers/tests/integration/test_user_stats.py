@@ -2,6 +2,8 @@ import os
 import tempfile
 import unittest
 
+import pandas as pd
+
 from . import tear_down
 from . import set_up
 from .base import BaseTestCase
@@ -48,7 +50,9 @@ class TestUserStats(BaseTestCase):
         tasks_df = get_tasks(self.tasks_filename, self.project_id)
         self.assertEqual(len(tasks_df), 67436)
 
-        agg_results_df = get_agg_results_by_task_id(results_df, tasks_df)
+        agg_results_df = get_agg_results_by_task_id(
+            results_df, tasks_df, pd.Series(data=["{0, 1, 2, 3}"])
+        )
         self.assertEqual(len(agg_results_df), 67436)
 
         agg_results_by_user_id_df = get_agg_results_by_user_id(

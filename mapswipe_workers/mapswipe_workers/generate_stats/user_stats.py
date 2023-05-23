@@ -8,9 +8,9 @@ def get_agreeing_contributions_per_user_and_task(row):
     """
 
     r = row["result"]
-    count_str = f'value_{r}'
+    count_str = f"{r}_count"
     # ignore -999 values
-    if count_str == 'value_-999':
+    if count_str == "-999_count":
         return 0
     else:
         return row[count_str] - 1
@@ -29,7 +29,6 @@ def get_disagreeing_contributions_per_user_and_task(row):
         agreeing_contributions = row["agreeing_contributions"]
         disagreeing_contributions = total_count - (agreeing_contributions + 1)
         return disagreeing_contributions
-
 
 
 def get_agg_results_by_user_id(
@@ -55,8 +54,7 @@ def get_agg_results_by_user_id(
     )
 
     raw_contributions_df["disagreeing_contributions"] = raw_contributions_df.apply(
-        get_disagreeing_contributions_per_user_and_task,
-        axis = 1
+        get_disagreeing_contributions_per_user_and_task, axis=1
     )
 
     agg_results_by_user_id_df = raw_contributions_df.groupby(
