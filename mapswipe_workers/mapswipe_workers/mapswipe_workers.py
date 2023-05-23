@@ -59,8 +59,6 @@ def run_create_projects():
     Create projects with groups and tasks.
     Save created projects, groups and tasks to Firebase and Postgres.
     """
-    print("create_projecvt")
-    print("create_projecvt")
     fb_db = auth.firebaseDB()
     ref = fb_db.reference("v2/projectDrafts/")
     project_drafts = ref.get()
