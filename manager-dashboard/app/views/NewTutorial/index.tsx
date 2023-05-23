@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React from 'react';
 import {
     _cs,
     isDefined,
@@ -99,7 +99,10 @@ function NewTutorial(props: Props) {
         error: formError,
         validate,
         setError,
-    } = useForm(tutorialFormSchema, defaultTutorialFormValue);
+    } = useForm(
+        tutorialFormSchema,
+        { value: defaultTutorialFormValue },
+    );
 
     const [
         tutorialSubmissionStatus,
@@ -218,7 +221,7 @@ function NewTutorial(props: Props) {
     const tileServerBVisible = value?.projectType === PROJECT_TYPE_CHANGE_DETECTION
         || value?.projectType === PROJECT_TYPE_COMPLETENESS;
 
-    // const handleGeoJsonFile = useCallback((
+    // const handleGeoJsonFile = React.useCallback((
     //     geoProps: PartialTutorialFormType['tutorialTasks'],
     // ) => (
     // ), []);
