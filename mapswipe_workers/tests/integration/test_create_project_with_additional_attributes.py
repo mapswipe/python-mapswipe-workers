@@ -61,6 +61,10 @@ class TestCreateTileClassificationProject(unittest.TestCase):
         self.assertEqual(result, "https://www.mapswipe.org")
 
     def test_create_project_with_default_attributes(self):
+        """
+        default values are 'en-us' for language
+        and None for appId and manualUrl
+        """
         self.project_id = setUpProjectDraft(
             "tile_classification", "tile_classification"
         )
