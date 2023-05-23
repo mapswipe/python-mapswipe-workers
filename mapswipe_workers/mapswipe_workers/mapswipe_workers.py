@@ -59,7 +59,8 @@ def run_create_projects():
     Create projects with groups and tasks.
     Save created projects, groups and tasks to Firebase and Postgres.
     """
-
+    print("create_projecvt")
+    print("create_projecvt")
     fb_db = auth.firebaseDB()
     ref = fb_db.reference("v2/projectDrafts/")
     project_drafts = ref.get()
@@ -84,6 +85,8 @@ def run_create_projects():
             #  postgres expects just a string not an array
             #  validated_geometries should be called during init already
             #  for the respective project types
+
+
 
             project.geometry = project.validate_geometries()
             project.create_groups()

@@ -19,6 +19,15 @@ class TileClassificationProject(BaseProject):
         self.zoomLevel = int(project_draft.get("zoomLevel", 18))
         self.tileServer = vars(BaseTileServer(project_draft["tileServer"]))
 
+        # todo: maybe we should verify the incoming schema oj the json here
+        # https://json-schema.org/
+        self.answerLabels = project_draft.get("answerLabels", [
+                {"color": "", "label": "no", "value": 0},
+                {"color": "green", "label": "yes", "value": 1},
+                {"color": "orange", "label": "maybe", "value": 2},
+                {"color": "red", "label": "bad imagery", "value": 3}
+            ]
+        )
 
     def validate_geometries(self):
         # TODO rename attribute validInputGeometries, it is a path to a geojson.

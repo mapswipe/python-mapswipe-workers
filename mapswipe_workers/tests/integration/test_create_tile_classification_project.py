@@ -3,7 +3,7 @@ import unittest
 import set_up
 import tear_down
 from click.testing import CliRunner
-
+import pandas as pd
 from mapswipe_workers import auth, mapswipe_workers
 from mapswipe_workers.utils.create_directories import create_directories
 
@@ -24,6 +24,10 @@ class TestCreateTileClassificationProject(unittest.TestCase):
 
         pg_db = auth.postgresDB()
         query = "SELECT project_id FROM projects WHERE project_id = %s"
+        result = pg_db.retr_query(query, [self.project_id])[0][0]
+        self.assertEqual(result, self.project_id)
+
+        query = """SELECT project_id FROM projects WHERE project_id = %s and project_type_specifics::jsonb ? 'answerLabels'"""
         result = pg_db.retr_query(query, [self.project_id])[0][0]
         self.assertEqual(result, self.project_id)
 

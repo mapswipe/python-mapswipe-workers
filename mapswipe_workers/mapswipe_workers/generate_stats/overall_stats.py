@@ -55,6 +55,7 @@ def get_project_static_info(filename: str) -> pd.DataFrame:
     pg_db = auth.postgresDB()
 
     # make sure to replace newline characters here
+
     sql_query = """
         COPY (
             SELECT
@@ -68,8 +69,8 @@ def get_project_static_info(filename: str) -> pd.DataFrame:
                 ,CASE
                   WHEN project_type_specifics-> 'answerLabels' IS NOT NULL THEN
                   ARRAY(SELECT json_array_elements(project_type_specifics->'answerLabels')->>'value')
+                  ELSE ARRAY(0,1,2,3)  -- mapswipe app default
                 END as answer_label_values
-
                 ,CASE
                   WHEN project_type_specifics->'tileServer'->'name' IS NOT NULL THEN
                   Array[project_type_specifics->'tileServer'->>'name']
