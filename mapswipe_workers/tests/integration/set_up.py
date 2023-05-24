@@ -22,7 +22,10 @@ def set_firebase_test_data(
     file_path = os.path.join(
         test_dir, "fixtures", project_type, data_type, fixture_name
     )
+    upload_file_to_firebase(file_path, data_type, identifier)
 
+
+def upload_file_to_firebase(file_path: str, data_type: str, identifier: str):
     with open(file_path) as test_file:
         test_data = json.load(test_file)
 

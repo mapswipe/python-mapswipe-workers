@@ -1,4 +1,5 @@
 import io
+import math
 from zipfile import ZipFile, is_zipfile
 
 # TODO import MediaClassificationGroup
@@ -8,6 +9,7 @@ from google.cloud import storage
 from mapswipe_workers.config import FIREBASE_STORAGE_BUCKET
 from mapswipe_workers.firebase.firebase import Firebase
 from mapswipe_workers.project_types.base.project import BaseProject
+from mapswipe_workers.project_types.media_classification.group import Group
 
 
 class MediaClassificationProject(BaseProject):
@@ -16,6 +18,8 @@ class MediaClassificationProject(BaseProject):
         self.mediaCredits = project_draft.get("mediaCredits", None)
         self.medialist = []
         self.mediaurl = project_draft["mediaurl"]
+        self.answerLabels = project_draft.get("answerLabels", None)
+        self.get_media()
 
     def get_media(self):
         blob_path = "projectTypeMedia/" + self.projectId
@@ -26,7 +30,7 @@ class MediaClassificationProject(BaseProject):
         blob = storage_bucket.blob(blob_path + ".zip")
         blob.upload_from_string(file, content_type="application/zip", checksum="crc32c")
 
-        zipbytes = io.BytesIO(blob.download_as_string())
+        zipbytes = io.BytesIO(blob.download_as_bytes())
         blob.delete()
 
         if is_zipfile(zipbytes):
@@ -39,6 +43,15 @@ class MediaClassificationProject(BaseProject):
         for blob in storage_bucket.list_blobs(prefix=blob_path + "/"):
             blob.make_public()
             self.medialist.append(blob.public_url)
+        client.close()
+
+    def create_groups(self):
+        numberOfGroups = math.ceil(len(self.medialist) / self.groupSize)
+        self.numberOfGroups = numberOfGroups
+        for group_id in range(numberOfGroups):
+            group = Group(self, group_id)
+            group.create_tasks(self.medialist)
+            self.groups.append(group)
 
     def save_to_firebase(self, project, groups, groupsOfTasks):
         self.save_project_to_firebase(project)
@@ -54,25 +67,13 @@ class MediaClassificationProject(BaseProject):
         firebase.save_groups_to_firebase(projectId, groups)
 
     def save_tasks_to_firebase(self, projectId: str, tasks: list):
-        # TODO: This project needs tasks to be saved
-        pass
-
-    """
-    def create_groups(self):
-        # first step get properties of each group from extent
-        raw_groups = tile_grouping_functions.extent_to_groups(
-            self.validInputGeometries, self.zoomLevel, self.groupSize
-        )
-
-        for group_id, slice in raw_groups.items():
-            group = TileClassificationGroup(self, group_id, slice)
-            group.create_tasks(self)
-
-            # only append valid groups
-            if group.is_valid():
-                self.groups.append(group)
-    """
+        firebase = Firebase()
+        firebase.save_tasks_to_firebase(projectId, tasks, useCompression=False)
 
     def validate_geometries(self):
         # TODO check if media files are in the correct format
+        pass
+
+    def save_to_files(self, project):
+        """We do not have any geometry so we pass here"""
         pass

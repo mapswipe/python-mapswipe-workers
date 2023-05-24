@@ -132,12 +132,16 @@ class ProjectType(Enum):
     FOOTPRINT = 2
     CHANGE_DETECTION = 3
     COMPLETENESS = 4
+    MEDIA_CLASSIFICATION = 5
 
     @property
     def constructor(self):
         # Imports are first made once this method get called to avoid circular imports.
         from mapswipe_workers.project_types.arbitrary_geometry.project import (
             Project as ag_project,
+        )
+        from mapswipe_workers.project_types.media_classification.project import (
+            MediaClassificationProject,
         )
         from mapswipe_workers.project_types.tile_classification.project import (
             TileClassificationProject,
@@ -151,6 +155,7 @@ class ProjectType(Enum):
             2: ag_project,
             3: tmsg_project,
             4: tmsg_project,
+            5: MediaClassificationProject,
         }
         return project_type_classes[self.value]
 
