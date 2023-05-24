@@ -2,7 +2,6 @@ import io
 import math
 from zipfile import ZipFile, is_zipfile
 
-# TODO import MediaClassificationGroup
 import requests
 from google.cloud import storage
 
@@ -32,6 +31,7 @@ class MediaClassificationProject(BaseProject):
 
         zipbytes = io.BytesIO(blob.download_as_bytes())
         blob.delete()
+        # TODO check if media files are in the correct format
 
         if is_zipfile(zipbytes):
             with ZipFile(zipbytes, "r") as myzip:
@@ -71,7 +71,6 @@ class MediaClassificationProject(BaseProject):
         firebase.save_tasks_to_firebase(projectId, tasks, useCompression=False)
 
     def validate_geometries(self):
-        # TODO check if media files are in the correct format
         pass
 
     def save_to_files(self, project):

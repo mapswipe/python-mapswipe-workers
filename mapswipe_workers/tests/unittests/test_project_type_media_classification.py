@@ -80,27 +80,5 @@ class TestMediaClassification(unittest.TestCase):
         self.assertEqual(self.project.groups[0].tasks[0].media, task_url)
 
 
-"""
-class TestTileClassificationGroup(unittest.TestCase):
-    def setUp(self):
-        project_draft = fixtures.get_fixture(
-            os.path.join("projectDrafts", "tile_classification.json")
-        )
-        project_draft["projectDraftId"] = "foo"
-        self.project = TileClassificationProject(project_draft)
-        self.group = TileClassificationGroup(self.project, 1, MagicMock())
-
-    def test_init(self):
-        self.assertIsNotNone(self.group.xMax)
-        self.assertIsNotNone(self.group.xMin)
-        self.assertIsNotNone(self.group.yMax)
-        self.assertIsNotNone(self.group.yMin)
-
-    def test_create_tasks(self):
-        self.group.create_tasks(self.project)
-        self.assertIsNotNone(self.group.tasks)
-        self.assertIsNotNone(self.group.numberOfTasks)
-"""
-
 if __name__ == "__main__":
     unittest.main()
