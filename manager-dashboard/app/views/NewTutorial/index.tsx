@@ -2,6 +2,7 @@ import React from 'react';
 import {
     _cs,
     isDefined,
+    isNotDefined,
 } from '@togglecorp/fujs';
 import {
     useForm,
@@ -29,6 +30,7 @@ import {
 import { Link } from 'react-router-dom';
 
 import UserContext from '#base/context/UserContext';
+import projectTypeOptions from '#base/configs/projectTypes';
 import useMountedRef from '#hooks/useMountedRef';
 import Card from '#components/Card';
 import Modal from '#components/Modal';
@@ -65,8 +67,6 @@ import {
 } from './utils';
 import styles from './styles.css';
 
-import projectTypeOptions from '#base/configs/projectTypes';
-
 const defaultTutorialFormValue: PartialTutorialFormType = {
     projectType: PROJECT_TYPE_BUILD_AREA,
     zoomLevel: 18,
@@ -80,6 +80,24 @@ const defaultTutorialFormValue: PartialTutorialFormType = {
     },
 };
 
+interface TutorialTask {
+    scenario: number;
+    hint: {
+        description: string;
+        icon: string;
+        title: string;
+    },
+    intructions: {
+        description: string;
+        icon: string;
+        title: string;
+    },
+    success: {
+        description: string;
+        icon: string;
+        title: string;
+    }
+}
 interface Props {
     className?: string;
 }
@@ -106,6 +124,7 @@ function NewTutorial(props: Props) {
         setTutorialSubmissionStatus,
     ] = React.useState<'started' | 'imageUpload' | 'tutorialSubmit' | 'success' | 'failed' | undefined>();
 
+    const [tutorialTask, setTutorialTask] = React.useState<TutorialTask[]>();
     const [activeTab, setActiveTab] = React.useState();
     const error = React.useMemo(
         () => getErrorObject(formError),
@@ -218,10 +237,41 @@ function NewTutorial(props: Props) {
     const tileServerBVisible = value?.projectType === PROJECT_TYPE_CHANGE_DETECTION
         || value?.projectType === PROJECT_TYPE_COMPLETENESS;
 
-    // const handleGeoJsonFile = React.useCallback((
-    //     geoProps: PartialTutorialFormType['tutorialTasks'],
-    // ) => (
-    // ), []);
+    const handleGeoJsonFile = React.useCallback((
+        geoProps: PartialTutorialFormType['tutorialTasks'],
+    ) => {
+        setFieldValue('tutorialTasks', geoProps);
+        const tutorialTaskArray = geoProps?.features.map((geo) => (
+            {
+                scenario: geo.properties.screen,
+                hint: {
+                    description: undefined,
+                    icon: undefined,
+                    title: undefined,
+                },
+                intructions: {
+                    description: undefined,
+                    icon: undefined,
+                    title: undefined,
+                },
+                success: {
+                    description: undefined,
+                    icon: undefined,
+                    title: undefined,
+                },
+            }
+        ));
+
+        const reduced = tutorialTaskArray?.reduce((acc, currItem) => {
+            const findValue = acc.find((item) => item.scenario === currItem.scenario);
+            if (isNotDefined(findValue)) {
+                acc.push(currItem);
+            }
+            return acc;
+        }, []).sort((a, b) => a.scenario - b.scenario);
+
+        setTutorialTask(reduced);
+    }, [setFieldValue]);
 
     return (
         <div className={_cs(styles.newTutorial, className)}>
@@ -283,7 +333,7 @@ function NewTutorial(props: Props) {
                         <GeoJsonFileInput
                             name={'tutorialTasks' as const}
                             value={value?.tutorialTasks}
-                            onChange={setFieldValue}
+                            onChange={handleGeoJsonFile}
                             hint="It should end with .geojson or .geo.json"
                             error={error?.tutorialTasks}
                             disabled={submissionPending}
@@ -321,13 +371,63 @@ function NewTutorial(props: Props) {
                             onChange={setActiveTab}
                         >
                             <TabList>
-                                <Tab name="scenario 2">
-                                    scenario 2
-                                </Tab>
+                                {tutorialTask?.map((task) => (
+                                    <Tab
+                                        key={task.scenario}
+                                        name={`Scenario ${task.scenario}`}
+                                    >
+                                        {`Scenario ${task.scenario}`}
+                                    </Tab>
+                                ))}
                             </TabList>
-                            <TabPanel name="scenario 2">
-                                scenarios 2
-                            </TabPanel>
+                            {tutorialTask?.map((task) => (
+                                <TabPanel
+                                    key={task.scenario}
+                                    name={`Scenario ${task.scenario}`}
+                                >
+                                    <div className={styles.scenario}>
+                                        <div>
+                                            Instructions
+                                            <TextInput
+                                                name={`${task.scenario} instruction-title`}
+                                                value=""
+                                                label="Title"
+                                            />
+                                            <TextInput
+                                                name={`${task.scenario} instruction-description`}
+                                                value=""
+                                                label="Description"
+                                            />
+                                        </div>
+                                        <div>
+                                            Hint
+                                            <TextInput
+                                                name={`${task.scenario} hint-title`}
+                                                value=""
+                                                label="Title"
+                                            />
+                                            <TextInput
+                                                name={`${task.scenario} hint-description`}
+                                                value=""
+                                                label="Description"
+                                            />
+                                        </div>
+                                        <div>
+                                            Success
+                                            <TextInput
+                                                name={`${task.scenario} success-title`}
+                                                value=""
+                                                label="Title"
+                                            />
+                                            <TextInput
+                                                name={`${task.scenario} success-description`}
+                                                value=""
+                                                label="Description"
+                                            />
+                                        </div>
+                                    </div>
+                                </TabPanel>
+                            ))}
                         </Tabs>
                     </Card>
                 </InputSection>
