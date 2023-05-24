@@ -19,6 +19,12 @@
             gap: var(--spacing-extra-large);
         }
 
+        .scenario {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-large);
+        }
+
         .input-group {
             display: flex;
             flex-direction: column;

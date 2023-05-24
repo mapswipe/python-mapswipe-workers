@@ -27,11 +27,18 @@ export interface TutorialFormType {
     name: string;
     tileServer: TileServer,
     screens?: GeoJSON.GeoJSON ; // FIXME: this is not FeatureCollection
-    tutorialTasks?: GeoJSON.GeoJSON;
+    tutorialTasks?: GeoJSON.FeatureCollection<GeoJSON.Geometry, {
+        groupId: string;
+        reference: number;
+        screen: number;
+        taskId: string;
+        tile_x: number;
+        tile_y: number;
+        tile_z: number;
+    }>;
     exampleImage1: File;
     exampleImage2: File;
     projectType: ProjectType;
-
     tileServerB?: TileServer,
     zoomLevel?: number;
 }
