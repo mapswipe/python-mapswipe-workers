@@ -3,8 +3,10 @@ import unittest
 from unittest.mock import patch
 
 from click.testing import CliRunner
+from google.cloud import storage
 
 from mapswipe_workers import auth, mapswipe_workers
+from mapswipe_workers.config import FIREBASE_STORAGE_BUCKET
 from mapswipe_workers.utils.create_directories import create_directories
 from tests import fixtures
 from tests.fixtures import FIXTURE_DIR
@@ -23,6 +25,13 @@ class TestCreateMediaClassificationProject(unittest.TestCase):
 
     def tearDown(self):
         tear_down.delete_test_data(self.project_id)
+        client = storage.Client()
+        storage_bucket = client.get_bucket(FIREBASE_STORAGE_BUCKET)
+        for blob in storage_bucket.list_blobs(
+            prefix="projectTypeMedia/media_classification/"
+        ):
+            blob.delete()
+        client.close()
 
     def test_create_media_classification_project(self):
         runner = CliRunner()
