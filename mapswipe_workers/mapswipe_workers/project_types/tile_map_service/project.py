@@ -89,6 +89,8 @@ class TileMapServiceBaseProject(BaseProject):
             )
 
     def create_tasks(self):
+        if len(self.groups) == 0:
+            raise ValueError("Groups needs to be created before tasks can be created.")
         for group_id, group in self.groups.items():
             self.tasks[group_id] = []
             for TileX in range(group.xMin, group.xMax + 1):
@@ -105,14 +107,15 @@ class TileMapServiceBaseProject(BaseProject):
                         self.zoomLevel,
                         self.tileServer,
                     )
-                    task = TileMapServiceBaseTask(
-                        projectId=self.projectId,
-                        groupId=group_id,
-                        taskId="{}-{}-{}".format(self.zoomLevel, TileX, TileY),
-                        taskX=TileX,
-                        taskY=TileY,
-                        geometry=geometry,
-                        url=url,
+                    self.tasks[group_id].append(
+                        TileMapServiceBaseTask(
+                            projectId=self.projectId,
+                            groupId=group_id,
+                            taskId="{}-{}-{}".format(self.zoomLevel, TileX, TileY),
+                            taskX=TileX,
+                            taskY=TileY,
+                            geometry=geometry,
+                            url=url,
+                        )
                     )
-                    self.tasks[group_id].append(task)
             self.groups[group_id].numberOfTasks = len(self.tasks[group_id])
