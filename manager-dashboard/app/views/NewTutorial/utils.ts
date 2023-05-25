@@ -1,12 +1,11 @@
 import {
     ObjectSchema,
     PartialForm,
-    requiredCondition,
     requiredStringCondition,
-    forceNullType,
     greaterThanOrEqualToCondition,
     lessThanOrEqualToCondition,
     integerCondition,
+    nullValue,
 } from '@togglecorp/toggle-form';
 import {
     TileServer,
@@ -25,15 +24,35 @@ import {
 export interface TutorialFormType {
     lookFor: string;
     name: string;
-    tileServer: TileServer,
-    screens?: GeoJSON.GeoJSON ; // FIXME: this is not FeatureCollection
+    tileServer: TileServer;
+    screens?: {
+        scenario: string;
+        hint: {
+            description: string;
+            icon: string;
+            title: string;
+        };
+        instruction: {
+            description: string;
+            icon: string;
+            title: string;
+        };
+        success: {
+            description: string;
+            icon: string;
+            title: string;
+        };
+    }[];
     tutorialTasks?: GeoJSON.FeatureCollection<GeoJSON.Geometry, {
         groupId: string;
         reference: number;
         screen: number;
         taskId: string;
+        // eslint-disable-next-line
         tile_x: number;
+        // eslint-disable-next-line
         tile_y: number;
+        // eslint-disable-next-line
         tile_z: number;
     }>;
     exampleImage1: File;
@@ -58,31 +77,44 @@ type TutorialFormSchemaFields = ReturnType<TutorialFormSchema['fields']>;
 export const tutorialFormSchema: TutorialFormSchema = {
     fields: (value): TutorialFormSchemaFields => {
         const baseSchema: TutorialFormSchemaFields = {
-            projectType: [requiredCondition],
-            lookFor: [requiredStringCondition, getNoMoreThanNCharacterCondition(25)],
-            name: [requiredStringCondition, getNoMoreThanNCharacterCondition(1000)],
+            projectType: {
+                required: true,
+            },
+            lookFor: {
+                required: true,
+                requiredValidation: requiredStringCondition,
+                validations: [getNoMoreThanNCharacterCondition(25)],
+            },
+            name: {
+
+                required: true,
+                requiredValidation: requiredStringCondition,
+                validations: [getNoMoreThanNCharacterCondition(1000)],
+            },
             tileServer: {
                 fields: tileServerFieldsSchema,
             },
-            screens: [requiredCondition],
+            screens: { required: true },
             // FIXME: add validation for tutorialTasks (geojson)
-            tutorialTasks: [requiredCondition],
-            exampleImage1: [requiredCondition],
-            exampleImage2: [requiredCondition],
+            tutorialTasks: { required: true },
+            exampleImage1: { required: true },
+            exampleImage2: { required: true },
 
-            tileServerB: [forceNullType],
-            zoomLevel: [forceNullType],
+            tileServerB: { forceValue: nullValue },
+            zoomLevel: { forceValue: nullValue },
         };
 
         if (value?.projectType === PROJECT_TYPE_BUILD_AREA) {
             return {
                 ...baseSchema,
-                zoomLevel: [
-                    requiredCondition,
-                    greaterThanOrEqualToCondition(14),
-                    lessThanOrEqualToCondition(22),
-                    integerCondition,
-                ],
+                zoomLevel: {
+                    required: true,
+                    validations: [
+                        greaterThanOrEqualToCondition(14),
+                        lessThanOrEqualToCondition(22),
+                        integerCondition,
+                    ],
+                },
             };
         }
 
@@ -90,12 +122,14 @@ export const tutorialFormSchema: TutorialFormSchema = {
             || value?.projectType === PROJECT_TYPE_COMPLETENESS) {
             return {
                 ...baseSchema,
-                zoomLevel: [
-                    requiredCondition,
-                    greaterThanOrEqualToCondition(14),
-                    lessThanOrEqualToCondition(22),
-                    integerCondition,
-                ],
+                zoomLevel: {
+                    required: true,
+                    validations: [
+                        greaterThanOrEqualToCondition(14),
+                        lessThanOrEqualToCondition(22),
+                        integerCondition,
+                    ],
+                },
                 tileServerB: {
                     fields: tileServerFieldsSchema,
                 },

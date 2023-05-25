@@ -39,7 +39,7 @@
         "@sentry/react": "^6.9.0",
         "@sentry/tracing": "^6.9.0",
         "@togglecorp/fujs": "^1.9.2",
-        "@togglecorp/toggle-form": "^1.2.1",
+        "@togglecorp/toggle-form": "^2.0.2",
         "@turf/area": "^6.5.0",
         "@turf/invariant": "^6.5.0",
         "apollo-link": "^1.2.14",
