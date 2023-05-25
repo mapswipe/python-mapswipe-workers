@@ -1,5 +1,6 @@
 from abc import abstractmethod
 from dataclasses import dataclass
+from typing import Dict, List
 
 from mapswipe_workers.firebase.firebase import Firebase
 from mapswipe_workers.project_types.base.project import BaseGroup, BaseProject, BaseTask
@@ -31,9 +32,9 @@ class TileMapServiceBaseProject(BaseProject):
     def __init__(self, project_draft: dict):
         super().__init__(project_draft)
         # Note: this will be overwritten by validate_geometry in mapswipe_workers.py
-        self.groups: dict[str, TileMapServiceBaseGroup] = {}
-        self.tasks: dict[
-            str, list[TileMapServiceBaseTask]
+        self.groups: Dict[str, TileMapServiceBaseGroup] = {}
+        self.tasks: Dict[
+            str, List[TileMapServiceBaseTask]
         ] = {}  # dict keys are group ids
 
         self.geometry = project_draft["geometry"]

@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Dict, List
 
 from mapswipe_workers.definitions import logger
 from mapswipe_workers.project_types.base.tile_server import BaseTileServer
@@ -23,9 +24,9 @@ class TileMapServiceBaseTutorial(BaseTutorial):
     def __init__(self, tutorial_draft):
         super().__init__(tutorial_draft)
 
-        self.groups: dict[str, TileMapServiceBaseGroup] = {}
-        self.tasks: dict[
-            str, list[TileMapServiceBaseTutorialTask]
+        self.groups: Dict[str, TileMapServiceBaseGroup] = {}
+        self.tasks: Dict[
+            str, List[TileMapServiceBaseTutorialTask]
         ] = {}  # dict keys are group ids
 
         self.projectType = tutorial_draft["projectType"]
