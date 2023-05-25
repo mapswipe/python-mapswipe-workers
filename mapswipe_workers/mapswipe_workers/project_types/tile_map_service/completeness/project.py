@@ -25,7 +25,6 @@ class CompletenessProject(TileMapServiceBaseProject):
 
     def create_tasks(self):
         super().create_tasks()
-        # Cast super task class to completeness task class.
         # Add urlB attribute.
         for group_id, group in self.tasks.items():
             tasks = []
@@ -36,5 +35,6 @@ class CompletenessProject(TileMapServiceBaseProject):
                     self.zoomLevel,
                     self.tileServerB,
                 )
-                tasks.append(CompletenessTask(urlB=urlB, **asdict(task)))
+                # Cast super task class to completeness task class.
+                tasks.append(CompletenessTask(**asdict(task), urlB=urlB))
             self.tasks[group_id] = tasks
