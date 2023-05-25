@@ -83,6 +83,7 @@ p {
     --font-size-ultra-large: 4rem;
 
     --font-weight-medium: 400;
+    --font-weight-semibold: 600;
     --font-weight-bold: 700;
 
     --opacity-disabled-element: 0.5;
@@ -100,6 +101,13 @@ p {
     --radius-input-border: 0.25rem;
     --radius-card-border: 0.25rem;
     --radius-badge-border: 1rem;
+
+    --line-height-none: 1;
+    --line-height-tight: 1.25;
+    --line-height-snug: 1.375;
+    --line-height-normal: 1.5;
+    --line-height-relaxed: 1.625;
+    --line-height-loose: 2;
 
 
     --shadow-card: 0 2px 4px -2px var(--color-shadow);

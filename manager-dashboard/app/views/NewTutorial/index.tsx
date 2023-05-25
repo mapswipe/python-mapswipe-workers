@@ -1,14 +1,18 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import {
     _cs,
     isDefined,
-    isNotDefined,
+    unique,
 } from '@togglecorp/fujs';
 import {
     useForm,
     getErrorObject,
     createSubmitHandler,
     analyzeErrors,
+    useFormArray,
+    useFormObject,
+    PartialForm,
+    SetValueArg,
 } from '@togglecorp/toggle-form';
 import {
     getStorage,
@@ -39,6 +43,7 @@ import NumberInput from '#components/NumberInput';
 import SegmentInput from '#components/SegmentInput';
 import FileInput from '#components/FileInput';
 import GeoJsonFileInput from '#components/GeoJsonFileInput';
+import Heading from '#components/Heading';
 import {
     Tabs,
     Tab,
@@ -66,6 +71,7 @@ import {
     PartialTutorialFormType,
 } from './utils';
 import styles from './styles.css';
+import SelectInput from '#components/SelectInput';
 
 const defaultTutorialFormValue: PartialTutorialFormType = {
     projectType: PROJECT_TYPE_BUILD_AREA,
@@ -83,23 +89,182 @@ const defaultTutorialFormValue: PartialTutorialFormType = {
 interface TutorialTask {
     scenario: number;
     hint: {
-        description: string;
-        icon: string;
-        title: string;
+        description?: string;
+        icon?: string;
+        title?: string;
     },
     intructions: {
-        description: string;
-        icon: string;
-        title: string;
+        description?: string;
+        icon?: string;
+        title?: string;
     },
     success: {
-        description: string;
-        icon: string;
-        title: string;
+        description?: string;
+        icon?: string;
+        title?: string;
     }
+}
+
+interface IconOptions {
+    key: string;
+    label: string;
 }
 interface Props {
     className?: string;
+}
+
+type ScenarioType = NonNullable<PartialTutorialFormType['screens']>
+
+const iconOptions: IconOptions[] = [
+    {
+        key: 'swipe-left',
+        label: 'Swipe Left',
+    },
+    {
+        key: 'tap-1',
+        label: 'Tap 1',
+    },
+    {
+        key: 'tap-2',
+        label: 'Tap 2',
+    },
+    {
+        key: 'tap-3',
+        label: 'Tap 3',
+    },
+    {
+        key: 'check',
+        label: 'Check',
+    },
+];
+
+const defaultScenarioTabsValue: PartialForm<ScenarioType> = {
+    scenario: '',
+    hint: {
+        description: '',
+        icon: '',
+        title: '',
+    },
+    instruction: {
+        description: '',
+        icon: '',
+        title: '',
+    },
+    success: {
+        description: '',
+        icon: '',
+        title: '',
+    },
+
+};
+interface ScenarioTabsProps {
+    value: PartialForm<ScenarioType>[number],
+    onChange: (value: SetValueArg<PartialForm<ScenarioType>>, index: number) => void;
+    index: number,
+ }
+
+function ScenarioTabs(scenarioProps: ScenarioTabsProps) {
+    const {
+        value,
+        onChange,
+        index,
+    } = scenarioProps;
+
+    const onFieldChange = useFormObject(index, onChange, defaultScenarioTabsValue);
+
+    return (
+        <TabPanel
+            key={value.scenario}
+            name={`Scenario ${value.scenario}`}
+        >
+            <div className={styles.scenario}>
+                <Heading level={4}>
+                    Instructions
+                </Heading>
+                <div className={styles.scenarioForm}>
+                    <div className={styles.scenarioFormContent}>
+                        <TextInput
+                            name="title"
+                            value={value.instruction?.title}
+                            label="Title"
+                            onChange={onFieldChange}
+                        />
+                        <TextInput
+                            name="description"
+                            value={value.instruction?.description}
+                            label="Description"
+                            onChange={onFieldChange}
+                        />
+                    </div>
+                    <SelectInput
+                        name="icon"
+                        label="Icon"
+                        value={value.instruction?.icon}
+                        options={iconOptions}
+                        keySelector={(d: IconOptions) => d.key}
+                        labelSelector={(d: IconOptions) => d.label}
+                        onChange={onFieldChange}
+                    />
+                </div>
+                <Heading level={4}>
+                    Hint
+                </Heading>
+                <div className={styles.scenarioForm}>
+                    <div className={styles.scenarioFormContent}>
+                        <TextInput
+                            name="title"
+                            value={value.hint?.title}
+                            label="Title"
+                            onChange={onFieldChange}
+                        />
+                        <TextInput
+                            name="description"
+                            value={value.hint?.description}
+                            label="Description"
+                            onChange={onFieldChange}
+                        />
+                    </div>
+                    <SelectInput
+                        name="icon"
+                        label="Icon"
+                        value={value.hint?.icon}
+                        options={iconOptions}
+                        keySelector={(d: IconOptions) => d.key}
+                        labelSelector={(d: IconOptions) => d.label}
+                        onChange={onFieldChange}
+                    />
+                </div>
+                <Heading level={4}>
+                    Success
+                </Heading>
+                <div className={styles.scenarioForm}>
+                    <div className={styles.scenarioFormContent}>
+                        <TextInput
+                            name="title"
+                            value={value.success?.title}
+                            label="Title"
+                            onChange={onFieldChange}
+                        />
+                        <TextInput
+                            name="description"
+                            value={value.success?.description}
+                            label="Description"
+                            onChange={onFieldChange}
+                        />
+                    </div>
+                    <SelectInput
+                        name="icon"
+                        label="Icon"
+                        value={value.success?.icon}
+                        options={iconOptions}
+                        keySelector={(d: IconOptions) => d.key}
+                        labelSelector={(d: IconOptions) => d.label}
+                        onChange={onFieldChange}
+                    />
+                </div>
+            </div>
+        </TabPanel>
+    );
 }
 
 function NewTutorial(props: Props) {
@@ -117,15 +282,16 @@ function NewTutorial(props: Props) {
         error: formError,
         validate,
         setError,
-    } = useForm(tutorialFormSchema, defaultTutorialFormValue);
+    } = useForm(tutorialFormSchema, {
+        value: defaultTutorialFormValue,
+    });
 
     const [
         tutorialSubmissionStatus,
         setTutorialSubmissionStatus,
     ] = React.useState<'started' | 'imageUpload' | 'tutorialSubmit' | 'success' | 'failed' | undefined>();
 
-    const [tutorialTask, setTutorialTask] = React.useState<TutorialTask[]>();
-    const [activeTab, setActiveTab] = React.useState();
+    const [activeTab, setActiveTab] = React.useState('');
     const error = React.useMemo(
         () => getErrorObject(formError),
         [formError],
@@ -223,6 +389,10 @@ function NewTutorial(props: Props) {
         [validate, setError, handleFormSubmission],
     );
 
+    const {
+        setValue: onScenarioFormChange,
+    } = useFormArray('screens', setFieldValue);
+
     const hasErrors = React.useMemo(
         () => analyzeErrors(error),
         [error],
@@ -241,7 +411,9 @@ function NewTutorial(props: Props) {
         geoProps: PartialTutorialFormType['tutorialTasks'],
     ) => {
         setFieldValue('tutorialTasks', geoProps);
-        const tutorialTaskArray = geoProps?.features.map((geo) => (
+        const uniqueArray = unique(geoProps.features, ((geo) => geo?.properties.screen));
+        const sorted = uniqueArray.sort((a, b) => a.properties?.screen - b.properties.screen);
+        const tutorialTaskArray = sorted.map((geo) => (
             {
                 scenario: geo.properties.screen,
                 hint: {
@@ -261,17 +433,10 @@ function NewTutorial(props: Props) {
                 },
             }
         ));
-
-        const reduced = tutorialTaskArray?.reduce((acc, currItem) => {
-            const findValue = acc.find((item) => item.scenario === currItem.scenario);
-            if (isNotDefined(findValue)) {
-                acc.push(currItem);
-            }
-            return acc;
-        }, []).sort((a, b) => a.scenario - b.scenario);
-
-        setTutorialTask(reduced);
+        setFieldValue('screens', tutorialTaskArray);
     }, [setFieldValue]);
+
+    console.log(value.tutorialTasks);
 
     return (
         <div className={_cs(styles.newTutorial, className)}>
@@ -370,64 +535,29 @@ function NewTutorial(props: Props) {
                             value={activeTab}
                             onChange={setActiveTab}
                         >
-                            <TabList>
-                                {tutorialTask?.map((task) => (
-                                    <Tab
-                                        key={task.scenario}
-                                        name={`Scenario ${task.scenario}`}
-                                    >
-                                        {`Scenario ${task.scenario}`}
-                                    </Tab>
-                                ))}
-                            </TabList>
-                            {tutorialTask?.map((task) => (
-                                <TabPanel
-                                    key={task.scenario}
-                                    name={`Scenario ${task.scenario}`}
-                                >
-                                    <div className={styles.scenario}>
-                                        <div>
-                                            Instructions
-                                            <TextInput
-                                                name={`${task.scenario} instruction-title`}
-                                                value=""
-                                                label="Title"
-                                            />
-                                            <TextInput
-                                                name={`${task.scenario} instruction-description`}
-                                                value=""
-                                                label="Description"
-                                            />
-                                        </div>
-                                        <div>
-                                            Hint
-                                            <TextInput
-                                                name={`${task.scenario} hint-title`}
-                                                value=""
-                                                label="Title"
-                                            />
-                                            <TextInput
-                                                name={`${task.scenario} hint-description`}
-                                                value=""
-                                                label="Description"
-                                            />
-                                        </div>
-                                        <div>
-                                            Success
-                                            <TextInput
-                                                name={`${task.scenario} success-title`}
-                                                value=""
-                                                label="Title"
-                                            />
-                                            <TextInput
-                                                name={`${task.scenario} success-description`}
-                                                value=""
-                                                label="Description"
-                                            />
-                                        </div>
-                                    </div>
-                                </TabPanel>
-                            ))}
+                            {value.screens?.length ? (
+                                <>
+                                    <TabList>
+                                        {value.screens?.map((task) => (
+                                            <Tab
+                                                key={task.scenario}
+                                                name={`Scenario ${task.scenario}`}
+                                            >
+                                                {`Scenario ${task.scenario}`}
+                                            </Tab>
+                                        ))}
+                                    </TabList>
+                                    {value.screens?.map((task, index) => (
+                                        <ScenarioTabs
+                                            index={index}
+                                            value={task}
+                                            onChange={onScenarioFormChange}
+                                        />
+                                    ))}
+                                </>
+                            ) : (
+                                <div>No Scenarios</div>
+                            )}
                         </Tabs>
                     </Card>
                 </InputSection>
