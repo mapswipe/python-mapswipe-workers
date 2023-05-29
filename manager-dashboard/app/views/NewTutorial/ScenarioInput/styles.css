@@ -1,0 +1,16 @@
+.scenario {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-large);
+
+    .scenario-form {
+        display: flex;
+        gap: var(--spacing-medium);
+
+        .scenario-form-content {
+            display: flex;
+            flex-basis: 80%;
+            flex-direction: column;
+        }
+    }
+}

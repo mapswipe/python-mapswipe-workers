@@ -6,6 +6,7 @@ import {
     lessThanOrEqualToCondition,
     integerCondition,
     nullValue,
+    ArraySchema,
 } from '@togglecorp/toggle-form';
 import {
     TileServer,
@@ -21,6 +22,20 @@ import {
 } from '#utils/common';
 
 // FIXME: include here
+
+export type TutorialTasks = GeoJSON.FeatureCollection<GeoJSON.Geometry, {
+    groupId: string;
+    reference: number;
+    screen: number;
+    taskId: string;
+    // eslint-disable-next-line
+    tile_x: number;
+    // eslint-disable-next-line
+    tile_y: number;
+    // eslint-disable-next-line
+    tile_z: number;
+}>;
+
 export interface TutorialFormType {
     lookFor: string;
     name: string;
@@ -28,33 +43,22 @@ export interface TutorialFormType {
     screens?: {
         scenario: string;
         hint: {
-            description: string;
-            icon: string;
-            title: string;
+            description?: string;
+            icon?: string;
+            title?: string;
         };
-        instruction: {
-            description: string;
-            icon: string;
+        instructions: {
+            description?: string;
+            icon?: string;
             title: string;
         };
         success: {
-            description: string;
-            icon: string;
-            title: string;
+            description?: string;
+            icon?: string;
+            title?: string;
         };
     }[];
-    tutorialTasks?: GeoJSON.FeatureCollection<GeoJSON.Geometry, {
-        groupId: string;
-        reference: number;
-        screen: number;
-        taskId: string;
-        // eslint-disable-next-line
-        tile_x: number;
-        // eslint-disable-next-line
-        tile_y: number;
-        // eslint-disable-next-line
-        tile_z: number;
-    }>;
+    tutorialTasks?: TutorialTasks,
     exampleImage1: File;
     exampleImage2: File;
     projectType: ProjectType;
@@ -73,6 +77,13 @@ export type PartialTutorialFormType = PartialForm<
 
 type TutorialFormSchema = ObjectSchema<PartialTutorialFormType>;
 type TutorialFormSchemaFields = ReturnType<TutorialFormSchema['fields']>;
+
+type ScreenType = NonNullable<PartialTutorialFormType['screens']>[number];
+type ScreenSchema = ObjectSchema<PartialForm<ScreenType>, PartialTutorialFormType>;
+type ScreenFormSchemaFields = ReturnType<ScreenSchema['fields']>;
+
+type ScreenFormSchema = ArraySchema<PartialForm<ScreenType>, PartialTutorialFormType>;
+type ScreenFormSchemaMember = ReturnType<ScreenFormSchema['member']>;
 
 export const tutorialFormSchema: TutorialFormSchema = {
     fields: (value): TutorialFormSchemaFields => {
@@ -94,7 +105,61 @@ export const tutorialFormSchema: TutorialFormSchema = {
             tileServer: {
                 fields: tileServerFieldsSchema,
             },
-            screens: { required: true },
+            screens: {
+                keySelector: (key) => key.scenario,
+                member: () => ({
+                    fields: () => ({
+                        scenario: {
+                            required: true,
+                        },
+                        hint: {
+                            fields: () => ({
+                                title: {
+                                    required: true,
+                                    requiredValidation: requiredStringCondition,
+                                    validations: [getNoMoreThanNCharacterCondition(500)],
+                                },
+                                description: {
+                                    required: true,
+                                    requiredValidation: requiredStringCondition,
+                                    validations: [getNoMoreThanNCharacterCondition(500)],
+                                },
+                                icon: { required: true },
+                            }),
+                        },
+                        instructions: {
+                            fields: () => ({
+                                title: {
+                                    required: true,
+                                    requiredValidation: requiredStringCondition,
+                                    validations: [getNoMoreThanNCharacterCondition(500)],
+                                },
+                                description: {
+                                    required: true,
+                                    requiredValidation: requiredStringCondition,
+                                    validations: [getNoMoreThanNCharacterCondition(500)],
+                                },
+                                icon: { required: true },
+                            }),
+                        },
+                        success: {
+                            fields: () => ({
+                                title: {
+                                    required: true,
+                                    requiredValidation: requiredStringCondition,
+                                    validations: [getNoMoreThanNCharacterCondition(500)],
+                                },
+                                hintDescription: {
+                                    required: true,
+                                    requiredValidation: requiredStringCondition,
+                                    validations: [getNoMoreThanNCharacterCondition(500)],
+                                },
+                                hintIcon: { required: true },
+                            }),
+                        },
+                    }),
+                }),
+            },
             // FIXME: add validation for tutorialTasks (geojson)
             tutorialTasks: { required: true },
             exampleImage1: { required: true },
