@@ -45,7 +45,6 @@ import {
     Tab,
     TabList,
 } from '#components/Tabs';
-import JsonFileInput from '#components/JsonFileInput';
 import TileServerInput, {
     TILE_SERVER_BING,
     tileServerDefaultCredits,
@@ -66,6 +65,7 @@ import {
     PartialTutorialFormType,
 } from './utils';
 import ScenarioInput from './ScenarioInput';
+import DescribeOptions from './DescribeOptions';
 import styles from './styles.css';
 
 const defaultTutorialFormValue: PartialTutorialFormType = {
@@ -109,7 +109,7 @@ function NewTutorial(props: Props) {
         setTutorialSubmissionStatus,
     ] = React.useState<'started' | 'imageUpload' | 'tutorialSubmit' | 'success' | 'failed' | undefined>();
 
-    const [activeTab, setActiveTab] = React.useState('');
+    const [activeTab, setActiveTab] = React.useState('Scenario 1');
     const error = React.useMemo(
         () => getErrorObject(formError),
         [formError],
@@ -237,24 +237,13 @@ function NewTutorial(props: Props) {
         const sorted = uniqueArray?.sort((a, b) => a.properties?.screen - b.properties.screen);
         const tutorialTaskArray = sorted?.map((geo) => (
             {
-                scenario: String(geo.properties.screen) ?? '',
-                hint: {
-                    title: '',
-                    description: '',
-                    icon: '',
-                },
-                instructions: {
-                    title: '',
-                    description: '',
-                    icon: '',
-                },
-                success: {
-                    title: '',
-                    description: '',
-                    icon: '',
-                },
+                scenario: String(geo.properties.screen),
+                hint: {},
+                instructions: {},
+                success: {},
             }
         ));
+
         setFieldValue(tutorialTaskArray, 'screens');
     }, [setFieldValue]);
 
@@ -306,15 +295,6 @@ function NewTutorial(props: Props) {
                         title="Upload GeoJSON file"
                         contentClassName={styles.inputGroup}
                     >
-                        <JsonFileInput
-                            name={'screens' as const}
-                            value={value?.screens}
-                            onChange={setFieldValue}
-                            label="Upload Tutorial Text as JSON"
-                            hint="It should end with .json"
-                            error={error?.screens}
-                            disabled={submissionPending}
-                        />
                         <GeoJsonFileInput
                             name={'tutorialTasks' as const}
                             value={value?.tutorialTasks}
@@ -348,8 +328,12 @@ function NewTutorial(props: Props) {
                             disabled={submissionPending}
                         />
                     </Card>
+                    {value.projectType === 2 && (
+                        <DescribeOptions />
+                    )}
                     <Card
                         title="Describe Scenarios"
+                        contentClassName={styles.cardScenarios}
                     >
                         <Tabs
                             value={activeTab}

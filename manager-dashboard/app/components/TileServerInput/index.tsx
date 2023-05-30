@@ -7,7 +7,6 @@ import {
     SetValueArg,
     ObjectSchema,
     requiredStringCondition,
-    requiredCondition,
 } from '@togglecorp/toggle-form';
 
 import TextInput from '#components/TextInput';
@@ -82,19 +81,34 @@ type TileServerSchema = ObjectSchema<PartialForm<TileServerInputType>, unknown>;
 type TileServerFields = ReturnType<TileServerSchema['fields']>;
 export function tileServerFieldsSchema(value: TileServerInputType | undefined): TileServerFields {
     const basicFields: TileServerFields = {
-        name: [requiredStringCondition, getNoMoreThanNCharacterCondition(1000)],
-        credits: [requiredStringCondition, getNoMoreThanNCharacterCondition(1000)],
+        name: {
+            required: true,
+            requiredValidation: requiredStringCondition,
+            validations: [getNoMoreThanNCharacterCondition(1000)],
+        },
+        credits: {
+            required: true,
+            requiredValidation: requiredStringCondition,
+            validations: [getNoMoreThanNCharacterCondition(1000)],
+        },
     };
 
     if (value?.name === TILE_SERVER_CUSTOM) {
         return {
             ...basicFields,
-            url: [
-                requiredStringCondition,
-                imageryUrlCondition,
-                getNoMoreThanNCharacterCondition(1000),
-            ],
-            wmtsLayerName: [requiredCondition, getNoMoreThanNCharacterCondition(1000)],
+            url: {
+                required: true,
+                requiredValidation: requiredStringCondition,
+                validations: [
+                    getNoMoreThanNCharacterCondition(1000),
+                    imageryUrlCondition,
+                ],
+            },
+            wmtsLayerName: {
+                required: true,
+                requiredValidation: requiredStringCondition,
+                validations: [getNoMoreThanNCharacterCondition(1000)],
+            },
         };
     }
     return basicFields;

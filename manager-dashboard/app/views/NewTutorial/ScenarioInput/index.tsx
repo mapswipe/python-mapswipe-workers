@@ -10,13 +10,27 @@ import SelectInput from '#components/SelectInput';
 import {
     TabPanel,
 } from '#components/Tabs';
-import {
-    PartialTutorialFormType,
-} from '../utils';
 
 import styles from './styles.css';
 
-type ScenarioType = NonNullable<PartialTutorialFormType['screens']>[number];
+type ScenarioType = {
+    scenario: string;
+    hint: {
+        description: string;
+        icon: string;
+        title: string;
+    };
+    instructions: {
+        description: string;
+        icon: string;
+        title: string;
+    };
+    success: {
+        description: string;
+        icon: string;
+        title: string;
+    };
+};
 
 interface IconOptions {
     key: string;
@@ -46,28 +60,14 @@ const iconOptions: IconOptions[] = [
     },
 ];
 
-const defaultScenarioTabsValue: ScenarioType = {
-    scenario: '',
-    hint: {
-        description: '',
-        icon: '',
-        title: '',
-    },
-    instructions: {
-        description: '',
-        icon: '',
-        title: '',
-    },
-    success: {
-        description: '',
-        icon: '',
-        title: '',
-    },
+type PartialScenarioType = PartialForm<ScenarioType, 'scenario'>;
+const defaultScenarioTabsValue: PartialScenarioType = {
+    scenario: 'xxx',
 };
 
 interface ScenarioTabsProps {
-    value: PartialForm<ScenarioType>,
-    onChange: (value: SetValueArg<PartialForm<ScenarioType>>, index: number) => void;
+    value: PartialScenarioType,
+    onChange: (value: SetValueArg<PartialScenarioType>, index: number) => void;
     index: number,
 }
 
@@ -79,13 +79,13 @@ export default function ScenarioInput(scenarioProps: ScenarioTabsProps) {
     } = scenarioProps;
 
     const onFieldChange = useFormObject(index, onChange, defaultScenarioTabsValue);
-    const onInstructionFieldChange = useFormObject('instructions', onFieldChange, defaultScenarioTabsValue.instructions);
-    const onHintFieldChange = useFormObject('hint', onFieldChange, defaultScenarioTabsValue.hint);
-    const onSuccessFieldChange = useFormObject('success', onFieldChange, defaultScenarioTabsValue.success);
+
+    const onInstructionFieldChange = useFormObject<'instructions', PartialScenarioType['instructions']>('instructions', onFieldChange, {});
+    const onHintFieldChange = useFormObject<'hint', PartialScenarioType['hint']>('hint', onFieldChange, {});
+    const onSuccessFieldChange = useFormObject<'success', PartialScenarioType['success']>('success', onFieldChange, {});
 
     return (
         <TabPanel
-            key={value.scenario}
             name={`Scenario ${value.scenario}`}
         >
             <div className={styles.scenario}>

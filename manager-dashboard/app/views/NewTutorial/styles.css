@@ -30,6 +30,12 @@
                 width: 60%
             }
         }
+
+        .card-scenarios {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-large);
+        }
     }
 
     .error-message {
