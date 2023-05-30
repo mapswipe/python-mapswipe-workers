@@ -392,7 +392,10 @@ class BaseProject(ABC):
               project_id,
               group_id,
               task_id,
-              ST_Force2D(ST_Multi(ST_GeomFromText(geom, 4326))),
+              CASE
+                WHEN geom='' THEN NULL
+                ELSE ST_Force2D(ST_Multi(ST_GeomFromText(geom, 4326)))
+              END geom,
               project_type_specifics
             FROM raw_tasks;
             DROP TABLE IF EXISTS raw_tasks CASCADE;

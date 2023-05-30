@@ -132,6 +132,7 @@ class ProjectType(Enum):
     FOOTPRINT = 2
     CHANGE_DETECTION = 3
     COMPLETENESS = 4
+    MEDIA_CLASSIFICATION = 5
 
     @property
     def constructor(self):
@@ -144,12 +145,16 @@ class ProjectType(Enum):
         from mapswipe_workers.project_types.arbitrary_geometry.project import (
             Project as ag_project,
         )
+        from mapswipe_workers.project_types.media_classification.project import (
+            MediaClassificationProject,
+        )
 
         project_type_classes = {
             1: ClassificationProject,
             2: ag_project,
             3: ChangeDetectionProject,
             4: CompletenessProject,
+            5: MediaClassificationProject,
         }
         return project_type_classes[self.value]
 
