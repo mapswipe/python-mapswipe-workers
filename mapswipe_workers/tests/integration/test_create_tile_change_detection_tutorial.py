@@ -1,14 +1,26 @@
+import os
 import unittest
 
 from click.testing import CliRunner
 
 from mapswipe_workers import auth, mapswipe_workers
+from mapswipe_workers.utils.create_directories import create_directories
+from tests import fixtures
+from tests.fixtures import FIXTURE_DIR
 from tests.integration import tear_down
 
 
 class TestCreateTileChangeDetectionTutorial(unittest.TestCase):
     def setUp(self):
-        pass
+        file_path = os.path.join(FIXTURE_DIR, "tutorialDrafts", "change_detection.json")
+        # todo: need current tutorial draft containing "tutorialTasks" keys
+        self.project_id = fixtures.create_test_draft(
+            file_path,
+            "change_detection",
+            "change_detection",
+            draftType="tutorialDrafts",
+        )
+        create_directories()
 
     def tearDown(self):
         tear_down.delete_test_data(self.project_id)

@@ -1,4 +1,4 @@
-from mapswipe_workers.project_types.base.group import BaseGroup
+from mapswipe_workers.project_types.base.project import BaseGroup
 from mapswipe_workers.project_types.media_classification.task import Task
 
 

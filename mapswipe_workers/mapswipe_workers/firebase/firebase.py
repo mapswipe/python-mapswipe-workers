@@ -104,5 +104,4 @@ class Firebase:
         logger.info(f"uploaded tutorial data to firebase for {tutorial.projectId}")
 
     def drop_tutorial_draft(self, tutorialDraftId: str):
-        self.ref.update(f"v2/tutorialDrafts/{tutorialDraftId}")
-        self.ref.set({})
+        self.ref.update({f"v2/tutorialDrafts/{tutorialDraftId}": {}})

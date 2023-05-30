@@ -135,4 +135,5 @@ class TileMapServiceBaseTutorial(BaseTutorial):
         firebase.save_tutorial_to_firebase(
             self, self.groups, self.tasks, useCompression=False
         )
+        logger.info(self.tutorialDraftId)
         firebase.drop_tutorial_draft(self.tutorialDraftId)

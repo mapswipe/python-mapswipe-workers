@@ -33,6 +33,8 @@ def delete_test_data(project_id: str) -> None:
     ref.delete()
     ref = fb_db.reference(f"v2/projectDrafts/{project_id}")
     ref.delete()
+    ref = fb_db.reference(f"v2/tutorialDrafts/{project_id}")
+    ref.delete()
     ref = fb_db.reference(f"v2/users/{project_id}")
     ref.delete()
 

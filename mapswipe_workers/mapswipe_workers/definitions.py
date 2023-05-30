@@ -161,7 +161,10 @@ class ProjectType(Enum):
     @property
     def tutorial(self):
         # Imports are first made once this method get called to avoid circular imports.
-        from mapswipe_workers.project_types import ClassificationTutorial
+        from mapswipe_workers.project_types import (
+            ChangeDetectionTutorial,
+            ClassificationTutorial,
+        )
         from mapswipe_workers.project_types.arbitrary_geometry.tutorial import (
             Tutorial as ArbitraryGeometryTutorial,
         )
@@ -177,7 +180,7 @@ class ProjectType(Enum):
         project_type_classes = {
             1: ClassificationTutorial,
             2: ArbitraryGeometryTutorial,
-            3: tmsg_tutorial,
+            3: ChangeDetectionTutorial,
             4: tmsg_tutorial,
         }
         return project_type_classes[self.value]

@@ -13,8 +13,11 @@ def get_fixture(path):
         return json.load(file)
 
 
-def create_test_project_draft(
-    fixture_path: str, fixture_name: str = "user", identifier: str = ""
+def create_test_draft(
+    fixture_path: str,
+    fixture_name: str = "user",
+    identifier: str = "",
+    draftType: str = "projectDrafts",
 ) -> str:
     """
     Create test project drafts in Firebase and return project ids.
@@ -22,5 +25,5 @@ def create_test_project_draft(
     """
     if not identifier:
         identifier = f"test_{fixture_name}"
-    upload_file_to_firebase(fixture_path, "projectDrafts", fixture_name)
+    upload_file_to_firebase(fixture_path, draftType, fixture_name)
     return identifier

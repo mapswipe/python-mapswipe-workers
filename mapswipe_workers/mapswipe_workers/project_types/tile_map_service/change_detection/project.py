@@ -37,4 +37,4 @@ class ChangeDetectionProject(TileMapServiceBaseProject):
 
     def save_tasks_to_firebase(self, projectId: str, tasks: list):
         firebase = Firebase()
-        firebase.save_tasks_to_firebase(projectId, tasks)
+        firebase.save_tasks_to_firebase(projectId, tasks, useCompression=False)

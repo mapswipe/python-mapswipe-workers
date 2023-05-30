@@ -18,8 +18,8 @@ class TestCreateMediaClassificationProject(unittest.TestCase):
         file_path = os.path.join(
             FIXTURE_DIR, "projectDrafts", "media_classification.json"
         )
-        self.project_id = fixtures.create_test_project_draft(
-            file_path, "media_classification", "media_classification"
+        self.project_id = fixtures.create_test_draft(
+            file_path, "media_classification", "media_classification", "projectDrafts"
         )
         create_directories()
 
