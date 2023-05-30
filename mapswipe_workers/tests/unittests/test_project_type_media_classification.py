@@ -5,9 +5,7 @@ from unittest.mock import patch
 from google.cloud import storage
 
 from mapswipe_workers.config import FIREBASE_STORAGE_BUCKET
-from mapswipe_workers.project_types.media_classification.project import (
-    MediaClassificationProject,
-)
+from mapswipe_workers.project_types import MediaClassificationProject
 from tests import fixtures
 
 

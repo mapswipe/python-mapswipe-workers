@@ -141,12 +141,10 @@ class ProjectType(Enum):
             ChangeDetectionProject,
             ClassificationProject,
             CompletenessProject,
+            MediaClassificationProject,
         )
         from mapswipe_workers.project_types.arbitrary_geometry.project import (
             Project as ag_project,
-        )
-        from mapswipe_workers.project_types.media_classification.project import (
-            MediaClassificationProject,
         )
 
         project_type_classes = {
