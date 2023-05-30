@@ -40,22 +40,22 @@ export interface TutorialFormType {
     lookFor: string;
     name: string;
     tileServer: TileServer;
-    screens?: {
+    screens: {
         scenario: string;
         hint: {
-            description?: string;
-            icon?: string;
-            title?: string;
+            description: string;
+            icon: string;
+            title: string;
         };
         instructions: {
-            description?: string;
-            icon?: string;
+            description: string;
+            icon: string;
             title: string;
         };
         success: {
-            description?: string;
-            icon?: string;
-            title?: string;
+            description: string;
+            icon: string;
+            title: string;
         };
     }[];
     tutorialTasks?: TutorialTasks,
@@ -72,17 +72,17 @@ export type PartialTutorialFormType = PartialForm<
         exampleImage2?: File;
     },
     // NOTE: we do not want to change File and FeatureCollection to partials
-    'screens' | 'tutorialTasks' | 'exampleImage1' | 'exampleImage2'
+    'scenario' | 'tutorialTasks' | 'exampleImage1' | 'exampleImage2'
 >;
 
 type TutorialFormSchema = ObjectSchema<PartialTutorialFormType>;
 type TutorialFormSchemaFields = ReturnType<TutorialFormSchema['fields']>;
 
 type ScreenType = NonNullable<PartialTutorialFormType['screens']>[number];
-type ScreenSchema = ObjectSchema<PartialForm<ScreenType>, PartialTutorialFormType>;
+type ScreenSchema = ObjectSchema<ScreenType, PartialTutorialFormType>;
 type ScreenFormSchemaFields = ReturnType<ScreenSchema['fields']>;
 
-type ScreenFormSchema = ArraySchema<PartialForm<ScreenType>, PartialTutorialFormType>;
+type ScreenFormSchema = ArraySchema<ScreenType, PartialTutorialFormType>;
 type ScreenFormSchemaMember = ReturnType<ScreenFormSchema['member']>;
 
 export const tutorialFormSchema: TutorialFormSchema = {
@@ -107,8 +107,8 @@ export const tutorialFormSchema: TutorialFormSchema = {
             },
             screens: {
                 keySelector: (key) => key.scenario,
-                member: () => ({
-                    fields: () => ({
+                member: (): ScreenFormSchemaMember => ({
+                    fields: (): ScreenFormSchemaFields => ({
                         scenario: {
                             required: true,
                         },

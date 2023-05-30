@@ -1,0 +1,11 @@
+.options-container{
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-large);
+
+    .option-form {
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-medium);
+    }
+}

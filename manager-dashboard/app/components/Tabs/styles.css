@@ -1,13 +1,19 @@
 .tab {
+    border: 1px solid rgba(0,0,0,.1);
+    border-bottom: none;
+    border-radius: 5px 5px 0 0;
+    background-color: #FFFFFF;
+    padding: var(--spacing-small);
     text-align: left;
-
+    
     &.active {
-        color: var(--color-accent);
+        bottom: -1px;
+        background-color: #FBFBFF;
     }
 }
 
 .tab-list {
     display: flex;
-    gap: var(--spacing-large);
-    padding: var(--spacing-medium);
+    gap: var(--spacing-small);
+    border-bottom: 1px solid rgba(0,0,0,.1);
 }
