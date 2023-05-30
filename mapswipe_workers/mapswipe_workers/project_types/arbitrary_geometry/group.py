@@ -1,7 +1,7 @@
 from typing import List
 
 from mapswipe_workers.project_types.arbitrary_geometry.task import Task
-from mapswipe_workers.project_types.base.group import BaseGroup
+from mapswipe_workers.project_types.base.project import BaseGroup
 
 
 class Group(BaseGroup):

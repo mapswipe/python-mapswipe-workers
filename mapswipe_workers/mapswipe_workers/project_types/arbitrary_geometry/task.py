@@ -2,7 +2,7 @@ from typing import Dict, Union
 
 from osgeo import ogr
 
-from mapswipe_workers.project_types.base.task import BaseTask
+from mapswipe_workers.project_types.base.project import BaseTask
 
 
 class Task(BaseTask):

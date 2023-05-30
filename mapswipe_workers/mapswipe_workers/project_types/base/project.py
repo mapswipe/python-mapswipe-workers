@@ -4,6 +4,7 @@ import json
 import os
 from abc import ABC, abstractmethod
 from dataclasses import asdict, dataclass
+from typing import Dict, List
 
 from osgeo import ogr
 
@@ -40,8 +41,8 @@ class BaseGroup:
 class BaseProject(ABC):
     def __init__(self, project_draft):
         # TODO define as abstract base attributes
-        self.groups: dict[str, BaseGroup]
-        self.tasks: dict[str, list[BaseTask]]  # dict keys are group ids
+        self.groups: Dict[str, BaseGroup]
+        self.tasks: Dict[str, List[BaseTask]]  # dict keys are group ids
 
         self.contributorCount = 0
         self.created = dt.datetime.now()
@@ -116,12 +117,7 @@ class BaseProject(ABC):
         # Convert Date object to ISO Datetime:
         # https://www.w3.org/TR/NOTE-datetime
         project["created"] = self.created.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
-        # logger.info(
-        #         f'{self.projectId}'
-        #         f' - size of all tasks: '
-        #         f'{sys.getsizeof(json.dumps(groupsOfTasks))/1024/1024} MB'
-        #         )
-        # Make sure projects get saved in Postgres and Firebase successful
+
         try:
             self.save_to_postgres(
                 project,

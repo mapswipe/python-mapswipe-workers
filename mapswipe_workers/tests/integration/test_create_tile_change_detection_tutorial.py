@@ -3,16 +3,12 @@ import unittest
 from click.testing import CliRunner
 
 from mapswipe_workers import auth, mapswipe_workers
-from mapswipe_workers.utils.create_directories import create_directories
-from tests.integration import set_up, tear_down
+from tests.integration import tear_down
 
 
-class TestCreateTileClassificationTutorial(unittest.TestCase):
+class TestCreateTileChangeDetectionTutorial(unittest.TestCase):
     def setUp(self):
-        self.project_id = set_up.create_test_tutorial_draft(
-            "tile_classification", "tile_classification"
-        )
-        create_directories()
+        pass
 
     def tearDown(self):
         tear_down.delete_test_data(self.project_id)
@@ -30,7 +26,6 @@ class TestCreateTileClassificationTutorial(unittest.TestCase):
         result = ref.get(shallow=True)
         self.assertIsNotNone(result)
 
-        # Tile classification projects do not have tasks in Firebase, but tutorials do
         ref = fb_db.reference(f"/v2/tasks/{self.project_id}")
         result = ref.get(shallow=True)
         self.assertIsNotNone(result)

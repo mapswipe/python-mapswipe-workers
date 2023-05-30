@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from typing import Dict, List
 
 from mapswipe_workers.definitions import logger
+from mapswipe_workers.firebase.firebase import Firebase
 from mapswipe_workers.project_types.base.tile_server import BaseTileServer
 from mapswipe_workers.project_types.base.tutorial import BaseTutorial
 from mapswipe_workers.project_types.tile_map_service.project import (
@@ -29,19 +30,15 @@ class TileMapServiceBaseTutorial(BaseTutorial):
             str, List[TileMapServiceBaseTutorialTask]
         ] = {}  # dict keys are group ids
 
-        self.projectType = tutorial_draft["projectType"]
         self.zoomLevel = int(tutorial_draft.get("zoomLevel", 18))
         self.tileServer = vars(BaseTileServer(tutorial_draft["tileServer"]))
         self.tutorial_tasks = tutorial_draft["tutorialTasks"]
-        self.groups = dict()
-        self.tasks = dict()
 
     def create_tutorial_groups(self):
         """Create group for the tutorial based on provided examples in geojson file."""
         # load examples/tasks from file
 
         number_of_screens = len(self.screens)
-        # TODO: refactor
         self.groups[101] = TileMapServiceBaseGroup(
             **{
                 "xMax": 100
@@ -92,16 +89,16 @@ class TileMapServiceBaseTutorial(BaseTutorial):
                 tile_y = raw_task["properties"]["tile_y"]
 
                 if i < 3:  # get adjusted tile_x to fit in tutorial data schema
-                    tile_x_tutorial = self.groups[101]["xMin"] + (2 * (screen - 1))
+                    tile_x_tutorial = self.groups[101].xMin + (2 * (screen - 1))
                 else:
-                    tile_x_tutorial = self.groups[101]["xMin"] + (2 * (screen - 1)) + 1
+                    tile_x_tutorial = self.groups[101].xMin + (2 * (screen - 1)) + 1
 
                 if i in [0, 3]:  # get adjusted tile_y to fit in tutorial data schema
-                    tile_y_tutorial = self.groups[101]["yMin"]
+                    tile_y_tutorial = self.groups[101].yMin
                 elif i in [1, 4]:
-                    tile_y_tutorial = self.groups[101]["yMin"] + 1
+                    tile_y_tutorial = self.groups[101].yMin + 1
                 elif i in [2, 5]:
-                    tile_y_tutorial = int(self.groups[101]["yMin"]) + 2
+                    tile_y_tutorial = int(self.groups[101].yMin) + 2
 
                 task = TileMapServiceBaseTutorialTask(
                     **{
@@ -132,3 +129,10 @@ class TileMapServiceBaseTutorial(BaseTutorial):
             f" - create_tutorial_tasks - "
             f"created tasks dictionary"
         )
+
+    def save_tutorial(self):
+        firebase = Firebase()
+        firebase.save_tutorial_to_firebase(
+            self, self.groups, self.tasks, useCompression=False
+        )
+        firebase.drop_tutorial_draft(self.tutorialDraftId)

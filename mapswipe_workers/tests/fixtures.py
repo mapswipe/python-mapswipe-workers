@@ -1,5 +1,5 @@
-import os
 import json
+import os
 
 TEST_DIR = os.path.dirname(os.path.abspath(__file__))
 FIXTURE_DIR = os.path.join(TEST_DIR, "fixtures")

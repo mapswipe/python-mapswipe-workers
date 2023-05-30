@@ -136,23 +136,29 @@ class ProjectType(Enum):
     @property
     def constructor(self):
         # Imports are first made once this method get called to avoid circular imports.
-        from mapswipe_workers.project_types import ClassificationProject
+        from mapswipe_workers.project_types import (
+            ChangeDetectionProject,
+            ClassificationProject,
+            CompletenessProject,
+        )
+        from mapswipe_workers.project_types.arbitrary_geometry.project import (
+            Project as ag_project,
+        )
 
-        # TODO: Import all project type classes from project_type.__init__.py
         project_type_classes = {
-            # TODO: Make all project type classes available
             1: ClassificationProject,
+            2: ag_project,
+            3: ChangeDetectionProject,
+            4: CompletenessProject,
         }
         return project_type_classes[self.value]
 
     @property
     def tutorial(self):
         # Imports are first made once this method get called to avoid circular imports.
+        from mapswipe_workers.project_types import ClassificationTutorial
         from mapswipe_workers.project_types.arbitrary_geometry.tutorial import (
             Tutorial as ArbitraryGeometryTutorial,
-        )
-        from mapswipe_workers.project_types.tile_classification.tutorial import (
-            TileClassificationTutorial,
         )
         from mapswipe_workers.project_types.tile_map_service_grid.tutorial import (
             Tutorial as tmsg_tutorial,
@@ -164,7 +170,7 @@ class ProjectType(Enum):
         # )
 
         project_type_classes = {
-            1: TileClassificationTutorial,
+            1: ClassificationTutorial,
             2: ArbitraryGeometryTutorial,
             3: tmsg_tutorial,
             4: tmsg_tutorial,
