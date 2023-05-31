@@ -51,10 +51,7 @@ const DEFAULT_MAX_FILE_SIZE = ONE_MB;
 
 interface Props<N> extends Omit<FileInputProps<N>, 'value' | 'onChange' | 'accept'> {
     maxFileSize?: number;
-    value: GeoJSON.FeatureCollection<
-        GeoJSON.Geometry, Record<string,
-        string | number>
-    > | undefined | null;
+    value: GeoJSON.GeoJSON | undefined | null;
     onChange: (newValue: GeoJSON.GeoJSON | undefined, name: N) => void;
 }
 

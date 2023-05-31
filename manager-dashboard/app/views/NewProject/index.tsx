@@ -8,7 +8,7 @@ import {
     getErrorObject,
     createSubmitHandler,
     analyzeErrors,
-    internal,
+    nonFieldError,
 } from '@togglecorp/toggle-form';
 import {
     getStorage,
@@ -115,7 +115,9 @@ function NewProject(props: Props) {
         validate,
         setError,
         setValue,
-    } = useForm(projectFormSchema, defaultProjectFormValue);
+    } = useForm(projectFormSchema, {
+        value: defaultProjectFormValue,
+    });
 
     const [testPending, setTestPending] = React.useState(false);
     const [geometryDescription, setGeometryDescription] = React.useState<string>();
@@ -245,7 +247,7 @@ function NewProject(props: Props) {
         if (!userId) {
             setError((err) => ({
                 ...getErrorObject(err),
-                [internal]: 'Cannot submit form because user is not defined',
+                [nonFieldError]: 'Cannot submit form because user is not defined',
             }));
             setProjectSubmissionStatus('failed');
             return;
@@ -351,7 +353,7 @@ function NewProject(props: Props) {
                 console.error(submissionError);
                 setError((err) => ({
                     ...getErrorObject(err),
-                    [internal]: 'Some error occurred',
+                    [nonFieldError]: 'Some error occurred',
                 }));
                 setProjectSubmissionStatus('failed');
             }
@@ -468,7 +470,7 @@ function NewProject(props: Props) {
                         {value?.inputType === PROJECT_INPUT_TYPE_UPLOAD && (
                             <GeoJsonFileInput
                                 name={'geometry' as const}
-                                value={value?.geometry as GeoJSON.GeoJSON | undefined}
+                                value={value?.geometry as GeoJSON.GeoJSON}
                                 onChange={setFieldValueAndClearTestMessage}
                                 label="GeoJSON File"
                                 hint="Upload your project area as GeoJSON File (max. 1MB). Make sure that you provide a maximum of 10 polygon geometries."

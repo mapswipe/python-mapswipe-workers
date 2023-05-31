@@ -3,6 +3,8 @@ import {
     useFormObject,
     PartialForm,
     SetValueArg,
+    Error,
+    getErrorObject,
 } from '@togglecorp/toggle-form';
 import TextInput from '#components/TextInput';
 import Heading from '#components/Heading';
@@ -69,6 +71,7 @@ interface ScenarioTabsProps {
     value: PartialScenarioType,
     onChange: (value: SetValueArg<PartialScenarioType>, index: number) => void;
     index: number,
+    error: Error<PartialScenarioType> | undefined;
 }
 
 export default function ScenarioInput(scenarioProps: ScenarioTabsProps) {
@@ -76,6 +79,7 @@ export default function ScenarioInput(scenarioProps: ScenarioTabsProps) {
         value,
         onChange,
         index,
+        error: riskyError,
     } = scenarioProps;
 
     const onFieldChange = useFormObject(index, onChange, defaultScenarioTabsValue);
@@ -83,6 +87,11 @@ export default function ScenarioInput(scenarioProps: ScenarioTabsProps) {
     const onInstructionFieldChange = useFormObject<'instructions', PartialScenarioType['instructions']>('instructions', onFieldChange, {});
     const onHintFieldChange = useFormObject<'hint', PartialScenarioType['hint']>('hint', onFieldChange, {});
     const onSuccessFieldChange = useFormObject<'success', PartialScenarioType['success']>('success', onFieldChange, {});
+    const error = getErrorObject(riskyError);
+
+    const instructionsError = getErrorObject(error?.instructions);
+    const hintError = getErrorObject(error?.hint);
+    const successError = getErrorObject(error?.success);
 
     return (
         <TabPanel
@@ -99,12 +108,14 @@ export default function ScenarioInput(scenarioProps: ScenarioTabsProps) {
                             value={value.instructions?.title}
                             label="Title"
                             onChange={onInstructionFieldChange}
+                            error={instructionsError?.title}
                         />
                         <TextInput
                             name="description"
                             value={value.instructions?.description}
                             label="Description"
                             onChange={onInstructionFieldChange}
+                            error={instructionsError?.description}
                         />
                     </div>
                     <SelectInput
@@ -115,6 +126,7 @@ export default function ScenarioInput(scenarioProps: ScenarioTabsProps) {
                         keySelector={(d: IconOptions) => d.key}
                         labelSelector={(d: IconOptions) => d.label}
                         onChange={onInstructionFieldChange}
+                        error={instructionsError?.icon}
                     />
                 </div>
                 <Heading level={4}>
@@ -127,12 +139,14 @@ export default function ScenarioInput(scenarioProps: ScenarioTabsProps) {
                             value={value.hint?.title}
                             label="Title"
                             onChange={onHintFieldChange}
+                            error={hintError?.title}
                         />
                         <TextInput
                             name="description"
                             value={value.hint?.description}
                             label="Description"
                             onChange={onHintFieldChange}
+                            error={hintError?.description}
                         />
                     </div>
                     <SelectInput
@@ -143,6 +157,7 @@ export default function ScenarioInput(scenarioProps: ScenarioTabsProps) {
                         keySelector={(d: IconOptions) => d.key}
                         labelSelector={(d: IconOptions) => d.label}
                         onChange={onHintFieldChange}
+                        error={hintError?.icon}
                     />
                 </div>
                 <Heading level={4}>
@@ -155,12 +170,14 @@ export default function ScenarioInput(scenarioProps: ScenarioTabsProps) {
                             value={value.success?.title}
                             label="Title"
                             onChange={onSuccessFieldChange}
+                            error={successError?.title}
                         />
                         <TextInput
                             name="description"
                             value={value.success?.description}
                             label="Description"
                             onChange={onSuccessFieldChange}
+                            error={successError?.description}
                         />
                     </div>
                     <SelectInput
@@ -171,6 +188,7 @@ export default function ScenarioInput(scenarioProps: ScenarioTabsProps) {
                         keySelector={(d: IconOptions) => d.key}
                         labelSelector={(d: IconOptions) => d.label}
                         onChange={onSuccessFieldChange}
+                        error={successError?.icon}
                     />
                 </div>
             </div>

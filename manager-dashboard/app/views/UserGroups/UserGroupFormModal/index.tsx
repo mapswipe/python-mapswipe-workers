@@ -18,8 +18,8 @@ import {
     useForm,
     getErrorObject,
     createSubmitHandler,
-    requiredCondition,
     analyzeErrors,
+    requiredStringCondition,
 } from '@togglecorp/toggle-form';
 import {
     MdOutlinePublishedWithChanges,
@@ -51,8 +51,16 @@ const MAX_CHARS_DESCRIPTION = 100;
 
 const userGroupFormSchema: UserGroupFormSchema = {
     fields: (): UserGroupFormSchemaFields => ({
-        name: [requiredCondition, getNoMoreThanNCharacterCondition(MAX_CHARS_NAME)],
-        description: [getNoMoreThanNCharacterCondition(MAX_CHARS_DESCRIPTION)],
+        name: {
+            required: true,
+            requiredValidation: requiredStringCondition,
+            validations: [getNoMoreThanNCharacterCondition(MAX_CHARS_NAME)],
+        },
+        description: {
+            required: true,
+            requiredValidation: requiredStringCondition,
+            validations: [getNoMoreThanNCharacterCondition(MAX_CHARS_DESCRIPTION)],
+        },
     }),
 };
 
@@ -75,7 +83,7 @@ function UserGroupFormModal(props: Props) {
         value,
         validate,
         setError,
-    } = useForm(userGroupFormSchema, defaultUserGroupFormValue);
+    } = useForm(userGroupFormSchema, { value: defaultUserGroupFormValue });
 
     const mountedRef = useMountedRef();
     const { user } = React.useContext(UserContext);

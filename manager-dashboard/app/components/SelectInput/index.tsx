@@ -11,12 +11,10 @@ type Def = { containerClassName?: string };
 export type SelectInputProps<
     T extends OptionKey,
     K extends string,
-    // eslint-disable-next-line @typescript-eslint/ban-types
     O extends object,
     P extends Def,
 > = SearchSelectInputProps<T, K, O, P, 'onSearchValueChange' | 'searchOptions' | 'onShowDropdownChange' | 'totalOptionsCount'>;
 
-// eslint-disable-next-line @typescript-eslint/ban-types
 function SelectInput<T extends OptionKey, K extends string, O extends object, P extends Def>(
     props: SelectInputProps<T, K, O, P>,
 ) {
