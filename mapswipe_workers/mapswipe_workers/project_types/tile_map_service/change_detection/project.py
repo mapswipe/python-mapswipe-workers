@@ -35,6 +35,6 @@ class ChangeDetectionProject(TileMapServiceBaseProject):
                 tasks.append(ChangeDetectionTask(**asdict(task), urlB=urlB))
             self.tasks[group_id] = tasks
 
-    def save_tasks_to_firebase(self, projectId: str, tasks: list):
+    def save_tasks_to_firebase(self, projectId: str, tasks: dict):
         firebase = Firebase()
         firebase.save_tasks_to_firebase(projectId, tasks, useCompression=False)

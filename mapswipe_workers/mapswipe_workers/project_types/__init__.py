@@ -1,4 +1,5 @@
 # TODO: Import all other project type classes
+from .arbitrary_geometry.project import ArbitraryGeometryProject
 from .media_classification.project import MediaClassificationProject
 from .tile_map_service.change_detection.project import ChangeDetectionProject
 from .tile_map_service.change_detection.tutorial import ChangeDetectionTutorial
@@ -15,4 +16,5 @@ __all__ = [
     "ChangeDetectionTutorial",
     "CompletenessTutorial",
     "MediaClassificationProject",
+    "ArbitraryGeometryProject",
 ]

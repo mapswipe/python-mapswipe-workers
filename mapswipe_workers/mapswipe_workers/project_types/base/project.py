@@ -16,6 +16,7 @@ from mapswipe_workers.definitions import (
     logger,
     sentry,
 )
+from mapswipe_workers.firebase.firebase import Firebase
 from mapswipe_workers.utils import geojson_functions, gzip_str
 
 
@@ -153,11 +154,10 @@ class BaseProject(ABC):
             raise CustomError(e)
 
         try:
-            self.save_to_firebase(
-                project,
-                groups,
-                tasks,
-            )
+            self.save_project_to_firebase(project)
+            self.save_groups_to_firebase(project["projectId"], groups)
+            self.save_tasks_to_firebase(project["projectId"], tasks)
+
             logger.info(
                 f"{self.projectId}" f" - the project has been saved" f" to firebase"
             )
@@ -178,22 +178,16 @@ class BaseProject(ABC):
 
         return True
 
-    # ToDo: Implement for every children class
-    # Then add abstract method decorator
-    # @abstractmethod
     def save_project_to_firebase(self, project):
-        pass
+        firebase = Firebase()
+        firebase.save_project_to_firebase(project)
 
-    # ToDo: Implement for every children class
-    # Then add abstract method decorator
-    # @abstractmethod
-    def save_groups_to_firebase(self, projectId: str, groups: list):
-        pass
+    def save_groups_to_firebase(self, projectId: str, groups: dict):
+        firebase = Firebase()
+        firebase.save_groups_to_firebase(projectId, groups)
 
-    # ToDo: Implement for every children class
-    # Then add abstract method decorator
-    # @abstractmethod
-    def save_tasks_to_firebase(self, projectId: str, tasks: list):
+    @abstractmethod
+    def save_tasks_to_firebase(self, projectId: str, tasks: dict):
         pass
 
     def save_to_firebase(self, project, groups, groupsOfTasks):

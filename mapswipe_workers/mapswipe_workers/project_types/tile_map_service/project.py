@@ -31,7 +31,6 @@ class TileMapServiceBaseGroup(BaseGroup):
 class TileMapServiceBaseProject(BaseProject):
     def __init__(self, project_draft: dict):
         super().__init__(project_draft)
-        # Note: this will be overwritten by validate_geometry in mapswipe_workers.py
         self.groups: Dict[str, TileMapServiceBaseGroup] = {}
         self.tasks: Dict[
             str, List[TileMapServiceBaseTask]
@@ -112,7 +111,7 @@ class TileMapServiceBaseProject(BaseProject):
                         TileMapServiceBaseTask(
                             projectId=self.projectId,
                             groupId=group_id,
-                            taskId="{}-{}-{}".format(self.zoomLevel, TileX, TileY),
+                            taskId=f"{self.zoomLevel}-{TileX}-{TileY}",
                             taskX=TileX,
                             taskY=TileY,
                             geometry=geometry,

@@ -96,20 +96,7 @@ class MediaClassificationProject(BaseProject):
                     group.numberOfTasks = i + 1
                     break
 
-    def save_to_firebase(self, project, groups, groupsOfTasks):
-        self.save_project_to_firebase(project)
-        self.save_groups_to_firebase(project["projectId"], groups)
-        self.save_tasks_to_firebase(project["projectId"], groupsOfTasks)
-
-    def save_project_to_firebase(self, project):
-        firebase = Firebase()
-        firebase.save_project_to_firebase(project)
-
-    def save_groups_to_firebase(self, projectId: str, groups: list):
-        firebase = Firebase()
-        firebase.save_groups_to_firebase(projectId, groups)
-
-    def save_tasks_to_firebase(self, projectId: str, tasks: list):
+    def save_tasks_to_firebase(self, projectId: str, tasks: dict):
         firebase = Firebase()
         firebase.save_tasks_to_firebase(projectId, tasks, useCompression=False)
 

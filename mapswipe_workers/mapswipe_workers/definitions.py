@@ -138,18 +138,16 @@ class ProjectType(Enum):
     def constructor(self):
         # Imports are first made once this method get called to avoid circular imports.
         from mapswipe_workers.project_types import (
+            ArbitraryGeometryProject,
             ChangeDetectionProject,
             ClassificationProject,
             CompletenessProject,
             MediaClassificationProject,
         )
-        from mapswipe_workers.project_types.arbitrary_geometry.project import (
-            Project as ag_project,
-        )
 
         project_type_classes = {
             1: ClassificationProject,
-            2: ag_project,
+            2: ArbitraryGeometryProject,
             3: ChangeDetectionProject,
             4: CompletenessProject,
             5: MediaClassificationProject,
