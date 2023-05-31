@@ -8,13 +8,13 @@ import {
 import {
     ObjectSchema,
     PartialForm,
-    requiredCondition,
     requiredStringCondition,
     integerCondition,
     greaterThanCondition,
     greaterThanOrEqualToCondition,
     lessThanOrEqualToCondition,
-    forceNullType,
+    addCondition,
+    nullValue,
 } from '@togglecorp/toggle-form';
 import { getType as getFeatureType } from '@turf/invariant';
 import getFeatureArea from '@turf/area';
@@ -158,114 +158,219 @@ function validGeometryCondition(
 
 export const projectFormSchema: ProjectFormSchema = {
     fields: (value): ProjectFormSchemaFields => {
-        const baseSchema: ProjectFormSchemaFields = {
-            projectTopic: [requiredStringCondition, getNoMoreThanNCharacterCondition(50)],
-            projectType: [requiredCondition],
-            projectRegion: [requiredStringCondition, getNoMoreThanNCharacterCondition(50)],
-            projectNumber: [requiredCondition, integerCondition, greaterThanCondition(0)],
-            requestingOrganisation: [requiredStringCondition],
-            name: [requiredStringCondition],
-            visibility: [requiredCondition],
-            lookFor: [getNoMoreThanNCharacterCondition(25)],
-            projectDetails: [requiredStringCondition, getNoMoreThanNCharacterCondition(10000)],
-            tutorialId: [requiredCondition],
-            projectImage: [requiredCondition],
-            verificationNumber: [
-                requiredCondition,
-                greaterThanOrEqualToCondition(3),
-                lessThanOrEqualToCondition(10000),
-                integerCondition,
-            ],
-            groupSize: [
-                requiredCondition,
-                greaterThanOrEqualToCondition(10),
-                lessThanOrEqualToCondition(250),
-                integerCondition,
-            ],
+        let baseSchema: ProjectFormSchemaFields = {
+            projectTopic: {
+                required: true,
+                requiredValidation: requiredStringCondition,
+                validations: [getNoMoreThanNCharacterCondition(50)],
+            },
+            projectType: {
+                required: true,
+            },
+            projectRegion: {
+                required: true,
+                requiredValidation: requiredStringCondition,
+                validations: [getNoMoreThanNCharacterCondition(50)],
+            },
+            projectNumber: {
+                required: true,
+                requiredValidation: integerCondition,
+                validations: [greaterThanCondition(0)],
+            },
+            requestingOrganisation: {
+                required: true,
+                requiredValidation: requiredStringCondition,
+            },
+            name: {
+                required: true,
+                requiredValidation: requiredStringCondition,
+            },
+            visibility: {
+                required: true,
+            },
+            lookFor: {
+                validations: [getNoMoreThanNCharacterCondition(25)],
+            },
+            projectDetails: {
+                requiredValidation: requiredStringCondition,
+                validations: [getNoMoreThanNCharacterCondition(10000)],
+            },
+            tutorialId: {
+                required: true,
+            },
+            projectImage: {
+                required: true,
+            },
+            verificationNumber: {
+                required: true,
+                requiredValidation: integerCondition,
+                validations: [
+                    greaterThanOrEqualToCondition(3),
+                    lessThanOrEqualToCondition(10000),
+                ],
+            },
+            groupSize: {
+                required: true,
+                requiredValidation: integerCondition,
+                validations: [
+                    greaterThanOrEqualToCondition(10),
+                    lessThanOrEqualToCondition(250),
+                ],
+            },
             tileServer: {
                 fields: tileServerFieldsSchema,
             },
-            maxTasksPerUser: [
-                greaterThanCondition(0),
-                integerCondition,
-            ],
-
-            zoomLevel: [forceNullType],
-            geometry: [forceNullType],
-            filter: [forceNullType],
-            filterText: [forceNullType],
-            TMId: [forceNullType],
-            tileServerB: [forceNullType],
+            maxTasksPerUser: {
+                requiredValidation: integerCondition,
+                validations: [greaterThanCondition(0)],
+            },
         };
 
-        if (value?.projectType === PROJECT_TYPE_BUILD_AREA) {
-            return {
-                ...baseSchema,
-                zoomLevel: [
-                    requiredCondition,
-                    greaterThanOrEqualToCondition(14),
-                    lessThanOrEqualToCondition(22),
-                    integerCondition,
-                ],
-                geometry: [
-                    requiredCondition,
-                    validGeometryCondition,
-                ],
-            };
-        }
+        baseSchema = addCondition(
+            baseSchema,
+            value,
+            ['projectType'],
+            ['zoomLevel', 'geometry'],
+            (v) => {
+                const projectType = v?.projectType;
+                if (
+                    projectType === PROJECT_TYPE_BUILD_AREA
+                    || projectType === PROJECT_TYPE_CHANGE_DETECTION
+                    || projectType === PROJECT_TYPE_COMPLETENESS
+                ) {
+                    return {
+                        zoomLevel: {
+                            required: true,
+                            validations: [
+                                greaterThanOrEqualToCondition(14),
+                                lessThanOrEqualToCondition(22),
+                                integerCondition,
+                            ],
+                        },
+                        geometry: {
+                            required: true,
+                            validations: [validGeometryCondition],
+                        },
+                    };
+                }
+                return {
+                    zoomLevel: { forceValue: nullValue },
+                    geometry: { forceValue: nullValue },
+                };
+            },
+        );
 
-        if (value?.projectType === PROJECT_TYPE_FOOTPRINT) {
-            return {
-                ...baseSchema,
-                inputType: [requiredCondition],
-                filter: (value?.inputType === PROJECT_INPUT_TYPE_TASKING_MANAGER_ID
-                    || value?.inputType === PROJECT_INPUT_TYPE_UPLOAD)
-                    ? [requiredCondition]
-                    : [forceNullType],
-                filterText: (
-                    value?.inputType === PROJECT_INPUT_TYPE_TASKING_MANAGER_ID
-                    || value?.inputType === PROJECT_INPUT_TYPE_UPLOAD
-                ) && value?.filter === FILTER_OTHERS
-                    ? [requiredStringCondition, getNoMoreThanNCharacterCondition(1000)]
-                    : [forceNullType],
-                // FIXME: geometry type is either string or object
-                // update validation
-                geometry: (value?.inputType === PROJECT_INPUT_TYPE_LINK
-                    || value?.inputType === PROJECT_INPUT_TYPE_UPLOAD)
-                    ? [requiredCondition, validGeometryCondition]
-                    : [forceNullType],
-                // FIXME: number string condition
-                TMId: value?.inputType === PROJECT_INPUT_TYPE_TASKING_MANAGER_ID
-                    ? [requiredStringCondition, getNoMoreThanNCharacterCondition(1000)]
-                    : [forceNullType],
-            };
-        }
+        baseSchema = addCondition(
+            baseSchema,
+            value,
+            ['projectType'],
+            ['tileServerB'],
+            (v) => {
+                const projectType = v?.projectType;
+                if (
+                    projectType === PROJECT_TYPE_CHANGE_DETECTION
+                    || projectType === PROJECT_TYPE_COMPLETENESS
+                ) {
+                    return {
+                        tileServerB: {
+                            fields: tileServerFieldsSchema,
+                        },
+                    };
+                }
+                return {
+                    tileServerB: { forceValue: nullValue },
+                };
+            },
+        );
 
-        if (value?.projectType === PROJECT_TYPE_CHANGE_DETECTION
-            || value?.projectType === PROJECT_TYPE_COMPLETENESS) {
-            return {
-                ...baseSchema,
-                zoomLevel: [
-                    requiredCondition,
-                    greaterThanOrEqualToCondition(14),
-                    lessThanOrEqualToCondition(22),
-                    integerCondition,
-                ],
-                geometry: [
-                    requiredCondition,
-                    validGeometryCondition,
-                ],
-                tileServerB: {
-                    fields: tileServerFieldsSchema,
-                },
-            };
-        }
+        baseSchema = addCondition(
+            baseSchema,
+            value,
+            ['projectType'],
+            ['inputType'],
+            (v) => {
+                const projectType = v?.projectType;
+                if (projectType === PROJECT_TYPE_FOOTPRINT) {
+                    return {
+                        inputType: { required: true },
+                    };
+                }
+                return {
+                    inputType: { forceValue: nullValue },
+                };
+            },
+        );
+
+        baseSchema = addCondition(
+            baseSchema,
+            value,
+            ['projectType', 'inputType'],
+            ['filter', 'geometry', 'TMId'],
+            (v) => {
+                const projectType = v?.projectType;
+                const inputType = v?.inputType;
+                return {
+                    filter: (
+                        inputType === PROJECT_INPUT_TYPE_TASKING_MANAGER_ID
+                        || inputType === PROJECT_INPUT_TYPE_UPLOAD
+                    ) && projectType === PROJECT_TYPE_FOOTPRINT
+                        ? { required: true }
+                        : { forceValue: nullValue },
+                    // FIXME: geometry type is either string or object update validation
+                    geometry: (
+                        inputType === PROJECT_INPUT_TYPE_LINK
+                        || inputType === PROJECT_INPUT_TYPE_UPLOAD
+                    ) && projectType === PROJECT_TYPE_FOOTPRINT
+                        ? { required: true, validations: [validGeometryCondition] }
+                        : { forceValue: nullValue },
+                    // FIXME: number string condition
+                    TMId: (
+                        inputType === PROJECT_INPUT_TYPE_TASKING_MANAGER_ID
+                    ) && projectType === PROJECT_TYPE_FOOTPRINT
+                        ? {
+                            required: true,
+                            requiredValidation: requiredStringCondition,
+                            validations: [getNoMoreThanNCharacterCondition(1000)],
+                        }
+                        : { forceValue: nullValue },
+                };
+            },
+        );
+
+        baseSchema = addCondition(
+            baseSchema,
+            value,
+            ['projectType', 'inputType', 'filter'],
+            ['filterText'],
+            (v) => {
+                const projectType = v?.projectType;
+                const inputType = v?.inputType;
+                const filter = v?.filter;
+
+                if (
+                    filter === FILTER_OTHERS
+                    && projectType === PROJECT_TYPE_FOOTPRINT
+                    && (
+                        inputType === PROJECT_INPUT_TYPE_TASKING_MANAGER_ID
+                        || inputType === PROJECT_INPUT_TYPE_UPLOAD
+                    )
+                ) {
+                    return {
+                        filterText: {
+                            required: true,
+                            requiredValidation: requiredStringCondition,
+                            validations: [getNoMoreThanNCharacterCondition(1000)],
+                        },
+                    };
+                }
+                return {
+                    filterText: { forceValue: nullValue },
+                };
+            },
+        );
 
         return baseSchema;
     },
-    fieldDependencies: () => ({
-        geometry: ['zoomLevel'],
-    }),
 };
 
 export function generateProjectName(

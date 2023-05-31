@@ -65,7 +65,6 @@ import {
     PartialTutorialFormType,
 } from './utils';
 import ScenarioInput from './ScenarioInput';
-import DescribeOptions from './DescribeOptions';
 import styles from './styles.css';
 
 const defaultTutorialFormValue: PartialTutorialFormType = {
@@ -113,6 +112,10 @@ function NewTutorial(props: Props) {
     const error = React.useMemo(
         () => getErrorObject(formError),
         [formError],
+    );
+    const scenarioError = React.useMemo(
+        () => getErrorObject(error?.screens),
+        [error?.screens],
     );
 
     const handleFormSubmission = React.useCallback((
@@ -328,9 +331,6 @@ function NewTutorial(props: Props) {
                             disabled={submissionPending}
                         />
                     </Card>
-                    {value.projectType === 2 && (
-                        <DescribeOptions />
-                    )}
                     <Card
                         title="Describe Scenarios"
                         contentClassName={styles.cardScenarios}
@@ -357,6 +357,7 @@ function NewTutorial(props: Props) {
                                             index={index}
                                             value={task}
                                             onChange={onScenarioFormChange}
+                                            error={scenarioError?.[task.scenario]}
                                         />
                                     ))}
                                 </>

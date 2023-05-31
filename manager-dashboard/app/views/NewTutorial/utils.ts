@@ -7,6 +7,7 @@ import {
     integerCondition,
     nullValue,
     ArraySchema,
+    addCondition,
 } from '@togglecorp/toggle-form';
 import {
     TileServer,
@@ -87,7 +88,7 @@ type ScreenFormSchemaMember = ReturnType<ScreenFormSchema['member']>;
 
 export const tutorialFormSchema: TutorialFormSchema = {
     fields: (value): TutorialFormSchemaFields => {
-        const baseSchema: TutorialFormSchemaFields = {
+        let baseSchema: TutorialFormSchemaFields = {
             projectType: {
                 required: true,
             },
@@ -149,12 +150,12 @@ export const tutorialFormSchema: TutorialFormSchema = {
                                     requiredValidation: requiredStringCondition,
                                     validations: [getNoMoreThanNCharacterCondition(500)],
                                 },
-                                hintDescription: {
+                                description: {
                                     required: true,
                                     requiredValidation: requiredStringCondition,
                                     validations: [getNoMoreThanNCharacterCondition(500)],
                                 },
-                                hintIcon: { required: true },
+                                icon: { required: true },
                             }),
                         },
                     }),
@@ -164,14 +165,13 @@ export const tutorialFormSchema: TutorialFormSchema = {
             tutorialTasks: { required: true },
             exampleImage1: { required: true },
             exampleImage2: { required: true },
-
-            tileServerB: { forceValue: nullValue },
-            zoomLevel: { forceValue: nullValue },
         };
-
-        if (value?.projectType === PROJECT_TYPE_BUILD_AREA) {
-            return {
-                ...baseSchema,
+        baseSchema = addCondition(
+            baseSchema,
+            value,
+            ['projectType'],
+            ['zoomLevel'],
+            (v) => (v?.projectType === PROJECT_TYPE_BUILD_AREA ? {
                 zoomLevel: {
                     required: true,
                     validations: [
@@ -180,27 +180,34 @@ export const tutorialFormSchema: TutorialFormSchema = {
                         integerCondition,
                     ],
                 },
-            };
-        }
-
-        if (value?.projectType === PROJECT_TYPE_CHANGE_DETECTION
-            || value?.projectType === PROJECT_TYPE_COMPLETENESS) {
-            return {
-                ...baseSchema,
-                zoomLevel: {
-                    required: true,
-                    validations: [
-                        greaterThanOrEqualToCondition(14),
-                        lessThanOrEqualToCondition(22),
-                        integerCondition,
-                    ],
-                },
-                tileServerB: {
-                    fields: tileServerFieldsSchema,
-                },
-            };
-        }
-
+            } : {
+                zoomLevel: { forceValue: nullValue },
+            }),
+        );
+        baseSchema = addCondition(
+            baseSchema,
+            value,
+            ['projectType'],
+            ['zoomLevel', 'tileServerB'],
+            (v) => (v?.projectType === PROJECT_TYPE_CHANGE_DETECTION
+                || v?.projectType === PROJECT_TYPE_COMPLETENESS
+                ? {
+                    zoomLevel: {
+                        required: true,
+                        validations: [
+                            greaterThanOrEqualToCondition(14),
+                            lessThanOrEqualToCondition(22),
+                            integerCondition,
+                        ],
+                    },
+                    tileServerB: {
+                        fields: tileServerFieldsSchema,
+                    },
+                } : {
+                    zoomLevel: { forceValue: nullValue },
+                    tileServerB: { forceValue: nullValue },
+                }),
+        );
         return baseSchema;
     },
 };
