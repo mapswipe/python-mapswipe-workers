@@ -27,6 +27,7 @@ import {
     MdSwipe,
     MdOutlinePublishedWithChanges,
     MdOutlineUnpublished,
+    MdAdd,
 } from 'react-icons/md';
 import { Link } from 'react-router-dom';
 
@@ -57,6 +58,7 @@ import {
     PROJECT_TYPE_BUILD_AREA,
     PROJECT_TYPE_COMPLETENESS,
     PROJECT_TYPE_CHANGE_DETECTION,
+    PROJECT_TYPE_FOOTPRINT,
 } from '#utils/common';
 
 import {
@@ -64,9 +66,55 @@ import {
     TutorialFormType,
     PartialTutorialFormType,
 } from './utils';
+import DefineOptions from './DefineOptions';
 import ScenarioInput from './ScenarioInput';
 import styles from './styles.css';
+import Heading from '#components/Heading';
 
+const defaultDefineOptions: PartialTutorialFormType['defineOptions'] = [
+    {
+        option: 1,
+        title: 'Yes',
+        description: '',
+        icon: '',
+        iconColor: '',
+        reasons: [
+            {
+                reason: 1,
+                description: '',
+                icon: '',
+            },
+        ],
+    },
+    {
+        option: 2,
+        title: 'No',
+        description: '',
+        icon: '',
+        iconColor: '',
+        reasons: [
+            {
+                reason: 1,
+                description: '',
+                icon: '',
+            },
+        ],
+    },
+    {
+        option: 3,
+        title: 'Not sure',
+        description: '',
+        icon: '',
+        iconColor: '',
+        reasons: [
+            {
+                reason: 1,
+                description: '',
+                icon: '',
+            },
+        ],
+    },
+];
 const defaultTutorialFormValue: PartialTutorialFormType = {
     projectType: PROJECT_TYPE_BUILD_AREA,
     zoomLevel: 18,
@@ -78,6 +126,7 @@ const defaultTutorialFormValue: PartialTutorialFormType = {
         name: TILE_SERVER_BING,
         credits: tileServerDefaultCredits[TILE_SERVER_BING],
     },
+    defineOptions: defaultDefineOptions,
 };
 
 interface Props {
@@ -109,6 +158,8 @@ function NewTutorial(props: Props) {
     ] = React.useState<'started' | 'imageUpload' | 'tutorialSubmit' | 'success' | 'failed' | undefined>();
 
     const [activeTab, setActiveTab] = React.useState('Scenario 1');
+    const [activeOptionsTab, setActiveOptionsTab] = React.useState('option1');
+
     const error = React.useMemo(
         () => getErrorObject(formError),
         [formError],
@@ -116,6 +167,11 @@ function NewTutorial(props: Props) {
     const scenarioError = React.useMemo(
         () => getErrorObject(error?.screens),
         [error?.screens],
+    );
+
+    const optionsError = React.useMemo(
+        () => getErrorObject(error?.defineOptions),
+        [error?.defineOptions],
     );
 
     const handleFormSubmission = React.useCallback((
@@ -218,6 +274,17 @@ function NewTutorial(props: Props) {
         () => analyzeErrors(error),
         [error],
     );
+
+    const {
+        setValue: onOptionsAdd,
+    } = useFormArray('defineOptions', setFieldValue);
+
+    // const handleAddDefineOptions = useCallback(
+    //     () => {
+    //         setFieldValue(defaultDefineOptions, 'defineOptions');
+    //     },
+    //     [setFieldValue],
+    // );
 
     const submissionPending = (
         tutorialSubmissionStatus === 'started'
@@ -331,6 +398,50 @@ function NewTutorial(props: Props) {
                             disabled={submissionPending}
                         />
                     </Card>
+                    {value.projectType === PROJECT_TYPE_FOOTPRINT && (
+                        <Card
+                            title="Define Options"
+                        >
+                            <Heading level={4}>
+                                Option Instrucitons
+                            </Heading>
+                            <Button
+                                name="add_instruction"
+                                icons={<MdAdd />}
+                                // onClick={handleAddDefineOptions}
+                            >
+                                Add instruction
+                            </Button>
+                            {value.defineOptions?.length ? (
+                                <Tabs
+                                    value={activeOptionsTab}
+                                    onChange={setActiveOptionsTab}
+                                >
+                                    <TabList>
+                                        {value.defineOptions.map((opt) => (
+                                            <Tab
+                                                key={opt.option}
+                                                name={`${opt.option}`}
+                                            >
+                                                {`Option ${opt.option}`}
+                                            </Tab>
+                                        ))}
+                                    </TabList>
+                                    {value.defineOptions.map((options, index) => (
+                                        <DefineOptions
+                                            key={options.option}
+                                            value={options}
+                                            index={index}
+                                            onChange={onOptionsAdd}
+                                            error={optionsError?.[options.option]}
+                                        />
+                                    ))}
+                                </Tabs>
+                            ) : (
+                                <div>Add options</div>
+                            )}
+                        </Card>
+                    )}
                     <Card
                         title="Describe Scenarios"
                         contentClassName={styles.cardScenarios}

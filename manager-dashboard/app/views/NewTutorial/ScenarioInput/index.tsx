@@ -87,6 +87,7 @@ export default function ScenarioInput(scenarioProps: ScenarioTabsProps) {
     const onInstructionFieldChange = useFormObject<'instructions', PartialScenarioType['instructions']>('instructions', onFieldChange, {});
     const onHintFieldChange = useFormObject<'hint', PartialScenarioType['hint']>('hint', onFieldChange, {});
     const onSuccessFieldChange = useFormObject<'success', PartialScenarioType['success']>('success', onFieldChange, {});
+
     const error = getErrorObject(riskyError);
 
     const instructionsError = getErrorObject(error?.instructions);
