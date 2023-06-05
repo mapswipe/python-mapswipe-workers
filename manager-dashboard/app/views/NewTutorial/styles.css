@@ -16,7 +16,11 @@
         .card {
             display: flex;
             flex-direction: column;
-            gap: var(--spacing-extra-large);
+            gap: var(--spacing-large);
+
+            .add-button {
+                width: fit-content;
+            }
         }
 
         .input-group {
