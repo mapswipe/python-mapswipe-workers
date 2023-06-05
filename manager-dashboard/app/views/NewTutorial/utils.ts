@@ -23,6 +23,49 @@ import {
     PROJECT_TYPE_FOOTPRINT,
 } from '#utils/common';
 
+export interface IconOptions {
+    key: string;
+    label: string;
+}
+
+export const iconOptions: IconOptions[] = [
+    {
+        key: 'swipe-left',
+        label: 'Swipe Left',
+    },
+    {
+        key: 'tap-1',
+        label: 'Tap 1',
+    },
+    {
+        key: 'tap-2',
+        label: 'Tap 2',
+    },
+    {
+        key: 'tap-3',
+        label: 'Tap 3',
+    },
+    {
+        key: 'check',
+        label: 'Check',
+    },
+];
+
+export const iconColorOptions: IconOptions[] = [
+    {
+        key: 'green',
+        label: 'Green',
+    },
+    {
+        key: 'red',
+        label: 'Red',
+    },
+    {
+        key: 'yellow',
+        label: 'Yellow',
+    },
+];
+
 // FIXME: include here
 
 export type TutorialTasks = GeoJSON.FeatureCollection<GeoJSON.Geometry, {
@@ -38,16 +81,15 @@ export type TutorialTasks = GeoJSON.FeatureCollection<GeoJSON.Geometry, {
     tile_z: number;
 }>;
 
-export type DefineOptions = {
-    option: number;
+export type DefineOption = {
+    optionId: number;
     title: string;
     description: string;
     icon: string;
     iconColor: string;
-    reasons: {
-        reason: number;
+    reason: {
+        reasonId: number;
         description: string;
-        icon: string;
     }[];
 }[];
 
@@ -56,7 +98,7 @@ export interface TutorialFormType {
     name: string;
     tileServer: TileServer;
     screens: {
-        scenario: string;
+        scenarioId: string;
         hint: {
             description: string;
             icon: string;
@@ -79,7 +121,7 @@ export interface TutorialFormType {
     projectType: ProjectType;
     tileServerB?: TileServer,
     zoomLevel?: number;
-    defineOptions?: DefineOptions;
+    defineOption?: DefineOption;
 }
 
 export type PartialTutorialFormType = PartialForm<
@@ -88,25 +130,25 @@ export type PartialTutorialFormType = PartialForm<
         exampleImage2?: File;
     },
     // NOTE: we do not want to change File and FeatureCollection to partials
-    'scenario' | 'tutorialTasks' | 'exampleImage1' | 'exampleImage2' | 'option' | 'reason'
+    'tutorialTasks' | 'exampleImage1' | 'exampleImage2' | 'scenarioId' | 'optionId' | 'reasonId'
 >;
 
 type TutorialFormSchema = ObjectSchema<PartialTutorialFormType>;
 type TutorialFormSchemaFields = ReturnType<TutorialFormSchema['fields']>;
 
-type ScreenType = NonNullable<PartialTutorialFormType['screens']>[number];
+export type ScreenType = NonNullable<PartialTutorialFormType['screens']>[number];
 type ScreenSchema = ObjectSchema<ScreenType, PartialTutorialFormType>;
 type ScreenFormSchemaFields = ReturnType<ScreenSchema['fields']>;
 
 type ScreenFormSchema = ArraySchema<ScreenType, PartialTutorialFormType>;
 type ScreenFormSchemaMember = ReturnType<ScreenFormSchema['member']>;
 
-type DefineOptionsType = NonNullable<PartialTutorialFormType['defineOptions']>[number];
-type DefineOptionsSchema = ObjectSchema<DefineOptionsType, PartialTutorialFormType>;
-type DefineOptionsSchemaFields = ReturnType<DefineOptionsSchema['fields']>
+export type DefineOptionType = NonNullable<PartialTutorialFormType['defineOption']>[number];
+type DefineOptionSchema = ObjectSchema<DefineOptionType, PartialTutorialFormType>;
+type DefineOptionSchemaFields = ReturnType<DefineOptionSchema['fields']>
 
-type DefineOptionsFormSchema = ArraySchema<DefineOptionsType, PartialTutorialFormType>;
-type DefineOptionsFormSchemaMember = ReturnType<DefineOptionsFormSchema['member']>;
+type DefineOptionFormSchema = ArraySchema<DefineOptionType, PartialTutorialFormType>;
+type DefineOptionFormSchemaMember = ReturnType<DefineOptionFormSchema['member']>;
 
 export const tutorialFormSchema: TutorialFormSchema = {
     fields: (value): TutorialFormSchemaFields => {
@@ -129,10 +171,10 @@ export const tutorialFormSchema: TutorialFormSchema = {
                 fields: tileServerFieldsSchema,
             },
             screens: {
-                keySelector: (key) => key.scenario,
+                keySelector: (key) => key.scenarioId,
                 member: (): ScreenFormSchemaMember => ({
                     fields: (): ScreenFormSchemaFields => ({
-                        scenario: {
+                        scenarioId: {
                             required: true,
                         },
                         hint: {
@@ -192,13 +234,13 @@ export const tutorialFormSchema: TutorialFormSchema = {
             baseSchema,
             value,
             ['projectType'],
-            ['defineOptions'],
+            ['defineOption'],
             (v) => {
-                const defineOptionsField: DefineOptionsFormSchema = {
-                    keySelector: (key) => key.option,
-                    member: (): DefineOptionsFormSchemaMember => ({
-                        fields: (): DefineOptionsSchemaFields => ({
-                            option: {
+                const defineOptionField: DefineOptionFormSchema = {
+                    keySelector: (key) => key.optionId,
+                    member: (): DefineOptionFormSchemaMember => ({
+                        fields: (): DefineOptionSchemaFields => ({
+                            optionId: {
                                 required: true,
                             },
                             title: {
@@ -217,20 +259,17 @@ export const tutorialFormSchema: TutorialFormSchema = {
                             iconColor: {
                                 required: true,
                             },
-                            reasons: {
-                                keySelector: (key) => key.reason,
+                            reason: {
+                                keySelector: (key) => key.reasonId,
                                 member: () => ({
                                     fields: () => ({
-                                        reason: {
+                                        reasonId: {
                                             required: true,
                                         },
                                         description: {
                                             required: true,
                                             requiredValidation: requiredStringCondition,
                                             validations: [getNoMoreThanNCharacterCondition(500)],
-                                        },
-                                        icon: {
-                                            required: true,
                                         },
                                     }),
                                 }),
@@ -241,11 +280,11 @@ export const tutorialFormSchema: TutorialFormSchema = {
 
                 if (v?.projectType === PROJECT_TYPE_FOOTPRINT) {
                     return {
-                        defineOptions: defineOptionsField,
+                        defineOption: defineOptionField,
                     };
                 }
                 return {
-                    defineOptions: { forceValue: nullValue },
+                    defineOption: { forceValue: nullValue },
                 };
             },
         );

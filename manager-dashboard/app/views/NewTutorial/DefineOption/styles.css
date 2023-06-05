@@ -1,0 +1,27 @@
+.option-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-medium);
+
+    .option-content {
+        display: flex;
+        gap: var(--spacing-medium);
+
+        .option-input {
+            flex-grow: 1;
+        }
+
+        .option-icon {
+            flex-basis: 15%;
+        }
+    }
+
+    .remove-button {
+        align-self: end;
+        width: fit-content;
+    }
+
+    .add-button {
+        width: fit-content;
+    }
+}

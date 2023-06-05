@@ -65,54 +65,26 @@ import {
     tutorialFormSchema,
     TutorialFormType,
     PartialTutorialFormType,
+    ScreenType,
+    DefineOptionType,
 } from './utils';
-import DefineOptions from './DefineOptions';
+import DefineOption from './DefineOption';
 import ScenarioInput from './ScenarioInput';
 import styles from './styles.css';
 import Heading from '#components/Heading';
 
-const defaultDefineOptions: PartialTutorialFormType['defineOptions'] = [
+const defaultDefineOption: PartialTutorialFormType['defineOption'] = [
     {
-        option: 1,
+        optionId: 1,
         title: 'Yes',
-        description: '',
-        icon: '',
-        iconColor: '',
-        reasons: [
-            {
-                reason: 1,
-                description: '',
-                icon: '',
-            },
-        ],
     },
     {
-        option: 2,
+        optionId: 2,
         title: 'No',
-        description: '',
-        icon: '',
-        iconColor: '',
-        reasons: [
-            {
-                reason: 1,
-                description: '',
-                icon: '',
-            },
-        ],
     },
     {
-        option: 3,
+        optionId: 3,
         title: 'Not sure',
-        description: '',
-        icon: '',
-        iconColor: '',
-        reasons: [
-            {
-                reason: 1,
-                description: '',
-                icon: '',
-            },
-        ],
     },
 ];
 const defaultTutorialFormValue: PartialTutorialFormType = {
@@ -126,7 +98,7 @@ const defaultTutorialFormValue: PartialTutorialFormType = {
         name: TILE_SERVER_BING,
         credits: tileServerDefaultCredits[TILE_SERVER_BING],
     },
-    defineOptions: defaultDefineOptions,
+    defineOption: defaultDefineOption,
 };
 
 interface Props {
@@ -158,7 +130,9 @@ function NewTutorial(props: Props) {
     ] = React.useState<'started' | 'imageUpload' | 'tutorialSubmit' | 'success' | 'failed' | undefined>();
 
     const [activeTab, setActiveTab] = React.useState('Scenario 1');
-    const [activeOptionsTab, setActiveOptionsTab] = React.useState('option1');
+    const [activeOptionsTab, setActiveOptionsTab] = React.useState('1');
+
+    const [optionId, setOptionId] = React.useState(defaultDefineOption?.length ?? 3);
 
     const error = React.useMemo(
         () => getErrorObject(formError),
@@ -170,8 +144,8 @@ function NewTutorial(props: Props) {
     );
 
     const optionsError = React.useMemo(
-        () => getErrorObject(error?.defineOptions),
-        [error?.defineOptions],
+        () => getErrorObject(error?.defineOption),
+        [error?.defineOption],
     );
 
     const handleFormSubmission = React.useCallback((
@@ -268,7 +242,10 @@ function NewTutorial(props: Props) {
 
     const {
         setValue: onScenarioFormChange,
-    } = useFormArray('screens', setFieldValue);
+    } = useFormArray<
+        'screens',
+        ScreenType
+    >('screens', setFieldValue);
 
     const hasErrors = React.useMemo(
         () => analyzeErrors(error),
@@ -276,15 +253,29 @@ function NewTutorial(props: Props) {
     );
 
     const {
-        setValue: onOptionsAdd,
-    } = useFormArray('defineOptions', setFieldValue);
+        setValue: onOptionAdd,
+        removeValue: onOptionRemove,
+    } = useFormArray<
+        'defineOption',
+        DefineOptionType
+    >('defineOption', setFieldValue);
 
-    // const handleAddDefineOptions = useCallback(
-    //     () => {
-    //         setFieldValue(defaultDefineOptions, 'defineOptions');
-    //     },
-    //     [setFieldValue],
-    // );
+    const handleAddDefineOptions = React.useCallback(
+        () => {
+            const newOptionId = optionId + 1;
+            setOptionId(newOptionId);
+            const newDefineOption: DefineOptionType = {
+                optionId: newOptionId,
+            };
+            setFieldValue(
+                (oldValue: PartialTutorialFormType['defineOption']) => (
+                    [...(oldValue ?? []), newDefineOption]
+                ),
+                'defineOption',
+            );
+        },
+        [setFieldValue, optionId],
+    );
 
     const submissionPending = (
         tutorialSubmissionStatus === 'started'
@@ -307,7 +298,7 @@ function NewTutorial(props: Props) {
         const sorted = uniqueArray?.sort((a, b) => a.properties?.screen - b.properties.screen);
         const tutorialTaskArray = sorted?.map((geo) => (
             {
-                scenario: String(geo.properties.screen),
+                scenarioId: String(geo.properties.screen),
                 hint: {},
                 instructions: {},
                 success: {},
@@ -401,39 +392,42 @@ function NewTutorial(props: Props) {
                     {value.projectType === PROJECT_TYPE_FOOTPRINT && (
                         <Card
                             title="Define Options"
+                            contentClassName={styles.card}
                         >
                             <Heading level={4}>
-                                Option Instrucitons
+                                Option Instructions
                             </Heading>
                             <Button
                                 name="add_instruction"
+                                className={styles.addButton}
                                 icons={<MdAdd />}
-                                // onClick={handleAddDefineOptions}
+                                onClick={handleAddDefineOptions}
                             >
                                 Add instruction
                             </Button>
-                            {value.defineOptions?.length ? (
+                            {value.defineOption?.length ? (
                                 <Tabs
                                     value={activeOptionsTab}
                                     onChange={setActiveOptionsTab}
                                 >
                                     <TabList>
-                                        {value.defineOptions.map((opt) => (
+                                        {value.defineOption.map((opt) => (
                                             <Tab
-                                                key={opt.option}
-                                                name={`${opt.option}`}
+                                                key={opt.optionId}
+                                                name={`${opt.optionId}`}
                                             >
-                                                {`Option ${opt.option}`}
+                                                {`Option ${opt.optionId}`}
                                             </Tab>
                                         ))}
                                     </TabList>
-                                    {value.defineOptions.map((options, index) => (
-                                        <DefineOptions
-                                            key={options.option}
+                                    {value.defineOption.map((options, index) => (
+                                        <DefineOption
+                                            key={options.optionId}
                                             value={options}
                                             index={index}
-                                            onChange={onOptionsAdd}
-                                            error={optionsError?.[options.option]}
+                                            onChange={onOptionAdd}
+                                            onRemove={onOptionRemove}
+                                            error={optionsError?.[options.optionId]}
                                         />
                                     ))}
                                 </Tabs>
@@ -455,20 +449,20 @@ function NewTutorial(props: Props) {
                                     <TabList>
                                         {value.screens?.map((task) => (
                                             <Tab
-                                                key={task.scenario}
-                                                name={`Scenario ${task.scenario}`}
+                                                key={task.scenarioId}
+                                                name={`Scenario ${task.scenarioId}`}
                                             >
-                                                {`Scenario ${task.scenario}`}
+                                                {`Scenario ${task.scenarioId}`}
                                             </Tab>
                                         ))}
                                     </TabList>
                                     {value.screens?.map((task, index) => (
                                         <ScenarioInput
-                                            key={task.scenario}
+                                            key={task.scenarioId}
                                             index={index}
                                             value={task}
                                             onChange={onScenarioFormChange}
-                                            error={scenarioError?.[task.scenario]}
+                                            error={scenarioError?.[task.scenarioId]}
                                         />
                                     ))}
                                 </>

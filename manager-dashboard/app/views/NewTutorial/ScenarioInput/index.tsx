@@ -14,9 +14,13 @@ import {
 } from '#components/Tabs';
 
 import styles from './styles.css';
+import {
+    IconOptions,
+    iconOptions,
+} from '../utils';
 
 type ScenarioType = {
-    scenario: string;
+    scenarioId: string;
     hint: {
         description: string;
         icon: string;
@@ -34,37 +38,9 @@ type ScenarioType = {
     };
 };
 
-interface IconOptions {
-    key: string;
-    label: string;
-}
-
-const iconOptions: IconOptions[] = [
-    {
-        key: 'swipe-left',
-        label: 'Swipe Left',
-    },
-    {
-        key: 'tap-1',
-        label: 'Tap 1',
-    },
-    {
-        key: 'tap-2',
-        label: 'Tap 2',
-    },
-    {
-        key: 'tap-3',
-        label: 'Tap 3',
-    },
-    {
-        key: 'check',
-        label: 'Check',
-    },
-];
-
-type PartialScenarioType = PartialForm<ScenarioType, 'scenario'>;
+type PartialScenarioType = PartialForm<ScenarioType, 'scenarioId'>;
 const defaultScenarioTabsValue: PartialScenarioType = {
-    scenario: 'xxx',
+    scenarioId: 'xxx',
 };
 
 interface ScenarioTabsProps {
@@ -96,7 +72,7 @@ export default function ScenarioInput(scenarioProps: ScenarioTabsProps) {
 
     return (
         <TabPanel
-            name={`Scenario ${value.scenario}`}
+            name={`Scenario ${value.scenarioId}`}
         >
             <div className={styles.scenario}>
                 <Heading level={4}>

@@ -1,0 +1,12 @@
+.reason-content {
+    display: flex;
+    gap: var(--spacing-medium);
+
+    .reason-input {
+        flex-grow: 1;
+    }
+    .remove-button {
+        width: fit-content;
+        height: fit-content;
+    }
+}

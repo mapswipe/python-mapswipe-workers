@@ -78,6 +78,7 @@ export function TabList(props: TabListProps) {
 export interface TabPanelProps extends React.HTMLProps<HTMLDivElement> {
     name: TabKey;
     elementRef?: React.Ref<HTMLDivElement>;
+    className?: string;
 }
 
 export function TabPanel(props: TabPanelProps) {
@@ -86,6 +87,7 @@ export function TabPanel(props: TabPanelProps) {
     const {
         name,
         elementRef,
+        className,
         ...otherProps
     } = props;
 
@@ -98,6 +100,7 @@ export function TabPanel(props: TabPanelProps) {
             {...otherProps}
             role="tabpanel"
             ref={elementRef}
+            className={className}
         />
     );
 }
