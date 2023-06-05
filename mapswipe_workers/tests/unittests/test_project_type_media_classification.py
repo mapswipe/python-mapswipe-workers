@@ -51,12 +51,15 @@ class TestMediaClassification(unittest.TestCase):
         self.assertTrue(self.project.medialist)
 
     def test_create_group(self):
+        self.project.create_groups()
+        self.assertTrue(self.project.groups)
+
+    def test_create_tasks(self):
         task_url = self.project.medialist[0]
         self.project.create_groups()
-
-        self.assertTrue(self.project.groups)
+        self.project.create_tasks()
+        self.assertEqual(self.project.tasks["g0"][0].media, task_url)
         self.assertEqual(self.project.groups["g0"].numberOfTasks, 1)
-        self.assertEqual(self.project.groups["g0"].tasks[0].media, task_url)
 
 
 if __name__ == "__main__":
