@@ -69,13 +69,13 @@ def get_project_static_info(filename: str) -> pd.DataFrame:
                 ,CASE -- old mapswipe projects (<2024) will not have labels in the db
                   WHEN project_type_specifics-> 'answerLabels' IS NOT NULL
                   THEN -- thus if we have answer labels use them
-                  ARRAY(
-                    SELECT json_array_elements(
-                        project_type_specifics->'answerLabels'
-                    )->>'value'
-                  )
+                    ARRAY(
+                      SELECT json_array_elements(
+                          project_type_specifics->'answerLabels'
+                      )->>'value'
+                    )
                   ELSE -- otherwise use below label range as the mapswipe app default
-                  ARRAY(0,1,2,3)
+                    ARRAY(0,1,2,3)
                 END as answer_label_values
                 ,CASE
                   WHEN project_type_specifics->'tileServer'->'name' IS NOT NULL THEN
