@@ -160,12 +160,10 @@ class ProjectType(Enum):
         from mapswipe_workers.project_types import (
             ChangeDetectionTutorial,
             ClassificationTutorial,
+            CompletenessTutorial,
         )
         from mapswipe_workers.project_types.arbitrary_geometry.tutorial import (
             Tutorial as ArbitraryGeometryTutorial,
-        )
-        from mapswipe_workers.project_types.tile_map_service_grid.tutorial import (
-            Tutorial as tmsg_tutorial,
         )
 
         # TODO: implement for arbitrary geometries
@@ -177,6 +175,6 @@ class ProjectType(Enum):
             1: ClassificationTutorial,
             2: ArbitraryGeometryTutorial,
             3: ChangeDetectionTutorial,
-            4: tmsg_tutorial,
+            4: CompletenessTutorial,
         }
         return project_type_classes[self.value]

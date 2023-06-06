@@ -1,61 +1,337 @@
 {
-  "ATTENTION": "THIS DRAFT IS PROBABLY OUTDATED - 2023-05-30",
-  "name": "Change Detection Tutorial",
+  "createdBy": "T8jltQ14RjS6gCQ9DlQfgWvy6T72",
+  "exampleImage1": "",
+  "exampleImage2": "",
+  "lookFor": "damaged buildings",
+  "name": "change_detection_tutorial",
   "projectType": 3,
-  "projectId": "change_detection_tutorial",
-  "zoomLevel": 16,
-  "lookFor": "NEW SETTLEMENTS",
-  "status": "change_detection_tutorial",
-  "projectDetails": "This is a tutorial",
-  "progress": 0,
-  "contributorCount": 0,
-  "tileServer" : {
-    "apiKey" : "",
-    "apiKeyRequired" : false,
-    "caption" : "Before",
-    "date" : "2017-Q1",
-    "name" : "custom",
-    "url" : "https://tiles.planet.com/basemaps/v1/planet-tiles/global_quarterly_2017q1_mosaic/gmap/{z}/{x}/{y}.png?"
-  },
-  "tileServerB" : {
-    "apiKey" : "",
-    "apiKeyRequired" : false,
-    "caption" : "After",
-    "date" : "2019-Q1",
-    "name" : "custom",
-    "url" : "https://tiles.planet.com/basemaps/v1/planet-tiles/global_quarterly_2019q1_mosaic/gmap/{z}/{x}/{y}.png?"
-  },
-  "examplesFile": "sample_data/change_detection_tutorial_tasks_new.geojson",
-  "screens": {
-    "changes_1": {
-      "pre": "For this project we are looking for new settlements. Compare the upper (before) and lower (after) image and swipe right to indicate that new settlements have been built.",
-      "post_correct": "Yes, that looks like a new settlement being developed, as also suggested by new roads visible in the more recent image. Swipe left to continue the tutorial.",
-      "post_wrong": "Oh no. Make sure to spot all the new settlements and swipe right. New roads can also function as an indicator sometimes."
+  "screens": [
+    null,
+    {
+      "hint": {
+        "description": "Compare the building outlines in the two images.",
+        "icon": "swipe-left",
+        "title": "There is severe damage visible."
+      },
+      "instructions": {
+        "description": "Tap once whenever you spot damaged settlements. Swipe to learn more.",
+        "icon": "tap-1",
+        "title": "There is a destroyed building here."
+      },
+      "success": {
+        "description": "Swipe to the next screen to look for more.",
+        "icon": "check",
+        "title": "You correctly mapped this task!"
+      }
     },
-    "changes_2": {
-      "pre": "And again: If new settlements have been built, swipe to the right side.",
-      "post_correct": "Correct. We can spot new settlements in the upper right part of the satellite image. Swipe left to go on with some more examples.",
-      "post_wrong": "Take a closer look. There new settlements here in the upper right part of the satellite image."
+    {
+      "hint": {
+        "description": "Tap twice whenever you are not sure.",
+        "icon": "swipe-left",
+        "title": "Yellow indicates that settlements might have been damaged."
+      },
+      "instructions": {
+        "description": "Tap the square twice to mark it yellow indicating that there might be damage.",
+        "icon": "tap-2",
+        "title": "This is difficult."
+      },
+      "success": {
+        "description": "Swipe to the next screen to learn more.",
+        "icon": "check",
+        "title": "Nice. Use this whenever you are not sure."
+      }
     },
-    "no_changes_1": {
-      "pre": "In this example, no settlements emerged. Swipe left to indicate no changes.",
-      "post_correct": "Nice. Just watch out for changes referring to settlements. Swipe left to continue.",
-      "post_wrong": "Oh no. Not all changes refer to new settlements, some are just related to vegetation."
+    {
+      "hint": {
+        "description": "The buildings look the same in the two images.",
+        "icon": "swipe-left",
+        "title": "No need to tap here."
+      },
+      "instructions": {
+        "description": "Just swipe left to the next screen.",
+        "icon": "swipe-left",
+        "title": "No building damage visible here."
+      },
+      "success": {
+        "description": "Swipe to keep on going",
+        "icon": "check",
+        "title": "Great. We can't spot damaged buildings here."
+      }
     },
-    "no_changes_2": {
-      "pre": "We can spot changes in the vegetation for this imagery pair, but no changes related to settlements. Again, swipe left.",
-      "post_correct": "Cool. You got it. Just look out for changes concerning settlements.",
-      "post_wrong": "Sorry, try again. Don't be distracted by changes in vegetation, just look out for settlements."
+    {
+      "hint": {
+        "description": "There might be other objects such as tents, but still the buildings are okay.",
+        "icon": "swipe-left",
+        "title": "Don't get distracted."
+      },
+      "instructions": {
+        "description": "Again, just swipe left.",
+        "icon": "swipe-left",
+        "title": "Spontaneous shelters but not building damage."
+      },
+      "success": {
+        "description": "Swipe to the next screen to learn more.",
+        "icon": "check",
+        "title": "Correct!"
+      }
     },
-    "maybe_1": {
-      "pre": "Sometimes it might be unclear if settlements emerged. Swipe down if you are not sure.",
-      "post_correct": "Great. We cannot really tell if the bright spot in the middle is a new settlement. This is a 'maybe'.",
-      "post_wrong": "Are you really sure? Sometimes it's better to mark the imagery as 'not sure'."
-    },
-    "bad_imagery_1": {
-      "pre": "Swipe up to indicate if there is no imagery or if there are clouds.",
-      "post_correct": "That's right, that image was way too cloudy to make a good assessment! You managed to pass through this tutorial, now it's time for some real mapping.",
-      "post_wrong": "It there is no imagery or clouds, we cannot tell the right answer. Make sure to mark this as well by swiping up."
+    {
+      "hint": {
+        "description": "Only map building damage.",
+        "icon": "swipe-left",
+        "title": "We’ve marked the correct answers"
+      },
+      "instructions": {
+        "description": "If there are no buildings, just swipe left.",
+        "icon": "swipe-left",
+        "title": "No buildings at all"
+      },
+      "success": {
+        "description": "Swipe to practice some more.",
+        "icon": "check",
+        "title": "Well done, you got it right!"
+      }
     }
-  }
+  ],
+  "tileServer": {
+    "credits": "© 2019 Microsoft Corporation, Earthstar Geographics SIO",
+    "name": "bing"
+  },
+  "tileServerB": {
+    "credits": "© 2019 Microsoft Corporation, Earthstar Geographics SIO",
+    "name": "bing"
+  },
+  "tutorialTasks": {
+    "crs": {
+      "properties": {
+        "name": "urn:ogc:def:crs:OGC:1.3:CRS84"
+      },
+      "type": "name"
+    },
+    "features": [
+      {
+        "geometry": {
+          "coordinates": [
+            [
+              [
+                -73.7553405761719,
+                18.2123937258254,
+                0
+              ],
+              [
+                -73.7546539306641,
+                18.2123937258254,
+                0
+              ],
+              [
+                -73.7546539306641,
+                18.2117414769682,
+                0
+              ],
+              [
+                -73.7553405761719,
+                18.2117414769682,
+                0
+              ],
+              [
+                -73.7553405761719,
+                18.2123937258254,
+                0
+              ]
+            ]
+          ],
+          "type": "Polygon"
+        },
+        "properties": {
+          "groupId": "g106",
+          "reference": 0,
+          "screen": 3,
+          "taskId": "19-154730-235162",
+          "tile_x": 154730,
+          "tile_y": 235162,
+          "tile_z": 19
+        },
+        "type": "Feature"
+      },
+      {
+        "geometry": {
+          "coordinates": [
+            [
+              [
+                -73.7546539306641,
+                18.1915205510666,
+                0
+              ],
+              [
+                -73.7539672851562,
+                18.1915205510666,
+                0
+              ],
+              [
+                -73.7539672851562,
+                18.1908682240724,
+                0
+              ],
+              [
+                -73.7546539306641,
+                18.1908682240724,
+                0
+              ],
+              [
+                -73.7546539306641,
+                18.1915205510666,
+                0
+              ]
+            ]
+          ],
+          "type": "Polygon"
+        },
+        "properties": {
+          "groupId": "g117",
+          "reference": 0,
+          "screen": 4,
+          "taskId": "19-154731-235194",
+          "tile_x": 154731,
+          "tile_y": 235194,
+          "tile_z": 19
+        },
+        "type": "Feature"
+      },
+      {
+        "geometry": {
+          "coordinates": [
+            [
+              [
+                -73.7477874755859,
+                18.1921728756202,
+                0
+              ],
+              [
+                -73.7471008300781,
+                18.1921728756202,
+                0
+              ],
+              [
+                -73.7471008300781,
+                18.1915205510666,
+                0
+              ],
+              [
+                -73.7477874755859,
+                18.1915205510666,
+                0
+              ],
+              [
+                -73.7477874755859,
+                18.1921728756202,
+                0
+              ]
+            ]
+          ],
+          "type": "Polygon"
+        },
+        "properties": {
+          "groupId": "g117",
+          "reference": 1,
+          "screen": 1,
+          "taskId": "19-154741-235193",
+          "tile_x": 154741,
+          "tile_y": 235193,
+          "tile_z": 19
+        },
+        "type": "Feature"
+      },
+      {
+        "geometry": {
+          "coordinates": [
+            [
+              [
+                -73.7464141845703,
+                18.1921728756202,
+                0
+              ],
+              [
+                -73.7457275390625,
+                18.1921728756202,
+                0
+              ],
+              [
+                -73.7457275390625,
+                18.1915205510666,
+                0
+              ],
+              [
+                -73.7464141845703,
+                18.1915205510666,
+                0
+              ],
+              [
+                -73.7464141845703,
+                18.1921728756202,
+                0
+              ]
+            ]
+          ],
+          "type": "Polygon"
+        },
+        "properties": {
+          "groupId": "g117",
+          "reference": 2,
+          "screen": 2,
+          "taskId": "19-154743-235193",
+          "tile_x": 154743,
+          "tile_y": 235193,
+          "tile_z": 19
+        },
+        "type": "Feature"
+      },
+      {
+        "geometry": {
+          "coordinates": [
+            [
+              [
+                -73.7601470947266,
+                18.1869542108583,
+                0
+              ],
+              [
+                -73.7594604492188,
+                18.1869542108583,
+                0
+              ],
+              [
+                -73.7594604492188,
+                18.1863018667818,
+                0
+              ],
+              [
+                -73.7601470947266,
+                18.1863018667818,
+                0
+              ],
+              [
+                -73.7601470947266,
+                18.1869542108583,
+                0
+              ]
+            ]
+          ],
+          "type": "Polygon"
+        },
+        "properties": {
+          "groupId": "g119",
+          "reference": 0,
+          "screen": 5,
+          "taskId": "19-154723-235201",
+          "tile_x": 154723,
+          "tile_y": 235201,
+          "tile_z": 19
+        },
+        "type": "Feature"
+      }
+    ],
+    "name": "haiti_tutorial_tasks",
+    "type": "FeatureCollection"
+  },
+  "zoomLevel": 18
 }
