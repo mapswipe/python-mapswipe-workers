@@ -29,16 +29,16 @@ class TestCreateCompletenessTutorial(unittest.TestCase):
         runner.invoke(mapswipe_workers.run_create_tutorials, catch_exceptions=False)
 
         fb_db = auth.firebaseDB()
-        ref = fb_db.reference(f"/v2/projects/{self.project_id}")
+        ref = fb_db.reference(f"/v2/projects/tutorial_{self.project_id}")
         result = ref.get(shallow=True)
         self.assertIsNotNone(result)
 
-        ref = fb_db.reference(f"/v2/groups/{self.project_id}")
+        ref = fb_db.reference(f"/v2/groups/tutorial_{self.project_id}")
         result = ref.get(shallow=True)
         self.assertIsNotNone(result)
 
         # Tile classification projects do not have tasks in Firebase, but tutorials do
-        ref = fb_db.reference(f"/v2/tasks/{self.project_id}")
+        ref = fb_db.reference(f"/v2/tasks/tutorial_{self.project_id}")
         result = ref.get(shallow=True)
         self.assertIsNotNone(result)
 
