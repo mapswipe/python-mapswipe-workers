@@ -63,7 +63,7 @@ class TestDigitizationProject(unittest.TestCase):
                 "r",
             ) as file:
                 output_file_path = f"{DATA_PATH}/input_geometries/"
-                "raw_input_{self.project.projectId}.geojson"
+                f"raw_input_{self.project.projectId}.geojson"
                 with open(output_file_path, "w") as out_file:
                     json.dump(json.load(file), out_file)
             self.project.validate_geometries()

@@ -4,8 +4,7 @@ import unittest
 from mapswipe_workers.project_types.tile_map_service.completeness.project import (
     CompletenessProject,
 )
-
-from .. import fixtures
+from tests import fixtures
 
 
 class TestCompletenessProject(unittest.TestCase):

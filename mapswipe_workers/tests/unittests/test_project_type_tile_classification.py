@@ -4,8 +4,7 @@ import unittest
 from mapswipe_workers.project_types.tile_map_service.classification.project import (
     ClassificationProject,
 )
-
-from .. import fixtures
+from tests import fixtures
 
 
 class TestClassificationProject(unittest.TestCase):
