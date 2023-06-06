@@ -52,14 +52,14 @@ class ArbitraryGeometryProject(BaseProject):
             f"{DATA_PATH}/input_geometries/raw_input_{self.projectId}.geojson"
         )
 
+        if not os.path.isdir(f"{DATA_PATH}/input_geometries"):
+            os.mkdir(f"{DATA_PATH}/input_geometries")
+
         self.handle_input_type(raw_input_file)
 
         valid_input_file = (
             f"{DATA_PATH}/input_geometries/valid_input_{self.projectId}.geojson"
         )
-
-        if not os.path.isdir(f"{DATA_PATH}/input_geometries"):
-            os.mkdir(f"{DATA_PATH}/input_geometries")
 
         logger.info(
             f"{self.projectId}"
