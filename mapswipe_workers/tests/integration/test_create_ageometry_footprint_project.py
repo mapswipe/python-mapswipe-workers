@@ -22,7 +22,9 @@ class TestCreateProject(unittest.TestCase):
 
     def test_create_footprint_project(self):
         runner = CliRunner()
-        result = runner.invoke(mapswipe_workers.run_create_projects)
+        result = runner.invoke(
+            mapswipe_workers.run_create_projects, catch_exceptions=False
+        )
         if result.exit_code != 0:
             raise result.exception
         pg_db = auth.postgresDB()

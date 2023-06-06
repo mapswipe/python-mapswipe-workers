@@ -133,24 +133,27 @@ class ProjectType(Enum):
     CHANGE_DETECTION = 3
     COMPLETENESS = 4
     MEDIA_CLASSIFICATION = 5
+    DIGITIZATION = 6
 
     @property
     def constructor(self):
         # Imports are first made once this method get called to avoid circular imports.
         from mapswipe_workers.project_types import (
-            ArbitraryGeometryProject,
             ChangeDetectionProject,
             ClassificationProject,
             CompletenessProject,
+            DigitizationProject,
+            FootprintProject,
             MediaClassificationProject,
         )
 
         project_type_classes = {
             1: ClassificationProject,
-            2: ArbitraryGeometryProject,
+            2: FootprintProject,
             3: ChangeDetectionProject,
             4: CompletenessProject,
             5: MediaClassificationProject,
+            6: DigitizationProject,
         }
         return project_type_classes[self.value]
 
@@ -160,23 +163,14 @@ class ProjectType(Enum):
         from mapswipe_workers.project_types import (
             ChangeDetectionTutorial,
             ClassificationTutorial,
+            CompletenessTutorial,
+            FootprintTutorial,
         )
-        from mapswipe_workers.project_types.arbitrary_geometry.tutorial import (
-            Tutorial as ArbitraryGeometryTutorial,
-        )
-        from mapswipe_workers.project_types.tile_map_service_grid.tutorial import (
-            Tutorial as tmsg_tutorial,
-        )
-
-        # TODO: implement for arbitrary geometries
-        # from mapswipe_workers.project_types.arbitrary_geometries.arbitrary_geometries_tutorial import ( # noqa E501
-        #    ArbitraryGeometriesTutorial,
-        # )
 
         project_type_classes = {
             1: ClassificationTutorial,
-            2: ArbitraryGeometryTutorial,
+            2: FootprintTutorial,
             3: ChangeDetectionTutorial,
-            4: tmsg_tutorial,
+            4: CompletenessTutorial,
         }
         return project_type_classes[self.value]

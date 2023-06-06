@@ -346,7 +346,7 @@ def save_results_to_postgres(results_file, project_id, filter_mode: bool):
     results_file.close()
 
     if filter_mode:
-        logger.warn(f"trying to remove invalid tasks from {project_id}.")
+        logger.warning(f"trying to remove invalid tasks from {project_id}.")
 
         filter_query = """
             with project_tasks as (
@@ -442,7 +442,7 @@ def save_user_group_results_to_postgres(
     user_group_results_file.close()
 
     if filter_mode:
-        logger.warn(f"trying to remove invalid tasks from {project_id}.")
+        logger.warning(f"trying to remove invalid tasks from {project_id}.")
 
         filter_query = """
             WITH project_groups AS (
