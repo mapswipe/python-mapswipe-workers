@@ -22,8 +22,8 @@ class CompletenessTutorial(TileMapServiceBaseTutorial):
         # need to adjust xMax and yMax for Change Detection projects
         # since they use a different view with only one tile per screen
         number_of_screens = len(self.screens)
-        self.groups[101]["xMax"] = str(100 + (number_of_screens - 1))
-        self.groups[101]["yMax"] = str(self.groups[101]["yMin"])
+        self.groups[101].xMax = str(100 + (number_of_screens - 1))
+        self.groups[101].yMax = str(self.groups[101].yMin)
 
         logger.info(
             f"{self.projectId}"
@@ -37,8 +37,8 @@ class CompletenessTutorial(TileMapServiceBaseTutorial):
         super().create_tutorial_tasks()
 
         for task in self.tasks[101]:
-            _, tile_x, tile_y = task["taskId_real"].split("-")
-            task["urlB"] = tile_functions.tile_coords_zoom_and_tileserver_to_url(
+            _, tile_x, tile_y = task.taskId_real.split("-")
+            task.urlB = tile_functions.tile_coords_zoom_and_tileserver_to_url(
                 int(tile_x), int(tile_y), self.zoomLevel, self.tileServerB
             )
 
