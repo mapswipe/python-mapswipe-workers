@@ -19,7 +19,8 @@
     "apiKey": "",
     "credits": "© 2019 Microsoft Corporation, Earthstar Geographics SIO",
     "name": "bing",
-    "url": ""
+    "url": "",
+    "maxZoom": 18
   },
   "tutorialId": "",
   "verificationNumber": 5
