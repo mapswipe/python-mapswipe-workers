@@ -39,7 +39,7 @@ import Modal from '#components/Modal';
 import TextInput from '#components/TextInput';
 import NumberInput from '#components/NumberInput';
 import SegmentInput from '#components/SegmentInput';
-import FileInput from '#components/FileInput';
+// import FileInput from '#components/FileInput';
 import GeoJsonFileInput from '#components/GeoJsonFileInput';
 import {
     Tabs,
@@ -52,6 +52,7 @@ import TileServerInput, {
 } from '#components/TileServerInput';
 import InputSection from '#components/InputSection';
 import Button from '#components/Button';
+import Heading from '#components/Heading';
 import {
     valueSelector,
     labelSelector,
@@ -67,11 +68,24 @@ import {
     PartialTutorialFormType,
     ScreenType,
     DefineOptionType,
+    pageOptions,
+    PageTemplateType,
+    InformationPageType,
+    PartialInformationPageType,
+    PartialBlocksType,
 } from './utils';
 import DefineOption from './DefineOption';
 import ScenarioInput from './ScenarioInput';
+import InformationPage from './InformationPage';
 import styles from './styles.css';
-import Heading from '#components/Heading';
+import SelectInput from '#components/SelectInput';
+
+function pageKeySelector(d: PageTemplateType) {
+    return d.key;
+}
+function pageLabelSelector(d: PageTemplateType) {
+    return d.label;
+}
 
 const defaultDefineOption: PartialTutorialFormType['defineOption'] = [
     {
@@ -84,7 +98,7 @@ const defaultDefineOption: PartialTutorialFormType['defineOption'] = [
     },
     {
         optionId: 3,
-        title: 'Not sure',
+        title: 'Not Sure',
     },
 ];
 const defaultTutorialFormValue: PartialTutorialFormType = {
@@ -129,10 +143,12 @@ function NewTutorial(props: Props) {
         setTutorialSubmissionStatus,
     ] = React.useState<'started' | 'imageUpload' | 'tutorialSubmit' | 'success' | 'failed' | undefined>();
 
+    // NOTE: scenario
     const [activeTab, setActiveTab] = React.useState('Scenario 1');
+    // NOTE: options
     const [activeOptionsTab, setActiveOptionsTab] = React.useState('1');
-
-    const [optionId, setOptionId] = React.useState(defaultDefineOption?.length ?? 3);
+    // NOTE: Information Page
+    const [activeInformationPage, setActiveInformationPage] = React.useState('1');
 
     const error = React.useMemo(
         () => getErrorObject(formError),
@@ -146,6 +162,11 @@ function NewTutorial(props: Props) {
     const optionsError = React.useMemo(
         () => getErrorObject(error?.defineOption),
         [error?.defineOption],
+    );
+
+    const informationPageError = React.useMemo(
+        () => getErrorObject(error?.informationPage),
+        [error?.informationPage],
     );
 
     const handleFormSubmission = React.useCallback((
@@ -260,21 +281,35 @@ function NewTutorial(props: Props) {
         DefineOptionType
     >('defineOption', setFieldValue);
 
+    const {
+        setValue: onInformationPageAdd,
+        removeValue: onInformationPageRemove,
+    } = useFormArray<
+        'informationPage',
+        InformationPageType
+    >('informationPage', setFieldValue);
+
     const handleAddDefineOptions = React.useCallback(
         () => {
-            const newOptionId = optionId + 1;
-            setOptionId(newOptionId);
-            const newDefineOption: DefineOptionType = {
-                optionId: newOptionId,
-            };
             setFieldValue(
-                (oldValue: PartialTutorialFormType['defineOption']) => (
-                    [...(oldValue ?? []), newDefineOption]
-                ),
+                (oldValue: PartialTutorialFormType['defineOption']) => {
+                    const safeOldValues = oldValue ?? [];
+
+                    const newOptionId = safeOldValues.length > 0
+                        ? Math.max(...safeOldValues.map((option) => option.optionId)) + 1
+                        : 1;
+
+                    const newDefineOption: DefineOptionType = {
+                        optionId: newOptionId,
+                    };
+
+                    return [...safeOldValues, newDefineOption];
+                },
                 'defineOption',
             );
+            // TODO: Set the new option as selected
         },
-        [setFieldValue, optionId],
+        [setFieldValue],
     );
 
     const submissionPending = (
@@ -307,6 +342,62 @@ function NewTutorial(props: Props) {
 
         setFieldValue(tutorialTaskArray, 'screens');
     }, [setFieldValue]);
+
+    const handleAddInformationPage = React.useCallback(
+        (template: PageTemplateType['key']) => {
+            setFieldValue(
+                (oldValue: PartialInformationPageType) => {
+                    const newOldValue = oldValue ?? [];
+                    let blocks: PartialBlocksType = [];
+
+                    const newPage = newOldValue.length > 0
+                        ? Math.max(...newOldValue.map((info) => info.page)) + 1
+                        : 1;
+
+                    if (template === '2-picture') {
+                        blocks = [
+                            {
+                                block: 1,
+                            },
+                            {
+                                block: 2,
+                            },
+                        ];
+                    }
+                    if (template === '3-picture') {
+                        blocks = [
+                            {
+                                block: 1,
+                            },
+                            {
+                                block: 2,
+                            },
+                            {
+                                block: 3,
+                            },
+                        ];
+                    }
+                    if (template === '1-picture') {
+                        blocks = [
+                            {
+                                block: 1,
+                            },
+                        ];
+                    }
+
+                    const newPageInformation: InformationPageType = {
+                        page: newPage,
+                        blocks,
+                    };
+                    return [...newOldValue, newPageInformation];
+                },
+                'informationPage',
+            );
+        },
+        [setFieldValue],
+    );
+
+    console.log('value', value.informationPage);
 
     return (
         <div className={_cs(styles.newTutorial, className)}>
@@ -365,13 +456,14 @@ function NewTutorial(props: Props) {
                             disabled={submissionPending}
                         />
                     </Card>
-                    <Card contentClassName={styles.inputGroup}>
+                    {/* <Card contentClassName={styles.inputGroup}>
                         <FileInput
                             name={'exampleImage1' as const}
                             value={value?.exampleImage1}
                             onChange={setFieldValue}
                             label="Upload Example Image 1"
-                            hint="Make sure you have the rights to use this image. It should end with  .jpg or .png."
+                            hint="Make sure you have the rights to
+                            use this image. It should end with  .jpg or .png."
                             showPreview
                             accept="image/png, image/jpeg"
                             error={error?.exampleImage1}
@@ -382,12 +474,54 @@ function NewTutorial(props: Props) {
                             value={value?.exampleImage2}
                             onChange={setFieldValue}
                             label="Upload Example Image 2"
-                            hint="Make sure you have the rights to use this image. It should end with  .jpg or .png."
+                            hint="Make sure you have the rights to
+                            use this image. It should end with  .jpg or .png."
                             showPreview
                             accept="image/png, image/jpeg"
                             error={error?.exampleImage2}
                             disabled={submissionPending}
                         />
+                    </Card> */}
+                    <Card
+                        title="Describe information pages"
+                    >
+                        <SelectInput
+                            name="templateType"
+                            label="Select page"
+                            options={pageOptions}
+                            value={undefined}
+                            keySelector={pageKeySelector}
+                            labelSelector={pageLabelSelector}
+                            onChange={handleAddInformationPage}
+                            nonClearable
+                        />
+                        {value.informationPage?.length ? (
+                            <Tabs
+                                value={activeInformationPage}
+                                onChange={setActiveInformationPage}
+                            >
+                                <TabList>
+                                    {value.informationPage.map((info) => (
+                                        <Tab
+                                            name={`${info.page}`}
+                                        >
+                                            {`Intro ${info.page}`}
+                                        </Tab>
+                                    ))}
+                                </TabList>
+                                {value.informationPage?.map((page, i) => (
+                                    <InformationPage
+                                        value={page}
+                                        onChange={onInformationPageAdd}
+                                        onRemove={onInformationPageRemove}
+                                        index={i}
+                                        error={informationPageError?.[page.page]}
+                                    />
+                                ))}
+                            </Tabs>
+                        ) : (
+                            <div>Add Page</div>
+                        )}
                     </Card>
                     {value.projectType === PROJECT_TYPE_FOOTPRINT && (
                         <Card

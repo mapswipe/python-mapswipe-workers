@@ -49,7 +49,6 @@ export default function DefineOption(props: Props) {
     } = props;
 
     const [activeReason, setActiveReason] = React.useState('1');
-    const [reasonId, setReasonId] = React.useState(0);
 
     const onOptionChange = useFormObject(index, onChange, defaultDefineOptionValue);
 
@@ -67,19 +66,24 @@ export default function DefineOption(props: Props) {
 
     const handleReasonAdd = React.useCallback(
         () => {
-            const newReasonId = reasonId + 1;
-            setReasonId(newReasonId);
-            const newReason : ReasonType = {
-                reasonId: newReasonId,
-            };
             onOptionChange(
-                (oldValue: PartialDefineOptionType['reason']) => (
-                    [...(oldValue ?? []), newReason]
-                ),
+                (oldValue: PartialDefineOptionType['reason']) => {
+                    const safeOldValue = oldValue ?? [];
+
+                    const newReasonId = safeOldValue.length > 0
+                        ? Math.max(...safeOldValue.map((reason) => reason.reasonId)) + 1
+                        : 1;
+
+                    const newReason: ReasonType = {
+                        reasonId: newReasonId,
+                    };
+
+                    return [...safeOldValue, newReason];
+                },
                 'reason',
             );
         },
-        [onOptionChange, reasonId],
+        [onOptionChange],
     );
 
     return (

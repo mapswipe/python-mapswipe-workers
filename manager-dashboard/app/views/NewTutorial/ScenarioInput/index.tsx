@@ -43,20 +43,20 @@ const defaultScenarioTabsValue: PartialScenarioType = {
     scenarioId: 'xxx',
 };
 
-interface ScenarioTabsProps {
+interface Props {
     value: PartialScenarioType,
     onChange: (value: SetValueArg<PartialScenarioType>, index: number) => void;
     index: number,
     error: Error<PartialScenarioType> | undefined;
 }
 
-export default function ScenarioInput(scenarioProps: ScenarioTabsProps) {
+export default function ScenarioInput(props: Props) {
     const {
         value,
         onChange,
         index,
         error: riskyError,
-    } = scenarioProps;
+    } = props;
 
     const onFieldChange = useFormObject(index, onChange, defaultScenarioTabsValue);
 

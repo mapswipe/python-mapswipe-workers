@@ -66,6 +66,26 @@ export const iconColorOptions: IconOptions[] = [
     },
 ];
 
+export interface PageTemplateType {
+    key: '1-picture' | '2-picture' | '3-picture';
+    label: string;
+}
+
+export const pageOptions: PageTemplateType[] = [
+    {
+        key: '1-picture',
+        label: '1 picture templete',
+    },
+    {
+        key: '2-picture',
+        label: '2 picture templete',
+    },
+    {
+        key: '3-picture',
+        label: '3 picture templete',
+    },
+];
+
 // FIXME: include here
 
 export type TutorialTasks = GeoJSON.FeatureCollection<GeoJSON.Geometry, {
@@ -90,6 +110,19 @@ export type DefineOption = {
     reason: {
         reasonId: number;
         description: string;
+    }[];
+}[];
+
+export type InformationPage = {
+    // FIXME: remove this
+    templeteType: string;
+
+    page: number;
+    title: string;
+    blocks: {
+        block: number;
+        image?: File,
+        description?: string;
     }[];
 }[];
 
@@ -122,6 +155,7 @@ export interface TutorialFormType {
     tileServerB?: TileServer,
     zoomLevel?: number;
     defineOption?: DefineOption;
+    informationPage: InformationPage;
 }
 
 export type PartialTutorialFormType = PartialForm<
@@ -130,7 +164,7 @@ export type PartialTutorialFormType = PartialForm<
         exampleImage2?: File;
     },
     // NOTE: we do not want to change File and FeatureCollection to partials
-    'tutorialTasks' | 'exampleImage1' | 'exampleImage2' | 'scenarioId' | 'optionId' | 'reasonId'
+    'image' |'tutorialTasks' | 'exampleImage1' | 'exampleImage2' | 'scenarioId' | 'optionId' | 'reasonId' | 'page' | 'block'
 >;
 
 type TutorialFormSchema = ObjectSchema<PartialTutorialFormType>;
@@ -149,6 +183,16 @@ type DefineOptionSchemaFields = ReturnType<DefineOptionSchema['fields']>
 
 type DefineOptionFormSchema = ArraySchema<DefineOptionType, PartialTutorialFormType>;
 type DefineOptionFormSchemaMember = ReturnType<DefineOptionFormSchema['member']>;
+
+export type InformationPageType = NonNullable<PartialTutorialFormType['informationPage']>[number];
+type InformationPageSchema = ObjectSchema<InformationPageType, PartialTutorialFormType>;
+type InformationPageSchemaFields = ReturnType<InformationPageSchema['fields']>
+
+type InformationPageFormSchema = ArraySchema<InformationPageType, PartialTutorialFormType>;
+type InformationPageFormSchemaMember = ReturnType<InformationPageFormSchema['member']>;
+
+export type PartialInformationPageType = PartialTutorialFormType['informationPage'];
+export type PartialBlocksType = NonNullable<NonNullable<PartialInformationPageType>[number]>['blocks'];
 
 export const tutorialFormSchema: TutorialFormSchema = {
     fields: (value): TutorialFormSchemaFields => {
@@ -220,6 +264,38 @@ export const tutorialFormSchema: TutorialFormSchema = {
                                     validations: [getNoMoreThanNCharacterCondition(500)],
                                 },
                                 icon: { required: true },
+                            }),
+                        },
+                    }),
+                }),
+            },
+            informationPage: {
+                keySelector: (key) => key.page,
+                member: (): InformationPageFormSchemaMember => ({
+                    fields: (): InformationPageSchemaFields => ({
+                        templeteType: { required: true },
+                        page: { required: true },
+                        title: {
+                            required: true,
+                            requiredValidation: requiredStringCondition,
+                            validations: [getNoMoreThanNCharacterCondition(500)],
+                        },
+                        blocks: {
+                            keySelector: (key) => key.block,
+                            member: () => ({
+                                fields: () => ({
+                                    block: {
+                                        required: true,
+                                    },
+                                    image: {
+                                        required: true,
+                                    },
+                                    description: {
+                                        required: true,
+                                        requiredValidation: requiredStringCondition,
+                                        validations: [getNoMoreThanNCharacterCondition(1000)],
+                                    },
+                                }),
                             }),
                         },
                     }),
