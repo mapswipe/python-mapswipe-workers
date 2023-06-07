@@ -380,9 +380,11 @@ function NewProject(props: Props) {
     const tileServerBVisible = value?.projectType === PROJECT_TYPE_CHANGE_DETECTION
         || value?.projectType === PROJECT_TYPE_COMPLETENESS;
 
-    const zoomLevelVisible = value?.projectType === PROJECT_TYPE_BUILD_AREA
-        || value?.projectType === PROJECT_TYPE_CHANGE_DETECTION
-        || value?.projectType === PROJECT_TYPE_COMPLETENESS;
+    const zoomLevelVisible = [
+        PROJECT_TYPE_BUILD_AREA,
+        PROJECT_TYPE_CHANGE_DETECTION,
+        PROJECT_TYPE_COMPLETENESS,
+    ].includes(value?.projectType);
 
     return (
         <div className={_cs(styles.newProject, className)}>
@@ -410,9 +412,11 @@ function NewProject(props: Props) {
                         submissionPending={submissionPending}
                     />
                 </InputSection>
-                {(value?.projectType === PROJECT_TYPE_BUILD_AREA
-                    || value?.projectType === PROJECT_TYPE_CHANGE_DETECTION
-                    || value?.projectType === PROJECT_TYPE_COMPLETENESS) && (
+                {([
+                    PROJECT_TYPE_BUILD_AREA,
+                    PROJECT_TYPE_CHANGE_DETECTION,
+                    PROJECT_TYPE_COMPLETENESS,
+                ].includes(value?.projectType)) && (
                     <InputSection
                         heading="Project AOI Geometry"
                     >
