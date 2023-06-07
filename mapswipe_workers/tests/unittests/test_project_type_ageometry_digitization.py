@@ -18,6 +18,8 @@ class TestDigitizationProject(unittest.TestCase):
         )
         project_draft["projectDraftId"] = "foo"
         self.project = DigitizationProject(project_draft)
+        if not os.path.isdir(f"{DATA_PATH}/input_geometries"):
+            os.mkdir(f"{DATA_PATH}/input_geometries")
 
     def test_init(self):
         self.assertIsInstance(self.project.geometry, str)
@@ -40,7 +42,7 @@ class TestDigitizationProject(unittest.TestCase):
             ) as file:
                 output_file_path = (
                     f"{DATA_PATH}/input_geometries/"
-                    + "raw_input_{self.project.projectId}.geojson"
+                    + f"raw_input_{self.project.projectId}.geojson"
                 )
                 with open(output_file_path, "w") as out_file:
                     json.dump(json.load(file), out_file)
