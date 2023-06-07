@@ -75,7 +75,7 @@ def get_project_static_info(filename: str) -> pd.DataFrame:
                       )->>'value'
                     )
                   ELSE -- otherwise use below label range as the mapswipe app default
-                    ARRAY(0,1,2,3)
+                    '{0,1,2,3}'
                 END as answer_label_values
                 ,CASE
                   WHEN project_type_specifics->'tileServer'->'name' IS NOT NULL THEN
