@@ -1,17 +1,14 @@
-import json
 import os
-import urllib.request
+from abc import abstractmethod
 from dataclasses import dataclass
 from typing import Dict, List
 
 from osgeo import ogr
 
 from mapswipe_workers.definitions import DATA_PATH, CustomError, logger
-from mapswipe_workers.firebase.firebase import Firebase
 from mapswipe_workers.project_types.arbitrary_geometry import grouping_functions as g
 from mapswipe_workers.project_types.base.project import BaseGroup, BaseProject
 from mapswipe_workers.project_types.base.tile_server import BaseTileServer
-from mapswipe_workers.utils.api_calls import geojsonToFeatureCollection, ohsome
 
 
 @dataclass
@@ -38,66 +35,31 @@ class ArbitraryGeometryProject(BaseProject):
         ] = {}  # dict keys are group ids
 
         # set group size
-        self.groupSize = project_draft["groupSize"]
         self.geometry = project_draft["geometry"]
-        self.inputType = project_draft["inputType"]
         self.tileServer = vars(BaseTileServer(project_draft["tileServer"]))
         if "filter" in project_draft.keys():
             self.filter = project_draft["filter"]
         if "TMId" in project_draft.keys():
             self.TMId = project_draft["TMId"]
 
+    @abstractmethod
     def handle_input_type(self, raw_input_file: str):
-        """
-        Handle different input types.
-
-        Input (inputGeometries) can be:
-        'aoi_file' -> query ohsome with aoi from geometry then write
-            result to raw_input_file
-        a Link (str) -> download geojson from link and write to raw_input_file
-        a TMId -> get project info from geometry and query ohsome
-            for objects, then write to raw_input_file.
-        """
-        if not isinstance(self.geometry, str):
-            self.geometry = geojsonToFeatureCollection(self.geometry)
-            self.geometry = json.dumps(self.geometry)
-
-        if self.inputType == "aoi_file":
-            logger.info("aoi file detected")
-            # write string to geom file
-            ohsome_request = {"endpoint": "elements/geometry", "filter": self.filter}
-
-            result = ohsome(ohsome_request, self.geometry, properties="tags, metadata")
-            with open(raw_input_file, "w") as geom_file:
-                json.dump(result, geom_file)
-        elif self.inputType == "TMId":
-            logger.info("TMId detected")
-            hot_tm_project_id = int(self.TMId)
-            ohsome_request = {"endpoint": "elements/geometry", "filter": self.filter}
-            result = ohsome(ohsome_request, self.geometry, properties="tags, metadata")
-            result["properties"] = {}
-            result["properties"]["hot_tm_project_id"] = hot_tm_project_id
-            with open(raw_input_file, "w") as geom_file:
-                json.dump(result, geom_file)
-        elif self.inputType == "link":
-            logger.info("link detected")
-            urllib.request.urlretrieve(self.geometry, raw_input_file)
+        """Specify how the geometries used in this project type are received"""
+        pass
 
     def validate_geometries(self):
         raw_input_file = (
-            f"{DATA_PATH}/" f"input_geometries/raw_input_{self.projectId}.geojson"
-        )
-        valid_input_file = (
-            f"{DATA_PATH}/" f"input_geometries/valid_input_{self.projectId}.geojson"
+            f"{DATA_PATH}/input_geometries/raw_input_{self.projectId}.geojson"
         )
 
-        if not os.path.isdir("{}/input_geometries".format(DATA_PATH)):
-            os.mkdir("{}/input_geometries".format(DATA_PATH))
+        if not os.path.isdir(f"{DATA_PATH}/input_geometries"):
+            os.mkdir(f"{DATA_PATH}/input_geometries")
 
-        # input can be file, HOT TM projectId or link to geojson, after the call,
-        # whatever the input is will be made
-        # to a geojson file containing buildings in an area in raw_input_file
         self.handle_input_type(raw_input_file)
+
+        valid_input_file = (
+            f"{DATA_PATH}/input_geometries/valid_input_{self.projectId}.geojson"
+        )
 
         logger.info(
             f"{self.projectId}"
@@ -256,6 +218,6 @@ class ArbitraryGeometryProject(BaseProject):
         # remove raw groups after task creation
         del self.raw_groups
 
+    @abstractmethod
     def save_tasks_to_firebase(self, projectId: str, tasks: dict):
-        firebase = Firebase()
-        firebase.save_tasks_to_firebase(projectId, tasks, useCompression=True)
+        pass
