@@ -35,7 +35,7 @@ import TextInput from '#components/TextInput';
 import NumberInput from '#components/NumberInput';
 import SegmentInput from '#components/SegmentInput';
 import GeoJsonFileInput from '#components/GeoJsonFileInput';
-import TileServerInput, {
+import {
     TILE_SERVER_BING,
     tileServerDefaultCredits,
 } from '#components/TileServerInput';
@@ -43,6 +43,7 @@ import InputSection from '#components/InputSection';
 import Button from '#components/Button';
 import AnimatedSwipeIcon from '#components/AnimatedSwipeIcon';
 import BasicProjectInfoForm from './BasicProjectInfoForm';
+import TileServerForm from './TileServerForm';
 
 import {
     valueSelector,
@@ -379,6 +380,12 @@ function NewProject(props: Props) {
     const tileServerBVisible = value?.projectType === PROJECT_TYPE_CHANGE_DETECTION
         || value?.projectType === PROJECT_TYPE_COMPLETENESS;
 
+    const zoomLevelVisible = [
+        PROJECT_TYPE_BUILD_AREA,
+        PROJECT_TYPE_CHANGE_DETECTION,
+        PROJECT_TYPE_COMPLETENESS,
+    ].includes(value?.projectType);
+
     return (
         <div className={_cs(styles.newProject, className)}>
             <div className={styles.container}>
@@ -405,26 +412,11 @@ function NewProject(props: Props) {
                         submissionPending={submissionPending}
                     />
                 </InputSection>
-                {(value?.projectType === PROJECT_TYPE_BUILD_AREA
-                    || value?.projectType === PROJECT_TYPE_CHANGE_DETECTION
-                    || value?.projectType === PROJECT_TYPE_COMPLETENESS) && (
-                    <InputSection
-                        heading="Zoom Level"
-                    >
-                        <NumberInput
-                            name={'zoomLevel' as const}
-                            value={value?.zoomLevel}
-                            onChange={setFieldValue}
-                            label="Zoom Level"
-                            hint="We use the Tile Map Service zoom levels. Please check for your area which zoom level is available. For example, Bing imagery is available at zoomlevel 18 for most regions. If you use a custom tile server you may be able to use even higher zoom levels."
-                            error={error?.zoomLevel}
-                            disabled={submissionPending}
-                        />
-                    </InputSection>
-                )}
-                {(value?.projectType === PROJECT_TYPE_BUILD_AREA
-                    || value?.projectType === PROJECT_TYPE_CHANGE_DETECTION
-                    || value?.projectType === PROJECT_TYPE_COMPLETENESS) && (
+                {([
+                    PROJECT_TYPE_BUILD_AREA,
+                    PROJECT_TYPE_CHANGE_DETECTION,
+                    PROJECT_TYPE_COMPLETENESS,
+                ].includes(value?.projectType)) && (
                     <InputSection
                         heading="Project AOI Geometry"
                     >
@@ -555,31 +547,15 @@ function NewProject(props: Props) {
                     />
                 </InputSection>
 
-                <InputSection
-                    heading={tileServerBVisible ? 'Tile Server A' : 'Tile Server'}
-                >
-                    <TileServerInput
-                        name={'tileServer' as const}
-                        value={value?.tileServer}
-                        error={error?.tileServer}
-                        onChange={setFieldValue}
-                        disabled={submissionPending}
-                    />
-                </InputSection>
+                <TileServerForm
+                    value={value}
+                    setFieldValue={setFieldValue}
+                    error={error}
+                    submissionPending={submissionPending}
+                    tileServerBVisible={tileServerBVisible}
+                    zoomLevelVisible={zoomLevelVisible}
+                />
 
-                {tileServerBVisible && (
-                    <InputSection
-                        heading="Tile Server B"
-                    >
-                        <TileServerInput
-                            name={'tileServerB' as const}
-                            value={value?.tileServerB}
-                            error={error?.tileServerB}
-                            onChange={setFieldValue}
-                            disabled={submissionPending}
-                        />
-                    </InputSection>
-                )}
                 {hasErrors && (
                     <div className={styles.errorMessage}>
                         Please correct all the errors above before submission!
