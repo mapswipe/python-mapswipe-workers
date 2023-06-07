@@ -2,7 +2,6 @@ import os
 
 FIREBASE_API_KEY = os.environ["FIREBASE_API_KEY"]
 FIREBASE_DB = os.getenv("FIREBASE_DB", default="mapswipe")
-FIREBASE_STORAGE_BUCKET = os.getenv("FIREBASE_STORAGE_BUCKET")
 
 POSTGRES_DB = os.getenv("POSTGRES_DB", default="mapswipe")
 POSTGRES_HOST = os.getenv("POSTGRES_HOST", "postgres")
