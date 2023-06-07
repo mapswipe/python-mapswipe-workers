@@ -14,10 +14,8 @@ import usePagination from '#hooks/usePagination';
 import PendingMessage from '#components/PendingMessage';
 import Pager from '#components/Pager';
 import { rankedSearchOnList } from '#components/SelectInput/utils';
-import {
-    ProjectType,
-    projectTypeLabelMap,
-} from '#utils/common';
+import { ProjectType } from '#utils/common';
+import projectTypeOptions from '#base/configs/projectTypes';
 
 import styles from './styles.css';
 
@@ -101,7 +99,10 @@ function TutorialList(props: Props) {
                                     </div>
                                 </div>
                                 <div className={styles.lookFor}>
-                                    {projectTypeLabelMap[tutorial.projectType]}
+                                    {projectTypeOptions.find((projType: {
+                                        value: ProjectType;
+                                        label: string;
+                                    }) => projType.value === tutorial.projectType)?.label}
                                 </div>
                             </div>
                         );
