@@ -61,6 +61,7 @@ class BaseProject(metaclass=ABCMeta):
         self.createdBy = project_draft["createdBy"]
         self.groupMaxSize = project_draft.get("groupMaxSize", 0)
         self.groups = list()
+        self.groupSize = project_draft["groupSize"]
         self.image = project_draft["image"]
         self.isFeatured = False
         self.lookFor = project_draft["lookFor"]
@@ -90,6 +91,12 @@ class BaseProject(metaclass=ABCMeta):
 
         self.tutorialId = project_draft.get("tutorialId", None)
 
+        # currently crowdmap specific attributes
+        # todo: discuss in group if empty attributes in mapswipe postgres are ok
+        self.language = project_draft.get("language", "en-us")
+        self.appId = project_draft.get("appId", None)
+        self.manualUrl = project_draft.get("manualUrl", None)
+
     # TODO: Implement resultRequiredCounter as property.
     # Does not work because for some reason project['group'] = vars()
     # and then del project['group'] will delete also project.group.
@@ -99,8 +106,8 @@ class BaseProject(metaclass=ABCMeta):
 
     def save_project(self):
         """
-        Creates a projects with groups and tasks
-        and saves it in firebase and postgres
+        Save all project info with groups and tasks
+        in firebase and postgres.
 
         Returns
         ------
@@ -195,6 +202,24 @@ class BaseProject(metaclass=ABCMeta):
 
         return True
 
+    # ToDo: Implement for every children class
+    # Then add abstract method decorator
+    # @abstractmethod
+    def save_project_to_firebase(self, project):
+        pass
+
+    # ToDo: Implement for every children class
+    # Then add abstract method decorator
+    # @abstractmethod
+    def save_groups_to_firebase(self, projectId: str, groups: list):
+        pass
+
+    # ToDo: Implement for every children class
+    # Then add abstract method decorator
+    # @abstractmethod
+    def save_tasks_to_firebase(self, projectId: str, tasks: list):
+        pass
+
     def save_to_firebase(self, project, groups, groupsOfTasks):
 
         # remove wkt geometry attribute of projects and tasks
@@ -262,7 +287,8 @@ class BaseProject(metaclass=ABCMeta):
                     )
                     task_upload_dict = {}
         else:
-            # For all other projects (build_area, completeness, change detection)
+            # For all other projects:
+            # tile_classification, completeness, change detection)
             # tasks are not needed in Firebase.
             # The task urls are generated in the app based on the tile server
             # information which is set in the project attributes in Firebase
@@ -655,7 +681,7 @@ class BaseProject(metaclass=ABCMeta):
             )
 
     @abstractmethod
-    def validate_geometries():
+    def validate_geometries(self):
         pass
 
     @abstractmethod

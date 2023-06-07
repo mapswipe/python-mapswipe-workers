@@ -21,6 +21,10 @@ Please refer to the documentation for more information: https://mapswipe-workers
 - MapSwipe OSM-Wiki: https://wiki.openstreetmap.org/wiki/MapSwipe
 
 
+## Setup 
+
+see https://mapswipe-workers.readthedocs.io/en/master/dev_setup.html
+
 ## Contributing Guidelines
 
 ### Feature Branch
@@ -66,6 +70,6 @@ This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENS
 See also the list of [contributors](contributors.md) who participated in this project.
 
 
-## Acknowledgements
+## Acknowledgements 
 
 * Humanitarian organizations can't help people if they can't find them.

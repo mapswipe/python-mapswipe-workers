@@ -8,17 +8,17 @@ from mapswipe_workers import auth, mapswipe_workers
 from mapswipe_workers.utils.create_directories import create_directories
 
 
-class TestCreateProject(unittest.TestCase):
+class TestCreateTileClassificationProject(unittest.TestCase):
     def setUp(self):
         self.project_id = set_up.create_test_project_draft(
-            "tile_map_service_grid", "build_area"
+            "tile_classification", "tile_classification"
         )
         create_directories()
 
     def tearDown(self):
         tear_down.delete_test_data(self.project_id)
 
-    def test_create_build_area_project(self):
+    def test_create_tile_classification_project(self):
         runner = CliRunner()
         runner.invoke(mapswipe_workers.run_create_projects)
 
@@ -27,6 +27,14 @@ class TestCreateProject(unittest.TestCase):
         result = pg_db.retr_query(query, [self.project_id])[0][0]
         self.assertEqual(result, self.project_id)
 
+        query = "SELECT count(*)  FROM groups WHERE project_id = %s"
+        result = pg_db.retr_query(query, [self.project_id])[0][0]
+        self.assertEqual(result, 20)
+
+        query = "SELECT count(*)  FROM tasks WHERE project_id = %s"
+        result = pg_db.retr_query(query, [self.project_id])[0][0]
+        self.assertEqual(result, 5040)
+
         fb_db = auth.firebaseDB()
         ref = fb_db.reference(f"/v2/projects/{self.project_id}")
         result = ref.get(shallow=True)
@@ -34,9 +42,9 @@ class TestCreateProject(unittest.TestCase):
 
         ref = fb_db.reference(f"/v2/groups/{self.project_id}")
         result = ref.get(shallow=True)
-        self.assertIsNotNone(result)
+        self.assertEqual(len(result), 20)
 
-        # Build area project do not have tasks in Firebase
+        # Tile classification projects do not have tasks in Firebase
         ref = fb_db.reference(f"/v2/tasks/{self.project_id}")
         result = ref.get(shallow=True)
         self.assertIsNone(result)
