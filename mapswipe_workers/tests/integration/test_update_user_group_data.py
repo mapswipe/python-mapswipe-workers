@@ -3,7 +3,7 @@ import unittest
 from typing import Union
 from unittest import mock
 
-from base import BaseTestCase
+from .base import BaseTestCase
 
 from mapswipe_workers.firebase_to_postgres import update_data
 

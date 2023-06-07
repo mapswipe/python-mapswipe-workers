@@ -95,5 +95,16 @@ def create_test_project_draft(
     return identifier
 
 
+def create_test_tutorial_draft(
+    project_type: str, fixture_name: str = "user", identifier: str = ""
+) -> str:
+    """."""
+    if not identifier:
+        identifier = f"test_{fixture_name}"
+    set_firebase_test_data(project_type, "tutorialDrafts", fixture_name, identifier)
+
+    return f"tutorial_{identifier}"
+
+
 if __name__ == "__main__":
     create_test_project_draft("build_area")

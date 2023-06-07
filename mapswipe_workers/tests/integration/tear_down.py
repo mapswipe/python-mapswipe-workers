@@ -136,3 +136,4 @@ def delete_test_user(user_ids: List) -> None:
 if __name__ == "__main__":
     delete_test_data("test_build_area")
     delete_test_data("test_build_area_heidelberg")
+    delete_test_data("test_tile_classification")
