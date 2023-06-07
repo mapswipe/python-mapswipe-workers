@@ -11,6 +11,10 @@ class DigitizationProject(ArbitraryGeometryProject):
         super().__init__(project_draft)
         self.drawType = project_draft["drawType"]
 
+        # web app uses optional maxZoom to restrict the interactive web map zoom
+        if "maxZoom" in project_draft["tileServer"].keys():
+            self.tileServer["maxZoom"] = project_draft["tileServer"]["maxZoom"]
+
     def handle_input_type(self, raw_input_file: str):
         """
         Input (self.geometry) can be:
