@@ -132,39 +132,38 @@ class ProjectType(Enum):
     FOOTPRINT = 2
     CHANGE_DETECTION = 3
     COMPLETENESS = 4
+    MEDIA_CLASSIFICATION = 5
 
     @property
     def constructor(self):
         # Imports are first made once this method get called to avoid circular imports.
-        from mapswipe_workers.project_types.arbitrary_geometry.project import (
-            Project as ag_project,
-        )
-        from mapswipe_workers.project_types.tile_classification.project import (
-            TileClassificationProject,
-        )
-        from mapswipe_workers.project_types.tile_map_service_grid.project import (
-            Project as tmsg_project,
+        from mapswipe_workers.project_types import (
+            ArbitraryGeometryProject,
+            ChangeDetectionProject,
+            ClassificationProject,
+            CompletenessProject,
+            MediaClassificationProject,
         )
 
         project_type_classes = {
-            1: TileClassificationProject,
-            2: ag_project,
-            3: tmsg_project,
-            4: tmsg_project,
+            1: ClassificationProject,
+            2: ArbitraryGeometryProject,
+            3: ChangeDetectionProject,
+            4: CompletenessProject,
+            5: MediaClassificationProject,
         }
         return project_type_classes[self.value]
 
     @property
     def tutorial(self):
         # Imports are first made once this method get called to avoid circular imports.
+        from mapswipe_workers.project_types import (
+            ChangeDetectionTutorial,
+            ClassificationTutorial,
+            CompletenessTutorial,
+        )
         from mapswipe_workers.project_types.arbitrary_geometry.tutorial import (
             Tutorial as ArbitraryGeometryTutorial,
-        )
-        from mapswipe_workers.project_types.tile_classification.tutorial import (
-            TileClassificationTutorial,
-        )
-        from mapswipe_workers.project_types.tile_map_service_grid.tutorial import (
-            Tutorial as tmsg_tutorial,
         )
 
         # TODO: implement for arbitrary geometries
@@ -173,9 +172,9 @@ class ProjectType(Enum):
         # )
 
         project_type_classes = {
-            1: TileClassificationTutorial,
+            1: ClassificationTutorial,
             2: ArbitraryGeometryTutorial,
-            3: tmsg_tutorial,
-            4: tmsg_tutorial,
+            3: ChangeDetectionTutorial,
+            4: CompletenessTutorial,
         }
         return project_type_classes[self.value]

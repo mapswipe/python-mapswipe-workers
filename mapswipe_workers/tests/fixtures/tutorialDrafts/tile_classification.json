@@ -1,0 +1,2373 @@
+{
+    "createdBy": "X0zTSyvY0khDfRwc99aQfIjTEPK2",
+    "exampleImage1": "https://firebasestorage.googleapis.com/v0/b/dev-mapswipe.appspot.com/o/projectImages%2F1684497379231-tutorial-image-1-avatar.png?alt=media&token=76baa44b-b592-44c0-8091-aaf30df85833",
+    "exampleImage2": "https://firebasestorage.googleapis.com/v0/b/dev-mapswipe.appspot.com/o/projectImages%2F1684497379231-tutorial-image-2-avatar.png?alt=media&token=f05c2787-b869-4f79-a7b0-13fa30f235e6",
+    "lookFor": "Marcel",
+    "name": "Test Tutorial for Marcel",
+    "projectType": 1,
+    "tutorialDraftId": "test_tile_classification",
+    "screens": [
+      null,
+      {
+        "hint": {
+          "description": "Swipe to learn some more.",
+          "icon": "swipe-left",
+          "title": "We've marked the correct square green."
+        },
+        "instructions": {
+          "description": "Tap once to mark the squares with buildings green.",
+          "icon": "tap-1",
+          "title": "There are some buildings in this image"
+        },
+        "success": {
+          "description": "Swipe to the next screen to look for more.",
+          "icon": "check",
+          "title": "You found your first areas with buildings!"
+        }
+      },
+      {
+        "hint": {
+          "description": "Swipe to try another again on a new screen.",
+          "icon": "swipe-left",
+          "title": "This is how the tiles should look."
+        },
+        "instructions": {
+          "description": "Tap all the squares which contain buildings.",
+          "icon": "tap-1",
+          "title": "There are many buildings here."
+        },
+        "success": {
+          "description": "Swipe to the next screen to learn more.",
+          "icon": "check",
+          "title": "Nice."
+        }
+      },
+      {
+        "hint": {
+          "description": "Swipe to try another again on a new screen.",
+          "icon": "swipe-left",
+          "title": "This is how the tiles should look."
+        },
+        "instructions": {
+          "description": "Tap the square twice to mark it yellow indicating there might be a building.",
+          "icon": "tap-2",
+          "title": "We’re not sure if that’s a building."
+        },
+        "success": {
+          "description": "Swipe to the next screen to learn more.",
+          "icon": "check",
+          "title": "Nice. Use this whenever you're unsure"
+        }
+      },
+      {
+        "hint": {
+          "description": "Swipe to try another again on a new screen.",
+          "icon": "swipe-left",
+          "title": "This is how the tiles should look."
+        },
+        "instructions": {
+          "description": "No need to tap. Just swipe to the next screen.",
+          "icon": "swipe-left",
+          "title": "There’s no building in this image"
+        },
+        "success": {
+          "description": "Swipe to keep on going",
+          "icon": "check",
+          "title": "Great."
+        }
+      },
+      {
+        "hint": {
+          "description": "Swipe to try another again on a new screen.",
+          "icon": "swipe-left",
+          "title": "This is how the tiles should look."
+        },
+        "instructions": {
+          "description": "No need to tap. Just swipe to the next screen.",
+          "icon": "swipe-left",
+          "title": "Again. There are no buildings here"
+        },
+        "success": {
+          "description": "Swipe to keep on going",
+          "icon": "check",
+          "title": "Great."
+        }
+      },
+      {
+        "hint": {
+          "description": "Swipe to try another again on a new screen.",
+          "icon": "swipe-left",
+          "title": "This is how the tiles should look."
+        },
+        "instructions": {
+          "description": "Tap three times to mark all cloudy squares red.",
+          "icon": "tap-3",
+          "title": "Clouds are blocking the view"
+        },
+        "success": {
+          "description": "Swipe to practice some more.",
+          "icon": "check",
+          "title": "Well done, you got it all!"
+        }
+      },
+      {
+        "hint": {
+          "description": "Swipe to try another again on a new screen.",
+          "icon": "swipe-left",
+          "title": "This is how the tiles should look."
+        },
+        "instructions": {
+          "description": "Mark all tiles red by tapping three times",
+          "icon": "tap-3",
+          "title": "Imagery is not available"
+        },
+        "success": {
+          "description": "Swipe to practice some more.",
+          "icon": "check",
+          "title": "Well done, you found all the waste!"
+        }
+      },
+      {
+        "hint": {
+          "description": "Swipe to try another again on a new screen.",
+          "icon": "swipe-left",
+          "title": "This is how the tiles should look."
+        },
+        "instructions": {
+          "description": "When every tiles is bad imagery, you can swipe down to mark all tiles red.",
+          "icon": "swipe-down",
+          "title": "It's all bad imagery... so many taps"
+        },
+        "success": {
+          "description": "This could save you a lot of tapping. Swipe to learn more.",
+          "icon": "check",
+          "title": "Perfect"
+        }
+      }
+    ],
+    "tileServer": {
+      "credits": "© 2019 Microsoft Corporation, Earthstar Geographics SIO",
+      "name": "bing"
+    },
+    "tutorialTasks": {
+      "crs": {
+        "properties": {
+          "name": "urn:ogc:def:crs:OGC:1.3:CRS84"
+        },
+        "type": "name"
+      },
+      "features": [
+        {
+          "geometry": {
+            "coordinates": [
+              [
+                [
+                  [
+                    106.5234375,
+                    14.74832321,
+                    0
+                  ],
+                  [
+                    106.52481079,
+                    14.74832321,
+                    0
+                  ],
+                  [
+                    106.52481079,
+                    14.74699516,
+                    0
+                  ],
+                  [
+                    106.5234375,
+                    14.74699516,
+                    0
+                  ],
+                  [
+                    106.5234375,
+                    14.74832321,
+                    0
+                  ]
+                ]
+              ]
+            ],
+            "type": "MultiPolygon"
+          },
+          "properties": {
+            "category": "bad_no_imagery_1",
+            "reference": 0,
+            "screen": 7,
+            "taskid": "18-208640-120212",
+            "tile_x": 208640,
+            "tile_y": 120212,
+            "tile_z": 18
+          },
+          "type": "Feature"
+        },
+        {
+          "geometry": {
+            "coordinates": [
+              [
+                [
+                  [
+                    106.5234375,
+                    14.74699516,
+                    0
+                  ],
+                  [
+                    106.52481079,
+                    14.74699516,
+                    0
+                  ],
+                  [
+                    106.52481079,
+                    14.74566711,
+                    0
+                  ],
+                  [
+                    106.5234375,
+                    14.74566711,
+                    0
+                  ],
+                  [
+                    106.5234375,
+                    14.74699516,
+                    0
+                  ]
+                ]
+              ]
+            ],
+            "type": "MultiPolygon"
+          },
+          "properties": {
+            "category": "bad_no_imagery_1",
+            "reference": 0,
+            "screen": 7,
+            "taskid": "18-208640-120213",
+            "tile_x": 208640,
+            "tile_y": 120213,
+            "tile_z": 18
+          },
+          "type": "Feature"
+        },
+        {
+          "geometry": {
+            "coordinates": [
+              [
+                [
+                  [
+                    106.5234375,
+                    14.74566711,
+                    0
+                  ],
+                  [
+                    106.52481079,
+                    14.74566711,
+                    0
+                  ],
+                  [
+                    106.52481079,
+                    14.74433904,
+                    0
+                  ],
+                  [
+                    106.5234375,
+                    14.74433904,
+                    0
+                  ],
+                  [
+                    106.5234375,
+                    14.74566711,
+                    0
+                  ]
+                ]
+              ]
+            ],
+            "type": "MultiPolygon"
+          },
+          "properties": {
+            "category": "bad_no_imagery_1",
+            "reference": 0,
+            "screen": 7,
+            "taskid": "18-208640-120214",
+            "tile_x": 208640,
+            "tile_y": 120214,
+            "tile_z": 18
+          },
+          "type": "Feature"
+        },
+        {
+          "geometry": {
+            "coordinates": [
+              [
+                [
+                  [
+                    106.52206421,
+                    14.74699516,
+                    0
+                  ],
+                  [
+                    106.5234375,
+                    14.74699516,
+                    0
+                  ],
+                  [
+                    106.5234375,
+                    14.74566711,
+                    0
+                  ],
+                  [
+                    106.52206421,
+                    14.74566711,
+                    0
+                  ],
+                  [
+                    106.52206421,
+                    14.74699516,
+                    0
+                  ]
+                ]
+              ]
+            ],
+            "type": "MultiPolygon"
+          },
+          "properties": {
+            "category": "bad_no_imagery_1",
+            "reference": 3,
+            "screen": 7,
+            "taskid": "18-208639-120213",
+            "tile_x": 208639,
+            "tile_y": 120213,
+            "tile_z": 18
+          },
+          "type": "Feature"
+        },
+        {
+          "geometry": {
+            "coordinates": [
+              [
+                [
+                  [
+                    106.52206421,
+                    14.74566711,
+                    0
+                  ],
+                  [
+                    106.5234375,
+                    14.74566711,
+                    0
+                  ],
+                  [
+                    106.5234375,
+                    14.74433904,
+                    0
+                  ],
+                  [
+                    106.52206421,
+                    14.74433904,
+                    0
+                  ],
+                  [
+                    106.52206421,
+                    14.74566711,
+                    0
+                  ]
+                ]
+              ]
+            ],
+            "type": "MultiPolygon"
+          },
+          "properties": {
+            "category": "bad_no_imagery_1",
+            "reference": 3,
+            "screen": 7,
+            "taskid": "18-208639-120214",
+            "tile_x": 208639,
+            "tile_y": 120214,
+            "tile_z": 18
+          },
+          "type": "Feature"
+        },
+        {
+          "geometry": {
+            "coordinates": [
+              [
+                [
+                  [
+                    106.52206421,
+                    14.74832321,
+                    0
+                  ],
+                  [
+                    106.5234375,
+                    14.74832321,
+                    0
+                  ],
+                  [
+                    106.5234375,
+                    14.74699516,
+                    0
+                  ],
+                  [
+                    106.52206421,
+                    14.74699516,
+                    0
+                  ],
+                  [
+                    106.52206421,
+                    14.74832321,
+                    0
+                  ]
+                ]
+              ]
+            ],
+            "type": "MultiPolygon"
+          },
+          "properties": {
+            "category": "bad_no_imagery_1",
+            "reference": 3,
+            "screen": 7,
+            "taskid": "18-208639-120212",
+            "tile_x": 208639,
+            "tile_y": 120212,
+            "tile_z": 18
+          },
+          "type": "Feature"
+        },
+        {
+          "geometry": {
+            "coordinates": [
+              [
+                [
+                  [
+                    36.37023926,
+                    -4.90488679,
+                    0
+                  ],
+                  [
+                    36.37161255,
+                    -4.90488679,
+                    0
+                  ],
+                  [
+                    36.37161255,
+                    -4.90625506,
+                    0
+                  ],
+                  [
+                    36.37023926,
+                    -4.90625506,
+                    0
+                  ],
+                  [
+                    36.37023926,
+                    -4.90488679,
+                    0
+                  ]
+                ]
+              ]
+            ],
+            "type": "MultiPolygon"
+          },
+          "properties": {
+            "category": "bad_no_imagery_2",
+            "reference": 3,
+            "screen": 8,
+            "taskid": "18-157556-134648",
+            "tile_x": 157556,
+            "tile_y": 134648,
+            "tile_z": 18
+          },
+          "type": "Feature"
+        },
+        {
+          "geometry": {
+            "coordinates": [
+              [
+                [
+                  [
+                    36.36886597,
+                    -4.90625506,
+                    0
+                  ],
+                  [
+                    36.37023926,
+                    -4.90625506,
+                    0
+                  ],
+                  [
+                    36.37023926,
+                    -4.90762331,
+                    0
+                  ],
+                  [
+                    36.36886597,
+                    -4.90762331,
+                    0
+                  ],
+                  [
+                    36.36886597,
+                    -4.90625506,
+                    0
+                  ]
+                ]
+              ]
+            ],
+            "type": "MultiPolygon"
+          },
+          "properties": {
+            "category": "bad_no_imagery_2",
+            "reference": 3,
+            "screen": 8,
+            "taskid": "18-157555-134649",
+            "tile_x": 157555,
+            "tile_y": 134649,
+            "tile_z": 18
+          },
+          "type": "Feature"
+        },
+        {
+          "geometry": {
+            "coordinates": [
+              [
+                [
+                  [
+                    36.37023926,
+                    -4.90625506,
+                    0
+                  ],
+                  [
+                    36.37161255,
+                    -4.90625506,
+                    0
+                  ],
+                  [
+                    36.37161255,
+                    -4.90762331,
+                    0
+                  ],
+                  [
+                    36.37023926,
+                    -4.90762331,
+                    0
+                  ],
+                  [
+                    36.37023926,
+                    -4.90625506,
+                    0
+                  ]
+                ]
+              ]
+            ],
+            "type": "MultiPolygon"
+          },
+          "properties": {
+            "category": "bad_no_imagery_2",
+            "reference": 3,
+            "screen": 8,
+            "taskid": "18-157556-134649",
+            "tile_x": 157556,
+            "tile_y": 134649,
+            "tile_z": 18
+          },
+          "type": "Feature"
+        },
+        {
+          "geometry": {
+            "coordinates": [
+              [
+                [
+                  [
+                    36.36886597,
+                    -4.90351853,
+                    0
+                  ],
+                  [
+                    36.37023926,
+                    -4.90351853,
+                    0
+                  ],
+                  [
+                    36.37023926,
+                    -4.90488679,
+                    0
+                  ],
+                  [
+                    36.36886597,
+                    -4.90488679,
+                    0
+                  ],
+                  [
+                    36.36886597,
+                    -4.90351853,
+                    0
+                  ]
+                ]
+              ]
+            ],
+            "type": "MultiPolygon"
+          },
+          "properties": {
+            "category": "bad_no_imagery_2",
+            "reference": 3,
+            "screen": 8,
+            "taskid": "18-157555-134647",
+            "tile_x": 157555,
+            "tile_y": 134647,
+            "tile_z": 18
+          },
+          "type": "Feature"
+        },
+        {
+          "geometry": {
+            "coordinates": [
+              [
+                [
+                  [
+                    36.36886597,
+                    -4.90488679,
+                    0
+                  ],
+                  [
+                    36.37023926,
+                    -4.90488679,
+                    0
+                  ],
+                  [
+                    36.37023926,
+                    -4.90625506,
+                    0
+                  ],
+                  [
+                    36.36886597,
+                    -4.90625506,
+                    0
+                  ],
+                  [
+                    36.36886597,
+                    -4.90488679,
+                    0
+                  ]
+                ]
+              ]
+            ],
+            "type": "MultiPolygon"
+          },
+          "properties": {
+            "category": "bad_no_imagery_2",
+            "reference": 3,
+            "screen": 8,
+            "taskid": "18-157555-134648",
+            "tile_x": 157555,
+            "tile_y": 134648,
+            "tile_z": 18
+          },
+          "type": "Feature"
+        },
+        {
+          "geometry": {
+            "coordinates": [
+              [
+                [
+                  [
+                    36.37023926,
+                    -4.90351853,
+                    0
+                  ],
+                  [
+                    36.37161255,
+                    -4.90351853,
+                    0
+                  ],
+                  [
+                    36.37161255,
+                    -4.90488679,
+                    0
+                  ],
+                  [
+                    36.37023926,
+                    -4.90488679,
+                    0
+                  ],
+                  [
+                    36.37023926,
+                    -4.90351853,
+                    0
+                  ]
+                ]
+              ]
+            ],
+            "type": "MultiPolygon"
+          },
+          "properties": {
+            "category": "bad_no_imagery_2",
+            "reference": 3,
+            "screen": 8,
+            "taskid": "18-157556-134647",
+            "tile_x": 157556,
+            "tile_y": 134647,
+            "tile_z": 18
+          },
+          "type": "Feature"
+        },
+        {
+          "geometry": {
+            "coordinates": [
+              [
+                [
+                  [
+                    106.5838623,
+                    15.09731698,
+                    0
+                  ],
+                  [
+                    106.5852356,
+                    15.09731698,
+                    0
+                  ],
+                  [
+                    106.5852356,
+                    15.09599108,
+                    0
+                  ],
+                  [
+                    106.5838623,
+                    15.09599108,
+                    0
+                  ],
+                  [
+                    106.5838623,
+                    15.09731698,
+                    0
+                  ]
+                ]
+              ]
+            ],
+            "type": "MultiPolygon"
+          },
+          "properties": {
+            "category": "building_easy_2",
+            "reference": 1,
+            "screen": 2,
+            "taskid": "18-208684-119949",
+            "tile_x": 208684,
+            "tile_y": 119949,
+            "tile_z": 18
+          },
+          "type": "Feature"
+        },
+        {
+          "geometry": {
+            "coordinates": [
+              [
+                [
+                  [
+                    106.58248901,
+                    15.09731698,
+                    0
+                  ],
+                  [
+                    106.5838623,
+                    15.09731698,
+                    0
+                  ],
+                  [
+                    106.5838623,
+                    15.09599108,
+                    0
+                  ],
+                  [
+                    106.58248901,
+                    15.09599108,
+                    0
+                  ],
+                  [
+                    106.58248901,
+                    15.09731698,
+                    0
+                  ]
+                ]
+              ]
+            ],
+            "type": "MultiPolygon"
+          },
+          "properties": {
+            "category": "building_easy_2",
+            "reference": 1,
+            "screen": 2,
+            "taskid": "18-208683-119949",
+            "tile_x": 208683,
+            "tile_y": 119949,
+            "tile_z": 18
+          },
+          "type": "Feature"
+        },
+        {
+          "geometry": {
+            "coordinates": [
+              [
+                [
+                  [
+                    106.58248901,
+                    15.09599108,
+                    0
+                  ],
+                  [
+                    106.5838623,
+                    15.09599108,
+                    0
+                  ],
+                  [
+                    106.5838623,
+                    15.09466518,
+                    0
+                  ],
+                  [
+                    106.58248901,
+                    15.09466518,
+                    0
+                  ],
+                  [
+                    106.58248901,
+                    15.09599108,
+                    0
+                  ]
+                ]
+              ]
+            ],
+            "type": "MultiPolygon"
+          },
+          "properties": {
+            "category": "building_easy_2",
+            "reference": 1,
+            "screen": 2,
+            "taskid": "18-208683-119950",
+            "tile_x": 208683,
+            "tile_y": 119950,
+            "tile_z": 18
+          },
+          "type": "Feature"
+        },
+        {
+          "geometry": {
+            "coordinates": [
+              [
+                [
+                  [
+                    106.5838623,
+                    15.09599108,
+                    0
+                  ],
+                  [
+                    106.5852356,
+                    15.09599108,
+                    0
+                  ],
+                  [
+                    106.5852356,
+                    15.09466518,
+                    0
+                  ],
+                  [
+                    106.5838623,
+                    15.09466518,
+                    0
+                  ],
+                  [
+                    106.5838623,
+                    15.09599108,
+                    0
+                  ]
+                ]
+              ]
+            ],
+            "type": "MultiPolygon"
+          },
+          "properties": {
+            "category": "building_easy_2",
+            "reference": 0,
+            "screen": 2,
+            "taskid": "18-208684-119950",
+            "tile_x": 208684,
+            "tile_y": 119950,
+            "tile_z": 18
+          },
+          "type": "Feature"
+        },
+        {
+          "geometry": {
+            "coordinates": [
+              [
+                [
+                  [
+                    106.58248901,
+                    15.09864287,
+                    0
+                  ],
+                  [
+                    106.5838623,
+                    15.09864287,
+                    0
+                  ],
+                  [
+                    106.5838623,
+                    15.09731698,
+                    0
+                  ],
+                  [
+                    106.58248901,
+                    15.09731698,
+                    0
+                  ],
+                  [
+                    106.58248901,
+                    15.09864287,
+                    0
+                  ]
+                ]
+              ]
+            ],
+            "type": "MultiPolygon"
+          },
+          "properties": {
+            "category": "building_easy_2",
+            "reference": 0,
+            "screen": 2,
+            "taskid": "18-208683-119948",
+            "tile_x": 208683,
+            "tile_y": 119948,
+            "tile_z": 18
+          },
+          "type": "Feature"
+        },
+        {
+          "geometry": {
+            "coordinates": [
+              [
+                [
+                  [
+                    106.5838623,
+                    15.09864287,
+                    0
+                  ],
+                  [
+                    106.5852356,
+                    15.09864287,
+                    0
+                  ],
+                  [
+                    106.5852356,
+                    15.09731698,
+                    0
+                  ],
+                  [
+                    106.5838623,
+                    15.09731698,
+                    0
+                  ],
+                  [
+                    106.5838623,
+                    15.09864287,
+                    0
+                  ]
+                ]
+              ]
+            ],
+            "type": "MultiPolygon"
+          },
+          "properties": {
+            "category": "building_easy_2",
+            "reference": 1,
+            "screen": 2,
+            "taskid": "18-208684-119948",
+            "tile_x": 208684,
+            "tile_y": 119948,
+            "tile_z": 18
+          },
+          "type": "Feature"
+        },
+        {
+          "geometry": {
+            "coordinates": [
+              [
+                [
+                  [
+                    -90.67977905,
+                    14.30430808,
+                    0
+                  ],
+                  [
+                    -90.67840576,
+                    14.30430808,
+                    0
+                  ],
+                  [
+                    -90.67840576,
+                    14.30297736,
+                    0
+                  ],
+                  [
+                    -90.67977905,
+                    14.30297736,
+                    0
+                  ],
+                  [
+                    -90.67977905,
+                    14.30430808,
+                    0
+                  ]
+                ]
+              ]
+            ],
+            "type": "MultiPolygon"
+          },
+          "properties": {
+            "category": "building_easy_1",
+            "reference": 0,
+            "screen": 1,
+            "taskid": "18-65041-120546",
+            "tile_x": 65041,
+            "tile_y": 120546,
+            "tile_z": 18
+          },
+          "type": "Feature"
+        },
+        {
+          "geometry": {
+            "coordinates": [
+              [
+                [
+                  [
+                    -90.67977905,
+                    14.30297736,
+                    0
+                  ],
+                  [
+                    -90.67840576,
+                    14.30297736,
+                    0
+                  ],
+                  [
+                    -90.67840576,
+                    14.30164664,
+                    0
+                  ],
+                  [
+                    -90.67977905,
+                    14.30164664,
+                    0
+                  ],
+                  [
+                    -90.67977905,
+                    14.30297736,
+                    0
+                  ]
+                ]
+              ]
+            ],
+            "type": "MultiPolygon"
+          },
+          "properties": {
+            "category": "building_easy_1",
+            "reference": 0,
+            "screen": 1,
+            "taskid": "18-65041-120547",
+            "tile_x": 65041,
+            "tile_y": 120547,
+            "tile_z": 18
+          },
+          "type": "Feature"
+        },
+        {
+          "geometry": {
+            "coordinates": [
+              [
+                [
+                  [
+                    -90.68115234,
+                    14.30297736,
+                    0
+                  ],
+                  [
+                    -90.67977905,
+                    14.30297736,
+                    0
+                  ],
+                  [
+                    -90.67977905,
+                    14.30164664,
+                    0
+                  ],
+                  [
+                    -90.68115234,
+                    14.30164664,
+                    0
+                  ],
+                  [
+                    -90.68115234,
+                    14.30297736,
+                    0
+                  ]
+                ]
+              ]
+            ],
+            "type": "MultiPolygon"
+          },
+          "properties": {
+            "category": "building_easy_1",
+            "reference": 0,
+            "screen": 1,
+            "taskid": "18-65040-120547",
+            "tile_x": 65040,
+            "tile_y": 120547,
+            "tile_z": 18
+          },
+          "type": "Feature"
+        },
+        {
+          "geometry": {
+            "coordinates": [
+              [
+                [
+                  [
+                    -90.67977905,
+                    14.30563879,
+                    0
+                  ],
+                  [
+                    -90.67840576,
+                    14.30563879,
+                    0
+                  ],
+                  [
+                    -90.67840576,
+                    14.30430808,
+                    0
+                  ],
+                  [
+                    -90.67977905,
+                    14.30430808,
+                    0
+                  ],
+                  [
+                    -90.67977905,
+                    14.30563879,
+                    0
+                  ]
+                ]
+              ]
+            ],
+            "type": "MultiPolygon"
+          },
+          "properties": {
+            "category": "building_easy_1",
+            "reference": 1,
+            "screen": 1,
+            "taskid": "18-65041-120545",
+            "tile_x": 65041,
+            "tile_y": 120545,
+            "tile_z": 18
+          },
+          "type": "Feature"
+        },
+        {
+          "geometry": {
+            "coordinates": [
+              [
+                [
+                  [
+                    -90.68115234,
+                    14.30563879,
+                    0
+                  ],
+                  [
+                    -90.67977905,
+                    14.30563879,
+                    0
+                  ],
+                  [
+                    -90.67977905,
+                    14.30430808,
+                    0
+                  ],
+                  [
+                    -90.68115234,
+                    14.30430808,
+                    0
+                  ],
+                  [
+                    -90.68115234,
+                    14.30563879,
+                    0
+                  ]
+                ]
+              ]
+            ],
+            "type": "MultiPolygon"
+          },
+          "properties": {
+            "category": "building_easy_1",
+            "reference": 0,
+            "screen": 1,
+            "taskid": "18-65040-120545",
+            "tile_x": 65040,
+            "tile_y": 120545,
+            "tile_z": 18
+          },
+          "type": "Feature"
+        },
+        {
+          "geometry": {
+            "coordinates": [
+              [
+                [
+                  [
+                    -90.68115234,
+                    14.30430808,
+                    0
+                  ],
+                  [
+                    -90.67977905,
+                    14.30430808,
+                    0
+                  ],
+                  [
+                    -90.67977905,
+                    14.30297736,
+                    0
+                  ],
+                  [
+                    -90.68115234,
+                    14.30297736,
+                    0
+                  ],
+                  [
+                    -90.68115234,
+                    14.30430808,
+                    0
+                  ]
+                ]
+              ]
+            ],
+            "type": "MultiPolygon"
+          },
+          "properties": {
+            "category": "building_easy_1",
+            "reference": 1,
+            "screen": 1,
+            "taskid": "18-65040-120546",
+            "tile_x": 65040,
+            "tile_y": 120546,
+            "tile_z": 18
+          },
+          "type": "Feature"
+        },
+        {
+          "geometry": {
+            "coordinates": [
+              [
+                [
+                  [
+                    32.84500122,
+                    -11.70199656,
+                    0
+                  ],
+                  [
+                    32.84637451,
+                    -11.70199656,
+                    0
+                  ],
+                  [
+                    32.84637451,
+                    -11.7033413,
+                    0
+                  ],
+                  [
+                    32.84500122,
+                    -11.7033413,
+                    0
+                  ],
+                  [
+                    32.84500122,
+                    -11.70199656,
+                    0
+                  ]
+                ]
+              ]
+            ],
+            "type": "MultiPolygon"
+          },
+          "properties": {
+            "category": "no_building_easy_1",
+            "reference": 0,
+            "screen": 4,
+            "taskid": "18-154989-139653",
+            "tile_x": 154989,
+            "tile_y": 139653,
+            "tile_z": 18
+          },
+          "type": "Feature"
+        },
+        {
+          "geometry": {
+            "coordinates": [
+              [
+                [
+                  [
+                    32.84362793,
+                    -11.69930705,
+                    0
+                  ],
+                  [
+                    32.84500122,
+                    -11.69930705,
+                    0
+                  ],
+                  [
+                    32.84500122,
+                    -11.7006518,
+                    0
+                  ],
+                  [
+                    32.84362793,
+                    -11.7006518,
+                    0
+                  ],
+                  [
+                    32.84362793,
+                    -11.69930705,
+                    0
+                  ]
+                ]
+              ]
+            ],
+            "type": "MultiPolygon"
+          },
+          "properties": {
+            "category": "no_building_easy_1",
+            "reference": 0,
+            "screen": 4,
+            "taskid": "18-154988-139651",
+            "tile_x": 154988,
+            "tile_y": 139651,
+            "tile_z": 18
+          },
+          "type": "Feature"
+        },
+        {
+          "geometry": {
+            "coordinates": [
+              [
+                [
+                  [
+                    32.84500122,
+                    -11.69930705,
+                    0
+                  ],
+                  [
+                    32.84637451,
+                    -11.69930705,
+                    0
+                  ],
+                  [
+                    32.84637451,
+                    -11.7006518,
+                    0
+                  ],
+                  [
+                    32.84500122,
+                    -11.7006518,
+                    0
+                  ],
+                  [
+                    32.84500122,
+                    -11.69930705,
+                    0
+                  ]
+                ]
+              ]
+            ],
+            "type": "MultiPolygon"
+          },
+          "properties": {
+            "category": "no_building_easy_1",
+            "reference": 0,
+            "screen": 4,
+            "taskid": "18-154989-139651",
+            "tile_x": 154989,
+            "tile_y": 139651,
+            "tile_z": 18
+          },
+          "type": "Feature"
+        },
+        {
+          "geometry": {
+            "coordinates": [
+              [
+                [
+                  [
+                    32.84500122,
+                    -11.7006518,
+                    0
+                  ],
+                  [
+                    32.84637451,
+                    -11.7006518,
+                    0
+                  ],
+                  [
+                    32.84637451,
+                    -11.70199656,
+                    0
+                  ],
+                  [
+                    32.84500122,
+                    -11.70199656,
+                    0
+                  ],
+                  [
+                    32.84500122,
+                    -11.7006518,
+                    0
+                  ]
+                ]
+              ]
+            ],
+            "type": "MultiPolygon"
+          },
+          "properties": {
+            "category": "no_building_easy_1",
+            "reference": 0,
+            "screen": 4,
+            "taskid": "18-154989-139652",
+            "tile_x": 154989,
+            "tile_y": 139652,
+            "tile_z": 18
+          },
+          "type": "Feature"
+        },
+        {
+          "geometry": {
+            "coordinates": [
+              [
+                [
+                  [
+                    32.84362793,
+                    -11.7006518,
+                    0
+                  ],
+                  [
+                    32.84500122,
+                    -11.7006518,
+                    0
+                  ],
+                  [
+                    32.84500122,
+                    -11.70199656,
+                    0
+                  ],
+                  [
+                    32.84362793,
+                    -11.70199656,
+                    0
+                  ],
+                  [
+                    32.84362793,
+                    -11.7006518,
+                    0
+                  ]
+                ]
+              ]
+            ],
+            "type": "MultiPolygon"
+          },
+          "properties": {
+            "category": "no_building_easy_1",
+            "reference": 0,
+            "screen": 4,
+            "taskid": "18-154988-139652",
+            "tile_x": 154988,
+            "tile_y": 139652,
+            "tile_z": 18
+          },
+          "type": "Feature"
+        },
+        {
+          "geometry": {
+            "coordinates": [
+              [
+                [
+                  [
+                    32.84362793,
+                    -11.70199656,
+                    0
+                  ],
+                  [
+                    32.84500122,
+                    -11.70199656,
+                    0
+                  ],
+                  [
+                    32.84500122,
+                    -11.7033413,
+                    0
+                  ],
+                  [
+                    32.84362793,
+                    -11.7033413,
+                    0
+                  ],
+                  [
+                    32.84362793,
+                    -11.70199656,
+                    0
+                  ]
+                ]
+              ]
+            ],
+            "type": "MultiPolygon"
+          },
+          "properties": {
+            "category": "no_building_easy_1",
+            "reference": 0,
+            "screen": 4,
+            "taskid": "18-154988-139653",
+            "tile_x": 154988,
+            "tile_y": 139653,
+            "tile_z": 18
+          },
+          "type": "Feature"
+        },
+        {
+          "geometry": {
+            "coordinates": [
+              [
+                [
+                  [
+                    106.51382446,
+                    15.90718754,
+                    0
+                  ],
+                  [
+                    106.51519775,
+                    15.90718754,
+                    0
+                  ],
+                  [
+                    106.51519775,
+                    15.90586683,
+                    0
+                  ],
+                  [
+                    106.51382446,
+                    15.90586683,
+                    0
+                  ],
+                  [
+                    106.51382446,
+                    15.90718754,
+                    0
+                  ]
+                ]
+              ]
+            ],
+            "type": "MultiPolygon"
+          },
+          "properties": {
+            "category": "no_building_easy_2",
+            "reference": 0,
+            "screen": 5,
+            "taskid": "18-208633-119337",
+            "tile_x": 208633,
+            "tile_y": 119337,
+            "tile_z": 18
+          },
+          "type": "Feature"
+        },
+        {
+          "geometry": {
+            "coordinates": [
+              [
+                [
+                  [
+                    106.51245117,
+                    15.90718754,
+                    0
+                  ],
+                  [
+                    106.51382446,
+                    15.90718754,
+                    0
+                  ],
+                  [
+                    106.51382446,
+                    15.90586683,
+                    0
+                  ],
+                  [
+                    106.51245117,
+                    15.90586683,
+                    0
+                  ],
+                  [
+                    106.51245117,
+                    15.90718754,
+                    0
+                  ]
+                ]
+              ]
+            ],
+            "type": "MultiPolygon"
+          },
+          "properties": {
+            "category": "no_building_easy_2",
+            "reference": 0,
+            "screen": 5,
+            "taskid": "18-208632-119337",
+            "tile_x": 208632,
+            "tile_y": 119337,
+            "tile_z": 18
+          },
+          "type": "Feature"
+        },
+        {
+          "geometry": {
+            "coordinates": [
+              [
+                [
+                  [
+                    106.51245117,
+                    15.90586683,
+                    0
+                  ],
+                  [
+                    106.51382446,
+                    15.90586683,
+                    0
+                  ],
+                  [
+                    106.51382446,
+                    15.90454611,
+                    0
+                  ],
+                  [
+                    106.51245117,
+                    15.90454611,
+                    0
+                  ],
+                  [
+                    106.51245117,
+                    15.90586683,
+                    0
+                  ]
+                ]
+              ]
+            ],
+            "type": "MultiPolygon"
+          },
+          "properties": {
+            "category": "no_building_easy_2",
+            "reference": 0,
+            "screen": 5,
+            "taskid": "18-208632-119338",
+            "tile_x": 208632,
+            "tile_y": 119338,
+            "tile_z": 18
+          },
+          "type": "Feature"
+        },
+        {
+          "geometry": {
+            "coordinates": [
+              [
+                [
+                  [
+                    106.51382446,
+                    15.90586683,
+                    0
+                  ],
+                  [
+                    106.51519775,
+                    15.90586683,
+                    0
+                  ],
+                  [
+                    106.51519775,
+                    15.90454611,
+                    0
+                  ],
+                  [
+                    106.51382446,
+                    15.90454611,
+                    0
+                  ],
+                  [
+                    106.51382446,
+                    15.90586683,
+                    0
+                  ]
+                ]
+              ]
+            ],
+            "type": "MultiPolygon"
+          },
+          "properties": {
+            "category": "no_building_easy_2",
+            "reference": 0,
+            "screen": 5,
+            "taskid": "18-208633-119338",
+            "tile_x": 208633,
+            "tile_y": 119338,
+            "tile_z": 18
+          },
+          "type": "Feature"
+        },
+        {
+          "geometry": {
+            "coordinates": [
+              [
+                [
+                  [
+                    106.51245117,
+                    15.90850824,
+                    0
+                  ],
+                  [
+                    106.51382446,
+                    15.90850824,
+                    0
+                  ],
+                  [
+                    106.51382446,
+                    15.90718754,
+                    0
+                  ],
+                  [
+                    106.51245117,
+                    15.90718754,
+                    0
+                  ],
+                  [
+                    106.51245117,
+                    15.90850824,
+                    0
+                  ]
+                ]
+              ]
+            ],
+            "type": "MultiPolygon"
+          },
+          "properties": {
+            "category": "no_building_easy_2",
+            "reference": 0,
+            "screen": 5,
+            "taskid": "18-208632-119336",
+            "tile_x": 208632,
+            "tile_y": 119336,
+            "tile_z": 18
+          },
+          "type": "Feature"
+        },
+        {
+          "geometry": {
+            "coordinates": [
+              [
+                [
+                  [
+                    106.51382446,
+                    15.90850824,
+                    0
+                  ],
+                  [
+                    106.51519775,
+                    15.90850824,
+                    0
+                  ],
+                  [
+                    106.51519775,
+                    15.90718754,
+                    0
+                  ],
+                  [
+                    106.51382446,
+                    15.90718754,
+                    0
+                  ],
+                  [
+                    106.51382446,
+                    15.90850824,
+                    0
+                  ]
+                ]
+              ]
+            ],
+            "type": "MultiPolygon"
+          },
+          "properties": {
+            "category": "no_building_easy_2",
+            "reference": 0,
+            "screen": 5,
+            "taskid": "18-208633-119336",
+            "tile_x": 208633,
+            "tile_y": 119336,
+            "tile_z": 18
+          },
+          "type": "Feature"
+        },
+        {
+          "geometry": {
+            "coordinates": [
+              [
+                [
+                  [
+                    14.53903198,
+                    12.92426063,
+                    0
+                  ],
+                  [
+                    14.54040527,
+                    12.92426063,
+                    0
+                  ],
+                  [
+                    14.54040527,
+                    12.92292213,
+                    0
+                  ],
+                  [
+                    14.53903198,
+                    12.92292213,
+                    0
+                  ],
+                  [
+                    14.53903198,
+                    12.92426063,
+                    0
+                  ]
+                ]
+              ]
+            ],
+            "type": "MultiPolygon"
+          },
+          "properties": {
+            "category": "maybe_1",
+            "reference": 0,
+            "screen": 3,
+            "taskid": "18-141659-121580",
+            "tile_x": 141659,
+            "tile_y": 121580,
+            "tile_z": 18
+          },
+          "type": "Feature"
+        },
+        {
+          "geometry": {
+            "coordinates": [
+              [
+                [
+                  [
+                    14.53903198,
+                    12.92292213,
+                    0
+                  ],
+                  [
+                    14.54040527,
+                    12.92292213,
+                    0
+                  ],
+                  [
+                    14.54040527,
+                    12.92158362,
+                    0
+                  ],
+                  [
+                    14.53903198,
+                    12.92158362,
+                    0
+                  ],
+                  [
+                    14.53903198,
+                    12.92292213,
+                    0
+                  ]
+                ]
+              ]
+            ],
+            "type": "MultiPolygon"
+          },
+          "properties": {
+            "category": "maybe_1",
+            "reference": 0,
+            "screen": 3,
+            "taskid": "18-141659-121581",
+            "tile_x": 141659,
+            "tile_y": 121581,
+            "tile_z": 18
+          },
+          "type": "Feature"
+        },
+        {
+          "geometry": {
+            "coordinates": [
+              [
+                [
+                  [
+                    14.53903198,
+                    12.92158362,
+                    0
+                  ],
+                  [
+                    14.54040527,
+                    12.92158362,
+                    0
+                  ],
+                  [
+                    14.54040527,
+                    12.9202451,
+                    0
+                  ],
+                  [
+                    14.53903198,
+                    12.9202451,
+                    0
+                  ],
+                  [
+                    14.53903198,
+                    12.92158362,
+                    0
+                  ]
+                ]
+              ]
+            ],
+            "type": "MultiPolygon"
+          },
+          "properties": {
+            "category": "maybe_1",
+            "reference": 2,
+            "screen": 3,
+            "taskid": "18-141659-121582",
+            "tile_x": 141659,
+            "tile_y": 121582,
+            "tile_z": 18
+          },
+          "type": "Feature"
+        },
+        {
+          "geometry": {
+            "coordinates": [
+              [
+                [
+                  [
+                    14.54040527,
+                    12.92426063,
+                    0
+                  ],
+                  [
+                    14.54177856,
+                    12.92426063,
+                    0
+                  ],
+                  [
+                    14.54177856,
+                    12.92292213,
+                    0
+                  ],
+                  [
+                    14.54040527,
+                    12.92292213,
+                    0
+                  ],
+                  [
+                    14.54040527,
+                    12.92426063,
+                    0
+                  ]
+                ]
+              ]
+            ],
+            "type": "MultiPolygon"
+          },
+          "properties": {
+            "category": "maybe_1",
+            "reference": 0,
+            "screen": 3,
+            "taskid": "18-141660-121580",
+            "tile_x": 141660,
+            "tile_y": 121580,
+            "tile_z": 18
+          },
+          "type": "Feature"
+        },
+        {
+          "geometry": {
+            "coordinates": [
+              [
+                [
+                  [
+                    14.54040527,
+                    12.92292213,
+                    0
+                  ],
+                  [
+                    14.54177856,
+                    12.92292213,
+                    0
+                  ],
+                  [
+                    14.54177856,
+                    12.92158362,
+                    0
+                  ],
+                  [
+                    14.54040527,
+                    12.92158362,
+                    0
+                  ],
+                  [
+                    14.54040527,
+                    12.92292213,
+                    0
+                  ]
+                ]
+              ]
+            ],
+            "type": "MultiPolygon"
+          },
+          "properties": {
+            "category": "maybe_1",
+            "reference": 0,
+            "screen": 3,
+            "taskid": "18-141660-121581",
+            "tile_x": 141660,
+            "tile_y": 121581,
+            "tile_z": 18
+          },
+          "type": "Feature"
+        },
+        {
+          "geometry": {
+            "coordinates": [
+              [
+                [
+                  [
+                    14.54040527,
+                    12.92158362,
+                    0
+                  ],
+                  [
+                    14.54177856,
+                    12.92158362,
+                    0
+                  ],
+                  [
+                    14.54177856,
+                    12.9202451,
+                    0
+                  ],
+                  [
+                    14.54040527,
+                    12.9202451,
+                    0
+                  ],
+                  [
+                    14.54040527,
+                    12.92158362,
+                    0
+                  ]
+                ]
+              ]
+            ],
+            "type": "MultiPolygon"
+          },
+          "properties": {
+            "category": "maybe_1",
+            "reference": 0,
+            "screen": 3,
+            "taskid": "18-141660-121582",
+            "tile_x": 141660,
+            "tile_y": 121582,
+            "tile_z": 18
+          },
+          "type": "Feature"
+        },
+        {
+          "geometry": {
+            "coordinates": [
+              [
+                [
+                  [
+                    -90.0892639160156,
+                    14.4612774170042,
+                    0
+                  ],
+                  [
+                    -90.087890625,
+                    14.4612774170042,
+                    0
+                  ],
+                  [
+                    -90.087890625,
+                    14.4599476324892,
+                    0
+                  ],
+                  [
+                    -90.0892639160156,
+                    14.4599476324892,
+                    0
+                  ],
+                  [
+                    -90.0892639160156,
+                    14.4612774170042,
+                    0
+                  ]
+                ]
+              ]
+            ],
+            "type": "MultiPolygon"
+          },
+          "properties": {
+            "category": "bad_clouds_1",
+            "reference": 0,
+            "screen": 6,
+            "taskid": "18-65471-120428",
+            "tile_x": 65471,
+            "tile_y": 120428,
+            "tile_z": 18
+          },
+          "type": "Feature"
+        },
+        {
+          "geometry": {
+            "coordinates": [
+              [
+                [
+                  [
+                    -90.087890625,
+                    14.4612774170042,
+                    0
+                  ],
+                  [
+                    -90.0865173339844,
+                    14.4612774170042,
+                    0
+                  ],
+                  [
+                    -90.0865173339844,
+                    14.4599476324892,
+                    0
+                  ],
+                  [
+                    -90.087890625,
+                    14.4599476324892,
+                    0
+                  ],
+                  [
+                    -90.087890625,
+                    14.4612774170042,
+                    0
+                  ]
+                ]
+              ]
+            ],
+            "type": "MultiPolygon"
+          },
+          "properties": {
+            "category": "bad_clouds_1",
+            "reference": 3,
+            "screen": 6,
+            "taskid": "18-65472-120428",
+            "tile_x": 65472,
+            "tile_y": 120428,
+            "tile_z": 18
+          },
+          "type": "Feature"
+        },
+        {
+          "geometry": {
+            "coordinates": [
+              [
+                [
+                  [
+                    -90.0892639160156,
+                    14.4599476324892,
+                    0
+                  ],
+                  [
+                    -90.087890625,
+                    14.4599476324892,
+                    0
+                  ],
+                  [
+                    -90.087890625,
+                    14.4586178400154,
+                    0
+                  ],
+                  [
+                    -90.0892639160156,
+                    14.4586178400154,
+                    0
+                  ],
+                  [
+                    -90.0892639160156,
+                    14.4599476324892,
+                    0
+                  ]
+                ]
+              ]
+            ],
+            "type": "MultiPolygon"
+          },
+          "properties": {
+            "category": "bad_clouds_1",
+            "reference": 0,
+            "screen": 6,
+            "taskid": "18-65471-120429",
+            "tile_x": 65471,
+            "tile_y": 120429,
+            "tile_z": 18
+          },
+          "type": "Feature"
+        },
+        {
+          "geometry": {
+            "coordinates": [
+              [
+                [
+                  [
+                    -90.0892639160156,
+                    14.4586178400154,
+                    0
+                  ],
+                  [
+                    -90.087890625,
+                    14.4586178400154,
+                    0
+                  ],
+                  [
+                    -90.087890625,
+                    14.4572880395834,
+                    0
+                  ],
+                  [
+                    -90.0892639160156,
+                    14.4572880395834,
+                    0
+                  ],
+                  [
+                    -90.0892639160156,
+                    14.4586178400154,
+                    0
+                  ]
+                ]
+              ]
+            ],
+            "type": "MultiPolygon"
+          },
+          "properties": {
+            "category": "bad_clouds_1",
+            "reference": 0,
+            "screen": 6,
+            "taskid": "18-65471-120430",
+            "tile_x": 65471,
+            "tile_y": 120430,
+            "tile_z": 18
+          },
+          "type": "Feature"
+        },
+        {
+          "geometry": {
+            "coordinates": [
+              [
+                [
+                  [
+                    -90.087890625,
+                    14.4599476324892,
+                    0
+                  ],
+                  [
+                    -90.0865173339844,
+                    14.4599476324892,
+                    0
+                  ],
+                  [
+                    -90.0865173339844,
+                    14.4586178400154,
+                    0
+                  ],
+                  [
+                    -90.087890625,
+                    14.4586178400154,
+                    0
+                  ],
+                  [
+                    -90.087890625,
+                    14.4599476324892,
+                    0
+                  ]
+                ]
+              ]
+            ],
+            "type": "MultiPolygon"
+          },
+          "properties": {
+            "category": "bad_clouds_1",
+            "reference": 3,
+            "screen": 6,
+            "taskid": "18-65472-120429",
+            "tile_x": 65472,
+            "tile_y": 120429,
+            "tile_z": 18
+          },
+          "type": "Feature"
+        },
+        {
+          "geometry": {
+            "coordinates": [
+              [
+                [
+                  [
+                    -90.087890625,
+                    14.4586178400154,
+                    0
+                  ],
+                  [
+                    -90.0865173339844,
+                    14.4586178400154,
+                    0
+                  ],
+                  [
+                    -90.0865173339844,
+                    14.4572880395834,
+                    0
+                  ],
+                  [
+                    -90.087890625,
+                    14.4572880395834,
+                    0
+                  ],
+                  [
+                    -90.087890625,
+                    14.4586178400154,
+                    0
+                  ]
+                ]
+              ]
+            ],
+            "type": "MultiPolygon"
+          },
+          "properties": {
+            "category": "bad_clouds_1",
+            "reference": 3,
+            "screen": 6,
+            "taskid": "18-65472-120430",
+            "tile_x": 65472,
+            "tile_y": 120430,
+            "tile_z": 18
+          },
+          "type": "Feature"
+        }
+      ],
+      "name": "build_area_tutorial_tasks_updated",
+      "type": "FeatureCollection"
+    },
+    "zoomLevel": 18
+  }

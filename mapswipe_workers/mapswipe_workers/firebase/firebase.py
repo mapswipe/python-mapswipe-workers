@@ -1,5 +1,7 @@
+from dataclasses import asdict
+
 from mapswipe_workers import auth
-from mapswipe_workers.definitions import logger
+from mapswipe_workers.definitions import CustomError, logger
 from mapswipe_workers.utils import gzip_str
 
 
@@ -56,3 +58,50 @@ class Firebase:
                     f" uploaded 150 groups with tasks to firebase realtime database"
                 )
                 task_upload_dict = {}
+
+    def save_tutorial_to_firebase(
+        self, tutorial, groups, groupsOfTasks, useCompression: bool
+    ):
+        tasks = {k: [asdict(i) for i in v] for k, v in groupsOfTasks.items()}
+        groups = {k: asdict(v) for k, v in groups.items()}
+
+        tutorialDict = vars(tutorial)
+
+        tutorialDict.pop("groups", None)
+        tutorialDict.pop("tasks", None)
+        tutorialDict.pop("raw_tasks", None)
+        tutorialDict.pop("examplesFile", None)
+        tutorialDict.pop("tutorial_tasks", None)
+
+        if not tutorial.projectId or tutorial.projectId == "":
+            raise CustomError(
+                "Given argument resulted in invalid "
+                "Firebase Realtime Database reference. "
+                f"Project Id is invalid: {tutorial.projectId}"
+            )
+
+        if useCompression:
+            # we compress tasks for footprint project type using gzip
+            compressed_tasks = gzip_str.compress_tasks(groupsOfTasks)
+            tasks = {"101": compressed_tasks}
+
+        self.ref.update(
+            {
+                f"v2/projects/{tutorial.projectId}": tutorialDict,
+            }
+        )
+        self.ref.update(
+            {
+                f"v2/groups/{tutorial.projectId}": [groups],
+            }
+        )
+        self.ref.update(
+            {
+                f"v2/tasks/{tutorial.projectId}": tasks,
+            }
+        )
+
+        logger.info(f"uploaded tutorial data to firebase for {tutorial.projectId}")
+
+    def drop_tutorial_draft(self, tutorialDraftId: str):
+        self.ref.update({f"v2/tutorialDrafts/{tutorialDraftId}": {}})

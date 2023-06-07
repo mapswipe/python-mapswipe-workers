@@ -1,20 +1,41 @@
 import json
 import os
 import urllib.request
+from dataclasses import dataclass
+from typing import Dict, List
 
 from osgeo import ogr
 
 from mapswipe_workers.definitions import DATA_PATH, CustomError, logger
+from mapswipe_workers.firebase.firebase import Firebase
 from mapswipe_workers.project_types.arbitrary_geometry import grouping_functions as g
-from mapswipe_workers.project_types.arbitrary_geometry.group import Group
-from mapswipe_workers.project_types.base.project import BaseProject
+from mapswipe_workers.project_types.base.project import BaseGroup, BaseProject
 from mapswipe_workers.project_types.base.tile_server import BaseTileServer
 from mapswipe_workers.utils.api_calls import geojsonToFeatureCollection, ohsome
 
 
-class Project(BaseProject):
+@dataclass
+class ArbitraryGeometryGroup(BaseGroup):
+    pass
+
+
+# Since Arbitrary Geometry Tasks do not have a ProjectId and GroupId
+# they do not inherit from BaseTask
+@dataclass
+class ArbitraryGeometryTask:
+    taskId: str
+    geojson: dict
+    properties: dict
+    geometry: str
+
+
+class ArbitraryGeometryProject(BaseProject):
     def __init__(self, project_draft: dict) -> None:
         super().__init__(project_draft)
+        self.groups: Dict[str, ArbitraryGeometryGroup] = {}
+        self.tasks: Dict[
+            str, List[ArbitraryGeometryTask]
+        ] = {}  # dict keys are group ids
 
         # set group size
         self.groupSize = project_draft["groupSize"]
@@ -25,6 +46,16 @@ class Project(BaseProject):
             self.filter = project_draft["filter"]
         if "TMId" in project_draft.keys():
             self.TMId = project_draft["TMId"]
+
+        self.answerLabels = project_draft.get(
+            "answerLabels",
+            [
+                {"color": "", "label": "no", "value": 0},
+                {"color": "green", "label": "yes", "value": 1},
+                {"color": "orange", "label": "maybe", "value": 2},
+                {"color": "red", "label": "bad imagery", "value": 3},
+            ],
+        )
 
     def handle_input_type(self, raw_input_file: str):
         """
@@ -191,16 +222,50 @@ class Project(BaseProject):
         return wkt_geometry
 
     def create_groups(self):
-        raw_groups = g.group_input_geometries(self.validInputGeometries, self.groupSize)
+        self.raw_groups = g.group_input_geometries(
+            self.validInputGeometries, self.groupSize
+        )
 
-        for group_id, item in raw_groups.items():
-            group = Group(self, group_id)
-            group.create_tasks(item["feature_ids"], item["features"])
-
-            # only append valid groups
-            if group.is_valid():
-                self.groups.append(group)
-
+        for group_id, item in self.raw_groups.items():
+            self.groups[group_id] = ArbitraryGeometryGroup(
+                projectId=self.projectId,
+                groupId=group_id,
+                numberOfTasks=0,
+                progress=0,
+                finishedCount=0,
+                requiredCount=0,
+            )
         logger.info(
             f"{self.projectId} " f"- create_groups - " f"created groups dictionary"
         )
+
+    def create_tasks(self):
+        for group_id, item in self.raw_groups.items():
+            features = item["features"]
+            f_ids = item["feature_ids"]
+            task_list = []
+            for i, f_id in enumerate(f_ids):
+                feature = features[i]
+                task = ArbitraryGeometryTask(
+                    taskId=f"t{f_id}",
+                    geojson=feature["geometry"],
+                    geometry=ogr.CreateGeometryFromJson(
+                        str(feature["geometry"])
+                    ).ExportToWkt(),
+                    properties=feature["properties"],
+                )
+                task_list.append(task)
+            if task_list:
+                self.tasks[group_id] = task_list
+            else:
+                # remove group if it would contain no tasks
+                self.groups.pop(group_id)
+                logger.info(
+                    f"group in project {self.projectId} is not valid: {group_id}"
+                )
+        # remove raw groups after task creation
+        del self.raw_groups
+
+    def save_tasks_to_firebase(self, projectId: str, tasks: dict):
+        firebase = Firebase()
+        firebase.save_tasks_to_firebase(projectId, tasks, useCompression=True)

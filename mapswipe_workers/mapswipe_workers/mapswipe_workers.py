@@ -86,6 +86,7 @@ def run_create_projects():
 
             project.geometry = project.validate_geometries()
             project.create_groups()
+            project.create_tasks()
             project.calc_required_results()
             # Save project and its groups and tasks to Firebase and Postgres.
             project.save_project()

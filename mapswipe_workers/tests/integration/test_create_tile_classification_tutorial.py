@@ -1,11 +1,10 @@
 import unittest
 
-from . import set_up
-from . import tear_down
 from click.testing import CliRunner
 
 from mapswipe_workers import auth, mapswipe_workers
 from mapswipe_workers.utils.create_directories import create_directories
+from tests.integration import set_up, tear_down
 
 
 class TestCreateTileClassificationTutorial(unittest.TestCase):
@@ -20,7 +19,7 @@ class TestCreateTileClassificationTutorial(unittest.TestCase):
 
     def test_create_tile_classification_tutorial(self):
         runner = CliRunner()
-        runner.invoke(mapswipe_workers.run_create_tutorials)
+        runner.invoke(mapswipe_workers.run_create_tutorials, catch_exceptions=False)
 
         fb_db = auth.firebaseDB()
         ref = fb_db.reference(f"/v2/projects/{self.project_id}")

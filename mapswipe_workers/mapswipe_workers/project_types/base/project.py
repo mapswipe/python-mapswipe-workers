@@ -2,7 +2,9 @@ import csv
 import datetime as dt
 import json
 import os
-from abc import ABCMeta, abstractmethod
+from abc import ABC, abstractmethod
+from dataclasses import asdict, dataclass
+from typing import Dict, List
 
 from osgeo import ogr
 
@@ -14,57 +16,43 @@ from mapswipe_workers.definitions import (
     logger,
     sentry,
 )
+from mapswipe_workers.firebase.firebase import Firebase
 from mapswipe_workers.utils import geojson_functions, gzip_str
 
 
-class BaseProject(metaclass=ABCMeta):
-    """
-    The base class for creating
+@dataclass
+class BaseTask:
+    projectId: str
+    groupId: str
+    taskId: str
 
-    Attributes
-    ----------
-    project_draft_id: str
-        The key of a project draft as depicted in firebase
-    name : str
-        The name of a project
-    project_details : str
-        The detailed description of the project
-    look_for : str
-        The objects of interest / objects to look for in this project
-    image: str
-        The URL of the header image of the project
-    verification_count : int
-        The number of users required for each task to be finished
-    info : dict
-        A dictionary containing further attributes\
-                set by specific types of projects
-    """
 
+@dataclass
+class BaseGroup:
+    projectId: str
+    groupId: str
+    # TODO: attributes below could have default, but breaks inheritance.
+    # After upgrading to Python 3.10 use kw_only=true and use defaults
+    numberOfTasks: int  # TODO: can not be zero
+    progress: int
+    finishedCount: int
+    requiredCount: int
+
+
+class BaseProject(ABC):
     def __init__(self, project_draft):
-        """
-        The function to initialize a new import
-
-        Parameters
-        ----------
-        project_draft_id : str
-        project_draft: dict
-            A dictionary containing all attributes of the project_draft
-
-        Returns
-        -------
-        bool
-           True if successful. False otherwise.
-        """
+        # TODO define as abstract base attributes
+        self.groups: Dict[str, BaseGroup]
+        self.tasks: Dict[str, List[BaseTask]]  # dict keys are group ids
 
         self.contributorCount = 0
         self.created = dt.datetime.now()
         self.createdBy = project_draft["createdBy"]
         self.groupMaxSize = project_draft.get("groupMaxSize", 0)
-        self.groups = list()
         self.groupSize = project_draft["groupSize"]
-        self.image = project_draft["image"]
+        self.image = project_draft["image"]  # Header image
         self.isFeatured = False
-        self.lookFor = project_draft["lookFor"]
+        self.lookFor = project_draft["lookFor"]  # Objects of interest
         self.name = project_draft["name"]
         self.progress = 0
         self.projectDetails = project_draft["projectDetails"]
@@ -77,6 +65,7 @@ class BaseProject(metaclass=ABCMeta):
         self.requiredResults = 0
         self.resultCount = 0
         self.teamId = project_draft.get("teamId", None)
+        # The number of users required for each task to be finished
         self.verificationNumber = project_draft["verificationNumber"]
         max_tasks_per_user = project_draft.get("maxTasksPerUser", None)
         if max_tasks_per_user is not None:
@@ -117,36 +106,24 @@ class BaseProject(metaclass=ABCMeta):
 
         # Convert object attributes to dictionaries
         # for saving it to firebase and postgres
+        tasks = {k: [asdict(i) for i in v] for k, v in self.tasks.items()}
+        groups = {k: asdict(v) for k, v in self.groups.items()}
         project = vars(self)
-        groups = dict()
-        groupsOfTasks = dict()
-        for group in self.groups:
-            group = vars(group)
-            tasks = list()
-            for task in group["tasks"]:
-                tasks.append(vars(task))
-            groupsOfTasks[group["groupId"]] = tasks
-            del group["tasks"]
-            groups[group["groupId"]] = group
-        del project["groups"]
 
+        project.pop("groups")
+        project.pop("tasks")
         project.pop("inputGeometries", None)
         project.pop("validInputGeometries", None)
 
         # Convert Date object to ISO Datetime:
         # https://www.w3.org/TR/NOTE-datetime
         project["created"] = self.created.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
-        # logger.info(
-        #         f'{self.projectId}'
-        #         f' - size of all tasks: '
-        #         f'{sys.getsizeof(json.dumps(groupsOfTasks))/1024/1024} MB'
-        #         )
-        # Make sure projects get saved in Postgres and Firebase successful
+
         try:
             self.save_to_postgres(
                 project,
                 groups,
-                groupsOfTasks,
+                tasks,
             )
             logger.info(
                 f"{self.projectId}" f" - the project has been saved" f" to postgres"
@@ -177,11 +154,10 @@ class BaseProject(metaclass=ABCMeta):
             raise CustomError(e)
 
         try:
-            self.save_to_firebase(
-                project,
-                groups,
-                groupsOfTasks,
-            )
+            self.save_project_to_firebase(project)
+            self.save_groups_to_firebase(project["projectId"], groups)
+            self.save_tasks_to_firebase(project["projectId"], tasks)
+
             logger.info(
                 f"{self.projectId}" f" - the project has been saved" f" to firebase"
             )
@@ -202,22 +178,16 @@ class BaseProject(metaclass=ABCMeta):
 
         return True
 
-    # ToDo: Implement for every children class
-    # Then add abstract method decorator
-    # @abstractmethod
     def save_project_to_firebase(self, project):
-        pass
+        firebase = Firebase()
+        firebase.save_project_to_firebase(project)
 
-    # ToDo: Implement for every children class
-    # Then add abstract method decorator
-    # @abstractmethod
-    def save_groups_to_firebase(self, projectId: str, groups: list):
-        pass
+    def save_groups_to_firebase(self, projectId: str, groups: dict):
+        firebase = Firebase()
+        firebase.save_groups_to_firebase(projectId, groups)
 
-    # ToDo: Implement for every children class
-    # Then add abstract method decorator
-    # @abstractmethod
-    def save_tasks_to_firebase(self, projectId: str, tasks: list):
+    @abstractmethod
+    def save_tasks_to_firebase(self, projectId: str, tasks: dict):
         pass
 
     def save_to_firebase(self, project, groups, groupsOfTasks):
@@ -416,7 +386,10 @@ class BaseProject(metaclass=ABCMeta):
               project_id,
               group_id,
               task_id,
-              ST_Force2D(ST_Multi(ST_GeomFromText(geom, 4326))),
+              CASE
+                WHEN geom='' THEN NULL
+                ELSE ST_Force2D(ST_Multi(ST_GeomFromText(geom, 4326)))
+              END geom,
               project_type_specifics
             FROM raw_tasks;
             DROP TABLE IF EXISTS raw_tasks CASCADE;
@@ -553,7 +526,8 @@ class BaseProject(metaclass=ABCMeta):
                     "groupId",
                     "numberOfTasks",
                     "requiredCount",
-                    "finishedCount" "progress",
+                    "finishedCount",
+                    "progress",
                 ]
 
                 for key in group.keys():
@@ -674,16 +648,18 @@ class BaseProject(metaclass=ABCMeta):
         )
 
     def calc_required_results(self):
-        for group in self.groups:
+        for group in self.groups.values():
             group.requiredCount = self.verificationNumber
-            self.requiredResults = (
-                self.requiredResults + group.requiredCount * group.numberOfTasks
-            )
+            self.requiredResults += group.requiredCount * group.numberOfTasks
 
     @abstractmethod
     def validate_geometries(self):
         pass
 
     @abstractmethod
-    def create_groups():
+    def create_groups(self):
+        pass
+
+    @abstractmethod
+    def create_tasks(self):
         pass

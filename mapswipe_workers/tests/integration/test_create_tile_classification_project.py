@@ -1,11 +1,10 @@
 import unittest
 
-from . import set_up
-from . import tear_down
 from click.testing import CliRunner
-import pandas as pd
+
 from mapswipe_workers import auth, mapswipe_workers
 from mapswipe_workers.utils.create_directories import create_directories
+from tests.integration import set_up, tear_down
 
 
 class TestCreateTileClassificationProject(unittest.TestCase):
@@ -20,14 +19,19 @@ class TestCreateTileClassificationProject(unittest.TestCase):
 
     def test_create_tile_classification_project(self):
         runner = CliRunner()
-        runner.invoke(mapswipe_workers.run_create_projects)
+        runner.invoke(mapswipe_workers.run_create_projects, catch_exceptions=False)
 
         pg_db = auth.postgresDB()
         query = "SELECT project_id FROM projects WHERE project_id = %s"
         result = pg_db.retr_query(query, [self.project_id])[0][0]
         self.assertEqual(result, self.project_id)
 
-        query = """SELECT project_id FROM projects WHERE project_id = %s and project_type_specifics::jsonb ? 'answerLabels'"""
+        query = """
+            SELECT project_id
+            FROM projects
+            WHERE project_id = %s
+                and project_type_specifics::jsonb ? 'answerLabels'
+        """
         result = pg_db.retr_query(query, [self.project_id])[0][0]
         self.assertEqual(result, self.project_id)
 

@@ -1,0 +1,337 @@
+{
+  "createdBy": "T8jltQ14RjS6gCQ9DlQfgWvy6T72",
+  "exampleImage1": "",
+  "exampleImage2": "",
+  "lookFor": "damaged buildings",
+  "name": "change_detection_tutorial",
+  "projectType": 3,
+  "screens": [
+    null,
+    {
+      "hint": {
+        "description": "Compare the building outlines in the two images.",
+        "icon": "swipe-left",
+        "title": "There is severe damage visible."
+      },
+      "instructions": {
+        "description": "Tap once whenever you spot damaged settlements. Swipe to learn more.",
+        "icon": "tap-1",
+        "title": "There is a destroyed building here."
+      },
+      "success": {
+        "description": "Swipe to the next screen to look for more.",
+        "icon": "check",
+        "title": "You correctly mapped this task!"
+      }
+    },
+    {
+      "hint": {
+        "description": "Tap twice whenever you are not sure.",
+        "icon": "swipe-left",
+        "title": "Yellow indicates that settlements might have been damaged."
+      },
+      "instructions": {
+        "description": "Tap the square twice to mark it yellow indicating that there might be damage.",
+        "icon": "tap-2",
+        "title": "This is difficult."
+      },
+      "success": {
+        "description": "Swipe to the next screen to learn more.",
+        "icon": "check",
+        "title": "Nice. Use this whenever you are not sure."
+      }
+    },
+    {
+      "hint": {
+        "description": "The buildings look the same in the two images.",
+        "icon": "swipe-left",
+        "title": "No need to tap here."
+      },
+      "instructions": {
+        "description": "Just swipe left to the next screen.",
+        "icon": "swipe-left",
+        "title": "No building damage visible here."
+      },
+      "success": {
+        "description": "Swipe to keep on going",
+        "icon": "check",
+        "title": "Great. We can't spot damaged buildings here."
+      }
+    },
+    {
+      "hint": {
+        "description": "There might be other objects such as tents, but still the buildings are okay.",
+        "icon": "swipe-left",
+        "title": "Don't get distracted."
+      },
+      "instructions": {
+        "description": "Again, just swipe left.",
+        "icon": "swipe-left",
+        "title": "Spontaneous shelters but not building damage."
+      },
+      "success": {
+        "description": "Swipe to the next screen to learn more.",
+        "icon": "check",
+        "title": "Correct!"
+      }
+    },
+    {
+      "hint": {
+        "description": "Only map building damage.",
+        "icon": "swipe-left",
+        "title": "We’ve marked the correct answers"
+      },
+      "instructions": {
+        "description": "If there are no buildings, just swipe left.",
+        "icon": "swipe-left",
+        "title": "No buildings at all"
+      },
+      "success": {
+        "description": "Swipe to practice some more.",
+        "icon": "check",
+        "title": "Well done, you got it right!"
+      }
+    }
+  ],
+  "tileServer": {
+    "credits": "© 2019 Microsoft Corporation, Earthstar Geographics SIO",
+    "name": "bing"
+  },
+  "tileServerB": {
+    "credits": "© 2019 Microsoft Corporation, Earthstar Geographics SIO",
+    "name": "bing"
+  },
+  "tutorialTasks": {
+    "crs": {
+      "properties": {
+        "name": "urn:ogc:def:crs:OGC:1.3:CRS84"
+      },
+      "type": "name"
+    },
+    "features": [
+      {
+        "geometry": {
+          "coordinates": [
+            [
+              [
+                -73.7553405761719,
+                18.2123937258254,
+                0
+              ],
+              [
+                -73.7546539306641,
+                18.2123937258254,
+                0
+              ],
+              [
+                -73.7546539306641,
+                18.2117414769682,
+                0
+              ],
+              [
+                -73.7553405761719,
+                18.2117414769682,
+                0
+              ],
+              [
+                -73.7553405761719,
+                18.2123937258254,
+                0
+              ]
+            ]
+          ],
+          "type": "Polygon"
+        },
+        "properties": {
+          "groupId": "g106",
+          "reference": 0,
+          "screen": 3,
+          "taskId": "19-154730-235162",
+          "tile_x": 154730,
+          "tile_y": 235162,
+          "tile_z": 19
+        },
+        "type": "Feature"
+      },
+      {
+        "geometry": {
+          "coordinates": [
+            [
+              [
+                -73.7546539306641,
+                18.1915205510666,
+                0
+              ],
+              [
+                -73.7539672851562,
+                18.1915205510666,
+                0
+              ],
+              [
+                -73.7539672851562,
+                18.1908682240724,
+                0
+              ],
+              [
+                -73.7546539306641,
+                18.1908682240724,
+                0
+              ],
+              [
+                -73.7546539306641,
+                18.1915205510666,
+                0
+              ]
+            ]
+          ],
+          "type": "Polygon"
+        },
+        "properties": {
+          "groupId": "g117",
+          "reference": 0,
+          "screen": 4,
+          "taskId": "19-154731-235194",
+          "tile_x": 154731,
+          "tile_y": 235194,
+          "tile_z": 19
+        },
+        "type": "Feature"
+      },
+      {
+        "geometry": {
+          "coordinates": [
+            [
+              [
+                -73.7477874755859,
+                18.1921728756202,
+                0
+              ],
+              [
+                -73.7471008300781,
+                18.1921728756202,
+                0
+              ],
+              [
+                -73.7471008300781,
+                18.1915205510666,
+                0
+              ],
+              [
+                -73.7477874755859,
+                18.1915205510666,
+                0
+              ],
+              [
+                -73.7477874755859,
+                18.1921728756202,
+                0
+              ]
+            ]
+          ],
+          "type": "Polygon"
+        },
+        "properties": {
+          "groupId": "g117",
+          "reference": 1,
+          "screen": 1,
+          "taskId": "19-154741-235193",
+          "tile_x": 154741,
+          "tile_y": 235193,
+          "tile_z": 19
+        },
+        "type": "Feature"
+      },
+      {
+        "geometry": {
+          "coordinates": [
+            [
+              [
+                -73.7464141845703,
+                18.1921728756202,
+                0
+              ],
+              [
+                -73.7457275390625,
+                18.1921728756202,
+                0
+              ],
+              [
+                -73.7457275390625,
+                18.1915205510666,
+                0
+              ],
+              [
+                -73.7464141845703,
+                18.1915205510666,
+                0
+              ],
+              [
+                -73.7464141845703,
+                18.1921728756202,
+                0
+              ]
+            ]
+          ],
+          "type": "Polygon"
+        },
+        "properties": {
+          "groupId": "g117",
+          "reference": 2,
+          "screen": 2,
+          "taskId": "19-154743-235193",
+          "tile_x": 154743,
+          "tile_y": 235193,
+          "tile_z": 19
+        },
+        "type": "Feature"
+      },
+      {
+        "geometry": {
+          "coordinates": [
+            [
+              [
+                -73.7601470947266,
+                18.1869542108583,
+                0
+              ],
+              [
+                -73.7594604492188,
+                18.1869542108583,
+                0
+              ],
+              [
+                -73.7594604492188,
+                18.1863018667818,
+                0
+              ],
+              [
+                -73.7601470947266,
+                18.1863018667818,
+                0
+              ],
+              [
+                -73.7601470947266,
+                18.1869542108583,
+                0
+              ]
+            ]
+          ],
+          "type": "Polygon"
+        },
+        "properties": {
+          "groupId": "g119",
+          "reference": 0,
+          "screen": 5,
+          "taskId": "19-154723-235201",
+          "tile_x": 154723,
+          "tile_y": 235201,
+          "tile_z": 19
+        },
+        "type": "Feature"
+      }
+    ],
+    "name": "haiti_tutorial_tasks",
+    "type": "FeatureCollection"
+  },
+  "zoomLevel": 18
+}

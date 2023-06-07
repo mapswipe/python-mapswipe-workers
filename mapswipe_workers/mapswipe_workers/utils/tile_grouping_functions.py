@@ -275,10 +275,10 @@ def get_vertical_slice(slice_infos: Dict, zoom: int, width_threshold: int = 40):
             group_id += 1
             group_id_string = f"g{group_id}"
             raw_groups[group_id_string] = {
-                "xMin": str(TileX),
-                "xMax": str(TileX + step_size - 1),
-                "yMin": str(TileY_top),
-                "yMax": str(TileY_bottom - 1),
+                "xMin": TileX,
+                "xMax": TileX + step_size - 1,
+                "yMin": TileY_top,
+                "yMax": TileY_bottom - 1,
                 "group_polygon": group_poly,
             }
 
@@ -355,10 +355,10 @@ def merge_groups(group_a: Dict, group_b: Dict, zoom: int):
     poly.AddGeometry(ring)
 
     new_group = {
-        "xMin": str(new_x_min),
-        "xMax": str(new_x_max),
-        "yMin": str(y_min),
-        "yMax": str(y_max),
+        "xMin": new_x_min,
+        "xMax": new_x_max,
+        "yMin": y_min,
+        "yMax": y_max,
         "group_polygon": poly,
     }
 

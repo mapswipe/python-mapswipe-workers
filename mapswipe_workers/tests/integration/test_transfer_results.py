@@ -2,15 +2,14 @@ import json
 import os
 import unittest
 
-from . import set_up
-from . import tear_down
-from .base import BaseTestCase
-
 from mapswipe_workers import auth
 from mapswipe_workers.firebase_to_postgres.transfer_results import (
     transfer_results,
     transfer_results_for_project,
 )
+from tests.integration import set_up, tear_down
+
+from .base import BaseTestCase
 
 
 class TestTransferResultsProject(BaseTestCase):
@@ -202,7 +201,11 @@ class TestTransferResultsProject(BaseTestCase):
         transfer_results()
 
         UG_QUERY = "SELECT user_group_id FROM user_groups ORDER BY user_group_id"
-        RUG_QUERY = "SELECT user_group_id FROM mapping_sessions_user_groups ORDER BY user_group_id"
+        RUG_QUERY = """
+            SELECT user_group_id
+            FROM mapping_sessions_user_groups
+            ORDER BY user_group_id
+        """
         for query, expected_value in [
             (
                 UG_QUERY,

@@ -2,9 +2,7 @@ import json
 import os
 import unittest
 
-from mapswipe_workers.project_types.tile_classification.project import (
-    TileClassificationProject,
-)
+from mapswipe_workers.project_types import ClassificationProject
 
 
 class TestInitProject(unittest.TestCase):
@@ -15,7 +13,7 @@ class TestInitProject(unittest.TestCase):
         with open(os.path.join(test_dir, path)) as json_file:
             project_draft = json.load(json_file)
 
-        self.assertIsNotNone(TileClassificationProject(project_draft=project_draft))
+        self.assertIsNotNone(ClassificationProject(project_draft=project_draft))
 
 
 if __name__ == "__main__":
