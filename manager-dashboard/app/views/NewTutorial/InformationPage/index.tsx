@@ -11,15 +11,15 @@ import { TabPanel } from '#components/Tabs';
 import TextInput from '#components/TextInput';
 import Button from '#components/Button';
 
-import { InformationPageType } from '../utils';
+import { InformationPagesType } from '../utils';
 import Block from './Block';
 
 interface Props {
-    value: InformationPageType,
-    onChange: (value: SetValueArg<InformationPageType>, index: number) => void;
+    value: InformationPagesType,
+    onChange: (value: SetValueArg<InformationPagesType>, index: number) => void;
     onRemove: (index: number) => void;
     index: number,
-    error: Error<InformationPageType> | undefined;
+    error: Error<InformationPagesType> | undefined;
 }
 
 export default function InformationPage(props: Props) {
@@ -31,7 +31,7 @@ export default function InformationPage(props: Props) {
         error: riskyError,
     } = props;
 
-    const onInformationPageChange = useFormObject(index, onChange, { page_number: 1 });
+    const onInformationPageChange = useFormObject(index, onChange, { pageNumber: 1 });
 
     const {
         setValue: onChangeBlock,
@@ -46,7 +46,7 @@ export default function InformationPage(props: Props) {
 
     return (
         <TabPanel
-            name={String(value.page_number)}
+            name={String(value.pageNumber)}
         >
             <TextInput
                 name={'title' as const}

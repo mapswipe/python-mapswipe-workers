@@ -15,7 +15,7 @@ import TextInput from '#components/TextInput';
 import NumberInput from '#components/NumberInput';
 import SelectInput from '#components/SelectInput';
 
-import Reason from './Reason';
+import SubOption from './SubOption';
 import {
     IconOptions,
     PartialTutorialFormType,
@@ -25,22 +25,22 @@ import {
 
 import styles from './styles.css';
 
-export type PartialDefineOptionType = NonNullable<PartialTutorialFormType['defineOption']>[number]
-const defaultDefineOptionValue: PartialDefineOptionType = {
+export type PartialCustomOptionsType = NonNullable<PartialTutorialFormType['customOptions']>[number]
+const defaultcustomOptionsValue: PartialCustomOptionsType = {
     optionId: 1,
 };
 
-type ReasonType = NonNullable<PartialDefineOptionType['reason']>[number];
+type subOptionsType = NonNullable<PartialCustomOptionsType['subOptions']>[number];
 
 interface Props {
-    value: PartialDefineOptionType;
-    onChange: (value: SetValueArg<PartialDefineOptionType>, index: number) => void;
+    value: PartialCustomOptionsType;
+    onChange: (value: SetValueArg<PartialCustomOptionsType>, index: number) => void;
     onRemove: (index: number) => void;
     index: number;
-    error: Error<PartialDefineOptionType> | undefined;
+    error: Error<PartialCustomOptionsType> | undefined;
 }
 
-export default function DefineOption(props: Props) {
+export default function CustomOptions(props: Props) {
     const {
         value,
         onChange,
@@ -49,39 +49,39 @@ export default function DefineOption(props: Props) {
         error: riskyError,
     } = props;
 
-    const [activeReason, setActiveReason] = React.useState('1');
+    const [activesubOptions, setActiveSubOptions] = React.useState('1');
 
-    const onOptionChange = useFormObject(index, onChange, defaultDefineOptionValue);
+    const onOptionChange = useFormObject(index, onChange, defaultcustomOptionsValue);
 
     const {
-        setValue: onReasonAdd,
-        removeValue: onReasonRemove,
-    } = useFormArray('reason', onOptionChange);
+        setValue: onsubOptionsAdd,
+        removeValue: onsubOptionsRemove,
+    } = useFormArray('subOptions', onOptionChange);
 
     const error = getErrorObject(riskyError);
 
-    const reasonError = React.useMemo(
-        () => getErrorObject(error?.reason),
-        [error?.reason],
+    const subOptionsError = React.useMemo(
+        () => getErrorObject(error?.subOptions),
+        [error?.subOptions],
     );
 
-    const handleReasonAdd = React.useCallback(
+    const handlesubOptionsAdd = React.useCallback(
         () => {
             onOptionChange(
-                (oldValue: PartialDefineOptionType['reason']) => {
+                (oldValue: PartialCustomOptionsType['subOptions']) => {
                     const safeOldValue = oldValue ?? [];
 
-                    const newReasonId = safeOldValue.length > 0
-                        ? Math.max(...safeOldValue.map((reason) => reason.reasonId)) + 1
+                    const newsubOptionsId = safeOldValue.length > 0
+                        ? Math.max(...safeOldValue.map((subOptions) => subOptions.subOptionsId)) + 1
                         : 1;
 
-                    const newReason: ReasonType = {
-                        reasonId: newReasonId,
+                    const newsubOptions: subOptionsType = {
+                        subOptionsId: newsubOptionsId,
                     };
 
-                    return [...safeOldValue, newReason];
+                    return [...safeOldValue, newsubOptions];
                 },
-                'reason',
+                'subOptions',
             );
         },
         [onOptionChange],
@@ -150,44 +150,44 @@ export default function DefineOption(props: Props) {
                     Delete this option
                 </Button>
                 <Heading level={4}>
-                    Reason
+                    Sub Options
                 </Heading>
                 <Button
-                    name="add_reason"
+                    name="add_sub_options"
                     className={styles.addButton}
                     icons={<MdAdd />}
-                    onClick={handleReasonAdd}
+                    onClick={handlesubOptionsAdd}
                 >
-                    Add Reason
+                    Add Sub Options
                 </Button>
-                {value.reason?.length ? (
+                {value.subOptions?.length ? (
                     <Tabs
-                        value={activeReason}
-                        onChange={setActiveReason}
+                        value={activesubOptions}
+                        onChange={setActiveSubOptions}
                     >
                         <TabList>
-                            {value.reason?.map((rea) => (
+                            {value.subOptions?.map((rea) => (
                                 <Tab
-                                    name={`${rea.reasonId}`}
-                                    key={rea.reasonId}
+                                    name={`${rea.subOptionsId}`}
+                                    key={rea.subOptionsId}
                                 >
-                                    {`Reason ${rea.reasonId}`}
+                                    {`Sub Options ${rea.subOptionsId}`}
                                 </Tab>
                             ))}
                         </TabList>
-                        {value.reason.map((rea, i) => (
-                            <Reason
-                                key={rea.reasonId}
+                        {value.subOptions.map((rea, i) => (
+                            <SubOption
+                                key={rea.subOptionsId}
                                 value={rea}
                                 index={i}
-                                onChange={onReasonAdd}
-                                onRemove={onReasonRemove}
-                                error={reasonError?.[rea.reasonId]}
+                                onChange={onsubOptionsAdd}
+                                onRemove={onsubOptionsRemove}
+                                error={subOptionsError?.[rea.subOptionsId]}
                             />
                         ))}
                     </Tabs>
                 ) : (
-                    <div>Add reason</div>
+                    <div>Add Sub Options</div>
                 )}
             </div>
         </TabPanel>

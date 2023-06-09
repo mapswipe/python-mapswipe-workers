@@ -66,12 +66,12 @@ import {
     tutorialFormSchema,
     TutorialFormType,
     PartialTutorialFormType,
-    ScreenType,
+    ScenarioPagesType,
     CustomOptionType,
     pageOptions,
     PageTemplateType,
-    InformationPageType,
-    PartialInformationPageType,
+    InformationPagesType,
+    PartialInformationPagesType,
     PartialBlocksType,
 } from './utils';
 import CustomOptionInput from './CustomOptionInput';
@@ -157,15 +157,15 @@ function NewTutorial(props: Props) {
     // NOTE: options
     const [activeOptionsTab, setActiveOptionsTab] = React.useState('1');
     // NOTE: Information Page
-    const [activeInformationPage, setActiveInformationPage] = React.useState('1');
+    const [activeInformationPages, setActiveInformationPages] = React.useState('1');
 
     const error = React.useMemo(
         () => getErrorObject(formError),
         [formError],
     );
     const scenarioError = React.useMemo(
-        () => getErrorObject(error?.screens),
-        [error?.screens],
+        () => getErrorObject(error?.scenarioPages),
+        [error?.scenarioPages],
     );
 
     const optionsError = React.useMemo(
@@ -173,9 +173,9 @@ function NewTutorial(props: Props) {
         [error?.customOptions],
     );
 
-    const informationPageError = React.useMemo(
-        () => getErrorObject(error?.informationPage),
-        [error?.informationPage],
+    const informationPagesError = React.useMemo(
+        () => getErrorObject(error?.informationPages),
+        [error?.informationPages],
     );
 
     const handleFormSubmission = React.useCallback((
@@ -184,11 +184,11 @@ function NewTutorial(props: Props) {
         const userId = user?.id;
         const finalValues = finalValuesFromProps as TutorialFormType;
 
-        type Screens = typeof finalValues.screens;
+        type Screens = typeof finalValues.scenarioPages;
         type Screen = Screens[number];
         type CustomScreen = Omit<Screen, 'scenarioId'>;
 
-        const newScreens = finalValues.screens.reduce(
+        const screens = finalValues.scenarioPages.reduce(
             (acc, currentValue) => {
                 const { scenarioId, ...other } = currentValue;
                 acc[scenarioId] = {
@@ -200,7 +200,7 @@ function NewTutorial(props: Props) {
             {} as Record<string, CustomScreen>,
         );
 
-        console.info(newScreens, finalValues);
+        console.info(screens, finalValues);
 
         if (finalValues) {
             return;
@@ -295,9 +295,9 @@ function NewTutorial(props: Props) {
     const {
         setValue: onScenarioFormChange,
     } = useFormArray<
-        'screens',
-        ScreenType
-    >('screens', setFieldValue);
+        'scenarioPages',
+        ScenarioPagesType
+    >('scenarioPages', setFieldValue);
 
     const hasErrors = React.useMemo(
         () => analyzeErrors(error),
@@ -313,12 +313,12 @@ function NewTutorial(props: Props) {
     >('customOptions', setFieldValue);
 
     const {
-        setValue: onInformationPageAdd,
-        removeValue: onInformationPageRemove,
+        setValue: onInformationPagesAdd,
+        removeValue: onInformationPagesRemove,
     } = useFormArray<
-        'informationPage',
-        InformationPageType
-    >('informationPage', setFieldValue);
+        'informationPages',
+        InformationPagesType
+    >('informationPages', setFieldValue);
 
     const handleAddDefineOptions = React.useCallback(
         () => {
@@ -376,13 +376,13 @@ function NewTutorial(props: Props) {
             }
         ));
 
-        setFieldValue(tutorialTaskArray, 'screens');
+        setFieldValue(tutorialTaskArray, 'scenarioPages');
     }, [setFieldValue]);
 
-    const handleAddInformationPage = React.useCallback(
+    const handleAddInformationPages = React.useCallback(
         (template: PageTemplateType['key']) => {
             setFieldValue(
-                (oldValue: PartialInformationPageType) => {
+                (oldValue: PartialInformationPagesType) => {
                     const newOldValue = oldValue ?? [];
                     let blocks: PartialBlocksType = [];
 
@@ -451,13 +451,13 @@ function NewTutorial(props: Props) {
                         ];
                     }
 
-                    const newPageInformation: InformationPageType = {
+                    const newPageInformation: InformationPagesType = {
                         pageNumber: newPage,
                         blocks,
                     };
                     return [...newOldValue, newPageInformation];
                 },
-                'informationPage',
+                'informationPages',
             );
         },
         [setFieldValue],
@@ -528,10 +528,10 @@ function NewTutorial(props: Props) {
                             value={activeTab}
                             onChange={setActiveTab}
                         >
-                            {value.screens?.length ? (
+                            {value.scenarioPages?.length ? (
                                 <>
                                     <TabList>
-                                        {value.screens?.map((task) => (
+                                        {value.scenarioPages?.map((task) => (
                                             <Tab
                                                 key={task.scenarioId}
                                                 name={`Scenario ${task.scenarioId}`}
@@ -540,7 +540,7 @@ function NewTutorial(props: Props) {
                                             </Tab>
                                         ))}
                                     </TabList>
-                                    {value.screens?.map((task, index) => (
+                                    {value.scenarioPages?.map((task, index) => (
                                         <ScenarioInput
                                             key={task.scenarioId}
                                             index={index}
@@ -565,30 +565,32 @@ function NewTutorial(props: Props) {
                             value={undefined}
                             keySelector={pageKeySelector}
                             labelSelector={pageLabelSelector}
-                            onChange={handleAddInformationPage}
+                            onChange={handleAddInformationPages}
                             nonClearable
                         />
-                        {value.informationPage?.length ? (
+                        {value.informationPages?.length ? (
                             <Tabs
-                                value={activeInformationPage}
-                                onChange={setActiveInformationPage}
+                                value={activeInformationPages}
+                                onChange={setActiveInformationPages}
                             >
                                 <TabList>
-                                    {value.informationPage.map((info) => (
+                                    {value.informationPages.map((info) => (
                                         <Tab
+                                            key={info.pageNumber}
                                             name={String(info.pageNumber)}
                                         >
                                             {`Intro ${info.pageNumber}`}
                                         </Tab>
                                     ))}
                                 </TabList>
-                                {value.informationPage?.map((page, i) => (
+                                {value.informationPages?.map((page, i) => (
                                     <InformationPage
+                                        key={page.pageNumber}
                                         value={page}
-                                        onChange={onInformationPageAdd}
-                                        onRemove={onInformationPageRemove}
+                                        onChange={onInformationPagesAdd}
+                                        onRemove={onInformationPagesRemove}
                                         index={i}
-                                        error={informationPageError?.[page.pageNumber]}
+                                        error={informationPagesError?.[page.pageNumber]}
                                     />
                                 ))}
                             </Tabs>

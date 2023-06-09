@@ -108,13 +108,13 @@ export type CustomOptions = {
     description: string;
     icon: string;
     iconColor: string;
-    reason: {
-        reasonId: number;
+    subOptions: {
+        subOptionsId: number;
         description: string;
     }[];
 }[];
 
-export type InformationPage = {
+export type InformationPages = {
     pageNumber: number;
     title: string;
     blocks: {
@@ -129,7 +129,7 @@ export interface TutorialFormType {
     lookFor: string;
     name: string;
     tileServer: TileServer;
-    screens: {
+    scenarioPages: {
         scenarioId: string;
         hint: {
             description: string;
@@ -154,7 +154,7 @@ export interface TutorialFormType {
     tileServerB?: TileServer,
     zoomLevel?: number;
     customOptions?: CustomOptions;
-    informationPage: InformationPage;
+    informationPages: InformationPages;
 }
 
 export type PartialTutorialFormType = PartialForm<
@@ -164,35 +164,35 @@ export type PartialTutorialFormType = PartialForm<
     },
     // NOTE: we do not want to change File and FeatureCollection to partials
     // FIXME: rename page to pageNumber, block to blockNumber
-    'image' |'tutorialTasks' | 'exampleImage1' | 'exampleImage2' | 'scenarioId' | 'optionId' | 'reasonId' | 'pageNumber' | 'blockNumber' | 'blockType' | 'imageFile'
+    'image' |'tutorialTasks' | 'exampleImage1' | 'exampleImage2' | 'scenarioId' | 'optionId' | 'subOptionsId' | 'pageNumber' | 'blockNumber' | 'blockType' | 'imageFile'
 >;
 
 type TutorialFormSchema = ObjectSchema<PartialTutorialFormType>;
 type TutorialFormSchemaFields = ReturnType<TutorialFormSchema['fields']>;
 
-export type ScreenType = NonNullable<PartialTutorialFormType['screens']>[number];
-type ScreenSchema = ObjectSchema<ScreenType, PartialTutorialFormType>;
-type ScreenFormSchemaFields = ReturnType<ScreenSchema['fields']>;
+export type ScenarioPagesType = NonNullable<PartialTutorialFormType['scenarioPages']>[number];
+type ScenarioPagesSchema = ObjectSchema<ScenarioPagesType, PartialTutorialFormType>;
+type ScenarioPagesFormSchemaFields = ReturnType<ScenarioPagesSchema['fields']>;
 
-type ScreenFormSchema = ArraySchema<ScreenType, PartialTutorialFormType>;
-type ScreenFormSchemaMember = ReturnType<ScreenFormSchema['member']>;
+type ScenarioPagesFormSchema = ArraySchema<ScenarioPagesType, PartialTutorialFormType>;
+type ScenarioPagesFormSchemaMember = ReturnType<ScenarioPagesFormSchema['member']>;
 
 export type CustomOptionType = NonNullable<PartialTutorialFormType['customOptions']>[number];
-type DefineOptionSchema = ObjectSchema<CustomOptionType, PartialTutorialFormType>;
-type DefineOptionSchemaFields = ReturnType<DefineOptionSchema['fields']>
+type CustomOptionSchema = ObjectSchema<CustomOptionType, PartialTutorialFormType>;
+type CustomOptionSchemaFields = ReturnType<CustomOptionSchema['fields']>
 
-type DefineOptionFormSchema = ArraySchema<CustomOptionType, PartialTutorialFormType>;
-type DefineOptionFormSchemaMember = ReturnType<DefineOptionFormSchema['member']>;
+type CustomOptionFormSchema = ArraySchema<CustomOptionType, PartialTutorialFormType>;
+type CustomOptionFormSchemaMember = ReturnType<CustomOptionFormSchema['member']>;
 
-export type InformationPageType = NonNullable<PartialTutorialFormType['informationPage']>[number]
-type InformationPageSchema = ObjectSchema<InformationPageType, PartialTutorialFormType>;
-type InformationPageSchemaFields = ReturnType<InformationPageSchema['fields']>
+export type InformationPagesType = NonNullable<PartialTutorialFormType['informationPages']>[number]
+type InformationPagesSchema = ObjectSchema<InformationPagesType, PartialTutorialFormType>;
+type InformationPagesSchemaFields = ReturnType<InformationPagesSchema['fields']>
 
-type InformationPageFormSchema = ArraySchema<InformationPageType, PartialTutorialFormType>;
-type InformationPageFormSchemaMember = ReturnType<InformationPageFormSchema['member']>;
+type InformationPagesFormSchema = ArraySchema<InformationPagesType, PartialTutorialFormType>;
+type InformationPagesFormSchemaMember = ReturnType<InformationPagesFormSchema['member']>;
 
-export type PartialInformationPageType = PartialTutorialFormType['informationPage'];
-export type PartialBlocksType = NonNullable<NonNullable<PartialInformationPageType>[number]>['blocks'];
+export type PartialInformationPagesType = PartialTutorialFormType['informationPages'];
+export type PartialBlocksType = NonNullable<NonNullable<PartialInformationPagesType>[number]>['blocks'];
 
 export const tutorialFormSchema: TutorialFormSchema = {
     fields: (value): TutorialFormSchemaFields => {
@@ -214,10 +214,10 @@ export const tutorialFormSchema: TutorialFormSchema = {
             tileServer: {
                 fields: tileServerFieldsSchema,
             },
-            screens: {
+            scenarioPages: {
                 keySelector: (key) => key.scenarioId,
-                member: (): ScreenFormSchemaMember => ({
-                    fields: (): ScreenFormSchemaFields => ({
+                member: (): ScenarioPagesFormSchemaMember => ({
+                    fields: (): ScenarioPagesFormSchemaFields => ({
                         scenarioId: {
                             required: true,
                         },
@@ -269,10 +269,10 @@ export const tutorialFormSchema: TutorialFormSchema = {
                     }),
                 }),
             },
-            informationPage: {
+            informationPages: {
                 keySelector: (key) => key.pageNumber,
-                member: (): InformationPageFormSchemaMember => ({
-                    fields: (): InformationPageSchemaFields => ({
+                member: (): InformationPagesFormSchemaMember => ({
+                    fields: (): InformationPagesSchemaFields => ({
                         pageNumber: { required: true },
                         title: {
                             required: true,
@@ -332,10 +332,10 @@ export const tutorialFormSchema: TutorialFormSchema = {
             ['projectType'],
             ['customOptions'],
             (formValues) => {
-                const customOptionField: DefineOptionFormSchema = {
+                const customOptionField: CustomOptionFormSchema = {
                     keySelector: (key) => key.optionId,
-                    member: (): DefineOptionFormSchemaMember => ({
-                        fields: (): DefineOptionSchemaFields => ({
+                    member: (): CustomOptionFormSchemaMember => ({
+                        fields: (): CustomOptionSchemaFields => ({
                             optionId: {
                                 required: true,
                             },
@@ -358,11 +358,11 @@ export const tutorialFormSchema: TutorialFormSchema = {
                             iconColor: {
                                 required: true,
                             },
-                            reason: {
-                                keySelector: (key) => key.reasonId,
+                            subOptions: {
+                                keySelector: (key) => key.subOptionsId,
                                 member: () => ({
                                     fields: () => ({
-                                        reasonId: {
+                                        subOptionsId: {
                                             required: true,
                                         },
                                         description: {

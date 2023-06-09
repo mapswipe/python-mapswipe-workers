@@ -9,19 +9,19 @@ import { TabPanel } from '#components/Tabs';
 import TextInput from '#components/TextInput';
 import Button from '#components/Button';
 
-import { PartialDefineOptionType } from '..';
+import { PartialCustomOptionsType } from '..';
 import styles from './styles.css';
 
-type PartialReasonType = NonNullable<PartialDefineOptionType['reason']>[number]
+type PartialSubOptionType = NonNullable<PartialCustomOptionsType['subOptions']>[number]
 
 interface Props {
-    value: PartialReasonType;
-    onChange: (value: SetValueArg<PartialReasonType>, index: number) => void;
+    value: PartialSubOptionType;
+    onChange: (value: SetValueArg<PartialSubOptionType>, index: number) => void;
     onRemove: (index: number) => void;
     index: number;
-    error: Error<PartialReasonType> | undefined;
+    error: Error<PartialSubOptionType> | undefined;
 }
-export default function Reason(props: Props) {
+export default function SubOption(props: Props) {
     const {
         value,
         onChange,
@@ -30,12 +30,12 @@ export default function Reason(props: Props) {
         error: riskyError,
     } = props;
 
-    const onReasonChange = useFormObject(index, onChange, { reasonId: 1 });
+    const onReasonChange = useFormObject(index, onChange, { subOptionsId: 1 });
 
     const error = getErrorObject(riskyError);
     return (
         <TabPanel
-            name={`${value.reasonId}`}
+            name={String(value.subOptionsId)}
             className={styles.reasonContent}
         >
             <TextInput
