@@ -10,6 +10,8 @@ import { PartialBlocksType } from '#views/NewTutorial/utils';
 import FileInput from '#components/FileInput';
 import TextInput from '#components/TextInput';
 
+import styles from './styles.css';
+
 type PartialBlockType = NonNullable<PartialBlocksType>[number];
 interface Props {
     value: PartialBlockType;
@@ -26,29 +28,31 @@ export default function Block(props: Props) {
         error: riskyError,
     } = props;
 
-    const onBlockChange = useFormObject(index, onChange, { block: 1 });
+    const onBlockChange = useFormObject(index, onChange, { block: 1, blockType: 'text' });
 
     const error = getErrorObject(riskyError);
     return (
         <div>
-            <FileInput
-                name={'image' as const}
-                value={value?.image}
-                onChange={onBlockChange}
-                label="Upload Example Image 1"
-                hint="Make sure you have the rights to
-                use this image. It should end with  .jpg or .png."
-                showPreview
-                accept="image/png, image/jpeg"
-                error={error?.image}
-            />
-            <TextInput
-                name={'description' as const}
-                value={value.description}
-                onChange={onBlockChange}
-                label="Description for the image"
-                error={error?.description}
-            />
+            {value.blockType === 'image' ? (
+                <FileInput
+                    name={'imageFile' as const}
+                    value={value?.imageFile}
+                    onChange={onBlockChange}
+                    label="Upload Image"
+                    hint="Make sure you have the rights to
+                    use this image. It should end with  .jpg or .png."
+                    accept="image/png, image/jpeg"
+                    error={error?.imageFile}
+                />
+            ) : (
+                <TextInput
+                    name={'textDescription' as const}
+                    value={value.textDescription}
+                    onChange={onBlockChange}
+                    label="Description"
+                    error={error?.textDescription}
+                />
+            )}
         </div>
     );
 }

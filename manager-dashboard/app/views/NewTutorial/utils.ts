@@ -114,15 +114,13 @@ export type DefineOption = {
 }[];
 
 export type InformationPage = {
-    // FIXME: remove this
-    templeteType: string;
-
     page: number;
     title: string;
     blocks: {
         block: number;
-        image?: File,
-        description?: string;
+        blockType: 'image' | 'text';
+        imageFile?: File;
+        textDescription?: string;
     }[];
 }[];
 
@@ -164,7 +162,8 @@ export type PartialTutorialFormType = PartialForm<
         exampleImage2?: File;
     },
     // NOTE: we do not want to change File and FeatureCollection to partials
-    'image' |'tutorialTasks' | 'exampleImage1' | 'exampleImage2' | 'scenarioId' | 'optionId' | 'reasonId' | 'page' | 'block'
+    // FIXME: rename page to pageNumber, block to blockNumber
+    'image' |'tutorialTasks' | 'exampleImage1' | 'exampleImage2' | 'scenarioId' | 'optionId' | 'reasonId' | 'page' | 'block' | 'blockType' | 'imageFile'
 >;
 
 type TutorialFormSchema = ObjectSchema<PartialTutorialFormType>;
@@ -184,7 +183,7 @@ type DefineOptionSchemaFields = ReturnType<DefineOptionSchema['fields']>
 type DefineOptionFormSchema = ArraySchema<DefineOptionType, PartialTutorialFormType>;
 type DefineOptionFormSchemaMember = ReturnType<DefineOptionFormSchema['member']>;
 
-export type InformationPageType = NonNullable<PartialTutorialFormType['informationPage']>[number];
+export type InformationPageType = NonNullable<PartialTutorialFormType['informationPage']>[number]
 type InformationPageSchema = ObjectSchema<InformationPageType, PartialTutorialFormType>;
 type InformationPageSchemaFields = ReturnType<InformationPageSchema['fields']>
 
@@ -273,7 +272,6 @@ export const tutorialFormSchema: TutorialFormSchema = {
                 keySelector: (key) => key.page,
                 member: (): InformationPageFormSchemaMember => ({
                     fields: (): InformationPageSchemaFields => ({
-                        templeteType: { required: true },
                         page: { required: true },
                         title: {
                             required: true,
@@ -283,29 +281,50 @@ export const tutorialFormSchema: TutorialFormSchema = {
                         blocks: {
                             keySelector: (key) => key.block,
                             member: () => ({
-                                fields: () => ({
-                                    block: {
-                                        required: true,
-                                    },
-                                    image: {
-                                        required: true,
-                                    },
-                                    description: {
-                                        required: true,
-                                        requiredValidation: requiredStringCondition,
-                                        validations: [getNoMoreThanNCharacterCondition(1000)],
-                                    },
-                                }),
+                                fields: (blockValue) => {
+                                    let fields = {
+                                        block: { required: true },
+                                        blockType: { required: true },
+                                    };
+
+                                    fields = addCondition(
+                                        fields,
+                                        blockValue,
+                                        ['blockType'],
+                                        ['imageFile', 'textDescription'],
+                                        (v) => {
+                                            if (v?.blockType === 'text') {
+                                                return {
+                                                    textDescription: {
+                                                        required: true,
+                                                        // eslint-disable-next-line max-len
+                                                        requiredValidations: requiredStringCondition,
+                                                        // eslint-disable-next-line max-len
+                                                        validations: [getNoMoreThanNCharacterCondition(2000)],
+                                                    },
+                                                    imageFile: { forceValue: nullValue },
+                                                };
+                                            }
+                                            return {
+                                                imageFile: { required: true },
+                                                textDescription: { forceValue: nullValue },
+
+                                            };
+                                        },
+                                    );
+                                    return fields;
+                                },
                             }),
                         },
                     }),
                 }),
             },
-            // FIXME: add validation for tutorialTasks (geojson)
-            tutorialTasks: { required: true },
-            exampleImage1: { required: true },
-            exampleImage2: { required: true },
+            // FIXME: we do not send this anymore
+            tutorialTasks: {},
+            exampleImage1: {},
+            exampleImage2: {},
         };
+
         baseSchema = addCondition(
             baseSchema,
             value,

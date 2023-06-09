@@ -358,9 +358,19 @@ function NewTutorial(props: Props) {
                         blocks = [
                             {
                                 block: 1,
+                                blockType: 'image',
                             },
                             {
                                 block: 2,
+                                blockType: 'text',
+                            },
+                            {
+                                block: 3,
+                                blockType: 'image',
+                            },
+                            {
+                                block: 4,
+                                blockType: 'text',
                             },
                         ];
                     }
@@ -368,12 +378,27 @@ function NewTutorial(props: Props) {
                         blocks = [
                             {
                                 block: 1,
+                                blockType: 'image',
                             },
                             {
                                 block: 2,
+                                blockType: 'text',
                             },
                             {
                                 block: 3,
+                                blockType: 'image',
+                            },
+                            {
+                                block: 4,
+                                blockType: 'text',
+                            },
+                            {
+                                block: 5,
+                                blockType: 'image',
+                            },
+                            {
+                                block: 6,
+                                blockType: 'text',
                             },
                         ];
                     }
@@ -381,6 +406,11 @@ function NewTutorial(props: Props) {
                         blocks = [
                             {
                                 block: 1,
+                                blockType: 'image',
+                            },
+                            {
+                                block: 2,
+                                blockType: 'text',
                             },
                         ];
                     }
@@ -487,7 +517,7 @@ function NewTutorial(props: Props) {
                     >
                         <SelectInput
                             name="templateType"
-                            label="Select page"
+                            placeholder="Add page"
                             options={pageOptions}
                             value={undefined}
                             keySelector={pageKeySelector}
