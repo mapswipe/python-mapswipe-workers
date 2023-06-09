@@ -10,7 +10,7 @@ import { PartialBlocksType } from '#views/NewTutorial/utils';
 import FileInput from '#components/FileInput';
 import TextInput from '#components/TextInput';
 
-import styles from './styles.css';
+// import styles from './styles.css';
 
 type PartialBlockType = NonNullable<PartialBlocksType>[number];
 interface Props {
@@ -28,7 +28,7 @@ export default function Block(props: Props) {
         error: riskyError,
     } = props;
 
-    const onBlockChange = useFormObject(index, onChange, { block: 1, blockType: 'text' });
+    const onBlockChange = useFormObject(index, onChange, { blockNumber: 1, blockType: 'text' });
 
     const error = getErrorObject(riskyError);
     return (

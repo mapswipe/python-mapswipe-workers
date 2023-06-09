@@ -101,9 +101,10 @@ export type TutorialTasks = GeoJSON.FeatureCollection<GeoJSON.Geometry, {
     tile_z: number;
 }>;
 
-export type DefineOption = {
+export type CustomOptions = {
     optionId: number;
     title: string;
+    value: number;
     description: string;
     icon: string;
     iconColor: string;
@@ -114,10 +115,10 @@ export type DefineOption = {
 }[];
 
 export type InformationPage = {
-    page: number;
+    pageNumber: number;
     title: string;
     blocks: {
-        block: number;
+        blockNumber: number;
         blockType: 'image' | 'text';
         imageFile?: File;
         textDescription?: string;
@@ -152,7 +153,7 @@ export interface TutorialFormType {
     projectType: ProjectType;
     tileServerB?: TileServer,
     zoomLevel?: number;
-    defineOption?: DefineOption;
+    customOptions?: CustomOptions;
     informationPage: InformationPage;
 }
 
@@ -163,7 +164,7 @@ export type PartialTutorialFormType = PartialForm<
     },
     // NOTE: we do not want to change File and FeatureCollection to partials
     // FIXME: rename page to pageNumber, block to blockNumber
-    'image' |'tutorialTasks' | 'exampleImage1' | 'exampleImage2' | 'scenarioId' | 'optionId' | 'reasonId' | 'page' | 'block' | 'blockType' | 'imageFile'
+    'image' |'tutorialTasks' | 'exampleImage1' | 'exampleImage2' | 'scenarioId' | 'optionId' | 'reasonId' | 'pageNumber' | 'blockNumber' | 'blockType' | 'imageFile'
 >;
 
 type TutorialFormSchema = ObjectSchema<PartialTutorialFormType>;
@@ -176,11 +177,11 @@ type ScreenFormSchemaFields = ReturnType<ScreenSchema['fields']>;
 type ScreenFormSchema = ArraySchema<ScreenType, PartialTutorialFormType>;
 type ScreenFormSchemaMember = ReturnType<ScreenFormSchema['member']>;
 
-export type DefineOptionType = NonNullable<PartialTutorialFormType['defineOption']>[number];
-type DefineOptionSchema = ObjectSchema<DefineOptionType, PartialTutorialFormType>;
+export type CustomOptionType = NonNullable<PartialTutorialFormType['customOptions']>[number];
+type DefineOptionSchema = ObjectSchema<CustomOptionType, PartialTutorialFormType>;
 type DefineOptionSchemaFields = ReturnType<DefineOptionSchema['fields']>
 
-type DefineOptionFormSchema = ArraySchema<DefineOptionType, PartialTutorialFormType>;
+type DefineOptionFormSchema = ArraySchema<CustomOptionType, PartialTutorialFormType>;
 type DefineOptionFormSchemaMember = ReturnType<DefineOptionFormSchema['member']>;
 
 export type InformationPageType = NonNullable<PartialTutorialFormType['informationPage']>[number]
@@ -269,21 +270,21 @@ export const tutorialFormSchema: TutorialFormSchema = {
                 }),
             },
             informationPage: {
-                keySelector: (key) => key.page,
+                keySelector: (key) => key.pageNumber,
                 member: (): InformationPageFormSchemaMember => ({
                     fields: (): InformationPageSchemaFields => ({
-                        page: { required: true },
+                        pageNumber: { required: true },
                         title: {
                             required: true,
                             requiredValidation: requiredStringCondition,
                             validations: [getNoMoreThanNCharacterCondition(500)],
                         },
                         blocks: {
-                            keySelector: (key) => key.block,
+                            keySelector: (key) => key.blockNumber,
                             member: () => ({
                                 fields: (blockValue) => {
                                     let fields = {
-                                        block: { required: true },
+                                        blockNumber: { required: true },
                                         blockType: { required: true },
                                     };
 
@@ -329,9 +330,9 @@ export const tutorialFormSchema: TutorialFormSchema = {
             baseSchema,
             value,
             ['projectType'],
-            ['defineOption'],
-            (v) => {
-                const defineOptionField: DefineOptionFormSchema = {
+            ['customOptions'],
+            (formValues) => {
+                const customOptionField: DefineOptionFormSchema = {
                     keySelector: (key) => key.optionId,
                     member: (): DefineOptionFormSchemaMember => ({
                         fields: (): DefineOptionSchemaFields => ({
@@ -342,6 +343,9 @@ export const tutorialFormSchema: TutorialFormSchema = {
                                 required: true,
                                 requiredValidation: requiredStringCondition,
                                 validations: [getNoMoreThanNCharacterCondition(500)],
+                            },
+                            value: {
+                                required: true,
                             },
                             description: {
                                 required: true,
@@ -373,13 +377,13 @@ export const tutorialFormSchema: TutorialFormSchema = {
                     }),
                 };
 
-                if (v?.projectType === PROJECT_TYPE_FOOTPRINT) {
+                if (formValues?.projectType === PROJECT_TYPE_FOOTPRINT) {
                     return {
-                        defineOption: defineOptionField,
+                        customOptions: customOptionField,
                     };
                 }
                 return {
-                    defineOption: { forceValue: nullValue },
+                    customOptions: { forceValue: nullValue },
                 };
             },
         );

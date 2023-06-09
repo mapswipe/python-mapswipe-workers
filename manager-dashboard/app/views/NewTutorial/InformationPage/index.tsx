@@ -31,7 +31,7 @@ export default function InformationPage(props: Props) {
         error: riskyError,
     } = props;
 
-    const onInformationPageChange = useFormObject(index, onChange, { page: 1 });
+    const onInformationPageChange = useFormObject(index, onChange, { page_number: 1 });
 
     const {
         setValue: onChangeBlock,
@@ -46,7 +46,7 @@ export default function InformationPage(props: Props) {
 
     return (
         <TabPanel
-            name={String(value.page)}
+            name={String(value.page_number)}
         >
             <TextInput
                 name={'title' as const}
@@ -57,10 +57,11 @@ export default function InformationPage(props: Props) {
             />
             {value.blocks?.map((block, i) => (
                 <Block
+                    key={block.blockNumber}
                     value={block}
                     onChange={onChangeBlock}
                     index={i}
-                    error={blockError?.[block.block]}
+                    error={blockError?.[block.blockNumber]}
                 />
             ))}
             <Button

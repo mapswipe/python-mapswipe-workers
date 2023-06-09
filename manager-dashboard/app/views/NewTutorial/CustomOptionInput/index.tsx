@@ -12,6 +12,7 @@ import Button from '#components/Button';
 import Heading from '#components/Heading';
 import Tabs, { TabList, TabPanel, Tab } from '#components/Tabs';
 import TextInput from '#components/TextInput';
+import NumberInput from '#components/NumberInput';
 import SelectInput from '#components/SelectInput';
 
 import Reason from './Reason';
@@ -88,7 +89,7 @@ export default function DefineOption(props: Props) {
 
     return (
         <TabPanel
-            name={`${value.optionId}`}
+            name={String(value.optionId)}
         >
             <div className={styles.optionForm}>
                 <div className={styles.optionContent}>
@@ -99,6 +100,14 @@ export default function DefineOption(props: Props) {
                         name={'title' as const}
                         onChange={onOptionChange}
                         error={error?.title}
+                    />
+                    <NumberInput
+                        className={styles.optionInput}
+                        label="Value"
+                        value={value?.value}
+                        name={'value' as const}
+                        onChange={onOptionChange}
+                        error={error?.value}
                     />
                     <SelectInput
                         className={styles.optionIcon}
