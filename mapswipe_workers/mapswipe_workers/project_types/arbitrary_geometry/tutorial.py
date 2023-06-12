@@ -5,6 +5,7 @@ import numpy as np
 from osgeo import ogr
 
 from mapswipe_workers.definitions import DATA_PATH, logger
+from mapswipe_workers.firebase.firebase import Firebase
 from mapswipe_workers.project_types.arbitrary_geometry import grouping_functions as g
 from mapswipe_workers.project_types.arbitrary_geometry.project import (
     ArbitraryGeometryGroup,
@@ -21,7 +22,7 @@ class ArbitraryTutorialTask(ArbitraryGeometryTask):
     screen: int
 
 
-class Tutorial(BaseTutorial):
+class ArbitraryGeometryTutorial(BaseTutorial):
     """The subclass for an arbitrary geometry based Tutorial."""
 
     def __init__(self, tutorial_draft):
@@ -114,3 +115,11 @@ class Tutorial(BaseTutorial):
             f" - create_tutorial_tasks - "
             f"created tasks dictionary"
         )
+
+    def save_tutorial(self):
+        firebase = Firebase()
+        firebase.save_tutorial_to_firebase(
+            self, self.groups, self.tasks, useCompression=True
+        )
+        logger.info(self.tutorialDraftId)
+        firebase.drop_tutorial_draft(self.tutorialDraftId)

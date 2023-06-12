@@ -7,7 +7,6 @@ from typing import List, Optional
 import click
 import schedule as sched
 
-from mapswipe_workers import auth
 from mapswipe_workers.definitions import (
     CustomError,
     MessageType,
@@ -15,6 +14,7 @@ from mapswipe_workers.definitions import (
     logger,
     sentry,
 )
+from mapswipe_workers.firebase.firebase import Firebase
 from mapswipe_workers.firebase_to_postgres import (
     archive_project,
     delete_project,
@@ -59,8 +59,8 @@ def run_create_projects():
     Create projects with groups and tasks.
     Save created projects, groups and tasks to Firebase and Postgres.
     """
-    fb_db = auth.firebaseDB()
-    ref = fb_db.reference("v2/projectDrafts/")
+    firebase = Firebase()
+    ref = firebase.fb_db.reference("v2/projectDrafts/")
     project_drafts = ref.get()
 
     if project_drafts is None:
@@ -93,7 +93,7 @@ def run_create_projects():
             send_slack_message(MessageType.SUCCESS, project_name, project.projectId)
             logger.info("Success: Project Creation ({0})".format(project_name))
         except CustomError as e:
-            ref = fb_db.reference(f"v2/projectDrafts/{project_draft_id}")
+            ref = firebase.fb_db.reference(f"v2/projectDrafts/{project_draft_id}")
             ref.set({})
 
             # check if project could be initialized
@@ -118,8 +118,8 @@ def run_create_user_groups():
     Save created user_groups, memberships Postgres
     Remove changed diff from Firebase.
     """
-    fb_db = auth.firebaseDB()
-    ref = fb_db.reference("v2/updates/userGroups")
+    firebase = Firebase()
+    ref = firebase.fb_db.reference("v2/updates/userGroups")
     changed_user_groups_id = list((ref.get(shallow=True) or {}).keys())
 
     if not changed_user_groups_id:
@@ -129,15 +129,15 @@ def run_create_user_groups():
     update_data.update_user_group_full_data(changed_user_groups_id)
 
     # Finally delete used records using multi-location update
-    fb_db.reference("v2/updates/userGroups").update(
+    firebase.fb_db.reference("v2/updates/userGroups").update(
         {_id: None for _id in changed_user_groups_id}
     )
 
 
 @cli.command("create-user")
 def run_create_users():
-    fb_db = auth.firebaseDB()
-    ref = fb_db.reference("v2/updates/users")
+    firebase = Firebase()
+    ref = firebase.reference("v2/updates/users")
     changed_users_id = list((ref.get(shallow=True) or {}).keys())
 
     if not changed_users_id:
@@ -146,13 +146,15 @@ def run_create_users():
     update_data.create_update_user_data(changed_users_id)
 
     # Finally delete used records using multi-location update
-    fb_db.reference("v2/updates/users").update({_id: None for _id in changed_users_id})
+    firebase.fb_db.reference("v2/updates/users").update(
+        {_id: None for _id in changed_users_id}
+    )
 
 
 @cli.command("create-user-group-membership-log")
 def run_create_user_group_membership_log():
-    fb_db = auth.firebaseDB()
-    ref = fb_db.reference("v2/updates/userGroupMembershipLogs")
+    firebase = Firebase()
+    ref = firebase.fb_db.reference("v2/updates/userGroupMembershipLogs")
     changed_membership_id = list((ref.get(shallow=True) or {}).keys())
 
     if not changed_membership_id:
@@ -161,7 +163,7 @@ def run_create_user_group_membership_log():
     update_data.create_update_membership_data(changed_membership_id)
 
     # Finally delete used records using multi-location update
-    fb_db.reference("v2/updates/userGroupMembershipLogs").update(
+    firebase.fb_db.reference("v2/updates/userGroupMembershipLogs").update(
         {_id: None for _id in changed_membership_id}
     )
 
@@ -359,8 +361,8 @@ def run_team_management(team_name, team_id, action) -> None:
 
 @cli.command("create-tutorials")
 def run_create_tutorials() -> None:
-    fb_db = auth.firebaseDB()
-    ref = fb_db.reference("v2/tutorialDrafts/")
+    firebase = Firebase()
+    ref = firebase.fb_db.reference("v2/tutorialDrafts/")
     tutorial_drafts = ref.get()
 
     if tutorial_drafts is None:
@@ -380,7 +382,7 @@ def run_create_tutorials() -> None:
             send_slack_message(MessageType.SUCCESS, project_name, tutorial.projectId)
             logger.info(f"Success: Tutorial Creation ({project_name})")
         except CustomError:
-            ref = fb_db.reference(f"v2/tutorialDrafts/{tutorial_draft_id}")
+            ref = firebase.fb_db.reference(f"v2/tutorialDrafts/{tutorial_draft_id}")
             ref.set({})
             send_slack_message(MessageType.FAIL, project_name, tutorial.projectId)
             logger.exception("Failed: Project Creation ({0}))".format(project_name))

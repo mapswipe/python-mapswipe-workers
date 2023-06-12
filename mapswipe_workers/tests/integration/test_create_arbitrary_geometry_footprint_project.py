@@ -7,7 +7,7 @@ from mapswipe_workers.utils.create_directories import create_directories
 from tests.integration import set_up, tear_down
 
 
-class TestCreateProject(unittest.TestCase):
+class TestCreateFootprintProject(unittest.TestCase):
     def setUp(self):
         self.project_id = [
             set_up.create_test_project_draft("footprint", "footprint_TMId"),
@@ -22,7 +22,9 @@ class TestCreateProject(unittest.TestCase):
 
     def test_create_footprint_project(self):
         runner = CliRunner()
-        result = runner.invoke(mapswipe_workers.run_create_projects)
+        result = runner.invoke(
+            mapswipe_workers.run_create_projects, catch_exceptions=False
+        )
         if result.exit_code != 0:
             raise result.exception
         pg_db = auth.postgresDB()
