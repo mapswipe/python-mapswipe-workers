@@ -40,10 +40,9 @@ class MediaClassificationProject(BaseProject):
         self.answerLabels = project_draft.get(
             "answerLabels",
             [
-                {"color": "", "label": "no", "value": 0},
                 {"color": "green", "label": "yes", "value": 1},
-                {"color": "orange", "label": "maybe", "value": 2},
-                {"color": "red", "label": "bad imagery", "value": 3},
+                {"color": "red", "label": "no", "value": 0},
+                {"color": "grey", "label": "not sure", "value": 2},
             ],
         )
 
