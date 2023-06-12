@@ -163,7 +163,6 @@ export type PartialTutorialFormType = PartialForm<
         exampleImage2?: File;
     },
     // NOTE: we do not want to change File and FeatureCollection to partials
-    // FIXME: rename page to pageNumber, block to blockNumber
     'image' |'tutorialTasks' | 'exampleImage1' | 'exampleImage2' | 'scenarioId' | 'optionId' | 'subOptionsId' | 'pageNumber' | 'blockNumber' | 'blockType' | 'imageFile'
 >;
 
@@ -179,10 +178,10 @@ type ScenarioPagesFormSchemaMember = ReturnType<ScenarioPagesFormSchema['member'
 
 export type CustomOptionType = NonNullable<PartialTutorialFormType['customOptions']>[number];
 type CustomOptionSchema = ObjectSchema<CustomOptionType, PartialTutorialFormType>;
-type CustomOptionSchemaFields = ReturnType<CustomOptionSchema['fields']>
+export type CustomOptionSchemaFields = ReturnType<CustomOptionSchema['fields']>
 
-type CustomOptionFormSchema = ArraySchema<CustomOptionType, PartialTutorialFormType>;
-type CustomOptionFormSchemaMember = ReturnType<CustomOptionFormSchema['member']>;
+export type CustomOptionFormSchema = ArraySchema<CustomOptionType, PartialTutorialFormType>;
+export type CustomOptionFormSchemaMember = ReturnType<CustomOptionFormSchema['member']>;
 
 export type InformationPagesType = NonNullable<PartialTutorialFormType['informationPages']>[number]
 type InformationPagesSchema = ObjectSchema<InformationPagesType, PartialTutorialFormType>;

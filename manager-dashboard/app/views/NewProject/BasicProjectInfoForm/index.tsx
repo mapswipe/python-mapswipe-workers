@@ -1,14 +1,23 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { EntriesAsList, ObjectError, SetBaseValueArg } from '@togglecorp/toggle-form';
 import TextInput from '#components/TextInput';
 import { generateProjectName, PartialProjectFormType } from '#views/NewProject/utils';
-import { labelSelector, valueSelector } from '#utils/common';
+import { PROJECT_TYPE_FOOTPRINT, labelSelector, valueSelector } from '#utils/common';
 import NumberInput from '#components/NumberInput';
 import TextArea from '#components/TextArea';
 import ImageInput from '#components/ImageInput';
 import SelectInput from '#components/SelectInput';
 import useProjectOptions from '#views/NewProject/useProjectOptions';
 import styles from '#views/NewProject/styles.css';
+import Card from '#components/Card';
+import Heading from '#components/Heading';
+import Tabs,
+{
+    Tab,
+    TabList,
+} from '#components/Tabs';
+
+import CustomOptionReadOnly from './CustomOptionReadOnly';
 
 export interface Props<T extends PartialProjectFormType> {
     className?: string;
@@ -37,6 +46,8 @@ function BasicProjectInfoForm(props: Props<PartialProjectFormType>) {
         organisationsPending,
     } = useProjectOptions(value?.projectType);
 
+    const [activeOptionsTab, setActiveOptionsTab] = React.useState('1');
+
     React.useEffect(() => {
         setFieldValue(tutorialOptions?.[0]?.value, 'tutorialId');
     }, [setFieldValue, value?.projectType, tutorialOptions]);
@@ -61,6 +72,21 @@ function BasicProjectInfoForm(props: Props<PartialProjectFormType>) {
         },
         [setFieldValue, setValue],
     );
+
+    const handleTutorialOptions = useCallback(
+        (tutorialId: string) => {
+            setFieldValue(tutorialId, 'tutorialId');
+
+            const newTutorial = tutorialOptions.find((tutorial) => tutorial.value === tutorialId);
+
+            setFieldValue(newTutorial?.customOptions, 'customOptions');
+        },
+        [
+            tutorialOptions,
+            setFieldValue,
+        ],
+    );
+
     return (
 
         <>
@@ -168,12 +194,13 @@ function BasicProjectInfoForm(props: Props<PartialProjectFormType>) {
                         hint="Choose which tutorial should be used for this project. Make sure that this aligns with what you are looking for."
                         name={'tutorialId' as const}
                         value={value?.tutorialId}
-                        onChange={setFieldValue}
+                        onChange={handleTutorialOptions}
                         options={tutorialOptions}
                         error={error?.tutorialId}
                         keySelector={valueSelector}
                         labelSelector={labelSelector}
                         disabled={submissionPending || tutorialsPending}
+                        nonClearable
                     />
                     <NumberInput
                         name={'verificationNumber' as const}
@@ -195,6 +222,38 @@ function BasicProjectInfoForm(props: Props<PartialProjectFormType>) {
                     />
                 </div>
             </div>
+            {(value.projectType === PROJECT_TYPE_FOOTPRINT && value?.customOptions) && (
+                <Card
+                    title="Define Options"
+                    contentClassName={styles.card}
+                >
+                    <Heading level={4}>
+                        Option Instructions
+                    </Heading>
+                    <Tabs
+                        value={activeOptionsTab}
+                        onChange={setActiveOptionsTab}
+                    >
+                        <TabList>
+                            {value.customOptions.map((custom) => (
+
+                                <Tab
+                                    key={custom.optionId}
+                                    name={`${custom.optionId}`}
+                                >
+                                    {`Option ${custom.optionId}`}
+                                </Tab>
+                            ))}
+                        </TabList>
+                        {value.customOptions.map((options) => (
+                            <CustomOptionReadOnly
+                                key={options.optionId}
+                                value={options}
+                            />
+                        ))}
+                    </Tabs>
+                </Card>
+            )}
         </>
     );
 }

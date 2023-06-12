@@ -22,6 +22,12 @@ import {
     TileServer,
     tileServerFieldsSchema,
 } from '#components/TileServerInput';
+import {
+    CustomOptions,
+    CustomOptionFormSchema,
+    CustomOptionFormSchemaMember,
+    CustomOptionSchemaFields,
+} from '#views/NewTutorial/utils';
 
 import {
     getNoMoreThanNCharacterCondition,
@@ -56,6 +62,7 @@ export interface ProjectFormType {
     maxTasksPerUser: number;
     tileServer: TileServer;
     tileServerB?: TileServer;
+    customOptions?: CustomOptions;
 }
 
 export const PROJECT_INPUT_TYPE_UPLOAD = 'aoi_file';
@@ -84,7 +91,7 @@ export const filterOptions = [
 export type PartialProjectFormType = PartialForm<
     Omit<ProjectFormType, 'projectImage'> & { projectImage?: File },
     // NOTE: we do not want to change File and FeatureCollection to partials
-    'geometry' | 'projectImage'
+    'geometry' | 'projectImage' | 'optionId' | 'subOptionsId'
 >;
 
 type ProjectFormSchema = ObjectSchema<PartialProjectFormType>;
@@ -225,7 +232,67 @@ export const projectFormSchema: ProjectFormSchema = {
                 validations: [greaterThanCondition(0)],
             },
         };
+        baseSchema = addCondition(
+            baseSchema,
+            value,
+            ['projectType'],
+            ['customOptions'],
+            (formValues) => {
+                const customOptionField: CustomOptionFormSchema = {
+                    keySelector: (key) => key.optionId,
+                    member: (): CustomOptionFormSchemaMember => ({
+                        fields: (): CustomOptionSchemaFields => ({
+                            optionId: {
+                                required: true,
+                            },
+                            title: {
+                                required: true,
+                                requiredValidation: requiredStringCondition,
+                                validations: [getNoMoreThanNCharacterCondition(500)],
+                            },
+                            value: {
+                                required: true,
+                            },
+                            description: {
+                                required: true,
+                                requiredValidation: requiredStringCondition,
+                                validations: [getNoMoreThanNCharacterCondition(500)],
+                            },
+                            icon: {
+                                required: true,
+                            },
+                            iconColor: {
+                                required: true,
+                            },
+                            subOptions: {
+                                keySelector: (key) => key.subOptionsId,
+                                member: () => ({
+                                    fields: () => ({
+                                        subOptionsId: {
+                                            required: true,
+                                        },
+                                        description: {
+                                            required: true,
+                                            requiredValidation: requiredStringCondition,
+                                            validations: [getNoMoreThanNCharacterCondition(500)],
+                                        },
+                                    }),
+                                }),
+                            },
+                        }),
+                    }),
+                };
 
+                if (formValues?.projectType === PROJECT_TYPE_FOOTPRINT) {
+                    return {
+                        customOptions: customOptionField,
+                    };
+                }
+                return {
+                    customOptions: { forceValue: nullValue },
+                };
+            },
+        );
         baseSchema = addCondition(
             baseSchema,
             value,
