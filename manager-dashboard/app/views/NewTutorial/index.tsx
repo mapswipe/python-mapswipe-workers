@@ -211,7 +211,7 @@ function NewTutorial(props: Props) {
             }
             const {
                 scenarioPages,
-                informationPages,
+                informationPages: informationPagesFromForm,
                 ...valuesToCopy
             } = finalValues;
             type Screens = typeof finalValues.scenarioPages;
@@ -235,8 +235,8 @@ function NewTutorial(props: Props) {
 
             setTutorialSubmissionStatus('imageUpload');
             try {
-                const finalInformationPages = informationPages.map(async (info) => (
-                    info.blocks.map(async (block) => {
+                const informationPagesPromises = informationPagesFromForm.map(async (info) => {
+                    const blockPromises = info.blocks.map(async (block) => {
                         if (!block.imageFile) {
                             return block;
                         }
@@ -247,24 +247,36 @@ function NewTutorial(props: Props) {
 
                         const uploadImagesRef = storageRef(
                             storage,
-                            `projectImage/${timestamp}-tutorial-image-${block.blockNumber}-${imageFile?.name}`,
+                            `tutorialImages/${timestamp}-block-image-${block.blockNumber}-${imageFile?.name}`,
                         );
                         const uploadTask = await uploadBytes(uploadImagesRef, block.imageFile);
                         const downloadUrl = await getDownloadURL(uploadTask.ref);
-                        return {
 
+                        return {
                             ...otherBlocks,
                             image: downloadUrl,
                         };
-                    })
-                ));
+                    });
+
+                    return Promise.all(blockPromises);
+                });
+
+                const informationPages = await Promise.all(informationPagesPromises);
 
                 const uploadData = {
                     ...valuesToCopy,
                     screens,
-                    informationPages: finalInformationPages,
+                    informationPages,
                     createdBy: userId,
                 };
+
+                /*
+                if (uploadData) {
+                    console.info(uploadData);
+                    setTutorialSubmissionStatus('failed');
+                    return;
+                }
+                */
 
                 const database = getDatabase();
                 const tutorialDraftsRef = databaseRef(database, 'v2/tutorialDrafts/');
@@ -272,6 +284,7 @@ function NewTutorial(props: Props) {
                 if (!mountedRef.current) {
                     return;
                 }
+
                 const newKey = newTutorialDraftsRef.key;
 
                 if (newKey) {
