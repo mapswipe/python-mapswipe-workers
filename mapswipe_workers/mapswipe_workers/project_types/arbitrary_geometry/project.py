@@ -230,3 +230,8 @@ class ArbitraryGeometryProject(BaseProject):
     @abstractmethod
     def save_tasks_to_firebase(self, projectId: str, tasks: dict):
         pass
+
+    @staticmethod
+    @abstractmethod
+    def save_results_to_postgres(results_file, project_id, filter_mode):
+        pass

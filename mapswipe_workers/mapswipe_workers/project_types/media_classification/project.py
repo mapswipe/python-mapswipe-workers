@@ -9,6 +9,10 @@ from google.cloud import storage
 
 from mapswipe_workers.config import FIREBASE_STORAGE_BUCKET
 from mapswipe_workers.firebase.firebase import Firebase
+from mapswipe_workers.firebase_to_postgres.transfer_results import (
+    save_results_to_postgres,
+    truncate_temp_results,
+)
 from mapswipe_workers.project_types.base.project import BaseGroup, BaseProject, BaseTask
 
 
@@ -114,3 +118,8 @@ class MediaClassificationProject(BaseProject):
     def save_to_files(self, project):
         """We do not have any geometry so we pass here"""
         pass
+
+    @staticmethod
+    def save_results_to_postgres(results_file, project_id, filter_mode):
+        truncate_temp_results()
+        save_results_to_postgres(results_file, project_id, filter_mode)

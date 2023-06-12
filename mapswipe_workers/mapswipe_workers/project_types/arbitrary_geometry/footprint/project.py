@@ -3,6 +3,10 @@ import urllib
 
 from mapswipe_workers.definitions import logger
 from mapswipe_workers.firebase.firebase import Firebase
+from mapswipe_workers.firebase_to_postgres.transfer_results import (
+    save_results_to_postgres,
+    truncate_temp_results,
+)
 from mapswipe_workers.project_types.arbitrary_geometry.project import (
     ArbitraryGeometryProject,
 )
@@ -53,3 +57,8 @@ class FootprintProject(ArbitraryGeometryProject):
     def save_tasks_to_firebase(self, projectId: str, tasks: dict):
         firebase = Firebase()
         firebase.save_tasks_to_firebase(projectId, tasks, useCompression=True)
+
+    @staticmethod
+    def save_results_to_postgres(results_file, project_id, filter_mode):
+        truncate_temp_results()
+        save_results_to_postgres(results_file, project_id, filter_mode)

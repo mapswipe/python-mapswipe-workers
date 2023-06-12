@@ -663,3 +663,8 @@ class BaseProject(ABC):
     @abstractmethod
     def create_tasks(self):
         pass
+
+    @staticmethod
+    @abstractmethod
+    def save_results_to_postgres(results_file, project_id, filter_mode):
+        pass

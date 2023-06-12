@@ -91,6 +91,18 @@ CREATE TABLE IF NOT EXISTS results_temp (
     result int
 );
 
+-- create table for results import through csv
+CREATE TABLE IF NOT EXISTS results_geometry_temp (
+    project_id varchar,
+    group_id varchar,
+    user_id varchar,
+    task_id varchar,
+    "timestamp" timestamp,
+    start_time timestamp,
+    end_time timestamp,
+    result geometry
+);
+
 
 ---- User Group Tables
 CREATE TABLE IF NOT EXISTS user_groups (
@@ -176,6 +188,15 @@ CREATE TABLE IF NOT EXISTS mapping_sessions_results (
     references mapping_sessions (mapping_session_id)
 );
 
+CREATE TABLE IF NOT EXISTS mapping_sessions_results_geometry (
+    mapping_session_id int8,
+    task_id varchar,
+    result geometry not null,
+    PRIMARY KEY (mapping_session_id, task_id),
+    FOREIGN KEY (mapping_session_id)
+    references mapping_sessions (mapping_session_id)
+);
+
 CREATE OR REPLACE FUNCTION mapping_sessions_results_constraint() RETURNS trigger
     LANGUAGE plpgsql AS
 $$
@@ -205,6 +226,9 @@ END;
 $$;
 
 CREATE TRIGGER insert_mapping_sessions_results BEFORE INSERT ON mapping_sessions_results
+    FOR EACH ROW EXECUTE PROCEDURE mapping_sessions_results_constraint();
+
+CREATE TRIGGER insert_mapping_sessions_results BEFORE INSERT ON mapping_sessions_results_geometry
     FOR EACH ROW EXECUTE PROCEDURE mapping_sessions_results_constraint();
 
 -- Used to group results by user groups
