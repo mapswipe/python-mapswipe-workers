@@ -13,6 +13,7 @@ import Button from '#components/Button';
 
 import { InformationPagesType } from '../utils';
 import Block from './Block';
+import styles from './styles.css';
 
 interface Props {
     value: InformationPagesType,
@@ -48,28 +49,31 @@ export default function InformationPageInput(props: Props) {
         <TabPanel
             name={String(value.pageNumber)}
         >
-            <TextInput
-                name={'title' as const}
-                value={value?.title}
-                label="Title for the Page"
-                onChange={onInformationPageChange}
-                error={error?.title}
-            />
-            {value.blocks?.map((block, i) => (
-                <Block
-                    key={block.blockNumber}
-                    value={block}
-                    onChange={onChangeBlock}
-                    index={i}
-                    error={blockError?.[block.blockNumber]}
+            <div className={styles.informationForm}>
+                <TextInput
+                    name={'title' as const}
+                    value={value?.title}
+                    label="Title for the Page"
+                    onChange={onInformationPageChange}
+                    error={error?.title}
                 />
-            ))}
-            <Button
-                name={index}
-                onClick={onRemove}
-            >
-                Delete Page
-            </Button>
+                {value.blocks?.map((block, i) => (
+                    <Block
+                        key={block.blockNumber}
+                        value={block}
+                        onChange={onChangeBlock}
+                        index={i}
+                        error={blockError?.[block.blockNumber]}
+                    />
+                ))}
+                <Button
+                    name={index}
+                    onClick={onRemove}
+                    className={styles.removeButton}
+                >
+                    Delete Page
+                </Button>
+            </div>
         </TabPanel>
     );
 }

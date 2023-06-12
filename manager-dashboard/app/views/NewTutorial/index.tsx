@@ -11,14 +11,12 @@ import {
     analyzeErrors,
     useFormArray,
 } from '@togglecorp/toggle-form';
-/*
 import {
     getStorage,
     ref as storageRef,
     uploadBytes,
     getDownloadURL,
 } from 'firebase/storage';
-*/
 import {
     getDatabase,
     ref as databaseRef,
@@ -202,6 +200,7 @@ function NewTutorial(props: Props) {
                 exampleImage1,
                 exampleImage2,
                 scenarioPages,
+                informationPages,
                 ...valuesToCopy
             } = finalValues;
             type Screens = typeof finalValues.scenarioPages;
@@ -220,50 +219,43 @@ function NewTutorial(props: Props) {
                 {} as Record<string, CustomScreen>,
             );
 
-            // const storage = getStorage();
-            // const timestamp = (new Date()).getTime();
-            // const uploadedImage1Ref = storageRef(
-            //     storage,
-            //     `projectImages/${timestamp}-tutorial-image-1-${exampleImage1.name}`,
-            // );
-            // const uploadedImage2Ref = storageRef(
-            //     storage,
-            //     `projectImages/${timestamp}-tutorial-image-2-${exampleImage2.name}`,
-            // );
+            const storage = getStorage();
+            const timestamp = (new Date()).getTime();
 
             setTutorialSubmissionStatus('imageUpload');
             try {
-                /*
-                const uploadTask1 = await uploadBytes(uploadedImage1Ref, exampleImage1);
-                if (!mountedRef.current) {
-                    return;
-                }
-                const downloadUrl1 = await getDownloadURL(uploadTask1.ref);
-                if (!mountedRef.current) {
-                    return;
-                }
-                const uploadTask2 = await uploadBytes(uploadedImage2Ref, exampleImage2);
-                if (!mountedRef.current) {
-                    return;
-                }
-                const downloadUrl2 = await getDownloadURL(uploadTask2.ref);
-                if (!mountedRef.current) {
-                    return;
-                }
-                        */
+                const finalInformationPages = informationPages.map(async (info) => (
+                    info.blocks.map(async (block) => {
+                        if (!block.imageFile) {
+                            return block;
+                        }
+                        const {
+                            imageFile,
+                            ...otherBlocks
+                        } = block;
+
+                        const uploadImagesRef = storageRef(
+                            storage,
+                            `projectImage/${timestamp}-tutorial-image-${block.blockNumber}-${imageFile?.name}`,
+                        );
+                        const uploadTask = await uploadBytes(uploadImagesRef, block.imageFile);
+                        const downloadUrl = await getDownloadURL(uploadTask.ref);
+                        return {
+
+                            ...otherBlocks,
+                            image: downloadUrl,
+                        };
+                    })
+                ));
+
+                console.log('finalInformation', finalInformationPages);
 
                 const uploadData = {
                     ...valuesToCopy,
                     screens,
-                    // exampleImage1: downloadUrl1,
-                    // exampleImage2: downloadUrl2,
+                    informationPages: finalInformationPages,
                     createdBy: userId,
                 };
-
-                if (uploadData) {
-                    console.info(uploadData);
-                    return;
-                }
 
                 const database = getDatabase();
                 const tutorialDraftsRef = databaseRef(database, 'v2/tutorialDrafts/');
@@ -567,6 +559,7 @@ function NewTutorial(props: Props) {
                     </Card>
                     <Card
                         title="Describe information pages"
+                        contentClassName={styles.card}
                     >
                         <SelectInput
                             name="templateType"

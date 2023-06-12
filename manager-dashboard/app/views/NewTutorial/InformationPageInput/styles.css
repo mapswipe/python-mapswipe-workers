@@ -1,3 +1,10 @@
-.information {
+.informationForm {
     display: flex;
+    flex-direction: column;
+    gap: var(--spacing-medium);
+
+    .remove-button {
+        align-self: end;
+        width: fit-content;
+    }
 }
