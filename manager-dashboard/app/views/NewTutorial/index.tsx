@@ -11,12 +11,14 @@ import {
     analyzeErrors,
     useFormArray,
 } from '@togglecorp/toggle-form';
+/*
 import {
     getStorage,
     ref as storageRef,
     uploadBytes,
     getDownloadURL,
 } from 'firebase/storage';
+*/
 import {
     getDatabase,
     ref as databaseRef,
@@ -75,8 +77,8 @@ import {
     PartialBlocksType,
 } from './utils';
 import CustomOptionInput from './CustomOptionInput';
-import ScenarioInput from './ScenarioInput';
-import InformationPage from './InformationPage';
+import ScenarioPageInput from './ScenarioPageInput';
+import InformationPageInput from './InformationPageInput';
 import styles from './styles.css';
 import SelectInput from '#components/SelectInput';
 
@@ -184,28 +186,6 @@ function NewTutorial(props: Props) {
         const userId = user?.id;
         const finalValues = finalValuesFromProps as TutorialFormType;
 
-        type Screens = typeof finalValues.scenarioPages;
-        type Screen = Screens[number];
-        type CustomScreen = Omit<Screen, 'scenarioId'>;
-
-        const screens = finalValues.scenarioPages.reduce(
-            (acc, currentValue) => {
-                const { scenarioId, ...other } = currentValue;
-                acc[scenarioId] = {
-                    ...other,
-                };
-
-                return acc;
-            },
-            {} as Record<string, CustomScreen>,
-        );
-
-        console.info(screens, finalValues);
-
-        if (finalValues) {
-            return;
-        }
-
         if (!userId) {
             // eslint-disable-next-line no-console
             console.error('Cannot submit form because user is not defined');
@@ -221,16 +201,39 @@ function NewTutorial(props: Props) {
             const {
                 exampleImage1,
                 exampleImage2,
+                scenarioPages,
                 ...valuesToCopy
             } = finalValues;
+            type Screens = typeof finalValues.scenarioPages;
+            type Screen = Screens[number];
+            type CustomScreen = Omit<Screen, 'scenarioId'>;
 
-            const storage = getStorage();
-            const timestamp = (new Date()).getTime();
-            const uploadedImage1Ref = storageRef(storage, `projectImages/${timestamp}-tutorial-image-1-${exampleImage1.name}`);
-            const uploadedImage2Ref = storageRef(storage, `projectImages/${timestamp}-tutorial-image-2-${exampleImage2.name}`);
+            const screens = scenarioPages.reduce(
+                (acc, currentValue) => {
+                    const { scenarioId, ...other } = currentValue;
+                    acc[scenarioId] = {
+                        ...other,
+                    };
+
+                    return acc;
+                },
+                {} as Record<string, CustomScreen>,
+            );
+
+            // const storage = getStorage();
+            // const timestamp = (new Date()).getTime();
+            // const uploadedImage1Ref = storageRef(
+            //     storage,
+            //     `projectImages/${timestamp}-tutorial-image-1-${exampleImage1.name}`,
+            // );
+            // const uploadedImage2Ref = storageRef(
+            //     storage,
+            //     `projectImages/${timestamp}-tutorial-image-2-${exampleImage2.name}`,
+            // );
 
             setTutorialSubmissionStatus('imageUpload');
             try {
+                /*
                 const uploadTask1 = await uploadBytes(uploadedImage1Ref, exampleImage1);
                 if (!mountedRef.current) {
                     return;
@@ -247,13 +250,20 @@ function NewTutorial(props: Props) {
                 if (!mountedRef.current) {
                     return;
                 }
+                        */
 
                 const uploadData = {
                     ...valuesToCopy,
-                    exampleImage1: downloadUrl1,
-                    exampleImage2: downloadUrl2,
+                    screens,
+                    // exampleImage1: downloadUrl1,
+                    // exampleImage2: downloadUrl2,
                     createdBy: userId,
                 };
+
+                if (uploadData) {
+                    console.info(uploadData);
+                    return;
+                }
 
                 const database = getDatabase();
                 const tutorialDraftsRef = databaseRef(database, 'v2/tutorialDrafts/');
@@ -541,7 +551,7 @@ function NewTutorial(props: Props) {
                                         ))}
                                     </TabList>
                                     {value.scenarioPages?.map((task, index) => (
-                                        <ScenarioInput
+                                        <ScenarioPageInput
                                             key={task.scenarioId}
                                             index={index}
                                             value={task}
@@ -584,7 +594,7 @@ function NewTutorial(props: Props) {
                                     ))}
                                 </TabList>
                                 {value.informationPages?.map((page, i) => (
-                                    <InformationPage
+                                    <InformationPageInput
                                         key={page.pageNumber}
                                         value={page}
                                         onChange={onInformationPagesAdd}

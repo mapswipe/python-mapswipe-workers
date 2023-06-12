@@ -22,7 +22,7 @@ interface Props {
     error: Error<InformationPagesType> | undefined;
 }
 
-export default function InformationPage(props: Props) {
+export default function InformationPageInput(props: Props) {
     const {
         value,
         onChange,

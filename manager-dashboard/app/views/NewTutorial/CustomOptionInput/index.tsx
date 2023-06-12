@@ -40,7 +40,7 @@ interface Props {
     error: Error<PartialCustomOptionsType> | undefined;
 }
 
-export default function CustomOptions(props: Props) {
+export default function CustomOptionInput(props: Props) {
     const {
         value,
         onChange,

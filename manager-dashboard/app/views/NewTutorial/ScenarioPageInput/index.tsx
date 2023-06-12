@@ -50,7 +50,7 @@ interface Props {
     error: Error<PartialScenarioType> | undefined;
 }
 
-export default function ScenarioInput(props: Props) {
+export default function ScenarioPageInput(props: Props) {
     const {
         value,
         onChange,

@@ -74,15 +74,15 @@ export interface PageTemplateType {
 export const pageOptions: PageTemplateType[] = [
     {
         key: '1-picture',
-        label: '1 picture templete',
+        label: '1 picture template',
     },
     {
         key: '2-picture',
-        label: '2 picture templete',
+        label: '2 picture template',
     },
     {
         key: '3-picture',
-        label: '3 picture templete',
+        label: '3 picture template',
     },
 ];
 
