@@ -26,7 +26,7 @@ def transfer_results(project_id_list=None):
             logger.info("There are no results to transfer.")
 
     # Get all project ids from postgres.
-    # We will only transfer results for projects we in postgres.
+    # We will only transfer results for projects we have in postgres.
     postgres_project_ids = get_projects_from_postgres()
 
     project_id_list_transfered = []
