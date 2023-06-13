@@ -3,7 +3,6 @@ import os
 import unittest
 from unittest.mock import patch
 
-from base import BaseTestCase
 from click.testing import CliRunner
 
 from mapswipe_workers import auth, mapswipe_workers
@@ -13,6 +12,7 @@ from mapswipe_workers.utils.create_directories import create_directories
 from tests import fixtures
 from tests.fixtures import FIXTURE_DIR
 from tests.integration import set_up, tear_down
+from tests.integration.base import BaseTestCase
 
 
 class TestTransferResultsProject(BaseTestCase):
