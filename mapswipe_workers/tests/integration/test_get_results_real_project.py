@@ -16,15 +16,23 @@ class TestGetResults(BaseTestCase):
         fixture_name = "build_area_sandoa"
         self.project_id = "-NFNr55R_LYJvxP7wmte"
 
-        for data_type in [
-            "projects",
-            "groups",
-            "tasks",
-            "users",
-            "mapping_sessions",
-            "mapping_sessions_results",
+        for data_type, columns in [
+            ("projects", None),
+            ("groups", [
+                "project_id",
+                "group_id",
+                "number_of_tasks",
+                "finished_count",
+                "required_count",
+                "progress",
+                "project_type_specifics",
+            ]),
+            ("tasks", None),
+            ("users", None),
+            ("mapping_sessions", None),
+            ("mapping_sessions_results", None),
         ]:
-            set_up.set_postgres_test_data(project_type, data_type, fixture_name)
+            set_up.set_postgres_test_data(project_type, data_type, fixture_name, columns=columns)
 
         self.results_filename = os.path.join(
             tempfile._get_default_tempdir(), f"results_{self.project_id}.csv.gz"

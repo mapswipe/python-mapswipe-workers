@@ -55,10 +55,11 @@ INSERT INTO mapping_sessions_user_groups(
   WHERE MS.end_time >= '2022-01-01'
 ) ON CONFLICT (mapping_session_id, user_group_id) DO NOTHING;
 
+-- To update aggregated data: docker-compose exec django ./manage.py update_aggregated_data
 -- This table is maintaned using django
 -- type = 1 = USER_GROUP
+-- type = 0 = USER
 -- value = date from when the data is calculated >= 2022-01-01
--- To update aggregated data: docker-compose exec django ./manage.py update_aggregated_data.py
 UPDATE aggregated_aggregatedtracking
 SET "value" = '2022-01-01'
-WHERE "type" = 1;
+WHERE "type" in (0, 1);
