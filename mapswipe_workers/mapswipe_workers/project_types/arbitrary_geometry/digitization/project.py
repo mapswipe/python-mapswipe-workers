@@ -2,6 +2,7 @@ from urllib.request import urlretrieve
 
 from mapswipe_workers.firebase.firebase import Firebase
 from mapswipe_workers.firebase_to_postgres.transfer_results import (
+    results_to_file,
     save_results_to_postgres,
     truncate_temp_results,
 )
@@ -31,7 +32,10 @@ class DigitizationProject(ArbitraryGeometryProject):
         firebase.save_tasks_to_firebase(projectId, tasks, useCompression=False)
 
     @staticmethod
-    def save_results_to_postgres(results_file, project_id, filter_mode):
+    def results_to_postgres(results, project_id, filter_mode):
+        results_file, user_group_results_file = results_to_file(
+            results, project_id, result_type="geometry"
+        )
         truncate_temp_results(temp_table="results_geometry_temp")
         save_results_to_postgres(
             results_file,
@@ -40,3 +44,5 @@ class DigitizationProject(ArbitraryGeometryProject):
             result_temp_table="results_geometry_temp",
             result_table="mapping_sessions_results_geometry",
         )
+
+        return user_group_results_file

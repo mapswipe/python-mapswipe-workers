@@ -233,5 +233,5 @@ class ArbitraryGeometryProject(BaseProject):
 
     @staticmethod
     @abstractmethod
-    def save_results_to_postgres(results_file, project_id, filter_mode):
+    def results_to_postgres(results_file, project_id, filter_mode):
         pass

@@ -3,6 +3,7 @@ import io
 from typing import List
 
 import dateutil.parser
+import geojson
 import psycopg2
 
 from mapswipe_workers import auth
@@ -48,8 +49,9 @@ def transfer_results(project_id_list=None):
             fb_db = auth.firebaseDB()
             results_ref = fb_db.reference(f"v2/results/{project_id}")
             results = results_ref.get()
-            del fb_db  # todo: check if this repeated open and close is necessary
+            del fb_db
             project = ProjectType(project_type_per_id[project_id]).constructor
+
             transfer_results_for_project(project_id, results, project)
             project_id_list_transfered.append(project_id)
 
@@ -107,11 +109,13 @@ def transfer_results_for_project(
         # Results are dumped into an in-memory file.
         # This allows us to use the COPY statement to insert many
         # results at relatively high speed.
-        results_file, user_group_results_file = results_to_file(results, project_id)
+
         truncate_temp_user_groups_results()
-        project.save_results_to_postgres(
-            results_file, project_id, filter_mode=filter_mode
+
+        user_group_results_file = project.results_to_postgres(
+            results, project_id, filter_mode=filter_mode
         )
+
         save_user_group_results_to_postgres(
             user_group_results_file, project_id, filter_mode=filter_mode
         )
@@ -200,7 +204,7 @@ def results_complete(result_data, projectId, groupId, userId, required_attribute
     return complete
 
 
-def results_to_file(results, projectId):
+def results_to_file(results, projectId, result_type: str = "integer"):
     """
     Writes results to an in-memory file like object
     formatted as a csv using the buffer module (StringIO).
@@ -251,10 +255,12 @@ def results_to_file(results, projectId):
 
             start_time = dateutil.parser.parse(result_data["startTime"])
             end_time = dateutil.parser.parse(result_data["endTime"])
-            timestamp = end_time  # TODO: ?
+            timestamp = end_time
 
             if type(result_data["results"]) is dict:
                 for taskId, result in result_data["results"].items():
+                    if result_type == "geometry":
+                        result = geojson.dumps(geojson.GeometryCollection(result))
                     w.writerow(
                         [
                             projectId,
@@ -277,6 +283,8 @@ def results_to_file(results, projectId):
                     if result is None:
                         continue
                     else:
+                        if result_type == "geometry":
+                            result = geojson.dumps(geojson.GeometryCollection(result))
                         w.writerow(
                             [
                                 projectId,
@@ -384,6 +392,13 @@ def save_results_to_postgres(
         """
         p_con.query(filter_query, {"project_id": project_id})
 
+    # here we can handle different result types, e.g. convert Geojson to
+    # native postgis geometry object
+    if result_table == "mapping_sessions_results_geometry":
+        result_sql = "ST_GeomFromGeoJSON(r.result) as result"
+    else:
+        result_sql = "r.result"
+
     query_insert_mapping_sessions = f"""
         BEGIN;
         INSERT INTO mapping_sessions
@@ -403,7 +418,7 @@ def save_results_to_postgres(
             SELECT
                 ms.mapping_session_id,
                 r.task_id,
-                r.result
+                {result_sql}
             FROM {result_temp_table} r
             JOIN mapping_sessions ms ON
                 ms.project_id = r.project_id
@@ -496,9 +511,7 @@ def save_user_group_results_to_postgres(
 
 def truncate_temp_results(temp_table: str = "results_temp"):
     p_con = auth.postgresDB()
-    query_truncate_temp_results = f"""
-                    TRUNCATE {temp_table}
-                """
+    query_truncate_temp_results = f"TRUNCATE {temp_table};"
     p_con.query(query_truncate_temp_results)
     del p_con
 

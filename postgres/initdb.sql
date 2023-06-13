@@ -100,7 +100,7 @@ CREATE TABLE IF NOT EXISTS results_geometry_temp (
     "timestamp" timestamp,
     start_time timestamp,
     end_time timestamp,
-    result geometry
+    result varchar
 );
 
 
@@ -224,11 +224,10 @@ BEGIN
     RETURN NEW;
 END;
 $$;
-
 CREATE TRIGGER insert_mapping_sessions_results BEFORE INSERT ON mapping_sessions_results
     FOR EACH ROW EXECUTE PROCEDURE mapping_sessions_results_constraint();
 
-CREATE TRIGGER insert_mapping_sessions_results BEFORE INSERT ON mapping_sessions_results_geometry
+CREATE TRIGGER insert_mapping_sessions_results_geometry BEFORE INSERT ON mapping_sessions_results_geometry
     FOR EACH ROW EXECUTE PROCEDURE mapping_sessions_results_constraint();
 
 -- Used to group results by user groups
