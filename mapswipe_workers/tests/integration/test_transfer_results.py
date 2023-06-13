@@ -2,8 +2,6 @@ import json
 import os
 import unittest
 
-from base import BaseTestCase
-
 from mapswipe_workers import auth
 from mapswipe_workers.definitions import ProjectType
 from mapswipe_workers.firebase_to_postgres.transfer_results import (
@@ -11,6 +9,7 @@ from mapswipe_workers.firebase_to_postgres.transfer_results import (
     transfer_results_for_project,
 )
 from tests.integration import set_up, tear_down
+from tests.integration.base import BaseTestCase
 
 
 class TestTransferResultsProject(BaseTestCase):

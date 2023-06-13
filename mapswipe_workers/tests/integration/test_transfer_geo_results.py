@@ -72,7 +72,7 @@ class TestTransferResultsProject(BaseTestCase):
         self.assertEqual(expected_items_count, result[0][6])
 
         q2 = (
-            "SELECT msr.* "
+            "SELECT msr.*"
             "FROM mapping_sessions_results_geometry msr "
             "JOIN mapping_sessions ms ON "
             "ms.mapping_session_id = msr.mapping_session_id "
