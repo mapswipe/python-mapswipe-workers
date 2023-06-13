@@ -182,7 +182,7 @@ def delete_results_from_firebase(project_id, results):
 
 
 def results_complete(result_data, projectId, groupId, userId, required_attributes):
-    """check if all attributes are set and save them in confirmed_dict"""
+    """check if all attributes are set"""
     complete = True
     for attribute in required_attributes:
 
@@ -234,7 +234,7 @@ def results_to_file(results, projectId, result_type: str = "integer"):
     for groupId, users in results.items():
         for userId, result_data in users.items():
 
-            # check if all attributes are set and save them in confirmed_dict
+            # check if all attributes are set
             # if not don't transfer the results for this group
             if not results_complete(
                 result_data,
