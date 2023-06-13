@@ -7,8 +7,8 @@ from mapswipe_workers.firebase_to_postgres.transfer_results import (
     transfer_results,
     transfer_results_for_project,
 )
+from tests.integration import set_up, tear_down
 
-from . import set_up, tear_down
 from .base import BaseTestCase
 
 

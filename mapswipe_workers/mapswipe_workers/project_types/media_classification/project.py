@@ -35,8 +35,16 @@ class MediaClassificationProject(BaseProject):
         self.mediaCredits = project_draft.get("mediaCredits", None)
         self.medialist = []
         self.mediaurl = project_draft["mediaurl"]
-        self.answerLabels = project_draft.get("answerLabels", None)
         self.get_media()
+
+        self.answerLabels = project_draft.get(
+            "answerLabels",
+            [
+                {"color": "green", "label": "yes", "value": 1},
+                {"color": "red", "label": "no", "value": 0},
+                {"color": "grey", "label": "not sure", "value": 2},
+            ],
+        )
 
     def get_media(self):
         blob_path = "projectTypeMedia/" + self.projectId

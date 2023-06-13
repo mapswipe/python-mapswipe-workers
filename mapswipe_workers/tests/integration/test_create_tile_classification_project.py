@@ -26,6 +26,15 @@ class TestCreateTileClassificationProject(unittest.TestCase):
         result = pg_db.retr_query(query, [self.project_id])[0][0]
         self.assertEqual(result, self.project_id)
 
+        query = """
+            SELECT project_id
+            FROM projects
+            WHERE project_id = %s
+                and project_type_specifics::jsonb ? 'answerLabels'
+        """
+        result = pg_db.retr_query(query, [self.project_id])[0][0]
+        self.assertEqual(result, self.project_id)
+
         query = "SELECT count(*)  FROM groups WHERE project_id = %s"
         result = pg_db.retr_query(query, [self.project_id])[0][0]
         self.assertEqual(result, 20)

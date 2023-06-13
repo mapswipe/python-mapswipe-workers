@@ -42,6 +42,15 @@ class ArbitraryGeometryProject(BaseProject):
         if "TMId" in project_draft.keys():
             self.TMId = project_draft["TMId"]
 
+        self.answerLabels = project_draft.get(
+            "answerLabels",
+            [
+                {"color": "green", "label": "yes", "value": 1},
+                {"color": "red", "label": "no", "value": 0},
+                {"color": "grey", "label": "not sure", "value": 2},
+            ],
+        )
+
     @abstractmethod
     def handle_input_type(self, raw_input_file: str):
         """Specify how the geometries used in this project type are received"""

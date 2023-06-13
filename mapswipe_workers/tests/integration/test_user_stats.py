@@ -2,14 +2,16 @@ import os
 import tempfile
 import unittest
 
+import pandas as pd
+
 from mapswipe_workers.generate_stats.project_stats import (
     get_agg_results_by_task_id,
     get_results,
     get_tasks,
 )
 from mapswipe_workers.generate_stats.user_stats import get_agg_results_by_user_id
+from tests.integration import set_up, tear_down
 
-from . import set_up, tear_down
 from .base import BaseTestCase
 
 
@@ -47,7 +49,9 @@ class TestUserStats(BaseTestCase):
         tasks_df = get_tasks(self.tasks_filename, self.project_id)
         self.assertEqual(len(tasks_df), 67436)
 
-        agg_results_df = get_agg_results_by_task_id(results_df, tasks_df)
+        agg_results_df = get_agg_results_by_task_id(
+            results_df, tasks_df, pd.Series(data=["{0, 1, 2, 3}"])
+        )
         self.assertEqual(len(agg_results_df), 67436)
 
         agg_results_by_user_id_df = get_agg_results_by_user_id(
