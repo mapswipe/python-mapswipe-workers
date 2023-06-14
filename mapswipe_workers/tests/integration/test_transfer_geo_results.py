@@ -15,7 +15,7 @@ from tests.integration import set_up, tear_down
 from tests.integration.base import BaseTestCase
 
 
-class TestTransferResultsProject(BaseTestCase):
+class TestTransferGeoResultsProject(BaseTestCase):
     def setUp(self):
         super().setUp()
         file_path = os.path.join(FIXTURE_DIR, "projectDrafts", "digitization.json")

@@ -143,7 +143,7 @@ def transfer_results_for_project(
         # If it does not solve the issue we arrive again but
         # since filtermode is already true, we will not try to transfer results again.
         if not filter_mode:
-            transfer_results_for_project(project_id, results, filter_mode=True)
+            transfer_results_for_project(project_id, results, project, filter_mode=True)
     except Exception as e:
         sentry.capture_exception(e)
         sentry.capture_message(f"could not transfer results to postgres: {project_id}")
@@ -395,7 +395,10 @@ def save_results_to_postgres(
     # here we can handle different result types, e.g. convert Geojson to
     # native postgis geometry object
     if result_table == "mapping_sessions_results_geometry":
-        result_sql = "ST_GeomFromGeoJSON(r.result) as result"
+        # webapp saves coordinates as web-mercator
+        result_sql = """
+            ST_Transform(ST_SetSRID(ST_GeomFromGeoJSON(r.result), 3857), 4326) as result
+        """
     else:
         result_sql = "r.result"
 

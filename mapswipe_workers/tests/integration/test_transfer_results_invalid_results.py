@@ -9,7 +9,7 @@ from . import set_up, tear_down
 from .base import BaseTestCase
 
 
-class TestTransferResultsProject(BaseTestCase):
+class TestTransferInvalidResultsProject(BaseTestCase):
     def setUp(self):
         super().setUp()
         project_type = "tile_map_service_grid"
