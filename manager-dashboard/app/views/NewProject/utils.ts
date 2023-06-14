@@ -293,11 +293,46 @@ export const projectFormSchema: ProjectFormSchema = {
                 };
             },
         );
+
+        baseSchema = addCondition(
+            baseSchema,
+            value,
+            ['projectType', 'inputType'],
+            ['geometry'],
+            (v) => {
+                const projectType = v?.projectType;
+                const inputType = v?.inputType;
+                if (projectType === PROJECT_TYPE_BUILD_AREA
+                    || projectType === PROJECT_TYPE_CHANGE_DETECTION
+                    || projectType === PROJECT_TYPE_COMPLETENESS) {
+                    return {
+                        geometry: {
+                            required: true,
+                            validations: [validGeometryCondition],
+                        },
+                    };
+                }
+                if ((
+                    inputType === PROJECT_INPUT_TYPE_LINK
+                    || inputType === PROJECT_INPUT_TYPE_UPLOAD
+                ) && projectType === PROJECT_TYPE_FOOTPRINT) {
+                    return {
+                        geometry: {
+                            required: true,
+                            validations: [validGeometryCondition],
+                        },
+                    };
+                }
+                return {
+                    geometry: { forceValue: nullValue },
+                };
+            },
+        );
         baseSchema = addCondition(
             baseSchema,
             value,
             ['projectType'],
-            ['zoomLevel', 'geometry'],
+            ['zoomLevel'],
             (v) => {
                 const projectType = v?.projectType;
                 if (
@@ -314,15 +349,10 @@ export const projectFormSchema: ProjectFormSchema = {
                                 integerCondition,
                             ],
                         },
-                        geometry: {
-                            required: true,
-                            validations: [validGeometryCondition],
-                        },
                     };
                 }
                 return {
                     zoomLevel: { forceValue: nullValue },
-                    geometry: { forceValue: nullValue },
                 };
             },
         );
@@ -372,7 +402,7 @@ export const projectFormSchema: ProjectFormSchema = {
             baseSchema,
             value,
             ['projectType', 'inputType'],
-            ['filter', 'geometry', 'TMId'],
+            ['filter', 'TMId'],
             (v) => {
                 const projectType = v?.projectType;
                 const inputType = v?.inputType;
@@ -382,13 +412,6 @@ export const projectFormSchema: ProjectFormSchema = {
                         || inputType === PROJECT_INPUT_TYPE_UPLOAD
                     ) && projectType === PROJECT_TYPE_FOOTPRINT
                         ? { required: true }
-                        : { forceValue: nullValue },
-                    // FIXME: geometry type is either string or object update validation
-                    geometry: (
-                        inputType === PROJECT_INPUT_TYPE_LINK
-                        || inputType === PROJECT_INPUT_TYPE_UPLOAD
-                    ) && projectType === PROJECT_TYPE_FOOTPRINT
-                        ? { required: true, validations: [validGeometryCondition] }
                         : { forceValue: nullValue },
                     // FIXME: number string condition
                     TMId: (

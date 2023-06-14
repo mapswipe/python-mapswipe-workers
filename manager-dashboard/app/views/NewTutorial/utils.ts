@@ -111,6 +111,7 @@ export type CustomOptions = {
     subOptions: {
         subOptionsId: number;
         description: string;
+        value: number;
     }[];
 }[];
 
@@ -345,6 +346,7 @@ export const tutorialFormSchema: TutorialFormSchema = {
                             },
                             value: {
                                 required: true,
+                                validations: [integerCondition],
                             },
                             description: {
                                 required: true,
@@ -368,6 +370,10 @@ export const tutorialFormSchema: TutorialFormSchema = {
                                             required: true,
                                             requiredValidation: requiredStringCondition,
                                             validations: [getNoMoreThanNCharacterCondition(500)],
+                                        },
+                                        value: {
+                                            required: true,
+                                            validations: [integerCondition],
                                         },
                                     }),
                                 }),

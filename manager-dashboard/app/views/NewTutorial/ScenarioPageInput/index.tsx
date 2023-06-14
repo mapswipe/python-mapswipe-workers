@@ -72,7 +72,7 @@ export default function ScenarioPageInput(props: Props) {
 
     return (
         <TabPanel
-            name={`Scenario ${value.scenarioId}`}
+            name={value.scenarioId}
         >
             <div className={styles.scenario}>
                 <Heading level={4}>

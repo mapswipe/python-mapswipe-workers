@@ -39,7 +39,6 @@ import Modal from '#components/Modal';
 import TextInput from '#components/TextInput';
 import NumberInput from '#components/NumberInput';
 import SegmentInput from '#components/SegmentInput';
-// import FileInput from '#components/FileInput';
 import GeoJsonFileInput from '#components/GeoJsonFileInput';
 import {
     Tabs,
@@ -53,6 +52,8 @@ import TileServerInput, {
 import InputSection from '#components/InputSection';
 import Button from '#components/Button';
 import Heading from '#components/Heading';
+import SelectInput from '#components/SelectInput';
+import ScenarioGeoJsonPreview from '#components/ScenarioGeoJsonPreview';
 import {
     valueSelector,
     labelSelector,
@@ -78,7 +79,6 @@ import CustomOptionInput from './CustomOptionInput';
 import ScenarioPageInput from './ScenarioPageInput';
 import InformationPageInput from './InformationPageInput';
 import styles from './styles.css';
-import SelectInput from '#components/SelectInput';
 
 function pageKeySelector(d: PageTemplateType) {
     return d.key;
@@ -153,11 +153,13 @@ function NewTutorial(props: Props) {
     ] = React.useState<'started' | 'imageUpload' | 'tutorialSubmit' | 'success' | 'failed' | undefined>();
 
     // NOTE: scenario
-    const [activeTab, setActiveTab] = React.useState('Scenario 1');
+    const [activeTab, setActiveTab] = React.useState('1');
     // NOTE: options
     const [activeOptionsTab, setActiveOptionsTab] = React.useState('1');
     // NOTE: Information Page
     const [activeInformationPages, setActiveInformationPages] = React.useState('1');
+    // NOTE: Preview GeoJson
+    const [activePreviewGeoJson, setActivePreviewGeoJson] = React.useState<PartialTutorialFormType['tutorialTasks'] | undefined>();
 
     const error = React.useMemo(
         () => getErrorObject(formError),
@@ -178,6 +180,17 @@ function NewTutorial(props: Props) {
         [error?.informationPages],
     );
 
+    const handleScenarioChange = React.useCallback((tab) => {
+        setActiveTab(tab);
+        const previewGeoJson = value.tutorialTasks?.features.filter(
+            (screen) => screen.properties.screen === Number(activeTab),
+        );
+        setActivePreviewGeoJson(previewGeoJson);
+    }, [
+        value.tutorialTasks,
+        activeTab,
+    ]);
+
     const handleFormSubmission = React.useCallback((
         finalValuesFromProps: PartialTutorialFormType,
     ) => {
@@ -197,8 +210,6 @@ function NewTutorial(props: Props) {
                 return;
             }
             const {
-                exampleImage1,
-                exampleImage2,
                 scenarioPages,
                 informationPages,
                 ...valuesToCopy
@@ -247,8 +258,6 @@ function NewTutorial(props: Props) {
                         };
                     })
                 ));
-
-                console.log('finalInformation', finalInformationPages);
 
                 const uploadData = {
                     ...valuesToCopy,
@@ -528,30 +537,35 @@ function NewTutorial(props: Props) {
                     >
                         <Tabs
                             value={activeTab}
-                            onChange={setActiveTab}
+                            onChange={handleScenarioChange}
                         >
                             {value.scenarioPages?.length ? (
-                                <>
-                                    <TabList>
-                                        {value.scenarioPages?.map((task) => (
-                                            <Tab
+                                <div className={styles.tabContent}>
+                                    <div className={styles.tabList}>
+                                        <TabList>
+                                            {value.scenarioPages?.map((task) => (
+                                                <Tab
+                                                    key={task.scenarioId}
+                                                    name={task.scenarioId}
+                                                >
+                                                    {`Scenario ${task.scenarioId}`}
+                                                </Tab>
+                                            ))}
+                                        </TabList>
+                                        {value.scenarioPages?.map((task, index) => (
+                                            <ScenarioPageInput
                                                 key={task.scenarioId}
-                                                name={`Scenario ${task.scenarioId}`}
-                                            >
-                                                {`Scenario ${task.scenarioId}`}
-                                            </Tab>
+                                                index={index}
+                                                value={task}
+                                                onChange={onScenarioFormChange}
+                                                error={scenarioError?.[task.scenarioId]}
+                                            />
                                         ))}
-                                    </TabList>
-                                    {value.scenarioPages?.map((task, index) => (
-                                        <ScenarioPageInput
-                                            key={task.scenarioId}
-                                            index={index}
-                                            value={task}
-                                            onChange={onScenarioFormChange}
-                                            error={scenarioError?.[task.scenarioId]}
-                                        />
-                                    ))}
-                                </>
+                                    </div>
+                                    <ScenarioGeoJsonPreview
+                                        geoJson={activePreviewGeoJson}
+                                    />
+                                </div>
                             ) : (
                                 <div>No Scenarios</div>
                             )}

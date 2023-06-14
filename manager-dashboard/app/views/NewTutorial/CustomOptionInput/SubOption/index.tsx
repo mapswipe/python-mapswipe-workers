@@ -8,6 +8,7 @@ import {
 import { TabPanel } from '#components/Tabs';
 import TextInput from '#components/TextInput';
 import Button from '#components/Button';
+import NumberInput from '#components/NumberInput';
 
 import { PartialCustomOptionsType } from '..';
 import styles from './styles.css';
@@ -43,6 +44,14 @@ export default function SubOption(props: Props) {
                 label="Description"
                 value={value.description}
                 name={'description' as const}
+                error={error?.description}
+                onChange={onReasonChange}
+            />
+            <NumberInput
+                className={styles.reasonInput}
+                label="Value"
+                value={value.value}
+                name={'value' as const}
                 error={error?.description}
                 onChange={onReasonChange}
             />
