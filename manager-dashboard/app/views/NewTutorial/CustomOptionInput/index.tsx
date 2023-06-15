@@ -7,6 +7,7 @@ import {
     useFormObject,
     getErrorObject,
     useFormArray,
+    nonFieldError,
 } from '@togglecorp/toggle-form';
 import Button from '#components/Button';
 import Heading from '#components/Heading';
@@ -157,9 +158,11 @@ export default function CustomOptionInput(props: Props) {
                     className={styles.addButton}
                     icons={<MdAdd />}
                     onClick={handlesubOptionsAdd}
+                    disabled={value.subOptions && value.subOptions.length >= 6}
                 >
                     Add Sub Options
                 </Button>
+                {subOptionsError && subOptionsError?.[nonFieldError]}
                 {value.subOptions?.length ? (
                     <Tabs
                         value={activesubOptions}

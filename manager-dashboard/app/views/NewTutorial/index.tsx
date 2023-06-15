@@ -10,6 +10,7 @@ import {
     createSubmitHandler,
     analyzeErrors,
     useFormArray,
+    nonFieldError,
 } from '@togglecorp/toggle-form';
 import {
     getStorage,
@@ -92,21 +93,21 @@ const defaultCustomOptions: PartialTutorialFormType['customOptions'] = [
         optionId: 1,
         value: 1,
         title: 'Yes',
-        icon: 'tap-1',
+        icon: 'addOutline',
         iconColor: 'green',
     },
     {
         value: 0,
         optionId: 2,
         title: 'No',
-        icon: 'tap-2',
+        icon: 'alertOutline',
         iconColor: 'red',
     },
     {
         value: 2,
         optionId: 3,
         title: 'Not Sure',
-        icon: 'tap-3',
+        icon: 'banOutline',
         iconColor: 'yellow',
     },
 ];
@@ -270,13 +271,11 @@ function NewTutorial(props: Props) {
                     createdBy: userId,
                 };
 
-                /*
-                if (uploadData) {
-                    console.info(uploadData);
-                    setTutorialSubmissionStatus('failed');
-                    return;
-                }
-                */
+                // if (uploadData) {
+                //     console.info('upload', uploadData);
+                //     setTutorialSubmissionStatus('failed');
+                //     return;
+                // }
 
                 const database = getDatabase();
                 const tutorialDraftsRef = databaseRef(database, 'v2/tutorialDrafts/');
@@ -353,7 +352,6 @@ function NewTutorial(props: Props) {
                     const newOptionId = safeOldValues.length > 0
                         ? Math.max(...safeOldValues.map((option) => option.optionId)) + 1
                         : 1;
-
                     const newValue = safeOldValues.length > 0
                         ? Math.max(...safeOldValues.map((option) => option.value ?? 0)) + 1
                         : 1;
@@ -369,7 +367,9 @@ function NewTutorial(props: Props) {
             );
             // TODO: Set the new option as selected
         },
-        [setFieldValue],
+        [
+            setFieldValue,
+        ],
     );
 
     const submissionPending = (
@@ -596,8 +596,13 @@ function NewTutorial(props: Props) {
                             keySelector={pageKeySelector}
                             labelSelector={pageLabelSelector}
                             onChange={handleAddInformationPages}
+                            disabled={
+                                value.informationPages
+                                && value.informationPages.length >= 10
+                            }
                             nonClearable
                         />
+                        {informationPagesError && <p>{informationPagesError?.[nonFieldError]}</p>}
                         {value.informationPages?.length ? (
                             <Tabs
                                 value={activeInformationPages}
@@ -641,9 +646,14 @@ function NewTutorial(props: Props) {
                                 className={styles.addButton}
                                 icons={<MdAdd />}
                                 onClick={handleAddDefineOptions}
+                                disabled={
+                                    value.customOptions
+                                    && value.customOptions?.length >= 6
+                                }
                             >
                                 Add instruction
                             </Button>
+                            {optionsError && <p>{optionsError?.[nonFieldError]}</p>}
                             {value.customOptions?.length ? (
                                 <Tabs
                                     value={activeOptionsTab}
@@ -676,23 +686,26 @@ function NewTutorial(props: Props) {
                         </Card>
                     )}
                 </InputSection>
-                {(value?.projectType === PROJECT_TYPE_BUILD_AREA
-                    || value?.projectType === PROJECT_TYPE_CHANGE_DETECTION
-                    || value?.projectType === PROJECT_TYPE_COMPLETENESS) && (
-                    <InputSection
-                        heading="Zoom Level"
-                    >
-                        <NumberInput
-                            name={'zoomLevel' as const}
-                            value={value?.zoomLevel}
-                            onChange={setFieldValue}
-                            label="Zoom Level"
-                            hint="We use the Tile Map Service zoom levels. Please check for your area which zoom level is available. For example, Bing imagery is available at zoomlevel 18 for most regions. If you use a custom tile server you may be able to use even higher zoom levels."
-                            error={error?.zoomLevel}
-                            disabled={submissionPending}
-                        />
-                    </InputSection>
-                )}
+                {
+                    (value?.projectType === PROJECT_TYPE_BUILD_AREA
+                        || value?.projectType === PROJECT_TYPE_CHANGE_DETECTION
+                        || value?.projectType === PROJECT_TYPE_COMPLETENESS)
+                    && (
+                        <InputSection
+                            heading="Zoom Level"
+                        >
+                            <NumberInput
+                                name={'zoomLevel' as const}
+                                value={value?.zoomLevel}
+                                onChange={setFieldValue}
+                                label="Zoom Level"
+                                hint="We use the Tile Map Service zoom levels. Please check for your area which zoom level is available. For example, Bing imagery is available at zoomlevel 18 for most regions. If you use a custom tile server you may be able to use even higher zoom levels."
+                                error={error?.zoomLevel}
+                                disabled={submissionPending}
+                            />
+                        </InputSection>
+                    )
+                }
                 <InputSection
                     heading={tileServerBVisible ? 'Tile Server A' : 'Tile Server'}
                 >

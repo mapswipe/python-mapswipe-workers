@@ -30,24 +30,24 @@ export interface IconOptions {
 
 export const iconOptions: IconOptions[] = [
     {
-        key: 'swipe-left',
-        label: 'Swipe Left',
+        key: 'addOutline',
+        label: 'Add Outline',
     },
     {
-        key: 'tap-1',
-        label: 'Tap 1',
+        key: 'alertOutline',
+        label: 'Alert Outline',
     },
     {
-        key: 'tap-2',
-        label: 'Tap 2',
+        key: 'banOutline',
+        label: 'Ban Outline',
     },
     {
-        key: 'tap-3',
-        label: 'Tap 3',
+        key: 'checkmarkOutline',
+        label: 'Checkmark Outline',
     },
     {
-        key: 'check',
-        label: 'Check',
+        key: 'closeOutline',
+        label: 'Close Outline',
     },
 ];
 
@@ -270,6 +270,12 @@ export const tutorialFormSchema: TutorialFormSchema = {
                 }),
             },
             informationPages: {
+                validation: (info) => {
+                    if (info && info.length >= 10) {
+                        return 'Information page cannot be more than 10';
+                    }
+                    return undefined;
+                },
                 keySelector: (key) => key.pageNumber,
                 member: (): InformationPagesFormSchemaMember => ({
                     fields: (): InformationPagesSchemaFields => ({
@@ -333,6 +339,15 @@ export const tutorialFormSchema: TutorialFormSchema = {
             ['customOptions'],
             (formValues) => {
                 const customOptionField: CustomOptionFormSchema = {
+                    validation: (option) => {
+                        if (option && option.length >= 6) {
+                            return 'Options cannot be more than 6';
+                        }
+                        if (option && option.length <= 2) {
+                            return 'Options cannot be less than 2';
+                        }
+                        return undefined;
+                    },
                     keySelector: (key) => key.optionId,
                     member: (): CustomOptionFormSchemaMember => ({
                         fields: (): CustomOptionSchemaFields => ({
@@ -361,6 +376,15 @@ export const tutorialFormSchema: TutorialFormSchema = {
                             },
                             subOptions: {
                                 keySelector: (key) => key.subOptionsId,
+                                validation: (sub) => {
+                                    if (sub && sub?.length >= 6) {
+                                        return 'Sub options cannot be more than 6';
+                                    }
+                                    if (sub && sub.length <= 2) {
+                                        return 'Sub options cannot be less than 2';
+                                    }
+                                    return undefined;
+                                },
                                 member: () => ({
                                     fields: () => ({
                                         subOptionsId: {
