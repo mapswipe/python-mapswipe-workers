@@ -64,6 +64,7 @@ def get_project_static_info(filename: str) -> pd.DataFrame:
                 project_details
                 ,regexp_replace(look_for, E'[\\n\\r]+', ' ', 'g' ) as look_for
                 ,project_type
+                ,image
                 -- add an array of the tile server names
                 ,CASE
                   WHEN project_type_specifics->'tileServer'->'name' IS NOT NULL THEN
