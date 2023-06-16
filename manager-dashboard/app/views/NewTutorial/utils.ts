@@ -23,35 +23,12 @@ import {
     PROJECT_TYPE_FOOTPRINT,
 } from '#utils/common';
 
-export interface IconOptions {
+export interface ColorOptions {
     key: string;
     label: string;
 }
 
-export const iconOptions: IconOptions[] = [
-    {
-        key: 'addOutline',
-        label: 'Add Outline',
-    },
-    {
-        key: 'alertOutline',
-        label: 'Alert Outline',
-    },
-    {
-        key: 'banOutline',
-        label: 'Ban Outline',
-    },
-    {
-        key: 'checkmarkOutline',
-        label: 'Checkmark Outline',
-    },
-    {
-        key: 'closeOutline',
-        label: 'Close Outline',
-    },
-];
-
-export const iconColorOptions: IconOptions[] = [
+export const iconColorOptions: ColorOptions[] = [
     {
         key: 'green',
         label: 'Green',
@@ -137,7 +114,7 @@ export interface TutorialFormType {
             icon: string;
             title: string;
         };
-        instructions: {
+        instruction: {
             description: string;
             icon: string;
             title: string;
@@ -236,7 +213,7 @@ export const tutorialFormSchema: TutorialFormSchema = {
                                 icon: { required: true },
                             }),
                         },
-                        instructions: {
+                        instruction: {
                             fields: () => ({
                                 title: {
                                     required: true,

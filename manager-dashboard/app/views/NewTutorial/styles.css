@@ -42,13 +42,8 @@
 
             .tab-content {
                 display: flex;
-                gap: var(--spacing-extra-large);
-
-                .tab-list {
-                    display: flex;
-                    flex-basis: 60%;
-                    flex-direction: column;
-                }
+                flex-direction: column;
+                gap: var(--spacing-medium);
             }
         }
     }

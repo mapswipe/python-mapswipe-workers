@@ -45,6 +45,7 @@ import {
     Tabs,
     Tab,
     TabList,
+    TabPanel,
 } from '#components/Tabs';
 import TileServerInput, {
     TILE_SERVER_BING,
@@ -54,7 +55,6 @@ import InputSection from '#components/InputSection';
 import Button from '#components/Button';
 import Heading from '#components/Heading';
 import SelectInput from '#components/SelectInput';
-import ScenarioGeoJsonPreview from '#components/ScenarioGeoJsonPreview';
 import {
     valueSelector,
     labelSelector,
@@ -159,8 +159,6 @@ function NewTutorial(props: Props) {
     const [activeOptionsTab, setActiveOptionsTab] = React.useState('1');
     // NOTE: Information Page
     const [activeInformationPages, setActiveInformationPages] = React.useState('1');
-    // NOTE: Preview GeoJson
-    const [activePreviewGeoJson, setActivePreviewGeoJson] = React.useState<PartialTutorialFormType['tutorialTasks'] | undefined>();
 
     const error = React.useMemo(
         () => getErrorObject(formError),
@@ -181,12 +179,17 @@ function NewTutorial(props: Props) {
         [error?.informationPages],
     );
 
-    const handleScenarioChange = React.useCallback((tab) => {
-        setActiveTab(tab);
-        const previewGeoJson = value.tutorialTasks?.features.filter(
-            (screen) => screen.properties.screen === Number(activeTab),
-        );
-        setActivePreviewGeoJson(previewGeoJson);
+    const previewGeoJson = React.useMemo((): GeoJSON.GeoJSON | undefined => {
+        const geojson = value.tutorialTasks;
+        if (!geojson) {
+            return undefined;
+        }
+        return {
+            ...geojson,
+            features: geojson.features.filter(
+                (screen) => screen.properties.screen === Number(activeTab),
+            ),
+        };
     }, [
         value.tutorialTasks,
         activeTab,
@@ -387,6 +390,7 @@ function NewTutorial(props: Props) {
         const tutorialTasks = geoProps as PartialTutorialFormType['tutorialTasks'];
 
         setFieldValue(tutorialTasks, 'tutorialTasks');
+
         const uniqueArray = tutorialTasks && unique(
             tutorialTasks.features, ((geo) => geo?.properties.screen),
         );
@@ -399,7 +403,6 @@ function NewTutorial(props: Props) {
                 success: {},
             }
         ));
-
         setFieldValue(tutorialTaskArray, 'scenarioPages');
     }, [setFieldValue]);
 
@@ -550,34 +553,35 @@ function NewTutorial(props: Props) {
                     >
                         <Tabs
                             value={activeTab}
-                            onChange={handleScenarioChange}
+                            onChange={setActiveTab}
                         >
                             {value.scenarioPages?.length ? (
                                 <div className={styles.tabContent}>
-                                    <div className={styles.tabList}>
-                                        <TabList>
-                                            {value.scenarioPages?.map((task) => (
-                                                <Tab
-                                                    key={task.scenarioId}
-                                                    name={task.scenarioId}
-                                                >
-                                                    {`Scenario ${task.scenarioId}`}
-                                                </Tab>
-                                            ))}
-                                        </TabList>
-                                        {value.scenarioPages?.map((task, index) => (
+                                    <TabList>
+                                        {value.scenarioPages?.map((task) => (
+                                            <Tab
+                                                key={task.scenarioId}
+                                                name={task.scenarioId}
+                                            >
+                                                {`Scenario ${task.scenarioId}`}
+                                            </Tab>
+                                        ))}
+                                    </TabList>
+                                    {value.scenarioPages?.map((task, index) => (
+                                        <TabPanel
+                                            key={task.scenarioId}
+                                            name={task.scenarioId}
+                                        >
                                             <ScenarioPageInput
                                                 key={task.scenarioId}
                                                 index={index}
                                                 value={task}
                                                 onChange={onScenarioFormChange}
                                                 error={scenarioError?.[task.scenarioId]}
+                                                geoJson={previewGeoJson}
                                             />
-                                        ))}
-                                    </div>
-                                    <ScenarioGeoJsonPreview
-                                        geoJson={activePreviewGeoJson}
-                                    />
+                                        </TabPanel>
+                                    ))}
                                 </div>
                             ) : (
                                 <div>No Scenarios</div>
@@ -670,14 +674,19 @@ function NewTutorial(props: Props) {
                                         ))}
                                     </TabList>
                                     {value.customOptions.map((options, index) => (
-                                        <CustomOptionInput
+                                        <TabPanel
                                             key={options.optionId}
-                                            value={options}
-                                            index={index}
-                                            onChange={onOptionAdd}
-                                            onRemove={onOptionRemove}
-                                            error={optionsError?.[options.optionId]}
-                                        />
+                                            name={String(options.optionId)}
+                                        >
+                                            <CustomOptionInput
+                                                key={options.optionId}
+                                                value={options}
+                                                index={index}
+                                                onChange={onOptionAdd}
+                                                onRemove={onOptionRemove}
+                                                error={optionsError?.[options.optionId]}
+                                            />
+                                        </TabPanel>
                                     ))}
                                 </Tabs>
                             ) : (

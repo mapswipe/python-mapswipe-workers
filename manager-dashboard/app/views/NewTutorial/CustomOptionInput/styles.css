@@ -1,27 +1,46 @@
-.option-form {
+.option-container {
     display: flex;
-    flex-direction: column;
-    gap: var(--spacing-medium);
+    gap: var(--spacing-extra-large);
 
-    .option-content {
+    .option-form {
         display: flex;
+        flex-basis: 60%;
+        flex-direction: column;
         gap: var(--spacing-medium);
 
-        .option-input {
-            flex-grow: 1;
+        .option-content {
+            display: flex;
+            gap: var(--spacing-medium);
+
+            .option-input {
+                flex-grow: 1;
+            }
+
+            .option-icon {
+                flex-basis: 15%;
+            }
         }
 
-        .option-icon {
-            flex-basis: 15%;
+        .remove-button {
+            align-self: end;
+            width: fit-content;
+        }
+
+        .add-button {
+            width: fit-content;
         }
     }
 
-    .remove-button {
-        align-self: end;
-        width: fit-content;
-    }
+    .option-preview {
+        display: flex;
+        align-items: center;
+        flex-direction: column;
+        flex-grow: 1;
 
-    .add-button {
-        width: fit-content;
+        .preview-screen {
+            background-color: var(--color-primary);
+            width: 20rem;
+            height: 30rem;
+        }
     }
 }

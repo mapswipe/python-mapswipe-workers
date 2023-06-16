@@ -196,6 +196,8 @@ export const projectFormSchema: ProjectFormSchema = {
                 required: true,
             },
             lookFor: {
+                required: true,
+                requiredValidation: requiredStringCondition,
                 validations: [getNoMoreThanNCharacterCondition(25)],
             },
             projectDetails: {

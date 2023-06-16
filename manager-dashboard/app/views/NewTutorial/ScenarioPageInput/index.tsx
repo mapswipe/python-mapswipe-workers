@@ -6,18 +6,19 @@ import {
     Error,
     getErrorObject,
 } from '@togglecorp/toggle-form';
+import {
+    IconList,
+    iconList,
+    valueSelector,
+    labelSelector,
+} from '#utils/common';
 import TextInput from '#components/TextInput';
 import Heading from '#components/Heading';
 import SelectInput from '#components/SelectInput';
-import {
-    TabPanel,
-} from '#components/Tabs';
+import ScenarioGeoJsonPreview from '#components/ScenarioGeoJsonPreview';
+import SegmentInput from '#components/SegmentInput';
 
 import styles from './styles.css';
-import {
-    IconOptions,
-    iconOptions,
-} from '../utils';
 
 type ScenarioType = {
     scenarioId: string;
@@ -26,7 +27,7 @@ type ScenarioType = {
         icon: string;
         title: string;
     };
-    instructions: {
+    instruction: {
         description: string;
         icon: string;
         title: string;
@@ -38,6 +39,17 @@ type ScenarioType = {
     };
 };
 
+interface ScenarioSegmentType {
+    value: 'instruction' | 'hint' | 'success';
+    label: string;
+}
+
+const previewOptions: ScenarioSegmentType[] = [
+    { value: 'instruction', label: 'Instruction' },
+    { value: 'hint', label: 'Hint' },
+    { value: 'success', label: 'Success' },
+];
+
 type PartialScenarioType = PartialForm<ScenarioType, 'scenarioId'>;
 const defaultScenarioTabsValue: PartialScenarioType = {
     scenarioId: 'xxx',
@@ -48,6 +60,7 @@ interface Props {
     onChange: (value: SetValueArg<PartialScenarioType>, index: number) => void;
     index: number,
     error: Error<PartialScenarioType> | undefined;
+    geoJson: GeoJSON.GeoJSON | undefined;
 }
 
 export default function ScenarioPageInput(props: Props) {
@@ -56,25 +69,32 @@ export default function ScenarioPageInput(props: Props) {
         onChange,
         index,
         error: riskyError,
+        geoJson,
     } = props;
+
+    const [activeSegmentInput, setActiveInput] = React.useState<ScenarioSegmentType['value']>('instruction');
 
     const onFieldChange = useFormObject(index, onChange, defaultScenarioTabsValue);
 
-    const onInstructionFieldChange = useFormObject<'instructions', PartialScenarioType['instructions']>('instructions', onFieldChange, {});
+    const onInstructionFieldChange = useFormObject<'instruction', PartialScenarioType['instruction']>('instruction', onFieldChange, {});
     const onHintFieldChange = useFormObject<'hint', PartialScenarioType['hint']>('hint', onFieldChange, {});
     const onSuccessFieldChange = useFormObject<'success', PartialScenarioType['success']>('success', onFieldChange, {});
 
     const error = getErrorObject(riskyError);
 
-    const instructionsError = getErrorObject(error?.instructions);
+    const instructionsError = getErrorObject(error?.instruction);
     const hintError = getErrorObject(error?.hint);
     const successError = getErrorObject(error?.success);
 
+    const handleScenarioType = React.useCallback((scenarioSegment: ScenarioSegmentType['value']) => {
+        setActiveInput(scenarioSegment);
+    }, []);
+
+    const previewPopUpData = value[activeSegmentInput];
+
     return (
-        <TabPanel
-            name={value.scenarioId}
-        >
-            <div className={styles.scenario}>
+        <div className={styles.scenario}>
+            <div className={styles.scenarioContent}>
                 <Heading level={4}>
                     Instructions
                 </Heading>
@@ -82,14 +102,14 @@ export default function ScenarioPageInput(props: Props) {
                     <div className={styles.scenarioFormContent}>
                         <TextInput
                             name="title"
-                            value={value.instructions?.title}
+                            value={value.instruction?.title}
                             label="Title"
                             onChange={onInstructionFieldChange}
                             error={instructionsError?.title}
                         />
                         <TextInput
                             name="description"
-                            value={value.instructions?.description}
+                            value={value.instruction?.description}
                             label="Description"
                             onChange={onInstructionFieldChange}
                             error={instructionsError?.description}
@@ -98,10 +118,10 @@ export default function ScenarioPageInput(props: Props) {
                     <SelectInput
                         name="icon"
                         label="Icon"
-                        value={value.instructions?.icon}
-                        options={iconOptions}
-                        keySelector={(d: IconOptions) => d.key}
-                        labelSelector={(d: IconOptions) => d.label}
+                        value={value.instruction?.icon}
+                        options={iconList}
+                        keySelector={(d: IconList) => d.key}
+                        labelSelector={(d: IconList) => d.label}
                         onChange={onInstructionFieldChange}
                         error={instructionsError?.icon}
                     />
@@ -130,9 +150,9 @@ export default function ScenarioPageInput(props: Props) {
                         name="icon"
                         label="Icon"
                         value={value.hint?.icon}
-                        options={iconOptions}
-                        keySelector={(d: IconOptions) => d.key}
-                        labelSelector={(d: IconOptions) => d.label}
+                        options={iconList}
+                        keySelector={(d: IconList) => d.key}
+                        labelSelector={(d: IconList) => d.label}
                         onChange={onHintFieldChange}
                         error={hintError?.icon}
                     />
@@ -161,14 +181,28 @@ export default function ScenarioPageInput(props: Props) {
                         name="icon"
                         label="Icon"
                         value={value.success?.icon}
-                        options={iconOptions}
-                        keySelector={(d: IconOptions) => d.key}
-                        labelSelector={(d: IconOptions) => d.label}
+                        options={iconList}
+                        keySelector={(d: IconList) => d.key}
+                        labelSelector={(d: IconList) => d.label}
                         onChange={onSuccessFieldChange}
                         error={successError?.icon}
                     />
                 </div>
             </div>
-        </TabPanel>
+            <div>
+                <ScenarioGeoJsonPreview
+                    geoJson={geoJson}
+                    previewPopUp={previewPopUpData}
+                />
+                <SegmentInput
+                    name={undefined}
+                    value={activeSegmentInput}
+                    options={previewOptions}
+                    keySelector={valueSelector}
+                    labelSelector={labelSelector}
+                    onChange={handleScenarioType}
+                />
+            </div>
+        </div>
     );
 }

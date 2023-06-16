@@ -11,20 +11,20 @@ import {
 } from '@togglecorp/toggle-form';
 import Button from '#components/Button';
 import Heading from '#components/Heading';
-import Tabs, { TabList, TabPanel, Tab } from '#components/Tabs';
+import Tabs, { TabList, Tab } from '#components/Tabs';
 import TextInput from '#components/TextInput';
 import NumberInput from '#components/NumberInput';
 import SelectInput from '#components/SelectInput';
 
 import SubOption from './SubOption';
 import {
-    IconOptions,
+    ColorOptions,
     PartialTutorialFormType,
     iconColorOptions,
-    iconOptions,
 } from '../utils';
 
 import styles from './styles.css';
+import { IconList, iconList } from '#utils/common';
 
 export type PartialCustomOptionsType = NonNullable<PartialTutorialFormType['customOptions']>[number]
 const defaultcustomOptionsValue: PartialCustomOptionsType = {
@@ -89,9 +89,7 @@ export default function CustomOptionInput(props: Props) {
     );
 
     return (
-        <TabPanel
-            name={String(value.optionId)}
-        >
+        <div className={styles.optionContainer}>
             <div className={styles.optionForm}>
                 <div className={styles.optionContent}>
                     <TextInput
@@ -102,6 +100,19 @@ export default function CustomOptionInput(props: Props) {
                         onChange={onOptionChange}
                         error={error?.title}
                     />
+                    <SelectInput
+                        className={styles.optionIcon}
+                        name="icon"
+                        label="Icon"
+                        value={value?.icon}
+                        options={iconList}
+                        keySelector={(d: IconList) => d.key}
+                        labelSelector={(d: IconList) => d.label}
+                        onChange={onOptionChange}
+                        error={error?.icon}
+                    />
+                </div>
+                <div className={styles.optionContent}>
                     <NumberInput
                         className={styles.optionInput}
                         label="Value"
@@ -112,37 +123,24 @@ export default function CustomOptionInput(props: Props) {
                     />
                     <SelectInput
                         className={styles.optionIcon}
-                        name="icon"
-                        label="Icon"
-                        value={value?.icon}
-                        options={iconOptions}
-                        keySelector={(d: IconOptions) => d.key}
-                        labelSelector={(d: IconOptions) => d.label}
-                        onChange={onOptionChange}
-                        error={error?.icon}
-                    />
-                </div>
-                <div className={styles.optionContent}>
-                    <TextInput
-                        className={styles.optionInput}
-                        label="Description"
-                        value={value.description}
-                        name={'description' as const}
-                        onChange={onOptionChange}
-                        error={error?.description}
-                    />
-                    <SelectInput
-                        className={styles.optionIcon}
                         name="iconColor"
                         label="Icon Color"
                         value={value?.iconColor}
                         options={iconColorOptions}
-                        keySelector={(d: IconOptions) => d.key}
-                        labelSelector={(d: IconOptions) => d.label}
+                        keySelector={(d: ColorOptions) => d.key}
+                        labelSelector={(d: ColorOptions) => d.label}
                         onChange={onOptionChange}
                         error={error?.iconColor}
                     />
                 </div>
+                <TextInput
+                    className={styles.optionInput}
+                    label="Description"
+                    value={value.description}
+                    name={'description' as const}
+                    onChange={onOptionChange}
+                    error={error?.description}
+                />
                 <Button
                     name={index}
                     onClick={onRemove}
@@ -193,6 +191,15 @@ export default function CustomOptionInput(props: Props) {
                     <div>Add Sub Options</div>
                 )}
             </div>
-        </TabPanel>
+            <div className={styles.optionPreview}>
+                <Heading level={3}>
+                    Preview
+                </Heading>
+                <div className={styles.previewScreen}>
+                    {value.title}
+                    {value.description}
+                </div>
+            </div>
+        </div>
     );
 }

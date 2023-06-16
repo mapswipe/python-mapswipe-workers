@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React from 'react';
 import {
     map as createMap,
     Map,
@@ -6,30 +6,26 @@ import {
     geoJSON,
 } from 'leaflet';
 import { _cs } from '@togglecorp/fujs';
-import SegmentInput from '#components/SegmentInput';
-import { valueSelector, labelSelector } from '#utils/common';
+import Heading from '#components/Heading';
 
 import styles from './styles.css';
-import Heading from '#components/Heading';
+import { iconMap } from '#utils/common';
 
 interface Props {
     className?: string;
     geoJson: GeoJSON.GeoJSON | undefined;
+    previewPopUp?: {
+        title?: string;
+        description?: string;
+        icon?: string;
+    }
 }
-
-const previewOptions: {
-    value: string;
-    label: string;
-}[] = [
-    { value: 'instruction', label: 'Instruction' },
-    { value: 'hint', label: 'Hint' },
-    { value: 'success', label: 'Success' },
-];
 
 function ScenarioGeoJsonPreview(props: Props) {
     const {
         className,
         geoJson,
+        previewPopUp,
     } = props;
 
     const mapRef = React.useRef<Map>();
@@ -99,26 +95,34 @@ function ScenarioGeoJsonPreview(props: Props) {
         [geoJson],
     );
 
-    const handleSenarioType = useCallback((handleProps) => (
-        console.log(handleProps)
-    ), []);
+    const Comp = previewPopUp?.icon ? iconMap[previewPopUp.icon] : undefined;
 
     return (
         <div className={_cs(styles.geoJsonPreview, className)}>
             <Heading level={3}>
                 Preview
             </Heading>
+            <div className={styles.mapContent}>
+                <div className={styles.popUpContent}>
+                    <div className={styles.popUpTitle}>
+                        {previewPopUp?.title ?? 'Title'}
+                    </div>
+                    <div>
+                        {previewPopUp?.description ?? 'Description'}
+                    </div>
+                </div>
+                {
+                    Comp
+                    && (
+                        <div className={styles.popUpIcon}>
+                            <Comp />
+                        </div>
+                    )
+                }
+            </div>
             <div
                 ref={mapContainerRef}
                 className={styles.mapContainer}
-            />
-            <SegmentInput
-                name={undefined}
-                value={undefined}
-                options={previewOptions}
-                keySelector={valueSelector}
-                labelSelector={labelSelector}
-                onChange={handleSenarioType}
             />
         </div>
     );

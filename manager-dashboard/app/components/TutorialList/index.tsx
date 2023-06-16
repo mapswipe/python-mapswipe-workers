@@ -53,8 +53,6 @@ function TutorialList(props: Props) {
         query: tutorialsQuery,
     });
 
-    console.info(tutorials);
-
     const tutorialList = React.useMemo(
         () => (tutorials ? Object.entries(tutorials).reverse() : []),
         [tutorials],
