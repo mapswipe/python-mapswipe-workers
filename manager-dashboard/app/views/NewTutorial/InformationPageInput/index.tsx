@@ -7,12 +7,13 @@ import {
     useFormArray,
 } from '@togglecorp/toggle-form';
 
-import { TabPanel } from '#components/Tabs';
 import TextInput from '#components/TextInput';
 import Button from '#components/Button';
+import InformationPagePreview from './InformationPagePreview';
 
 import { InformationPagesType } from '../utils';
 import Block from './Block';
+
 import styles from './styles.css';
 
 interface Props {
@@ -45,10 +46,9 @@ export default function InformationPageInput(props: Props) {
         [error?.blocks],
     );
 
+    console.log('information', value);
     return (
-        <TabPanel
-            name={String(value.pageNumber)}
-        >
+        <div className={styles.informationContainer}>
             <div className={styles.informationForm}>
                 <TextInput
                     name={'title' as const}
@@ -74,6 +74,9 @@ export default function InformationPageInput(props: Props) {
                     Delete Page
                 </Button>
             </div>
-        </TabPanel>
+            <InformationPagePreview
+                value={value}
+            />
+        </div>
     );
 }

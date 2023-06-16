@@ -5,7 +5,6 @@ import {
     getErrorObject,
     useFormObject,
 } from '@togglecorp/toggle-form';
-import { TabPanel } from '#components/Tabs';
 import TextInput from '#components/TextInput';
 import Button from '#components/Button';
 import NumberInput from '#components/NumberInput';
@@ -35,12 +34,9 @@ export default function SubOption(props: Props) {
 
     const error = getErrorObject(riskyError);
     return (
-        <TabPanel
-            name={String(value.subOptionsId)}
-            className={styles.reasonContent}
-        >
+        <div className={styles.subOptionContent}>
             <TextInput
-                className={styles.reasonInput}
+                className={styles.subOptionInput}
                 label="Description"
                 value={value.description}
                 name={'description' as const}
@@ -48,7 +44,7 @@ export default function SubOption(props: Props) {
                 onChange={onReasonChange}
             />
             <NumberInput
-                className={styles.reasonInput}
+                className={styles.subOptionInput}
                 label="Value"
                 value={value.value}
                 name={'value' as const}
@@ -62,6 +58,6 @@ export default function SubOption(props: Props) {
             >
                 Delete this Reason
             </Button>
-        </TabPanel>
+        </div>
     );
 }

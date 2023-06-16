@@ -11,7 +11,7 @@ import {
 } from '@togglecorp/toggle-form';
 import Button from '#components/Button';
 import Heading from '#components/Heading';
-import Tabs, { TabList, Tab } from '#components/Tabs';
+import Tabs, { TabList, Tab, TabPanel } from '#components/Tabs';
 import TextInput from '#components/TextInput';
 import NumberInput from '#components/NumberInput';
 import SelectInput from '#components/SelectInput';
@@ -89,117 +89,111 @@ export default function CustomOptionInput(props: Props) {
     );
 
     return (
-        <div className={styles.optionContainer}>
-            <div className={styles.optionForm}>
-                <div className={styles.optionContent}>
-                    <TextInput
-                        className={styles.optionInput}
-                        label="Title"
-                        value={value?.title}
-                        name={'title' as const}
-                        onChange={onOptionChange}
-                        error={error?.title}
-                    />
-                    <SelectInput
-                        className={styles.optionIcon}
-                        name="icon"
-                        label="Icon"
-                        value={value?.icon}
-                        options={iconList}
-                        keySelector={(d: IconList) => d.key}
-                        labelSelector={(d: IconList) => d.label}
-                        onChange={onOptionChange}
-                        error={error?.icon}
-                    />
-                </div>
-                <div className={styles.optionContent}>
-                    <NumberInput
-                        className={styles.optionInput}
-                        label="Value"
-                        value={value?.value}
-                        name={'value' as const}
-                        onChange={onOptionChange}
-                        error={error?.value}
-                    />
-                    <SelectInput
-                        className={styles.optionIcon}
-                        name="iconColor"
-                        label="Icon Color"
-                        value={value?.iconColor}
-                        options={iconColorOptions}
-                        keySelector={(d: ColorOptions) => d.key}
-                        labelSelector={(d: ColorOptions) => d.label}
-                        onChange={onOptionChange}
-                        error={error?.iconColor}
-                    />
-                </div>
+        <div className={styles.optionForm}>
+            <div className={styles.optionContent}>
                 <TextInput
                     className={styles.optionInput}
-                    label="Description"
-                    value={value.description}
-                    name={'description' as const}
+                    label="Title"
+                    value={value?.title}
+                    name={'title' as const}
                     onChange={onOptionChange}
-                    error={error?.description}
+                    error={error?.title}
                 />
-                <Button
-                    name={index}
-                    onClick={onRemove}
-                    className={styles.removeButton}
+                <SelectInput
+                    className={styles.optionIcon}
+                    name="icon"
+                    label="Icon"
+                    value={value?.icon}
+                    options={iconList}
+                    keySelector={(d: IconList) => d.key}
+                    labelSelector={(d: IconList) => d.label}
+                    onChange={onOptionChange}
+                    error={error?.icon}
+                />
+            </div>
+            <div className={styles.optionContent}>
+                <NumberInput
+                    className={styles.optionInput}
+                    label="Value"
+                    value={value?.value}
+                    name={'value' as const}
+                    onChange={onOptionChange}
+                    error={error?.value}
+                />
+                <SelectInput
+                    className={styles.optionIcon}
+                    name="iconColor"
+                    label="Icon Color"
+                    value={value?.iconColor}
+                    options={iconColorOptions}
+                    keySelector={(d: ColorOptions) => d.key}
+                    labelSelector={(d: ColorOptions) => d.label}
+                    onChange={onOptionChange}
+                    error={error?.iconColor}
+                />
+            </div>
+            <TextInput
+                className={styles.optionInput}
+                label="Description"
+                value={value.description}
+                name={'description' as const}
+                onChange={onOptionChange}
+                error={error?.description}
+            />
+            <Button
+                name={index}
+                onClick={onRemove}
+                className={styles.removeButton}
+            >
+                Delete this option
+            </Button>
+            <Heading level={4}>
+                Sub Options
+            </Heading>
+            <Button
+                name="add_sub_options"
+                className={styles.addButton}
+                icons={<MdAdd />}
+                onClick={handlesubOptionsAdd}
+                disabled={value.subOptions && value.subOptions.length >= 6}
+            >
+                Add Sub Options
+            </Button>
+            {subOptionsError && subOptionsError?.[nonFieldError]}
+            {value.subOptions?.length ? (
+                <Tabs
+                    value={activesubOptions}
+                    onChange={setActiveSubOptions}
                 >
-                    Delete this option
-                </Button>
-                <Heading level={4}>
-                    Sub Options
-                </Heading>
-                <Button
-                    name="add_sub_options"
-                    className={styles.addButton}
-                    icons={<MdAdd />}
-                    onClick={handlesubOptionsAdd}
-                    disabled={value.subOptions && value.subOptions.length >= 6}
-                >
-                    Add Sub Options
-                </Button>
-                {subOptionsError && subOptionsError?.[nonFieldError]}
-                {value.subOptions?.length ? (
-                    <Tabs
-                        value={activesubOptions}
-                        onChange={setActiveSubOptions}
-                    >
-                        <TabList>
-                            {value.subOptions?.map((rea) => (
-                                <Tab
-                                    name={`${rea.subOptionsId}`}
-                                    key={rea.subOptionsId}
-                                >
-                                    {`Sub Options ${rea.subOptionsId}`}
-                                </Tab>
-                            ))}
-                        </TabList>
-                        {value.subOptions.map((rea, i) => (
+                    <TabList>
+                        {value.subOptions?.map((sub) => (
+                            <Tab
+                                key={sub.subOptionsId}
+                                name={`${sub.subOptionsId}`}
+                            >
+                                {`Sub Options ${sub.subOptionsId}`}
+                            </Tab>
+                        ))}
+                    </TabList>
+                    {value.subOptions.map((sub, i) => (
+                        <TabPanel
+                            key={sub.subOptionsId}
+                            name={String(sub.subOptionsId)}
+                        >
                             <SubOption
-                                key={rea.subOptionsId}
-                                value={rea}
+                                key={sub.subOptionsId}
+                                value={sub}
                                 index={i}
                                 onChange={onsubOptionsAdd}
                                 onRemove={onsubOptionsRemove}
-                                error={subOptionsError?.[rea.subOptionsId]}
+                                error={subOptionsError?.[sub.subOptionsId]}
                             />
-                        ))}
-                    </Tabs>
-                ) : (
-                    <div>Add Sub Options</div>
-                )}
-            </div>
-            <div className={styles.optionPreview}>
-                <Heading level={3}>
-                    Preview
-                </Heading>
-                <div className={styles.previewScreen}>
-                    {value.title}
-                    {value.description}
-                </div>
-            </div>
+                        </TabPanel>
+                    ))}
+                </Tabs>
+            ) : (
+                <div>Add Sub Options</div>
+            )}
         </div>
     );
 }

@@ -1,10 +1,16 @@
-.informationForm {
+.information-container {
     display: flex;
-    flex-direction: column;
-    gap: var(--spacing-medium);
+    gap: var(--spacing-extra-large);
 
-    .remove-button {
-        align-self: end;
-        width: fit-content;
+    .informationForm {
+        display: flex;
+        flex-basis: 60%;
+        flex-direction: column;
+        gap: var(--spacing-medium);
+        
+        .remove-button {
+            align-self: end;
+            width: fit-content;
+        }
     }
 }

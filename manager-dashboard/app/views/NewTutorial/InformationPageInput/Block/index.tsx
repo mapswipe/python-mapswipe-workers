@@ -33,7 +33,16 @@ export default function Block(props: Props) {
     const error = getErrorObject(riskyError);
     return (
         <div>
-            {value.blockType === 'image' ? (
+            {value.blockType === 'text' && (
+                <TextInput
+                    name={'textDescription' as const}
+                    value={value.textDescription}
+                    onChange={onBlockChange}
+                    label="Description"
+                    error={error?.textDescription}
+                />
+            )}
+            {value.blockType === 'image' && (
                 <FileInput
                     name={'imageFile' as const}
                     value={value?.imageFile}
@@ -43,14 +52,6 @@ export default function Block(props: Props) {
                     use this image. It should end with  .jpg or .png."
                     accept="image/png, image/jpeg"
                     error={error?.imageFile}
-                />
-            ) : (
-                <TextInput
-                    name={'textDescription' as const}
-                    value={value.textDescription}
-                    onChange={onBlockChange}
-                    label="Description"
-                    error={error?.textDescription}
                 />
             )}
         </div>

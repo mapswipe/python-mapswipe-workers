@@ -8,59 +8,9 @@ import { MdAttachFile } from 'react-icons/md';
 import { useButtonFeatures } from '#components/Button';
 import RawInput from '#components/RawInput';
 import InputContainer, { Props as InputContainerProps } from '#components/InputContainer';
+import Preview from '#components/Preview';
 
 import styles from './styles.css';
-
-interface PreviewProps {
-    file: File | null | undefined;
-    className?: string;
-}
-
-function Preview(props: PreviewProps) {
-    const {
-        file,
-        className,
-    } = props;
-
-    const isPreviewable = file?.name?.match(/.(jpg|jpeg|png|gif)$/i) ?? false;
-    const [imageUrl, setImageUrl] = React.useState<string>();
-
-    React.useEffect(() => {
-        if (!file) {
-            return undefined;
-        }
-
-        // FIXME: use async methods
-        const fileReader = new FileReader();
-
-        const handleFileLoad = () => {
-            setImageUrl(String(fileReader.result) ?? undefined);
-        };
-
-        fileReader.addEventListener('load', handleFileLoad);
-        fileReader.readAsDataURL(file);
-
-        return () => {
-            fileReader.removeEventListener('load', handleFileLoad);
-        };
-    }, [file]);
-
-    if (!isPreviewable) {
-        return (
-            <div className={_cs(styles.noPreview, className)}>
-                Preview not available
-            </div>
-        );
-    }
-
-    return (
-        <img
-            className={_cs(styles.preview, className)}
-            alt={file?.name}
-            src={imageUrl}
-        />
-    );
-}
 
 export interface Props<Name> extends Omit<InputContainerProps, 'input'> {
     value: File | undefined | null;

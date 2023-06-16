@@ -55,6 +55,7 @@ import InputSection from '#components/InputSection';
 import Button from '#components/Button';
 import Heading from '#components/Heading';
 import SelectInput from '#components/SelectInput';
+import CustomOptionPreview from '#components/CustomOptionPreview';
 import {
     valueSelector,
     labelSelector,
@@ -623,14 +624,19 @@ function NewTutorial(props: Props) {
                                     ))}
                                 </TabList>
                                 {value.informationPages?.map((page, i) => (
-                                    <InformationPageInput
+                                    <TabPanel
                                         key={page.pageNumber}
-                                        value={page}
-                                        onChange={onInformationPagesAdd}
-                                        onRemove={onInformationPagesRemove}
-                                        index={i}
-                                        error={informationPagesError?.[page.pageNumber]}
-                                    />
+                                        name={String(page.pageNumber)}
+                                    >
+                                        <InformationPageInput
+                                            key={page.pageNumber}
+                                            value={page}
+                                            onChange={onInformationPagesAdd}
+                                            onRemove={onInformationPagesRemove}
+                                            index={i}
+                                            error={informationPagesError?.[page.pageNumber]}
+                                        />
+                                    </TabPanel>
                                 ))}
                             </Tabs>
                         ) : (
@@ -673,21 +679,27 @@ function NewTutorial(props: Props) {
                                             </Tab>
                                         ))}
                                     </TabList>
-                                    {value.customOptions.map((options, index) => (
-                                        <TabPanel
-                                            key={options.optionId}
-                                            name={String(options.optionId)}
-                                        >
-                                            <CustomOptionInput
+                                    <div className={styles.optionContent}>
+                                        {value.customOptions.map((options, index) => (
+                                            <TabPanel
                                                 key={options.optionId}
-                                                value={options}
-                                                index={index}
-                                                onChange={onOptionAdd}
-                                                onRemove={onOptionRemove}
-                                                error={optionsError?.[options.optionId]}
-                                            />
-                                        </TabPanel>
-                                    ))}
+                                                name={String(options.optionId)}
+                                                className={styles.optionTabPanel}
+                                            >
+                                                <CustomOptionInput
+                                                    key={options.optionId}
+                                                    value={options}
+                                                    index={index}
+                                                    onChange={onOptionAdd}
+                                                    onRemove={onOptionRemove}
+                                                    error={optionsError?.[options.optionId]}
+                                                />
+                                            </TabPanel>
+                                        ))}
+                                        <CustomOptionPreview
+                                            value={value.customOptions}
+                                        />
+                                    </div>
                                 </Tabs>
                             ) : (
                                 <div>Add options</div>

@@ -98,8 +98,8 @@ export type InformationPages = {
     blocks: {
         blockNumber: number;
         blockType: 'image' | 'text';
-        imageFile?: File;
         textDescription?: string;
+        imageFile?: File;
     }[];
 }[];
 

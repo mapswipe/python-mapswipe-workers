@@ -15,6 +15,7 @@ import Tabs,
 {
     Tab,
     TabList,
+    TabPanel,
 } from '#components/Tabs';
 
 import CustomOptionReadOnly from './CustomOptionReadOnly';
@@ -246,10 +247,15 @@ function BasicProjectInfoForm(props: Props<PartialProjectFormType>) {
                             ))}
                         </TabList>
                         {value.customOptions.map((options) => (
-                            <CustomOptionReadOnly
+                            <TabPanel
                                 key={options.optionId}
-                                value={options}
-                            />
+                                name={String(options.optionId)}
+                            >
+                                <CustomOptionReadOnly
+                                    key={options.optionId}
+                                    value={options}
+                                />
+                            </TabPanel>
                         ))}
                     </Tabs>
                 </Card>

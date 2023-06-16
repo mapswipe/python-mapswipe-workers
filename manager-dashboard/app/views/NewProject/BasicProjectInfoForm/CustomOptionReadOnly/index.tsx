@@ -20,9 +20,7 @@ export default function CustomOptionReadOnly(props: Props) {
     const [activesubOptions, setActiveSubOptions] = React.useState('1');
 
     return (
-        <TabPanel
-            name={String(value.optionId)}
-        >
+        <div className={styles.optionContainer}>
             <div className={styles.optionForm}>
                 <div className={styles.optionContent}>
                     <TextInput
@@ -72,24 +70,23 @@ export default function CustomOptionReadOnly(props: Props) {
                         onChange={setActiveSubOptions}
                     >
                         <TabList>
-                            {value.subOptions?.map((rea) => (
+                            {value.subOptions?.map((sub) => (
                                 <Tab
-                                    name={`${rea.subOptionsId}`}
-                                    key={rea.subOptionsId}
+                                    key={sub.subOptionsId}
+                                    name={String(sub.subOptionsId)}
                                 >
-                                    {`Sub Options ${rea.subOptionsId}`}
+                                    {`Sub Options ${sub.subOptionsId}`}
                                 </Tab>
                             ))}
                         </TabList>
-                        {value.subOptions.map((rea) => (
+                        {value.subOptions.map((sub) => (
                             <TabPanel
-                                name={String(rea.subOptionsId)}
-                                className={styles.reasonContent}
+                                key={sub.subOptionsId}
+                                name={String(sub.subOptionsId)}
                             >
                                 <TextInput
-                                    className={styles.reasonInput}
                                     label="Description"
-                                    value={rea.description}
+                                    value={sub.description}
                                     name={'description' as const}
                                     disabled
                                 />
@@ -100,6 +97,7 @@ export default function CustomOptionReadOnly(props: Props) {
                     <div>No Sub Options</div>
                 )}
             </div>
-        </TabPanel>
+        </div>
+
     );
 }

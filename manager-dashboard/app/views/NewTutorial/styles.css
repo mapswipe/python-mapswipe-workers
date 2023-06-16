@@ -21,6 +21,14 @@
             .add-button {
                 width: fit-content;
             }
+
+            .option-content {
+                display: flex;
+
+                .option-tab-panel {
+                    flex-basis: 60%;
+                }
+            }
         }
 
         .input-group {
@@ -115,9 +123,11 @@
     0% {
         transform: rotate(0deg) translateX(0);
     }
+
     25% {
         transform: rotateY(30deg) rotate(-10deg) translateX(-50px);
     }
+
     100% {
         transform: rotate(0deg) translateX(0);
     }

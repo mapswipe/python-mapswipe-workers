@@ -1,8 +1,8 @@
-.reason-content {
+.sub-option-content {
     display: flex;
     gap: var(--spacing-medium);
 
-    .reason-input {
+    .sub-option-input {
         flex-grow: 1;
     }
     .remove-button {
