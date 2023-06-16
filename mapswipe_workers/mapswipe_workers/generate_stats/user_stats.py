@@ -1,8 +1,40 @@
 import pandas as pd
 
 
+def get_agreeing_contributions_per_user_and_task(row):
+    """
+    Compare user contibution to classifications of other users by calculating
+    the number of agreeing and disagreeing results.
+    """
+
+    # XXX: We need to figure what which values to check? Parent or child
+    r = row["result"]
+    count_str = f"{r}_count"
+    # ignore -999 values
+    if count_str == "-999_count":
+        return 0
+    else:
+        return row[count_str] - 1
+
+
+def get_disagreeing_contributions_per_user_and_task(row):
+    """
+    Compare user contibution to classifications of other users by calculating
+    the number of agreeing and disagreeing results.
+    """
+
+    total_count = row["total_count"]
+    if total_count == 0:
+        return 0
+    else:
+        agreeing_contributions = row["agreeing_contributions"]
+        disagreeing_contributions = total_count - (agreeing_contributions + 1)
+        return disagreeing_contributions
+
+
 def get_agg_results_by_user_id(
-    results_df: pd.DataFrame, agg_results_df: pd.DataFrame
+    results_df: pd.DataFrame,
+    agg_results_df: pd.DataFrame
 ) -> pd.DataFrame:
     """
     For each users we calcuate the number of total contributions (tasks)
@@ -15,26 +47,20 @@ def get_agg_results_by_user_id(
     Returns a pandas dataframe.
     """
     raw_contributions_df = results_df.merge(
-        agg_results_df, left_on="task_id", right_on="task_id"
+        agg_results_df,
+        left_on="task_id",
+        right_on="task_id",
     )
-    # compare to classifications of other users
-    # Calc number of agreeig and disagreeing results from other users.
-    raw_contributions_df.loc[
-        raw_contributions_df["result"] == 0, "agreeing_contributions"
-    ] = (raw_contributions_df["0_count"] - 1)
-    raw_contributions_df.loc[
-        raw_contributions_df["result"] == 1, "agreeing_contributions"
-    ] = (raw_contributions_df["1_count"] - 1)
-    raw_contributions_df.loc[
-        raw_contributions_df["result"] == 2, "agreeing_contributions"
-    ] = (raw_contributions_df["2_count"] - 1)
-    raw_contributions_df.loc[
-        raw_contributions_df["result"] == 3, "agreeing_contributions"
-    ] = (raw_contributions_df["3_count"] - 1)
 
-    raw_contributions_df["disagreeing_contributions"] = raw_contributions_df[
-        "total_count"
-    ] - (raw_contributions_df["agreeing_contributions"] + 1)
+    raw_contributions_df["agreeing_contributions"] = raw_contributions_df.apply(
+        get_agreeing_contributions_per_user_and_task,
+        axis=1,
+    )
+
+    raw_contributions_df["disagreeing_contributions"] = raw_contributions_df.apply(
+        get_disagreeing_contributions_per_user_and_task,
+        axis=1,
+    )
 
     agg_results_by_user_id_df = raw_contributions_df.groupby(
         ["project_id", "user_id", "username"]
