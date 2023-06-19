@@ -1,0 +1,38 @@
+.option-preview {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    flex-grow: 1;
+
+    .preview-screen {
+        display: flex;
+        flex-direction: column;
+        background-color: var(--color-primary);
+        width: 20rem;
+        height: 30rem;
+
+        .preview-container {
+            padding-top: var(--spacing-super-large);
+            
+            .preview-content {
+                display: flex;
+                align-items: center;
+                gap: var(--spacing-extra-small);
+                padding: var(--spacing-medium);
+                color: #ffffff;
+                
+                .preview-icon {
+                    display: flex;
+                    align-items: center;
+                    border-radius: 50%;
+                    padding: 3px;
+                    font-size: 30px;
+                }
+                
+                .preview-text {
+                    padding: var(--spacing-small);
+                }
+            }
+        }
+    }
+}

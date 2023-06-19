@@ -120,7 +120,6 @@ function FileInput<Name>(props: Props<Name>) {
                     {description}
                     {showPreview && (
                         <Preview
-                            className={styles.preview}
                             file={value}
                         />
                     )}

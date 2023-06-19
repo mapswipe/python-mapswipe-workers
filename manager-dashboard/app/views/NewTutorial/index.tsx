@@ -54,8 +54,8 @@ import TileServerInput, {
 import InputSection from '#components/InputSection';
 import Button from '#components/Button';
 import Heading from '#components/Heading';
-import SelectInput from '#components/SelectInput';
-import CustomOptionPreview from '#components/CustomOptionPreview';
+import PopupButton from '#components/PopupButton';
+import CustomOptionPreview from '#views/NewTutorial/CustomOptionInput/CustomOptionPreview';
 import {
     valueSelector,
     labelSelector,
@@ -71,7 +71,6 @@ import {
     PartialTutorialFormType,
     ScenarioPagesType,
     CustomOptionType,
-    pageOptions,
     PageTemplateType,
     InformationPagesType,
     PartialInformationPagesType,
@@ -81,13 +80,6 @@ import CustomOptionInput from './CustomOptionInput';
 import ScenarioPageInput from './ScenarioPageInput';
 import InformationPageInput from './InformationPageInput';
 import styles from './styles.css';
-
-function pageKeySelector(d: PageTemplateType) {
-    return d.key;
-}
-function pageLabelSelector(d: PageTemplateType) {
-    return d.label;
-}
 
 const defaultCustomOptions: PartialTutorialFormType['customOptions'] = [
     {
@@ -275,12 +267,6 @@ function NewTutorial(props: Props) {
                     createdBy: userId,
                 };
 
-                // if (uploadData) {
-                //     console.info('upload', uploadData);
-                //     setTutorialSubmissionStatus('failed');
-                //     return;
-                // }
-
                 const database = getDatabase();
                 const tutorialDraftsRef = databaseRef(database, 'v2/tutorialDrafts/');
                 const newTutorialDraftsRef = await pushToDatabase(tutorialDraftsRef);
@@ -407,6 +393,10 @@ function NewTutorial(props: Props) {
         setFieldValue(tutorialTaskArray, 'scenarioPages');
     }, [setFieldValue]);
 
+    const popupElementRef = React.useRef<{
+        setPopupVisibility: React.Dispatch<React.SetStateAction<boolean>>;
+    }>(null);
+
     const handleAddInformationPages = React.useCallback(
         (template: PageTemplateType['key']) => {
             setFieldValue(
@@ -422,19 +412,19 @@ function NewTutorial(props: Props) {
                         blocks = [
                             {
                                 blockNumber: 1,
-                                blockType: 'image',
+                                blockType: 'text',
                             },
                             {
                                 blockNumber: 2,
-                                blockType: 'text',
-                            },
-                            {
-                                blockNumber: 3,
                                 blockType: 'image',
                             },
                             {
-                                blockNumber: 4,
+                                blockNumber: 3,
                                 blockType: 'text',
+                            },
+                            {
+                                blockNumber: 4,
+                                blockType: 'image',
                             },
                         ];
                     }
@@ -442,27 +432,27 @@ function NewTutorial(props: Props) {
                         blocks = [
                             {
                                 blockNumber: 1,
-                                blockType: 'image',
+                                blockType: 'text',
                             },
                             {
                                 blockNumber: 2,
-                                blockType: 'text',
+                                blockType: 'image',
                             },
                             {
                                 blockNumber: 3,
-                                blockType: 'image',
+                                blockType: 'text',
                             },
                             {
                                 blockNumber: 4,
-                                blockType: 'text',
-                            },
-                            {
-                                blockNumber: 5,
                                 blockType: 'image',
                             },
                             {
-                                blockNumber: 6,
+                                blockNumber: 5,
                                 blockType: 'text',
+                            },
+                            {
+                                blockNumber: 6,
+                                blockType: 'image',
                             },
                         ];
                     }
@@ -470,11 +460,11 @@ function NewTutorial(props: Props) {
                         blocks = [
                             {
                                 blockNumber: 1,
-                                blockType: 'image',
+                                blockType: 'text',
                             },
                             {
                                 blockNumber: 2,
-                                blockType: 'text',
+                                blockType: 'image',
                             },
                         ];
                     }
@@ -487,9 +477,13 @@ function NewTutorial(props: Props) {
                 },
                 'informationPages',
             );
+            popupElementRef.current?.setPopupVisibility(false);
         },
         [setFieldValue],
     );
+
+    console.log('error', error?.tutorialTasks);
+    console.log('value', value?.tutorialTasks);
 
     return (
         <div className={_cs(styles.newTutorial, className)}>
@@ -593,20 +587,36 @@ function NewTutorial(props: Props) {
                         title="Describe information pages"
                         contentClassName={styles.card}
                     >
-                        <SelectInput
-                            name="templateType"
-                            placeholder="Add page"
-                            options={pageOptions}
-                            value={undefined}
-                            keySelector={pageKeySelector}
-                            labelSelector={pageLabelSelector}
-                            onChange={handleAddInformationPages}
-                            disabled={
-                                value.informationPages
-                                && value.informationPages.length >= 10
-                            }
-                            nonClearable
-                        />
+                        <PopupButton
+                            persistent={false}
+                            name={undefined}
+                            componentRef={popupElementRef}
+                            label="Add Instruction"
+                            className={styles.addButton}
+                            popupContentClassName={styles.instructionPopup}
+                        >
+                            <Button
+                                variant="transparent"
+                                name="1-picture"
+                                onClick={handleAddInformationPages}
+                            >
+                                1 Picture
+                            </Button>
+                            <Button
+                                variant="transparent"
+                                name="2-picture"
+                                onClick={handleAddInformationPages}
+                            >
+                                2 Picture
+                            </Button>
+                            <Button
+                                variant="transparent"
+                                name="3-picture"
+                                onClick={handleAddInformationPages}
+                            >
+                                3 Picture
+                            </Button>
+                        </PopupButton>
                         {informationPagesError && <p>{informationPagesError?.[nonFieldError]}</p>}
                         {value.informationPages?.length ? (
                             <Tabs

@@ -9,6 +9,7 @@ import {
     ArraySchema,
     addCondition,
 } from '@togglecorp/toggle-form';
+import { isDefined, isNotDefined } from '@togglecorp/fujs';
 import {
     TileServer,
     tileServerFieldsSchema,
@@ -183,10 +184,9 @@ export const tutorialFormSchema: TutorialFormSchema = {
                 validations: [getNoMoreThanNCharacterCondition(25)],
             },
             name: {
-
                 required: true,
                 requiredValidation: requiredStringCondition,
-                validations: [getNoMoreThanNCharacterCondition(1000)],
+                validations: [getNoMoreThanNCharacterCondition(100)],
             },
             tileServer: {
                 fields: tileServerFieldsSchema,
@@ -203,12 +203,12 @@ export const tutorialFormSchema: TutorialFormSchema = {
                                 title: {
                                     required: true,
                                     requiredValidation: requiredStringCondition,
-                                    validations: [getNoMoreThanNCharacterCondition(500)],
+                                    validations: [getNoMoreThanNCharacterCondition(20)],
                                 },
                                 description: {
                                     required: true,
                                     requiredValidation: requiredStringCondition,
-                                    validations: [getNoMoreThanNCharacterCondition(500)],
+                                    validations: [getNoMoreThanNCharacterCondition(100)],
                                 },
                                 icon: { required: true },
                             }),
@@ -218,12 +218,12 @@ export const tutorialFormSchema: TutorialFormSchema = {
                                 title: {
                                     required: true,
                                     requiredValidation: requiredStringCondition,
-                                    validations: [getNoMoreThanNCharacterCondition(500)],
+                                    validations: [getNoMoreThanNCharacterCondition(20)],
                                 },
                                 description: {
                                     required: true,
                                     requiredValidation: requiredStringCondition,
-                                    validations: [getNoMoreThanNCharacterCondition(500)],
+                                    validations: [getNoMoreThanNCharacterCondition(100)],
                                 },
                                 icon: { required: true },
                             }),
@@ -233,12 +233,12 @@ export const tutorialFormSchema: TutorialFormSchema = {
                                 title: {
                                     required: true,
                                     requiredValidation: requiredStringCondition,
-                                    validations: [getNoMoreThanNCharacterCondition(500)],
+                                    validations: [getNoMoreThanNCharacterCondition(20)],
                                 },
                                 description: {
                                     required: true,
                                     requiredValidation: requiredStringCondition,
-                                    validations: [getNoMoreThanNCharacterCondition(500)],
+                                    validations: [getNoMoreThanNCharacterCondition(100)],
                                 },
                                 icon: { required: true },
                             }),
@@ -304,7 +304,18 @@ export const tutorialFormSchema: TutorialFormSchema = {
                 }),
             },
             // FIXME: we do not send this anymore
-            tutorialTasks: {},
+            tutorialTasks: {
+                required: true,
+                validation: (tutorial) => {
+                    const isScreen = tutorial?.features.find(
+                        (screen) => isNotDefined(screen.properties.screen),
+                    );
+                    if (isDefined(isScreen?.properties.screen)) {
+                        return 'There are no screen in this Geojson';
+                    }
+                    return undefined;
+                },
+            },
             exampleImage1: {},
             exampleImage2: {},
         };
@@ -334,7 +345,7 @@ export const tutorialFormSchema: TutorialFormSchema = {
                             title: {
                                 required: true,
                                 requiredValidation: requiredStringCondition,
-                                validations: [getNoMoreThanNCharacterCondition(500)],
+                                validations: [getNoMoreThanNCharacterCondition(25)],
                             },
                             value: {
                                 required: true,
@@ -343,7 +354,7 @@ export const tutorialFormSchema: TutorialFormSchema = {
                             description: {
                                 required: true,
                                 requiredValidation: requiredStringCondition,
-                                validations: [getNoMoreThanNCharacterCondition(500)],
+                                validations: [getNoMoreThanNCharacterCondition(100)],
                             },
                             icon: {
                                 required: true,
@@ -370,7 +381,7 @@ export const tutorialFormSchema: TutorialFormSchema = {
                                         description: {
                                             required: true,
                                             requiredValidation: requiredStringCondition,
-                                            validations: [getNoMoreThanNCharacterCondition(500)],
+                                            validations: [getNoMoreThanNCharacterCondition(100)],
                                         },
                                         value: {
                                             required: true,

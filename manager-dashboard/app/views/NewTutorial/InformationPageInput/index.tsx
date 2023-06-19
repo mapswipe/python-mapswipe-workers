@@ -46,7 +46,6 @@ export default function InformationPageInput(props: Props) {
         [error?.blocks],
     );
 
-    console.log('information', value);
     return (
         <div className={styles.informationContainer}>
             <div className={styles.informationForm}>

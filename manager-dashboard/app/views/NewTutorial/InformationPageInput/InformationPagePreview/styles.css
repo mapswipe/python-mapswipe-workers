@@ -10,11 +10,13 @@
         background-color: var(--color-primary);
         width: 20rem;
         height: 30rem;
+        overflow: auto;
 
         .preview-content {
             display: flex;
-            gap: var(--spacing-extra-small);
-            padding: var(--spacing-medium);
+            flex-direction: column;
+            gap: var(--spacing-medium);
+            padding: var(--spacing-large);
             color: #ffffff;
         }
     }

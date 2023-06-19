@@ -18,7 +18,11 @@ export default function InformationPagePreview(props: Props) {
     function Content() {
         const innerContent = value?.blocks?.map((preview) => {
             if (preview.blockType === 'text') {
-                return <div key={preview.blockNumber}>{preview.textDescription}</div>;
+                return (
+                    <div key={preview.blockNumber}>
+                        {preview.textDescription ?? 'Description of the image'}
+                    </div>
+                );
             }
             return (
                 <Preview
@@ -35,8 +39,12 @@ export default function InformationPagePreview(props: Props) {
                 Preview
             </Heading>
             <div className={styles.previewScreen}>
-                <div className={styles.previewContent}>{value?.title}</div>
-                <Content />
+                <div className={styles.previewContent}>
+                    <div>
+                        {value?.title ?? 'Title'}
+                    </div>
+                    <Content />
+                </div>
             </div>
         </div>
     );

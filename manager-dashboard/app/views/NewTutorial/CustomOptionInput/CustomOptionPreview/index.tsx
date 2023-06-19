@@ -22,11 +22,19 @@ export default function CustomOptionPreview(props: Props) {
                     className={styles.previewContent}
                     key={preview.optionId}
                 >
-                    {Icon && <Icon />}
-                    <div>
+                    {Icon
+                        && (
+                            <div
+                                className={styles.previewIcon}
+                                style={{ backgroundColor: preview.iconColor }}
+                            >
+                                <Icon />
+                            </div>
+                        )}
+                    <div className={styles.previewText}>
                         {preview.title}
                     </div>
-                    <div>
+                    <div className={styles.previewText}>
                         {preview.description}
                     </div>
                 </div>
@@ -41,7 +49,9 @@ export default function CustomOptionPreview(props: Props) {
                 Preview
             </Heading>
             <div className={styles.previewScreen}>
-                <Content />
+                <div className={styles.previewContainer}>
+                    <Content />
+                </div>
             </div>
         </div>
     );

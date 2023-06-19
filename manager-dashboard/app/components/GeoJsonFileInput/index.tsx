@@ -93,13 +93,17 @@ function GeoJsonFileInput<N>(props: Props<N>) {
 
             const file = newValue;
 
+            console.log('file', file);
+
             async function handleValidationAndChange() {
+                const text = await readUploadedFileAsText(file);
                 let fileAsJson;
                 try {
-                    const text = await readUploadedFileAsText(file);
                     if (!mountedRef.current) {
                         return;
                     }
+
+                    console.log('text', text);
 
                     if (!text || typeof text !== 'string') {
                         setInternalErrorMessage('Failed to read the GeoJson file');
@@ -109,6 +113,8 @@ function GeoJsonFileInput<N>(props: Props<N>) {
                     }
 
                     const parsedGeoJSON = parseGeoJSON(text);
+                    console.log('Parsed', parsedGeoJSON);k
+
                     if (!parsedGeoJSON.errored) {
                         fileAsJson = parsedGeoJSON.value;
                     } else {

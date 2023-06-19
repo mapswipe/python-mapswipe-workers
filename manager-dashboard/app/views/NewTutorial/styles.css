@@ -21,7 +21,7 @@
             .add-button {
                 width: fit-content;
             }
-
+            
             .option-content {
                 display: flex;
 
@@ -117,6 +117,11 @@
         display: flex;
         justify-content: flex-end;
     }
+}
+        
+.instruction-popup {
+    padding: var(--spacing-small);
+    gap: var(--spacing-medium);
 }
 
 @keyframes wiggle {
