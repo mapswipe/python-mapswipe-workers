@@ -43,7 +43,7 @@ def get_project_static_info(filename: str) -> pd.DataFrame:
     """
     The function queries the projects table.
     Each row represents a single project and provides the information which is static.
-    By static we understand all attributes which are not affected by new results being
+    By static, we understand all attributes which are not affected by new results being
     contributed.
     The results are stored in a csv file and also returned as a pandas DataFrame.
 
@@ -149,7 +149,7 @@ def save_projects(
     projects_df = df.merge(
         df_dynamic, left_on="project_id", right_on="project_id", how="left"
     )
-    projects_df.to_csv(filename, index_label="idx", line_terminator="\n")
+    projects_df.to_csv(filename, index_label="idx", lineterminator="\n")
     logger.info(f"saved projects: {filename}")
     geojson_functions.csv_to_geojson(filename, "geom")
     geojson_functions.csv_to_geojson(filename, "centroid")
