@@ -33,8 +33,7 @@ def get_disagreeing_contributions_per_user_and_task(row):
 
 
 def get_agg_results_by_user_id(
-    results_df: pd.DataFrame,
-    agg_results_df: pd.DataFrame
+    results_df: pd.DataFrame, agg_results_df: pd.DataFrame
 ) -> pd.DataFrame:
     """
     For each users we calcuate the number of total contributions (tasks)

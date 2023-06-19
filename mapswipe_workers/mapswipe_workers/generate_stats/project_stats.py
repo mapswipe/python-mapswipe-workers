@@ -4,7 +4,7 @@ import gzip
 import json
 import os
 import tempfile
-from typing import List
+import typing
 
 import pandas as pd
 from pandas.api.types import is_numeric_dtype
@@ -268,6 +268,18 @@ def calc_share(df: pd.DataFrame) -> pd.DataFrame:
     return df.join(share_df)
 
 
+def calc_parent_option_count(
+    df: pd.DataFrame,
+    custom_options: typing.Dict[int, typing.Set[int]],
+) -> pd.DataFrame:
+    df_new = df.copy()
+    # Update option count using sub options count
+    for option, sub_options in custom_options.items():
+        for sub_option in sub_options:
+            df_new[f"{option}_count"] += df_new[f"{sub_option}_count"]
+    return df_new
+
+
 def calc_count(df: pd.DataFrame) -> pd.DataFrame:
     df_new = df.filter(like="count")
     df_new_sum = df_new.sum(axis=1)
@@ -290,26 +302,42 @@ def calc_quadkey(row: pd.DataFrame):
     return quadkey
 
 
+def get_custom_options(custom_options: pd.Series) -> typing.Dict[int, typing.Set[int]]:
+    eval_value = ast.literal_eval(custom_options.item())
+    return {
+        option["value"]: {
+            sub_option["value"] for sub_option in option.get("subOptions", [])
+        }
+        for option in eval_value
+    }
+
+
 def add_missing_result_columns(
-    df: pd.DataFrame,
-    custom_options_values: pd.Series
+    df: typing.Union[pd.DataFrame, pd.Series],
+    custom_options: typing.Dict[int, typing.Set[int]],
 ) -> pd.DataFrame:
     """
     Check if all possible answers columns are included in the grouped results
     data frame and add columns if missing.
     """
 
-    all_answer_label_values_list = list(
-        ast.literal_eval(custom_options_values.item())
+    all_answer_label_values_set = set(
+        [
+            _option
+            for option, sub_options in custom_options.items()
+            for _option in [option, *sub_options]
+        ]
     )
-    df = df.reindex(columns=all_answer_label_values_list, fill_value=0)
-    return df
+    return df.reindex(
+        columns=sorted(all_answer_label_values_set),
+        fill_value=0,
+    )
 
 
 def get_agg_results_by_task_id(
     results_df: pd.DataFrame,
     tasks_df: pd.DataFrame,
-    custom_options_values: pd.Series,
+    custom_options_raw: pd.Series,
 ) -> pd.DataFrame:
     """
     For each task several users contribute results.
@@ -327,7 +355,7 @@ def get_agg_results_by_task_id(
     ----------
     results_df: pd.DataFrame
     tasks_df: pd.DataFrame
-    custom_options_values: pd.Series
+    custom_options_raw: pd.Series
     """
 
     results_by_task_id_df = (
@@ -336,20 +364,24 @@ def get_agg_results_by_task_id(
         .unstack(fill_value=0)
     )
 
+    custom_options = get_custom_options(custom_options_raw)
+
     # add columns for answer options that were not chosen for any task
     results_by_task_id_df = add_missing_result_columns(
         results_by_task_id_df,
-        custom_options_values,
+        custom_options,
     )
-
-    # TODO: Add logic for parent values using sub values
-    # [<parent_value> = <parent_value> + <child_1_value> + .. <child_N_value>]
 
     # needed for ogr2ogr todo: might be legacy?
     results_by_task_id_df = results_by_task_id_df.add_suffix("_count")
 
     # calculate total count of votes per task
     results_by_task_id_df["total_count"] = calc_count(results_by_task_id_df)
+
+    results_by_task_id_df = calc_parent_option_count(
+        results_by_task_id_df,
+        custom_options,
+    )
 
     # calculate share based on counts
     results_by_task_id_df = calc_share(results_by_task_id_df)
@@ -421,7 +453,7 @@ def get_per_project_statistics(project_id: str, project_info: pd.Series) -> dict
         agg_results_df = get_agg_results_by_task_id(
             results_df,
             tasks_df,
-            project_info["custom_options_values"],
+            project_info["custom_options"],
         )
         agg_results_df.to_csv(agg_results_filename, index_label="idx")
 
