@@ -1,16 +1,8 @@
-import json
-import os
 import unittest
-from unittest.mock import patch
 
-from click.testing import CliRunner
-
-from mapswipe_workers import auth, mapswipe_workers
-from mapswipe_workers.definitions import DATA_PATH, logger
+from mapswipe_workers import auth
 from mapswipe_workers.firebase_to_postgres.transfer_results import transfer_results
 from mapswipe_workers.utils.create_directories import create_directories
-from tests import fixtures
-from tests.fixtures import FIXTURE_DIR
 from tests.integration import set_up, tear_down
 from tests.integration.base import BaseTestCase
 
@@ -18,33 +10,8 @@ from tests.integration.base import BaseTestCase
 class TestTransferGeoResultsProject(BaseTestCase):
     def setUp(self):
         super().setUp()
-        file_path = os.path.join(FIXTURE_DIR, "projectDrafts", "digitization.json")
-        self.project_id = fixtures.create_test_draft(
-            file_path, "digitization", "digitization", "projectDrafts"
-        )
-        runner = CliRunner()
-        with patch(
-            "mapswipe_workers.project_types."
-            + "arbitrary_geometry.digitization.project.urlretrieve"
-        ):
-            with open(
-                os.path.join(
-                    os.path.dirname(os.path.abspath(__file__)),
-                    "..",
-                    "fixtures",
-                    "feature_collection.json",
-                ),
-                "r",
-            ) as file:
-                output_file_path = (
-                    f"{DATA_PATH}/input_geometries/"
-                    + f"raw_input_{self.project_id}.geojson"
-                )
-                with open(output_file_path, "w") as out_file:
-                    json.dump(json.load(file), out_file)
-
-            runner.invoke(mapswipe_workers.run_create_projects, catch_exceptions=False)
-
+        self.project_id = self.username = project_type = fixture_name = "digitization"
+        set_up.create_test_project(project_type, fixture_name, results=False)
         set_up.set_firebase_test_data(
             "digitization", "results", "digitization", self.project_id
         )
@@ -68,7 +35,6 @@ class TestTransferGeoResultsProject(BaseTestCase):
         )
         result = pg_db.retr_query(sql_query)
         self.assertEqual(len(result), 1)
-        logger.info(result)
         self.assertEqual(expected_items_count, result[0][6])
 
         q2 = (
@@ -123,8 +89,7 @@ class TestTransferGeoResultsProject(BaseTestCase):
         )
         result = pg_db.retr_query(sql_query)
         self.assertEqual(len(result), 1)
-        # FIXME: the name is misleading here, it is the user_id
-        self.assertEqual(result[0][0], self.project_id)
+        self.assertEqual(result[0][0], self.username)
 
         sql_query = (
             "SELECT * "

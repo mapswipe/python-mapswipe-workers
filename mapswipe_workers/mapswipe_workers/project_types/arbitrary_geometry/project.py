@@ -191,7 +191,7 @@ class ArbitraryGeometryProject(BaseProject):
             self.groups[group_id] = ArbitraryGeometryGroup(
                 projectId=self.projectId,
                 groupId=group_id,
-                numberOfTasks=0,
+                numberOfTasks=len(item["features"]),
                 progress=0,
                 finishedCount=0,
                 requiredCount=0,
@@ -234,4 +234,10 @@ class ArbitraryGeometryProject(BaseProject):
     @staticmethod
     @abstractmethod
     def results_to_postgres(results_file, project_id, filter_mode):
+        pass
+
+    @staticmethod
+    @abstractmethod
+    def get_per_project_statistics(project_id, project_info):
+        """How to aggregate the project results from its results."""
         pass

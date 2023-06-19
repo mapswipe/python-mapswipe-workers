@@ -6,6 +6,9 @@ from mapswipe_workers.firebase_to_postgres.transfer_results import (
     save_results_to_postgres,
     truncate_temp_results,
 )
+from mapswipe_workers.generate_stats.project_stats import (
+    get_statistics_for_geometry_result_project,
+)
 from mapswipe_workers.project_types.arbitrary_geometry.project import (
     ArbitraryGeometryProject,
 )
@@ -46,3 +49,8 @@ class DigitizationProject(ArbitraryGeometryProject):
         )
 
         return user_group_results_file
+
+    @staticmethod
+    def get_per_project_statistics(project_id, project_info):
+        """How to aggregate the project results from its results."""
+        get_statistics_for_geometry_result_project(project_id, project_info)

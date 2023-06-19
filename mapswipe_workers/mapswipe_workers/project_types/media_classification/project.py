@@ -14,6 +14,9 @@ from mapswipe_workers.firebase_to_postgres.transfer_results import (
     save_results_to_postgres,
     truncate_temp_results,
 )
+from mapswipe_workers.generate_stats.project_stats import (
+    get_statistics_for_integer_result_project,
+)
 from mapswipe_workers.project_types.base.project import BaseGroup, BaseProject, BaseTask
 
 
@@ -127,3 +130,9 @@ class MediaClassificationProject(BaseProject):
         truncate_temp_results()
         save_results_to_postgres(results_file, project_id, filter_mode)
         return user_group_results_file
+
+    @staticmethod
+    def get_per_project_statistics(project_id, project_info):
+        return get_statistics_for_integer_result_project(
+            project_id, project_info, generate_hot_tm_geometries=False
+        )

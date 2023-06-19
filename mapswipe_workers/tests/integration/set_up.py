@@ -48,7 +48,10 @@ def set_postgres_test_data(
 
 
 def create_test_project(
-    project_type: str, fixture_name: str, results: bool = False
+    project_type: str,
+    fixture_name: str,
+    results: bool = False,
+    mapping_sessions_results: str = "mapping_sessions_results",
 ) -> str:
     """Create a test data in Firebase and Posgres."""
     project_id = "test_{0}".format(fixture_name)
@@ -63,7 +66,7 @@ def create_test_project(
         set_firebase_test_data(project_type, "userGroups", "user_group", "")
         set_firebase_test_data(project_type, "results", fixture_name, project_id)
         set_postgres_test_data(project_type, "mapping_sessions", fixture_name)
-        set_postgres_test_data(project_type, "mapping_sessions_results", fixture_name)
+        set_postgres_test_data(project_type, mapping_sessions_results, fixture_name)
 
     time.sleep(5)  # Wait for Firebase Functions to complete
     return project_id

@@ -2,8 +2,8 @@ import datetime as dt
 from typing import List, Optional
 
 from mapswipe_workers import auth
-from mapswipe_workers.definitions import DATA_PATH, logger
-from mapswipe_workers.generate_stats import overall_stats, project_stats
+from mapswipe_workers.definitions import DATA_PATH, ProjectType, logger
+from mapswipe_workers.generate_stats import overall_stats
 
 
 def get_recent_projects(hours: int = 3):
@@ -85,7 +85,9 @@ def generate_stats(project_id_list: Optional[List[str]] = None):
             projects_dynamic_df.drop([idx[0]], inplace=True)
 
         # aggregate results and get per project statistics
-        project_stats_dict = project_stats.get_per_project_statistics(
+        project = ProjectType(project_info["project_type"].item()).constructor
+
+        project_stats_dict = project.get_per_project_statistics(
             project_id, project_info
         )
         if project_stats_dict:

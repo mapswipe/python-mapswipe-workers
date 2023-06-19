@@ -63,11 +63,15 @@ class TestCreateDigitizationProject(unittest.TestCase):
 
         self.assertEqual(result[1]["tileServer"]["maxZoom"], 18)
 
-        query = "SELECT count(*)  FROM groups WHERE project_id = %s"
+        query = "SELECT count(*) FROM groups WHERE project_id = %s"
         result = pg_db.retr_query(query, [self.project_id])[0][0]
         self.assertEqual(result, 1)
 
-        query = "SELECT count(*)  FROM tasks WHERE project_id = %s"
+        query = "SELECT number_of_tasks FROM groups WHERE project_id = %s"
+        result = pg_db.retr_query(query, [self.project_id])[0][0]
+        self.assertEqual(result, 1)
+
+        query = "SELECT count(*) FROM tasks WHERE project_id = %s"
         result = pg_db.retr_query(query, [self.project_id])[0][0]
         self.assertEqual(result, 1)
 
