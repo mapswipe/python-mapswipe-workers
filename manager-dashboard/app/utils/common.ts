@@ -65,13 +65,40 @@ export const projectTypeLabelMap: {
     [PROJECT_TYPE_COMPLETENESS]: 'Completeness',
 };
 
-export interface IconList {
-    key: string;
+export type IconKey = 'addOutline'
+    | 'alertOutline'
+    | 'banOutline'
+    | 'checkmarkOutline'
+    | 'closeOutline'
+    | 'eggOutline'
+    | 'ellipseOutline'
+    | 'flagOutline'
+    | 'handLeftOutline'
+    | 'handRightOutline'
+    | 'happyOutline'
+    | 'heartOutline'
+    | 'helpOutline'
+    | 'informationOutline'
+    | 'prismOutline'
+    | 'refreshOutline'
+    | 'removeOutline'
+    | 'sadOutline'
+    | 'searchOutline'
+    | 'shapesOutline'
+    | 'squareOutline'
+    | 'starOutline'
+    | 'thumbsDownOutline'
+    | 'thumbsUpOutline'
+    | 'triangleOutline'
+    | 'warningOutline';
+
+export interface IconItem {
+    key: IconKey;
     label: string;
-    component: IconType
+    component: IconType;
 }
 
-export const iconList: IconList[] = [
+export const iconList: IconItem[] = [
     {
         key: 'addOutline',
         label: 'Add',

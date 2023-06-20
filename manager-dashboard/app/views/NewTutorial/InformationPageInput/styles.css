@@ -4,13 +4,8 @@
 
     .informationForm {
         display: flex;
-        flex-basis: 60%;
         flex-direction: column;
-        gap: var(--spacing-medium);
-        
-        .remove-button {
-            align-self: end;
-            width: fit-content;
-        }
+        flex-grow: 1;
+        gap: var(--spacing-large);
     }
 }

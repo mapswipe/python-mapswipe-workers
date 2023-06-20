@@ -1,5 +1,4 @@
 import React from 'react';
-import Heading from '#components/Heading';
 import { PartialTutorialFormType } from '#views/NewTutorial/utils';
 import { iconMap } from '#utils/common';
 
@@ -14,16 +13,21 @@ export default function CustomOptionPreview(props: Props) {
         value,
     } = props;
 
-    function Content() {
-        const innerContent = value?.map((preview) => {
-            const Icon = preview.icon ? iconMap[preview.icon] : undefined;
-            return (
-                <div
-                    className={styles.previewContent}
-                    key={preview.optionId}
-                >
-                    {Icon
-                        && (
+    return (
+        <div className={styles.optionPreview}>
+            {value?.map((preview) => {
+                const Icon = preview.icon ? iconMap[preview.icon] : undefined;
+                const previewText = [
+                    preview.title,
+                    preview.description,
+                ].filter(Boolean).join(' - ');
+
+                return (
+                    <div
+                        className={styles.previewContent}
+                        key={preview.optionId}
+                    >
+                        {Icon && (
                             <div
                                 className={styles.previewIcon}
                                 style={{ backgroundColor: preview.iconColor }}
@@ -31,28 +35,12 @@ export default function CustomOptionPreview(props: Props) {
                                 <Icon />
                             </div>
                         )}
-                    <div className={styles.previewText}>
-                        {preview.title}
+                        <div className={styles.previewText}>
+                            {previewText}
+                        </div>
                     </div>
-                    <div className={styles.previewText}>
-                        {preview.description}
-                    </div>
-                </div>
-            );
-        });
-        return <>{innerContent}</>;
-    }
-
-    return (
-        <div className={styles.optionPreview}>
-            <Heading level={3}>
-                Preview
-            </Heading>
-            <div className={styles.previewScreen}>
-                <div className={styles.previewContainer}>
-                    <Content />
-                </div>
-            </div>
+                );
+            })}
         </div>
     );
 }

@@ -7,14 +7,13 @@ import {
     useFormObject,
     getErrorObject,
     useFormArray,
-    nonFieldError,
 } from '@togglecorp/toggle-form';
 import Button from '#components/Button';
 import Heading from '#components/Heading';
-import Tabs, { TabList, Tab, TabPanel } from '#components/Tabs';
 import TextInput from '#components/TextInput';
 import NumberInput from '#components/NumberInput';
 import SelectInput from '#components/SelectInput';
+import NonFieldError from '#components/NonFieldError';
 
 import SubOption from './SubOption';
 import {
@@ -24,7 +23,7 @@ import {
 } from '../utils';
 
 import styles from './styles.css';
-import { IconList, iconList } from '#utils/common';
+import { IconItem, iconList } from '#utils/common';
 
 export type PartialCustomOptionsType = NonNullable<PartialTutorialFormType['customOptions']>[number]
 const defaultcustomOptionsValue: PartialCustomOptionsType = {
@@ -49,8 +48,6 @@ export default function CustomOptionInput(props: Props) {
         index,
         error: riskyError,
     } = props;
-
-    const [activesubOptions, setActiveSubOptions] = React.useState('1');
 
     const onOptionChange = useFormObject(index, onChange, defaultcustomOptionsValue);
 
@@ -89,7 +86,7 @@ export default function CustomOptionInput(props: Props) {
     );
 
     return (
-        <div className={styles.optionForm}>
+        <div className={styles.customOption}>
             <div className={styles.optionContent}>
                 <TextInput
                     className={styles.optionInput}
@@ -105,8 +102,8 @@ export default function CustomOptionInput(props: Props) {
                     label="Icon"
                     value={value?.icon}
                     options={iconList}
-                    keySelector={(d: IconList) => d.key}
-                    labelSelector={(d: IconList) => d.label}
+                    keySelector={(d: IconItem) => d.key}
+                    labelSelector={(d: IconItem) => d.label}
                     onChange={onOptionChange}
                     error={error?.icon}
                 />
@@ -126,7 +123,7 @@ export default function CustomOptionInput(props: Props) {
                     label="Icon Color"
                     value={value?.iconColor}
                     options={iconColorOptions}
-                    keySelector={(d: ColorOptions) => d.key}
+                    keySelector={(d: ColorOptions) => d.color}
                     labelSelector={(d: ColorOptions) => d.label}
                     onChange={onOptionChange}
                     error={error?.iconColor}
@@ -145,55 +142,38 @@ export default function CustomOptionInput(props: Props) {
                 onClick={onRemove}
                 className={styles.removeButton}
             >
-                Delete this option
+                Remove Option
             </Button>
-            <Heading level={4}>
-                Sub Options
-            </Heading>
-            <Button
-                name="add_sub_options"
-                className={styles.addButton}
-                icons={<MdAdd />}
-                onClick={handlesubOptionsAdd}
-                disabled={value.subOptions && value.subOptions.length >= 6}
-            >
-                Add Sub Options
-            </Button>
-            {subOptionsError && subOptionsError?.[nonFieldError]}
-            {value.subOptions?.length ? (
-                <Tabs
-                    value={activesubOptions}
-                    onChange={setActiveSubOptions}
+            <div className={styles.subOptions}>
+                <Heading level={3}>
+                    Sub Options
+                </Heading>
+                <NonFieldError
+                    error={subOptionsError}
+                />
+                {value.subOptions?.map((sub, i) => (
+                    <SubOption
+                        key={sub.subOptionsId}
+                        value={sub}
+                        index={i}
+                        onChange={onsubOptionsAdd}
+                        onRemove={onsubOptionsRemove}
+                        error={subOptionsError?.[sub.subOptionsId]}
+                    />
+                ))}
+                {!value.subOptions?.length && (
+                    <div>No sub options at the moment</div>
+                )}
+                <Button
+                    name="addSubOption"
+                    className={styles.addButton}
+                    icons={<MdAdd />}
+                    onClick={handlesubOptionsAdd}
+                    disabled={value.subOptions && value.subOptions.length >= 6}
                 >
-                    <TabList>
-                        {value.subOptions?.map((sub) => (
-                            <Tab
-                                key={sub.subOptionsId}
-                                name={`${sub.subOptionsId}`}
-                            >
-                                {`Sub Options ${sub.subOptionsId}`}
-                            </Tab>
-                        ))}
-                    </TabList>
-                    {value.subOptions.map((sub, i) => (
-                        <TabPanel
-                            key={sub.subOptionsId}
-                            name={String(sub.subOptionsId)}
-                        >
-                            <SubOption
-                                key={sub.subOptionsId}
-                                value={sub}
-                                index={i}
-                                onChange={onsubOptionsAdd}
-                                onRemove={onsubOptionsRemove}
-                                error={subOptionsError?.[sub.subOptionsId]}
-                            />
-                        </TabPanel>
-                    ))}
-                </Tabs>
-            ) : (
-                <div>Add Sub Options</div>
-            )}
+                    Add Sub Options
+                </Button>
+            </div>
         </div>
     );
 }

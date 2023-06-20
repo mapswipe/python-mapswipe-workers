@@ -5,7 +5,7 @@
     box-shadow: 0 3px 5px -2px var(--color-shadow);
     background-color: var(--color-primary);
     padding: var(--spacing-medium) var(--spacing-large);
-    color: var(--color-text-on-light);
+    color: var(--color-text-on-dark);
 
     .container {
         display: flex;
@@ -42,7 +42,7 @@
 
                 .link {
                     opacity: 0.7;
-                    color: var(--color-text-on-light);
+                    color: var(--color-text-on-dark);
 
                     &.active {
                         opacity: 1;
@@ -58,7 +58,7 @@
             gap: var(--spacing-medium);
 
             .logout-button {
-                color: var(--color-text-on-light);
+                color: var(--color-text-on-dark);
             }
         }
     }

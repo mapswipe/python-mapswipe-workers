@@ -11,7 +11,11 @@
         flex-direction: column;
         width: 100%;
         max-width: 70rem;
-        gap: var(--spacing-large);
+        gap: var(--spacing-extra-large);
+
+        .instruction-card {
+            display: flex;
+        }
 
         .card {
             display: flex;
@@ -21,12 +25,13 @@
             .add-button {
                 width: fit-content;
             }
-            
+
             .option-content {
                 display: flex;
+                gap: var(--spacing-extra-large);
 
                 .option-tab-panel {
-                    flex-basis: 60%;
+                    flex-grow: 1;
                 }
             }
         }
@@ -43,16 +48,20 @@
             }
         }
 
-        .card-scenarios {
+        .info-page-card-content {
             display: flex;
             flex-direction: column;
             gap: var(--spacing-large);
 
-            .tab-content {
+            .add-new-section {
                 display: flex;
-                flex-direction: column;
                 gap: var(--spacing-medium);
+                align-items: flex-end;
             }
+        }
+
+        .scenario-content {
+            gap: var(--spacing-small);
         }
     }
 

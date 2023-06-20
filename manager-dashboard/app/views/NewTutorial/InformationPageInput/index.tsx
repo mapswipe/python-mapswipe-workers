@@ -68,7 +68,6 @@ export default function InformationPageInput(props: Props) {
                 <Button
                     name={index}
                     onClick={onRemove}
-                    className={styles.removeButton}
                 >
                     Delete Page
                 </Button>

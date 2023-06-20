@@ -1,7 +1,7 @@
-.option-form {
+.custom-option {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-medium);
+    gap: var(--spacing-large);
 
     .option-content {
         display: flex;
@@ -12,7 +12,7 @@
         }
 
         .option-icon {
-            flex-basis: 15%;
+            flex-basis: 10rem;
         }
     }
 
@@ -23,5 +23,13 @@
 
     .add-button {
         width: fit-content;
+    }
+
+    .sub-options {
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-large);
+        background-color: var(--color-background);
+        padding: var(--spacing-large);
     }
 }

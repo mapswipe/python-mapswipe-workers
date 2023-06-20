@@ -21,49 +21,202 @@ import {
     PROJECT_TYPE_CHANGE_DETECTION,
     PROJECT_TYPE_COMPLETENESS,
     PROJECT_TYPE_FOOTPRINT,
+    IconKey,
 } from '#utils/common';
 
+export type ColorKey = 'red'
+| 'pink'
+| 'purple'
+| 'deepPurple'
+| 'indigo'
+| 'blue'
+| 'cyan'
+| 'teal'
+| 'green'
+| 'lime'
+| 'yellow'
+| 'orange'
+| 'brown'
+| 'gray';
+
+export const colorKeyToColorMap: Record<ColorKey, string> = {
+    red: '#D32F2F',
+    pink: '#D81B60',
+    purple: '#9C27B0',
+    deepPurple: '#673AB7',
+    indigo: '#3F51B5',
+    blue: '#1976D2',
+    cyan: '#0097A7',
+    teal: '#00695C',
+    green: '#2E7D32',
+    lime: '#9E9D24',
+    yellow: '#FFD600',
+    orange: '#FF9100',
+    brown: '#795548',
+    gray: '#757575',
+};
+
 export interface ColorOptions {
-    key: string;
+    key: ColorKey;
     label: string;
+    color: string;
 }
 
 export const iconColorOptions: ColorOptions[] = [
     {
-        key: 'green',
-        label: 'Green',
-    },
-    {
         key: 'red',
         label: 'Red',
+        color: colorKeyToColorMap.red,
+    },
+    {
+        key: 'pink',
+        label: 'Pink',
+        color: colorKeyToColorMap.pink,
+    },
+    {
+        key: 'purple',
+        label: 'Purple',
+        color: colorKeyToColorMap.purple,
+    },
+    {
+        key: 'deepPurple',
+        label: 'Deep Purple',
+        color: colorKeyToColorMap.deepPurple,
+    },
+    {
+        key: 'indigo',
+        label: 'Indigo',
+        color: colorKeyToColorMap.indigo,
+    },
+    {
+        key: 'blue',
+        label: 'Blue',
+        color: colorKeyToColorMap.blue,
+    },
+    {
+        key: 'cyan',
+        label: 'Cyan',
+        color: colorKeyToColorMap.cyan,
+    },
+    {
+        key: 'teal',
+        label: 'Teal',
+        color: colorKeyToColorMap.teal,
+    },
+    {
+        key: 'green',
+        label: 'Green',
+        color: colorKeyToColorMap.green,
+    },
+    {
+        key: 'lime',
+        label: 'Lime',
+        color: colorKeyToColorMap.lime,
     },
     {
         key: 'yellow',
         label: 'Yellow',
+        color: colorKeyToColorMap.yellow,
+    },
+    {
+        key: 'orange',
+        label: 'Orange',
+        color: colorKeyToColorMap.orange,
+    },
+    {
+        key: 'brown',
+        label: 'Brown',
+        color: colorKeyToColorMap.brown,
+    },
+    {
+        key: 'gray',
+        label: 'Gray',
+        color: colorKeyToColorMap.gray,
     },
 ];
 
-export interface PageTemplateType {
-    key: '1-picture' | '2-picture' | '3-picture';
+export type InformationPageTemplateKey = '1-picture' | '2-picture' | '3-picture';
+export interface InformationPageOption {
+    key: InformationPageTemplateKey;
     label: string;
 }
 
-export const pageOptions: PageTemplateType[] = [
+export const infoPageTemplateoptions: InformationPageOption[] = [
     {
         key: '1-picture',
-        label: '1 picture template',
+        label: 'With 1 picture',
     },
     {
         key: '2-picture',
-        label: '2 picture template',
+        label: 'With 2 picture',
     },
     {
         key: '3-picture',
-        label: '3 picture template',
+        label: 'With 3 picture',
     },
 ];
 
-// FIXME: include here
+interface Block {
+    blockNumber: number,
+    blockType: 'text' | 'image',
+}
+
+export const infoPageBlocksMap: Record<InformationPageTemplateKey, Block[]> = {
+    '1-picture': [
+        {
+            blockNumber: 1,
+            blockType: 'text',
+        },
+        {
+            blockNumber: 2,
+            blockType: 'image',
+        },
+    ],
+    '2-picture': [
+        {
+            blockNumber: 1,
+            blockType: 'text',
+        },
+        {
+            blockNumber: 2,
+            blockType: 'image',
+        },
+        {
+            blockNumber: 3,
+            blockType: 'text',
+        },
+        {
+            blockNumber: 4,
+            blockType: 'image',
+        },
+    ],
+    '3-picture': [
+        {
+            blockNumber: 1,
+            blockType: 'text',
+        },
+        {
+            blockNumber: 2,
+            blockType: 'image',
+        },
+        {
+            blockNumber: 3,
+            blockType: 'text',
+        },
+        {
+            blockNumber: 4,
+            blockType: 'image',
+        },
+        {
+            blockNumber: 5,
+            blockType: 'text',
+        },
+        {
+            blockNumber: 6,
+            blockType: 'image',
+        },
+    ],
+};
 
 export type TutorialTasks = GeoJSON.FeatureCollection<GeoJSON.Geometry, {
     groupId: string;
@@ -83,7 +236,7 @@ export type CustomOptions = {
     title: string;
     value: number;
     description: string;
-    icon: string;
+    icon: IconKey;
     iconColor: string;
     subOptions: {
         subOptionsId: number;
@@ -108,20 +261,20 @@ export interface TutorialFormType {
     name: string;
     tileServer: TileServer;
     scenarioPages: {
-        scenarioId: string;
+        scenarioId: number;
         hint: {
             description: string;
-            icon: string;
+            icon: IconKey;
             title: string;
         };
         instruction: {
             description: string;
-            icon: string;
+            icon: IconKey;
             title: string;
         };
         success: {
             description: string;
-            icon: string;
+            icon: IconKey;
             title: string;
         };
     }[];
@@ -316,12 +469,18 @@ export const tutorialFormSchema: TutorialFormSchema = {
             (formValues) => {
                 const customOptionField: CustomOptionFormSchema = {
                     validation: (option) => {
-                        if (option && option.length >= 6) {
-                            return 'Options cannot be more than 6';
+                        if (!option) {
+                            return undefined;
                         }
-                        if (option && option.length <= 2) {
-                            return 'Options cannot be less than 2';
+
+                        if (option.length < 2) {
+                            return 'There should be at least 2 options';
                         }
+
+                        if (option.length > 6) {
+                            return 'There shouldn\'t be more than 6 options';
+                        }
+
                         return undefined;
                     },
                     keySelector: (key) => key.optionId,
@@ -353,12 +512,18 @@ export const tutorialFormSchema: TutorialFormSchema = {
                             subOptions: {
                                 keySelector: (key) => key.subOptionsId,
                                 validation: (sub) => {
-                                    if (sub && sub?.length >= 6) {
-                                        return 'Sub options cannot be more than 6';
+                                    if (!sub || sub.length === 0) {
+                                        return undefined;
                                     }
-                                    if (sub && sub.length <= 2) {
-                                        return 'Sub options cannot be less than 2';
+
+                                    if (sub.length < 2) {
+                                        return 'There should be at least 2 sub options';
                                     }
+
+                                    if (sub.length > 6) {
+                                        return 'There shouldn\'t be more than 6 sub options';
+                                    }
+
                                     return undefined;
                                 },
                                 member: () => ({

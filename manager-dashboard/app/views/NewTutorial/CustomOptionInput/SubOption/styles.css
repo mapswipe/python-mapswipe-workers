@@ -1,12 +1,13 @@
 .sub-option-content {
     display: flex;
+    align-items: flex-end;
     gap: var(--spacing-medium);
 
     .sub-option-input {
         flex-grow: 1;
     }
+
     .remove-button {
         width: fit-content;
-        height: fit-content;
     }
 }

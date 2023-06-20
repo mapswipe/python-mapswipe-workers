@@ -7,6 +7,7 @@ interface Props {
     className?: string;
     heading?: React.ReactNode;
     children?: React.ReactNode;
+    contentClassName?: string;
 }
 
 function InputSection(props: Props) {
@@ -14,6 +15,7 @@ function InputSection(props: Props) {
         className,
         heading,
         children,
+        contentClassName,
     } = props;
 
     return (
@@ -23,7 +25,7 @@ function InputSection(props: Props) {
                     {heading}
                 </h2>
             </div>
-            <div className={styles.content}>
+            <div className={_cs(styles.content, contentClassName)}>
                 {children}
             </div>
         </div>

@@ -1,19 +1,18 @@
 .tab {
-    border: 1px solid rgba(0,0,0,.1);
-    border-bottom: none;
-    border-radius: 5px 5px 0 0;
-    background-color: #FFFFFF;
+    border: var(--width-separator-thin) solid var(--color-separator);
+    border-radius: 0.25rem 0.25rem 0 0;
+    border-bottom-color: transparent;
+    background-color: var(--color-foreground);
     padding: var(--spacing-small);
     text-align: left;
-    
+
     &.active {
-        bottom: -1px;
-        background-color: #FBFBFF;
+        background-color: var(--color-background-accent-hint);
     }
 }
 
 .tab-list {
     display: flex;
     gap: var(--spacing-small);
-    border-bottom: 1px solid rgba(0,0,0,.1);
+    border-bottom: var(--width-separator-thin) solid var(--color-separator);
 }

@@ -1,7 +1,6 @@
 .card {
-    border: 0.5px;
     background-color: var(--color-foreground);
-    padding: var(--spacing);
+    padding: var(--spacing-medium);
 
     .title {
         padding: var(--spacing-medium);

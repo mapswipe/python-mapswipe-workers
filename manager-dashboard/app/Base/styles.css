@@ -60,7 +60,7 @@ p {
 
     --color-primary: #0d1949;
     --color-primary-light: #2d5989;
-    --color-text-on-light: #ffffff;
+    --color-text-on-dark: #ffffff;
     --color-text-watermark: rgba(0, 0, 0, .4);
     --color-text: rgba(0, 0, 0, 0.8);
     --color-text-dark: rgba(0, 0, 0, 1);
@@ -88,10 +88,13 @@ p {
 
     --opacity-disabled-element: 0.5;
 
-    --width-separator-thin: 1px;
+    --width-separator-thin: 1pt;
     --width-scrollbar: 0.75rem;
     --width-page-content-max: 70rem;
     --width-navbar-content-max: 76rem;
+
+    --width-mobile-preview: 24rem;
+    --height-mobile-preview: 40rem;
 
     --radius-popup-border: 0.25rem;
     --radius-scrollbar-border: 0.25rem;

@@ -7,10 +7,11 @@ import {
     getErrorObject,
 } from '@togglecorp/toggle-form';
 import {
-    IconList,
+    IconItem,
     iconList,
     valueSelector,
     labelSelector,
+    IconKey,
 } from '#utils/common';
 import TextInput from '#components/TextInput';
 import Heading from '#components/Heading';
@@ -21,20 +22,20 @@ import SegmentInput from '#components/SegmentInput';
 import styles from './styles.css';
 
 type ScenarioType = {
-    scenarioId: string;
+    scenarioId: number;
     hint: {
         description: string;
-        icon: string;
+        icon: IconKey;
         title: string;
     };
     instruction: {
         description: string;
-        icon: string;
+        icon: IconKey;
         title: string;
     };
     success: {
         description: string;
-        icon: string;
+        icon: IconKey;
         title: string;
     };
 };
@@ -52,7 +53,7 @@ const previewOptions: ScenarioSegmentType[] = [
 
 type PartialScenarioType = PartialForm<ScenarioType, 'scenarioId'>;
 const defaultScenarioTabsValue: PartialScenarioType = {
-    scenarioId: 'xxx',
+    scenarioId: 0,
 };
 
 interface Props {
@@ -120,8 +121,8 @@ export default function ScenarioPageInput(props: Props) {
                         label="Icon"
                         value={value.instruction?.icon}
                         options={iconList}
-                        keySelector={(d: IconList) => d.key}
-                        labelSelector={(d: IconList) => d.label}
+                        keySelector={(d: IconItem) => d.key}
+                        labelSelector={(d: IconItem) => d.label}
                         onChange={onInstructionFieldChange}
                         error={instructionsError?.icon}
                     />
@@ -151,8 +152,8 @@ export default function ScenarioPageInput(props: Props) {
                         label="Icon"
                         value={value.hint?.icon}
                         options={iconList}
-                        keySelector={(d: IconList) => d.key}
-                        labelSelector={(d: IconList) => d.label}
+                        keySelector={(d: IconItem) => d.key}
+                        labelSelector={(d: IconItem) => d.label}
                         onChange={onHintFieldChange}
                         error={hintError?.icon}
                     />
@@ -163,14 +164,14 @@ export default function ScenarioPageInput(props: Props) {
                 <div className={styles.scenarioForm}>
                     <div className={styles.scenarioFormContent}>
                         <TextInput
-                            name="title"
+                            name={'title' as const}
                             value={value.success?.title}
                             label="Title"
                             onChange={onSuccessFieldChange}
                             error={successError?.title}
                         />
                         <TextInput
-                            name="description"
+                            name={'description' as const}
                             value={value.success?.description}
                             label="Description"
                             onChange={onSuccessFieldChange}
@@ -182,8 +183,8 @@ export default function ScenarioPageInput(props: Props) {
                         label="Icon"
                         value={value.success?.icon}
                         options={iconList}
-                        keySelector={(d: IconList) => d.key}
-                        labelSelector={(d: IconList) => d.label}
+                        keySelector={(d: IconItem) => d.key}
+                        labelSelector={(d: IconItem) => d.label}
                         onChange={onSuccessFieldChange}
                         error={successError?.icon}
                     />

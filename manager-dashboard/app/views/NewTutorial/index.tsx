@@ -3,6 +3,7 @@ import {
     _cs,
     isDefined,
     unique,
+    getElementAround,
 } from '@togglecorp/fujs';
 import {
     useForm,
@@ -10,7 +11,6 @@ import {
     createSubmitHandler,
     analyzeErrors,
     useFormArray,
-    nonFieldError,
 } from '@togglecorp/toggle-form';
 import {
     getStorage,
@@ -35,6 +35,7 @@ import { Link } from 'react-router-dom';
 import UserContext from '#base/context/UserContext';
 import projectTypeOptions from '#base/configs/projectTypes';
 import useMountedRef from '#hooks/useMountedRef';
+import useInputState from '#hooks/useInputState';
 import Card from '#components/Card';
 import Modal from '#components/Modal';
 import TextInput from '#components/TextInput';
@@ -53,8 +54,6 @@ import TileServerInput, {
 } from '#components/TileServerInput';
 import InputSection from '#components/InputSection';
 import Button from '#components/Button';
-import Heading from '#components/Heading';
-import PopupButton from '#components/PopupButton';
 import CustomOptionPreview from '#views/NewTutorial/CustomOptionInput/CustomOptionPreview';
 import {
     valueSelector,
@@ -71,37 +70,44 @@ import {
     PartialTutorialFormType,
     ScenarioPagesType,
     CustomOptionType,
-    PageTemplateType,
     InformationPagesType,
     PartialInformationPagesType,
-    PartialBlocksType,
+    colorKeyToColorMap,
+    InformationPageTemplateKey,
+    infoPageTemplateoptions,
+    infoPageBlocksMap,
 } from './utils';
 import CustomOptionInput from './CustomOptionInput';
 import ScenarioPageInput from './ScenarioPageInput';
 import InformationPageInput from './InformationPageInput';
 import styles from './styles.css';
+import NonFieldError from '#components/NonFieldError';
+import SelectInput from '#components/SelectInput';
 
 const defaultCustomOptions: PartialTutorialFormType['customOptions'] = [
     {
         optionId: 1,
         value: 1,
         title: 'Yes',
-        icon: 'addOutline',
-        iconColor: 'green',
+        icon: 'checkmarkOutline',
+        iconColor: colorKeyToColorMap.green,
+        description: 'the shape does outline a building in the image',
     },
     {
-        value: 0,
         optionId: 2,
+        value: 0,
         title: 'No',
-        icon: 'alertOutline',
-        iconColor: 'red',
+        icon: 'closeOutline',
+        iconColor: colorKeyToColorMap.red,
+        description: 'the shape doesn\'t match a building in the image',
     },
     {
-        value: 2,
         optionId: 3,
+        value: 2,
         title: 'Not Sure',
-        icon: 'banOutline',
-        iconColor: 'yellow',
+        icon: 'removeOutline',
+        iconColor: colorKeyToColorMap.orange,
+        description: 'if you\'re not sure or there is cloud cover / bad imagery',
     },
 ];
 const defaultTutorialFormValue: PartialTutorialFormType = {
@@ -146,12 +152,10 @@ function NewTutorial(props: Props) {
         setTutorialSubmissionStatus,
     ] = React.useState<'started' | 'imageUpload' | 'tutorialSubmit' | 'success' | 'failed' | undefined>();
 
-    // NOTE: scenario
-    const [activeTab, setActiveTab] = React.useState('1');
-    // NOTE: options
-    const [activeOptionsTab, setActiveOptionsTab] = React.useState('1');
-    // NOTE: Information Page
-    const [activeInformationPages, setActiveInformationPages] = React.useState('1');
+    const [activeScenarioTab, setActiveScenarioTab] = React.useState(1);
+    const [activeOptionsTab, setActiveOptionsTab] = React.useState(1);
+    const [activeInformationPage, setActiveInformationPage] = React.useState(1);
+    const [selectedInfoPageTemplate, setSelectedInfoPageTemplate] = useInputState<InformationPageTemplateKey>('1-picture');
 
     const error = React.useMemo(
         () => getErrorObject(formError),
@@ -174,18 +178,22 @@ function NewTutorial(props: Props) {
 
     const previewGeoJson = React.useMemo((): GeoJSON.GeoJSON | undefined => {
         const geojson = value.tutorialTasks;
+
         if (!geojson) {
             return undefined;
         }
+
+        console.info(activeScenarioTab, typeof activeScenarioTab, geojson);
+
         return {
             ...geojson,
             features: geojson.features.filter(
-                (screen) => screen.properties.screen === Number(activeTab),
+                (screen) => screen.properties.screen === activeScenarioTab,
             ),
         };
     }, [
         value.tutorialTasks,
-        activeTab,
+        activeScenarioTab,
     ]);
 
     const handleFormSubmission = React.useCallback((
@@ -318,20 +326,44 @@ function NewTutorial(props: Props) {
     );
 
     const {
-        setValue: onOptionAdd,
+        setValue: setOptionValue,
         removeValue: onOptionRemove,
     } = useFormArray<
         'customOptions',
         CustomOptionType
     >('customOptions', setFieldValue);
 
+    const handleOptionRemove = React.useCallback(
+        (index: number) => {
+            const nextOption = getElementAround(value?.customOptions ?? [], index);
+            onOptionRemove(index);
+
+            if (nextOption) {
+                setActiveOptionsTab(nextOption.optionId);
+            }
+        },
+        [onOptionRemove, value?.customOptions],
+    );
+
     const {
-        setValue: onInformationPagesAdd,
-        removeValue: onInformationPagesRemove,
+        setValue: setInformationPageValue,
+        removeValue: onInformationPageRemove,
     } = useFormArray<
         'informationPages',
         InformationPagesType
     >('informationPages', setFieldValue);
+
+    const handleInformationPageRemove = React.useCallback(
+        (index: number) => {
+            const nextInfoPage = getElementAround(value?.informationPages ?? [], index);
+            onInformationPageRemove(index);
+
+            if (nextInfoPage) {
+                setActiveInformationPage(nextInfoPage.pageNumber);
+            }
+        },
+        [onInformationPageRemove, value?.informationPages],
+    );
 
     const handleAddDefineOptions = React.useCallback(
         () => {
@@ -349,6 +381,9 @@ function NewTutorial(props: Props) {
                     const newDefineOption: CustomOptionType = {
                         optionId: newOptionId,
                         value: newValue,
+                        icon: 'starOutline',
+                        title: 'Untitled',
+                        iconColor: colorKeyToColorMap.gray,
                     };
 
                     return [...safeOldValues, newDefineOption];
@@ -384,7 +419,7 @@ function NewTutorial(props: Props) {
         const sorted = uniqueArray?.sort((a, b) => a.properties?.screen - b.properties.screen);
         const tutorialTaskArray = sorted?.map((geo) => (
             {
-                scenarioId: String(geo.properties.screen),
+                scenarioId: geo.properties.screen,
                 hint: {},
                 instructions: {},
                 success: {},
@@ -397,80 +432,22 @@ function NewTutorial(props: Props) {
         setPopupVisibility: React.Dispatch<React.SetStateAction<boolean>>;
     }>(null);
 
-    const handleAddInformationPages = React.useCallback(
-        (template: PageTemplateType['key']) => {
+    const handleAddInformationPage = React.useCallback(
+        (template: InformationPageTemplateKey) => {
             setFieldValue(
                 (oldValue: PartialInformationPagesType) => {
                     const newOldValue = oldValue ?? [];
-                    let blocks: PartialBlocksType = [];
 
                     const newPage = newOldValue.length > 0
                         ? Math.max(...newOldValue.map((info) => info.pageNumber)) + 1
                         : 1;
 
-                    if (template === '2-picture') {
-                        blocks = [
-                            {
-                                blockNumber: 1,
-                                blockType: 'text',
-                            },
-                            {
-                                blockNumber: 2,
-                                blockType: 'image',
-                            },
-                            {
-                                blockNumber: 3,
-                                blockType: 'text',
-                            },
-                            {
-                                blockNumber: 4,
-                                blockType: 'image',
-                            },
-                        ];
-                    }
-                    if (template === '3-picture') {
-                        blocks = [
-                            {
-                                blockNumber: 1,
-                                blockType: 'text',
-                            },
-                            {
-                                blockNumber: 2,
-                                blockType: 'image',
-                            },
-                            {
-                                blockNumber: 3,
-                                blockType: 'text',
-                            },
-                            {
-                                blockNumber: 4,
-                                blockType: 'image',
-                            },
-                            {
-                                blockNumber: 5,
-                                blockType: 'text',
-                            },
-                            {
-                                blockNumber: 6,
-                                blockType: 'image',
-                            },
-                        ];
-                    }
-                    if (template === '1-picture') {
-                        blocks = [
-                            {
-                                blockNumber: 1,
-                                blockType: 'text',
-                            },
-                            {
-                                blockNumber: 2,
-                                blockType: 'image',
-                            },
-                        ];
-                    }
+                    setActiveInformationPage(newPage);
 
+                    const blocks = infoPageBlocksMap[template];
                     const newPageInformation: InformationPagesType = {
                         pageNumber: newPage,
+                        title: `Untitled page ${newPage}`,
                         blocks,
                     };
                     return [...newOldValue, newPageInformation];
@@ -526,6 +503,139 @@ function NewTutorial(props: Props) {
                             />
                         </div>
                     </Card>
+                </InputSection>
+                {value.projectType === PROJECT_TYPE_FOOTPRINT && (
+                    <InputSection
+                        heading="Define Options"
+                    >
+                        <Card
+                            contentClassName={styles.card}
+                        >
+                            <Button
+                                name="addInstruction"
+                                className={styles.addButton}
+                                icons={<MdAdd />}
+                                onClick={handleAddDefineOptions}
+                                disabled={
+                                    value.customOptions
+                                    && value.customOptions?.length >= 6
+                                }
+                            >
+                                Add Option
+                            </Button>
+                            <NonFieldError
+                                error={optionsError}
+                            />
+                            {value.customOptions?.length ? (
+                                <Tabs
+                                    value={activeOptionsTab}
+                                    onChange={setActiveOptionsTab}
+                                >
+                                    <TabList>
+                                        {value.customOptions.map((opt) => (
+                                            <Tab
+                                                key={opt.optionId}
+                                                name={opt.optionId}
+                                            >
+                                                {`Option ${opt.optionId}`}
+                                            </Tab>
+                                        ))}
+                                    </TabList>
+                                    <div className={styles.optionContent}>
+                                        {value.customOptions.map((options, index) => (
+                                            <TabPanel
+                                                key={options.optionId}
+                                                name={options.optionId}
+                                                className={styles.optionTabPanel}
+                                            >
+                                                <CustomOptionInput
+                                                    key={options.optionId}
+                                                    value={options}
+                                                    index={index}
+                                                    onChange={setOptionValue}
+                                                    onRemove={handleOptionRemove}
+                                                    error={optionsError?.[options.optionId]}
+                                                />
+                                            </TabPanel>
+                                        ))}
+                                        <CustomOptionPreview
+                                            value={value.customOptions}
+                                        />
+                                    </div>
+                                </Tabs>
+                            ) : (
+                                <div>No sub-options at the moment</div>
+                            )}
+                        </Card>
+                    </InputSection>
+                )}
+                <InputSection heading="Information Pages">
+                    <Card contentClassName={styles.infoPageCardContent}>
+                        <div className={styles.addNewSection}>
+                            <SelectInput
+                                name=""
+                                label="Page Template"
+                                nonClearable
+                                value={selectedInfoPageTemplate}
+                                onChange={setSelectedInfoPageTemplate}
+                                options={infoPageTemplateoptions}
+                                keySelector={(infoPageTemplate) => infoPageTemplate.key}
+                                labelSelector={(infoPageTemplate) => infoPageTemplate.label}
+                                className={styles.instructionPopup}
+                            />
+                            <Button
+                                name={selectedInfoPageTemplate}
+                                onClick={handleAddInformationPage}
+                            >
+                                Add new Information Page
+                            </Button>
+                        </div>
+                        <NonFieldError
+                            error={informationPagesError}
+                        />
+                        {value.informationPages && value.informationPages.length > 0 && (
+                            <Tabs
+                                value={activeInformationPage}
+                                onChange={setActiveInformationPage}
+                            >
+                                <TabList>
+                                    {value.informationPages.map((info) => (
+                                        <Tab
+                                            key={info.pageNumber}
+                                            name={info.pageNumber}
+                                        >
+                                            {`Intro ${info.pageNumber}`}
+                                        </Tab>
+                                    ))}
+                                </TabList>
+                                {value.informationPages?.map((page, i) => (
+                                    <TabPanel
+                                        key={page.pageNumber}
+                                        name={page.pageNumber}
+                                    >
+                                        <InformationPageInput
+                                            key={page.pageNumber}
+                                            value={page}
+                                            onChange={setInformationPageValue}
+                                            onRemove={handleInformationPageRemove}
+                                            index={i}
+                                            error={informationPagesError?.[page.pageNumber]}
+                                        />
+                                    </TabPanel>
+                                ))}
+                            </Tabs>
+                        )}
+                        {!(value.informationPages?.length) && (
+                            <div>
+                                No information pages at the moment
+                            </div>
+                        )}
+                    </Card>
+                </InputSection>
+                <InputSection
+                    heading="Scenarios"
+                    contentClassName={styles.scenarioContent}
+                >
                     <Card
                         title="Upload GeoJSON file"
                         contentClassName={styles.inputGroup}
@@ -539,13 +649,10 @@ function NewTutorial(props: Props) {
                             disabled={submissionPending}
                         />
                     </Card>
-                    <Card
-                        title="Describe Scenarios"
-                        contentClassName={styles.cardScenarios}
-                    >
+                    <Card title="Describe Scenarios">
                         <Tabs
-                            value={activeTab}
-                            onChange={setActiveTab}
+                            value={activeScenarioTab}
+                            onChange={setActiveScenarioTab}
                         >
                             {value.scenarioPages?.length ? (
                                 <div className={styles.tabContent}>
@@ -576,143 +683,10 @@ function NewTutorial(props: Props) {
                                     ))}
                                 </div>
                             ) : (
-                                <div>No Scenarios</div>
+                                <div>No Scenarios at the moment</div>
                             )}
                         </Tabs>
                     </Card>
-                    <Card
-                        title="Describe information pages"
-                        contentClassName={styles.card}
-                    >
-                        <PopupButton
-                            persistent={false}
-                            name={undefined}
-                            componentRef={popupElementRef}
-                            label="Add Instruction"
-                            className={styles.addButton}
-                            popupContentClassName={styles.instructionPopup}
-                        >
-                            <Button
-                                variant="transparent"
-                                name="1-picture"
-                                onClick={handleAddInformationPages}
-                            >
-                                1 Picture
-                            </Button>
-                            <Button
-                                variant="transparent"
-                                name="2-picture"
-                                onClick={handleAddInformationPages}
-                            >
-                                2 Picture
-                            </Button>
-                            <Button
-                                variant="transparent"
-                                name="3-picture"
-                                onClick={handleAddInformationPages}
-                            >
-                                3 Picture
-                            </Button>
-                        </PopupButton>
-                        {informationPagesError && <p>{informationPagesError?.[nonFieldError]}</p>}
-                        {value.informationPages?.length ? (
-                            <Tabs
-                                value={activeInformationPages}
-                                onChange={setActiveInformationPages}
-                            >
-                                <TabList>
-                                    {value.informationPages.map((info) => (
-                                        <Tab
-                                            key={info.pageNumber}
-                                            name={String(info.pageNumber)}
-                                        >
-                                            {`Intro ${info.pageNumber}`}
-                                        </Tab>
-                                    ))}
-                                </TabList>
-                                {value.informationPages?.map((page, i) => (
-                                    <TabPanel
-                                        key={page.pageNumber}
-                                        name={String(page.pageNumber)}
-                                    >
-                                        <InformationPageInput
-                                            key={page.pageNumber}
-                                            value={page}
-                                            onChange={onInformationPagesAdd}
-                                            onRemove={onInformationPagesRemove}
-                                            index={i}
-                                            error={informationPagesError?.[page.pageNumber]}
-                                        />
-                                    </TabPanel>
-                                ))}
-                            </Tabs>
-                        ) : (
-                            <div>Add Page</div>
-                        )}
-                    </Card>
-                    {value.projectType === PROJECT_TYPE_FOOTPRINT && (
-                        <Card
-                            title="Define Options"
-                            contentClassName={styles.card}
-                        >
-                            <Heading level={4}>
-                                Option Instructions
-                            </Heading>
-                            <Button
-                                name="add_instruction"
-                                className={styles.addButton}
-                                icons={<MdAdd />}
-                                onClick={handleAddDefineOptions}
-                                disabled={
-                                    value.customOptions
-                                    && value.customOptions?.length >= 6
-                                }
-                            >
-                                Add instruction
-                            </Button>
-                            {optionsError && <p>{optionsError?.[nonFieldError]}</p>}
-                            {value.customOptions?.length ? (
-                                <Tabs
-                                    value={activeOptionsTab}
-                                    onChange={setActiveOptionsTab}
-                                >
-                                    <TabList>
-                                        {value.customOptions.map((opt) => (
-                                            <Tab
-                                                key={opt.optionId}
-                                                name={`${opt.optionId}`}
-                                            >
-                                                {`Option ${opt.optionId}`}
-                                            </Tab>
-                                        ))}
-                                    </TabList>
-                                    <div className={styles.optionContent}>
-                                        {value.customOptions.map((options, index) => (
-                                            <TabPanel
-                                                key={options.optionId}
-                                                name={String(options.optionId)}
-                                                className={styles.optionTabPanel}
-                                            >
-                                                <CustomOptionInput
-                                                    key={options.optionId}
-                                                    value={options}
-                                                    index={index}
-                                                    onChange={onOptionAdd}
-                                                    onRemove={onOptionRemove}
-                                                    error={optionsError?.[options.optionId]}
-                                                />
-                                            </TabPanel>
-                                        ))}
-                                        <CustomOptionPreview
-                                            value={value.customOptions}
-                                        />
-                                    </div>
-                                </Tabs>
-                            ) : (
-                                <div>Add options</div>
-                            )}
-                        </Card>
-                    )}
                 </InputSection>
                 {
                     (value?.projectType === PROJECT_TYPE_BUILD_AREA

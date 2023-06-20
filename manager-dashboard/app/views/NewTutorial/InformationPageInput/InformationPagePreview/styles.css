@@ -1,23 +1,15 @@
 .information-preview {
     display: flex;
-    align-items: center;
     flex-direction: column;
-    flex-grow: 1;
+    gap: var(--spacing-large);
+    background-color: var(--color-primary);
+    padding: var(--spacing-large);
+    width: var(--width-mobile-preview);
+    height: var(--height-mobile-preview);
+    overflow: auto;
+    color: var(--color-text-on-dark);
 
-    .preview-screen {
-        display: flex;
-        flex-direction: column;
-        background-color: var(--color-primary);
-        width: 20rem;
-        height: 30rem;
-        overflow: auto;
-
-        .preview-content {
-            display: flex;
-            flex-direction: column;
-            gap: var(--spacing-medium);
-            padding: var(--spacing-large);
-            color: #ffffff;
-        }
+    .image-preview {
+        height: 10rem;
     }
 }

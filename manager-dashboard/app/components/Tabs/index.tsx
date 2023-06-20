@@ -4,7 +4,7 @@ import RawButton, { Props as RawButtonProps } from '../RawButton';
 
 import styles from './styles.css';
 
-type TabKey = string;
+type TabKey = string | number;
 
 export interface TabContextProps {
     activeTab: TabKey | undefined;
@@ -12,7 +12,7 @@ export interface TabContextProps {
 }
 
 const TabContext = React.createContext<TabContextProps>({
-    activeTab: '',
+    activeTab: undefined,
     setActiveTab: () => {
         // eslint-disable-next-line no-console
         console.warn('setActiveTab called before it was initialized');
@@ -75,7 +75,7 @@ export function TabList(props: TabListProps) {
     );
 }
 
-export interface TabPanelProps extends React.HTMLProps<HTMLDivElement> {
+export interface TabPanelProps extends Omit<React.HTMLProps<HTMLDivElement>, 'name'> {
     name: TabKey;
     elementRef?: React.Ref<HTMLDivElement>;
     className?: string;
@@ -105,13 +105,13 @@ export function TabPanel(props: TabPanelProps) {
     );
 }
 
-export interface Props {
+export interface Props<VALUE> {
     children: React.ReactNode;
-    value: TabKey;
-    onChange: (key: TabKey) => void;
+    value: VALUE;
+    onChange: (key: VALUE) => void;
 }
 
-export function Tabs(props: Props) {
+export function Tabs<VALUE>(props: Props<VALUE>) {
     const {
         children,
         value,
@@ -121,7 +121,7 @@ export function Tabs(props: Props) {
     const contextValue = React.useMemo(() => ({
         // Note: following cast is required since we do not have any other method
         // to provide template in the context type
-        activeTab: value,
+        activeTab: value as TabKey,
         setActiveTab: onChange as (key: TabKey | undefined) => void,
     }), [value, onChange]);
 
