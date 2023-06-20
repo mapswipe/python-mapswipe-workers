@@ -414,9 +414,7 @@ def create_project_stats_dict(project_id, project_stats_by_date_df):
     }
 
 
-def get_statistics_for_geometry_result_project(
-    project_id: str, project_info: pd.Series
-):
+def get_statistics_for_geometry_result_project(project_id: str):
     # set filenames
     temp_results_filename = f"{DATA_PATH}/api/results/results_{project_id}_temp.csv.gz"
     results_filename = f"{DATA_PATH}/api/results/results_{project_id}.csv.gz"
