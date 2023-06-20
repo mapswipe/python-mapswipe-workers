@@ -183,8 +183,6 @@ function NewTutorial(props: Props) {
             return undefined;
         }
 
-        console.info(activeScenarioTab, typeof activeScenarioTab, geojson);
-
         return {
             ...geojson,
             features: geojson.features.filter(

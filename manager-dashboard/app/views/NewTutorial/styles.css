@@ -13,10 +13,6 @@
         max-width: 70rem;
         gap: var(--spacing-extra-large);
 
-        .instruction-card {
-            display: flex;
-        }
-
         .card {
             display: flex;
             flex-direction: column;
@@ -62,6 +58,12 @@
 
         .scenario-content {
             gap: var(--spacing-small);
+
+            .tab-content {
+                display: flex;
+                flex-direction: column;
+                gap: var(--spacing-large);
+            }
         }
     }
 

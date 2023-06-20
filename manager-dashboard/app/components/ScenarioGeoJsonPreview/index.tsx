@@ -24,7 +24,6 @@ function ScenarioGeoJsonPreview(props: Props) {
     } = props;
 
     const Comp = previewPopUp?.icon ? iconMap[previewPopUp.icon] : undefined;
-    console.info(geoJson);
 
     return (
         <div className={_cs(styles.geoJsonPreview, className)}>
