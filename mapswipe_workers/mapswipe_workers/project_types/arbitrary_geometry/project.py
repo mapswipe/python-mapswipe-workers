@@ -239,5 +239,5 @@ class ArbitraryGeometryProject(BaseProject):
     @staticmethod
     @abstractmethod
     def get_per_project_statistics(project_id, project_info):
-        """How to aggregate the project results from its results."""
+        """How to aggregate the project results."""
         pass

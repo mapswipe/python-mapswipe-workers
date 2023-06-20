@@ -52,5 +52,5 @@ class DigitizationProject(ArbitraryGeometryProject):
 
     @staticmethod
     def get_per_project_statistics(project_id, project_info):
-        """How to aggregate the project results from its results."""
+        """How to aggregate the project results."""
         get_statistics_for_geometry_result_project(project_id, project_info)
