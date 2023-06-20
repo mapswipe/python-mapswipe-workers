@@ -9,7 +9,6 @@ import {
     ArraySchema,
     addCondition,
 } from '@togglecorp/toggle-form';
-import { isDefined, isNotDefined } from '@togglecorp/fujs';
 import {
     TileServer,
     tileServerFieldsSchema,
@@ -304,18 +303,7 @@ export const tutorialFormSchema: TutorialFormSchema = {
                 }),
             },
             // FIXME: we do not send this anymore
-            tutorialTasks: {
-                required: true,
-                validation: (tutorial) => {
-                    const isScreen = tutorial?.features.find(
-                        (screen) => isNotDefined(screen.properties.screen),
-                    );
-                    if (isDefined(isScreen?.properties.screen)) {
-                        return 'There are no screen in this Geojson';
-                    }
-                    return undefined;
-                },
-            },
+            tutorialTasks: {},
             exampleImage1: {},
             exampleImage2: {},
         };

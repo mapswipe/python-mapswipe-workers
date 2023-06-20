@@ -482,9 +482,6 @@ function NewTutorial(props: Props) {
         [setFieldValue],
     );
 
-    console.log('error', error?.tutorialTasks);
-    console.log('value', value?.tutorialTasks);
-
     return (
         <div className={_cs(styles.newTutorial, className)}>
             <div className={styles.container}>
