@@ -234,6 +234,7 @@ class ArbitraryGeometryProject(BaseProject):
     @staticmethod
     @abstractmethod
     def results_to_postgres(results_file, project_id, filter_mode):
+        """How to move the result data from firebase to postgres."""
         pass
 
     @staticmethod

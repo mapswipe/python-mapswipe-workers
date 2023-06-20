@@ -64,6 +64,7 @@ class FootprintProject(ArbitraryGeometryProject):
 
     @staticmethod
     def results_to_postgres(results, project_id, filter_mode):
+        """How to move the result data from firebase to postgres."""
         results_file, user_group_results_file = results_to_file(results, project_id)
         truncate_temp_results()
         save_results_to_postgres(results_file, project_id, filter_mode)
@@ -71,6 +72,7 @@ class FootprintProject(ArbitraryGeometryProject):
 
     @staticmethod
     def get_per_project_statistics(project_id, project_info):
+        """How to aggregate the project results."""
         return get_statistics_for_integer_result_project(
             project_id, project_info, generate_hot_tm_geometries=False
         )

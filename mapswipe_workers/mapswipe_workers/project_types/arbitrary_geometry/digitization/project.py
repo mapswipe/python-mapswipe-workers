@@ -36,6 +36,7 @@ class DigitizationProject(ArbitraryGeometryProject):
 
     @staticmethod
     def results_to_postgres(results, project_id, filter_mode):
+        """How to move the result data from firebase to postgres."""
         results_file, user_group_results_file = results_to_file(
             results, project_id, result_type="geometry"
         )
@@ -53,4 +54,4 @@ class DigitizationProject(ArbitraryGeometryProject):
     @staticmethod
     def get_per_project_statistics(project_id, project_info):
         """How to aggregate the project results."""
-        get_statistics_for_geometry_result_project(project_id, project_info)
+        return get_statistics_for_geometry_result_project(project_id, project_info)

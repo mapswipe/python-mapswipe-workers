@@ -36,5 +36,6 @@ class ChangeDetectionProject(TileMapServiceBaseProject):
             self.tasks[group_id] = tasks
 
     def save_tasks_to_firebase(self, projectId: str, tasks: dict):
+        """How to move the result data from firebase to postgres."""
         firebase = Firebase()
         firebase.save_tasks_to_firebase(projectId, tasks, useCompression=False)
