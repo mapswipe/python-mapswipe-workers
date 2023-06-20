@@ -666,7 +666,7 @@ class BaseProject(ABC):
 
     @staticmethod
     @abstractmethod
-    def results_to_postgres(results_file, project_id, filter_mode):
+    def results_to_postgres(results: dict, project_id: str, filter_mode: bool):
         """How to move the result data from firebase to postgres."""
         pass
 
