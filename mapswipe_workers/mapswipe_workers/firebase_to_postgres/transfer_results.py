@@ -9,7 +9,6 @@ import psycopg2
 from mapswipe_workers import auth
 from mapswipe_workers.definitions import ProjectType, logger, sentry
 from mapswipe_workers.firebase_to_postgres import update_data
-from mapswipe_workers.project_types.base.project import BaseProject
 
 
 def transfer_results(project_id_list: List[str] = None) -> List[str]:
@@ -60,7 +59,7 @@ def transfer_results(project_id_list: List[str] = None) -> List[str]:
 
 
 def transfer_results_for_project(
-    project_id: str, results: dict, project: BaseProject, filter_mode: bool = False
+    project_id: str, results: dict, project, filter_mode: bool = False
 ) -> None:
     """Transfer the results for a specific project.
     Save results into an in-memory file.
