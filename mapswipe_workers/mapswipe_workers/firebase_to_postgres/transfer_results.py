@@ -1,6 +1,6 @@
 import csv
 import io
-from typing import List
+from typing import List, Tuple
 
 import dateutil.parser
 import geojson
@@ -9,9 +9,10 @@ import psycopg2
 from mapswipe_workers import auth
 from mapswipe_workers.definitions import ProjectType, logger, sentry
 from mapswipe_workers.firebase_to_postgres import update_data
+from mapswipe_workers.project_types.base.project import BaseProject
 
 
-def transfer_results(project_id_list=None):
+def transfer_results(project_id_list: List[str] = None) -> List[str]:
     """Transfer results for one project after the other.
     Will only trigger the transfer of results for projects
     that are defined in the postgres database.
@@ -59,8 +60,8 @@ def transfer_results(project_id_list=None):
 
 
 def transfer_results_for_project(
-    project_id, results, project, filter_mode: bool = False
-):
+    project_id: str, results: dict, project: BaseProject, filter_mode: bool = False
+) -> None:
     """Transfer the results for a specific project.
     Save results into an in-memory file.
     Copy the results to postgres.
@@ -158,7 +159,7 @@ def transfer_results_for_project(
         logger.info(f"{project_id}: Transferred results to postgres")
 
 
-def delete_results_from_firebase(project_id, results):
+def delete_results_from_firebase(project_id: str, results: dict) -> None:
     """Delete results from Firebase using update function.
     We use the update method of firebase instead of delete.
     Update allows to delete items at multiple locations at the same time
@@ -181,7 +182,13 @@ def delete_results_from_firebase(project_id, results):
     logger.info(f"removed results for project {project_id}")
 
 
-def results_complete(result_data, projectId, groupId, userId, required_attributes):
+def results_complete(
+    result_data: dict,
+    projectId: str,
+    groupId: str,
+    userId: str,
+    required_attributes: List[str],
+) -> bool:
     """check if all attributes are set"""
     complete = True
     for attribute in required_attributes:
@@ -204,7 +211,9 @@ def results_complete(result_data, projectId, groupId, userId, required_attribute
     return complete
 
 
-def results_to_file(results, projectId, result_type: str = "integer"):
+def results_to_file(
+    results: dict, projectId: str, result_type: str = "integer"
+) -> Tuple[io.StringIO, io.StringIO]:
     """
     Writes results to an in-memory file like object
     formatted as a csv using the buffer module (StringIO).
@@ -320,12 +329,12 @@ def results_to_file(results, projectId, result_type: str = "integer"):
 
 
 def save_results_to_postgres(
-    results_file,
-    project_id,
+    results_file: io.StringIO,
+    project_id: str,
     filter_mode: bool,
     result_temp_table: str = "results_temp",
     result_table: str = "mapping_sessions_results",
-):
+) -> None:
     """
     Saves results to a temporary table in postgres
     using the COPY Statement of Postgres
@@ -437,10 +446,10 @@ def save_results_to_postgres(
 
 
 def save_user_group_results_to_postgres(
-    user_group_results_file,
-    project_id,
+    user_group_results_file: io.StringIO,
+    project_id: str,
     filter_mode: bool,
-):
+) -> None:
     """
     Saves results to a temporary table in postgres
     using the COPY Statement of Postgres
@@ -512,23 +521,20 @@ def save_user_group_results_to_postgres(
     logger.info("copied user_groups_results into postgres.")
 
 
-def truncate_temp_results(temp_table: str = "results_temp"):
+def truncate_temp_results(temp_table: str = "results_temp") -> None:
     p_con = auth.postgresDB()
     query_truncate_temp_results = f"TRUNCATE {temp_table};"
     p_con.query(query_truncate_temp_results)
     del p_con
 
-    return
 
-
-def truncate_temp_user_groups_results():
+def truncate_temp_user_groups_results() -> None:
     p_con = auth.postgresDB()
     p_con.query("TRUNCATE results_user_groups_temp")
     del p_con
-    return
 
 
-def get_user_ids_from_results(results) -> List[str]:
+def get_user_ids_from_results(results: dict) -> List[str]:
     """
     Get all users based on the ids provided in the results
     """
@@ -551,7 +557,6 @@ def get_projects_from_postgres() -> dict:
         SELECT project_id, project_type from projects;
     """
     result = pg_db.retr_query(sql_query, None)
-    # todo: test query
     project_type_per_id = {}
     for _id, project_type in result:
         project_type_per_id[_id] = project_type
