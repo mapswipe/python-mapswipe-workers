@@ -73,11 +73,15 @@ UPDATE_PROJECT_GROUP_DATA = f"""
         G.group_id = GD.group_id;
 """
 
-TASK_GROUP_METADATA_QUERY = """
+TASK_GROUP_METADATA_QUERY = f"""
         SELECT
-            G.project_id,
+            P.project_id,
             G.group_id,
-            G.total_area as total_task_group_area,
+            CASE
+                -- Hide area for Footprint
+                WHEN P.project_type = {Project.Type.FOOTPRINT.value} THEN 0
+                ELSE G.total_area
+            ) as total_task_group_area,
             G.time_spent_max_allowed
         FROM groups G
             INNER JOIN used_task_groups UG USING (project_id, group_id)
@@ -106,9 +110,7 @@ UPDATE_USER_DATA_SQL = f"""
             FROM mapping_sessions MS
                 INNER JOIN projects P USING (project_id)
             WHERE
-                -- Skip for footprint type missions
-                P.project_type != {Project.Type.FOOTPRINT.value}
-                AND MS.start_time >= %(from_date)s
+                MS.start_time >= %(from_date)s
                 AND MS.start_time < %(until_date)s
             GROUP BY project_id, project_type, group_id -- To get unique
         ),
@@ -185,9 +187,7 @@ UPDATE_USER_GROUP_SQL = f"""
                 INNER JOIN mapping_sessions MS USING (mapping_session_id)
                 INNER JOIN projects P USING (project_id)
             WHERE
-                -- Skip for footprint type missions
-                P.project_type != {Project.Type.FOOTPRINT.value}
-                AND MS.start_time >= %(from_date)s
+                MS.start_time >= %(from_date)s
                 AND MS.start_time < %(until_date)s
             GROUP BY project_id, project_type, group_id -- To get unique
         ),
