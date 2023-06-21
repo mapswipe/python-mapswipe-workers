@@ -75,12 +75,14 @@ UPDATE_PROJECT_GROUP_DATA = f"""
 
 TASK_GROUP_METADATA_QUERY = f"""
         SELECT
-            P.project_id,
+            G.project_id,
             G.group_id,
-            CASE
-                -- Hide area for Footprint
-                WHEN P.project_type = {Project.Type.FOOTPRINT.value} THEN 0
-                ELSE G.total_area
+            (
+                CASE
+                    -- Hide area for Footprint
+                    WHEN P.project_type = {Project.Type.FOOTPRINT.value} THEN 0
+                    ELSE G.total_area
+                END
             ) as total_task_group_area,
             G.time_spent_max_allowed
         FROM groups G
