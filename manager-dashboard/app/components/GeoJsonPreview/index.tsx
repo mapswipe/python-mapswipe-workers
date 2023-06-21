@@ -12,12 +12,14 @@ import styles from './styles.css';
 interface Props {
     className?: string;
     geoJson: GeoJSON.GeoJSON | undefined;
+    url: string | undefined;
 }
 
 function GeoJsonPreview(props: Props) {
     const {
         className,
         geoJson,
+        url,
     } = props;
 
     const mapRef = React.useRef<Map>();
@@ -37,10 +39,10 @@ function GeoJsonPreview(props: Props) {
                 );
 
                 const layer = tileLayer(
-                    'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                    url || 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                     {
                         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-                        subdomains: ['a', 'b', 'c'],
+                        // subdomains: ['a', 'b', 'c'],
                     },
                 );
 
@@ -55,7 +57,7 @@ function GeoJsonPreview(props: Props) {
                 }
             };
         },
-        [],
+        [url],
     );
 
     React.useEffect(

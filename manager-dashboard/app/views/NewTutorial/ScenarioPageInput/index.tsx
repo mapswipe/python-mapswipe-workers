@@ -62,6 +62,7 @@ interface Props {
     index: number,
     error: Error<PartialScenarioType> | undefined;
     geoJson: GeoJSON.GeoJSON | undefined;
+    url: string | undefined;
 }
 
 export default function ScenarioPageInput(props: Props) {
@@ -71,6 +72,7 @@ export default function ScenarioPageInput(props: Props) {
         index,
         error: riskyError,
         geoJson,
+        url,
     } = props;
 
     const [activeSegmentInput, setActiveInput] = React.useState<ScenarioSegmentType['value']>('instruction');
@@ -102,14 +104,14 @@ export default function ScenarioPageInput(props: Props) {
                 <div className={styles.scenarioForm}>
                     <div className={styles.scenarioFormContent}>
                         <TextInput
-                            name="title"
+                            name={'title' as const}
                             value={value.instruction?.title}
                             label="Title"
                             onChange={onInstructionFieldChange}
                             error={instructionsError?.title}
                         />
                         <TextInput
-                            name="description"
+                            name={'description' as const}
                             value={value.instruction?.description}
                             label="Description"
                             onChange={onInstructionFieldChange}
@@ -133,14 +135,14 @@ export default function ScenarioPageInput(props: Props) {
                 <div className={styles.scenarioForm}>
                     <div className={styles.scenarioFormContent}>
                         <TextInput
-                            name="title"
+                            name={'title' as const}
                             value={value.hint?.title}
                             label="Title"
                             onChange={onHintFieldChange}
                             error={hintError?.title}
                         />
                         <TextInput
-                            name="description"
+                            name={'description' as const}
                             value={value.hint?.description}
                             label="Description"
                             onChange={onHintFieldChange}
@@ -194,6 +196,7 @@ export default function ScenarioPageInput(props: Props) {
                 <ScenarioGeoJsonPreview
                     geoJson={geoJson}
                     previewPopUp={previewPopUpData}
+                    url={url}
                 />
                 <SegmentInput
                     name={undefined}

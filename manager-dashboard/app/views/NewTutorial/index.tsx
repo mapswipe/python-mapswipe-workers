@@ -4,6 +4,7 @@ import {
     isDefined,
     unique,
     getElementAround,
+    isNotDefined,
 } from '@togglecorp/fujs';
 import {
     useForm,
@@ -76,6 +77,7 @@ import {
     InformationPageTemplateKey,
     infoPageTemplateoptions,
     infoPageBlocksMap,
+    tileServerUrls,
 } from './utils';
 import CustomOptionInput from './CustomOptionInput';
 import ScenarioPageInput from './ScenarioPageInput';
@@ -273,6 +275,12 @@ function NewTutorial(props: Props) {
                     createdBy: userId,
                 };
 
+                if (uploadData) {
+                    console.log('upload', uploadData);
+                    setTutorialSubmissionStatus('failed');
+                    return;
+                }
+
                 const database = getDatabase();
                 const tutorialDraftsRef = databaseRef(database, 'v2/tutorialDrafts/');
                 const newTutorialDraftsRef = await pushToDatabase(tutorialDraftsRef);
@@ -457,6 +465,17 @@ function NewTutorial(props: Props) {
         [setFieldValue],
     );
 
+    const tileServerAUrl = React.useMemo(() => {
+        const tileServerName = value.tileServer?.name;
+        if (isNotDefined(tileServerName)) {
+            return undefined;
+        }
+        if (tileServerName === 'custom') {
+            return value.tileServer?.url;
+        }
+        return tileServerUrls[tileServerName];
+    }, [value.tileServer?.name, value.tileServer?.url]);
+
     return (
         <div className={_cs(styles.newTutorial, className)}>
             <div className={styles.container}>
@@ -502,6 +521,30 @@ function NewTutorial(props: Props) {
                         </div>
                     </Card>
                 </InputSection>
+                <InputSection
+                    heading={tileServerBVisible ? 'Tile Server A' : 'Tile Server'}
+                >
+                    <TileServerInput
+                        name={'tileServer' as const}
+                        value={value?.tileServer}
+                        error={error?.tileServer}
+                        onChange={setFieldValue}
+                        disabled={submissionPending}
+                    />
+                </InputSection>
+                {tileServerBVisible && (
+                    <InputSection
+                        heading="Tile Server B"
+                    >
+                        <TileServerInput
+                            name={'tileServerB' as const}
+                            value={value?.tileServerB}
+                            error={error?.tileServerB}
+                            onChange={setFieldValue}
+                            disabled={submissionPending}
+                        />
+                    </InputSection>
+                )}
                 {value.projectType === PROJECT_TYPE_FOOTPRINT && (
                     <InputSection
                         heading="Define Options"
@@ -676,6 +719,7 @@ function NewTutorial(props: Props) {
                                                 onChange={onScenarioFormChange}
                                                 error={scenarioError?.[task.scenarioId]}
                                                 geoJson={previewGeoJson}
+                                                url={tileServerAUrl}
                                             />
                                         </TabPanel>
                                     ))}
@@ -706,30 +750,6 @@ function NewTutorial(props: Props) {
                         </InputSection>
                     )
                 }
-                <InputSection
-                    heading={tileServerBVisible ? 'Tile Server A' : 'Tile Server'}
-                >
-                    <TileServerInput
-                        name={'tileServer' as const}
-                        value={value?.tileServer}
-                        error={error?.tileServer}
-                        onChange={setFieldValue}
-                        disabled={submissionPending}
-                    />
-                </InputSection>
-                {tileServerBVisible && (
-                    <InputSection
-                        heading="Tile Server B"
-                    >
-                        <TileServerInput
-                            name={'tileServerB' as const}
-                            value={value?.tileServerB}
-                            error={error?.tileServerB}
-                            onChange={setFieldValue}
-                            disabled={submissionPending}
-                        />
-                    </InputSection>
-                )}
                 {hasErrors && (
                     <div className={styles.errorMessage}>
                         Please correct all the errors above before submission!

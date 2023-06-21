@@ -11,6 +11,7 @@ import {
 } from '@togglecorp/toggle-form';
 import {
     TileServer,
+    TileServerType,
     tileServerFieldsSchema,
 } from '#components/TileServerInput';
 
@@ -23,6 +24,11 @@ import {
     PROJECT_TYPE_FOOTPRINT,
     IconKey,
 } from '#utils/common';
+
+const BING_KEY = process.env.REACT_IMAGE_BING_API_KEY;
+const MAPBOX_KEY = process.env.REACT_IMAGE_MAPBOX_API_KEY;
+const MAXAR_PREMIUM = process.env.REACT_IMAGE_MAXAR_PREMIUM_API_KEY;
+const MAXAR_STANDARD = process.env.REACT_IMAGE_MAXAR_STANDARD_API_KEY;
 
 export type ColorKey = 'red'
 | 'pink'
@@ -134,6 +140,23 @@ export const iconColorOptions: ColorOptions[] = [
         color: colorKeyToColorMap.gray,
     },
 ];
+
+export const tileServerUrls: {
+    [key in Exclude<TileServerType, 'custom'>]: string;
+} = {
+    bing:
+        `https://ecn.t0.tiles.virtualearth.net/tiles/a{quad_key}.jpeg?g=1&token=${BING_KEY}`,
+    mapbox:
+        `https://d.tiles.mapbox.com/v4/mapbox.satellite/{z}/{x}/{y}.jpg?access_token=${MAPBOX_KEY}`,
+    maxar_premium:
+        `https://services.digitalglobe.com/earthservice/tmsaccess/tms/1.0.0/DigitalGlobe%3AImageryTileService@EPSG%3A3857@jpg/{z}/{x}/{y}.jpg?connectId=${MAXAR_PREMIUM}`,
+    maxar_standard:
+        `https://services.digitalglobe.com/earthservice/tmsaccess/tms/1.0.0/DigitalGlobe%3AImageryTileService@EPSG%3A3857@jpg/{z}/{x}/{y}.jpg?connectId=${MAXAR_STANDARD}`,
+    esri:
+        'https://services.arcgisonline.com/arcgis/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+    esri_beta:
+        'https://clarity.maptiles.arcgis.com/arcgis/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+};
 
 export type InformationPageTemplateKey = '1-picture' | '2-picture' | '3-picture';
 export interface InformationPageOption {

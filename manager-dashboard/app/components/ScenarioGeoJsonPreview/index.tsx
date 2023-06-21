@@ -14,6 +14,7 @@ interface Props {
         description?: string;
         icon?: IconKey;
     }
+    url: string | undefined;
 }
 
 function ScenarioGeoJsonPreview(props: Props) {
@@ -21,6 +22,7 @@ function ScenarioGeoJsonPreview(props: Props) {
         className,
         geoJson,
         previewPopUp,
+        url,
     } = props;
 
     const Comp = previewPopUp?.icon ? iconMap[previewPopUp.icon] : undefined;
@@ -45,6 +47,7 @@ function ScenarioGeoJsonPreview(props: Props) {
             <GeoJsonPreview
                 className={styles.mapContainer}
                 geoJson={geoJson}
+                url={url}
             />
         </div>
     );
