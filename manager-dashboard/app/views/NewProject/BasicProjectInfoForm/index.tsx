@@ -22,7 +22,7 @@ import CustomOptionReadOnly from './CustomOptionReadOnly';
 
 export interface Props<T extends PartialProjectFormType> {
     className?: string;
-    submissionPending: boolean;
+    disabled: boolean;
     value: T;
     setValue: (value: SetBaseValueArg<T>, doNotReset?: boolean) => void;
     setFieldValue: (...entries: EntriesAsList<T>) => void;
@@ -31,7 +31,7 @@ export interface Props<T extends PartialProjectFormType> {
 
 function BasicProjectInfoForm(props: Props<PartialProjectFormType>) {
     const {
-        submissionPending,
+        disabled,
         value,
         setValue,
         setFieldValue,
@@ -99,7 +99,7 @@ function BasicProjectInfoForm(props: Props<PartialProjectFormType>) {
                     error={error?.projectTopic}
                     label="Project Topic"
                     hint="Enter the topic of your project (50 char max)."
-                    disabled={submissionPending}
+                    disabled={disabled}
                     autoFocus
                 />
                 <TextInput
@@ -109,7 +109,7 @@ function BasicProjectInfoForm(props: Props<PartialProjectFormType>) {
                     label="Project Region"
                     hint="Enter name of your project Region (50 chars max)"
                     error={error?.projectRegion}
-                    disabled={submissionPending}
+                    disabled={disabled}
                 />
             </div>
             <div className={styles.inputGroup}>
@@ -120,7 +120,7 @@ function BasicProjectInfoForm(props: Props<PartialProjectFormType>) {
                     label="Project Number"
                     hint="Is this project part of a bigger campaign with multiple projects?"
                     error={error?.projectNumber}
-                    disabled={submissionPending}
+                    disabled={disabled}
                 />
                 <SelectInput
                     name={'requestingOrganisation' as const}
@@ -130,7 +130,7 @@ function BasicProjectInfoForm(props: Props<PartialProjectFormType>) {
                     error={error?.requestingOrganisation}
                     label="Requesting Organisation"
                     hint="Which group, institution or community is requesting this project?"
-                    disabled={submissionPending || organisationsPending}
+                    disabled={disabled || organisationsPending}
                     keySelector={valueSelector}
                     labelSelector={labelSelector}
                 />
@@ -143,7 +143,7 @@ function BasicProjectInfoForm(props: Props<PartialProjectFormType>) {
                 readOnly
                 placeholder="[Project Topic] - [Project Region] ([Task Number]) [Requesting Organisation]"
                 // error={error?.name}
-                disabled={submissionPending}
+                disabled={disabled}
             />
             <div className={styles.inputGroup}>
                 <SelectInput
@@ -156,7 +156,7 @@ function BasicProjectInfoForm(props: Props<PartialProjectFormType>) {
                     label="Visibility"
                     hint="Choose either 'public' or select the team for which this project should be displayed"
                     error={error?.visibility}
-                    disabled={submissionPending || teamsPending}
+                    disabled={disabled || teamsPending}
                 />
                 <TextInput
                     name={'lookFor' as const}
@@ -165,7 +165,7 @@ function BasicProjectInfoForm(props: Props<PartialProjectFormType>) {
                     error={error?.lookFor}
                     label="Look For"
                     hint="What should the users look for (e.g. buildings, cars, trees)? (25 chars max)"
-                    disabled={submissionPending}
+                    disabled={disabled}
                 />
             </div>
             <TextArea
@@ -175,7 +175,7 @@ function BasicProjectInfoForm(props: Props<PartialProjectFormType>) {
                 error={error?.projectDetails}
                 label="Project Details"
                 hint="Enter the description for your project. (markdown syntax is supported)."
-                disabled={submissionPending}
+                disabled={disabled}
                 rows={4}
             />
             <div className={styles.inputGroup}>
@@ -187,7 +187,7 @@ function BasicProjectInfoForm(props: Props<PartialProjectFormType>) {
                     hint="Make sure you have the rights to use the image. It should end with .jpg or .png."
                     showPreview
                     error={error?.projectImage}
-                    disabled={submissionPending}
+                    disabled={disabled}
                 />
                 <div className={styles.verticalInputGroup}>
                     <SelectInput
@@ -200,7 +200,7 @@ function BasicProjectInfoForm(props: Props<PartialProjectFormType>) {
                         error={error?.tutorialId}
                         keySelector={valueSelector}
                         labelSelector={labelSelector}
-                        disabled={submissionPending || tutorialsPending}
+                        disabled={disabled || tutorialsPending}
                         nonClearable
                     />
                     <NumberInput
@@ -210,7 +210,7 @@ function BasicProjectInfoForm(props: Props<PartialProjectFormType>) {
                         label="Verification Number"
                         hint="How many people do you want to see every tile before you consider it finished? (default is 3 - more is recommended for harder tasks, but this will also make project take longer)"
                         error={error?.verificationNumber}
-                        disabled={submissionPending}
+                        disabled={disabled}
                     />
                     <NumberInput
                         name={'groupSize' as const}
@@ -219,7 +219,7 @@ function BasicProjectInfoForm(props: Props<PartialProjectFormType>) {
                         label="Group Size"
                         hint="How big should a mapping session be? Group size refers to the number of tasks per mapping session."
                         error={error?.groupSize}
-                        disabled={submissionPending}
+                        disabled={disabled}
                     />
                 </div>
             </div>

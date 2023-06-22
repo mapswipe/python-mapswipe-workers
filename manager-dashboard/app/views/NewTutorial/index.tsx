@@ -131,7 +131,8 @@ const defaultCustomOptions: PartialTutorialFormType['customOptions'] = [
 ];
 
 const defaultTutorialFormValue: PartialTutorialFormType = {
-    projectType: PROJECT_TYPE_BUILD_AREA,
+    // projectType: PROJECT_TYPE_BUILD_AREA,
+    projectType: undefined,
     zoomLevel: 18,
     tileServer: {
         name: TILE_SERVER_BING,
@@ -347,14 +348,14 @@ function NewTutorial(props: Props) {
 
     const handleOptionRemove = React.useCallback(
         (index: number) => {
-            const nextOption = getElementAround(value?.customOptions ?? [], index);
+            const nextOption = getElementAround(value.customOptions ?? [], index);
             onOptionRemove(index);
 
             if (nextOption) {
                 setActiveOptionsTab(nextOption.optionId);
             }
         },
-        [onOptionRemove, value?.customOptions],
+        [onOptionRemove, value.customOptions],
     );
 
     const {
@@ -367,14 +368,14 @@ function NewTutorial(props: Props) {
 
     const handleInformationPageRemove = React.useCallback(
         (index: number) => {
-            const nextInfoPage = getElementAround(value?.informationPages ?? [], index);
+            const nextInfoPage = getElementAround(value.informationPages ?? [], index);
             onInformationPageRemove(index);
 
             if (nextInfoPage) {
                 setActiveInformationPage(nextInfoPage.pageNumber);
             }
         },
-        [onInformationPageRemove, value?.informationPages],
+        [onInformationPageRemove, value.informationPages],
     );
 
     const handleAddDefineOptions = React.useCallback(
@@ -415,8 +416,8 @@ function NewTutorial(props: Props) {
         || tutorialSubmissionStatus === 'tutorialSubmit'
     );
 
-    const tileServerBVisible = value?.projectType === PROJECT_TYPE_CHANGE_DETECTION
-        || value?.projectType === PROJECT_TYPE_COMPLETENESS;
+    const tileServerBVisible = value.projectType === PROJECT_TYPE_CHANGE_DETECTION
+        || value.projectType === PROJECT_TYPE_COMPLETENESS;
 
     const handleGeoJsonFile = React.useCallback((
         geoProps: GeoJSON.GeoJSON | undefined,
@@ -494,7 +495,7 @@ function NewTutorial(props: Props) {
     }, [value.tileServerB?.name, value.tileServerB?.url]);
 
     const customOptionsPreview: CustomOptionPreviewType[] | undefined = React.useMemo(() => {
-        const customOptions = value?.customOptions;
+        const customOptions = value.customOptions;
         if (isNotDefined(customOptions)) {
             return undefined;
         }
@@ -508,6 +509,8 @@ function NewTutorial(props: Props) {
         return finalValue;
     }, [value.customOptions]);
 
+    const projectTypeEmpty = isNotDefined(value.projectType);
+
     return (
         <div className={_cs(styles.newTutorial, className)}>
             <Heading level={1}>
@@ -520,7 +523,7 @@ function NewTutorial(props: Props) {
                     <SegmentInput
                         name={'projectType' as const}
                         onChange={setFieldValue}
-                        value={value?.projectType}
+                        value={value.projectType}
                         label="Project Type"
                         hint="Select the type of your project."
                         options={projectTypeOptions}
@@ -532,21 +535,21 @@ function NewTutorial(props: Props) {
                     <div className={styles.inputGroup}>
                         <TextInput
                             name={'name' as const}
-                            value={value?.name}
+                            value={value.name}
                             onChange={setFieldValue}
                             label="Name of the Tutorial"
                             hint="Provide a clear name for your tutorial. You can select tutorials based on their name later during the project creation."
                             error={error?.name}
-                            disabled={submissionPending}
+                            disabled={submissionPending || projectTypeEmpty}
                         />
                         <TextInput
                             name={'lookFor' as const}
-                            value={value?.lookFor}
+                            value={value.lookFor}
                             onChange={setFieldValue}
                             label="Look For"
                             hint="What should the users look for (e.g. buildings, cars, trees)? (25 chars max)."
                             error={error?.lookFor}
-                            disabled={submissionPending}
+                            disabled={submissionPending || projectTypeEmpty}
                             autoFocus
                         />
                     </div>
@@ -560,6 +563,7 @@ function NewTutorial(props: Props) {
                             icons={<MdAdd />}
                             label="New Information Page"
                             popupContentClassName={styles.newInfoButtonPopup}
+                            disabled={submissionPending || projectTypeEmpty}
                         >
                             {infoPageTemplateoptions.map((infoPageTemplate) => (
                                 <Button
@@ -568,6 +572,7 @@ function NewTutorial(props: Props) {
                                     key={infoPageTemplate.key}
                                     onClick={handleAddInformationPage}
                                     variant="transparent"
+                                    disabled={submissionPending || projectTypeEmpty}
                                 >
                                     {infoPageTemplate.label}
                                 </Button>
@@ -654,10 +659,10 @@ function NewTutorial(props: Props) {
                 >
                     <TileServerInput
                         name={'tileServer' as const}
-                        value={value?.tileServer}
+                        value={value.tileServer}
                         error={error?.tileServer}
                         onChange={setFieldValue}
-                        disabled={submissionPending}
+                        disabled={submissionPending || projectTypeEmpty}
                     />
                 </InputSection>
                 {tileServerBVisible && (
@@ -666,29 +671,29 @@ function NewTutorial(props: Props) {
                     >
                         <TileServerInput
                             name={'tileServerB' as const}
-                            value={value?.tileServerB}
+                            value={value.tileServerB}
                             error={error?.tileServerB}
                             onChange={setFieldValue}
-                            disabled={submissionPending}
+                            disabled={submissionPending || projectTypeEmpty}
                         />
                     </InputSection>
                 )}
                 {
-                    (value?.projectType === PROJECT_TYPE_BUILD_AREA
-                        || value?.projectType === PROJECT_TYPE_CHANGE_DETECTION
-                        || value?.projectType === PROJECT_TYPE_COMPLETENESS)
+                    (value.projectType === PROJECT_TYPE_BUILD_AREA
+                        || value.projectType === PROJECT_TYPE_CHANGE_DETECTION
+                        || value.projectType === PROJECT_TYPE_COMPLETENESS)
                     && (
                         <InputSection
                             heading="Zoom Level"
                         >
                             <NumberInput
                                 name={'zoomLevel' as const}
-                                value={value?.zoomLevel}
+                                value={value.zoomLevel}
                                 onChange={setFieldValue}
                                 label="Zoom Level"
                                 hint="We use the Tile Map Service zoom levels. Please check for your area which zoom level is available. For example, Bing imagery is available at zoomlevel 18 for most regions. If you use a custom tile server you may be able to use even higher zoom levels."
                                 error={error?.zoomLevel}
-                                disabled={submissionPending}
+                                disabled={submissionPending || projectTypeEmpty}
                             />
                         </InputSection>
                     )
@@ -699,11 +704,11 @@ function NewTutorial(props: Props) {
                 >
                     <GeoJsonFileInput
                         name={'tutorialTasks' as const}
-                        value={value?.tutorialTasks}
+                        value={value.tutorialTasks}
                         onChange={handleGeoJsonFile}
                         hint="It should end with .geojson or .geo.json"
                         error={error?.tutorialTasks}
-                        disabled={submissionPending}
+                        disabled={submissionPending || projectTypeEmpty}
                     />
                     <div title="Describe Scenarios">
                         <Heading>
@@ -747,7 +752,7 @@ function NewTutorial(props: Props) {
                     <Button
                         name={undefined}
                         onClick={handleSubmitButtonClick}
-                        disabled={submissionPending}
+                        disabled={submissionPending || projectTypeEmpty}
                     >
                         Submit
                     </Button>

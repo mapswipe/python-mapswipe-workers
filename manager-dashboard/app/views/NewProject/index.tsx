@@ -2,6 +2,7 @@ import React from 'react';
 import {
     _cs,
     isDefined,
+    isNotDefined,
 } from '@togglecorp/fujs';
 import {
     useForm,
@@ -76,12 +77,12 @@ import styles from './styles.css';
 import projectTypeOptions from '#base/configs/projectTypes';
 
 const defaultProjectFormValue: PartialProjectFormType = {
-    projectType: PROJECT_TYPE_BUILD_AREA,
+    // projectType: PROJECT_TYPE_BUILD_AREA,
     projectNumber: 1,
     visibility: 'public',
     verificationNumber: 3,
     zoomLevel: 18,
-    groupSize: getGroupSize(PROJECT_TYPE_BUILD_AREA),
+    // groupSize: getGroupSize(PROJECT_TYPE_BUILD_AREA),
     tileServer: {
         name: TILE_SERVER_BING,
         credits: tileServerDefaultCredits[TILE_SERVER_BING],
@@ -378,8 +379,10 @@ function NewProject(props: Props) {
         || projectSubmissionStatus === 'projectSubmit'
     );
 
-    const tileServerBVisible = value?.projectType === PROJECT_TYPE_CHANGE_DETECTION
-        || value?.projectType === PROJECT_TYPE_COMPLETENESS;
+    const tileServerBVisible = value.projectType === PROJECT_TYPE_CHANGE_DETECTION
+        || value.projectType === PROJECT_TYPE_COMPLETENESS;
+
+    const projectTypeEmpty = isNotDefined(value.projectType);
 
     return (
         <div className={_cs(styles.newProject, className)}>
@@ -390,7 +393,7 @@ function NewProject(props: Props) {
                     <SegmentInput
                         name={'projectType' as const}
                         onChange={handleProjectTypeChange}
-                        value={value?.projectType}
+                        value={value.projectType}
                         label="Project Type"
                         hint="Select the type of your project."
                         options={projectTypeOptions}
@@ -404,44 +407,44 @@ function NewProject(props: Props) {
                         setValue={setValue}
                         setFieldValue={setFieldValue}
                         error={error}
-                        submissionPending={submissionPending}
+                        disabled={submissionPending || projectTypeEmpty}
                     />
                 </InputSection>
-                {(value?.projectType === PROJECT_TYPE_BUILD_AREA
-                    || value?.projectType === PROJECT_TYPE_CHANGE_DETECTION
-                    || value?.projectType === PROJECT_TYPE_COMPLETENESS) && (
+                {(value.projectType === PROJECT_TYPE_BUILD_AREA
+                    || value.projectType === PROJECT_TYPE_CHANGE_DETECTION
+                    || value.projectType === PROJECT_TYPE_COMPLETENESS) && (
                     <InputSection
                         heading="Zoom Level"
                     >
                         <NumberInput
                             name={'zoomLevel' as const}
-                            value={value?.zoomLevel}
+                            value={value.zoomLevel}
                             onChange={setFieldValue}
                             label="Zoom Level"
                             hint="We use the Tile Map Service zoom levels. Please check for your area which zoom level is available. For example, Bing imagery is available at zoomlevel 18 for most regions. If you use a custom tile server you may be able to use even higher zoom levels."
                             error={error?.zoomLevel}
-                            disabled={submissionPending}
+                            disabled={submissionPending || projectTypeEmpty}
                         />
                     </InputSection>
                 )}
-                {(value?.projectType === PROJECT_TYPE_BUILD_AREA
-                    || value?.projectType === PROJECT_TYPE_CHANGE_DETECTION
-                    || value?.projectType === PROJECT_TYPE_COMPLETENESS) && (
+                {(value.projectType === PROJECT_TYPE_BUILD_AREA
+                    || value.projectType === PROJECT_TYPE_CHANGE_DETECTION
+                    || value.projectType === PROJECT_TYPE_COMPLETENESS) && (
                     <InputSection
                         heading="Project AOI Geometry"
                     >
                         <GeoJsonFileInput
                             name={'geometry' as const}
-                            value={value?.geometry as GeoJSON.GeoJSON | undefined}
+                            value={value.geometry as GeoJSON.GeoJSON | undefined}
                             onChange={setFieldValueAndClearTestMessage}
                             label="Project AOI Geometry"
                             hint="Upload your project area as GeoJSON File (max. 1MB). Make sure that you provide a single polygon geometry."
                             error={error?.geometry}
-                            disabled={submissionPending}
+                            disabled={submissionPending || projectTypeEmpty}
                         />
                     </InputSection>
                 )}
-                {value?.projectType === PROJECT_TYPE_FOOTPRINT && (
+                {value.projectType === PROJECT_TYPE_FOOTPRINT && (
                     <InputSection
                         heading="Project Tasks Geometry"
                     >
@@ -449,57 +452,57 @@ function NewProject(props: Props) {
                             label="Select an option for Project Task Geometry"
                             name={'inputType' as const}
                             onChange={handleInputTypeChange}
-                            value={value?.inputType}
+                            value={value.inputType}
                             options={projectInputTypeOptions}
                             keySelector={valueSelector}
                             labelSelector={labelSelector}
                             error={error?.inputType}
-                            disabled={submissionPending || testPending}
+                            disabled={submissionPending || projectTypeEmpty || testPending}
                         />
-                        {value?.inputType === PROJECT_INPUT_TYPE_LINK && (
+                        {value.inputType === PROJECT_INPUT_TYPE_LINK && (
                             <TextInput
                                 name={'geometry' as const}
-                                value={value?.geometry as string | undefined}
+                                value={value.geometry as string | undefined}
                                 label="Input Geometries File (Direct Link)"
                                 hint="Provide a direct link to a GeoJSON file containing your building footprint geometries."
                                 error={error?.geometry}
                                 onChange={setFieldValue}
-                                disabled={submissionPending || testPending}
+                                disabled={submissionPending || projectTypeEmpty || testPending}
                             />
                         )}
-                        {value?.inputType === PROJECT_INPUT_TYPE_UPLOAD && (
+                        {value.inputType === PROJECT_INPUT_TYPE_UPLOAD && (
                             <GeoJsonFileInput
                                 name={'geometry' as const}
-                                value={value?.geometry as GeoJSON.GeoJSON}
+                                value={value.geometry as GeoJSON.GeoJSON}
                                 onChange={setFieldValueAndClearTestMessage}
                                 label="GeoJSON File"
                                 hint="Upload your project area as GeoJSON File (max. 1MB). Make sure that you provide a maximum of 10 polygon geometries."
                                 error={error?.geometry}
-                                disabled={submissionPending || testPending}
+                                disabled={submissionPending || projectTypeEmpty || testPending}
                             />
                         )}
-                        {value?.inputType === PROJECT_INPUT_TYPE_TASKING_MANAGER_ID && (
+                        {value.inputType === PROJECT_INPUT_TYPE_TASKING_MANAGER_ID && (
                             <TextInput
                                 name={'TMId' as const}
                                 // NOTE: This is actually a string but
                                 // should only support numeric characters
                                 type="number"
                                 min="1"
-                                value={value?.TMId}
+                                value={value.TMId}
                                 onChange={setFieldValueAndClearTestMessage}
                                 label="HOT Tasking Manager ProjectID"
                                 hint="Provide the ID of a HOT Tasking Manager Project (only numbers, e.g. 6526)."
                                 error={error?.TMId}
-                                disabled={submissionPending || testPending}
+                                disabled={submissionPending || projectTypeEmpty || testPending}
                             />
                         )}
-                        {(value?.inputType === PROJECT_INPUT_TYPE_UPLOAD
-                            || value?.inputType === PROJECT_INPUT_TYPE_TASKING_MANAGER_ID
+                        {(value.inputType === PROJECT_INPUT_TYPE_UPLOAD
+                            || value.inputType === PROJECT_INPUT_TYPE_TASKING_MANAGER_ID
                         ) && (
                             <>
                                 <SegmentInput
                                     name={'filter' as const}
-                                    value={value?.filter}
+                                    value={value.filter}
                                     onChange={setFieldValueAndClearTestMessage}
                                     label="Ohsome Filter"
                                     hint="Please specify which objects should be included in your project."
@@ -507,16 +510,18 @@ function NewProject(props: Props) {
                                     error={error?.filter}
                                     keySelector={valueSelector}
                                     labelSelector={labelSelector}
-                                    disabled={submissionPending || testPending}
+                                    disabled={submissionPending || projectTypeEmpty || testPending}
                                 />
-                                {value?.filter === FILTER_OTHERS && (
+                                {value.filter === FILTER_OTHERS && (
                                     <TextInput
                                         name={'filterText' as const}
-                                        value={value?.filterText}
+                                        value={value.filterText}
                                         onChange={setFieldValueAndClearTestMessage}
                                         error={error?.filterText}
                                         label="Custom Filter"
-                                        disabled={submissionPending || testPending}
+                                        disabled={(
+                                            submissionPending || projectTypeEmpty || testPending
+                                        )}
                                         placeholder="amenities=* and geometry:polygon"
                                     />
                                 )}
@@ -533,7 +538,9 @@ function NewProject(props: Props) {
                                         className={styles.testButton}
                                         name={undefined}
                                         onClick={handleTestAoi}
-                                        disabled={submissionPending || testPending}
+                                        disabled={(
+                                            submissionPending || projectTypeEmpty || testPending
+                                        )}
                                     >
                                         {testPending ? 'Testing...' : 'Test'}
                                     </Button>
@@ -548,12 +555,12 @@ function NewProject(props: Props) {
                 >
                     <NumberInput
                         name={'maxTasksPerUser' as const}
-                        value={value?.maxTasksPerUser}
+                        value={value.maxTasksPerUser}
                         onChange={setFieldValue}
                         label="Max Tasks Per User"
                         hint="How many tasks each user is allowed to work on for this project. Empty indicates that no limit is set."
                         error={error?.maxTasksPerUser}
-                        disabled={submissionPending}
+                        disabled={submissionPending || projectTypeEmpty}
                     />
                 </InputSection>
 
@@ -562,10 +569,10 @@ function NewProject(props: Props) {
                 >
                     <TileServerInput
                         name={'tileServer' as const}
-                        value={value?.tileServer}
+                        value={value.tileServer}
                         error={error?.tileServer}
                         onChange={setFieldValue}
-                        disabled={submissionPending}
+                        disabled={submissionPending || projectTypeEmpty}
                     />
                 </InputSection>
 
@@ -575,10 +582,10 @@ function NewProject(props: Props) {
                     >
                         <TileServerInput
                             name={'tileServerB' as const}
-                            value={value?.tileServerB}
+                            value={value.tileServerB}
                             error={error?.tileServerB}
                             onChange={setFieldValue}
-                            disabled={submissionPending}
+                            disabled={submissionPending || projectTypeEmpty}
                         />
                     </InputSection>
                 )}
@@ -591,7 +598,7 @@ function NewProject(props: Props) {
                     <Button
                         name={undefined}
                         onClick={handleSubmitButtonClick}
-                        disabled={submissionPending}
+                        disabled={submissionPending || projectTypeEmpty}
                     >
                         Submit
                     </Button>
