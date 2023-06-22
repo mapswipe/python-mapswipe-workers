@@ -6,7 +6,6 @@ import {
 
     TileLayer,
     Coords,
-    Util,
 } from 'leaflet';
 import { _cs } from '@togglecorp/fujs';
 
@@ -34,14 +33,13 @@ const toQuadKey = (x: number, y: number, z: number) => {
 const BingTileLayer = TileLayer.extend({
     getTileUrl(coords: Coords) {
         const quadkey = toQuadKey(coords.x, coords.y, coords.z);
-        const subdomains = this.options.subdomains;
+        const { subdomains } = this.options;
 
         // eslint-disable-next-line no-underscore-dangle
         const url = this._url
             .replace('{subdomain}', subdomains[(coords.x + coords.y) % subdomains.length])
             .replace('{quad_key}', quadkey);
 
-        console.log(url);
         return url;
     },
     toQuadKey,

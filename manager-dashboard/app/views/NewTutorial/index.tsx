@@ -51,7 +51,7 @@ import {
     TabPanel,
 } from '#components/Tabs';
 import TileServerInput, {
-    TILE_SERVER_ESRI,
+    TILE_SERVER_BING,
     tileServerDefaultCredits,
 } from '#components/TileServerInput';
 import InputSection from '#components/InputSection';
@@ -73,10 +73,10 @@ import {
     tutorialFormSchema,
     TutorialFormType,
     PartialTutorialFormType,
+    PartialInformationPagesType,
     ScenarioPagesType,
     CustomOptionType,
     InformationPagesType,
-    PartialInformationPagesType,
     colorKeyToColorMap,
     InformationPageTemplateKey,
     infoPageTemplateoptions,
@@ -89,6 +89,22 @@ import CustomOptionInput from './CustomOptionInput';
 import ScenarioPageInput from './ScenarioPageInput';
 import InformationPageInput from './InformationPageInput';
 import styles from './styles.css';
+
+type CustomScreen = Omit<TutorialFormType['scenarioPages'][number], 'scenarioId'>;
+function sanitizeScreens(scenarioPages: TutorialFormType['scenarioPages']) {
+    const screens = scenarioPages.reduce<Record<string, CustomScreen>>(
+        (acc, currentValue) => {
+            const { scenarioId, ...other } = currentValue;
+            acc[scenarioId] = {
+                ...other,
+            };
+
+            return acc;
+        },
+        {},
+    );
+    return screens;
+}
 
 const defaultCustomOptions: PartialTutorialFormType['customOptions'] = [
     {
@@ -116,16 +132,17 @@ const defaultCustomOptions: PartialTutorialFormType['customOptions'] = [
         description: 'if you\'re not sure or there is cloud cover / bad imagery',
     },
 ];
+
 const defaultTutorialFormValue: PartialTutorialFormType = {
     projectType: PROJECT_TYPE_BUILD_AREA,
     zoomLevel: 18,
     tileServer: {
-        name: TILE_SERVER_ESRI,
-        credits: tileServerDefaultCredits[TILE_SERVER_ESRI],
+        name: TILE_SERVER_BING,
+        credits: tileServerDefaultCredits[TILE_SERVER_BING],
     },
     tileServerB: {
-        name: TILE_SERVER_ESRI,
-        credits: tileServerDefaultCredits[TILE_SERVER_ESRI],
+        name: TILE_SERVER_BING,
+        credits: tileServerDefaultCredits[TILE_SERVER_BING],
     },
     customOptions: defaultCustomOptions,
 };
@@ -223,21 +240,15 @@ function NewTutorial(props: Props) {
                 informationPages: informationPagesFromForm,
                 ...valuesToCopy
             } = finalValues;
-            type Screens = typeof finalValues.scenarioPages;
-            type Screen = Screens[number];
-            type CustomScreen = Omit<Screen, 'scenarioId'>;
 
-            const screens = scenarioPages.reduce(
-                (acc, currentValue) => {
-                    const { scenarioId, ...other } = currentValue;
-                    acc[scenarioId] = {
-                        ...other,
-                    };
+            const screens = sanitizeScreens(scenarioPages);
 
-                    return acc;
-                },
-                {} as Record<string, CustomScreen>,
-            );
+            try {
+                await navigator.clipboard.writeText(JSON.stringify(screens, null, 2));
+                alert('Tutorial JSON copied to clipboard.');
+            } catch (err) {
+                alert(`Tutorial JSON could not be copied ${err}`);
+            }
 
             const storage = getStorage();
             const timestamp = (new Date()).getTime();
