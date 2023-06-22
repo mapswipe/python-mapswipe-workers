@@ -131,7 +131,6 @@
 }
         
 .instruction-popup {
-    padding: var(--spacing-small);
     gap: var(--spacing-medium);
 }
 

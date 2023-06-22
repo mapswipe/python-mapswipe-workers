@@ -55,6 +55,9 @@ import TileServerInput, {
 } from '#components/TileServerInput';
 import InputSection from '#components/InputSection';
 import Button from '#components/Button';
+import NonFieldError from '#components/NonFieldError';
+import SelectInput from '#components/SelectInput';
+import EmptyMessage from '#components/EmptyMessage';
 import CustomOptionPreview from '#views/NewTutorial/CustomOptionInput/CustomOptionPreview';
 import {
     valueSelector,
@@ -83,8 +86,6 @@ import CustomOptionInput from './CustomOptionInput';
 import ScenarioPageInput from './ScenarioPageInput';
 import InformationPageInput from './InformationPageInput';
 import styles from './styles.css';
-import NonFieldError from '#components/NonFieldError';
-import SelectInput from '#components/SelectInput';
 
 const defaultCustomOptions: PartialTutorialFormType['customOptions'] = [
     {
@@ -274,12 +275,6 @@ function NewTutorial(props: Props) {
                     informationPages,
                     createdBy: userId,
                 };
-
-                if (uploadData) {
-                    console.log('upload', uploadData);
-                    setTutorialSubmissionStatus('failed');
-                    return;
-                }
 
                 const database = getDatabase();
                 const tutorialDraftsRef = databaseRef(database, 'v2/tutorialDrafts/');
@@ -476,6 +471,17 @@ function NewTutorial(props: Props) {
         return tileServerUrls[tileServerName];
     }, [value.tileServer?.name, value.tileServer?.url]);
 
+    const tileServerBUrl = React.useMemo(() => {
+        const tileServerName = value.tileServerB?.name;
+        if (isNotDefined(tileServerName)) {
+            return undefined;
+        }
+        if (tileServerName === 'custom') {
+            return value.tileServerB?.url;
+        }
+        return tileServerUrls[tileServerName];
+    }, [value.tileServerB?.name, value.tileServerB?.url]);
+
     return (
         <div className={_cs(styles.newTutorial, className)}>
             <div className={styles.container}>
@@ -521,30 +527,6 @@ function NewTutorial(props: Props) {
                         </div>
                     </Card>
                 </InputSection>
-                <InputSection
-                    heading={tileServerBVisible ? 'Tile Server A' : 'Tile Server'}
-                >
-                    <TileServerInput
-                        name={'tileServer' as const}
-                        value={value?.tileServer}
-                        error={error?.tileServer}
-                        onChange={setFieldValue}
-                        disabled={submissionPending}
-                    />
-                </InputSection>
-                {tileServerBVisible && (
-                    <InputSection
-                        heading="Tile Server B"
-                    >
-                        <TileServerInput
-                            name={'tileServerB' as const}
-                            value={value?.tileServerB}
-                            error={error?.tileServerB}
-                            onChange={setFieldValue}
-                            disabled={submissionPending}
-                        />
-                    </InputSection>
-                )}
                 {value.projectType === PROJECT_TYPE_FOOTPRINT && (
                     <InputSection
                         heading="Define Options"
@@ -667,12 +649,63 @@ function NewTutorial(props: Props) {
                             </Tabs>
                         )}
                         {!(value.informationPages?.length) && (
-                            <div>
-                                No information pages at the moment
-                            </div>
+                            <EmptyMessage
+                                title="Start adding Information pages"
+                                description="Add pages selecting templates from “Add page” dropdown"
+                            />
                         )}
                     </Card>
                 </InputSection>
+                <InputSection
+                    heading={tileServerBVisible ? 'Tile Server A' : 'Tile Server'}
+                >
+                    <Card contentClassName={styles.infoPageCardContent}>
+                        <TileServerInput
+                            name={'tileServer' as const}
+                            value={value?.tileServer}
+                            error={error?.tileServer}
+                            onChange={setFieldValue}
+                            disabled={submissionPending}
+                        />
+                    </Card>
+                </InputSection>
+                {tileServerBVisible && (
+                    <InputSection
+                        heading="Tile Server B"
+                    >
+                        <Card contentClassName={styles.infoPageCardContent}>
+                            <TileServerInput
+                                name={'tileServerB' as const}
+                                value={value?.tileServerB}
+                                error={error?.tileServerB}
+                                onChange={setFieldValue}
+                                disabled={submissionPending}
+                            />
+                        </Card>
+                    </InputSection>
+                )}
+                {
+                    (value?.projectType === PROJECT_TYPE_BUILD_AREA
+                        || value?.projectType === PROJECT_TYPE_CHANGE_DETECTION
+                        || value?.projectType === PROJECT_TYPE_COMPLETENESS)
+                    && (
+                        <InputSection
+                            heading="Zoom Level"
+                        >
+                            <Card>
+                                <NumberInput
+                                    name={'zoomLevel' as const}
+                                    value={value?.zoomLevel}
+                                    onChange={setFieldValue}
+                                    label="Zoom Level"
+                                    hint="We use the Tile Map Service zoom levels. Please check for your area which zoom level is available. For example, Bing imagery is available at zoomlevel 18 for most regions. If you use a custom tile server you may be able to use even higher zoom levels."
+                                    error={error?.zoomLevel}
+                                    disabled={submissionPending}
+                                />
+                            </Card>
+                        </InputSection>
+                    )
+                }
                 <InputSection
                     heading="Scenarios"
                     contentClassName={styles.scenarioContent}
@@ -720,36 +753,20 @@ function NewTutorial(props: Props) {
                                                 error={scenarioError?.[task.scenarioId]}
                                                 geoJson={previewGeoJson}
                                                 url={tileServerAUrl}
+                                                urlB={tileServerBUrl}
                                             />
                                         </TabPanel>
                                     ))}
                                 </div>
                             ) : (
-                                <div>No Scenarios at the moment</div>
+                                <EmptyMessage
+                                    title="Upload geojson file first"
+                                    description="This section will automatically show scenarios after uploading geojson file"
+                                />
                             )}
                         </Tabs>
                     </Card>
                 </InputSection>
-                {
-                    (value?.projectType === PROJECT_TYPE_BUILD_AREA
-                        || value?.projectType === PROJECT_TYPE_CHANGE_DETECTION
-                        || value?.projectType === PROJECT_TYPE_COMPLETENESS)
-                    && (
-                        <InputSection
-                            heading="Zoom Level"
-                        >
-                            <NumberInput
-                                name={'zoomLevel' as const}
-                                value={value?.zoomLevel}
-                                onChange={setFieldValue}
-                                label="Zoom Level"
-                                hint="We use the Tile Map Service zoom levels. Please check for your area which zoom level is available. For example, Bing imagery is available at zoomlevel 18 for most regions. If you use a custom tile server you may be able to use even higher zoom levels."
-                                error={error?.zoomLevel}
-                                disabled={submissionPending}
-                            />
-                        </InputSection>
-                    )
-                }
                 {hasErrors && (
                     <div className={styles.errorMessage}>
                         Please correct all the errors above before submission!

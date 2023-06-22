@@ -12,7 +12,8 @@ import styles from './styles.css';
 interface Props {
     className?: string;
     geoJson: GeoJSON.GeoJSON | undefined;
-    url: string | undefined;
+    url?: string | undefined;
+    urlB?: string | undefined;
 }
 
 function GeoJsonPreview(props: Props) {
@@ -20,6 +21,7 @@ function GeoJsonPreview(props: Props) {
         className,
         geoJson,
         url,
+        urlB,
     } = props;
 
     const mapRef = React.useRef<Map>();

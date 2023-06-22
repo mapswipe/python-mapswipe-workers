@@ -63,6 +63,7 @@ interface Props {
     error: Error<PartialScenarioType> | undefined;
     geoJson: GeoJSON.GeoJSON | undefined;
     url: string | undefined;
+    urlB: string | undefined;
 }
 
 export default function ScenarioPageInput(props: Props) {
@@ -73,6 +74,7 @@ export default function ScenarioPageInput(props: Props) {
         error: riskyError,
         geoJson,
         url,
+        urlB,
     } = props;
 
     const [activeSegmentInput, setActiveInput] = React.useState<ScenarioSegmentType['value']>('instruction');
@@ -192,11 +194,12 @@ export default function ScenarioPageInput(props: Props) {
                     />
                 </div>
             </div>
-            <div>
+            <div className={styles.scenarioPreview}>
                 <ScenarioGeoJsonPreview
                     geoJson={geoJson}
                     previewPopUp={previewPopUpData}
                     url={url}
+                    urlB={urlB}
                 />
                 <SegmentInput
                     name={undefined}
