@@ -1,6 +1,7 @@
 import React from 'react';
 import { _cs } from '@togglecorp/fujs';
 
+import MobilePreview from '#components/MobilePreview';
 import GeoJsonPreview from '#components/GeoJsonPreview';
 import { iconMap, IconKey } from '#utils/common';
 
@@ -30,32 +31,24 @@ export default function ChangeDetectionGeoJsonPreview(props: Props) {
     const Comp = previewPopUp?.icon ? iconMap[previewPopUp.icon] : undefined;
 
     return (
-        <div className={_cs(styles.previewScreen, className)}>
+        <MobilePreview
+            className={_cs(styles.changeDetectionGeoJsonPreview, className)}
+            heading="You are looking for: mobile homes"
+            popupIcons={Comp && <Comp />}
+            popupTitle={previewPopUp?.title ?? 'Title'}
+            popupDescription={previewPopUp?.description ?? 'Description'}
+            contentClassName={styles.content}
+        >
             <GeoJsonPreview
                 className={styles.mapPreview}
                 geoJson={geoJson}
                 url={url}
             />
-            <div className={styles.mapContent}>
-                <div className={styles.popUpContent}>
-                    <div className={styles.popUpTitle}>
-                        {previewPopUp?.title ?? 'Title'}
-                    </div>
-                    <div>
-                        {previewPopUp?.description ?? 'Description'}
-                    </div>
-                </div>
-                { Comp && (
-                    <div className={styles.popUpIcon}>
-                        <Comp />
-                    </div>
-                )}
-            </div>
             <GeoJsonPreview
                 className={styles.mapPreview}
                 geoJson={geoJson}
                 url={urlB}
             />
-        </div>
+        </MobilePreview>
     );
 }

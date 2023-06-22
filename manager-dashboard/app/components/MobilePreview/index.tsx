@@ -14,6 +14,7 @@ interface Props {
     popupTitle?: React.ReactNode;
     popupDescription?: React.ReactNode;
     popupIcons?: React.ReactNode;
+    contentClassName?: string;
 }
 
 function MobilePreview(props: Props) {
@@ -25,6 +26,7 @@ function MobilePreview(props: Props) {
         popupTitle,
         popupDescription,
         popupIcons,
+        contentClassName,
     } = props;
 
     return (
@@ -45,9 +47,9 @@ function MobilePreview(props: Props) {
                     </div>
                 )}
             </div>
-            <div className={styles.content}>
+            <div className={_cs(styles.content, contentClassName)}>
                 <div className={styles.popup}>
-                    <div>
+                    <div className={styles.details}>
                         <div className={styles.title}>
                             {popupTitle}
                         </div>

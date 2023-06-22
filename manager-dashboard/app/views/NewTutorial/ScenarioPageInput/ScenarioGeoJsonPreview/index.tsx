@@ -1,6 +1,7 @@
 import React from 'react';
 import { _cs } from '@togglecorp/fujs';
 
+import MobilePreview from '#components/MobilePreview';
 import GeoJsonPreview from '#components/GeoJsonPreview';
 import { iconMap, IconKey } from '#utils/common';
 
@@ -28,28 +29,20 @@ function ScenarioGeoJsonPreview(props: Props) {
     const Comp = previewPopUp?.icon ? iconMap[previewPopUp.icon] : undefined;
 
     return (
-        <div className={_cs(styles.geoJsonPreview, className)}>
-            <div className={styles.mapContent}>
-                <div className={styles.popUpContent}>
-                    <div className={styles.popUpTitle}>
-                        {previewPopUp?.title ?? 'Title'}
-                    </div>
-                    <div>
-                        {previewPopUp?.description ?? 'Description'}
-                    </div>
-                </div>
-                { Comp && (
-                    <div className={styles.popUpIcon}>
-                        <Comp />
-                    </div>
-                )}
-            </div>
+        <MobilePreview
+            className={_cs(styles.scenarioGeoJsonPreview, className)}
+            heading="You are looking for: mobile homes"
+            popupIcons={Comp && <Comp />}
+            popupTitle={previewPopUp?.title ?? 'Title'}
+            popupDescription={previewPopUp?.description ?? 'Description'}
+            contentClassName={styles.content}
+        >
             <GeoJsonPreview
                 className={styles.mapContainer}
                 geoJson={geoJson}
                 url={url}
             />
-        </div>
+        </MobilePreview>
     );
 }
 

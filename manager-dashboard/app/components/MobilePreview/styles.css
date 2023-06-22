@@ -31,13 +31,29 @@
 
     .content {
         position: relative;
+        z-index: 0;
         background-color: var(--color-primary);
 
         .popup {
+            display: flex;
             position: absolute;
             top: var(--spacing-medium);
+            left: var(--spacing-small);
+            z-index: 1;
+            border-radius: var(--radius-card-border);
             background-color: var(--color-foreground);
-            width: 100%;
+            padding: var(--spacing-small) var(--spacing-medium);
+            width: calc(100% - 2 * var(--spacing-small));
+            color: var(--color-text);
+
+            .details {
+                flex-grow: 1;
+            }
+
+            .icons {
+                flex-shrink: 0;
+                font-size: 2rem;
+            }
         }
     }
 }

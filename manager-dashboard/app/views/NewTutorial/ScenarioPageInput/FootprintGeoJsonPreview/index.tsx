@@ -9,7 +9,7 @@ import { IconKey, iconMap } from '#utils/common';
 import styles from './styles.css';
 
 interface Props {
-    // className?: string;
+    className?: string;
     geoJson: GeoJSON.GeoJSON | undefined;
     previewPopUp?: {
         title?: string;
@@ -21,7 +21,7 @@ interface Props {
 }
 export default function FootprintGeoJsonPreview(props: Props) {
     const {
-        // className,
+        className,
         geoJson,
         url,
         previewPopUp,
@@ -32,7 +32,7 @@ export default function FootprintGeoJsonPreview(props: Props) {
 
     return (
         <MobilePreview
-            className={styles.footprintGeoJsonPreview}
+            className={_cs(styles.footprintGeoJsonPreview, className)}
             heading="You are looking for: mobile homes"
             popupIcons={Comp && <Comp />}
             popupTitle={previewPopUp?.title ?? 'Title'}
