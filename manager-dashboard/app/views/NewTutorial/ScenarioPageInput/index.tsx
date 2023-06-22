@@ -12,12 +12,19 @@ import {
     valueSelector,
     labelSelector,
     IconKey,
+    ProjectType,
+    PROJECT_TYPE_BUILD_AREA,
+    PROJECT_TYPE_FOOTPRINT,
+    PROJECT_TYPE_CHANGE_DETECTION,
+    PROJECT_TYPE_COMPLETENESS,
 } from '#utils/common';
 import TextInput from '#components/TextInput';
 import Heading from '#components/Heading';
 import SelectInput from '#components/SelectInput';
-import ScenarioGeoJsonPreview from '#components/ScenarioGeoJsonPreview';
+import ScenarioGeoJsonPreview from './ScenarioGeoJsonPreview';
 import SegmentInput from '#components/SegmentInput';
+import FootprintGeoJsonPreview from './FootprintGeoJsonPreview';
+import ChangeDetectionGeoJsonPreview from './ChangeDetectionGeoJsonPreview';
 
 import styles from './styles.css';
 
@@ -62,6 +69,7 @@ interface Props {
     index: number,
     error: Error<PartialScenarioType> | undefined;
     geoJson: GeoJSON.GeoJSON | undefined;
+    projectType: ProjectType | undefined;
     url: string | undefined;
     urlB: string | undefined;
 }
@@ -74,6 +82,7 @@ export default function ScenarioPageInput(props: Props) {
         error: riskyError,
         geoJson,
         url,
+        projectType,
         urlB,
     } = props;
 
@@ -195,12 +204,27 @@ export default function ScenarioPageInput(props: Props) {
                 </div>
             </div>
             <div className={styles.scenarioPreview}>
-                <ScenarioGeoJsonPreview
-                    geoJson={geoJson}
-                    previewPopUp={previewPopUpData}
-                    url={url}
-                    urlB={urlB}
-                />
+                {projectType === PROJECT_TYPE_CHANGE_DETECTION && (
+                    <ChangeDetectionGeoJsonPreview
+                        geoJson={geoJson}
+                        previewPopUp={previewPopUpData}
+                        url={url}
+                        urlB={urlB}
+                    />
+                )}
+                {projectType === (PROJECT_TYPE_BUILD_AREA || PROJECT_TYPE_COMPLETENESS) && (
+                    <ScenarioGeoJsonPreview
+                        geoJson={geoJson}
+                        previewPopUp={previewPopUpData}
+                        url={url}
+                    />
+                )}
+                {projectType === PROJECT_TYPE_FOOTPRINT && (
+                    <FootprintGeoJsonPreview
+                        geoJson={geoJson}
+                        url={url}
+                    />
+                )}
                 <SegmentInput
                     name={undefined}
                     value={activeSegmentInput}

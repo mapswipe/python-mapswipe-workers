@@ -1,0 +1,51 @@
+.preview-screen {
+    display: flex;
+    position: relative;
+    align-items: center;
+    flex-direction: column;
+    gap: var(--spacing-medium);
+    flex-shrink: 0;
+    z-index: 0;
+    background-color: var(--color-primary);
+    width: var(--width-mobile-preview);
+    height: var(--height-mobile-preview);
+
+    .map-preview {
+        z-index: -1;
+        padding: var(--spacing-medium);
+        height: 80%;
+    }
+
+    .map-content {
+        display: flex;
+        position: absolute;
+        top: 3rem;
+        opacity: 0.95;
+        border-radius: 10px;
+        background-color: var(--color-foreground);
+        padding: var(--spacing-medium);
+        gap: var(--spacing-large);
+        width: 90%;
+
+        .pop-up-content {
+            display: flex;
+            flex-basis: 80%;
+            flex-direction: column;
+
+            .pop-up-title {
+                font-weight: var(--font-weight-bold);
+            }
+
+        }
+
+        .pop-up-icon {
+            display: flex;
+            align-items: center;
+            font-size: var(--font-size-super-large);
+        }
+    }
+
+    .footer-option {
+        display: flex;
+    }
+}

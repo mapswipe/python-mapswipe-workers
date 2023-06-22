@@ -29,7 +29,7 @@ export const TILE_SERVER_BING = 'bing';
 const TILE_SERVER_MAPBOX = 'mapbox';
 const TILE_SERVER_MAXAR_STANDARD = 'maxar_standard';
 const TILE_SERVER_MAXAR_PREMIUM = 'maxar_premium';
-const TILE_SERVER_ESRI = 'esri';
+export const TILE_SERVER_ESRI = 'esri';
 const TILE_SERVER_ESRI_BETA = 'esri_beta';
 const TILE_SERVER_CUSTOM = 'custom';
 
@@ -116,7 +116,7 @@ export function tileServerFieldsSchema(value: TileServerInputType | undefined): 
 
 type TileServerInputValue = TileServerInputType | undefined;
 const defaultValue: NonNullable<TileServerInputValue> = {
-    name: TILE_SERVER_BING,
+    name: TILE_SERVER_ESRI,
 };
 
 interface Props<Name extends string | number> {

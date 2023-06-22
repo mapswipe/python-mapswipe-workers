@@ -1,0 +1,42 @@
+.preview-screen {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    gap: var(--spacing-medium);
+    flex-shrink: 0;
+    background-color: var(--color-primary);
+    width: 100%;
+
+    .map-preview {
+        padding: var(--spacing-small);
+        width: 15rem;
+        height: 15rem;
+    }
+
+    .map-content {
+        display: flex;
+        opacity: 0.95;
+        border-radius: 10px;
+        background-color: var(--color-foreground);
+        padding: var(--spacing-medium);
+        gap: var(--spacing-large);
+        width: 90%;
+
+        .pop-up-content {
+            display: flex;
+            flex-basis: 80%;
+            flex-direction: column;
+
+            .pop-up-title {
+                font-weight: var(--font-weight-bold);
+            }
+
+        }
+
+        .pop-up-icon {
+            display: flex;
+            align-items: center;
+            font-size: var(--font-size-super-large);
+        }
+    }
+}

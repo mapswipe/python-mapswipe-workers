@@ -50,7 +50,7 @@ import {
     TabPanel,
 } from '#components/Tabs';
 import TileServerInput, {
-    TILE_SERVER_BING,
+    TILE_SERVER_ESRI,
     tileServerDefaultCredits,
 } from '#components/TileServerInput';
 import InputSection from '#components/InputSection';
@@ -117,12 +117,12 @@ const defaultTutorialFormValue: PartialTutorialFormType = {
     projectType: PROJECT_TYPE_BUILD_AREA,
     zoomLevel: 18,
     tileServer: {
-        name: TILE_SERVER_BING,
-        credits: tileServerDefaultCredits[TILE_SERVER_BING],
+        name: TILE_SERVER_ESRI,
+        credits: tileServerDefaultCredits[TILE_SERVER_ESRI],
     },
     tileServerB: {
-        name: TILE_SERVER_BING,
-        credits: tileServerDefaultCredits[TILE_SERVER_BING],
+        name: TILE_SERVER_ESRI,
+        credits: tileServerDefaultCredits[TILE_SERVER_ESRI],
     },
     customOptions: defaultCustomOptions,
 };
@@ -749,6 +749,7 @@ function NewTutorial(props: Props) {
                                                 key={task.scenarioId}
                                                 index={index}
                                                 value={task}
+                                                projectType={value.projectType}
                                                 onChange={onScenarioFormChange}
                                                 error={scenarioError?.[task.scenarioId]}
                                                 geoJson={previewGeoJson}

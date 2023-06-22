@@ -13,7 +13,6 @@ interface Props {
     className?: string;
     geoJson: GeoJSON.GeoJSON | undefined;
     url?: string | undefined;
-    urlB?: string | undefined;
 }
 
 function GeoJsonPreview(props: Props) {
@@ -21,7 +20,6 @@ function GeoJsonPreview(props: Props) {
         className,
         geoJson,
         url,
-        urlB,
     } = props;
 
     const mapRef = React.useRef<Map>();
@@ -49,12 +47,14 @@ function GeoJsonPreview(props: Props) {
                 );
 
                 layer.addTo(mapRef.current);
+                mapRef.current.zoomControl.remove();
                 mapRef.current.invalidateSize();
             }
 
             return () => {
                 if (mapRef.current) {
                     mapRef.current.remove();
+                    mapRef.current.zoomControl.remove();
                     mapRef.current = undefined;
                 }
             };
