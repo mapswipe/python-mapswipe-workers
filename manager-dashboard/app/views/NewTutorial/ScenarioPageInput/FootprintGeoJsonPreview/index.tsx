@@ -2,6 +2,7 @@ import React from 'react';
 import { _cs } from '@togglecorp/fujs';
 
 import GeoJsonPreview from '#components/GeoJsonPreview';
+import { CustomOptionPreviewType } from '#views/NewTutorial/utils';
 import { IconKey, iconMap } from '#utils/common';
 
 import styles from './styles.css';
@@ -15,6 +16,7 @@ interface Props {
         icon?: IconKey;
     }
     url: string | undefined;
+    customOptionsPreview?: CustomOptionPreviewType[] | undefined;
 }
 export default function FootprintGeoJsonPreview(props: Props) {
     const {
@@ -22,6 +24,7 @@ export default function FootprintGeoJsonPreview(props: Props) {
         geoJson,
         url,
         previewPopUp,
+        customOptionsPreview,
     } = props;
 
     const Comp = previewPopUp?.icon ? iconMap[previewPopUp.icon] : undefined;
@@ -49,7 +52,18 @@ export default function FootprintGeoJsonPreview(props: Props) {
                 geoJson={geoJson}
             />
             <div className={styles.footerOption}>
-                Footer Option
+                {customOptionsPreview?.map((option) => {
+                    const Icon = iconMap[option.icon];
+                    return (
+                        <div
+                            key={option.id}
+                            className={styles.previewIcon}
+                            style={{ backgroundColor: option.iconColor }}
+                        >
+                            <Icon />
+                        </div>
+                    );
+                })}
             </div>
         </div>
     );

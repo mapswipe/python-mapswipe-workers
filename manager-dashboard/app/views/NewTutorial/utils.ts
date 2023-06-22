@@ -62,6 +62,12 @@ export const colorKeyToColorMap: Record<ColorKey, string> = {
     gray: '#757575',
 };
 
+export interface CustomOptionPreviewType {
+    id: string;
+    icon: IconKey,
+    iconColor: ColorKey,
+}
+
 export interface ColorOptions {
     key: ColorKey;
     label: string;

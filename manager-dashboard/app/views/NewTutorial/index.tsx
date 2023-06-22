@@ -5,6 +5,7 @@ import {
     unique,
     getElementAround,
     isNotDefined,
+    randomString,
 } from '@togglecorp/fujs';
 import {
     useForm,
@@ -81,6 +82,8 @@ import {
     infoPageTemplateoptions,
     infoPageBlocksMap,
     tileServerUrls,
+    ColorKey,
+    CustomOptionPreviewType,
 } from './utils';
 import CustomOptionInput from './CustomOptionInput';
 import ScenarioPageInput from './ScenarioPageInput';
@@ -482,6 +485,21 @@ function NewTutorial(props: Props) {
         return tileServerUrls[tileServerName];
     }, [value.tileServerB?.name, value.tileServerB?.url]);
 
+    const customOptionsPreview: CustomOptionPreviewType[] | undefined = React.useMemo(() => {
+        const customOptions = value?.customOptions;
+        if (isNotDefined(customOptions)) {
+            return undefined;
+        }
+        const finalValue = customOptions.map((custom) => (
+            {
+                id: randomString(),
+                icon: custom.icon ?? 'removeOutline',
+                iconColor: custom.iconColor as ColorKey ?? 'gray',
+            }
+        ));
+        return finalValue;
+    }, [value.customOptions]);
+
     return (
         <div className={_cs(styles.newTutorial, className)}>
             <div className={styles.container}>
@@ -598,13 +616,13 @@ function NewTutorial(props: Props) {
                             <SelectInput
                                 name=""
                                 label="Page Template"
+                                className={styles.instructionPopup}
                                 nonClearable
                                 value={selectedInfoPageTemplate}
                                 onChange={setSelectedInfoPageTemplate}
                                 options={infoPageTemplateoptions}
                                 keySelector={(infoPageTemplate) => infoPageTemplate.key}
                                 labelSelector={(infoPageTemplate) => infoPageTemplate.label}
-                                className={styles.instructionPopup}
                             />
                             <Button
                                 name={selectedInfoPageTemplate}
@@ -752,6 +770,7 @@ function NewTutorial(props: Props) {
                                                 projectType={value.projectType}
                                                 onChange={onScenarioFormChange}
                                                 error={scenarioError?.[task.scenarioId]}
+                                                customOptionsPreview={customOptionsPreview}
                                                 geoJson={previewGeoJson}
                                                 url={tileServerAUrl}
                                                 urlB={tileServerBUrl}

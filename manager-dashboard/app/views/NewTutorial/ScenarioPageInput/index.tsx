@@ -23,6 +23,7 @@ import Heading from '#components/Heading';
 import SelectInput from '#components/SelectInput';
 import ScenarioGeoJsonPreview from './ScenarioGeoJsonPreview';
 import SegmentInput from '#components/SegmentInput';
+import { CustomOptionPreviewType } from '../utils';
 import FootprintGeoJsonPreview from './FootprintGeoJsonPreview';
 import ChangeDetectionGeoJsonPreview from './ChangeDetectionGeoJsonPreview';
 
@@ -72,6 +73,7 @@ interface Props {
     projectType: ProjectType | undefined;
     url: string | undefined;
     urlB: string | undefined;
+    customOptionsPreview?: CustomOptionPreviewType[] | undefined;
 }
 
 export default function ScenarioPageInput(props: Props) {
@@ -84,6 +86,7 @@ export default function ScenarioPageInput(props: Props) {
         url,
         projectType,
         urlB,
+        customOptionsPreview,
     } = props;
 
     const [activeSegmentInput, setActiveInput] = React.useState<ScenarioSegmentType['value']>('instruction');
@@ -223,6 +226,7 @@ export default function ScenarioPageInput(props: Props) {
                     <FootprintGeoJsonPreview
                         geoJson={geoJson}
                         url={url}
+                        customOptionsPreview={customOptionsPreview}
                     />
                 )}
                 <SegmentInput
