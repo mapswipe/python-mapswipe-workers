@@ -25,10 +25,10 @@ import {
     IconKey,
 } from '#utils/common';
 
-const BING_KEY = process.env.REACT_IMAGE_BING_API_KEY;
-const MAPBOX_KEY = process.env.REACT_IMAGE_MAPBOX_API_KEY;
-const MAXAR_PREMIUM = process.env.REACT_IMAGE_MAXAR_PREMIUM_API_KEY;
-const MAXAR_STANDARD = process.env.REACT_IMAGE_MAXAR_STANDARD_API_KEY;
+const BING_KEY = process.env.REACT_APP_IMAGE_BING_API_KEY;
+const MAPBOX_KEY = process.env.REACT_APP_IMAGE_MAPBOX_API_KEY;
+const MAXAR_PREMIUM = process.env.REACT_APP_IMAGE_MAXAR_PREMIUM_API_KEY;
+const MAXAR_STANDARD = process.env.REACT_APP_IMAGE_MAXAR_STANDARD_API_KEY;
 
 export type ColorKey = 'red'
 | 'pink'

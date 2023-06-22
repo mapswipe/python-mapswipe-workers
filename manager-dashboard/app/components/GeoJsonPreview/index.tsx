@@ -2,12 +2,50 @@ import React from 'react';
 import {
     map as createMap,
     Map,
-    tileLayer,
     geoJSON,
+
+    TileLayer,
+    Coords,
+    Util,
 } from 'leaflet';
 import { _cs } from '@togglecorp/fujs';
 
 import styles from './styles.css';
+
+const toQuadKey = (x: number, y: number, z: number) => {
+    let index = '';
+    for (let i = z; i > 0; i -= 1) {
+        let b = 0;
+        // eslint-disable-next-line no-bitwise
+        const mask = 1 << (i - 1);
+        // eslint-disable-next-line no-bitwise
+        if ((x & mask) !== 0) {
+            b += 1;
+        }
+        // eslint-disable-next-line no-bitwise
+        if ((y & mask) !== 0) {
+            b += 2;
+        }
+        index += b.toString();
+    }
+    return index;
+};
+
+const BingTileLayer = TileLayer.extend({
+    getTileUrl(coords: Coords) {
+        const quadkey = toQuadKey(coords.x, coords.y, coords.z);
+        const subdomains = this.options.subdomains;
+
+        // eslint-disable-next-line no-underscore-dangle
+        const url = this._url
+            .replace('{subdomain}', subdomains[(coords.x + coords.y) % subdomains.length])
+            .replace('{quad_key}', quadkey);
+
+        console.log(url);
+        return url;
+    },
+    toQuadKey,
+});
 
 interface Props {
     className?: string;
@@ -38,8 +76,14 @@ function GeoJsonPreview(props: Props) {
                     1,
                 );
 
-                const layer = tileLayer(
-                    url || 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                const finalUrl = url || 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
+                const quadKeyUrl = finalUrl.indexOf('{quad_key}') !== -1;
+                const Layer = quadKeyUrl
+                    ? BingTileLayer
+                    : TileLayer;
+
+                const layer = new Layer(
+                    finalUrl,
                     {
                         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
                         // subdomains: ['a', 'b', 'c'],
