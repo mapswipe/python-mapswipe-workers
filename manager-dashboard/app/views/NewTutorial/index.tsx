@@ -76,7 +76,7 @@ import {
     InformationPagesType,
     colorKeyToColorMap,
     InformationPageTemplateKey,
-    infoPageTemplateoptions,
+    infoPageTemplateOptions,
     infoPageBlocksMap,
     tileServerUrls,
     ColorKey,
@@ -565,14 +565,19 @@ function NewTutorial(props: Props) {
                             popupContentClassName={styles.newInfoButtonPopup}
                             disabled={submissionPending || projectTypeEmpty}
                         >
-                            {infoPageTemplateoptions.map((infoPageTemplate) => (
+                            {infoPageTemplateOptions.map((infoPageTemplate) => (
                                 <Button
                                     className={styles.popupItem}
                                     name={infoPageTemplate.key}
                                     key={infoPageTemplate.key}
                                     onClick={handleAddInformationPage}
                                     variant="transparent"
-                                    disabled={submissionPending || projectTypeEmpty}
+                                    disabled={(
+                                        submissionPending
+                                        || projectTypeEmpty
+                                        || (value.informationPages
+                                            && value.informationPages.length >= 10)
+                                    )}
                                 >
                                     {infoPageTemplate.label}
                                 </Button>

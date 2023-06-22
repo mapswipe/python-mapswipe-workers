@@ -170,7 +170,7 @@ export interface InformationPageOption {
     label: string;
 }
 
-export const infoPageTemplateoptions: InformationPageOption[] = [
+export const infoPageTemplateOptions: InformationPageOption[] = [
     {
         key: '1-picture',
         label: 'With 1 picture',
@@ -429,7 +429,7 @@ export const tutorialFormSchema: TutorialFormSchema = {
             },
             informationPages: {
                 validation: (info) => {
-                    if (info && info.length >= 10) {
+                    if (info && info.length > 10) {
                         return 'Information page cannot be more than 10';
                     }
                     return undefined;
