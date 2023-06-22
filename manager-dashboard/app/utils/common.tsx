@@ -1,3 +1,4 @@
+import React from 'react';
 import {
     IoAddOutline,
     IoAlertOutline,
@@ -28,6 +29,12 @@ import {
 } from 'react-icons/io5';
 import { isDefined, listToMap } from '@togglecorp/fujs';
 import { IconType } from 'react-icons';
+
+import oneTapIcon from '#resources/icons/1_Tap_Black.png';
+import twoTapIcon from '#resources/icons/2_Tap_Black.png';
+import threeTapIcon from '#resources/icons/3_Tap_Black.png';
+import tapIcon from '#resources/icons/tap_icon.png';
+import angularTapIcon from '#resources/icons/tap_icon_angular.png';
 
 export function valueSelector<T>(item: { value: T }) {
     return item.value;
@@ -90,12 +97,33 @@ export type IconKey = 'addOutline'
     | 'thumbsDownOutline'
     | 'thumbsUpOutline'
     | 'triangleOutline'
-    | 'warningOutline';
+    | 'warningOutline'
+    | 'generalTap'
+    | 'tap'
+    | 'oneTap'
+    | 'twoTap'
+    | 'threeTap';
 
 export interface IconItem {
     key: IconKey;
     label: string;
     component: IconType;
+}
+
+function getPngIcon(src: string, alt: string) {
+    const element = () => (
+        <img
+            src={src}
+            alt={alt}
+            style={{
+                height: '1em',
+                width: '1em',
+                objectFit: 'contain',
+            }}
+        />
+    );
+
+    return element;
 }
 
 export const iconList: IconItem[] = [
@@ -228,6 +256,31 @@ export const iconList: IconItem[] = [
         key: 'warningOutline',
         label: 'Warning',
         component: IoWarningOutline,
+    },
+    {
+        key: 'generalTap',
+        label: 'General Tap',
+        component: getPngIcon(tapIcon, 'general tap'),
+    },
+    {
+        key: 'tap',
+        label: 'Tap',
+        component: getPngIcon(angularTapIcon, 'tap'),
+    },
+    {
+        key: 'oneTap',
+        label: '1-Tap',
+        component: getPngIcon(oneTapIcon, 'one tap'),
+    },
+    {
+        key: 'twoTap',
+        label: '2-Tap',
+        component: getPngIcon(twoTapIcon, 'two tap'),
+    },
+    {
+        key: 'threeTap',
+        label: '3-Tap',
+        component: getPngIcon(threeTapIcon, 'three tap'),
     },
 ];
 
