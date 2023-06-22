@@ -1,3 +1,43 @@
 .mobile-preview {
-    color: inherit;
+    display: flex;
+    flex-direction: column;
+    border: var(--width-separator-mobile-preview) solid var(--color-black);
+    border-radius: var(--radius-card-border);
+    background-color: var(--color-black);
+    padding: var(--spacing-small) 0;
+    width: var(--width-mobile-preview);
+    color: var(--color-text-on-dark);
+
+    .header {
+        display: flex;
+        background-color: var(--color-primary);
+        padding: var(--spacing-medium);
+        gap: var(--spacing-medium);
+
+        .icons {
+            .back-icon {
+                font-size: 1.2rem;
+            }
+
+            .heading {
+                flex-grow: 1;
+            }
+
+            .actions {
+                flex-shrink: 0;
+            }
+        }
+    }
+
+    .content {
+        position: relative;
+        background-color: var(--color-primary);
+
+        .popup {
+            position: absolute;
+            top: var(--spacing-medium);
+            background-color: var(--color-foreground);
+            width: 100%;
+        }
+    }
 }

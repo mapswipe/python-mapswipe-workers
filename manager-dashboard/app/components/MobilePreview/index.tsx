@@ -1,4 +1,4 @@
-import React from 'react;
+import React from 'react';
 import { IoArrowBack } from 'react-icons/io5';
 import { _cs } from '@togglecorp/fujs';
 
@@ -11,6 +11,9 @@ interface Props {
     heading?: React.ReactNode;
     actions?: React.ReactNode;
     children?: React.ReactNode;
+    popupTitle?: React.ReactNode;
+    popupDescription?: React.ReactNode;
+    popupIcons?: React.ReactNode;
 }
 
 function MobilePreview(props: Props) {
@@ -19,15 +22,21 @@ function MobilePreview(props: Props) {
         heading,
         actions,
         children,
+        popupTitle,
+        popupDescription,
+        popupIcons,
     } = props;
 
     return (
         <div className={_cs(styles.mobilePreview, className)}>
             <div className={styles.header}>
                 <div className={styles.icons}>
-                    <IoArrowBack />
+                    <IoArrowBack className={styles.backIcon} />
                 </div>
-                <Heading>
+                <Heading
+                    className={styles.heading}
+                    level={4}
+                >
                     {heading}
                 </Heading>
                 {actions && (
@@ -37,8 +46,23 @@ function MobilePreview(props: Props) {
                 )}
             </div>
             <div className={styles.content}>
+                <div className={styles.popup}>
+                    <div>
+                        <div className={styles.title}>
+                            {popupTitle}
+                        </div>
+                        <div className={styles.description}>
+                            {popupDescription}
+                        </div>
+                    </div>
+                    <div className={styles.icons}>
+                        {popupIcons}
+                    </div>
+                </div>
                 {children}
             </div>
         </div>
     );
 }
+
+export default MobilePreview;

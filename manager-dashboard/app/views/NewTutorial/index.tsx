@@ -710,37 +710,32 @@ function NewTutorial(props: Props) {
                         error={error?.tutorialTasks}
                         disabled={submissionPending || projectTypeEmpty}
                     />
-                    <div title="Describe Scenarios">
-                        <Heading>
-                            Describe Scenarios
-                        </Heading>
-                        <div className={styles.scenarioList}>
-                            {value.scenarioPages?.map((task, index) => (
-                                <ExpandableContainer
+                    <div className={styles.scenarioList}>
+                        {value.scenarioPages?.map((task, index) => (
+                            <ExpandableContainer
+                                key={task.scenarioId}
+                                header={`Scenario ${task.scenarioId}`}
+                            >
+                                <ScenarioPageInput
                                     key={task.scenarioId}
-                                    header={`Scenario ${task.scenarioId}`}
-                                >
-                                    <ScenarioPageInput
-                                        key={task.scenarioId}
-                                        index={index}
-                                        value={task}
-                                        projectType={value.projectType}
-                                        onChange={onScenarioFormChange}
-                                        error={scenarioError?.[task.scenarioId]}
-                                        customOptionsPreview={customOptionsPreview}
-                                        geoJson={previewGeoJson}
-                                        url={tileServerAUrl}
-                                        urlB={tileServerBUrl}
-                                    />
-                                </ExpandableContainer>
-                            ))}
-                            {(value.scenarioPages?.length ?? 0) === 0 && (
-                                <EmptyMessage
-                                    title="Upload geojson file first"
-                                    description="This section will automatically show scenarios after uploading geojson file"
+                                    index={index}
+                                    value={task}
+                                    projectType={value.projectType}
+                                    onChange={onScenarioFormChange}
+                                    error={scenarioError?.[task.scenarioId]}
+                                    customOptionsPreview={customOptionsPreview}
+                                    geoJson={previewGeoJson}
+                                    url={tileServerAUrl}
+                                    urlB={tileServerBUrl}
                                 />
-                            )}
-                        </div>
+                            </ExpandableContainer>
+                        ))}
+                        {(value.scenarioPages?.length ?? 0) === 0 && (
+                            <EmptyMessage
+                                title="Upload geojson file first"
+                                description="This section will automatically show scenarios after uploading geojson file"
+                            />
+                        )}
                     </div>
                 </InputSection>
                 {hasErrors && (

@@ -53,6 +53,8 @@ p {
     --color-background-primary-hint: #0d194920;
     --color-background-accent-hint: #4746f610;
 
+    --color-black: #000000;
+
     --color-scrollbar-foreground: rgba(0, 0, 0, .2);
     --color-scrollbar-background: rgba(0, 0, 0, .01);
     --color-hover-background: rgba(0, 0, 0, 0.03);
@@ -90,11 +92,13 @@ p {
     --opacity-disabled-element: 0.5;
 
     --width-separator-thin: 1pt;
+    --width-separator-thick: 5pt;
+    --width-separator-mobile-preview: 8pt;
     --width-scrollbar: 0.75rem;
     --width-page-content-max: 70rem;
     --width-navbar-content-max: 76rem;
 
-    --width-mobile-preview: 20rem;
+    --width-mobile-preview: 22rem;
     --height-mobile-preview: 30rem;
 
     --radius-popup-border: 0.25rem;

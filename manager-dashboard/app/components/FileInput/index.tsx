@@ -54,7 +54,7 @@ function FileInput<Name>(props: Props<Name>) {
                 Select file
             </>
         ),
-        variant: 'action',
+        variant: 'secondary',
         className: styles.label,
         childrenClassName: styles.content,
     });

@@ -43,6 +43,12 @@
                 gap: var(--spacing-medium);
             }
         }
+
+        .scenario-list {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-medium);
+        }
     }
 
     .error-message {
