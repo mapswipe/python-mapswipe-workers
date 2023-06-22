@@ -4,6 +4,7 @@
     flex-direction: column;
     background-color: var(--color-background);
     padding: var(--spacing-large);
+    gap: var(--spacing-extra-large);
     overflow: auto;
 
     .container {
@@ -12,25 +13,6 @@
         width: 100%;
         max-width: 70rem;
         gap: var(--spacing-extra-large);
-
-        .card {
-            display: flex;
-            flex-direction: column;
-            gap: var(--spacing-large);
-
-            .add-button {
-                width: fit-content;
-            }
-
-            .option-content {
-                display: flex;
-                gap: var(--spacing-extra-large);
-
-                .option-tab-panel {
-                    flex-grow: 1;
-                }
-            }
-        }
 
         .input-group {
             display: flex;
@@ -44,25 +26,21 @@
             }
         }
 
-        .info-page-card-content {
+        .information-page-list {
             display: flex;
             flex-direction: column;
-            gap: var(--spacing-large);
-
-            .add-new-section {
-                display: flex;
-                gap: var(--spacing-medium);
-                align-items: flex-end;
-            }
+            gap: var(--spacing-medium);
         }
 
-        .scenario-content {
-            gap: var(--spacing-small);
+        .custom-option-container {
+            display: flex;
+            gap: var(--spacing-large);
 
-            .tab-content {
+            .custom-option-list {
                 display: flex;
                 flex-direction: column;
-                gap: var(--spacing-large);
+                flex-grow: 1;
+                gap: var(--spacing-medium);
             }
         }
     }
@@ -129,9 +107,23 @@
         justify-content: flex-end;
     }
 }
-        
+
 .instruction-popup {
     gap: var(--spacing-medium);
+}
+
+.new-info-button-popup {
+    padding: var(--spacing-small) 0;
+
+    .popup-item {
+        border-radius: unset;
+        padding: var(--spacing-small) var(--spacing-large);
+        width: 100%;
+
+        &:hover {
+            background-color: var(--color-separator);
+        }
+    }
 }
 
 @keyframes wiggle {

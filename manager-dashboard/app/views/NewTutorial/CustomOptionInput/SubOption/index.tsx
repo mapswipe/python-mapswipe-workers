@@ -54,7 +54,6 @@ export default function SubOption(props: Props) {
             <Button
                 name={index}
                 onClick={onRemove}
-                className={styles.removeButton}
             >
                 Remove
             </Button>

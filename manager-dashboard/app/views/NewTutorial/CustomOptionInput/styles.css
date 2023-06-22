@@ -28,8 +28,9 @@
     .sub-options {
         display: flex;
         flex-direction: column;
-        gap: var(--spacing-large);
+        border-radius: var(--radius-card-border);
+        gap: var(--spacing-medium);
         background-color: var(--color-background);
-        padding: var(--spacing-large);
+        padding: var(--spacing-medium);
     }
 }

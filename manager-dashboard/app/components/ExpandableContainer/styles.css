@@ -1,0 +1,38 @@
+.expandable-container {
+    border-radius: var(--radius-card-border);
+    color: inherit;
+
+    .header-container {
+        display: flex;
+        border: var(--width-separator-thin) solid var(--color-separator);
+        border-top-left-radius: var(--radius-card-border);
+        border-top-right-radius: var(--radius-card-border);
+        padding: var(--spacing-medium);
+
+        .header {
+            flex-grow: 1;
+        }
+
+        .actions {
+            flex-shrink: 0;
+
+            .icon {
+                font-size: 1.2rem;
+            }
+        }
+    }
+
+    .children {
+        border: var(--width-separator-thin) solid var(--color-separator);
+        border-bottom-left-radius: var(--radius-card-border);
+        border-bottom-right-radius: var(--radius-card-border);
+        padding: var(--spacing-medium);
+    }
+
+    &:not(.expanded) {
+        .header-container {
+            border-bottom-left-radius: var(--radius-card-border);
+            border-bottom-right-radius: var(--radius-card-border);
+        }
+    }
+}

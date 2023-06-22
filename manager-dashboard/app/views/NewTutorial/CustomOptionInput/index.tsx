@@ -145,7 +145,7 @@ export default function CustomOptionInput(props: Props) {
                 Remove Option
             </Button>
             <div className={styles.subOptions}>
-                <Heading level={3}>
+                <Heading level={5}>
                     Sub Options
                 </Heading>
                 <NonFieldError

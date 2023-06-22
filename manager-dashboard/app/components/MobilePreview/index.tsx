@@ -1,42 +1,44 @@
-import React from 'react';
+import React from 'react;
+import { IoArrowBack } from 'react-icons/io5';
 import { _cs } from '@togglecorp/fujs';
+
+import Heading from '#components/Heading';
 
 import styles from './styles.css';
 
 interface Props {
-    actions?: React.ReactNode;
     className?: string;
     heading?: React.ReactNode;
+    actions?: React.ReactNode;
     children?: React.ReactNode;
-    contentClassName?: string;
 }
 
-function InputSection(props: Props) {
+function MobilePreview(props: Props) {
     const {
         className,
         heading,
-        children,
-        contentClassName,
         actions,
+        children,
     } = props;
 
     return (
-        <div className={_cs(styles.inputSection, className)}>
+        <div className={_cs(styles.mobilePreview, className)}>
             <div className={styles.header}>
-                <h2 className={styles.heading}>
+                <div className={styles.icons}>
+                    <IoArrowBack />
+                </div>
+                <Heading>
                     {heading}
-                </h2>
+                </Heading>
                 {actions && (
                     <div className={styles.actions}>
                         {actions}
                     </div>
                 )}
             </div>
-            <div className={_cs(styles.content, contentClassName)}>
+            <div className={styles.content}>
                 {children}
             </div>
         </div>
     );
 }
-
-export default InputSection;

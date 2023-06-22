@@ -38,18 +38,15 @@ import UserContext from '#base/context/UserContext';
 import projectTypeOptions from '#base/configs/projectTypes';
 import useMountedRef from '#hooks/useMountedRef';
 import useInputState from '#hooks/useInputState';
-import Card from '#components/Card';
 import Modal from '#components/Modal';
 import TextInput from '#components/TextInput';
 import NumberInput from '#components/NumberInput';
+import Heading from '#components/Heading';
 import SegmentInput from '#components/SegmentInput';
 import GeoJsonFileInput from '#components/GeoJsonFileInput';
-import {
-    Tabs,
-    Tab,
-    TabList,
-    TabPanel,
-} from '#components/Tabs';
+import ExpandableContainer from '#components/ExpandableContainer';
+import PopupButton from '#components/PopupButton';
+
 import TileServerInput, {
     TILE_SERVER_BING,
     tileServerDefaultCredits,
@@ -513,59 +510,103 @@ function NewTutorial(props: Props) {
 
     return (
         <div className={_cs(styles.newTutorial, className)}>
+            <Heading level={1}>
+                Create New Tutorial
+            </Heading>
             <div className={styles.container}>
                 <InputSection
-                    heading="Create New Tutorial"
+                    heading="Basic Information"
                 >
-                    <Card
-                        title="Basic Information"
-                        contentClassName={styles.card}
-                    >
-                        <SegmentInput
-                            name={'projectType' as const}
+                    <SegmentInput
+                        name={'projectType' as const}
+                        onChange={setFieldValue}
+                        value={value?.projectType}
+                        label="Project Type"
+                        hint="Select the type of your project."
+                        options={projectTypeOptions}
+                        keySelector={valueSelector}
+                        labelSelector={labelSelector}
+                        error={error?.projectType}
+                        disabled={submissionPending}
+                    />
+                    <div className={styles.inputGroup}>
+                        <TextInput
+                            name={'name' as const}
+                            value={value?.name}
                             onChange={setFieldValue}
-                            value={value?.projectType}
-                            label="Project Type"
-                            hint="Select the type of your project."
-                            options={projectTypeOptions}
-                            keySelector={valueSelector}
-                            labelSelector={labelSelector}
-                            error={error?.projectType}
+                            label="Name of the Tutorial"
+                            hint="Provide a clear name for your tutorial. You can select tutorials based on their name later during the project creation."
+                            error={error?.name}
                             disabled={submissionPending}
                         />
-                        <div className={styles.inputGroup}>
-                            <TextInput
-                                name={'name' as const}
-                                value={value?.name}
-                                onChange={setFieldValue}
-                                label="Name of the Tutorial"
-                                hint="Provide a clear name for your tutorial. You can select tutorials based on their name later during the project creation."
-                                error={error?.name}
-                                disabled={submissionPending}
+                        <TextInput
+                            name={'lookFor' as const}
+                            value={value?.lookFor}
+                            onChange={setFieldValue}
+                            label="Look For"
+                            hint="What should the users look for (e.g. buildings, cars, trees)? (25 chars max)."
+                            error={error?.lookFor}
+                            disabled={submissionPending}
+                            autoFocus
+                        />
+                    </div>
+                </InputSection>
+                <InputSection
+                    heading="Information Pages"
+                    actions={(
+                        <PopupButton
+                            name={undefined}
+                            className={styles.newInfoPageButton}
+                            icons={<MdAdd />}
+                            label="New Information Page"
+                            popupContentClassName={styles.newInfoButtonPopup}
+                        >
+                            {infoPageTemplateoptions.map((infoPageTemplate) => (
+                                <Button
+                                    className={styles.popupItem}
+                                    name={infoPageTemplate.key}
+                                    key={infoPageTemplate.key}
+                                    onClick={handleAddInformationPage}
+                                    variant="transparent"
+                                >
+                                    {infoPageTemplate.label}
+                                </Button>
+                            ))}
+                        </PopupButton>
+                    )}
+                >
+                    <NonFieldError
+                        error={informationPagesError}
+                    />
+                    <div className={styles.informationPageList}>
+                        {value.informationPages?.map((page, i) => (
+                            <ExpandableContainer
+                                key={page.pageNumber}
+                                header={`Intro ${page.pageNumber}`}
+                            >
+                                <InformationPageInput
+                                    value={page}
+                                    onChange={setInformationPageValue}
+                                    onRemove={handleInformationPageRemove}
+                                    index={i}
+                                    error={informationPagesError?.[page.pageNumber]}
+                                />
+                            </ExpandableContainer>
+                        ))}
+                        {!(value.informationPages?.length) && (
+                            <EmptyMessage
+                                title="Start adding Information pages"
+                                description="Add pages selecting templates from “Add page” dropdown"
                             />
-                            <TextInput
-                                name={'lookFor' as const}
-                                value={value?.lookFor}
-                                onChange={setFieldValue}
-                                label="Look For"
-                                hint="What should the users look for (e.g. buildings, cars, trees)? (25 chars max)."
-                                error={error?.lookFor}
-                                disabled={submissionPending}
-                                autoFocus
-                            />
-                        </div>
-                    </Card>
+                        )}
+                    </div>
                 </InputSection>
                 {value.projectType === PROJECT_TYPE_FOOTPRINT && (
                     <InputSection
                         heading="Define Options"
-                    >
-                        <Card
-                            contentClassName={styles.card}
-                        >
+                        actions={(
                             <Button
                                 name="addInstruction"
-                                className={styles.addButton}
                                 icons={<MdAdd />}
                                 onClick={handleAddDefineOptions}
                                 disabled={
@@ -575,142 +616,61 @@ function NewTutorial(props: Props) {
                             >
                                 Add Option
                             </Button>
-                            <NonFieldError
-                                error={optionsError}
-                            />
-                            {value.customOptions?.length ? (
-                                <Tabs
-                                    value={activeOptionsTab}
-                                    onChange={setActiveOptionsTab}
-                                >
-                                    <TabList>
-                                        {value.customOptions.map((opt) => (
-                                            <Tab
-                                                key={opt.optionId}
-                                                name={opt.optionId}
-                                            >
-                                                {`Option ${opt.optionId}`}
-                                            </Tab>
-                                        ))}
-                                    </TabList>
-                                    <div className={styles.optionContent}>
-                                        {value.customOptions.map((options, index) => (
-                                            <TabPanel
-                                                key={options.optionId}
-                                                name={options.optionId}
-                                                className={styles.optionTabPanel}
-                                            >
-                                                <CustomOptionInput
-                                                    key={options.optionId}
-                                                    value={options}
-                                                    index={index}
-                                                    onChange={setOptionValue}
-                                                    onRemove={handleOptionRemove}
-                                                    error={optionsError?.[options.optionId]}
-                                                />
-                                            </TabPanel>
-                                        ))}
-                                        <CustomOptionPreview
-                                            value={value.customOptions}
-                                        />
-                                    </div>
-                                </Tabs>
-                            ) : (
-                                <div>No sub-options at the moment</div>
-                            )}
-                        </Card>
+                        )}
+                    >
+                        <NonFieldError
+                            error={optionsError}
+                        />
+                        {value.customOptions?.length ? (
+                            <div className={styles.customOptionContainer}>
+                                <div className={styles.customOptionList}>
+                                    {value.customOptions.map((option, index) => (
+                                        <ExpandableContainer
+                                            key={option.optionId}
+                                            header={`Option ${option.optionId}`}
+                                        >
+                                            <CustomOptionInput
+                                                key={option.optionId}
+                                                value={option}
+                                                index={index}
+                                                onChange={setOptionValue}
+                                                onRemove={handleOptionRemove}
+                                                error={optionsError?.[option.optionId]}
+                                            />
+                                        </ExpandableContainer>
+                                    ))}
+                                </div>
+                                <CustomOptionPreview
+                                    value={value.customOptions}
+                                />
+                            </div>
+                        ) : (
+                            <div>No sub-options at the moment</div>
+                        )}
                     </InputSection>
                 )}
-                <InputSection heading="Information Pages">
-                    <Card contentClassName={styles.infoPageCardContent}>
-                        <div className={styles.addNewSection}>
-                            <SelectInput
-                                name=""
-                                label="Page Template"
-                                className={styles.instructionPopup}
-                                nonClearable
-                                value={selectedInfoPageTemplate}
-                                onChange={setSelectedInfoPageTemplate}
-                                options={infoPageTemplateoptions}
-                                keySelector={(infoPageTemplate) => infoPageTemplate.key}
-                                labelSelector={(infoPageTemplate) => infoPageTemplate.label}
-                            />
-                            <Button
-                                name={selectedInfoPageTemplate}
-                                onClick={handleAddInformationPage}
-                            >
-                                Add new Information Page
-                            </Button>
-                        </div>
-                        <NonFieldError
-                            error={informationPagesError}
-                        />
-                        {value.informationPages && value.informationPages.length > 0 && (
-                            <Tabs
-                                value={activeInformationPage}
-                                onChange={setActiveInformationPage}
-                            >
-                                <TabList>
-                                    {value.informationPages.map((info) => (
-                                        <Tab
-                                            key={info.pageNumber}
-                                            name={info.pageNumber}
-                                        >
-                                            {`Intro ${info.pageNumber}`}
-                                        </Tab>
-                                    ))}
-                                </TabList>
-                                {value.informationPages?.map((page, i) => (
-                                    <TabPanel
-                                        key={page.pageNumber}
-                                        name={page.pageNumber}
-                                    >
-                                        <InformationPageInput
-                                            key={page.pageNumber}
-                                            value={page}
-                                            onChange={setInformationPageValue}
-                                            onRemove={handleInformationPageRemove}
-                                            index={i}
-                                            error={informationPagesError?.[page.pageNumber]}
-                                        />
-                                    </TabPanel>
-                                ))}
-                            </Tabs>
-                        )}
-                        {!(value.informationPages?.length) && (
-                            <EmptyMessage
-                                title="Start adding Information pages"
-                                description="Add pages selecting templates from “Add page” dropdown"
-                            />
-                        )}
-                    </Card>
-                </InputSection>
                 <InputSection
                     heading={tileServerBVisible ? 'Tile Server A' : 'Tile Server'}
                 >
-                    <Card contentClassName={styles.infoPageCardContent}>
-                        <TileServerInput
-                            name={'tileServer' as const}
-                            value={value?.tileServer}
-                            error={error?.tileServer}
-                            onChange={setFieldValue}
-                            disabled={submissionPending}
-                        />
-                    </Card>
+                    <TileServerInput
+                        name={'tileServer' as const}
+                        value={value?.tileServer}
+                        error={error?.tileServer}
+                        onChange={setFieldValue}
+                        disabled={submissionPending}
+                    />
                 </InputSection>
                 {tileServerBVisible && (
                     <InputSection
                         heading="Tile Server B"
                     >
-                        <Card contentClassName={styles.infoPageCardContent}>
-                            <TileServerInput
-                                name={'tileServerB' as const}
-                                value={value?.tileServerB}
-                                error={error?.tileServerB}
-                                onChange={setFieldValue}
-                                disabled={submissionPending}
-                            />
-                        </Card>
+                        <TileServerInput
+                            name={'tileServerB' as const}
+                            value={value?.tileServerB}
+                            error={error?.tileServerB}
+                            onChange={setFieldValue}
+                            disabled={submissionPending}
+                        />
                     </InputSection>
                 )}
                 {
@@ -721,17 +681,15 @@ function NewTutorial(props: Props) {
                         <InputSection
                             heading="Zoom Level"
                         >
-                            <Card>
-                                <NumberInput
-                                    name={'zoomLevel' as const}
-                                    value={value?.zoomLevel}
-                                    onChange={setFieldValue}
-                                    label="Zoom Level"
-                                    hint="We use the Tile Map Service zoom levels. Please check for your area which zoom level is available. For example, Bing imagery is available at zoomlevel 18 for most regions. If you use a custom tile server you may be able to use even higher zoom levels."
-                                    error={error?.zoomLevel}
-                                    disabled={submissionPending}
-                                />
-                            </Card>
+                            <NumberInput
+                                name={'zoomLevel' as const}
+                                value={value?.zoomLevel}
+                                onChange={setFieldValue}
+                                label="Zoom Level"
+                                hint="We use the Tile Map Service zoom levels. Please check for your area which zoom level is available. For example, Bing imagery is available at zoomlevel 18 for most regions. If you use a custom tile server you may be able to use even higher zoom levels."
+                                error={error?.zoomLevel}
+                                disabled={submissionPending}
+                            />
                         </InputSection>
                     )
                 }
@@ -739,64 +697,46 @@ function NewTutorial(props: Props) {
                     heading="Scenarios"
                     contentClassName={styles.scenarioContent}
                 >
-                    <Card
-                        title="Upload GeoJSON file"
-                        contentClassName={styles.inputGroup}
-                    >
-                        <GeoJsonFileInput
-                            name={'tutorialTasks' as const}
-                            value={value?.tutorialTasks}
-                            onChange={handleGeoJsonFile}
-                            hint="It should end with .geojson or .geo.json"
-                            error={error?.tutorialTasks}
-                            disabled={submissionPending}
-                        />
-                    </Card>
-                    <Card title="Describe Scenarios">
-                        <Tabs
-                            value={activeScenarioTab}
-                            onChange={setActiveScenarioTab}
-                        >
-                            {value.scenarioPages?.length ? (
-                                <div className={styles.tabContent}>
-                                    <TabList>
-                                        {value.scenarioPages?.map((task) => (
-                                            <Tab
-                                                key={task.scenarioId}
-                                                name={task.scenarioId}
-                                            >
-                                                {`Scenario ${task.scenarioId}`}
-                                            </Tab>
-                                        ))}
-                                    </TabList>
-                                    {value.scenarioPages?.map((task, index) => (
-                                        <TabPanel
-                                            key={task.scenarioId}
-                                            name={task.scenarioId}
-                                        >
-                                            <ScenarioPageInput
-                                                key={task.scenarioId}
-                                                index={index}
-                                                value={task}
-                                                projectType={value.projectType}
-                                                onChange={onScenarioFormChange}
-                                                error={scenarioError?.[task.scenarioId]}
-                                                customOptionsPreview={customOptionsPreview}
-                                                geoJson={previewGeoJson}
-                                                url={tileServerAUrl}
-                                                urlB={tileServerBUrl}
-                                            />
-                                        </TabPanel>
-                                    ))}
-                                </div>
-                            ) : (
+                    <GeoJsonFileInput
+                        name={'tutorialTasks' as const}
+                        value={value?.tutorialTasks}
+                        onChange={handleGeoJsonFile}
+                        hint="It should end with .geojson or .geo.json"
+                        error={error?.tutorialTasks}
+                        disabled={submissionPending}
+                    />
+                    <div title="Describe Scenarios">
+                        <Heading>
+                            Describe Scenarios
+                        </Heading>
+                        <div className={styles.scenarioList}>
+                            {value.scenarioPages?.map((task, index) => (
+                                <ExpandableContainer
+                                    key={task.scenarioId}
+                                    header={`Scenario ${task.scenarioId}`}
+                                >
+                                    <ScenarioPageInput
+                                        key={task.scenarioId}
+                                        index={index}
+                                        value={task}
+                                        projectType={value.projectType}
+                                        onChange={onScenarioFormChange}
+                                        error={scenarioError?.[task.scenarioId]}
+                                        customOptionsPreview={customOptionsPreview}
+                                        geoJson={previewGeoJson}
+                                        url={tileServerAUrl}
+                                        urlB={tileServerBUrl}
+                                    />
+                                </ExpandableContainer>
+                            ))}
+                            {(value.scenarioPages?.length ?? 0) === 0 && (
                                 <EmptyMessage
                                     title="Upload geojson file first"
                                     description="This section will automatically show scenarios after uploading geojson file"
                                 />
                             )}
-                        </Tabs>
-                    </Card>
+                        </div>
+                    </div>
                 </InputSection>
                 {hasErrors && (
                     <div className={styles.errorMessage}>

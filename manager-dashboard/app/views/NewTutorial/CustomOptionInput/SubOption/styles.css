@@ -6,8 +6,4 @@
     .sub-option-input {
         flex-grow: 1;
     }
-
-    .remove-button {
-        width: fit-content;
-    }
 }

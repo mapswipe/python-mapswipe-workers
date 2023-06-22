@@ -94,8 +94,8 @@ p {
     --width-page-content-max: 70rem;
     --width-navbar-content-max: 76rem;
 
-    --width-mobile-preview: 24rem;
-    --height-mobile-preview: 40rem;
+    --width-mobile-preview: 20rem;
+    --height-mobile-preview: 30rem;
 
     --radius-popup-border: 0.25rem;
     --radius-scrollbar-border: 0.25rem;
@@ -103,7 +103,7 @@ p {
     --radius-modal: 0.25rem;
     --radius-button-border: 0.25rem;
     --radius-input-border: 0.25rem;
-    --radius-card-border: 0.25rem;
+    --radius-card-border: 0.5rem;
     --radius-badge-border: 1rem;
 
     --line-height-none: 1;

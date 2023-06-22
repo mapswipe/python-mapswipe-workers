@@ -18,7 +18,7 @@ export interface PopupButtonProps<N extends number | string | undefined> extends
     componentRef?: React.MutableRefObject<{
         setPopupVisibility: React.Dispatch<React.SetStateAction<boolean>>;
     } | null>;
-    persistent: boolean;
+    persistent?: boolean;
     arrowHidden?: boolean;
     defaultShown?: boolean;
 }
@@ -33,7 +33,7 @@ function PopupButton<N extends number | string | undefined>(props: PopupButtonPr
         actions,
         componentRef,
         arrowHidden,
-        persistent,
+        persistent = false,
         defaultShown,
         ...otherProps
     } = props;

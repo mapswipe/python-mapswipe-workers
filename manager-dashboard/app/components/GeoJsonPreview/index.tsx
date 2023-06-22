@@ -3,7 +3,6 @@ import {
     map as createMap,
     Map,
     geoJSON,
-
     TileLayer,
     Coords,
 } from 'leaflet';
@@ -64,7 +63,9 @@ function GeoJsonPreview(props: Props) {
     React.useEffect(
         () => {
             if (mapContainerRef.current && !mapRef.current) {
-                mapRef.current = createMap(mapContainerRef.current);
+                mapRef.current = createMap(mapContainerRef.current, {
+                    zoomSnap: 0,
+                });
             }
 
             if (mapRef.current) {
@@ -122,7 +123,7 @@ function GeoJsonPreview(props: Props) {
             const bounds = newGeoJson.getBounds();
 
             if (bounds.isValid()) {
-                map.fitBounds(bounds);
+                map.fitBounds(bounds, { padding: [0, 0] });
             }
 
             return () => {
