@@ -1,0 +1,12 @@
+.react-mde {
+    border: 0;
+    border-radius: 0;
+}
+
+.text-area {
+    height: 70px !important;
+}
+
+.toolbar {
+    border-bottom: 0;
+}

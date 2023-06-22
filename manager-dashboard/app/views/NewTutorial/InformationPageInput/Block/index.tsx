@@ -8,7 +8,7 @@ import {
 
 import { PartialBlocksType } from '#views/NewTutorial/utils';
 import FileInput from '#components/FileInput';
-import TextInput from '#components/TextInput';
+import MarkdownEditor from '#components/MarkdownEditor';
 
 // import styles from './styles.css';
 
@@ -34,11 +34,11 @@ export default function Block(props: Props) {
     return (
         <div>
             {value.blockType === 'text' && (
-                <TextInput
+                <MarkdownEditor
                     name={'textDescription' as const}
-                    value={value.textDescription}
-                    onChange={onBlockChange}
+                    value={value?.textDescription}
                     label="Description"
+                    onChange={onBlockChange}
                     error={error?.textDescription}
                 />
             )}

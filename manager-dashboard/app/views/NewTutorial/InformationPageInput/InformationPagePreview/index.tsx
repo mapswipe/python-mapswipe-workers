@@ -4,6 +4,7 @@ import { PartialTutorialFormType } from '#views/NewTutorial/utils';
 import Preview from '#components/Preview';
 
 import styles from './styles.css';
+import MarkdownPreview from '#components/MarkdownPreview';
 
 interface Props {
     value: NonNullable<PartialTutorialFormType['informationPages']>[number]
@@ -17,9 +18,9 @@ export default function InformationPagePreview(props: Props) {
     return (
         <div className={styles.informationPreview}>
             {value?.title && (
-                <div>
-                    {value?.title}
-                </div>
+                <MarkdownPreview
+                    markdown={value.title}
+                />
             )}
             {value?.blocks?.map((preview) => {
                 if (preview.blockType === 'text' && preview.textDescription) {
