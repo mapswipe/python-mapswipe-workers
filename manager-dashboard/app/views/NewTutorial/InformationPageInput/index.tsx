@@ -53,7 +53,7 @@ export default function InformationPageInput(props: Props) {
                 <TextInput
                     name={'title' as const}
                     value={value?.title}
-                    label="Page Title"
+                    label="Title"
                     onChange={onInformationPageChange}
                     error={error?.title}
                     disabled={disabled}

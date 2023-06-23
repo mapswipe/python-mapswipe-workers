@@ -1,11 +1,11 @@
 import React from 'react';
 
-import { PartialTutorialFormType } from '#views/NewTutorial/utils';
 import MobilePreview from '#components/MobilePreview';
 import Preview from '#components/Preview';
-
-import styles from './styles.css';
 import MarkdownPreview from '#components/MarkdownPreview';
+
+import { PartialTutorialFormType } from '../../utils';
+import styles from './styles.css';
 
 interface Props {
     value: NonNullable<PartialTutorialFormType['informationPages']>[number];

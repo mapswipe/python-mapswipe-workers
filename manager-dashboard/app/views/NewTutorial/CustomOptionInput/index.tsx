@@ -15,7 +15,7 @@ import NumberInput from '#components/NumberInput';
 import SelectInput from '#components/SelectInput';
 import NonFieldError from '#components/NonFieldError';
 
-import SubOption from './SubOption';
+import SubOptionInput from './SubOptionInput';
 import {
     ColorOptions,
     PartialTutorialFormType,
@@ -26,7 +26,7 @@ import styles from './styles.css';
 import { IconItem, iconList } from '#utils/common';
 
 export type PartialCustomOptionsType = NonNullable<PartialTutorialFormType['customOptions']>[number]
-const defaultcustomOptionsValue: PartialCustomOptionsType = {
+const defaultCustomOptionsValue: PartialCustomOptionsType = {
     optionId: 1,
 };
 
@@ -35,21 +35,21 @@ type subOptionsType = NonNullable<PartialCustomOptionsType['subOptions']>[number
 interface Props {
     value: PartialCustomOptionsType;
     onChange: (value: SetValueArg<PartialCustomOptionsType>, index: number) => void;
-    onRemove: (index: number) => void;
     index: number;
     error: Error<PartialCustomOptionsType> | undefined;
+    disabled: boolean;
 }
 
 export default function CustomOptionInput(props: Props) {
     const {
         value,
         onChange,
-        onRemove,
         index,
         error: riskyError,
+        disabled,
     } = props;
 
-    const onOptionChange = useFormObject(index, onChange, defaultcustomOptionsValue);
+    const onOptionChange = useFormObject(index, onChange, defaultCustomOptionsValue);
 
     const {
         setValue: onsubOptionsAdd,
@@ -63,7 +63,7 @@ export default function CustomOptionInput(props: Props) {
         [error?.subOptions],
     );
 
-    const handlesubOptionsAdd = React.useCallback(
+    const handleSubOptionsAdd = React.useCallback(
         () => {
             onOptionChange(
                 (oldValue: PartialCustomOptionsType['subOptions']) => {
@@ -95,6 +95,7 @@ export default function CustomOptionInput(props: Props) {
                     name={'title' as const}
                     onChange={onOptionChange}
                     error={error?.title}
+                    disabled={disabled}
                 />
                 <SelectInput
                     className={styles.optionIcon}
@@ -106,6 +107,7 @@ export default function CustomOptionInput(props: Props) {
                     labelSelector={(d: IconItem) => d.label}
                     onChange={onOptionChange}
                     error={error?.icon}
+                    disabled={disabled}
                 />
             </div>
             <div className={styles.optionContent}>
@@ -116,6 +118,7 @@ export default function CustomOptionInput(props: Props) {
                     name={'value' as const}
                     onChange={onOptionChange}
                     error={error?.value}
+                    disabled={disabled}
                 />
                 <SelectInput
                     className={styles.optionIcon}
@@ -127,6 +130,7 @@ export default function CustomOptionInput(props: Props) {
                     labelSelector={(d: ColorOptions) => d.label}
                     onChange={onOptionChange}
                     error={error?.iconColor}
+                    disabled={disabled}
                 />
             </div>
             <TextInput
@@ -136,14 +140,9 @@ export default function CustomOptionInput(props: Props) {
                 name={'description' as const}
                 onChange={onOptionChange}
                 error={error?.description}
+                disabled={disabled}
             />
-            <Button
-                name={index}
-                onClick={onRemove}
-                className={styles.removeButton}
-            >
-                Remove Option
-            </Button>
+            {/* FIXME: use accordion open by default */}
             <div className={styles.subOptions}>
                 <Heading level={5}>
                     Sub Options
@@ -152,13 +151,14 @@ export default function CustomOptionInput(props: Props) {
                     error={subOptionsError}
                 />
                 {value.subOptions?.map((sub, i) => (
-                    <SubOption
+                    <SubOptionInput
                         key={sub.subOptionsId}
                         value={sub}
                         index={i}
                         onChange={onsubOptionsAdd}
                         onRemove={onsubOptionsRemove}
                         error={subOptionsError?.[sub.subOptionsId]}
+                        disabled={disabled}
                     />
                 ))}
                 {!value.subOptions?.length && (
@@ -168,8 +168,8 @@ export default function CustomOptionInput(props: Props) {
                     name="addSubOption"
                     className={styles.addButton}
                     icons={<MdAdd />}
-                    onClick={handlesubOptionsAdd}
-                    disabled={value.subOptions && value.subOptions.length >= 6}
+                    onClick={handleSubOptionsAdd}
+                    disabled={disabled || (value.subOptions && value.subOptions.length >= 6)}
                 >
                     Add Sub Options
                 </Button>

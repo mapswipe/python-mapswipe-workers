@@ -225,7 +225,7 @@ function BasicProjectInfoForm(props: Props<PartialProjectFormType>) {
             </div>
             {(value.projectType === PROJECT_TYPE_FOOTPRINT && value?.customOptions) && (
                 <Card
-                    title="Define Options"
+                    title="Custom Options"
                     contentClassName={styles.card}
                 >
                     <Heading level={4}>

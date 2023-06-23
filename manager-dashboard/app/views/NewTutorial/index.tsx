@@ -345,16 +345,15 @@ function NewTutorial(props: Props) {
                     const newDefineOption: CustomOptionType = {
                         optionId: newOptionId,
                         value: newValue,
-                        icon: 'starOutline',
+                        icon: undefined,
                         title: undefined,
-                        iconColor: colorKeyToColorMap.gray,
+                        iconColor: undefined,
                     };
 
                     return [...safeOldValues, newDefineOption];
                 },
                 'customOptions',
             );
-            // TODO: Set the new option as selected
         },
         [
             setFieldValue,
@@ -526,6 +525,65 @@ function NewTutorial(props: Props) {
                         />
                     </div>
                 </InputSection>
+                {value.projectType === PROJECT_TYPE_FOOTPRINT && (
+                    <InputSection
+                        heading="Custom Options"
+                        actions={(
+                            <Button
+                                name={undefined}
+                                icons={<MdAdd />}
+                                onClick={handleAddDefineOptions}
+                                disabled={
+                                    submissionPending
+                                    || projectTypeEmpty
+                                    || (value.customOptions && value.customOptions?.length >= 6)
+                                }
+                            >
+                                Add Option
+                            </Button>
+                        )}
+                    >
+                        <NonFieldError
+                            error={optionsError}
+                        />
+                        {value.customOptions?.length ? (
+                            <div className={styles.customOptionContainer}>
+                                <div className={styles.customOptionList}>
+                                    {value.customOptions.map((option, index) => (
+                                        <ExpandableContainer
+                                            key={option.optionId}
+                                            header={option.title || `Option ${index + 1}`}
+                                            actions={(
+                                                <Button
+                                                    name={index}
+                                                    onClick={handleOptionRemove}
+                                                    variant="action"
+                                                    title="Delete Option"
+                                                >
+                                                    <IoIosTrash />
+                                                </Button>
+                                            )}
+                                        >
+                                            <CustomOptionInput
+                                                key={option.optionId}
+                                                value={option}
+                                                index={index}
+                                                onChange={setOptionValue}
+                                                error={optionsError?.[option.optionId]}
+                                                disabled={submissionPending}
+                                            />
+                                        </ExpandableContainer>
+                                    ))}
+                                </div>
+                                <CustomOptionPreview
+                                    value={value.customOptions}
+                                />
+                            </div>
+                        ) : (
+                            <div>No sub-options at the moment</div>
+                        )}
+                    </InputSection>
+                )}
                 <InputSection
                     heading="Information Pages"
                     actions={(
@@ -594,54 +652,6 @@ function NewTutorial(props: Props) {
                         )}
                     </div>
                 </InputSection>
-                {value.projectType === PROJECT_TYPE_FOOTPRINT && (
-                    <InputSection
-                        heading="Define Options"
-                        actions={(
-                            <Button
-                                name="addInstruction"
-                                icons={<MdAdd />}
-                                onClick={handleAddDefineOptions}
-                                disabled={
-                                    value.customOptions
-                                    && value.customOptions?.length >= 6
-                                }
-                            >
-                                Add Option
-                            </Button>
-                        )}
-                    >
-                        <NonFieldError
-                            error={optionsError}
-                        />
-                        {value.customOptions?.length ? (
-                            <div className={styles.customOptionContainer}>
-                                <div className={styles.customOptionList}>
-                                    {value.customOptions.map((option, index) => (
-                                        <ExpandableContainer
-                                            key={option.optionId}
-                                            header={`Option ${option.optionId}`}
-                                        >
-                                            <CustomOptionInput
-                                                key={option.optionId}
-                                                value={option}
-                                                index={index}
-                                                onChange={setOptionValue}
-                                                onRemove={handleOptionRemove}
-                                                error={optionsError?.[option.optionId]}
-                                            />
-                                        </ExpandableContainer>
-                                    ))}
-                                </div>
-                                <CustomOptionPreview
-                                    value={value.customOptions}
-                                />
-                            </div>
-                        ) : (
-                            <div>No sub-options at the moment</div>
-                        )}
-                    </InputSection>
-                )}
                 <InputSection
                     heading={tileServerBVisible ? 'Tile Server A' : 'Tile Server'}
                 >

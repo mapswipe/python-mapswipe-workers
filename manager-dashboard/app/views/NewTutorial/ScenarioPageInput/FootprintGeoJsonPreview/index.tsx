@@ -3,9 +3,9 @@ import { _cs } from '@togglecorp/fujs';
 
 import MobilePreview from '#components/MobilePreview';
 import GeoJsonPreview from '#components/GeoJsonPreview';
-import { CustomOptionPreviewType } from '#views/NewTutorial/utils';
 import { IconKey, iconMap } from '#utils/common';
 
+import { CustomOptionPreviewType } from '../../utils';
 import styles from './styles.css';
 
 interface Props {

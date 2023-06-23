@@ -1,7 +1,9 @@
 import React from 'react';
-import { PartialTutorialFormType } from '#views/NewTutorial/utils';
 import { iconMap } from '#utils/common';
-
+import {
+    colorKeyToColorMap,
+    PartialTutorialFormType,
+} from '../../utils';
 import styles from './styles.css';
 
 interface Props {
@@ -15,10 +17,13 @@ export default function CustomOptionPreview(props: Props) {
 
     return (
         <div className={styles.optionPreview}>
-            {value?.map((preview) => {
-                const Icon = preview.icon ? iconMap[preview.icon] : undefined;
+            {value?.map((preview, index) => {
+                const Icon = preview.icon
+                    ? iconMap[preview.icon]
+                    : iconMap.flagOutline;
+
                 const previewText = [
-                    preview.title,
+                    preview.title || `Option ${index + 1}`,
                     preview.description,
                 ].filter(Boolean).join(' - ');
 
@@ -30,7 +35,9 @@ export default function CustomOptionPreview(props: Props) {
                         {Icon && (
                             <div
                                 className={styles.previewIcon}
-                                style={{ backgroundColor: preview.iconColor }}
+                                style={{
+                                    backgroundColor: preview.iconColor || colorKeyToColorMap.gray,
+                                }}
                             >
                                 <Icon />
                             </div>

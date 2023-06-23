@@ -16,11 +16,6 @@
         }
     }
 
-    .remove-button {
-        align-self: end;
-        width: fit-content;
-    }
-
     .add-button {
         width: fit-content;
     }

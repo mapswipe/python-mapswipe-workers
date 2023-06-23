@@ -6,10 +6,10 @@ import {
     getErrorObject,
 } from '@togglecorp/toggle-form';
 
-import { PartialBlocksType } from '#views/NewTutorial/utils';
 import FileInput from '#components/FileInput';
 import MarkdownEditor from '#components/MarkdownEditor';
 
+import { PartialBlocksType } from '../../utils';
 // import styles from './styles.css';
 
 type PartialBlockType = NonNullable<PartialBlocksType>[number];
@@ -50,7 +50,7 @@ export default function Block(props: Props) {
                     name={'imageFile' as const}
                     value={value?.imageFile}
                     onChange={onBlockChange}
-                    label={`Block ${index + 1}`}
+                    label={`Block #${index + 1}`}
                     hint="Make sure you have the rights to
                     use this image. It should end with  .jpg or .png."
                     accept="image/png, image/jpeg"
