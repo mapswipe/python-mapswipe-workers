@@ -272,6 +272,7 @@ export default function ScenarioPageInput(props: Props) {
                 {projectType === PROJECT_TYPE_FOOTPRINT && (
                     <FootprintGeoJsonPreview
                         geoJson={geoJson as FootprintGeoJSON | undefined}
+                        previewPopUp={previewPopUpData}
                         url={url}
                         customOptions={customOptions}
                     />
