@@ -365,7 +365,7 @@ export interface TutorialFormType {
             icon: IconKey;
             title: string;
         };
-        instruction: {
+        instructions: {
             description: string;
             icon: IconKey;
             title: string;
@@ -479,7 +479,7 @@ export const tutorialFormSchema: TutorialFormSchema = {
                                 icon: { required: true },
                             }),
                         },
-                        instruction: {
+                        instructions: {
                             fields: () => ({
                                 title: {
                                     required: true,

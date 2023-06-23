@@ -42,7 +42,7 @@ type ScenarioType = {
         icon: IconKey;
         title: string;
     };
-    instruction: {
+    instructions: {
         description: string;
         icon: IconKey;
         title: string;
@@ -55,12 +55,12 @@ type ScenarioType = {
 };
 
 interface ScenarioSegmentType {
-    value: 'instruction' | 'hint' | 'success';
+    value: 'instructions' | 'hint' | 'success';
     label: string;
 }
 
 const previewOptions: ScenarioSegmentType[] = [
-    { value: 'instruction', label: 'Instruction' },
+    { value: 'instructions', label: 'Instruction' },
     { value: 'hint', label: 'Hint' },
     { value: 'success', label: 'Success' },
 ];
@@ -99,7 +99,7 @@ export default function ScenarioPageInput(props: Props) {
         disabled,
     } = props;
 
-    const [activeSegmentInput, setActiveInput] = React.useState<ScenarioSegmentType['value']>('instruction');
+    const [activeSegmentInput, setActiveInput] = React.useState<ScenarioSegmentType['value']>('instructions');
 
     const onFieldChange = useFormObject(
         index,
@@ -107,8 +107,8 @@ export default function ScenarioPageInput(props: Props) {
         defaultScenarioTabsValue,
     );
 
-    const onInstructionFieldChange = useFormObject<'instruction', PartialScenarioType['instruction']>(
-        'instruction',
+    const onInstructionFieldChange = useFormObject<'instructions', PartialScenarioType['instructions']>(
+        'instructions',
         onFieldChange,
         {},
     );
@@ -124,7 +124,7 @@ export default function ScenarioPageInput(props: Props) {
     );
 
     const error = getErrorObject(riskyError);
-    const instructionsError = getErrorObject(error?.instruction);
+    const instructionsError = getErrorObject(error?.instructions);
     const hintError = getErrorObject(error?.hint);
     const successError = getErrorObject(error?.success);
 
@@ -155,7 +155,7 @@ export default function ScenarioPageInput(props: Props) {
                     <div className={styles.scenarioFormContent}>
                         <TextInput
                             name={'title' as const}
-                            value={value.instruction?.title}
+                            value={value.instructions?.title}
                             label="Title"
                             onChange={onInstructionFieldChange}
                             error={instructionsError?.title}
@@ -163,7 +163,7 @@ export default function ScenarioPageInput(props: Props) {
                         />
                         <TextInput
                             name={'description' as const}
-                            value={value.instruction?.description}
+                            value={value.instructions?.description}
                             label="Description"
                             onChange={onInstructionFieldChange}
                             error={instructionsError?.description}
@@ -173,7 +173,7 @@ export default function ScenarioPageInput(props: Props) {
                     <SelectInput
                         name="icon"
                         label="Icon"
-                        value={value.instruction?.icon}
+                        value={value.instructions?.icon}
                         options={iconList}
                         keySelector={(d: IconItem) => d.key}
                         labelSelector={(d: IconItem) => d.label}
