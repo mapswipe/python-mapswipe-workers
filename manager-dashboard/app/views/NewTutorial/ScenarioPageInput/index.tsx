@@ -21,12 +21,15 @@ import {
 import TextInput from '#components/TextInput';
 import Heading from '#components/Heading';
 import SelectInput from '#components/SelectInput';
-import ScenarioGeoJsonPreview from './ScenarioGeoJsonPreview';
 import SegmentInput from '#components/SegmentInput';
-import { CustomOptionPreviewType } from '../utils';
+
+import {
+    TutorialTasks,
+    CustomOptionPreviewType,
+} from '../utils';
+import ScenarioGeoJsonPreview from './ScenarioGeoJsonPreview';
 import FootprintGeoJsonPreview from './FootprintGeoJsonPreview';
 import ChangeDetectionGeoJsonPreview from './ChangeDetectionGeoJsonPreview';
-
 import styles from './styles.css';
 
 type ScenarioType = {
@@ -69,11 +72,11 @@ interface Props {
     onChange: (value: SetValueArg<PartialScenarioType>, index: number) => void;
     index: number,
     error: Error<PartialScenarioType> | undefined;
-    geoJson: GeoJSON.GeoJSON | undefined;
+    geoJson: TutorialTasks | undefined;
     projectType: ProjectType | undefined;
     url: string | undefined;
     urlB: string | undefined;
-    customOptionsPreview?: CustomOptionPreviewType[] | undefined;
+    customOptionsPreview?: CustomOptionPreviewType[];
 }
 
 export default function ScenarioPageInput(props: Props) {
@@ -108,6 +111,8 @@ export default function ScenarioPageInput(props: Props) {
     }, []);
 
     const previewPopUpData = value[activeSegmentInput];
+
+    // FIXME: need to filterout geojson
 
     return (
         <div className={styles.scenario}>

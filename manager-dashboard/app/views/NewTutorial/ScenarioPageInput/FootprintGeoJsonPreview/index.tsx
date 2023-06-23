@@ -17,7 +17,7 @@ interface Props {
         icon?: IconKey;
     }
     url: string | undefined;
-    customOptionsPreview?: CustomOptionPreviewType[] | undefined;
+    customOptionsPreview: CustomOptionPreviewType[] | undefined;
 }
 export default function FootprintGeoJsonPreview(props: Props) {
     const {

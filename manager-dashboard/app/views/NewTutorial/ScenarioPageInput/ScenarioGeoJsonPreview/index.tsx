@@ -31,6 +31,7 @@ function ScenarioGeoJsonPreview(props: Props) {
     return (
         <MobilePreview
             className={_cs(styles.scenarioGeoJsonPreview, className)}
+            // FIXME: get this from 'look for'
             heading="You are looking for: mobile homes"
             popupIcons={Comp && <Comp />}
             popupTitle={previewPopUp?.title ?? 'Title'}

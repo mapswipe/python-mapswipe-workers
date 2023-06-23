@@ -3,9 +3,7 @@ import {
     _cs,
     isDefined,
     unique,
-    getElementAround,
     isNotDefined,
-    randomString,
 } from '@togglecorp/fujs';
 import {
     useForm,
@@ -32,12 +30,14 @@ import {
     MdOutlineUnpublished,
     MdAdd,
 } from 'react-icons/md';
+import {
+    IoIosTrash,
+} from 'react-icons/io';
 import { Link } from 'react-router-dom';
 
 import UserContext from '#base/context/UserContext';
 import projectTypeOptions from '#base/configs/projectTypes';
 import useMountedRef from '#hooks/useMountedRef';
-import useInputState from '#hooks/useInputState';
 import Modal from '#components/Modal';
 import TextInput from '#components/TextInput';
 import NumberInput from '#components/NumberInput';
@@ -46,7 +46,6 @@ import SegmentInput from '#components/SegmentInput';
 import GeoJsonFileInput from '#components/GeoJsonFileInput';
 import ExpandableContainer from '#components/ExpandableContainer';
 import PopupButton from '#components/PopupButton';
-
 import TileServerInput, {
     TILE_SERVER_BING,
     tileServerDefaultCredits,
@@ -54,9 +53,7 @@ import TileServerInput, {
 import InputSection from '#components/InputSection';
 import Button from '#components/Button';
 import NonFieldError from '#components/NonFieldError';
-import SelectInput from '#components/SelectInput';
 import EmptyMessage from '#components/EmptyMessage';
-import CustomOptionPreview from '#views/NewTutorial/CustomOptionInput/CustomOptionPreview';
 import {
     valueSelector,
     labelSelector,
@@ -67,21 +64,22 @@ import {
 } from '#utils/common';
 
 import {
+    tileServerUrls,
     tutorialFormSchema,
+    colorKeyToColorMap,
     TutorialFormType,
     PartialTutorialFormType,
     PartialInformationPagesType,
     ScenarioPagesType,
     CustomOptionType,
     InformationPagesType,
-    colorKeyToColorMap,
     InformationPageTemplateKey,
     infoPageTemplateOptions,
     infoPageBlocksMap,
-    tileServerUrls,
     ColorKey,
     CustomOptionPreviewType,
 } from './utils';
+import CustomOptionPreview from './CustomOptionInput/CustomOptionPreview';
 import CustomOptionInput from './CustomOptionInput';
 import ScenarioPageInput from './ScenarioPageInput';
 import InformationPageInput from './InformationPageInput';
@@ -145,6 +143,8 @@ const defaultTutorialFormValue: PartialTutorialFormType = {
     customOptions: defaultCustomOptions,
 };
 
+type SubmissionStatus = 'started' | 'imageUpload' | 'tutorialSubmit' | 'success' | 'failed';
+
 interface Props {
     className?: string;
 }
@@ -158,6 +158,15 @@ function NewTutorial(props: Props) {
 
     const mountedRef = useMountedRef();
 
+    const popupElementRef = React.useRef<{
+        setPopupVisibility: React.Dispatch<React.SetStateAction<boolean>>;
+    }>(null);
+
+    const [
+        tutorialSubmissionStatus,
+        setTutorialSubmissionStatus,
+    ] = React.useState<SubmissionStatus | undefined>();
+
     const {
         setFieldValue,
         value,
@@ -168,54 +177,30 @@ function NewTutorial(props: Props) {
         value: defaultTutorialFormValue,
     });
 
-    const [
-        tutorialSubmissionStatus,
-        setTutorialSubmissionStatus,
-    ] = React.useState<'started' | 'imageUpload' | 'tutorialSubmit' | 'success' | 'failed' | undefined>();
+    const {
+        setValue: onScenarioFormChange,
+    } = useFormArray<
+        'scenarioPages',
+        ScenarioPagesType
+    >('scenarioPages', setFieldValue);
 
-    const [activeScenarioTab, setActiveScenarioTab] = React.useState(1);
-    const [activeOptionsTab, setActiveOptionsTab] = React.useState(1);
-    const [activeInformationPage, setActiveInformationPage] = React.useState(1);
-    const [selectedInfoPageTemplate, setSelectedInfoPageTemplate] = useInputState<InformationPageTemplateKey>('1-picture');
+    const {
+        setValue: setOptionValue,
+        removeValue: onOptionRemove,
+    } = useFormArray<
+        'customOptions',
+        CustomOptionType
+    >('customOptions', setFieldValue);
 
-    const error = React.useMemo(
-        () => getErrorObject(formError),
-        [formError],
-    );
-    const scenarioError = React.useMemo(
-        () => getErrorObject(error?.scenarioPages),
-        [error?.scenarioPages],
-    );
+    const {
+        setValue: setInformationPageValue,
+        removeValue: onInformationPageRemove,
+    } = useFormArray<
+        'informationPages',
+        InformationPagesType
+    >('informationPages', setFieldValue);
 
-    const optionsError = React.useMemo(
-        () => getErrorObject(error?.customOptions),
-        [error?.customOptions],
-    );
-
-    const informationPagesError = React.useMemo(
-        () => getErrorObject(error?.informationPages),
-        [error?.informationPages],
-    );
-
-    const previewGeoJson = React.useMemo((): GeoJSON.GeoJSON | undefined => {
-        const geojson = value.tutorialTasks;
-
-        if (!geojson) {
-            return undefined;
-        }
-
-        return {
-            ...geojson,
-            features: geojson.features.filter(
-                (screen) => screen.properties.screen === activeScenarioTab,
-            ),
-        };
-    }, [
-        value.tutorialTasks,
-        activeScenarioTab,
-    ]);
-
-    const handleFormSubmission = React.useCallback((
+    const handleSubmission = React.useCallback((
         finalValuesFromProps: PartialTutorialFormType,
     ) => {
         const userId = user?.id;
@@ -243,8 +228,12 @@ function NewTutorial(props: Props) {
 
             try {
                 await navigator.clipboard.writeText(JSON.stringify(screens, null, 2));
+                // FIXME: remove this in production
+                // eslint-disable-next-line no-alert
                 alert('Tutorial JSON copied to clipboard.');
             } catch (err) {
+                // FIXME: remove this in production
+                // eslint-disable-next-line no-alert
                 alert(`Tutorial JSON could not be copied ${err}`);
             }
 
@@ -321,61 +310,23 @@ function NewTutorial(props: Props) {
         submitToFirebase();
     }, [user, mountedRef]);
 
-    const handleSubmitButtonClick = React.useMemo(
-        () => createSubmitHandler(validate, setError, handleFormSubmission),
-        [validate, setError, handleFormSubmission],
+    const handleSubmitButtonClick = React.useCallback(
+        () => createSubmitHandler(validate, setError, handleSubmission),
+        [validate, setError, handleSubmission],
     );
-
-    const {
-        setValue: onScenarioFormChange,
-    } = useFormArray<
-        'scenarioPages',
-        ScenarioPagesType
-    >('scenarioPages', setFieldValue);
-
-    const hasErrors = React.useMemo(
-        () => analyzeErrors(error),
-        [error],
-    );
-
-    const {
-        setValue: setOptionValue,
-        removeValue: onOptionRemove,
-    } = useFormArray<
-        'customOptions',
-        CustomOptionType
-    >('customOptions', setFieldValue);
 
     const handleOptionRemove = React.useCallback(
         (index: number) => {
-            const nextOption = getElementAround(value.customOptions ?? [], index);
             onOptionRemove(index);
-
-            if (nextOption) {
-                setActiveOptionsTab(nextOption.optionId);
-            }
         },
-        [onOptionRemove, value.customOptions],
+        [onOptionRemove],
     );
-
-    const {
-        setValue: setInformationPageValue,
-        removeValue: onInformationPageRemove,
-    } = useFormArray<
-        'informationPages',
-        InformationPagesType
-    >('informationPages', setFieldValue);
 
     const handleInformationPageRemove = React.useCallback(
         (index: number) => {
-            const nextInfoPage = getElementAround(value.informationPages ?? [], index);
             onInformationPageRemove(index);
-
-            if (nextInfoPage) {
-                setActiveInformationPage(nextInfoPage.pageNumber);
-            }
         },
-        [onInformationPageRemove, value.informationPages],
+        [onInformationPageRemove],
     );
 
     const handleAddDefineOptions = React.useCallback(
@@ -395,7 +346,7 @@ function NewTutorial(props: Props) {
                         optionId: newOptionId,
                         value: newValue,
                         icon: 'starOutline',
-                        title: 'Untitled',
+                        title: undefined,
                         iconColor: colorKeyToColorMap.gray,
                     };
 
@@ -409,15 +360,6 @@ function NewTutorial(props: Props) {
             setFieldValue,
         ],
     );
-
-    const submissionPending = (
-        tutorialSubmissionStatus === 'started'
-        || tutorialSubmissionStatus === 'imageUpload'
-        || tutorialSubmissionStatus === 'tutorialSubmit'
-    );
-
-    const tileServerBVisible = value.projectType === PROJECT_TYPE_CHANGE_DETECTION
-        || value.projectType === PROJECT_TYPE_COMPLETENESS;
 
     const handleGeoJsonFile = React.useCallback((
         geoProps: GeoJSON.GeoJSON | undefined,
@@ -441,10 +383,6 @@ function NewTutorial(props: Props) {
         setFieldValue(tutorialTaskArray, 'scenarioPages');
     }, [setFieldValue]);
 
-    const popupElementRef = React.useRef<{
-        setPopupVisibility: React.Dispatch<React.SetStateAction<boolean>>;
-    }>(null);
-
     const handleAddInformationPage = React.useCallback(
         (template: InformationPageTemplateKey) => {
             setFieldValue(
@@ -455,12 +393,10 @@ function NewTutorial(props: Props) {
                         ? Math.max(...newOldValue.map((info) => info.pageNumber)) + 1
                         : 1;
 
-                    setActiveInformationPage(newPage);
-
                     const blocks = infoPageBlocksMap[template];
                     const newPageInformation: InformationPagesType = {
                         pageNumber: newPage,
-                        title: `Untitled page ${newPage}`,
+                        title: undefined,
                         blocks,
                     };
                     return [...newOldValue, newPageInformation];
@@ -472,6 +408,40 @@ function NewTutorial(props: Props) {
         [setFieldValue],
     );
 
+    const submissionPending = (
+        tutorialSubmissionStatus === 'started'
+        || tutorialSubmissionStatus === 'imageUpload'
+        || tutorialSubmissionStatus === 'tutorialSubmit'
+    );
+
+    const tileServerBVisible = value.projectType === PROJECT_TYPE_CHANGE_DETECTION
+        || value.projectType === PROJECT_TYPE_COMPLETENESS;
+
+    const error = React.useMemo(
+        () => getErrorObject(formError),
+        [formError],
+    );
+    const scenarioError = React.useMemo(
+        () => getErrorObject(error?.scenarioPages),
+        [error?.scenarioPages],
+    );
+
+    const optionsError = React.useMemo(
+        () => getErrorObject(error?.customOptions),
+        [error?.customOptions],
+    );
+
+    const informationPagesError = React.useMemo(
+        () => getErrorObject(error?.informationPages),
+        [error?.informationPages],
+    );
+
+    const hasErrors = React.useMemo(
+        () => analyzeErrors(error),
+        [error],
+    );
+
+    // FIXME: create helper function
     const tileServerAUrl = React.useMemo(() => {
         const tileServerName = value.tileServer?.name;
         if (isNotDefined(tileServerName)) {
@@ -483,6 +453,7 @@ function NewTutorial(props: Props) {
         return tileServerUrls[tileServerName];
     }, [value.tileServer?.name, value.tileServer?.url]);
 
+    // FIXME: create helper function
     const tileServerBUrl = React.useMemo(() => {
         const tileServerName = value.tileServerB?.name;
         if (isNotDefined(tileServerName)) {
@@ -494,14 +465,15 @@ function NewTutorial(props: Props) {
         return tileServerUrls[tileServerName];
     }, [value.tileServerB?.name, value.tileServerB?.url]);
 
-    const customOptionsPreview: CustomOptionPreviewType[] | undefined = React.useMemo(() => {
-        const customOptions = value.customOptions;
-        if (isNotDefined(customOptions)) {
-            return undefined;
+    // FIXME: we might not need this
+    const customOptionsPreview: CustomOptionPreviewType[] = React.useMemo(() => {
+        const customOptionsFromForm = value.customOptions;
+        if (isNotDefined(customOptionsFromForm)) {
+            return [];
         }
-        const finalValue = customOptions.map((custom) => (
+        const finalValue = customOptionsFromForm.map((custom) => (
             {
-                id: randomString(),
+                id: custom.optionId,
                 icon: custom.icon ?? 'removeOutline',
                 iconColor: custom.iconColor as ColorKey ?? 'gray',
             }
@@ -558,8 +530,8 @@ function NewTutorial(props: Props) {
                     heading="Information Pages"
                     actions={(
                         <PopupButton
+                            componentRef={popupElementRef}
                             name={undefined}
-                            className={styles.newInfoPageButton}
                             icons={<MdAdd />}
                             label="New Information Page"
                             popupContentClassName={styles.newInfoButtonPopup}
@@ -592,14 +564,25 @@ function NewTutorial(props: Props) {
                         {value.informationPages?.map((page, i) => (
                             <ExpandableContainer
                                 key={page.pageNumber}
-                                header={`Intro ${page.pageNumber}`}
+                                header={page.title || `Intro ${page.pageNumber}`}
+                                actions={(
+                                    <Button
+                                        name={i}
+                                        onClick={handleInformationPageRemove}
+                                        variant="action"
+                                        title="Delete page"
+                                    >
+                                        <IoIosTrash />
+                                    </Button>
+                                )}
                             >
                                 <InformationPageInput
                                     value={page}
                                     onChange={setInformationPageValue}
-                                    onRemove={handleInformationPageRemove}
+                                    // onRemove={handleInformationPageRemove}
                                     index={i}
                                     error={informationPagesError?.[page.pageNumber]}
+                                    disabled={submissionPending || projectTypeEmpty}
                                 />
                             </ExpandableContainer>
                         ))}
@@ -705,7 +688,6 @@ function NewTutorial(props: Props) {
                 }
                 <InputSection
                     heading="Scenarios"
-                    contentClassName={styles.scenarioContent}
                 >
                     <GeoJsonFileInput
                         name={'tutorialTasks' as const}
@@ -729,7 +711,7 @@ function NewTutorial(props: Props) {
                                     onChange={onScenarioFormChange}
                                     error={scenarioError?.[task.scenarioId]}
                                     customOptionsPreview={customOptionsPreview}
-                                    geoJson={previewGeoJson}
+                                    geoJson={value.tutorialTasks}
                                     url={tileServerAUrl}
                                     urlB={tileServerBUrl}
                                 />

@@ -4,9 +4,9 @@
 }
 
 .text-area {
-    height: 70px !important;
+    background-color: transparent;
 }
 
 .toolbar {
-    border-bottom: 0;
+    background-color: transparent;
 }

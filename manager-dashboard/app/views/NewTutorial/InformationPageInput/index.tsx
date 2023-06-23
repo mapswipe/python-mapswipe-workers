@@ -8,7 +8,6 @@ import {
 } from '@togglecorp/toggle-form';
 
 import TextInput from '#components/TextInput';
-import Button from '#components/Button';
 import InformationPagePreview from './InformationPagePreview';
 
 import { InformationPagesType } from '../utils';
@@ -19,18 +18,20 @@ import styles from './styles.css';
 interface Props {
     value: InformationPagesType,
     onChange: (value: SetValueArg<InformationPagesType>, index: number) => void;
-    onRemove: (index: number) => void;
-    index: number,
+    // onRemove: (index: number) => void;
+    index: number;
     error: Error<InformationPagesType> | undefined;
+    disabled: boolean;
 }
 
 export default function InformationPageInput(props: Props) {
     const {
         value,
         onChange,
-        onRemove,
+        // onRemove,
         index,
         error: riskyError,
+        disabled,
     } = props;
 
     const onInformationPageChange = useFormObject(index, onChange, { pageNumber: 1 });
@@ -52,9 +53,10 @@ export default function InformationPageInput(props: Props) {
                 <TextInput
                     name={'title' as const}
                     value={value?.title}
-                    label="Title for the Page"
+                    label="Page Title"
                     onChange={onInformationPageChange}
                     error={error?.title}
+                    disabled={disabled}
                 />
                 {value.blocks?.map((block, i) => (
                     <Block
@@ -63,17 +65,13 @@ export default function InformationPageInput(props: Props) {
                         onChange={onChangeBlock}
                         index={i}
                         error={blockError?.[block.blockNumber]}
+                        disabled={disabled}
                     />
                 ))}
-                <Button
-                    name={index}
-                    onClick={onRemove}
-                >
-                    Delete Page
-                </Button>
             </div>
             <InformationPagePreview
                 value={value}
+                index={index}
             />
         </div>
     );

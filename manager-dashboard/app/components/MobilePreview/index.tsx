@@ -48,19 +48,21 @@ function MobilePreview(props: Props) {
                 )}
             </div>
             <div className={_cs(styles.content, contentClassName)}>
-                <div className={styles.popup}>
-                    <div className={styles.details}>
-                        <div className={styles.title}>
-                            {popupTitle}
+                {(popupTitle || popupDescription || popupIcons) && (
+                    <div className={styles.popup}>
+                        <div className={styles.details}>
+                            <div>
+                                {popupTitle}
+                            </div>
+                            <div>
+                                {popupDescription}
+                            </div>
                         </div>
-                        <div className={styles.description}>
-                            {popupDescription}
+                        <div className={styles.icons}>
+                            {popupIcons}
                         </div>
                     </div>
-                    <div className={styles.icons}>
-                        {popupIcons}
-                    </div>
-                </div>
+                )}
                 {children}
             </div>
         </div>

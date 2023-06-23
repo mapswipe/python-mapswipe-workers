@@ -114,10 +114,6 @@
     }
 }
 
-.instruction-popup {
-    gap: var(--spacing-medium);
-}
-
 .new-info-button-popup {
     padding: var(--spacing-small) 0;
 

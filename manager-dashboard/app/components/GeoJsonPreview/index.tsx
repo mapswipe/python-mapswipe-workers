@@ -84,7 +84,7 @@ function GeoJsonPreview(props: Props) {
                 const layer = new Layer(
                     finalUrl,
                     {
-                        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+                        // attribution: '',
                         // subdomains: ['a', 'b', 'c'],
                     },
                 );
@@ -131,7 +131,8 @@ function GeoJsonPreview(props: Props) {
                 newGeoJson.remove();
             };
         },
-        [geoJson],
+        // NOTE: adding url as dependency as url will re-create the map
+        [geoJson, url],
     );
 
     return (

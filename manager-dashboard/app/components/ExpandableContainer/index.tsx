@@ -48,11 +48,12 @@ function ExpandableContainer(props: Props) {
                         name={!isExpanded}
                         onClick={setIsExpanded}
                         variant="action"
+                        title={isExpanded ? 'Collapse' : 'Expand'}
                     >
                         {isExpanded ? (
-                            <IoIosArrowUp className={styles.icon} />
+                            <IoIosArrowUp />
                         ) : (
-                            <IoIosArrowDown className={styles.icon} />
+                            <IoIosArrowDown />
                         )}
                     </Button>
                 </div>

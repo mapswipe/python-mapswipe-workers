@@ -1,9 +1,11 @@
 .information-preview {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-large);
+    .content {
+        display: flex;
+        gap: var(--spacing-large);
+        flex-direction: column;
+        padding: var(--spacing-large);
+    }
     background-color: var(--color-primary);
-    padding: var(--spacing-large);
     width: var(--width-mobile-preview);
     height: var(--height-mobile-preview);
     overflow: auto;

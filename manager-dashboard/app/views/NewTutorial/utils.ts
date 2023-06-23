@@ -9,12 +9,12 @@ import {
     ArraySchema,
     addCondition,
 } from '@togglecorp/toggle-form';
+
 import {
     TileServer,
     TileServerType,
     tileServerFieldsSchema,
 } from '#components/TileServerInput';
-
 import {
     getNoMoreThanNCharacterCondition,
     ProjectType,
@@ -30,20 +30,22 @@ const MAPBOX_KEY = process.env.REACT_APP_IMAGE_MAPBOX_API_KEY;
 const MAXAR_PREMIUM = process.env.REACT_APP_IMAGE_MAXAR_PREMIUM_API_KEY;
 const MAXAR_STANDARD = process.env.REACT_APP_IMAGE_MAXAR_STANDARD_API_KEY;
 
-export type ColorKey = 'red'
-| 'pink'
-| 'purple'
-| 'deepPurple'
-| 'indigo'
-| 'blue'
-| 'cyan'
-| 'teal'
-| 'green'
-| 'lime'
-| 'yellow'
-| 'orange'
-| 'brown'
-| 'gray';
+export type ColorKey = (
+    'red'
+    | 'pink'
+    | 'purple'
+    | 'deepPurple'
+    | 'indigo'
+    | 'blue'
+    | 'cyan'
+    | 'teal'
+    | 'green'
+    | 'lime'
+    | 'yellow'
+    | 'orange'
+    | 'brown'
+    | 'gray'
+);
 
 export const colorKeyToColorMap: Record<ColorKey, string> = {
     red: '#D32F2F',
@@ -62,8 +64,9 @@ export const colorKeyToColorMap: Record<ColorKey, string> = {
     gray: '#757575',
 };
 
+// FIXME: we may not need this
 export interface CustomOptionPreviewType {
-    id: string;
+    id: number;
     icon: IconKey,
     iconColor: ColorKey,
 }
@@ -150,22 +153,17 @@ export const iconColorOptions: ColorOptions[] = [
 export const tileServerUrls: {
     [key in Exclude<TileServerType, 'custom'>]: string;
 } = {
-    bing:
-        `https://ecn.t0.tiles.virtualearth.net/tiles/a{quad_key}.jpeg?g=1&token=${BING_KEY}`,
-    mapbox:
-        `https://d.tiles.mapbox.com/v4/mapbox.satellite/{z}/{x}/{y}.jpg?access_token=${MAPBOX_KEY}`,
-    maxar_premium:
-        `https://services.digitalglobe.com/earthservice/tmsaccess/tms/1.0.0/DigitalGlobe%3AImageryTileService@EPSG%3A3857@jpg/{z}/{x}/{y}.jpg?connectId=${MAXAR_PREMIUM}`,
-    maxar_standard:
-        `https://services.digitalglobe.com/earthservice/tmsaccess/tms/1.0.0/DigitalGlobe%3AImageryTileService@EPSG%3A3857@jpg/{z}/{x}/{y}.jpg?connectId=${MAXAR_STANDARD}`,
-    esri:
-        'https://services.arcgisonline.com/arcgis/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-    esri_beta:
-        'https://clarity.maptiles.arcgis.com/arcgis/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+    bing: `https://ecn.t0.tiles.virtualearth.net/tiles/a{quad_key}.jpeg?g=1&token=${BING_KEY}`,
+    mapbox: `https://d.tiles.mapbox.com/v4/mapbox.satellite/{z}/{x}/{y}.jpg?access_token=${MAPBOX_KEY}`,
+    maxar_premium: `https://services.digitalglobe.com/earthservice/tmsaccess/tms/1.0.0/DigitalGlobe%3AImageryTileService@EPSG%3A3857@jpg/{z}/{x}/{y}.jpg?connectId=${MAXAR_PREMIUM}`,
+    maxar_standard: `https://services.digitalglobe.com/earthservice/tmsaccess/tms/1.0.0/DigitalGlobe%3AImageryTileService@EPSG%3A3857@jpg/{z}/{x}/{y}.jpg?connectId=${MAXAR_STANDARD}`,
+    esri: 'https://services.arcgisonline.com/arcgis/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+    esri_beta: 'https://clarity.maptiles.arcgis.com/arcgis/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
 };
 
 export type InformationPageTemplateKey = '1-picture' | '2-picture' | '3-picture';
-export interface InformationPageOption {
+
+interface InformationPageOption {
     key: InformationPageTemplateKey;
     label: string;
 }
@@ -177,17 +175,19 @@ export const infoPageTemplateOptions: InformationPageOption[] = [
     },
     {
         key: '2-picture',
-        label: 'With 2 picture',
+        label: 'With 2 pictures',
     },
     {
         key: '3-picture',
-        label: 'With 3 picture',
+        label: 'With 3 pictures',
     },
 ];
 
+type BlockType = 'text' | 'image';
+
 interface Block {
     blockNumber: number,
-    blockType: 'text' | 'image',
+    blockType: BlockType,
 }
 
 export const infoPageBlocksMap: Record<InformationPageTemplateKey, Block[]> = {
@@ -252,11 +252,11 @@ export type TutorialTasks = GeoJSON.FeatureCollection<GeoJSON.Geometry, {
     reference: number;
     screen: number;
     taskId: string;
-    // eslint-disable-next-line
+    // eslint-disable-next-line camelcase
     tile_x: number;
-    // eslint-disable-next-line
+    // eslint-disable-next-line camelcase
     tile_y: number;
-    // eslint-disable-next-line
+    // eslint-disable-next-line camelcase
     tile_z: number;
 }>;
 
@@ -279,7 +279,7 @@ export type InformationPages = {
     title: string;
     blocks: {
         blockNumber: number;
-        blockType: 'image' | 'text';
+        blockType: BlockType;
         textDescription?: string;
         imageFile?: File;
     }[];

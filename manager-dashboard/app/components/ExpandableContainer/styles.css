@@ -13,10 +13,22 @@
             flex-grow: 1;
         }
 
-        .actions {
+        .icons {
+            display: flex;
+            gap: var(--spacing-medium);
             flex-shrink: 0;
 
-            .icon {
+            >* {
+                font-size: 1.2rem;
+            }
+        }
+
+        .actions {
+            display: flex;
+            gap: var(--spacing-medium);
+            flex-shrink: 0;
+
+            >* {
                 font-size: 1.2rem;
             }
         }

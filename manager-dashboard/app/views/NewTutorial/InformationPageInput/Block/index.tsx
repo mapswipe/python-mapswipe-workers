@@ -18,6 +18,7 @@ interface Props {
     onChange: (value: SetValueArg<PartialBlockType>, index: number) => void;
     index: number;
     error: Error<PartialBlockType> | undefined;
+    disabled: boolean;
 }
 
 export default function Block(props: Props) {
@@ -26,6 +27,7 @@ export default function Block(props: Props) {
         onChange,
         index,
         error: riskyError,
+        disabled,
     } = props;
 
     const onBlockChange = useFormObject(index, onChange, { blockNumber: 1, blockType: 'text' });
@@ -37,9 +39,10 @@ export default function Block(props: Props) {
                 <MarkdownEditor
                     name={'textDescription' as const}
                     value={value?.textDescription}
-                    label="Description"
+                    label={`Block ${index + 1}`}
                     onChange={onBlockChange}
                     error={error?.textDescription}
+                    disabled={disabled}
                 />
             )}
             {value.blockType === 'image' && (
@@ -47,11 +50,12 @@ export default function Block(props: Props) {
                     name={'imageFile' as const}
                     value={value?.imageFile}
                     onChange={onBlockChange}
-                    label="Upload Image"
+                    label={`Block ${index + 1}`}
                     hint="Make sure you have the rights to
                     use this image. It should end with  .jpg or .png."
                     accept="image/png, image/jpeg"
                     error={error?.imageFile}
+                    disabled={disabled}
                 />
             )}
         </div>
