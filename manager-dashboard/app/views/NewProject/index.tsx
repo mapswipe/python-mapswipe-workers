@@ -38,6 +38,7 @@ import SegmentInput from '#components/SegmentInput';
 import GeoJsonFileInput from '#components/GeoJsonFileInput';
 import TileServerInput, {
     TILE_SERVER_BING,
+    TILE_SERVER_ESRI,
     tileServerDefaultCredits,
 } from '#components/TileServerInput';
 import InputSection from '#components/InputSection';
@@ -88,8 +89,8 @@ const defaultProjectFormValue: PartialProjectFormType = {
         credits: tileServerDefaultCredits[TILE_SERVER_BING],
     },
     tileServerB: {
-        name: TILE_SERVER_BING,
-        credits: tileServerDefaultCredits[TILE_SERVER_BING],
+        name: TILE_SERVER_ESRI,
+        credits: tileServerDefaultCredits[TILE_SERVER_ESRI],
     },
     // maxTasksPerUser: -1,
     inputType: PROJECT_INPUT_TYPE_UPLOAD,

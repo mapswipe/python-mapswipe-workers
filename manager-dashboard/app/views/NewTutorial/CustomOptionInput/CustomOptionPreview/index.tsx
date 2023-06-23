@@ -1,5 +1,8 @@
 import React from 'react';
+
 import { iconMap } from '#utils/common';
+import MobilePreview from '#components/MobilePreview';
+
 import {
     colorKeyToColorMap,
     PartialTutorialFormType,
@@ -16,7 +19,13 @@ export default function CustomOptionPreview(props: Props) {
     } = props;
 
     return (
-        <div className={styles.optionPreview}>
+        <MobilePreview
+            className={styles.optionPreview}
+            contentClassName={styles.content}
+            // FIXME: get this from 'look for'
+            heading="mobile homes"
+            headingLabel="You are looking for:"
+        >
             {value?.map((preview, index) => {
                 const Icon = preview.icon
                     ? iconMap[preview.icon]
@@ -48,6 +57,6 @@ export default function CustomOptionPreview(props: Props) {
                     </div>
                 );
             })}
-        </div>
+        </MobilePreview>
     );
 }

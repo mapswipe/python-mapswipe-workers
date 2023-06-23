@@ -7,6 +7,7 @@
         border: var(--width-separator-thin) solid var(--color-separator);
         border-top-left-radius: var(--radius-card-border);
         border-top-right-radius: var(--radius-card-border);
+        background-color: var(--color-background-accent-hint);
         padding: var(--spacing-medium);
 
         .header {

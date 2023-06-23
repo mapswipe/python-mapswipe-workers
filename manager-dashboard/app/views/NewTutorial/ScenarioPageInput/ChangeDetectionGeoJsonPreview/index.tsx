@@ -5,11 +5,12 @@ import MobilePreview from '#components/MobilePreview';
 import GeoJsonPreview from '#components/GeoJsonPreview';
 import { iconMap, IconKey } from '#utils/common';
 
+import { ChangeDetectionGeoJSON } from '../../utils';
 import styles from './styles.css';
 
 interface Props {
     className?: string;
-    geoJson: GeoJSON.GeoJSON | undefined;
+    geoJson: ChangeDetectionGeoJSON | undefined;
     previewPopUp?: {
         title?: string;
         description?: string;
@@ -33,7 +34,9 @@ export default function ChangeDetectionGeoJsonPreview(props: Props) {
     return (
         <MobilePreview
             className={_cs(styles.changeDetectionGeoJsonPreview, className)}
-            heading="You are looking for: mobile homes"
+            // FIXME: get this from 'look for'
+            heading="mobile homes"
+            headingLabel="You are looking for:"
             popupIcons={Comp && <Comp />}
             popupTitle={previewPopUp?.title ?? 'Title'}
             popupDescription={previewPopUp?.description ?? 'Description'}

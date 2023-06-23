@@ -1,4 +1,4 @@
-import React from 'react';
+import React from 'react'; // we change this array to map before sending to server
 import {
     _cs,
     isDefined,
@@ -48,6 +48,7 @@ import ExpandableContainer from '#components/ExpandableContainer';
 import PopupButton from '#components/PopupButton';
 import TileServerInput, {
     TILE_SERVER_BING,
+    TILE_SERVER_ESRI,
     tileServerDefaultCredits,
 } from '#components/TileServerInput';
 import InputSection from '#components/InputSection';
@@ -101,7 +102,8 @@ function sanitizeScreens(scenarioPages: TutorialFormType['scenarioPages']) {
     return screens;
 }
 
-const defaultCustomOptions: PartialTutorialFormType['customOptions'] = [
+// FIXME: need to confirm if the values are correct
+const defaultFootprintCustomOptions: PartialTutorialFormType['customOptions'] = [
     {
         optionId: 1,
         value: 1,
@@ -137,10 +139,10 @@ const defaultTutorialFormValue: PartialTutorialFormType = {
         credits: tileServerDefaultCredits[TILE_SERVER_BING],
     },
     tileServerB: {
-        name: TILE_SERVER_BING,
-        credits: tileServerDefaultCredits[TILE_SERVER_BING],
+        name: TILE_SERVER_ESRI,
+        credits: tileServerDefaultCredits[TILE_SERVER_ESRI],
     },
-    customOptions: defaultCustomOptions,
+    customOptions: defaultFootprintCustomOptions,
 };
 
 type SubmissionStatus = 'started' | 'imageUpload' | 'tutorialSubmit' | 'success' | 'failed';
@@ -220,14 +222,16 @@ function NewTutorial(props: Props) {
             }
             const {
                 scenarioPages,
-                informationPages: informationPagesFromForm,
+                informationPages,
                 ...valuesToCopy
             } = finalValues;
 
-            const screens = sanitizeScreens(scenarioPages);
+            const sanitizedScenarioPages = sanitizeScreens(scenarioPages);
 
             try {
-                await navigator.clipboard.writeText(JSON.stringify(screens, null, 2));
+                await navigator.clipboard.writeText(
+                    JSON.stringify(sanitizedScenarioPages, null, 2),
+                );
                 // FIXME: remove this in production
                 // eslint-disable-next-line no-alert
                 alert('Tutorial JSON copied to clipboard.');
@@ -242,8 +246,8 @@ function NewTutorial(props: Props) {
 
             setTutorialSubmissionStatus('imageUpload');
             try {
-                const informationPagesPromises = informationPagesFromForm.map(async (info) => {
-                    const blockPromises = info.blocks.map(async (block) => {
+                const informationPagesPromises = informationPages.map(async (info, index) => {
+                    const blocks = info.blocks.map(async (block) => {
                         if (!block.imageFile) {
                             return block;
                         }
@@ -265,15 +269,21 @@ function NewTutorial(props: Props) {
                         };
                     });
 
-                    return Promise.all(blockPromises);
+                    return {
+                        ...info,
+                        // We are making sure that page number starts with 1
+                        // and is sequential
+                        pageNumber: index + 1,
+                        blocks: Promise.all(blocks),
+                    };
                 });
 
-                const informationPages = await Promise.all(informationPagesPromises);
+                const sanitizedInformationPages = await Promise.all(informationPagesPromises);
 
                 const uploadData = {
                     ...valuesToCopy,
-                    screens,
-                    informationPages,
+                    screens: sanitizedScenarioPages,
+                    informationPages: sanitizedInformationPages,
                     createdBy: userId,
                 };
 
@@ -311,7 +321,13 @@ function NewTutorial(props: Props) {
     }, [user, mountedRef]);
 
     const handleSubmitButtonClick = React.useCallback(
-        () => createSubmitHandler(validate, setError, handleSubmission),
+        () => {
+            createSubmitHandler(
+                validate,
+                setError,
+                handleSubmission,
+            )();
+        },
         [validate, setError, handleSubmission],
     );
 
@@ -367,10 +383,12 @@ function NewTutorial(props: Props) {
 
         setFieldValue(tutorialTasks, 'tutorialTasks');
 
+        // FIXME: we need to validate the geojson here
+
         const uniqueArray = tutorialTasks && unique(
             tutorialTasks.features, ((geo) => geo?.properties.screen),
         );
-        const sorted = uniqueArray?.sort((a, b) => a.properties?.screen - b.properties.screen);
+        const sorted = uniqueArray?.sort((a, b) => a.properties.screen - b.properties.screen);
         const tutorialTaskArray = sorted?.map((geo) => (
             {
                 scenarioId: geo.properties.screen,
@@ -503,27 +521,25 @@ function NewTutorial(props: Props) {
                         error={error?.projectType}
                         disabled={submissionPending}
                     />
-                    <div className={styles.inputGroup}>
-                        <TextInput
-                            name={'name' as const}
-                            value={value.name}
-                            onChange={setFieldValue}
-                            label="Name of the Tutorial"
-                            hint="Provide a clear name for your tutorial. You can select tutorials based on their name later during the project creation."
-                            error={error?.name}
-                            disabled={submissionPending || projectTypeEmpty}
-                        />
-                        <TextInput
-                            name={'lookFor' as const}
-                            value={value.lookFor}
-                            onChange={setFieldValue}
-                            label="Look For"
-                            hint="What should the users look for (e.g. buildings, cars, trees)? (25 chars max)."
-                            error={error?.lookFor}
-                            disabled={submissionPending || projectTypeEmpty}
-                            autoFocus
-                        />
-                    </div>
+                    <TextInput
+                        name={'name' as const}
+                        value={value.name}
+                        onChange={setFieldValue}
+                        label="Name of the Tutorial"
+                        hint="Provide a clear name for your tutorial. You can select tutorials based on their name later during the project creation."
+                        error={error?.name}
+                        disabled={submissionPending || projectTypeEmpty}
+                    />
+                    <TextInput
+                        name={'lookFor' as const}
+                        value={value.lookFor}
+                        onChange={setFieldValue}
+                        label="Look For"
+                        hint="What should the users look for (e.g. buildings, cars, trees)? (25 chars max)."
+                        error={error?.lookFor}
+                        disabled={submissionPending || projectTypeEmpty}
+                        autoFocus
+                    />
                 </InputSection>
                 {value.projectType === PROJECT_TYPE_FOOTPRINT && (
                     <InputSection
@@ -553,12 +569,14 @@ function NewTutorial(props: Props) {
                                         <ExpandableContainer
                                             key={option.optionId}
                                             header={option.title || `Option ${index + 1}`}
+                                            openByDefault
                                             actions={(
                                                 <Button
                                                     name={index}
                                                     onClick={handleOptionRemove}
                                                     variant="action"
                                                     title="Delete Option"
+                                                    disabled={submissionPending || projectTypeEmpty}
                                                 >
                                                     <IoIosTrash />
                                                 </Button>
@@ -570,7 +588,7 @@ function NewTutorial(props: Props) {
                                                 index={index}
                                                 onChange={setOptionValue}
                                                 error={optionsError?.[option.optionId]}
-                                                disabled={submissionPending}
+                                                disabled={submissionPending || projectTypeEmpty}
                                             />
                                         </ExpandableContainer>
                                     ))}
@@ -580,7 +598,7 @@ function NewTutorial(props: Props) {
                                 />
                             </div>
                         ) : (
-                            <div>No sub-options at the moment</div>
+                            <div>No options at the moment</div>
                         )}
                     </InputSection>
                 )}
@@ -591,7 +609,7 @@ function NewTutorial(props: Props) {
                             componentRef={popupElementRef}
                             name={undefined}
                             icons={<MdAdd />}
-                            label="New Information Page"
+                            label="Add Page"
                             popupContentClassName={styles.newInfoButtonPopup}
                             disabled={submissionPending || projectTypeEmpty}
                         >
@@ -623,12 +641,14 @@ function NewTutorial(props: Props) {
                             <ExpandableContainer
                                 key={page.pageNumber}
                                 header={page.title || `Intro ${page.pageNumber}`}
+                                openByDefault
                                 actions={(
                                     <Button
                                         name={i}
                                         onClick={handleInformationPageRemove}
                                         variant="action"
                                         title="Delete page"
+                                        disabled={submissionPending || projectTypeEmpty}
                                     >
                                         <IoIosTrash />
                                     </Button>
@@ -697,10 +717,11 @@ function NewTutorial(props: Props) {
                     )
                 }
                 <InputSection
-                    heading="Scenarios"
+                    heading="Scenario Pages"
                 >
                     <GeoJsonFileInput
                         name={'tutorialTasks' as const}
+                        label="Upload Scenarios as GeoJSON"
                         value={value.tutorialTasks}
                         onChange={handleGeoJsonFile}
                         hint="It should end with .geojson or .geo.json"
@@ -711,6 +732,8 @@ function NewTutorial(props: Props) {
                         {value.scenarioPages?.map((task, index) => (
                             <ExpandableContainer
                                 key={task.scenarioId}
+                                // NOTE: only open first scenario by default
+                                openByDefault={index === 0}
                                 header={`Scenario ${task.scenarioId}`}
                             >
                                 <ScenarioPageInput
@@ -725,6 +748,7 @@ function NewTutorial(props: Props) {
                                     geoJson={value.tutorialTasks}
                                     url={tileServerAUrl}
                                     urlB={tileServerBUrl}
+                                    disabled={submissionPending || projectTypeEmpty}
                                 />
                             </ExpandableContainer>
                         ))}
@@ -745,7 +769,7 @@ function NewTutorial(props: Props) {
                     <Button
                         name={undefined}
                         onClick={handleSubmitButtonClick}
-                        disabled={submissionPending || projectTypeEmpty}
+                        // disabled={submissionPending || projectTypeEmpty}
                     >
                         Submit
                     </Button>

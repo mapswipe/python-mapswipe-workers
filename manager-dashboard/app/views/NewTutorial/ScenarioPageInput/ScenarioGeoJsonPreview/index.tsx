@@ -5,11 +5,12 @@ import MobilePreview from '#components/MobilePreview';
 import GeoJsonPreview from '#components/GeoJsonPreview';
 import { iconMap, IconKey } from '#utils/common';
 
+import { BuildAreaGeoJSON } from '../../utils';
 import styles from './styles.css';
 
 interface Props {
     className?: string;
-    geoJson: GeoJSON.GeoJSON | undefined;
+    geoJson: BuildAreaGeoJSON | undefined;
     previewPopUp?: {
         title?: string;
         description?: string;
@@ -32,7 +33,8 @@ function ScenarioGeoJsonPreview(props: Props) {
         <MobilePreview
             className={_cs(styles.scenarioGeoJsonPreview, className)}
             // FIXME: get this from 'look for'
-            heading="You are looking for: mobile homes"
+            heading="mobile homes"
+            headingLabel="You are looking for:"
             popupIcons={Comp && <Comp />}
             popupTitle={previewPopUp?.title ?? 'Title'}
             popupDescription={previewPopUp?.description ?? 'Description'}

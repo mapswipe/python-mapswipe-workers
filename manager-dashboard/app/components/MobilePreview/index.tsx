@@ -8,6 +8,7 @@ import styles from './styles.css';
 
 interface Props {
     className?: string;
+    headingLabel?: React.ReactNode;
     heading?: React.ReactNode;
     actions?: React.ReactNode;
     children?: React.ReactNode;
@@ -21,6 +22,7 @@ interface Props {
 function MobilePreview(props: Props) {
     const {
         className,
+        headingLabel,
         heading,
         actions,
         children,
@@ -42,7 +44,7 @@ function MobilePreview(props: Props) {
                     level={5}
                 >
                     <div className={styles.label}>
-                        You are looking for:
+                        {headingLabel}
                     </div>
                     <div>
                         {heading}

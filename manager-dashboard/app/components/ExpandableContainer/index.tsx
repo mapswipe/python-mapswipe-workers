@@ -12,6 +12,7 @@ interface Props {
     actions?: React.ReactNode;
     className?: string;
     children?: React.ReactNode;
+    openByDefault?: boolean;
 }
 
 function ExpandableContainer(props: Props) {
@@ -21,9 +22,10 @@ function ExpandableContainer(props: Props) {
         icons,
         header,
         actions,
+        openByDefault = false,
     } = props;
 
-    const [isExpanded, setIsExpanded] = React.useState(false);
+    const [isExpanded, setIsExpanded] = React.useState(openByDefault);
 
     return (
         <div

@@ -247,35 +247,82 @@ export const infoPageBlocksMap: Record<InformationPageTemplateKey, Block[]> = {
     ],
 };
 
-export type TutorialTasks = GeoJSON.FeatureCollection<GeoJSON.Geometry, {
-    groupId: string;
+interface BuildAreaProperties {
     reference: number;
     screen: number;
-    taskId: string;
+    // eslint-disable-next-line camelcase
+    task_id: string;
     // eslint-disable-next-line camelcase
     tile_x: number;
     // eslint-disable-next-line camelcase
     tile_y: number;
     // eslint-disable-next-line camelcase
     tile_z: number;
-}>;
+
+    // groupId: string;
+    // taskId: string;
+    // category for completeness?
+}
+
+interface FootprintProperties {
+    id: string;
+    reference: number;
+    screen: number;
+}
+
+interface ChangeDetectionProperties {
+    reference: number;
+    screen: number;
+    // eslint-disable-next-line camelcase
+    task_id: string;
+    // eslint-disable-next-line camelcase
+    tile_x: number;
+    // eslint-disable-next-line camelcase
+    tile_y: number;
+    // eslint-disable-next-line camelcase
+    tile_z: number;
+
+    // category: string;
+    // groupId: string;
+    // taskId: string;
+}
+
+export type BuildAreaGeoJSON = GeoJSON.FeatureCollection<
+    GeoJSON.Geometry,
+    BuildAreaProperties
+>;
+
+export type FootprintGeoJSON = GeoJSON.FeatureCollection<
+    GeoJSON.Geometry,
+    FootprintProperties
+>;
+
+export type ChangeDetectionGeoJSON = GeoJSON.FeatureCollection<
+    GeoJSON.Geometry,
+    ChangeDetectionProperties
+>;
+
+export type TutorialTasksGeoJSON = GeoJSON.FeatureCollection<
+    GeoJSON.Geometry,
+    BuildAreaProperties | FootprintProperties | ChangeDetectionProperties
+>;
 
 export type CustomOptions = {
-    optionId: number;
+    optionId: number; // we clear this before sending to server
     title: string;
     value: number;
     description: string;
     icon: IconKey;
     iconColor: string;
     subOptions: {
-        subOptionsId: number;
+        subOptionsId: number; // we clear this before sending to server
         description: string;
         value: number;
     }[];
 }[];
 
 export type InformationPages = {
-    pageNumber: number;
+    pageNumber: number; // we need to re-calculate this
     title: string;
     blocks: {
         blockNumber: number;
@@ -289,7 +336,7 @@ export interface TutorialFormType {
     lookFor: string;
     name: string;
     tileServer: TileServer;
-    scenarioPages: {
+    scenarioPages: { // we change this array to map before sending to server
         scenarioId: number;
         hint: {
             description: string;
@@ -307,7 +354,7 @@ export interface TutorialFormType {
             title: string;
         };
     }[];
-    tutorialTasks?: TutorialTasks,
+    tutorialTasks?: TutorialTasksGeoJSON,
     exampleImage1: File;
     exampleImage2: File;
     projectType: ProjectType;
