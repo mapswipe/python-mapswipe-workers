@@ -1,4 +1,5 @@
 import React from 'react';
+import { PointExpression } from 'leaflet';
 import { _cs } from '@togglecorp/fujs';
 
 import MobilePreview from '#components/MobilePreview';
@@ -29,6 +30,18 @@ export default function ChangeDetectionGeoJsonPreview(props: Props) {
         urlB,
     } = props;
 
+    const previewStyles = React.useCallback(() => (
+        {
+            stroke: true,
+            weight: 0.5,
+            color: '#ffffff',
+            fillColor: 'transparent',
+            fillOpacity: 0.2,
+        }
+    ), []);
+
+    const boundsPadding: PointExpression = [10, 10];
+
     const Comp = previewPopUp?.icon ? iconMap[previewPopUp.icon] : undefined;
 
     return (
@@ -45,13 +58,17 @@ export default function ChangeDetectionGeoJsonPreview(props: Props) {
         >
             <GeoJsonPreview
                 className={styles.mapPreview}
+                previewStyle={previewStyles}
                 geoJson={geoJson}
                 url={url}
+                boundsPadding={boundsPadding}
             />
             <GeoJsonPreview
                 className={styles.mapPreview}
+                previewStyle={previewStyles}
                 geoJson={geoJson}
                 url={urlB}
+                boundsPadding={boundsPadding}
             />
         </MobilePreview>
     );

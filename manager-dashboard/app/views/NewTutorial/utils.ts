@@ -269,7 +269,7 @@ export const defaultFootprintCustomOptions: PartialTutorialFormType['customOptio
     },
 ];
 
-interface BuildAreaProperties {
+export interface BuildAreaProperties {
     reference: number;
     screen: number;
     // eslint-disable-next-line camelcase
@@ -286,7 +286,7 @@ interface BuildAreaProperties {
     // category for completeness?
 }
 
-interface FootprintProperties {
+export interface FootprintProperties {
     id: string;
     reference: number;
     screen: number;

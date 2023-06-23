@@ -5,6 +5,8 @@ import {
     geoJSON,
     TileLayer,
     Coords,
+    StyleFunction,
+    PointExpression,
 } from 'leaflet';
 import { _cs } from '@togglecorp/fujs';
 
@@ -48,6 +50,8 @@ interface Props {
     className?: string;
     geoJson: GeoJSON.GeoJSON | undefined;
     url?: string | undefined;
+    previewStyle?: StyleFunction;
+    boundsPadding?: PointExpression | undefined;
 }
 
 function GeoJsonPreview(props: Props) {
@@ -55,6 +59,8 @@ function GeoJsonPreview(props: Props) {
         className,
         geoJson,
         url,
+        previewStyle,
+        boundsPadding = [0, 0],
     } = props;
 
     const mapRef = React.useRef<Map>();
@@ -66,6 +72,7 @@ function GeoJsonPreview(props: Props) {
                 mapRef.current = createMap(mapContainerRef.current, {
                     zoomSnap: 0,
                     scrollWheelZoom: false,
+                    zoomControl: false,
                 });
             }
 
@@ -91,14 +98,12 @@ function GeoJsonPreview(props: Props) {
                 );
 
                 layer.addTo(mapRef.current);
-                mapRef.current.zoomControl.remove();
                 mapRef.current.invalidateSize();
             }
 
             return () => {
                 if (mapRef.current) {
                     mapRef.current.remove();
-                    mapRef.current.zoomControl.remove();
                     mapRef.current = undefined;
                 }
             };
@@ -117,14 +122,14 @@ function GeoJsonPreview(props: Props) {
                 return undefined;
             }
 
-            const newGeoJson = geoJSON();
+            const newGeoJson = geoJSON(geoJson, {
+                style: previewStyle,
+            });
             newGeoJson.addTo(map);
-
-            newGeoJson.addData(geoJson);
             const bounds = newGeoJson.getBounds();
 
             if (bounds.isValid()) {
-                map.fitBounds(bounds, { padding: [0, 0] });
+                map.fitBounds(bounds, { padding: boundsPadding });
             }
 
             return () => {
@@ -133,7 +138,12 @@ function GeoJsonPreview(props: Props) {
             };
         },
         // NOTE: adding url as dependency as url will re-create the map
-        [geoJson, url],
+        [
+            geoJson,
+            url,
+            previewStyle,
+            boundsPadding,
+        ],
     );
 
     return (

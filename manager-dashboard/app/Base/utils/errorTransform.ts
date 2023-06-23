@@ -1,8 +1,8 @@
-import { internal } from '@togglecorp/toggle-form';
+import { nonFieldError } from '@togglecorp/toggle-form';
 import { listToMap, isDefined, isNotDefined } from '@togglecorp/fujs';
 
 interface Error {
-    [internal]?: string | undefined;
+    [nonFieldError]?: string | undefined;
     [key: string]: string | Error | undefined;
 }
 
@@ -53,7 +53,7 @@ function transformObject(errors: ObjectError[] | undefined): Error | undefined {
     );
 
     return {
-        [internal]: finalNonFieldErrors,
+        [nonFieldError]: finalNonFieldErrors,
         ...finalFieldErrors,
     };
 }
@@ -68,7 +68,7 @@ function transformArray(errors: (ArrayError | null)[] | undefined): Error | unde
     const memberErrors = filteredErrors.filter((error) => error.clientId !== 'nonMemberErrors');
 
     return {
-        [internal]: topLevelError?.messages,
+        [nonFieldError]: topLevelError?.messages,
         ...listToMap(
             memberErrors,
             (error) => error.clientId,

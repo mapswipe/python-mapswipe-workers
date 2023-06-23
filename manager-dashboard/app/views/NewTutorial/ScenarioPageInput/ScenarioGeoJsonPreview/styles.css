@@ -1,10 +1,8 @@
 .scenario-geo-json-preview {
     .content {
-        padding: var(--spacing-extra-large) var(--spacing-medium);
-
         .map-container {
             z-index: 0;
-            height: var(--height-mobile-preview);
+            height: var(--height-mobile-preview-builarea-content);
         }
     }
 }

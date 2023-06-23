@@ -280,12 +280,6 @@ function NewTutorial(props: Props) {
                     createdBy: userId,
                 };
 
-                console.log(uploadData);
-                if (uploadData) {
-                    setTutorialSubmissionStatus('failed');
-                    return;
-                }
-
                 const database = getDatabase();
                 const tutorialDraftsRef = databaseRef(database, 'v2/tutorialDrafts/');
                 const newTutorialDraftsRef = await pushToDatabase(tutorialDraftsRef);
@@ -732,7 +726,7 @@ function NewTutorial(props: Props) {
                                     projectType={value.projectType}
                                     onChange={onScenarioFormChange}
                                     error={scenarioError?.[task.scenarioId]}
-                                    customOptionsPreview={customOptions}
+                                    customOptions={customOptions}
                                     geoJson={value.tutorialTasks}
                                     url={tileServerAUrl}
                                     urlB={tileServerBUrl}

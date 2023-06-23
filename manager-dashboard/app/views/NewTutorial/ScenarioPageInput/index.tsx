@@ -79,7 +79,7 @@ interface Props {
     projectType: ProjectType | undefined;
     url: string | undefined;
     urlB: string | undefined;
-    customOptionsPreview: PartialCustomOptionsType | undefined;
+    customOptions: PartialCustomOptionsType | undefined;
     scenarioId: number;
     disabled: boolean;
 }
@@ -94,7 +94,7 @@ export default function ScenarioPageInput(props: Props) {
         url,
         projectType,
         urlB,
-        customOptionsPreview,
+        customOptions,
         scenarioId,
         disabled,
     } = props;
@@ -260,7 +260,8 @@ export default function ScenarioPageInput(props: Props) {
                         urlB={urlB}
                     />
                 )}
-                {projectType === (PROJECT_TYPE_BUILD_AREA || PROJECT_TYPE_COMPLETENESS) && (
+                {((projectType === PROJECT_TYPE_BUILD_AREA)
+                    || (projectType === PROJECT_TYPE_COMPLETENESS)) && (
                     // FIXME: Rename this to something more specific
                     <ScenarioGeoJsonPreview
                         geoJson={geoJson as BuildAreaGeoJSON | undefined}
@@ -272,8 +273,7 @@ export default function ScenarioPageInput(props: Props) {
                     <FootprintGeoJsonPreview
                         geoJson={geoJson as FootprintGeoJSON | undefined}
                         url={url}
-                        previewPopUp={previewPopUpData}
-                        customOptionsPreview={customOptionsPreview}
+                        customOptions={customOptions}
                     />
                 )}
                 <SegmentInput

@@ -1,4 +1,5 @@
 import React from 'react';
+import { StyleFunction } from 'leaflet';
 import { _cs } from '@togglecorp/fujs';
 
 import MobilePreview from '#components/MobilePreview';
@@ -7,8 +8,9 @@ import { IconKey, iconMap } from '#utils/common';
 
 import {
     PartialCustomOptionsType,
-    FootprintGeoJSON,
     colorKeyToColorMap,
+    FootprintGeoJSON,
+    FootprintProperties,
 } from '../../utils';
 import styles from './styles.css';
 
@@ -21,7 +23,7 @@ interface Props {
         icon?: IconKey;
     }
     url: string | undefined;
-    customOptionsPreview: PartialCustomOptionsType | undefined;
+    customOptions: PartialCustomOptionsType | undefined;
 }
 export default function FootprintGeoJsonPreview(props: Props) {
     const {
@@ -29,8 +31,18 @@ export default function FootprintGeoJsonPreview(props: Props) {
         geoJson,
         url,
         previewPopUp,
-        customOptionsPreview,
+        customOptions,
     } = props;
+
+    const previewStyles: StyleFunction<FootprintProperties> = React.useCallback(() => (
+        {
+            color: '#ffffff',
+            dashArray: '3',
+            stroke: true,
+            weight: 1,
+            fillColor: 'transparent',
+        }
+    ), []);
 
     const Comp = previewPopUp?.icon ? iconMap[previewPopUp.icon] : undefined;
 
@@ -47,11 +59,12 @@ export default function FootprintGeoJsonPreview(props: Props) {
         >
             <GeoJsonPreview
                 className={styles.mapPreview}
+                previewStyle={previewStyles}
                 url={url}
                 geoJson={geoJson}
             />
             <div className={styles.options}>
-                {customOptionsPreview?.map((option) => {
+                {customOptions?.map((option) => {
                     const Icon = option.icon
                         ? iconMap[option.icon]
                         : iconMap.flagOutline;
@@ -69,7 +82,9 @@ export default function FootprintGeoJsonPreview(props: Props) {
                                     ),
                                 }}
                             >
-                                <Icon />
+                                {Icon && (
+                                    <Icon />
+                                )}
                             </div>
                         </div>
                     );

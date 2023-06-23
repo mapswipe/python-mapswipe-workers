@@ -1,11 +1,12 @@
 import React from 'react';
+import { PathOptions, StyleFunction } from 'leaflet';
 import { _cs } from '@togglecorp/fujs';
 
 import MobilePreview from '#components/MobilePreview';
 import GeoJsonPreview from '#components/GeoJsonPreview';
 import { iconMap, IconKey } from '#utils/common';
 
-import { BuildAreaGeoJSON } from '../../utils';
+import { BuildAreaGeoJSON, BuildAreaProperties } from '../../utils';
 import styles from './styles.css';
 
 interface Props {
@@ -27,6 +28,29 @@ function ScenarioGeoJsonPreview(props: Props) {
         url,
     } = props;
 
+    const previewStyles: StyleFunction<BuildAreaProperties> = React.useCallback((feature) => {
+        const buildAreaPreviewStylesobject: PathOptions = {
+            color: '#ffffff',
+            stroke: true,
+            weight: 0.5,
+            fillOpacity: 0.2,
+        };
+        if (!feature) {
+            return buildAreaPreviewStylesobject;
+        }
+        const referenceColorMap: Record<number, string> = {
+            0: 'transparent',
+            1: 'green',
+            2: 'yellow',
+            3: 'red',
+        };
+        const ref = feature.properties.reference;
+        return {
+            ...buildAreaPreviewStylesobject,
+            fillColor: referenceColorMap[ref] || 'transparent',
+        };
+    }, []);
+
     const Comp = previewPopUp?.icon ? iconMap[previewPopUp.icon] : undefined;
 
     return (
@@ -44,6 +68,7 @@ function ScenarioGeoJsonPreview(props: Props) {
                 className={styles.mapContainer}
                 geoJson={geoJson}
                 url={url}
+                previewStyle={previewStyles}
             />
         </MobilePreview>
     );
