@@ -20,7 +20,8 @@ interface Props {
     onRemove: (index: number) => void;
     index: number;
     error: Error<PartialSubOptionType> | undefined;
-    disabled: boolean;
+    disabled?: boolean;
+    readOnly?: boolean;
 }
 export default function SubOption(props: Props) {
     const {
@@ -30,6 +31,7 @@ export default function SubOption(props: Props) {
         index,
         error: riskyError,
         disabled,
+        readOnly,
     } = props;
 
     const onReasonChange = useFormObject(index, onChange, { subOptionsId: 1 });
@@ -44,7 +46,7 @@ export default function SubOption(props: Props) {
                 name={'description' as const}
                 error={error?.description}
                 onChange={onReasonChange}
-                disabled={disabled}
+                disabled={disabled || readOnly}
             />
             <NumberInput
                 className={styles.subOptionInput}
@@ -53,15 +55,17 @@ export default function SubOption(props: Props) {
                 name={'value' as const}
                 error={error?.value}
                 onChange={onReasonChange}
-                disabled={disabled}
+                disabled={disabled || readOnly}
             />
-            <Button
-                name={index}
-                onClick={onRemove}
-                disabled={disabled}
-            >
-                Remove
-            </Button>
+            {!readOnly && (
+                <Button
+                    name={index}
+                    onClick={onRemove}
+                    disabled={disabled}
+                >
+                    Remove
+                </Button>
+            )}
         </div>
     );
 }

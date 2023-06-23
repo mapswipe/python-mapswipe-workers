@@ -13,6 +13,18 @@
         max-width: 70rem;
         gap: var(--spacing-large);
 
+        .custom-option-container {
+            display: flex;
+            gap: var(--spacing-large);
+
+            .custom-option-list {
+                display: flex;
+                flex-direction: column;
+                flex-grow: 1;
+                gap: var(--spacing-medium);
+            }
+        }
+
         .input-group {
             display: flex;
             flex-wrap: wrap;

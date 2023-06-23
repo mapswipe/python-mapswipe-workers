@@ -26,26 +26,26 @@ export default function CustomOptionPreview(props: Props) {
             heading="mobile homes"
             headingLabel="You are looking for:"
         >
-            {value?.map((preview, index) => {
-                const Icon = preview.icon
-                    ? iconMap[preview.icon]
+            {value?.map((option, index) => {
+                const Icon = option.icon
+                    ? iconMap[option.icon]
                     : iconMap.flagOutline;
 
                 const previewText = [
-                    preview.title || `Option ${index + 1}`,
-                    preview.description,
+                    option.title || `Option ${index + 1}`,
+                    option.description,
                 ].filter(Boolean).join(' - ');
 
                 return (
                     <div
                         className={styles.previewContent}
-                        key={preview.optionId}
+                        key={option.optionId}
                     >
                         {Icon && (
                             <div
                                 className={styles.previewIcon}
                                 style={{
-                                    backgroundColor: preview.iconColor || colorKeyToColorMap.gray,
+                                    backgroundColor: option.iconColor || colorKeyToColorMap.gray,
                                 }}
                             >
                                 <Icon />

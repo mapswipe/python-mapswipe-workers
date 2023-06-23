@@ -586,7 +586,7 @@ function NewTutorial(props: Props) {
                                 />
                             </div>
                         ) : (
-                            <div>No options at the moment</div>
+                            <div>No options</div>
                         )}
                     </InputSection>
                 )}

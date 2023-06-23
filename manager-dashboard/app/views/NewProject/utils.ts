@@ -7,6 +7,7 @@ import {
 } from '@togglecorp/fujs';
 import {
     ObjectSchema,
+    ArraySchema,
     PartialForm,
     requiredStringCondition,
     integerCondition,
@@ -18,16 +19,11 @@ import {
 } from '@togglecorp/toggle-form';
 import { getType as getFeatureType } from '@turf/invariant';
 import getFeatureArea from '@turf/area';
+
 import {
     TileServer,
     tileServerFieldsSchema,
 } from '#components/TileServerInput';
-import {
-    CustomOptions,
-    CustomOptionFormSchema,
-    CustomOptionFormSchemaMember,
-    CustomOptionSchemaFields,
-} from '#views/NewTutorial/utils';
 
 import {
     getNoMoreThanNCharacterCondition,
@@ -37,7 +33,20 @@ import {
     PROJECT_TYPE_FOOTPRINT,
     PROJECT_TYPE_CHANGE_DETECTION,
     PROJECT_TYPE_COMPLETENESS,
+    IconKey,
 } from '#utils/common';
+
+export type CustomOptionsForProject = {
+    title: string;
+    value: number;
+    description: string;
+    icon: IconKey;
+    iconColor: string;
+    subOptions: {
+        description: string;
+        value: number;
+    }[];
+}[];
 
 export interface ProjectFormType {
     projectTopic: string;
@@ -62,7 +71,7 @@ export interface ProjectFormType {
     maxTasksPerUser: number;
     tileServer: TileServer;
     tileServerB?: TileServer;
-    customOptions?: CustomOptions;
+    customOptions?: CustomOptionsForProject;
 }
 
 export const PROJECT_INPUT_TYPE_UPLOAD = 'aoi_file';
@@ -91,11 +100,17 @@ export const filterOptions = [
 export type PartialProjectFormType = PartialForm<
     Omit<ProjectFormType, 'projectImage'> & { projectImage?: File },
     // NOTE: we do not want to change File and FeatureCollection to partials
-    'geometry' | 'projectImage' | 'optionId' | 'subOptionsId'
+    'geometry' | 'projectImage' | 'value'
 >;
 
 type ProjectFormSchema = ObjectSchema<PartialProjectFormType>;
 type ProjectFormSchemaFields = ReturnType<ProjectFormSchema['fields']>;
+
+type PartialCustomOptions = NonNullable<PartialProjectFormType['customOptions']>[number];
+type CustomOptionSchema = ObjectSchema<PartialCustomOptions, PartialProjectFormType>;
+type CustomOptionSchemaFields = ReturnType<CustomOptionSchema['fields']>
+type CustomOptionFormSchema = ArraySchema<PartialCustomOptions, PartialProjectFormType>;
+type CustomOptionFormSchemaMember = ReturnType<CustomOptionFormSchema['member']>;
 
 // FIXME: break this into multiple geometry conditions
 const DEFAULT_MAX_FEATURES = 20;
@@ -241,12 +256,9 @@ export const projectFormSchema: ProjectFormSchema = {
             ['customOptions'],
             (formValues) => {
                 const customOptionField: CustomOptionFormSchema = {
-                    keySelector: (key) => key.optionId,
+                    keySelector: (key) => key.value,
                     member: (): CustomOptionFormSchemaMember => ({
                         fields: (): CustomOptionSchemaFields => ({
-                            optionId: {
-                                required: true,
-                            },
                             title: {
                                 required: true,
                                 requiredValidation: requiredStringCondition,
@@ -267,10 +279,10 @@ export const projectFormSchema: ProjectFormSchema = {
                                 required: true,
                             },
                             subOptions: {
-                                keySelector: (key) => key.subOptionsId,
+                                keySelector: (subOption) => subOption.value,
                                 member: () => ({
                                     fields: () => ({
-                                        subOptionsId: {
+                                        value: {
                                             required: true,
                                         },
                                         description: {

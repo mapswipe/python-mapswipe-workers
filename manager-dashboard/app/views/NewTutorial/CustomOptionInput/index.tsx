@@ -34,10 +34,11 @@ type subOptionsType = NonNullable<PartialCustomOptionsType['subOptions']>[number
 
 interface Props {
     value: PartialCustomOptionsType;
-    onChange: (value: SetValueArg<PartialCustomOptionsType>, index: number) => void;
+    onChange: (value: SetValueArg<PartialCustomOptionsType>, index: number) => void | undefined;
     index: number;
     error: Error<PartialCustomOptionsType> | undefined;
-    disabled: boolean;
+    disabled?: boolean;
+    readOnly?: boolean;
 }
 
 export default function CustomOptionInput(props: Props) {
@@ -47,6 +48,7 @@ export default function CustomOptionInput(props: Props) {
         index,
         error: riskyError,
         disabled,
+        readOnly,
     } = props;
 
     const onOptionChange = useFormObject(index, onChange, defaultCustomOptionsValue);
@@ -95,7 +97,7 @@ export default function CustomOptionInput(props: Props) {
                     name={'title' as const}
                     onChange={onOptionChange}
                     error={error?.title}
-                    disabled={disabled}
+                    disabled={disabled || readOnly}
                 />
                 <SelectInput
                     className={styles.optionIcon}
@@ -107,7 +109,7 @@ export default function CustomOptionInput(props: Props) {
                     labelSelector={(d: IconItem) => d.label}
                     onChange={onOptionChange}
                     error={error?.icon}
-                    disabled={disabled}
+                    disabled={disabled || readOnly}
                 />
             </div>
             <div className={styles.optionContent}>
@@ -118,7 +120,7 @@ export default function CustomOptionInput(props: Props) {
                     name={'value' as const}
                     onChange={onOptionChange}
                     error={error?.value}
-                    disabled={disabled}
+                    disabled={disabled || readOnly}
                 />
                 <SelectInput
                     className={styles.optionIcon}
@@ -130,7 +132,7 @@ export default function CustomOptionInput(props: Props) {
                     labelSelector={(d: ColorOptions) => d.label}
                     onChange={onOptionChange}
                     error={error?.iconColor}
-                    disabled={disabled}
+                    disabled={disabled || readOnly}
                 />
             </div>
             <TextInput
@@ -140,7 +142,7 @@ export default function CustomOptionInput(props: Props) {
                 name={'description' as const}
                 onChange={onOptionChange}
                 error={error?.description}
-                disabled={disabled}
+                disabled={disabled || readOnly}
             />
             {/* FIXME: use accordion open by default */}
             <div className={styles.subOptions}>
@@ -159,20 +161,23 @@ export default function CustomOptionInput(props: Props) {
                         onRemove={onsubOptionsRemove}
                         error={subOptionsError?.[sub.subOptionsId]}
                         disabled={disabled}
+                        readOnly={readOnly}
                     />
                 ))}
                 {!value.subOptions?.length && (
-                    <div>No sub options at the moment</div>
+                    <div>No sub options</div>
                 )}
-                <Button
-                    name="addSubOption"
-                    className={styles.addButton}
-                    icons={<MdAdd />}
-                    onClick={handleSubOptionsAdd}
-                    disabled={disabled || (value.subOptions && value.subOptions.length >= 6)}
-                >
-                    Add Sub Options
-                </Button>
+                {!readOnly && (
+                    <Button
+                        name="addSubOption"
+                        className={styles.addButton}
+                        icons={<MdAdd />}
+                        onClick={handleSubOptionsAdd}
+                        disabled={disabled || (value.subOptions && value.subOptions.length >= 6)}
+                    >
+                        Add Sub Options
+                    </Button>
+                )}
             </div>
         </div>
     );

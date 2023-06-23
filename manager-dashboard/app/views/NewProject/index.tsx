@@ -43,9 +43,9 @@ import TileServerInput, {
 } from '#components/TileServerInput';
 import InputSection from '#components/InputSection';
 import Button from '#components/Button';
+import NonFieldError from '#components/NonFieldError';
 import AnimatedSwipeIcon from '#components/AnimatedSwipeIcon';
-import BasicProjectInfoForm from './BasicProjectInfoForm';
-
+import ExpandableContainer from '#components/ExpandableContainer';
 import {
     valueSelector,
     labelSelector,
@@ -56,6 +56,9 @@ import {
     PROJECT_TYPE_COMPLETENESS,
     PROJECT_TYPE_CHANGE_DETECTION,
 } from '#utils/common';
+
+import CustomOptionInput from '#views/NewTutorial/CustomOptionInput';
+import CustomOptionPreview from '#views/NewTutorial/CustomOptionInput/CustomOptionPreview';
 
 import {
     projectFormSchema,
@@ -72,6 +75,8 @@ import {
     validateAoiOnOhsome,
     validateProjectIdOnHotTaskingManager,
 } from './utils';
+import BasicProjectInfoForm from './BasicProjectInfoForm';
+
 // eslint-disable-next-line postcss-modules/no-unused-class
 import styles from './styles.css';
 
@@ -385,6 +390,22 @@ function NewProject(props: Props) {
 
     const projectTypeEmpty = isNotDefined(value.projectType);
 
+    const { customOptions: customOptionsFromValue } = value;
+
+    const customOptions = customOptionsFromValue?.map((option) => ({
+        ...option,
+        optionId: option.value,
+        subOptions: option.subOptions?.map((subOption) => ({
+            ...subOption,
+            subOptionsId: subOption.value,
+        })),
+    }));
+
+    const optionsError = React.useMemo(
+        () => getErrorObject(error?.customOptions),
+        [error?.customOptions],
+    );
+
     return (
         <div className={_cs(styles.newProject, className)}>
             <div className={styles.container}>
@@ -411,6 +432,47 @@ function NewProject(props: Props) {
                         disabled={submissionPending || projectTypeEmpty}
                     />
                 </InputSection>
+                {(
+                    value.projectType === PROJECT_TYPE_FOOTPRINT
+                    && customOptions
+                    && customOptions.length > 0
+                ) && (
+                    <InputSection
+                        heading="Custom Options"
+                    >
+                        <NonFieldError
+                            error={optionsError}
+                        />
+                        {(customOptions && customOptions.length > 0) ? (
+                            <div className={styles.customOptionContainer}>
+                                <div className={styles.customOptionList}>
+                                    {customOptions.map((option, index) => (
+                                        <ExpandableContainer
+                                            key={option.value}
+                                            header={option.title || `Option ${index + 1}`}
+                                        >
+                                            <CustomOptionInput
+                                                key={option.value}
+                                                value={option}
+                                                index={index}
+                                                // eslint-disable-next-line max-len
+                                                // eslint-disable-next-line @typescript-eslint/no-empty-function
+                                                onChange={() => {}}
+                                                error={optionsError?.[option.value]}
+                                                readOnly
+                                            />
+                                        </ExpandableContainer>
+                                    ))}
+                                </div>
+                                <CustomOptionPreview
+                                    value={customOptions}
+                                />
+                            </div>
+                        ) : (
+                            <div>No options</div>
+                        )}
+                    </InputSection>
+                )}
                 {(value.projectType === PROJECT_TYPE_BUILD_AREA
                     || value.projectType === PROJECT_TYPE_CHANGE_DETECTION
                     || value.projectType === PROJECT_TYPE_COMPLETENESS) && (

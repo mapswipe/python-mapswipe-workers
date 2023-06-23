@@ -2,23 +2,13 @@ import React, { useCallback } from 'react';
 import { EntriesAsList, ObjectError, SetBaseValueArg } from '@togglecorp/toggle-form';
 import TextInput from '#components/TextInput';
 import { generateProjectName, PartialProjectFormType } from '#views/NewProject/utils';
-import { PROJECT_TYPE_FOOTPRINT, labelSelector, valueSelector } from '#utils/common';
+import { labelSelector, valueSelector } from '#utils/common';
 import NumberInput from '#components/NumberInput';
 import TextArea from '#components/TextArea';
 import ImageInput from '#components/ImageInput';
 import SelectInput from '#components/SelectInput';
 import useProjectOptions from '#views/NewProject/useProjectOptions';
 import styles from '#views/NewProject/styles.css';
-import Card from '#components/Card';
-import Heading from '#components/Heading';
-import Tabs,
-{
-    Tab,
-    TabList,
-    TabPanel,
-} from '#components/Tabs';
-
-import CustomOptionReadOnly from './CustomOptionReadOnly';
 
 export interface Props<T extends PartialProjectFormType> {
     className?: string;
@@ -46,12 +36,6 @@ function BasicProjectInfoForm(props: Props<PartialProjectFormType>) {
         organisationOptions,
         organisationsPending,
     } = useProjectOptions(value?.projectType);
-
-    const [activeOptionsTab, setActiveOptionsTab] = React.useState('1');
-
-    React.useEffect(() => {
-        setFieldValue(tutorialOptions?.[0]?.value, 'tutorialId');
-    }, [setFieldValue, value?.projectType, tutorialOptions]);
 
     const setFieldValueAndGenerateName = React.useCallback(
         (...entries: EntriesAsList<PartialProjectFormType>) => {
@@ -223,43 +207,6 @@ function BasicProjectInfoForm(props: Props<PartialProjectFormType>) {
                     />
                 </div>
             </div>
-            {(value.projectType === PROJECT_TYPE_FOOTPRINT && value?.customOptions) && (
-                <Card
-                    title="Custom Options"
-                    contentClassName={styles.card}
-                >
-                    <Heading level={4}>
-                        Option Instructions
-                    </Heading>
-                    <Tabs
-                        value={activeOptionsTab}
-                        onChange={setActiveOptionsTab}
-                    >
-                        <TabList>
-                            {value.customOptions.map((custom) => (
-
-                                <Tab
-                                    key={custom.optionId}
-                                    name={`${custom.optionId}`}
-                                >
-                                    {`Option ${custom.optionId}`}
-                                </Tab>
-                            ))}
-                        </TabList>
-                        {value.customOptions.map((options) => (
-                            <TabPanel
-                                key={options.optionId}
-                                name={String(options.optionId)}
-                            >
-                                <CustomOptionReadOnly
-                                    key={options.optionId}
-                                    value={options}
-                                />
-                            </TabPanel>
-                        ))}
-                    </Tabs>
-                </Card>
-            )}
         </>
     );
 }
