@@ -65,6 +65,7 @@ function GeoJsonPreview(props: Props) {
             if (mapContainerRef.current && !mapRef.current) {
                 mapRef.current = createMap(mapContainerRef.current, {
                     zoomSnap: 0,
+                    scrollWheelZoom: false,
                 });
             }
 

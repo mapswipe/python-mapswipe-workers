@@ -715,6 +715,7 @@ function NewTutorial(props: Props) {
                             >
                                 <ScenarioPageInput
                                     key={task.scenarioId}
+                                    scenarioId={task.scenarioId}
                                     index={index}
                                     value={task}
                                     projectType={value.projectType}

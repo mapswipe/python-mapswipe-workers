@@ -77,6 +77,7 @@ interface Props {
     url: string | undefined;
     urlB: string | undefined;
     customOptionsPreview?: CustomOptionPreviewType[];
+    scenarioId: number;
 }
 
 export default function ScenarioPageInput(props: Props) {
@@ -85,11 +86,12 @@ export default function ScenarioPageInput(props: Props) {
         onChange,
         index,
         error: riskyError,
-        geoJson,
+        geoJson: geoJsonFromProps,
         url,
         projectType,
         urlB,
         customOptionsPreview,
+        scenarioId,
     } = props;
 
     const [activeSegmentInput, setActiveInput] = React.useState<ScenarioSegmentType['value']>('instruction');
@@ -105,6 +107,12 @@ export default function ScenarioPageInput(props: Props) {
     const instructionsError = getErrorObject(error?.instruction);
     const hintError = getErrorObject(error?.hint);
     const successError = getErrorObject(error?.success);
+    const geoJson = {
+        ...geoJsonFromProps,
+        features: geoJsonFromProps?.features.filter(
+            (feature) => feature.properties.screen === scenarioId,
+        ),
+    };
 
     const handleScenarioType = React.useCallback((scenarioSegment: ScenarioSegmentType['value']) => {
         setActiveInput(scenarioSegment);

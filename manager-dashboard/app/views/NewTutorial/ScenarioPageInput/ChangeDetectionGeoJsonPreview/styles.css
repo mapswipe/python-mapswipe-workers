@@ -2,11 +2,18 @@
     .content {
         display: flex;
         flex-direction: column;
-        padding: var(--spacing-medium);
+        justify-content: space-between;
         gap: var(--spacing-extra-large);
 
         .map-preview {
-            height: 16rem;
+            align-self: center;
+            width: var(--height-mobile-preview-change-detection-content);
+            height: var(--height-mobile-preview-change-detection-content);
         }
+    }
+
+    .popup {
+        top: 50%!important;
+        transform: translateY(-50%);
     }
 }

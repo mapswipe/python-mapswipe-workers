@@ -37,6 +37,7 @@ export default function FootprintGeoJsonPreview(props: Props) {
             popupIcons={Comp && <Comp />}
             popupTitle={previewPopUp?.title ?? 'Title'}
             popupDescription={previewPopUp?.description ?? 'Description'}
+            contentClassName={styles.content}
         >
             <GeoJsonPreview
                 className={styles.mapPreview}
@@ -49,10 +50,14 @@ export default function FootprintGeoJsonPreview(props: Props) {
                     return (
                         <div
                             key={option.id}
-                            className={styles.option}
-                            style={{ backgroundColor: option.iconColor }}
+                            className={styles.optionContainer}
                         >
-                            <Icon />
+                            <div
+                                className={styles.option}
+                                style={{ backgroundColor: option.iconColor }}
+                            >
+                                <Icon />
+                            </div>
                         </div>
                     );
                 })}

@@ -99,7 +99,10 @@ p {
     --width-navbar-content-max: 76rem;
 
     --width-mobile-preview: 22rem;
-    --height-mobile-preview: 30rem;
+    --height-mobile-preview: 40rem;
+    --height-mobile-preview-builarea-content: 30rem;
+    --height-mobile-preview-footprint-content: 22rem;
+    --height-mobile-preview-change-detection-content: 14rem;
 
     --radius-popup-border: 0.25rem;
     --radius-scrollbar-border: 0.25rem;

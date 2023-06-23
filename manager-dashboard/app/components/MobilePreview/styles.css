@@ -6,34 +6,56 @@
     background-color: var(--color-black);
     padding: var(--spacing-small) 0;
     width: var(--width-mobile-preview);
+    height: var(--height-mobile-preview);
     color: var(--color-text-on-dark);
 
     .header {
         display: flex;
+        flex-shrink: 0;
         background-color: var(--color-primary);
         padding: var(--spacing-medium);
         gap: var(--spacing-medium);
 
+        .heading {
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+            text-align: center;
+
+            .label {
+                font-weight: var(--font-weight-medium);
+            }
+        }
+
         .icons {
             .back-icon {
-                font-size: 1.2rem;
+                font-size: 2rem;
             }
+        }
 
-            .heading {
-                flex-grow: 1;
-            }
+        .actions {
+            flex-shrink: 0;
 
-            .actions {
-                flex-shrink: 0;
+            .info-icon {
+                font-size: 1.6rem;
             }
         }
     }
 
-    .content {
+    .content-container {
+        display: flex;
         position: relative;
+        flex-direction: column;
         flex-grow: 1;
         z-index: 0;
         background-color: var(--color-primary);
+        padding: 1rem;
+        overflow: auto;
+
+        .content {
+            flex-grow: 1;
+            overflow: auto;
+        }
 
         .popup {
             display: flex;

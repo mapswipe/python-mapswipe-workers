@@ -1,5 +1,5 @@
 import React from 'react';
-import { IoArrowBack } from 'react-icons/io5';
+import { IoArrowBack, IoInformationCircleOutline } from 'react-icons/io5';
 import { _cs } from '@togglecorp/fujs';
 
 import Heading from '#components/Heading';
@@ -15,6 +15,7 @@ interface Props {
     popupDescription?: React.ReactNode;
     popupIcons?: React.ReactNode;
     contentClassName?: string;
+    popupClassName?: string;
 }
 
 function MobilePreview(props: Props) {
@@ -27,6 +28,7 @@ function MobilePreview(props: Props) {
         popupDescription,
         popupIcons,
         contentClassName,
+        popupClassName,
     } = props;
 
     return (
@@ -37,19 +39,23 @@ function MobilePreview(props: Props) {
                 </div>
                 <Heading
                     className={styles.heading}
-                    level={4}
+                    level={5}
                 >
-                    {heading}
-                </Heading>
-                {actions && (
-                    <div className={styles.actions}>
-                        {actions}
+                    <div className={styles.label}>
+                        You are looking for:
                     </div>
-                )}
+                    <div>
+                        {heading}
+                    </div>
+                </Heading>
+                <div className={styles.actions}>
+                    {actions}
+                    <IoInformationCircleOutline className={styles.infoIcon} />
+                </div>
             </div>
-            <div className={_cs(styles.content, contentClassName)}>
+            <div className={styles.contentContainer}>
                 {(popupTitle || popupDescription || popupIcons) && (
-                    <div className={styles.popup}>
+                    <div className={_cs(styles.popup, popupClassName)}>
                         <div className={styles.details}>
                             <div>
                                 {popupTitle}
@@ -63,7 +69,9 @@ function MobilePreview(props: Props) {
                         </div>
                     </div>
                 )}
-                {children}
+                <div className={_cs(styles.content, contentClassName)}>
+                    {children}
+                </div>
             </div>
         </div>
     );

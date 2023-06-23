@@ -1,22 +1,36 @@
 .footprint-geo-json-preview {
-    .map-preview {
-        position: relative;
-        z-index: 0;
-        height: var(--height-mobile-preview);
-    }
-
-    .options {
+    .content {
         display: flex;
-        justify-content: center;
-        padding: var(--spacing-large);
+        flex-direction: column;
         gap: var(--spacing-large);
 
-        .option {
-            display: flex;
-            align-items: center;
-            border-radius: 50%;
-            padding: var(--spacing-small);
-            font-size: var(--font-size-extra-large);
+        .map-preview {
+            position: relative;
+            z-index: 0;
+            height: var(--height-mobile-preview-footprint-content);
+        }
+
+        .options {
+            display: grid;
+            flex-grow: 1;
+            grid-template-columns: 1fr 1fr 1fr;
+            grid-gap: var(--spacing-large);
+
+            .option-container {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+
+                .option {
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    border-radius: 50%;
+                    width: 2.5rem;
+                    height: 2.5rem;
+                    font-size: var(--font-size-extra-large);
+                }
+            }
         }
     }
 }

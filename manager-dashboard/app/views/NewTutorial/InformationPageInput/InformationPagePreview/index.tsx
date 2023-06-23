@@ -22,7 +22,7 @@ export default function InformationPagePreview(props: Props) {
         <MobilePreview
             className={styles.informationPreview}
             // FIXME: get this from 'look for'
-            heading="You are looking for: mobile homes"
+            heading="mobile homes"
             contentClassName={styles.content}
         >
             {value?.title || `Intro ${index + 1}`}
