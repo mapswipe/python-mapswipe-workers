@@ -47,6 +47,7 @@ export type ColorKey = (
     | 'gray'
 );
 
+// FIXME: need to rethink the colors
 export const colorKeyToColorMap: Record<ColorKey, string> = {
     red: '#D32F2F',
     pink: '#D81B60',
@@ -63,13 +64,6 @@ export const colorKeyToColorMap: Record<ColorKey, string> = {
     brown: '#795548',
     gray: '#757575',
 };
-
-// FIXME: we may not need this
-export interface CustomOptionPreviewType {
-    id: number;
-    icon: IconKey,
-    iconColor: ColorKey,
-}
 
 export interface ColorOptions {
     key: ColorKey;
@@ -247,6 +241,34 @@ export const infoPageBlocksMap: Record<InformationPageTemplateKey, Block[]> = {
     ],
 };
 
+// FIXME: need to confirm if the values are correct
+export const defaultFootprintCustomOptions: PartialTutorialFormType['customOptions'] = [
+    {
+        optionId: 1,
+        value: 1,
+        title: 'Yes',
+        icon: 'checkmarkOutline',
+        iconColor: colorKeyToColorMap.green,
+        description: 'the shape does outline a building in the image',
+    },
+    {
+        optionId: 2,
+        value: 0,
+        title: 'No',
+        icon: 'closeOutline',
+        iconColor: colorKeyToColorMap.red,
+        description: 'the shape doesn\'t match a building in the image',
+    },
+    {
+        optionId: 3,
+        value: 2,
+        title: 'Not Sure',
+        icon: 'removeOutline',
+        iconColor: colorKeyToColorMap.orange,
+        description: 'if you\'re not sure or there is cloud cover / bad imagery',
+    },
+];
+
 interface BuildAreaProperties {
     reference: number;
     screen: number;
@@ -398,7 +420,19 @@ type InformationPagesFormSchema = ArraySchema<InformationPagesType, PartialTutor
 type InformationPagesFormSchemaMember = ReturnType<InformationPagesFormSchema['member']>;
 
 export type PartialInformationPagesType = PartialTutorialFormType['informationPages'];
+export type PartialCustomOptionsType = PartialTutorialFormType['customOptions'];
 export type PartialBlocksType = NonNullable<NonNullable<PartialInformationPagesType>[number]>['blocks'];
+
+export const MAX_OPTIONS = 6;
+export const MIN_OPTIONS = 2;
+export const MAX_SUB_OPTIONS = 6;
+export const MIN_SUB_OPTIONS = 2;
+
+export const MAX_INFO_PAGES = 10;
+
+const SM_TEXT_MAX_LENGTH = 25;
+const MD_TEXT_MAX_LENGTH = 100;
+const LG_TEXT_MAX_LENGTH = 2000;
 
 export const tutorialFormSchema: TutorialFormSchema = {
     fields: (value): TutorialFormSchemaFields => {
@@ -409,12 +443,12 @@ export const tutorialFormSchema: TutorialFormSchema = {
             lookFor: {
                 required: true,
                 requiredValidation: requiredStringCondition,
-                validations: [getNoMoreThanNCharacterCondition(25)],
+                validations: [getNoMoreThanNCharacterCondition(SM_TEXT_MAX_LENGTH)],
             },
             name: {
                 required: true,
                 requiredValidation: requiredStringCondition,
-                validations: [getNoMoreThanNCharacterCondition(100)],
+                validations: [getNoMoreThanNCharacterCondition(MD_TEXT_MAX_LENGTH)],
             },
             tileServer: {
                 fields: tileServerFieldsSchema,
@@ -431,12 +465,16 @@ export const tutorialFormSchema: TutorialFormSchema = {
                                 title: {
                                     required: true,
                                     requiredValidation: requiredStringCondition,
-                                    validations: [getNoMoreThanNCharacterCondition(20)],
+                                    validations: [
+                                        getNoMoreThanNCharacterCondition(SM_TEXT_MAX_LENGTH),
+                                    ],
                                 },
                                 description: {
                                     required: true,
                                     requiredValidation: requiredStringCondition,
-                                    validations: [getNoMoreThanNCharacterCondition(100)],
+                                    validations: [
+                                        getNoMoreThanNCharacterCondition(MD_TEXT_MAX_LENGTH),
+                                    ],
                                 },
                                 icon: { required: true },
                             }),
@@ -446,12 +484,16 @@ export const tutorialFormSchema: TutorialFormSchema = {
                                 title: {
                                     required: true,
                                     requiredValidation: requiredStringCondition,
-                                    validations: [getNoMoreThanNCharacterCondition(20)],
+                                    validations: [
+                                        getNoMoreThanNCharacterCondition(SM_TEXT_MAX_LENGTH),
+                                    ],
                                 },
                                 description: {
                                     required: true,
                                     requiredValidation: requiredStringCondition,
-                                    validations: [getNoMoreThanNCharacterCondition(100)],
+                                    validations: [
+                                        getNoMoreThanNCharacterCondition(MD_TEXT_MAX_LENGTH),
+                                    ],
                                 },
                                 icon: { required: true },
                             }),
@@ -461,12 +503,16 @@ export const tutorialFormSchema: TutorialFormSchema = {
                                 title: {
                                     required: true,
                                     requiredValidation: requiredStringCondition,
-                                    validations: [getNoMoreThanNCharacterCondition(20)],
+                                    validations: [
+                                        getNoMoreThanNCharacterCondition(SM_TEXT_MAX_LENGTH),
+                                    ],
                                 },
                                 description: {
                                     required: true,
                                     requiredValidation: requiredStringCondition,
-                                    validations: [getNoMoreThanNCharacterCondition(100)],
+                                    validations: [
+                                        getNoMoreThanNCharacterCondition(MD_TEXT_MAX_LENGTH),
+                                    ],
                                 },
                                 icon: { required: true },
                             }),
@@ -476,8 +522,8 @@ export const tutorialFormSchema: TutorialFormSchema = {
             },
             informationPages: {
                 validation: (info) => {
-                    if (info && info.length > 10) {
-                        return 'Information page cannot be more than 10';
+                    if (info && info.length > MAX_INFO_PAGES) {
+                        return `Information page cannot be more than ${MAX_INFO_PAGES}`;
                     }
                     return undefined;
                 },
@@ -488,7 +534,7 @@ export const tutorialFormSchema: TutorialFormSchema = {
                         title: {
                             required: true,
                             requiredValidation: requiredStringCondition,
-                            validations: [getNoMoreThanNCharacterCondition(500)],
+                            validations: [getNoMoreThanNCharacterCondition(MD_TEXT_MAX_LENGTH)],
                         },
                         blocks: {
                             keySelector: (key) => key.blockNumber,
@@ -512,7 +558,7 @@ export const tutorialFormSchema: TutorialFormSchema = {
                                                         // eslint-disable-next-line max-len
                                                         requiredValidations: requiredStringCondition,
                                                         // eslint-disable-next-line max-len
-                                                        validations: [getNoMoreThanNCharacterCondition(2000)],
+                                                        validations: [getNoMoreThanNCharacterCondition(LG_TEXT_MAX_LENGTH)],
                                                     },
                                                     imageFile: { forceValue: nullValue },
                                                 };
@@ -549,12 +595,12 @@ export const tutorialFormSchema: TutorialFormSchema = {
                             return undefined;
                         }
 
-                        if (option.length < 2) {
-                            return 'There should be at least 2 options';
+                        if (option.length < MIN_OPTIONS) {
+                            return `There should be at least ${MIN_OPTIONS} options`;
                         }
 
-                        if (option.length > 6) {
-                            return 'There shouldn\'t be more than 6 options';
+                        if (option.length > MAX_OPTIONS) {
+                            return `There shouldn\`t be more than ${MAX_OPTIONS} options`;
                         }
 
                         return undefined;
@@ -568,7 +614,7 @@ export const tutorialFormSchema: TutorialFormSchema = {
                             title: {
                                 required: true,
                                 requiredValidation: requiredStringCondition,
-                                validations: [getNoMoreThanNCharacterCondition(25)],
+                                validations: [getNoMoreThanNCharacterCondition(SM_TEXT_MAX_LENGTH)],
                             },
                             value: {
                                 required: true,
@@ -577,7 +623,7 @@ export const tutorialFormSchema: TutorialFormSchema = {
                             description: {
                                 required: true,
                                 requiredValidation: requiredStringCondition,
-                                validations: [getNoMoreThanNCharacterCondition(100)],
+                                validations: [getNoMoreThanNCharacterCondition(MD_TEXT_MAX_LENGTH)],
                             },
                             icon: {
                                 required: true,
@@ -592,12 +638,12 @@ export const tutorialFormSchema: TutorialFormSchema = {
                                         return undefined;
                                     }
 
-                                    if (sub.length < 2) {
-                                        return 'There should be at least 2 sub options';
+                                    if (sub.length < MIN_SUB_OPTIONS) {
+                                        return `There should be at least ${MIN_SUB_OPTIONS} sub options`;
                                     }
 
-                                    if (sub.length > 6) {
-                                        return 'There shouldn\'t be more than 6 sub options';
+                                    if (sub.length > MAX_SUB_OPTIONS) {
+                                        return `There shouldn\`t be more than ${MAX_SUB_OPTIONS} sub options`;
                                     }
 
                                     return undefined;
@@ -610,7 +656,10 @@ export const tutorialFormSchema: TutorialFormSchema = {
                                         description: {
                                             required: true,
                                             requiredValidation: requiredStringCondition,
-                                            validations: [getNoMoreThanNCharacterCondition(100)],
+                                            validations: [
+                                                // eslint-disable-next-line max-len
+                                                getNoMoreThanNCharacterCondition(MD_TEXT_MAX_LENGTH),
+                                            ],
                                         },
                                         value: {
                                             required: true,

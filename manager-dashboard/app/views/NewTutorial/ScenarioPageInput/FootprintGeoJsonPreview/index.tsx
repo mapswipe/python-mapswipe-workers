@@ -5,7 +5,11 @@ import MobilePreview from '#components/MobilePreview';
 import GeoJsonPreview from '#components/GeoJsonPreview';
 import { IconKey, iconMap } from '#utils/common';
 
-import { CustomOptionPreviewType, FootprintGeoJSON } from '../../utils';
+import {
+    PartialCustomOptionsType,
+    FootprintGeoJSON,
+    colorKeyToColorMap,
+} from '../../utils';
 import styles from './styles.css';
 
 interface Props {
@@ -17,7 +21,7 @@ interface Props {
         icon?: IconKey;
     }
     url: string | undefined;
-    customOptionsPreview: CustomOptionPreviewType[] | undefined;
+    customOptionsPreview: PartialCustomOptionsType | undefined;
 }
 export default function FootprintGeoJsonPreview(props: Props) {
     const {
@@ -48,15 +52,22 @@ export default function FootprintGeoJsonPreview(props: Props) {
             />
             <div className={styles.options}>
                 {customOptionsPreview?.map((option) => {
-                    const Icon = iconMap[option.icon];
+                    const Icon = option.icon
+                        ? iconMap[option.icon]
+                        : iconMap.flagOutline;
                     return (
                         <div
-                            key={option.id}
+                            key={option.optionId}
                             className={styles.optionContainer}
                         >
                             <div
                                 className={styles.option}
-                                style={{ backgroundColor: option.iconColor }}
+                                style={{
+                                    backgroundColor: (
+                                        option.iconColor
+                                        || colorKeyToColorMap.gray
+                                    ),
+                                }}
                             >
                                 <Icon />
                             </div>

@@ -138,6 +138,7 @@ function FileInput<Name>(props: Props<Name>) {
                         name={name}
                         onChange={handleChange}
                         accept={accept}
+                        disabled={disabled}
                     />
                 </>
             )}

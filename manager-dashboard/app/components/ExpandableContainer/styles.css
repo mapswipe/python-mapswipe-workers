@@ -38,6 +38,7 @@
 
     .children {
         border: var(--width-separator-thin) solid var(--color-separator);
+        border-top: 0;
         border-bottom-left-radius: var(--radius-card-border);
         border-bottom-right-radius: var(--radius-card-border);
         padding: var(--spacing-medium);

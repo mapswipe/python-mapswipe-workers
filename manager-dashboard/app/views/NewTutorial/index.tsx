@@ -67,7 +67,7 @@ import {
 import {
     tileServerUrls,
     tutorialFormSchema,
-    colorKeyToColorMap,
+    defaultFootprintCustomOptions,
     TutorialFormType,
     PartialTutorialFormType,
     PartialInformationPagesType,
@@ -77,14 +77,25 @@ import {
     InformationPageTemplateKey,
     infoPageTemplateOptions,
     infoPageBlocksMap,
-    ColorKey,
-    CustomOptionPreviewType,
+    MAX_INFO_PAGES,
+    MAX_OPTIONS,
 } from './utils';
 import CustomOptionPreview from './CustomOptionInput/CustomOptionPreview';
 import CustomOptionInput from './CustomOptionInput';
 import ScenarioPageInput from './ScenarioPageInput';
 import InformationPageInput from './InformationPageInput';
 import styles from './styles.css';
+
+function deleteKey<T extends object, K extends keyof T>(
+    value: T,
+    key: K,
+): Omit<T, K> {
+    const copy: Omit<T, K> & { [key in K]: T[K] | undefined } = {
+        ...value,
+    };
+    delete copy[key];
+    return copy;
+}
 
 type CustomScreen = Omit<TutorialFormType['scenarioPages'][number], 'scenarioId'>;
 function sanitizeScreens(scenarioPages: TutorialFormType['scenarioPages']) {
@@ -101,34 +112,6 @@ function sanitizeScreens(scenarioPages: TutorialFormType['scenarioPages']) {
     );
     return screens;
 }
-
-// FIXME: need to confirm if the values are correct
-const defaultFootprintCustomOptions: PartialTutorialFormType['customOptions'] = [
-    {
-        optionId: 1,
-        value: 1,
-        title: 'Yes',
-        icon: 'checkmarkOutline',
-        iconColor: colorKeyToColorMap.green,
-        description: 'the shape does outline a building in the image',
-    },
-    {
-        optionId: 2,
-        value: 0,
-        title: 'No',
-        icon: 'closeOutline',
-        iconColor: colorKeyToColorMap.red,
-        description: 'the shape doesn\'t match a building in the image',
-    },
-    {
-        optionId: 3,
-        value: 2,
-        title: 'Not Sure',
-        icon: 'removeOutline',
-        iconColor: colorKeyToColorMap.orange,
-        description: 'if you\'re not sure or there is cloud cover / bad imagery',
-    },
-];
 
 const defaultTutorialFormValue: PartialTutorialFormType = {
     // projectType: PROJECT_TYPE_BUILD_AREA,
@@ -247,7 +230,7 @@ function NewTutorial(props: Props) {
             setTutorialSubmissionStatus('imageUpload');
             try {
                 const informationPagesPromises = informationPages.map(async (info, index) => {
-                    const blocks = info.blocks.map(async (block) => {
+                    const blocksPromise = info.blocks.map(async (block) => {
                         if (!block.imageFile) {
                             return block;
                         }
@@ -269,23 +252,39 @@ function NewTutorial(props: Props) {
                         };
                     });
 
+                    const blocks = await Promise.all(blocksPromise);
+
                     return {
                         ...info,
                         // We are making sure that page number starts with 1
                         // and is sequential
                         pageNumber: index + 1,
-                        blocks: Promise.all(blocks),
+                        blocks,
                     };
                 });
-
                 const sanitizedInformationPages = await Promise.all(informationPagesPromises);
 
                 const uploadData = {
                     ...valuesToCopy,
+                    customOptions: valuesToCopy.customOptions?.map((option) => {
+                        const optionWithoutId = deleteKey(option, 'optionId');
+                        return {
+                            ...optionWithoutId,
+                            subOptions: optionWithoutId.subOptions?.map(
+                                (subOption) => deleteKey(subOption, 'subOptionsId'),
+                            ),
+                        };
+                    }),
                     screens: sanitizedScenarioPages,
                     informationPages: sanitizedInformationPages,
                     createdBy: userId,
                 };
+
+                console.log(uploadData);
+                if (uploadData) {
+                    setTutorialSubmissionStatus('failed');
+                    return;
+                }
 
                 const database = getDatabase();
                 const tutorialDraftsRef = databaseRef(database, 'v2/tutorialDrafts/');
@@ -482,23 +481,12 @@ function NewTutorial(props: Props) {
         return tileServerUrls[tileServerName];
     }, [value.tileServerB?.name, value.tileServerB?.url]);
 
-    // FIXME: we might not need this
-    const customOptionsPreview: CustomOptionPreviewType[] = React.useMemo(() => {
-        const customOptionsFromForm = value.customOptions;
-        if (isNotDefined(customOptionsFromForm)) {
-            return [];
-        }
-        const finalValue = customOptionsFromForm.map((custom) => (
-            {
-                id: custom.optionId,
-                icon: custom.icon ?? 'removeOutline',
-                iconColor: custom.iconColor as ColorKey ?? 'gray',
-            }
-        ));
-        return finalValue;
-    }, [value.customOptions]);
-
     const projectTypeEmpty = isNotDefined(value.projectType);
+
+    const {
+        customOptions,
+        informationPages,
+    } = value;
 
     return (
         <div className={_cs(styles.newTutorial, className)}>
@@ -535,7 +523,7 @@ function NewTutorial(props: Props) {
                         value={value.lookFor}
                         onChange={setFieldValue}
                         label="Look For"
-                        hint="What should the users look for (e.g. buildings, cars, trees)? (25 chars max)."
+                        hint="What should the users look for (e.g. buildings, cars, trees)?"
                         error={error?.lookFor}
                         disabled={submissionPending || projectTypeEmpty}
                         autoFocus
@@ -552,7 +540,7 @@ function NewTutorial(props: Props) {
                                 disabled={
                                     submissionPending
                                     || projectTypeEmpty
-                                    || (value.customOptions && value.customOptions?.length >= 6)
+                                    || (customOptions && customOptions.length >= MAX_OPTIONS)
                                 }
                             >
                                 Add Option
@@ -562,14 +550,14 @@ function NewTutorial(props: Props) {
                         <NonFieldError
                             error={optionsError}
                         />
-                        {value.customOptions?.length ? (
+                        {(customOptions && customOptions.length > 0) ? (
                             <div className={styles.customOptionContainer}>
                                 <div className={styles.customOptionList}>
-                                    {value.customOptions.map((option, index) => (
+                                    {customOptions.map((option, index) => (
                                         <ExpandableContainer
                                             key={option.optionId}
                                             header={option.title || `Option ${index + 1}`}
-                                            openByDefault
+                                            openByDefault={index === customOptions.length - 1}
                                             actions={(
                                                 <Button
                                                     name={index}
@@ -594,7 +582,7 @@ function NewTutorial(props: Props) {
                                     ))}
                                 </div>
                                 <CustomOptionPreview
-                                    value={value.customOptions}
+                                    value={customOptions}
                                 />
                             </div>
                         ) : (
@@ -623,8 +611,8 @@ function NewTutorial(props: Props) {
                                     disabled={(
                                         submissionPending
                                         || projectTypeEmpty
-                                        || (value.informationPages
-                                            && value.informationPages.length >= 10)
+                                        || (informationPages
+                                            && informationPages.length >= MAX_INFO_PAGES)
                                     )}
                                 >
                                     {infoPageTemplate.label}
@@ -637,11 +625,11 @@ function NewTutorial(props: Props) {
                         error={informationPagesError}
                     />
                     <div className={styles.informationPageList}>
-                        {value.informationPages?.map((page, i) => (
+                        {informationPages?.map((page, i) => (
                             <ExpandableContainer
                                 key={page.pageNumber}
                                 header={page.title || `Intro ${page.pageNumber}`}
-                                openByDefault
+                                openByDefault={i === informationPages.length - 1}
                                 actions={(
                                     <Button
                                         name={i}
@@ -664,7 +652,7 @@ function NewTutorial(props: Props) {
                                 />
                             </ExpandableContainer>
                         ))}
-                        {!(value.informationPages?.length) && (
+                        {!(informationPages?.length) && (
                             <EmptyMessage
                                 title="Start adding Information pages"
                                 description="Add pages selecting templates from “Add page” dropdown"
@@ -744,7 +732,7 @@ function NewTutorial(props: Props) {
                                     projectType={value.projectType}
                                     onChange={onScenarioFormChange}
                                     error={scenarioError?.[task.scenarioId]}
-                                    customOptionsPreview={customOptionsPreview}
+                                    customOptionsPreview={customOptions}
                                     geoJson={value.tutorialTasks}
                                     url={tileServerAUrl}
                                     urlB={tileServerBUrl}
@@ -769,7 +757,7 @@ function NewTutorial(props: Props) {
                     <Button
                         name={undefined}
                         onClick={handleSubmitButtonClick}
-                        // disabled={submissionPending || projectTypeEmpty}
+                        disabled={submissionPending || projectTypeEmpty}
                     >
                         Submit
                     </Button>

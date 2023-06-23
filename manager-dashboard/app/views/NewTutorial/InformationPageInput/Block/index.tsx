@@ -39,7 +39,7 @@ export default function Block(props: Props) {
                 <MarkdownEditor
                     name={'textDescription' as const}
                     value={value?.textDescription}
-                    label={`Block ${index + 1}`}
+                    label={`Block #${index + 1}`}
                     onChange={onBlockChange}
                     error={error?.textDescription}
                     disabled={disabled}

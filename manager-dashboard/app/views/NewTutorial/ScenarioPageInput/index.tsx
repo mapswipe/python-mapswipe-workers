@@ -28,7 +28,7 @@ import {
     FootprintGeoJSON,
     BuildAreaGeoJSON,
     ChangeDetectionGeoJSON,
-    CustomOptionPreviewType,
+    PartialCustomOptionsType,
 } from '../utils';
 import ScenarioGeoJsonPreview from './ScenarioGeoJsonPreview';
 import FootprintGeoJsonPreview from './FootprintGeoJsonPreview';
@@ -79,7 +79,7 @@ interface Props {
     projectType: ProjectType | undefined;
     url: string | undefined;
     urlB: string | undefined;
-    customOptionsPreview?: CustomOptionPreviewType[];
+    customOptionsPreview: PartialCustomOptionsType | undefined;
     scenarioId: number;
     disabled: boolean;
 }
