@@ -254,19 +254,21 @@ function NewTutorial(props: Props) {
                 });
                 const sanitizedInformationPages = await Promise.all(informationPagesPromises);
 
+                const sanitizedCustomOptions = valuesToCopy.customOptions?.map((option) => {
+                    const optionWithoutId = deleteKey(option, 'optionId');
+                    return {
+                        ...optionWithoutId,
+                        subOptions: optionWithoutId.subOptions?.map(
+                            (subOption) => deleteKey(subOption, 'subOptionsId'),
+                        ),
+                    };
+                });
+
                 const uploadData = {
                     ...valuesToCopy,
-                    customOptions: valuesToCopy.customOptions?.map((option) => {
-                        const optionWithoutId = deleteKey(option, 'optionId');
-                        return {
-                            ...optionWithoutId,
-                            subOptions: optionWithoutId.subOptions?.map(
-                                (subOption) => deleteKey(subOption, 'subOptionsId'),
-                            ),
-                        };
-                    }),
-                    screens: sanitizedScenarioPages,
-                    informationPages: sanitizedInformationPages,
+                    customOptions: sanitizedCustomOptions ?? null,
+                    screens: sanitizedScenarioPages ?? null,
+                    informationPages: sanitizedInformationPages ?? null,
                     createdBy: userId,
                 };
 
