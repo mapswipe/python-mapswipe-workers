@@ -465,6 +465,7 @@ export const tutorialFormSchema: TutorialFormSchema = {
             tileServer: {
                 fields: tileServerFieldsSchema,
             },
+            tutorialTasks: {},
             scenarioPages: {
                 keySelector: (key) => key.scenarioId,
                 member: (): ScenarioPagesFormSchemaMember => ({
@@ -567,8 +568,7 @@ export const tutorialFormSchema: TutorialFormSchema = {
                                                 return {
                                                     textDescription: {
                                                         required: true,
-                                                        // eslint-disable-next-line max-len
-                                                        requiredValidations: requiredStringCondition,
+                                                        requiredValdation: requiredStringCondition,
                                                         // eslint-disable-next-line max-len
                                                         validations: [getNoMoreThanNCharacterCondition(LG_TEXT_MAX_LENGTH)],
                                                     },
