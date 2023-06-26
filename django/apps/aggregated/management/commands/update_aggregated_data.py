@@ -19,27 +19,131 @@ from django.utils import timezone
 # |1|00:00:00.208768|00:00:01.398161|00:00:28.951521|
 # |2|00:00:01.330297|00:00:06.076814|00:00:03.481192|
 # |3|00:00:02.092967|00:00:11.271081|00:00:06.045881|
+
+UPDATE_PROJECT_GROUP_DATA_USING_PROJECT_ID = f"""
+    WITH to_calculate_groups AS (
+        SELECT
+            project_id,
+            group_id
+        FROM groups
+            WHERE
+                (project_id, group_id) in (
+                    SELECT
+                        MS.project_id,
+                        MS.group_id
+                    FROM mapping_sessions MS
+                    WHERE
+                        project_id = %(project_id)s
+                    GROUP BY MS.project_id, MS.group_id
+                ) AND
+                (
+                    total_area is NULL OR time_spent_max_allowed is NULL
+                )
+    ),
+    groups_data AS (
+        SELECT
+          T.project_id,
+          T.group_id,
+          SUM( -- sqkm
+            ST_Area(T.geom::geography(GEOMETRY,4326)) / 1000000
+          ) as total_task_group_area,
+          (
+            CASE
+              -- Using 95_percent value of existing data for each project_type
+              WHEN P.project_type = {Project.Type.BUILD_AREA.value} THEN 1.4
+              WHEN P.project_type = {Project.Type.COMPLETENESS.value} THEN 1.4
+              WHEN P.project_type = {Project.Type.CHANGE_DETECTION.value} THEN 11.2
+              -- FOOTPRINT: Not calculated right now
+              WHEN P.project_type = {Project.Type.FOOTPRINT.value} THEN 6.1
+              ELSE 1
+            END
+          ) * COUNT(*) as time_spent_max_allowed
+        FROM tasks T
+          INNER JOIN to_calculate_groups G USING (project_id, group_id)
+          INNER JOIN projects P USING (project_id)
+        GROUP BY project_id, P.project_type, group_id
+    )
+    UPDATE groups G
+    SET
+        total_area = GD.total_task_group_area,
+        time_spent_max_allowed = GD.time_spent_max_allowed
+    FROM groups_data GD
+    WHERE
+        G.project_id = GD.project_id AND
+        G.group_id = GD.group_id;
+"""
+
+
+UPDATE_PROJECT_GROUP_DATA_USING_TIME_RANGE = f"""
+    WITH to_calculate_groups AS (
+        SELECT
+            project_id,
+            group_id
+        FROM groups
+            WHERE
+                (project_id, group_id) in (
+                    SELECT
+                        MS.project_id,
+                        MS.group_id
+                    FROM mapping_sessions MS
+                    WHERE
+                        MS.start_time >= %(from_date)s
+                        AND MS.start_time < %(until_date)s
+                    GROUP BY MS.project_id, MS.group_id
+                ) AND
+                (
+                    total_area is NULL OR time_spent_max_allowed is NULL
+                )
+    ),
+    groups_data AS (
+        SELECT
+          T.project_id,
+          T.group_id,
+          SUM( -- sqkm
+            ST_Area(T.geom::geography(GEOMETRY,4326)) / 1000000
+          ) as total_task_group_area,
+          (
+            CASE
+              -- Using 95_percent value of existing data for each project_type
+              WHEN P.project_type = {Project.Type.BUILD_AREA.value} THEN 1.4
+              WHEN P.project_type = {Project.Type.COMPLETENESS.value} THEN 1.4
+              WHEN P.project_type = {Project.Type.CHANGE_DETECTION.value} THEN 11.2
+              -- FOOTPRINT: Not calculated right now
+              WHEN P.project_type = {Project.Type.FOOTPRINT.value} THEN 6.1
+              ELSE 1
+            END
+          ) * COUNT(*) as time_spent_max_allowed
+        FROM tasks T
+          INNER JOIN to_calculate_groups G USING (project_id, group_id)
+          INNER JOIN projects P USING (project_id)
+        GROUP BY project_id, P.project_type, group_id
+    )
+    UPDATE groups G
+    SET
+        total_area = GD.total_task_group_area,
+        time_spent_max_allowed = GD.time_spent_max_allowed
+    FROM groups_data GD
+    WHERE
+        G.project_id = GD.project_id AND
+        G.group_id = GD.group_id;
+"""
+
 TASK_GROUP_METADATA_QUERY = f"""
-          SELECT
-              project_id,
-              group_id,
-              SUM(
-                ST_Area(geom::geography(GEOMETRY,4326)) / 1000000
-              ) as total_task_group_area, -- sqkm
-              (
+        SELECT
+            G.project_id,
+            G.group_id,
+            (
                 CASE
-                  -- Using 95_percent value of existing data for each project_type
-                  WHEN UG.project_type = {Project.Type.BUILD_AREA.value} THEN 1.4
-                  WHEN UG.project_type = {Project.Type.COMPLETENESS.value} THEN 1.4
-                  WHEN UG.project_type = {Project.Type.CHANGE_DETECTION.value} THEN 11.2
-                  -- FOOTPRINT: Not calculated right now
-                  WHEN UG.project_type = {Project.Type.FOOTPRINT.value} THEN 6.1
-                  ELSE 1
+                    -- Hide area for Footprint
+                    WHEN P.project_type = {Project.Type.FOOTPRINT.value} THEN 0
+                    ELSE G.total_area
                 END
-              ) * COUNT(*) as time_spent_max_allowed
-          FROM tasks T
-              INNER JOIN used_task_groups UG USING (project_id, group_id)
-          GROUP BY project_id, project_type, group_id
+            ) as total_task_group_area,
+            G.time_spent_max_allowed
+        FROM groups G
+            INNER JOIN used_task_groups UG USING (project_id, group_id)
+            INNER JOIN projects P USING (project_id)
+        GROUP BY G.project_id, P.project_type, G.group_id
 """
 
 
@@ -63,9 +167,7 @@ UPDATE_USER_DATA_SQL = f"""
             FROM mapping_sessions MS
                 INNER JOIN projects P USING (project_id)
             WHERE
-                -- Skip for footprint type missions
-                P.project_type != {Project.Type.FOOTPRINT.value}
-                AND MS.start_time >= %(from_date)s
+                MS.start_time >= %(from_date)s
                 AND MS.start_time < %(until_date)s
             GROUP BY project_id, project_type, group_id -- To get unique
         ),
@@ -142,9 +244,7 @@ UPDATE_USER_GROUP_SQL = f"""
                 INNER JOIN mapping_sessions MS USING (mapping_session_id)
                 INNER JOIN projects P USING (project_id)
             WHERE
-                -- Skip for footprint type missions
-                P.project_type != {Project.Type.FOOTPRINT.value}
-                AND MS.start_time >= %(from_date)s
+                MS.start_time >= %(from_date)s
                 AND MS.start_time < %(until_date)s
             GROUP BY project_id, project_type, group_id -- To get unique
         ),
@@ -238,6 +338,20 @@ class Command(BaseCommand):
                 from_date=from_date.strftime("%Y-%m-%d"),
                 until_date=until_date.strftime("%Y-%m-%d"),
             )
+            start_time = time.time()
+
+            self.stdout.write(
+                f"Updating Project Group Data for {label.title()} for date: {params}"
+            )
+            with transaction.atomic():
+                with connection.cursor() as cursor:
+                    cursor.execute(UPDATE_PROJECT_GROUP_DATA_USING_TIME_RANGE, params)
+                self.stdout.write(
+                    self.style.SUCCESS(
+                        f"Successfull. Runtime: {time.time() - start_time} seconds"
+                    )
+                )
+
             start_time = time.time()
             self.stdout.write(f"Updating {label.title()} Data for date: {params}")
             with transaction.atomic():

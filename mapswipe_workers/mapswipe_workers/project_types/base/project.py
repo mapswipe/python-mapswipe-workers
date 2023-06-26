@@ -360,7 +360,15 @@ class BaseProject(metaclass=ABCMeta):
             """
 
         query_insert_raw_groups = """
-            INSERT INTO groups
+            INSERT INTO groups (
+              project_id,
+              group_id,
+              number_of_tasks,
+              finished_count,
+              required_count,
+              progress,
+              project_type_specifics
+            )
             SELECT
               project_id,
               group_id,

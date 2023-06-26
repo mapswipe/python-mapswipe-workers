@@ -25,6 +25,11 @@ class Migration(migrations.Migration):
                 ("required_count", models.IntegerField(blank=True, null=True)),
                 ("progress", models.IntegerField(blank=True, null=True)),
                 ("project_type_specifics", models.TextField(blank=True, null=True)),
+                ("total_area", models.FloatField(blank=True, null=True, default=None)),
+                (
+                    "time_spent_max_allowed",
+                    models.FloatField(blank=True, null=True, default=None),
+                ),
             ],
             options={
                 "db_table": "groups",
