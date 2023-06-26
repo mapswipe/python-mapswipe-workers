@@ -720,7 +720,7 @@ export const tutorialFormSchema: TutorialFormSchema = {
             baseSchema,
             value,
             ['projectType'],
-            ['zoomLevel', 'tileServerB'],
+            ['tileServerB'],
             (v) => (v?.projectType === PROJECT_TYPE_CHANGE_DETECTION
                 || v?.projectType === PROJECT_TYPE_COMPLETENESS
                 ? {
