@@ -196,8 +196,10 @@ export const projectFormSchema: ProjectFormSchema = {
             },
             projectNumber: {
                 required: true,
-                requiredValidation: integerCondition,
-                validations: [greaterThanCondition(0)],
+                validations: [
+                    integerCondition,
+                    greaterThanCondition(0),
+                ],
             },
             requestingOrganisation: {
                 required: true,
@@ -216,6 +218,7 @@ export const projectFormSchema: ProjectFormSchema = {
                 validations: [getNoMoreThanNCharacterCondition(25)],
             },
             projectDetails: {
+                required: true,
                 requiredValidation: requiredStringCondition,
                 validations: [getNoMoreThanNCharacterCondition(10000)],
             },
@@ -235,8 +238,8 @@ export const projectFormSchema: ProjectFormSchema = {
             },
             groupSize: {
                 required: true,
-                requiredValidation: integerCondition,
                 validations: [
+                    integerCondition,
                     greaterThanOrEqualToCondition(10),
                     lessThanOrEqualToCondition(250),
                 ],
@@ -245,8 +248,10 @@ export const projectFormSchema: ProjectFormSchema = {
                 fields: tileServerFieldsSchema,
             },
             maxTasksPerUser: {
-                requiredValidation: integerCondition,
-                validations: [greaterThanCondition(0)],
+                validations: [
+                    integerCondition,
+                    greaterThanCondition(0),
+                ],
             },
         };
         baseSchema = addCondition(

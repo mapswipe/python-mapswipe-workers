@@ -6,7 +6,6 @@ import {
     TileLayer,
     Coords,
     StyleFunction,
-    PointExpression,
 } from 'leaflet';
 import { _cs } from '@togglecorp/fujs';
 
@@ -51,16 +50,14 @@ interface Props {
     geoJson: GeoJSON.GeoJSON | undefined;
     url?: string | undefined;
     previewStyle?: StyleFunction;
-    boundsPadding?: PointExpression | undefined;
 }
 
 function GeoJsonPreview(props: Props) {
     const {
         className,
         geoJson,
-        url,
+        url = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
         previewStyle,
-        boundsPadding = [0, 0],
     } = props;
 
     const mapRef = React.useRef<Map>();
@@ -83,7 +80,7 @@ function GeoJsonPreview(props: Props) {
                     1,
                 );
 
-                const finalUrl = url || 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
+                const finalUrl = url;
                 const quadKeyUrl = finalUrl.indexOf('{quad_key}') !== -1;
                 const Layer = quadKeyUrl
                     ? BingTileLayer
@@ -129,7 +126,7 @@ function GeoJsonPreview(props: Props) {
             const bounds = newGeoJson.getBounds();
 
             if (bounds.isValid()) {
-                map.fitBounds(bounds, { padding: boundsPadding });
+                map.fitBounds(bounds);
             }
 
             return () => {
@@ -142,7 +139,6 @@ function GeoJsonPreview(props: Props) {
             geoJson,
             url,
             previewStyle,
-            boundsPadding,
         ],
     );
 

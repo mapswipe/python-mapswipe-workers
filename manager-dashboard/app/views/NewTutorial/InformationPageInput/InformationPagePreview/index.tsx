@@ -10,19 +10,21 @@ import styles from './styles.css';
 interface Props {
     value: NonNullable<PartialTutorialFormType['informationPages']>[number];
     index: number;
+    lookFor: string | undefined;
 }
 
 export default function InformationPagePreview(props: Props) {
     const {
         value,
         index,
+        lookFor,
     } = props;
 
     return (
         <MobilePreview
             className={styles.informationPreview}
             // FIXME: get this from 'look for'
-            heading="mobile homes"
+            heading={lookFor || 'mobile homes'}
             headingLabel="You are looking for:"
             contentClassName={styles.content}
         >

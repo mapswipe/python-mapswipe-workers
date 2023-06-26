@@ -11,7 +11,7 @@ import Popup from '../Popup';
 
 import styles from './styles.css';
 
-export interface PopupButtonProps<N extends number | string | undefined> extends Omit<ButtonProps<N>, 'label'> {
+export interface PopupButtonProps<NAME extends number | string | undefined> extends Omit<ButtonProps<NAME>, 'label'> {
     popupClassName?: string;
     popupContentClassName?: string;
     label: React.ReactNode;
@@ -23,7 +23,7 @@ export interface PopupButtonProps<N extends number | string | undefined> extends
     defaultShown?: boolean;
 }
 
-function PopupButton<N extends number | string | undefined>(props: PopupButtonProps<N>) {
+function PopupButton<NAME extends number | string | undefined>(props: PopupButtonProps<NAME>) {
     const {
         popupClassName,
         popupContentClassName,

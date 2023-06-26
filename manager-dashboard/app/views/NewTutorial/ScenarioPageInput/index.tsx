@@ -7,10 +7,10 @@ import {
     getErrorObject,
 } from '@togglecorp/toggle-form';
 import {
-    IconItem,
     iconList,
     valueSelector,
     labelSelector,
+    keySelector,
     IconKey,
     ProjectType,
     PROJECT_TYPE_BUILD_AREA,
@@ -30,7 +30,7 @@ import {
     ChangeDetectionGeoJSON,
     PartialCustomOptionsType,
 } from '../utils';
-import ScenarioGeoJsonPreview from './ScenarioGeoJsonPreview';
+import BuildAreaGeoJsonPreview from './BuildAreaGeoJsonPreview';
 import FootprintGeoJsonPreview from './FootprintGeoJsonPreview';
 import ChangeDetectionGeoJsonPreview from './ChangeDetectionGeoJsonPreview';
 import styles from './styles.css';
@@ -66,8 +66,9 @@ const previewOptions: ScenarioSegmentType[] = [
 ];
 
 type PartialScenarioType = PartialForm<ScenarioType, 'scenarioId'>;
+
 const defaultScenarioTabsValue: PartialScenarioType = {
-    scenarioId: 0,
+    scenarioId: -1,
 };
 
 interface Props {
@@ -77,11 +78,12 @@ interface Props {
     error: Error<PartialScenarioType> | undefined;
     geoJson: TutorialTasksGeoJSON | undefined;
     projectType: ProjectType | undefined;
-    url: string | undefined;
+    urlA: string | undefined;
     urlB: string | undefined;
     customOptions: PartialCustomOptionsType | undefined;
     scenarioId: number;
     disabled: boolean;
+    lookFor: string | undefined;
 }
 
 export default function ScenarioPageInput(props: Props) {
@@ -91,12 +93,13 @@ export default function ScenarioPageInput(props: Props) {
         index,
         error: riskyError,
         geoJson: geoJsonFromProps,
-        url,
+        urlA,
         projectType,
         urlB,
         customOptions,
         scenarioId,
         disabled,
+        lookFor,
     } = props;
 
     const [activeSegmentInput, setActiveInput] = React.useState<ScenarioSegmentType['value']>('instructions');
@@ -175,8 +178,8 @@ export default function ScenarioPageInput(props: Props) {
                         label="Icon"
                         value={value.instructions?.icon}
                         options={iconList}
-                        keySelector={(d: IconItem) => d.key}
-                        labelSelector={(d: IconItem) => d.label}
+                        keySelector={keySelector}
+                        labelSelector={labelSelector}
                         onChange={onInstructionFieldChange}
                         error={instructionsError?.icon}
                         disabled={disabled}
@@ -209,8 +212,8 @@ export default function ScenarioPageInput(props: Props) {
                         label="Icon"
                         value={value.hint?.icon}
                         options={iconList}
-                        keySelector={(d: IconItem) => d.key}
-                        labelSelector={(d: IconItem) => d.label}
+                        keySelector={keySelector}
+                        labelSelector={labelSelector}
                         onChange={onHintFieldChange}
                         error={hintError?.icon}
                         disabled={disabled}
@@ -243,8 +246,8 @@ export default function ScenarioPageInput(props: Props) {
                         label="Icon"
                         value={value.success?.icon}
                         options={iconList}
-                        keySelector={(d: IconItem) => d.key}
-                        labelSelector={(d: IconItem) => d.label}
+                        keySelector={keySelector}
+                        labelSelector={labelSelector}
                         onChange={onSuccessFieldChange}
                         error={successError?.icon}
                         disabled={disabled}
@@ -256,25 +259,28 @@ export default function ScenarioPageInput(props: Props) {
                     <ChangeDetectionGeoJsonPreview
                         geoJson={geoJson as ChangeDetectionGeoJSON | undefined}
                         previewPopUp={previewPopUpData}
-                        url={url}
+                        urlA={urlA}
                         urlB={urlB}
+                        lookFor={lookFor}
                     />
                 )}
                 {((projectType === PROJECT_TYPE_BUILD_AREA)
                     || (projectType === PROJECT_TYPE_COMPLETENESS)) && (
                     // FIXME: Rename this to something more specific
-                    <ScenarioGeoJsonPreview
+                    <BuildAreaGeoJsonPreview
                         geoJson={geoJson as BuildAreaGeoJSON | undefined}
                         previewPopUp={previewPopUpData}
-                        url={url}
+                        url={urlA}
+                        lookFor={lookFor}
                     />
                 )}
                 {projectType === PROJECT_TYPE_FOOTPRINT && (
                     <FootprintGeoJsonPreview
                         geoJson={geoJson as FootprintGeoJSON | undefined}
                         previewPopUp={previewPopUpData}
-                        url={url}
+                        url={urlA}
                         customOptions={customOptions}
+                        lookFor={lookFor}
                     />
                 )}
                 <SegmentInput

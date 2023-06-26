@@ -21,7 +21,7 @@ interface Props {
     disabled: boolean;
 }
 
-export default function Block(props: Props) {
+export default function BlockInput(props: Props) {
     const {
         value,
         onChange,
@@ -30,7 +30,7 @@ export default function Block(props: Props) {
         disabled,
     } = props;
 
-    const onBlockChange = useFormObject(index, onChange, { blockNumber: 1, blockType: 'text' });
+    const onBlockChange = useFormObject(index, onChange, { blockNumber: -1, blockType: 'text' });
 
     const error = getErrorObject(riskyError);
     return (

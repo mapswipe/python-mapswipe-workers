@@ -29,7 +29,7 @@
 
         .icons {
             .back-icon {
-                font-size: 2rem;
+                font-size: var(--font-size-super-large);
             }
         }
 
@@ -37,7 +37,7 @@
             flex-shrink: 0;
 
             .info-icon {
-                font-size: 1.6rem;
+                font-size: var(--font-size-extra-large);
             }
         }
     }
@@ -49,7 +49,7 @@
         flex-grow: 1;
         z-index: 0;
         background-color: var(--color-primary);
-        padding: 1rem;
+        padding: var(--spacing-medium);
         overflow: auto;
 
         .content {
@@ -75,7 +75,7 @@
 
             .icons {
                 flex-shrink: 0;
-                font-size: 2rem;
+                font-size: var(--font-size-super-large);
             }
         }
     }

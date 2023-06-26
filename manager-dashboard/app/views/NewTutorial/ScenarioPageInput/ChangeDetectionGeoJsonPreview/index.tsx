@@ -1,5 +1,4 @@
 import React from 'react';
-import { PointExpression } from 'leaflet';
 import { _cs } from '@togglecorp/fujs';
 
 import MobilePreview from '#components/MobilePreview';
@@ -17,30 +16,30 @@ interface Props {
         description?: string;
         icon?: IconKey;
     }
-    url: string | undefined;
+    urlA: string | undefined;
     urlB: string | undefined;
+    lookFor: string | undefined;
 }
+
+const previewStyles = () => (
+    {
+        stroke: true,
+        weight: 0.5,
+        color: '#ffffff',
+        fillColor: 'transparent',
+        fillOpacity: 0.2,
+    }
+);
 
 export default function ChangeDetectionGeoJsonPreview(props: Props) {
     const {
         className,
         geoJson,
         previewPopUp,
-        url,
+        urlA,
         urlB,
+        lookFor,
     } = props;
-
-    const previewStyles = React.useCallback(() => (
-        {
-            stroke: true,
-            weight: 0.5,
-            color: '#ffffff',
-            fillColor: 'transparent',
-            fillOpacity: 0.2,
-        }
-    ), []);
-
-    const boundsPadding: PointExpression = [10, 10];
 
     const Comp = previewPopUp?.icon ? iconMap[previewPopUp.icon] : undefined;
 
@@ -48,11 +47,11 @@ export default function ChangeDetectionGeoJsonPreview(props: Props) {
         <MobilePreview
             className={_cs(styles.changeDetectionGeoJsonPreview, className)}
             // FIXME: get this from 'look for'
-            heading="mobile homes"
+            heading={lookFor || 'mobile homes'}
             headingLabel="You are looking for:"
             popupIcons={Comp && <Comp />}
-            popupTitle={previewPopUp?.title ?? 'Title'}
-            popupDescription={previewPopUp?.description ?? 'Description'}
+            popupTitle={previewPopUp?.title || 'Title'}
+            popupDescription={previewPopUp?.description || 'Description'}
             contentClassName={styles.content}
             popupClassName={styles.popup}
         >
@@ -60,15 +59,13 @@ export default function ChangeDetectionGeoJsonPreview(props: Props) {
                 className={styles.mapPreview}
                 previewStyle={previewStyles}
                 geoJson={geoJson}
-                url={url}
-                boundsPadding={boundsPadding}
+                url={urlA}
             />
             <GeoJsonPreview
                 className={styles.mapPreview}
                 previewStyle={previewStyles}
                 geoJson={geoJson}
                 url={urlB}
-                boundsPadding={boundsPadding}
             />
         </MobilePreview>
     );

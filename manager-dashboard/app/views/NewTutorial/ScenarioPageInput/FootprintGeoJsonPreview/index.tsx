@@ -24,7 +24,19 @@ interface Props {
     }
     url: string | undefined;
     customOptions: PartialCustomOptionsType | undefined;
+    lookFor: string | undefined;
 }
+
+const previewStyles: StyleFunction<FootprintProperties> = () => (
+    {
+        color: '#ffffff',
+        dashArray: '3',
+        stroke: true,
+        weight: 1,
+        fillColor: 'transparent',
+    }
+);
+
 export default function FootprintGeoJsonPreview(props: Props) {
     const {
         className,
@@ -32,17 +44,8 @@ export default function FootprintGeoJsonPreview(props: Props) {
         url,
         previewPopUp,
         customOptions,
+        lookFor,
     } = props;
-
-    const previewStyles: StyleFunction<FootprintProperties> = React.useCallback(() => (
-        {
-            color: '#ffffff',
-            dashArray: '3',
-            stroke: true,
-            weight: 1,
-            fillColor: 'transparent',
-        }
-    ), []);
 
     const Comp = previewPopUp?.icon ? iconMap[previewPopUp.icon] : undefined;
 
@@ -50,12 +53,11 @@ export default function FootprintGeoJsonPreview(props: Props) {
         <MobilePreview
             className={_cs(styles.footprintGeoJsonPreview, className)}
             contentClassName={styles.content}
-            // FIXME: get this from 'look for'
-            heading="mobile homes"
+            heading={lookFor || 'mobile homes'}
             headingLabel="You are looking for:"
             popupIcons={Comp && <Comp />}
-            popupTitle={previewPopUp?.title ?? 'Title'}
-            popupDescription={previewPopUp?.description ?? 'Description'}
+            popupTitle={previewPopUp?.title || 'Title'}
+            popupDescription={previewPopUp?.description || 'Description'}
         >
             <GeoJsonPreview
                 className={styles.mapPreview}

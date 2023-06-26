@@ -392,19 +392,22 @@ function NewProject(props: Props) {
 
     const { customOptions: customOptionsFromValue } = value;
 
-    const customOptions = customOptionsFromValue?.map((option) => ({
+    const customOptions = React.useMemo(() => (customOptionsFromValue?.map((option) => ({
         ...option,
         optionId: option.value,
         subOptions: option.subOptions?.map((subOption) => ({
             ...subOption,
             subOptionsId: subOption.value,
         })),
-    }));
+    }))), [customOptionsFromValue]);
 
     const optionsError = React.useMemo(
         () => getErrorObject(error?.customOptions),
         [error?.customOptions],
     );
+
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    const noOp = () => {};
 
     return (
         <div className={_cs(styles.newProject, className)}>
@@ -455,9 +458,7 @@ function NewProject(props: Props) {
                                                 key={option.value}
                                                 value={option}
                                                 index={index}
-                                                // eslint-disable-next-line max-len
-                                                // eslint-disable-next-line @typescript-eslint/no-empty-function
-                                                onChange={() => {}}
+                                                onChange={noOp}
                                                 error={optionsError?.[option.value]}
                                                 readOnly
                                             />
@@ -466,6 +467,7 @@ function NewProject(props: Props) {
                                 </div>
                                 <CustomOptionPreview
                                     value={customOptions}
+                                    lookFor={value.lookFor}
                                 />
                             </div>
                         ) : (

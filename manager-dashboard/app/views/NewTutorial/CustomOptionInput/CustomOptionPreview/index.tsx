@@ -10,12 +10,14 @@ import {
 import styles from './styles.css';
 
 interface Props {
-    value: PartialTutorialFormType['customOptions']
+    value: PartialTutorialFormType['customOptions'];
+    lookFor: string | undefined;
 }
 
 export default function CustomOptionPreview(props: Props) {
     const {
         value,
+        lookFor,
     } = props;
 
     return (
@@ -23,7 +25,7 @@ export default function CustomOptionPreview(props: Props) {
             className={styles.optionPreview}
             contentClassName={styles.content}
             // FIXME: get this from 'look for'
-            heading="mobile homes"
+            heading={lookFor || 'mobile homes'}
             headingLabel="You are looking for:"
         >
             {value?.map((option, index) => {

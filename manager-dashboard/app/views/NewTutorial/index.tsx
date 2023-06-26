@@ -1,4 +1,4 @@
-import React from 'react'; // we change this array to map before sending to server
+import React from 'react';
 import {
     _cs,
     isDefined,
@@ -79,23 +79,13 @@ import {
     infoPageBlocksMap,
     MAX_INFO_PAGES,
     MAX_OPTIONS,
+    deleteKey,
 } from './utils';
 import CustomOptionPreview from './CustomOptionInput/CustomOptionPreview';
 import CustomOptionInput from './CustomOptionInput';
 import ScenarioPageInput from './ScenarioPageInput';
 import InformationPageInput from './InformationPageInput';
 import styles from './styles.css';
-
-function deleteKey<T extends object, K extends keyof T>(
-    value: T,
-    key: K,
-): Omit<T, K> {
-    const copy: Omit<T, K> & { [key in K]: T[K] | undefined } = {
-        ...value,
-    };
-    delete copy[key];
-    return copy;
-}
 
 type CustomScreen = Omit<TutorialFormType['scenarioPages'][number], 'scenarioId'>;
 function sanitizeScreens(scenarioPages: TutorialFormType['scenarioPages']) {
@@ -324,20 +314,6 @@ function NewTutorial(props: Props) {
         [validate, setError, handleSubmission],
     );
 
-    const handleOptionRemove = React.useCallback(
-        (index: number) => {
-            onOptionRemove(index);
-        },
-        [onOptionRemove],
-    );
-
-    const handleInformationPageRemove = React.useCallback(
-        (index: number) => {
-            onInformationPageRemove(index);
-        },
-        [onInformationPageRemove],
-    );
-
     const handleAddDefineOptions = React.useCallback(
         () => {
             setFieldValue(
@@ -451,29 +427,16 @@ function NewTutorial(props: Props) {
         [error],
     );
 
-    // FIXME: create helper function
-    const tileServerAUrl = React.useMemo(() => {
-        const tileServerName = value.tileServer?.name;
+    const getTileServerUrl = (val: PartialTutorialFormType['tileServer']) => {
+        const tileServerName = val?.name;
         if (isNotDefined(tileServerName)) {
             return undefined;
         }
         if (tileServerName === 'custom') {
-            return value.tileServer?.url;
+            return val?.url;
         }
         return tileServerUrls[tileServerName];
-    }, [value.tileServer?.name, value.tileServer?.url]);
-
-    // FIXME: create helper function
-    const tileServerBUrl = React.useMemo(() => {
-        const tileServerName = value.tileServerB?.name;
-        if (isNotDefined(tileServerName)) {
-            return undefined;
-        }
-        if (tileServerName === 'custom') {
-            return value.tileServerB?.url;
-        }
-        return tileServerUrls[tileServerName];
-    }, [value.tileServerB?.name, value.tileServerB?.url]);
+    };
 
     const projectTypeEmpty = isNotDefined(value.projectType);
 
@@ -555,7 +518,7 @@ function NewTutorial(props: Props) {
                                             actions={(
                                                 <Button
                                                     name={index}
-                                                    onClick={handleOptionRemove}
+                                                    onClick={onOptionRemove}
                                                     variant="action"
                                                     title="Delete Option"
                                                     disabled={submissionPending || projectTypeEmpty}
@@ -577,6 +540,7 @@ function NewTutorial(props: Props) {
                                 </div>
                                 <CustomOptionPreview
                                     value={customOptions}
+                                    lookFor={value.lookFor}
                                 />
                             </div>
                         ) : (
@@ -627,7 +591,7 @@ function NewTutorial(props: Props) {
                                 actions={(
                                     <Button
                                         name={i}
-                                        onClick={handleInformationPageRemove}
+                                        onClick={onInformationPageRemove}
                                         variant="action"
                                         title="Delete page"
                                         disabled={submissionPending || projectTypeEmpty}
@@ -639,7 +603,7 @@ function NewTutorial(props: Props) {
                                 <InformationPageInput
                                     value={page}
                                     onChange={setInformationPageValue}
-                                    // onRemove={handleInformationPageRemove}
+                                    lookFor={value.lookFor}
                                     index={i}
                                     error={informationPagesError?.[page.pageNumber]}
                                     disabled={submissionPending || projectTypeEmpty}
@@ -728,8 +692,9 @@ function NewTutorial(props: Props) {
                                     error={scenarioError?.[task.scenarioId]}
                                     customOptions={customOptions}
                                     geoJson={value.tutorialTasks}
-                                    url={tileServerAUrl}
-                                    urlB={tileServerBUrl}
+                                    urlA={getTileServerUrl(value.tileServer)}
+                                    urlB={getTileServerUrl(value.tileServerB)}
+                                    lookFor={value.lookFor}
                                     disabled={submissionPending || projectTypeEmpty}
                                 />
                             </ExpandableContainer>

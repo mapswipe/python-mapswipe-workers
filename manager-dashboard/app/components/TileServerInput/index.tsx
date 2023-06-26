@@ -7,6 +7,8 @@ import {
     SetValueArg,
     ObjectSchema,
     requiredStringCondition,
+    addCondition,
+    nullValue,
 } from '@togglecorp/toggle-form';
 
 import TextInput from '#components/TextInput';
@@ -80,7 +82,7 @@ type TileServerInputType = PartialForm<TileServer>;
 type TileServerSchema = ObjectSchema<PartialForm<TileServerInputType>, unknown>;
 type TileServerFields = ReturnType<TileServerSchema['fields']>;
 export function tileServerFieldsSchema(value: TileServerInputType | undefined): TileServerFields {
-    const basicFields: TileServerFields = {
+    let basicFields: TileServerFields = {
         name: {
             required: true,
             requiredValidation: requiredStringCondition,
@@ -92,31 +94,41 @@ export function tileServerFieldsSchema(value: TileServerInputType | undefined): 
             validations: [getNoMoreThanNCharacterCondition(1000)],
         },
     };
-
-    if (value?.name === TILE_SERVER_CUSTOM) {
-        return {
-            ...basicFields,
-            url: {
-                required: true,
-                requiredValidation: requiredStringCondition,
-                validations: [
-                    getNoMoreThanNCharacterCondition(1000),
-                    imageryUrlCondition,
-                ],
-            },
-            wmtsLayerName: {
-                required: true,
-                requiredValidation: requiredStringCondition,
-                validations: [getNoMoreThanNCharacterCondition(1000)],
-            },
-        };
-    }
+    basicFields = addCondition(
+        basicFields,
+        value,
+        ['name'],
+        ['url', 'wmtsLayerName'],
+        (tileValues) => {
+            if (tileValues?.name === TILE_SERVER_CUSTOM) {
+                return {
+                    url: {
+                        required: true,
+                        requiredValidation: requiredStringCondition,
+                        validations: [
+                            getNoMoreThanNCharacterCondition(1000),
+                            imageryUrlCondition,
+                        ],
+                    },
+                    wmtsLayerName: {
+                        required: true,
+                        requiredValidation: requiredStringCondition,
+                        validations: [getNoMoreThanNCharacterCondition(1000)],
+                    },
+                };
+            }
+            return {
+                url: { forceValue: nullValue },
+                wmtsLayerName: { forceValue: nullValue },
+            };
+        },
+    );
     return basicFields;
 }
 
 type TileServerInputValue = TileServerInputType | undefined;
 const defaultValue: NonNullable<TileServerInputValue> = {
-    name: TILE_SERVER_ESRI,
+    name: TILE_SERVER_BING,
 };
 
 interface Props<Name extends string | number> {

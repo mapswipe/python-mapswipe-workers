@@ -6,18 +6,18 @@ import MarkdownPreview from '../MarkdownPreview';
 
 import styles from './styles.css';
 
-interface MarkdownEditorProps<K extends string> {
-    name: K;
+interface MarkdownEditorProps<NAME extends string> {
+    name: NAME;
     className?: string;
     readOnly?: boolean;
     disabled?: boolean;
     value: string | null | undefined;
-    onChange?:(newVal: string | undefined, name: K) => void;
+    onChange?:(newVal: string | undefined, name: NAME) => void;
 }
 
-export type Props<K extends string> = Omit<InputContainerProps, 'input'> & MarkdownEditorProps<K>;
+export type Props<NAME extends string> = Omit<InputContainerProps, 'input'> & MarkdownEditorProps<NAME>;
 
-function MarkdownEditor<K extends string>(props: Props<K>) {
+function MarkdownEditor<NAME extends string>(props: Props<NAME>) {
     const {
         name,
         value,

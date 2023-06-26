@@ -8,6 +8,7 @@ import {
     nullValue,
     ArraySchema,
     addCondition,
+    greaterThanCondition,
 } from '@togglecorp/toggle-form';
 
 import {
@@ -268,6 +269,17 @@ export const defaultFootprintCustomOptions: PartialTutorialFormType['customOptio
         description: 'if you\'re not sure or there is cloud cover / bad imagery',
     },
 ];
+
+export function deleteKey<T extends object, K extends keyof T>(
+    value: T,
+    key: K,
+): Omit<T, K> {
+    const copy: Omit<T, K> & { [key in K]: T[K] | undefined } = {
+        ...value,
+    };
+    delete copy[key];
+    return copy;
+}
 
 export interface BuildAreaProperties {
     reference: number;
@@ -577,10 +589,6 @@ export const tutorialFormSchema: TutorialFormSchema = {
                     }),
                 }),
             },
-            // FIXME: we do not send this anymore
-            tutorialTasks: {},
-            exampleImage1: {},
-            exampleImage2: {},
         };
 
         baseSchema = addCondition(
@@ -618,7 +626,10 @@ export const tutorialFormSchema: TutorialFormSchema = {
                             },
                             value: {
                                 required: true,
-                                validations: [integerCondition],
+                                validations: [
+                                    integerCondition,
+                                    greaterThanCondition(0),
+                                ],
                             },
                             description: {
                                 required: true,
@@ -663,7 +674,10 @@ export const tutorialFormSchema: TutorialFormSchema = {
                                         },
                                         value: {
                                             required: true,
-                                            validations: [integerCondition],
+                                            validations: [
+                                                integerCondition,
+                                                greaterThanCondition(0),
+                                            ],
                                         },
                                     }),
                                 }),
@@ -687,18 +701,20 @@ export const tutorialFormSchema: TutorialFormSchema = {
             value,
             ['projectType'],
             ['zoomLevel'],
-            (v) => (v?.projectType === PROJECT_TYPE_BUILD_AREA ? {
-                zoomLevel: {
-                    required: true,
-                    validations: [
-                        greaterThanOrEqualToCondition(14),
-                        lessThanOrEqualToCondition(22),
-                        integerCondition,
-                    ],
-                },
-            } : {
-                zoomLevel: { forceValue: nullValue },
-            }),
+            (v) => (v?.projectType === PROJECT_TYPE_BUILD_AREA
+                || v?.projectType === PROJECT_TYPE_CHANGE_DETECTION
+                || v?.projectType === PROJECT_TYPE_COMPLETENESS ? {
+                    zoomLevel: {
+                        required: true,
+                        validations: [
+                            greaterThanOrEqualToCondition(14),
+                            lessThanOrEqualToCondition(22),
+                            integerCondition,
+                        ],
+                    },
+                } : {
+                    zoomLevel: { forceValue: nullValue },
+                }),
         );
         baseSchema = addCondition(
             baseSchema,
@@ -708,19 +724,10 @@ export const tutorialFormSchema: TutorialFormSchema = {
             (v) => (v?.projectType === PROJECT_TYPE_CHANGE_DETECTION
                 || v?.projectType === PROJECT_TYPE_COMPLETENESS
                 ? {
-                    zoomLevel: {
-                        required: true,
-                        validations: [
-                            greaterThanOrEqualToCondition(14),
-                            lessThanOrEqualToCondition(22),
-                            integerCondition,
-                        ],
-                    },
                     tileServerB: {
                         fields: tileServerFieldsSchema,
                     },
                 } : {
-                    zoomLevel: { forceValue: nullValue },
                     tileServerB: { forceValue: nullValue },
                 }),
         );

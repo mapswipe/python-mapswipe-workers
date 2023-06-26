@@ -14,20 +14,19 @@ import TextInput from '#components/TextInput';
 import NumberInput from '#components/NumberInput';
 import SelectInput from '#components/SelectInput';
 import NonFieldError from '#components/NonFieldError';
+import { iconList, keySelector, labelSelector } from '#utils/common';
 
 import SubOptionInput from './SubOptionInput';
 import {
-    ColorOptions,
     PartialTutorialFormType,
     iconColorOptions,
 } from '../utils';
 
 import styles from './styles.css';
-import { IconItem, iconList } from '#utils/common';
 
 export type PartialCustomOptionsType = NonNullable<PartialTutorialFormType['customOptions']>[number]
 const defaultCustomOptionsValue: PartialCustomOptionsType = {
-    optionId: 1,
+    optionId: -1,
 };
 
 type subOptionsType = NonNullable<PartialCustomOptionsType['subOptions']>[number];
@@ -54,8 +53,8 @@ export default function CustomOptionInput(props: Props) {
     const onOptionChange = useFormObject(index, onChange, defaultCustomOptionsValue);
 
     const {
-        setValue: onsubOptionsAdd,
-        removeValue: onsubOptionsRemove,
+        setValue: onSubOptionsAdd,
+        removeValue: onSubOptionsRemove,
     } = useFormArray('subOptions', onOptionChange);
 
     const error = getErrorObject(riskyError);
@@ -71,15 +70,15 @@ export default function CustomOptionInput(props: Props) {
                 (oldValue: PartialCustomOptionsType['subOptions']) => {
                     const safeOldValue = oldValue ?? [];
 
-                    const newsubOptionsId = safeOldValue.length > 0
+                    const newSubOptionsId = safeOldValue.length > 0
                         ? Math.max(...safeOldValue.map((subOptions) => subOptions.subOptionsId)) + 1
                         : 1;
 
-                    const newsubOptions: subOptionsType = {
-                        subOptionsId: newsubOptionsId,
+                    const newSubOptions: subOptionsType = {
+                        subOptionsId: newSubOptionsId,
                     };
 
-                    return [...safeOldValue, newsubOptions];
+                    return [...safeOldValue, newSubOptions];
                 },
                 'subOptions',
             );
@@ -105,8 +104,8 @@ export default function CustomOptionInput(props: Props) {
                     label="Icon"
                     value={value?.icon}
                     options={iconList}
-                    keySelector={(d: IconItem) => d.key}
-                    labelSelector={(d: IconItem) => d.label}
+                    keySelector={keySelector}
+                    labelSelector={labelSelector}
                     onChange={onOptionChange}
                     error={error?.icon}
                     disabled={disabled || readOnly}
@@ -128,8 +127,8 @@ export default function CustomOptionInput(props: Props) {
                     label="Icon Color"
                     value={value?.iconColor}
                     options={iconColorOptions}
-                    keySelector={(d: ColorOptions) => d.color}
-                    labelSelector={(d: ColorOptions) => d.label}
+                    keySelector={keySelector}
+                    labelSelector={labelSelector}
                     onChange={onOptionChange}
                     error={error?.iconColor}
                     disabled={disabled || readOnly}
@@ -157,8 +156,8 @@ export default function CustomOptionInput(props: Props) {
                         key={sub.subOptionsId}
                         value={sub}
                         index={i}
-                        onChange={onsubOptionsAdd}
-                        onRemove={onsubOptionsRemove}
+                        onChange={onSubOptionsAdd}
+                        onRemove={onSubOptionsRemove}
                         error={subOptionsError?.[sub.subOptionsId]}
                         disabled={disabled}
                         readOnly={readOnly}

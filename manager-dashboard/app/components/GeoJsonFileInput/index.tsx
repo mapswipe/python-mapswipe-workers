@@ -96,9 +96,9 @@ function GeoJsonFileInput<N>(props: Props<N>) {
             const file = newValue;
 
             async function handleValidationAndChange() {
-                const text = await readUploadedFileAsText(file);
                 let fileAsJson;
                 try {
+                    const text = await readUploadedFileAsText(file);
                     if (!mountedRef.current) {
                         return;
                     }

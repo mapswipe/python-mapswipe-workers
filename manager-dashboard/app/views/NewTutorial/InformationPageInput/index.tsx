@@ -11,30 +11,30 @@ import TextInput from '#components/TextInput';
 import InformationPagePreview from './InformationPagePreview';
 
 import { InformationPagesType } from '../utils';
-import Block from './Block';
+import BlockInput from './BlockInput';
 
 import styles from './styles.css';
 
 interface Props {
     value: InformationPagesType,
     onChange: (value: SetValueArg<InformationPagesType>, index: number) => void;
-    // onRemove: (index: number) => void;
     index: number;
     error: Error<InformationPagesType> | undefined;
     disabled: boolean;
+    lookFor: string | undefined;
 }
 
 export default function InformationPageInput(props: Props) {
     const {
         value,
         onChange,
-        // onRemove,
         index,
         error: riskyError,
         disabled,
+        lookFor,
     } = props;
 
-    const onInformationPageChange = useFormObject(index, onChange, { pageNumber: 1 });
+    const onInformationPageChange = useFormObject(index, onChange, { pageNumber: -1 });
 
     const {
         setValue: onChangeBlock,
@@ -59,7 +59,7 @@ export default function InformationPageInput(props: Props) {
                     disabled={disabled}
                 />
                 {value.blocks?.map((block, i) => (
-                    <Block
+                    <BlockInput
                         key={block.blockNumber}
                         value={block}
                         onChange={onChangeBlock}
@@ -72,6 +72,7 @@ export default function InformationPageInput(props: Props) {
             <InformationPagePreview
                 value={value}
                 index={index}
+                lookFor={lookFor}
             />
         </div>
     );

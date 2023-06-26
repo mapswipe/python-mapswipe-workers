@@ -44,6 +44,10 @@ export function labelSelector<T>(item: { label: T }) {
     return item.label;
 }
 
+export function keySelector<T>(item: { key: T }) {
+    return item.key;
+}
+
 export function getNoMoreThanNCharacterCondition(maxCharacters: number) {
     return (value: string | undefined) => {
         if (!isDefined(value) || value.length <= maxCharacters) {
