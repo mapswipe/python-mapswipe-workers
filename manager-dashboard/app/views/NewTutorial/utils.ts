@@ -8,7 +8,6 @@ import {
     nullValue,
     ArraySchema,
     addCondition,
-    greaterThanCondition,
 } from '@togglecorp/toggle-form';
 
 import {
@@ -628,7 +627,7 @@ export const tutorialFormSchema: TutorialFormSchema = {
                                 required: true,
                                 validations: [
                                     integerCondition,
-                                    greaterThanCondition(0),
+                                    greaterThanOrEqualToCondition(0),
                                 ],
                             },
                             description: {
@@ -676,7 +675,7 @@ export const tutorialFormSchema: TutorialFormSchema = {
                                             required: true,
                                             validations: [
                                                 integerCondition,
-                                                greaterThanCondition(0),
+                                                greaterThanOrEqualToCondition(0),
                                             ],
                                         },
                                     }),

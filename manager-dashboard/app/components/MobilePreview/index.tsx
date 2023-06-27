@@ -59,7 +59,7 @@ function MobilePreview(props: Props) {
                 {(popupTitle || popupDescription || popupIcons) && (
                     <div className={_cs(styles.popup, popupClassName)}>
                         <div className={styles.details}>
-                            <div>
+                            <div className={styles.popupTitle}>
                                 {popupTitle}
                             </div>
                             <div>

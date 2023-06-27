@@ -588,11 +588,11 @@ function NewTutorial(props: Props) {
                         {informationPages?.map((page, i) => (
                             <ExpandableContainer
                                 key={page.pageNumber}
-                                header={page.title || `Intro ${page.pageNumber}`}
+                                header={page.title || `Intro ${i + 1}`}
                                 openByDefault={i === informationPages.length - 1}
                                 actions={(
                                     <Button
-                                        name={i}
+                                        name={i + 1}
                                         onClick={onInformationPageRemove}
                                         variant="action"
                                         title="Delete page"

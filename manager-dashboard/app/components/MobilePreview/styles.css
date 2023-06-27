@@ -71,6 +71,10 @@
 
             .details {
                 flex-grow: 1;
+
+                .popup-title {
+                    font-weight: var(--font-weight-bold);
+                }
             }
 
             .icons {
