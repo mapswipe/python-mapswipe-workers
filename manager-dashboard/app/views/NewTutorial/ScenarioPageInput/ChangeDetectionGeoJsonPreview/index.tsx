@@ -53,7 +53,7 @@ export default function ChangeDetectionGeoJsonPreview(props: Props) {
             popupTitle={previewPopUp?.title || 'Title'}
             popupDescription={previewPopUp?.description || 'Description'}
             contentClassName={styles.content}
-            popupClassName={styles.popup}
+            popupVerticalPosition="center"
         >
             <GeoJsonPreview
                 className={styles.mapPreview}

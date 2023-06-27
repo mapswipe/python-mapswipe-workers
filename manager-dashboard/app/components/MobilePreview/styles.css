@@ -5,7 +5,7 @@
     border-radius: var(--radius-card-border);
     background-color: var(--color-black);
     padding: var(--spacing-small) 0;
-    width: var(--width-mobile-preview);
+    width: calc(var(--width-mobile-preview) + var(--width-separator-mobile-preview));
     height: var(--height-mobile-preview);
     color: var(--color-text-on-dark);
 
@@ -68,6 +68,11 @@
             padding: var(--spacing-small) var(--spacing-medium);
             width: calc(100% - 2 * var(--spacing-small));
             color: var(--color-text);
+
+            &.vertically-centered {
+                top: 50%;
+                transform: translateY(-50%);
+            }
 
             .details {
                 flex-grow: 1;

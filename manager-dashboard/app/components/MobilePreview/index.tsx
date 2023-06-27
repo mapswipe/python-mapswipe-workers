@@ -17,6 +17,7 @@ interface Props {
     popupIcons?: React.ReactNode;
     contentClassName?: string;
     popupClassName?: string;
+    popupVerticalPosition?: 'top' | 'center';
 }
 
 function MobilePreview(props: Props) {
@@ -31,6 +32,7 @@ function MobilePreview(props: Props) {
         popupIcons,
         contentClassName,
         popupClassName,
+        popupVerticalPosition,
     } = props;
 
     return (
@@ -57,7 +59,13 @@ function MobilePreview(props: Props) {
             </div>
             <div className={styles.contentContainer}>
                 {(popupTitle || popupDescription || popupIcons) && (
-                    <div className={_cs(styles.popup, popupClassName)}>
+                    <div
+                        className={_cs(
+                            styles.popup,
+                            popupClassName,
+                            popupVerticalPosition === 'center' && styles.verticallyCentered,
+                        )}
+                    >
                         <div className={styles.details}>
                             <div className={styles.popupTitle}>
                                 {popupTitle}
