@@ -248,7 +248,7 @@ export const defaultFootprintCustomOptions: PartialTutorialFormType['customOptio
         value: 1,
         title: 'Yes',
         icon: 'checkmarkOutline',
-        iconColor: colorKeyToColorMap.green,
+        iconColor: 'green',
         description: 'the shape does outline a building in the image',
     },
     {
@@ -256,7 +256,7 @@ export const defaultFootprintCustomOptions: PartialTutorialFormType['customOptio
         value: 0,
         title: 'No',
         icon: 'closeOutline',
-        iconColor: colorKeyToColorMap.red,
+        iconColor: 'red',
         description: 'the shape doesn\'t match a building in the image',
     },
     {
@@ -264,7 +264,7 @@ export const defaultFootprintCustomOptions: PartialTutorialFormType['customOptio
         value: 2,
         title: 'Not Sure',
         icon: 'removeOutline',
-        iconColor: colorKeyToColorMap.orange,
+        iconColor: 'orange',
         description: 'if you\'re not sure or there is cloud cover / bad imagery',
     },
 ];
