@@ -1,13 +1,10 @@
 import React from 'react';
 import { IoIosArrowDown, IoIosArrowUp } from 'react-icons/io';
-
 import { _cs } from '@togglecorp/fujs';
 
 import Button, { ButtonProps } from '#components/Button';
-
-import useBlurEffect from '../../hooks/useBlurEffect';
-
-import Popup from '../Popup';
+import useBlurEffect from '#hooks/useBlurEffect';
+import Popup from '#components/Popup';
 
 import styles from './styles.css';
 

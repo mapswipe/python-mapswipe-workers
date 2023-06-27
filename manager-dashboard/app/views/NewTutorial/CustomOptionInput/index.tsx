@@ -172,9 +172,10 @@ export default function CustomOptionInput(props: Props) {
                         className={styles.addButton}
                         icons={<MdAdd />}
                         onClick={handleSubOptionsAdd}
+                        // FIXME: use constant from utils
                         disabled={disabled || (value.subOptions && value.subOptions.length >= 6)}
                     >
-                        Add Sub Options
+                        Add Sub Option
                     </Button>
                 )}
             </div>

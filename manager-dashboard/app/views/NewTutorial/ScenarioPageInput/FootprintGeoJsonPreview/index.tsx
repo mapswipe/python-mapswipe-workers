@@ -53,11 +53,11 @@ export default function FootprintGeoJsonPreview(props: Props) {
         <MobilePreview
             className={_cs(styles.footprintGeoJsonPreview, className)}
             contentClassName={styles.content}
-            heading={lookFor || 'mobile homes'}
+            heading={lookFor || '{look for}'}
             headingLabel="You are looking for:"
             popupIcons={Comp && <Comp />}
-            popupTitle={previewPopUp?.title || 'Title'}
-            popupDescription={previewPopUp?.description || 'Description'}
+            popupTitle={previewPopUp?.title || '{title}'}
+            popupDescription={previewPopUp?.description || '{description}'}
         >
             <GeoJsonPreview
                 className={styles.mapPreview}

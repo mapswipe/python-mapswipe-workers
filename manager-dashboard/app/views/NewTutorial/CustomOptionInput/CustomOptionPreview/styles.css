@@ -14,7 +14,6 @@
                 display: flex;
                 align-items: center;
                 border-radius: 50%;
-                /* FIXME: do not hard code this if possible */
                 padding: var(--spacing-extra-small);
                 font-size: var(--font-size-extra-large);
             }

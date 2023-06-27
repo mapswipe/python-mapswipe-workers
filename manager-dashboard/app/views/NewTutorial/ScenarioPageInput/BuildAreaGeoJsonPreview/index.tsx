@@ -58,12 +58,11 @@ function BuildAreaGeoJsonPreview(props: Props) {
     return (
         <MobilePreview
             className={_cs(styles.scenarioGeoJsonPreview, className)}
-            // FIXME: get this from 'look for'
-            heading={lookFor || 'mobile homes'}
+            heading={lookFor || '{look for}'}
             headingLabel="You are looking for:"
             popupIcons={Comp && <Comp />}
-            popupTitle={previewPopUp?.title || 'Title'}
-            popupDescription={previewPopUp?.description || 'Description'}
+            popupTitle={previewPopUp?.title || '{title}'}
+            popupDescription={previewPopUp?.description || '{description}'}
             contentClassName={styles.content}
         >
             <GeoJsonPreview

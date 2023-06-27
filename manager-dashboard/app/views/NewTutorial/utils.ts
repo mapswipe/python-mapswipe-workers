@@ -442,7 +442,7 @@ export const MIN_SUB_OPTIONS = 2;
 export const MAX_INFO_PAGES = 10;
 
 const SM_TEXT_MAX_LENGTH = 25;
-const MD_TEXT_MAX_LENGTH = 100;
+const MD_TEXT_MAX_LENGTH = 1000;
 const LG_TEXT_MAX_LENGTH = 2000;
 
 export const tutorialFormSchema: TutorialFormSchema = {
@@ -464,7 +464,9 @@ export const tutorialFormSchema: TutorialFormSchema = {
             tileServer: {
                 fields: tileServerFieldsSchema,
             },
-            tutorialTasks: {},
+            tutorialTasks: {
+                required: true,
+            },
             scenarioPages: {
                 keySelector: (key) => key.scenarioId,
                 member: (): ScenarioPagesFormSchemaMember => ({
@@ -546,7 +548,7 @@ export const tutorialFormSchema: TutorialFormSchema = {
                         title: {
                             required: true,
                             requiredValidation: requiredStringCondition,
-                            validations: [getNoMoreThanNCharacterCondition(MD_TEXT_MAX_LENGTH)],
+                            validations: [getNoMoreThanNCharacterCondition(SM_TEXT_MAX_LENGTH)],
                         },
                         blocks: {
                             keySelector: (key) => key.blockNumber,
@@ -614,6 +616,7 @@ export const tutorialFormSchema: TutorialFormSchema = {
                     },
                     keySelector: (key) => key.optionId,
                     member: (): CustomOptionFormSchemaMember => ({
+                        // FIXME: get this condition from common
                         fields: (): CustomOptionSchemaFields => ({
                             optionId: {
                                 required: true,
@@ -695,6 +698,7 @@ export const tutorialFormSchema: TutorialFormSchema = {
                 };
             },
         );
+
         baseSchema = addCondition(
             baseSchema,
             value,
@@ -715,6 +719,7 @@ export const tutorialFormSchema: TutorialFormSchema = {
                     zoomLevel: { forceValue: nullValue },
                 }),
         );
+
         baseSchema = addCondition(
             baseSchema,
             value,

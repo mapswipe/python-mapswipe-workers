@@ -24,8 +24,7 @@ export default function CustomOptionPreview(props: Props) {
         <MobilePreview
             className={styles.optionPreview}
             contentClassName={styles.content}
-            // FIXME: get this from 'look for'
-            heading={lookFor || 'mobile homes'}
+            heading={lookFor || '{look for}'}
             headingLabel="You are looking for:"
         >
             {value?.map((option, index) => {
@@ -34,7 +33,7 @@ export default function CustomOptionPreview(props: Props) {
                     : iconMap.flagOutline;
 
                 const previewText = [
-                    option.title || `Option ${index + 1}`,
+                    option.title || `{option ${index + 1}}`,
                     option.description,
                 ].filter(Boolean).join(' - ');
 

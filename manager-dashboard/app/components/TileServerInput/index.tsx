@@ -78,6 +78,8 @@ function imageryUrlCondition(value: string | null | undefined) {
     return 'Imagery url must contain {x}, {y} (or {-y}) & {z} placeholders or {quad_key} placeholder.';
 }
 
+const MD_TEXT_MAX_LENGTH = 1000;
+
 type TileServerInputType = PartialForm<TileServer>;
 type TileServerSchema = ObjectSchema<PartialForm<TileServerInputType>, unknown>;
 type TileServerFields = ReturnType<TileServerSchema['fields']>;
@@ -86,12 +88,12 @@ export function tileServerFieldsSchema(value: TileServerInputType | undefined): 
         name: {
             required: true,
             requiredValidation: requiredStringCondition,
-            validations: [getNoMoreThanNCharacterCondition(1000)],
+            validations: [getNoMoreThanNCharacterCondition(MD_TEXT_MAX_LENGTH)],
         },
         credits: {
             required: true,
             requiredValidation: requiredStringCondition,
-            validations: [getNoMoreThanNCharacterCondition(1000)],
+            validations: [getNoMoreThanNCharacterCondition(MD_TEXT_MAX_LENGTH)],
         },
     };
     basicFields = addCondition(
@@ -106,14 +108,14 @@ export function tileServerFieldsSchema(value: TileServerInputType | undefined): 
                         required: true,
                         requiredValidation: requiredStringCondition,
                         validations: [
-                            getNoMoreThanNCharacterCondition(1000),
+                            getNoMoreThanNCharacterCondition(MD_TEXT_MAX_LENGTH),
                             imageryUrlCondition,
                         ],
                     },
                     wmtsLayerName: {
                         required: true,
                         requiredValidation: requiredStringCondition,
-                        validations: [getNoMoreThanNCharacterCondition(1000)],
+                        validations: [getNoMoreThanNCharacterCondition(MD_TEXT_MAX_LENGTH)],
                     },
                 };
             }

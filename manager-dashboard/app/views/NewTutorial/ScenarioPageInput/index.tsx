@@ -266,7 +266,6 @@ export default function ScenarioPageInput(props: Props) {
                 )}
                 {((projectType === PROJECT_TYPE_BUILD_AREA)
                     || (projectType === PROJECT_TYPE_COMPLETENESS)) && (
-                    // FIXME: Rename this to something more specific
                     <BuildAreaGeoJsonPreview
                         geoJson={geoJson as BuildAreaGeoJSON | undefined}
                         previewPopUp={previewPopUpData}

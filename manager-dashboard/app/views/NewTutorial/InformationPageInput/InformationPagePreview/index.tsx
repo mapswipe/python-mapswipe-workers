@@ -23,18 +23,17 @@ export default function InformationPagePreview(props: Props) {
     return (
         <MobilePreview
             className={styles.informationPreview}
-            // FIXME: get this from 'look for'
-            heading={lookFor || 'mobile homes'}
+            heading={lookFor || '{look for}'}
             headingLabel="You are looking for:"
             contentClassName={styles.content}
         >
-            {value?.title || `Intro ${index + 1}`}
+            {value?.title || `{page title ${index}}`}
             {value?.blocks?.map((preview) => {
-                if (preview.blockType === 'text' && !!preview.textDescription) {
+                if (preview.blockType === 'text') {
                     return (
                         <MarkdownPreview
                             key={preview.blockNumber}
-                            markdown={preview.textDescription}
+                            markdown={preview.textDescription || '{block}'}
                         />
                     );
                 }
