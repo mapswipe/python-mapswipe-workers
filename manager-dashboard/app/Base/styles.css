@@ -53,6 +53,8 @@ p {
     --color-background-primary-hint: #0d194920;
     --color-background-accent-hint: #4746f610;
 
+    --color-black: #000000;
+
     --color-scrollbar-foreground: rgba(0, 0, 0, .2);
     --color-scrollbar-background: rgba(0, 0, 0, .01);
     --color-hover-background: rgba(0, 0, 0, 0.03);
@@ -60,11 +62,12 @@ p {
 
     --color-primary: #0d1949;
     --color-primary-light: #2d5989;
-    --color-text-on-light: #ffffff;
+    --color-text-on-dark: #ffffff;
     --color-text-watermark: rgba(0, 0, 0, .4);
     --color-text: rgba(0, 0, 0, 0.8);
     --color-text-dark: rgba(0, 0, 0, 1);
     --color-text-light: rgba(0, 0, 0, 0.6);
+    --color-text-gray: #666666;
     --color-accent: #4746f6;
     --color-danger: #e04656;
     --color-success: #53b391;
@@ -83,14 +86,23 @@ p {
     --font-size-ultra-large: 4rem;
 
     --font-weight-medium: 400;
+    --font-weight-semibold: 600;
     --font-weight-bold: 700;
 
     --opacity-disabled-element: 0.5;
 
-    --width-separator-thin: 1px;
+    --width-separator-thin: 1pt;
+    --width-separator-thick: 5pt;
+    --width-separator-mobile-preview: 8pt;
     --width-scrollbar: 0.75rem;
     --width-page-content-max: 70rem;
     --width-navbar-content-max: 76rem;
+
+    --width-mobile-preview: 22rem;
+    --height-mobile-preview: 40rem;
+    --height-mobile-preview-builarea-content: 30rem;
+    --height-mobile-preview-footprint-content: 22rem;
+    --height-mobile-preview-change-detection-content: 14rem;
 
     --radius-popup-border: 0.25rem;
     --radius-scrollbar-border: 0.25rem;
@@ -98,8 +110,15 @@ p {
     --radius-modal: 0.25rem;
     --radius-button-border: 0.25rem;
     --radius-input-border: 0.25rem;
-    --radius-card-border: 0.25rem;
+    --radius-card-border: 0.5rem;
     --radius-badge-border: 1rem;
+
+    --line-height-none: 1;
+    --line-height-tight: 1.25;
+    --line-height-snug: 1.375;
+    --line-height-normal: 1.5;
+    --line-height-relaxed: 1.625;
+    --line-height-loose: 2;
 
 
     --shadow-card: 0 2px 4px -2px var(--color-shadow);

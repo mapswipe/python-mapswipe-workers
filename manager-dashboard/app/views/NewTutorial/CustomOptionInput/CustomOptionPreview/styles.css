@@ -1,0 +1,26 @@
+.option-preview {
+    .content {
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-large);
+
+        .preview-content {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-medium);
+            color: var(--color-text-on-dark);
+
+            .preview-icon {
+                display: flex;
+                align-items: center;
+                border-radius: 50%;
+                padding: var(--spacing-extra-small);
+                font-size: var(--font-size-extra-large);
+            }
+
+            .preview-text {
+                font-size: var(--font-size-small);
+            }
+        }
+    }
+}

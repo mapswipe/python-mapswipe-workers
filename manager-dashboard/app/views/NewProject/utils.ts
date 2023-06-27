@@ -7,17 +7,20 @@ import {
 } from '@togglecorp/fujs';
 import {
     ObjectSchema,
+    ArraySchema,
     PartialForm,
-    requiredCondition,
     requiredStringCondition,
     integerCondition,
     greaterThanCondition,
     greaterThanOrEqualToCondition,
     lessThanOrEqualToCondition,
-    forceNullType,
+    addCondition,
+    nullValue,
+    urlCondition,
 } from '@togglecorp/toggle-form';
 import { getType as getFeatureType } from '@turf/invariant';
 import getFeatureArea from '@turf/area';
+
 import {
     TileServer,
     tileServerFieldsSchema,
@@ -31,7 +34,20 @@ import {
     PROJECT_TYPE_FOOTPRINT,
     PROJECT_TYPE_CHANGE_DETECTION,
     PROJECT_TYPE_COMPLETENESS,
+    IconKey,
 } from '#utils/common';
+
+export type CustomOptionsForProject = {
+    title: string;
+    value: number;
+    description: string;
+    icon: IconKey;
+    iconColor: string;
+    subOptions: {
+        description: string;
+        value: number;
+    }[];
+}[];
 
 export interface ProjectFormType {
     projectTopic: string;
@@ -56,6 +72,7 @@ export interface ProjectFormType {
     maxTasksPerUser: number;
     tileServer: TileServer;
     tileServerB?: TileServer;
+    customOptions?: CustomOptionsForProject;
 }
 
 export const PROJECT_INPUT_TYPE_UPLOAD = 'aoi_file';
@@ -84,188 +101,409 @@ export const filterOptions = [
 export type PartialProjectFormType = PartialForm<
     Omit<ProjectFormType, 'projectImage'> & { projectImage?: File },
     // NOTE: we do not want to change File and FeatureCollection to partials
-    'geometry' | 'projectImage'
+    'geometry' | 'projectImage' | 'value'
 >;
 
 type ProjectFormSchema = ObjectSchema<PartialProjectFormType>;
 type ProjectFormSchemaFields = ReturnType<ProjectFormSchema['fields']>;
 
+type PartialCustomOptions = NonNullable<PartialProjectFormType['customOptions']>[number];
+type CustomOptionSchema = ObjectSchema<PartialCustomOptions, PartialProjectFormType>;
+type CustomOptionSchemaFields = ReturnType<CustomOptionSchema['fields']>
+type CustomOptionFormSchema = ArraySchema<PartialCustomOptions, PartialProjectFormType>;
+type CustomOptionFormSchemaMember = ReturnType<CustomOptionFormSchema['member']>;
+
 // FIXME: break this into multiple geometry conditions
 const DEFAULT_MAX_FEATURES = 20;
 // const DEFAULT_MAX_FEATURES = 10;
 const DEFAULT_MAX_AREA = 20;
-function validGeometryCondition(
-    featureCollection: GeoJSON.GeoJSON | string | undefined,
-    allValue: PartialProjectFormType,
-) {
-    if (!featureCollection) {
-        return undefined;
-    }
-    if (typeof featureCollection === 'string') {
-        return undefined;
-    }
-    if (featureCollection.type !== 'FeatureCollection') {
-        return 'Only FeatureCollection is supported';
-    }
+function validGeometryCondition(zoomLevel: number | undefined | null) {
+    function validGeometryConditionForZoom(
+        featureCollection: GeoJSON.GeoJSON | string | undefined,
+    ) {
+        if (!featureCollection) {
+            return undefined;
+        }
+        if (typeof featureCollection === 'string') {
+            return 'Invalid GeoJSON.';
+        }
+        if (featureCollection.type !== 'FeatureCollection') {
+            return 'GeoJSON type should be FeatureCollection.';
+        }
 
-    const numberOfFeatures = featureCollection.features.length;
+        const numberOfFeatures = featureCollection.features.length;
 
-    if (!numberOfFeatures) {
-        return 'GeoJson has no features';
-    }
+        if (!numberOfFeatures) {
+            return 'GeoJSON has no features.';
+        }
 
-    const maxNumberOfFeatures = DEFAULT_MAX_FEATURES;
-    if (numberOfFeatures > maxNumberOfFeatures) {
-        return `GeoJson has too many (${numberOfFeatures}) features. Only ${maxNumberOfFeatures} are allowed`;
-    }
+        const maxNumberOfFeatures = DEFAULT_MAX_FEATURES;
+        if (numberOfFeatures > maxNumberOfFeatures) {
+            return `GeoJSON has too many (${numberOfFeatures}) features. Only ${maxNumberOfFeatures} features are allowed`;
+        }
 
-    const invalidFeatures = featureCollection.features.filter((feature) => {
-        const featureType = getFeatureType(feature);
-        return featureType !== 'Polygon' && featureType !== 'MultiPolygon';
-    });
+        const invalidFeatures = featureCollection.features.filter((feature) => {
+            const featureType = getFeatureType(feature);
+            return featureType !== 'Polygon' && featureType !== 'MultiPolygon';
+        });
 
-    if (invalidFeatures.length > 0) {
-        const invalidFeatureMap = listToGroupList(
-            invalidFeatures,
-            (feature) => getFeatureType(feature),
+        if (invalidFeatures.length > 0) {
+            const invalidFeatureMap = listToGroupList(
+                invalidFeatures,
+                (feature) => getFeatureType(feature),
+            );
+
+            const unsupportedTypeList = Object.entries(invalidFeatureMap)
+                .map(([featureKey, feature]) => `${feature.length} ${featureKey}`);
+            const unsupportedFeatureTypes = unsupportedTypeList.join(', ');
+
+            return `GeoJSON contains ${unsupportedFeatureTypes} features. These are currently not supported. Please make sure the it only contains Polygon or MultiPolygons`;
+        }
+
+        const totalArea = sum(
+            featureCollection.features.map(
+                (feature) => getFeatureArea(feature),
+            ).filter((num) => isDefined(num) && !Number.isNaN(num)),
         );
+        const totalAreaInSqKm = totalArea / 1000000;
 
-        const unsupportedTypeList = Object.entries(invalidFeatureMap)
-            .map(([featureKey, feature]) => `${feature.length} ${featureKey}`);
-        const unsupportedFeatureTypes = unsupportedTypeList.join(', ');
+        const maxArea = isDefined(zoomLevel)
+            ? (5 * (4 ** (23 - zoomLevel)))
+            : DEFAULT_MAX_AREA;
 
-        return `GeoJson contains ${unsupportedFeatureTypes} features. These are currently not supported. Please make sure the it only contains Polygon or MultiPolygons`;
+        if (maxArea < totalAreaInSqKm) {
+            return `Area covered by GeoJSON (${totalAreaInSqKm.toFixed(2)} sqkm) is too large, max allowed area for selected zoom level is ${maxArea} sqkm`;
+        }
+
+        return undefined;
     }
-
-    const totalArea = sum(
-        featureCollection.features.map(
-            (feature) => getFeatureArea(feature),
-        ).filter((num) => isDefined(num) && !Number.isNaN(num)),
-    );
-    const totalAreaInSqKm = totalArea / 1000000;
-
-    const zoomLevel = allValue?.zoomLevel;
-    const maxArea = isDefined(zoomLevel)
-        ? (5 * (4 ** (23 - zoomLevel)))
-        : DEFAULT_MAX_AREA;
-
-    if (maxArea < totalAreaInSqKm) {
-        return `Area covered by GeoJson (${totalAreaInSqKm.toFixed(2)} sqkm) is too large, max allowed area for selected zoom level is ${maxArea} sqkm`;
-    }
-
-    return undefined;
+    return validGeometryConditionForZoom;
 }
+
+export const MAX_OPTIONS = 6;
+export const MIN_OPTIONS = 2;
+export const MAX_SUB_OPTIONS = 6;
+export const MIN_SUB_OPTIONS = 2;
 
 export const projectFormSchema: ProjectFormSchema = {
     fields: (value): ProjectFormSchemaFields => {
-        const baseSchema: ProjectFormSchemaFields = {
-            projectTopic: [requiredStringCondition, getNoMoreThanNCharacterCondition(50)],
-            projectType: [requiredCondition],
-            projectRegion: [requiredStringCondition, getNoMoreThanNCharacterCondition(50)],
-            projectNumber: [requiredCondition, integerCondition, greaterThanCondition(0)],
-            requestingOrganisation: [requiredStringCondition],
-            name: [requiredStringCondition],
-            visibility: [requiredCondition],
-            lookFor: [getNoMoreThanNCharacterCondition(25)],
-            projectDetails: [requiredStringCondition, getNoMoreThanNCharacterCondition(10000)],
-            tutorialId: [requiredCondition],
-            projectImage: [requiredCondition],
-            verificationNumber: [
-                requiredCondition,
-                greaterThanOrEqualToCondition(3),
-                lessThanOrEqualToCondition(10000),
-                integerCondition,
-            ],
-            groupSize: [
-                requiredCondition,
-                greaterThanOrEqualToCondition(10),
-                lessThanOrEqualToCondition(250),
-                integerCondition,
-            ],
+        let baseSchema: ProjectFormSchemaFields = {
+            projectTopic: {
+                required: true,
+                requiredValidation: requiredStringCondition,
+                validations: [getNoMoreThanNCharacterCondition(50)],
+            },
+            projectType: {
+                required: true,
+            },
+            projectRegion: {
+                required: true,
+                requiredValidation: requiredStringCondition,
+                validations: [getNoMoreThanNCharacterCondition(50)],
+            },
+            projectNumber: {
+                required: true,
+                validations: [
+                    integerCondition,
+                    greaterThanCondition(0),
+                ],
+            },
+            requestingOrganisation: {
+                required: true,
+                requiredValidation: requiredStringCondition,
+            },
+            name: {
+                required: true,
+                requiredValidation: requiredStringCondition,
+            },
+            visibility: {
+                required: true,
+            },
+            lookFor: {
+                required: true,
+                requiredValidation: requiredStringCondition,
+                validations: [getNoMoreThanNCharacterCondition(25)],
+            },
+            projectDetails: {
+                required: true,
+                requiredValidation: requiredStringCondition,
+                validations: [getNoMoreThanNCharacterCondition(10000)],
+            },
+            tutorialId: {
+                required: true,
+            },
+            projectImage: {
+                required: true,
+            },
+            verificationNumber: {
+                required: true,
+                requiredValidation: integerCondition,
+                validations: [
+                    greaterThanOrEqualToCondition(3),
+                    lessThanOrEqualToCondition(10000),
+                ],
+            },
+            groupSize: {
+                required: true,
+                validations: [
+                    integerCondition,
+                    greaterThanOrEqualToCondition(10),
+                    lessThanOrEqualToCondition(250),
+                ],
+            },
             tileServer: {
                 fields: tileServerFieldsSchema,
             },
-            maxTasksPerUser: [
-                greaterThanCondition(0),
-                integerCondition,
-            ],
-
-            zoomLevel: [forceNullType],
-            geometry: [forceNullType],
-            filter: [forceNullType],
-            filterText: [forceNullType],
-            TMId: [forceNullType],
-            tileServerB: [forceNullType],
+            maxTasksPerUser: {
+                validations: [
+                    integerCondition,
+                    greaterThanCondition(0),
+                ],
+            },
         };
 
-        if (value?.projectType === PROJECT_TYPE_BUILD_AREA) {
-            return {
-                ...baseSchema,
-                zoomLevel: [
-                    requiredCondition,
-                    greaterThanOrEqualToCondition(14),
-                    lessThanOrEqualToCondition(22),
-                    integerCondition,
-                ],
-                geometry: [
-                    requiredCondition,
-                    validGeometryCondition,
-                ],
-            };
-        }
+        baseSchema = addCondition(
+            baseSchema,
+            value,
+            ['projectType'],
+            ['customOptions'],
+            (formValues) => {
+                if (formValues?.projectType === PROJECT_TYPE_FOOTPRINT) {
+                    return {
+                        customOptions: {
+                            keySelector: (key) => key.value,
+                            member: (): CustomOptionFormSchemaMember => ({
+                                fields: (): CustomOptionSchemaFields => ({
+                                    title: {},
+                                    value: {},
+                                    description: {},
+                                    icon: {},
+                                    iconColor: {},
+                                    subOptions: {
+                                        keySelector: (subOption) => subOption.value,
+                                        member: () => ({
+                                            fields: () => ({
+                                                value: {},
+                                                description: {},
+                                            }),
+                                        }),
+                                    },
+                                }),
+                            }),
+                        },
+                    };
+                }
+                return {
+                    customOptions: { forceValue: nullValue },
+                };
+            },
+        );
 
-        if (value?.projectType === PROJECT_TYPE_FOOTPRINT) {
-            return {
-                ...baseSchema,
-                inputType: [requiredCondition],
-                filter: (value?.inputType === PROJECT_INPUT_TYPE_TASKING_MANAGER_ID
-                    || value?.inputType === PROJECT_INPUT_TYPE_UPLOAD)
-                    ? [requiredCondition]
-                    : [forceNullType],
-                filterText: (
-                    value?.inputType === PROJECT_INPUT_TYPE_TASKING_MANAGER_ID
-                    || value?.inputType === PROJECT_INPUT_TYPE_UPLOAD
-                ) && value?.filter === FILTER_OTHERS
-                    ? [requiredStringCondition, getNoMoreThanNCharacterCondition(1000)]
-                    : [forceNullType],
-                // FIXME: geometry type is either string or object
-                // update validation
-                geometry: (value?.inputType === PROJECT_INPUT_TYPE_LINK
-                    || value?.inputType === PROJECT_INPUT_TYPE_UPLOAD)
-                    ? [requiredCondition, validGeometryCondition]
-                    : [forceNullType],
-                // FIXME: number string condition
-                TMId: value?.inputType === PROJECT_INPUT_TYPE_TASKING_MANAGER_ID
-                    ? [requiredStringCondition, getNoMoreThanNCharacterCondition(1000)]
-                    : [forceNullType],
-            };
-        }
+        baseSchema = addCondition(
+            baseSchema,
+            value,
+            ['projectType'],
+            ['tileServerB'],
+            (v) => {
+                const projectType = v?.projectType;
+                if (
+                    projectType === PROJECT_TYPE_CHANGE_DETECTION
+                    || projectType === PROJECT_TYPE_COMPLETENESS
+                ) {
+                    return {
+                        tileServerB: {
+                            fields: tileServerFieldsSchema,
+                        },
+                    };
+                }
+                return {
+                    tileServerB: { forceValue: nullValue },
+                };
+            },
+        );
 
-        if (value?.projectType === PROJECT_TYPE_CHANGE_DETECTION
-            || value?.projectType === PROJECT_TYPE_COMPLETENESS) {
-            return {
-                ...baseSchema,
-                zoomLevel: [
-                    requiredCondition,
-                    greaterThanOrEqualToCondition(14),
-                    lessThanOrEqualToCondition(22),
-                    integerCondition,
-                ],
-                geometry: [
-                    requiredCondition,
-                    validGeometryCondition,
-                ],
-                tileServerB: {
-                    fields: tileServerFieldsSchema,
-                },
-            };
-        }
+        baseSchema = addCondition(
+            baseSchema,
+            value,
+            ['projectType'],
+            ['zoomLevel'],
+            (v) => {
+                const projectType = v?.projectType;
+                if (
+                    projectType === PROJECT_TYPE_BUILD_AREA
+                    || projectType === PROJECT_TYPE_COMPLETENESS
+                    || projectType === PROJECT_TYPE_CHANGE_DETECTION
+                ) {
+                    return {
+                        zoomLevel: {
+                            required: true,
+                            validations: [
+                                greaterThanOrEqualToCondition(14),
+                                lessThanOrEqualToCondition(22),
+                                integerCondition,
+                            ],
+                        },
+                    };
+                }
+                return {
+                    zoomLevel: { forceValue: nullValue },
+                };
+            },
+        );
+
+        baseSchema = addCondition(
+            baseSchema,
+            value,
+            ['projectType'],
+            ['inputType'],
+            (v) => {
+                const projectType = v?.projectType;
+                if (projectType === PROJECT_TYPE_FOOTPRINT) {
+                    return {
+                        inputType: { required: true },
+                    };
+                }
+                return {
+                    inputType: { forceValue: nullValue },
+                };
+            },
+        );
+
+        baseSchema = addCondition(
+            baseSchema,
+            value,
+            ['projectType', 'inputType', 'zoomLevel'],
+            ['geometry'],
+            (v) => {
+                const projectType = v?.projectType;
+                const inputType = v?.inputType;
+                const zoomLevel = v?.zoomLevel;
+                if (
+                    projectType === PROJECT_TYPE_BUILD_AREA
+                    || projectType === PROJECT_TYPE_COMPLETENESS
+                    || projectType === PROJECT_TYPE_CHANGE_DETECTION
+                    || (projectType === PROJECT_TYPE_FOOTPRINT && (
+                        inputType === PROJECT_INPUT_TYPE_UPLOAD
+                    ))
+                ) {
+                    return {
+                        geometry: {
+                            required: true,
+                            validations: [validGeometryCondition(zoomLevel)],
+                        },
+                    };
+                }
+                // NOTE: we are using geometry field to hold both geometry url
+                // and uploaded geometry
+                if (
+                    projectType === PROJECT_TYPE_FOOTPRINT
+                    && inputType === PROJECT_INPUT_TYPE_LINK
+                ) {
+                    return {
+                        geometry: {
+                            required: true,
+                            requiredValidation: (val) => {
+                                if (typeof val === 'object') {
+                                    return undefined;
+                                }
+                                return requiredStringCondition(val);
+                            },
+                            validations: [
+                                (val) => {
+                                    if (typeof val === 'object') {
+                                        return 'Invalid URL.';
+                                    }
+                                    return urlCondition(val);
+                                },
+                            ],
+                        },
+                    };
+                }
+                return {
+                    geometry: { forceValue: nullValue },
+                };
+            },
+        );
+
+        baseSchema = addCondition(
+            baseSchema,
+            value,
+            ['projectType', 'inputType'],
+            ['TMId'],
+            (v) => {
+                const projectType = v?.projectType;
+                const inputType = v?.inputType;
+                return {
+                    // TODO: number string condition
+                    TMId: projectType === PROJECT_TYPE_FOOTPRINT && (
+                        inputType === PROJECT_INPUT_TYPE_TASKING_MANAGER_ID
+                    )
+                        ? {
+                            required: true,
+                            requiredValidation: requiredStringCondition,
+                            validations: [getNoMoreThanNCharacterCondition(1000)],
+                        }
+                        : {
+                            forceValue: nullValue,
+                        },
+                };
+            },
+        );
+
+        baseSchema = addCondition(
+            baseSchema,
+            value,
+            ['projectType', 'inputType'],
+            ['filter'],
+            (v) => {
+                const projectType = v?.projectType;
+                const inputType = v?.inputType;
+                return {
+                    // TODO: we should also allow filter for PROJECT_INPUT_TYPE_LINK
+                    filter: projectType === PROJECT_TYPE_FOOTPRINT && (
+                        inputType === PROJECT_INPUT_TYPE_UPLOAD
+                        || inputType === PROJECT_INPUT_TYPE_TASKING_MANAGER_ID
+                    )
+                        ? { required: true }
+                        : { forceValue: nullValue },
+                };
+            },
+        );
+
+        baseSchema = addCondition(
+            baseSchema,
+            value,
+            ['projectType', 'inputType', 'filter'],
+            ['filterText'],
+            (v) => {
+                const projectType = v?.projectType;
+                const inputType = v?.inputType;
+                const filter = v?.filter;
+
+                if (
+                    projectType === PROJECT_TYPE_FOOTPRINT
+                    && (
+                        inputType === PROJECT_INPUT_TYPE_TASKING_MANAGER_ID
+                        || inputType === PROJECT_INPUT_TYPE_UPLOAD
+                    )
+                    && filter === FILTER_OTHERS
+                ) {
+                    return {
+                        filterText: {
+                            required: true,
+                            requiredValidation: requiredStringCondition,
+                            validations: [getNoMoreThanNCharacterCondition(1000)],
+                        },
+                    };
+                }
+                return {
+                    filterText: { forceValue: nullValue },
+                };
+            },
+        );
 
         return baseSchema;
     },
-    fieldDependencies: () => ({
-        geometry: ['zoomLevel'],
-    }),
 };
 
 export function generateProjectName(

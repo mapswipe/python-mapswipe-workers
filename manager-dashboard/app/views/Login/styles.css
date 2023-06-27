@@ -25,7 +25,7 @@
             }
 
             .text {
-                color: var(--color-text-on-light);
+                color: var(--color-text-on-dark);
             }
         }
 

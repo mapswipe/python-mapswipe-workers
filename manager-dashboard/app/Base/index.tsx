@@ -12,6 +12,7 @@ import {
     ApolloProvider,
 } from '@apollo/client';
 import { initializeApp } from 'firebase/app';
+import 'react-mde/lib/styles/css/react-mde-all.css';
 
 import Init from '#base/components/Init';
 import PreloadMessage from '#base/components/PreloadMessage';

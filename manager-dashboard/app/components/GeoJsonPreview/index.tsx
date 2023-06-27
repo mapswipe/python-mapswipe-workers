@@ -2,22 +2,62 @@ import React from 'react';
 import {
     map as createMap,
     Map,
-    tileLayer,
     geoJSON,
+    TileLayer,
+    Coords,
+    StyleFunction,
 } from 'leaflet';
 import { _cs } from '@togglecorp/fujs';
 
 import styles from './styles.css';
 
+const toQuadKey = (x: number, y: number, z: number) => {
+    let index = '';
+    for (let i = z; i > 0; i -= 1) {
+        let b = 0;
+        // eslint-disable-next-line no-bitwise
+        const mask = 1 << (i - 1);
+        // eslint-disable-next-line no-bitwise
+        if ((x & mask) !== 0) {
+            b += 1;
+        }
+        // eslint-disable-next-line no-bitwise
+        if ((y & mask) !== 0) {
+            b += 2;
+        }
+        index += b.toString();
+    }
+    return index;
+};
+
+const BingTileLayer = TileLayer.extend({
+    getTileUrl(coords: Coords) {
+        const quadkey = toQuadKey(coords.x, coords.y, coords.z);
+        const { subdomains } = this.options;
+
+        // eslint-disable-next-line no-underscore-dangle
+        const url = this._url
+            .replace('{subdomain}', subdomains[(coords.x + coords.y) % subdomains.length])
+            .replace('{quad_key}', quadkey);
+
+        return url;
+    },
+    toQuadKey,
+});
+
 interface Props {
     className?: string;
     geoJson: GeoJSON.GeoJSON | undefined;
+    url?: string | undefined;
+    previewStyle?: StyleFunction;
 }
 
 function GeoJsonPreview(props: Props) {
     const {
         className,
         geoJson,
+        url = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+        previewStyle,
     } = props;
 
     const mapRef = React.useRef<Map>();
@@ -26,7 +66,11 @@ function GeoJsonPreview(props: Props) {
     React.useEffect(
         () => {
             if (mapContainerRef.current && !mapRef.current) {
-                mapRef.current = createMap(mapContainerRef.current);
+                mapRef.current = createMap(mapContainerRef.current, {
+                    zoomSnap: 0,
+                    scrollWheelZoom: false,
+                    zoomControl: false,
+                });
             }
 
             if (mapRef.current) {
@@ -36,11 +80,17 @@ function GeoJsonPreview(props: Props) {
                     1,
                 );
 
-                const layer = tileLayer(
-                    'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                const finalUrl = url;
+                const quadKeyUrl = finalUrl.indexOf('{quad_key}') !== -1;
+                const Layer = quadKeyUrl
+                    ? BingTileLayer
+                    : TileLayer;
+
+                const layer = new Layer(
+                    finalUrl,
                     {
-                        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-                        subdomains: ['a', 'b', 'c'],
+                        // attribution: '',
+                        // subdomains: ['a', 'b', 'c'],
                     },
                 );
 
@@ -55,7 +105,7 @@ function GeoJsonPreview(props: Props) {
                 }
             };
         },
-        [],
+        [url],
     );
 
     React.useEffect(
@@ -69,10 +119,10 @@ function GeoJsonPreview(props: Props) {
                 return undefined;
             }
 
-            const newGeoJson = geoJSON();
+            const newGeoJson = geoJSON(geoJson, {
+                style: previewStyle,
+            });
             newGeoJson.addTo(map);
-
-            newGeoJson.addData(geoJson);
             const bounds = newGeoJson.getBounds();
 
             if (bounds.isValid()) {
@@ -84,7 +134,12 @@ function GeoJsonPreview(props: Props) {
                 newGeoJson.remove();
             };
         },
-        [geoJson],
+        // NOTE: adding url as dependency as url will re-create the map
+        [
+            geoJson,
+            url,
+            previewStyle,
+        ],
     );
 
     return (

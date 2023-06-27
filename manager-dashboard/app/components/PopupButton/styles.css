@@ -1,0 +1,10 @@
+.popup {
+    padding-top: calc(var(--tui-spacing-large) - var(--tui-spacing-medium));
+    padding-bottom: calc(var(--tui-spacing-large) - var(--tui-spacing-medium));
+
+    .popup-content {
+        display: flex;
+        flex-direction: column;
+        max-width: max(50vw, 300px);
+    }
+}

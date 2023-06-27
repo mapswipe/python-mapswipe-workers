@@ -8,6 +8,7 @@ import {
 } from 'firebase/database';
 
 import useFirebaseDatabase from '#hooks/useFirebaseDatabase';
+import { CustomOptions } from '#views/NewTutorial/utils';
 
 // FIXME: these typings are reusable
 interface Organisation {
@@ -56,6 +57,7 @@ interface Tutorial {
     tileServerB?: TileServerDetails; // For Change detection and Completeness
     tutorialDraftId: string;
     zoomLevel: number;
+    customOptions: CustomOptions;
 }
 
 function useProjectOptions(selectedProjectType: number | undefined) {
@@ -129,6 +131,7 @@ function useProjectOptions(selectedProjectType: number | undefined) {
             .map((tutorial) => ({
                 value: tutorial.projectId,
                 label: tutorial.name,
+                customOptions: tutorial.customOptions,
             })),
         [tutorials, selectedProjectType],
     );

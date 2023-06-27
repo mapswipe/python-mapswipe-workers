@@ -2,12 +2,15 @@ import React from 'react';
 import {
     _cs,
     isDefined,
+    unique,
+    isNotDefined,
 } from '@togglecorp/fujs';
 import {
     useForm,
     getErrorObject,
     createSubmitHandler,
     analyzeErrors,
+    useFormArray,
 } from '@togglecorp/toggle-form';
 import {
     getStorage,
@@ -25,53 +28,97 @@ import {
     MdSwipe,
     MdOutlinePublishedWithChanges,
     MdOutlineUnpublished,
+    MdAdd,
 } from 'react-icons/md';
+import {
+    IoIosTrash,
+} from 'react-icons/io';
 import { Link } from 'react-router-dom';
 
 import UserContext from '#base/context/UserContext';
+import projectTypeOptions from '#base/configs/projectTypes';
 import useMountedRef from '#hooks/useMountedRef';
 import Modal from '#components/Modal';
 import TextInput from '#components/TextInput';
 import NumberInput from '#components/NumberInput';
+import Heading from '#components/Heading';
 import SegmentInput from '#components/SegmentInput';
-import FileInput from '#components/FileInput';
 import GeoJsonFileInput from '#components/GeoJsonFileInput';
-import JsonFileInput from '#components/JsonFileInput';
+import ExpandableContainer from '#components/ExpandableContainer';
+import PopupButton from '#components/PopupButton';
 import TileServerInput, {
     TILE_SERVER_BING,
+    TILE_SERVER_ESRI,
     tileServerDefaultCredits,
 } from '#components/TileServerInput';
 import InputSection from '#components/InputSection';
 import Button from '#components/Button';
+import NonFieldError from '#components/NonFieldError';
+import EmptyMessage from '#components/EmptyMessage';
 import {
     valueSelector,
     labelSelector,
     PROJECT_TYPE_BUILD_AREA,
     PROJECT_TYPE_COMPLETENESS,
     PROJECT_TYPE_CHANGE_DETECTION,
+    PROJECT_TYPE_FOOTPRINT,
 } from '#utils/common';
 
 import {
+    tileServerUrls,
     tutorialFormSchema,
+    defaultFootprintCustomOptions,
     TutorialFormType,
     PartialTutorialFormType,
+    PartialInformationPagesType,
+    ScenarioPagesType,
+    CustomOptionType,
+    InformationPagesType,
+    InformationPageTemplateKey,
+    infoPageTemplateOptions,
+    infoPageBlocksMap,
+    MAX_INFO_PAGES,
+    MAX_OPTIONS,
+    deleteKey,
 } from './utils';
+import CustomOptionPreview from './CustomOptionInput/CustomOptionPreview';
+import CustomOptionInput from './CustomOptionInput';
+import ScenarioPageInput from './ScenarioPageInput';
+import InformationPageInput from './InformationPageInput';
 import styles from './styles.css';
 
-import projectTypeOptions from '#base/configs/projectTypes';
+type CustomScreen = Omit<TutorialFormType['scenarioPages'][number], 'scenarioId'>;
+function sanitizeScreens(scenarioPages: TutorialFormType['scenarioPages']) {
+    const screens = scenarioPages.reduce<Record<string, CustomScreen>>(
+        (acc, currentValue) => {
+            const { scenarioId, ...other } = currentValue;
+            acc[scenarioId] = {
+                ...other,
+            };
+
+            return acc;
+        },
+        {},
+    );
+    return screens;
+}
 
 const defaultTutorialFormValue: PartialTutorialFormType = {
-    projectType: PROJECT_TYPE_BUILD_AREA,
+    // projectType: PROJECT_TYPE_BUILD_AREA,
+    projectType: undefined,
     zoomLevel: 18,
     tileServer: {
         name: TILE_SERVER_BING,
         credits: tileServerDefaultCredits[TILE_SERVER_BING],
     },
     tileServerB: {
-        name: TILE_SERVER_BING,
-        credits: tileServerDefaultCredits[TILE_SERVER_BING],
+        name: TILE_SERVER_ESRI,
+        credits: tileServerDefaultCredits[TILE_SERVER_ESRI],
     },
+    customOptions: defaultFootprintCustomOptions,
 };
+
+type SubmissionStatus = 'started' | 'imageUpload' | 'tutorialSubmit' | 'success' | 'failed';
 
 interface Props {
     className?: string;
@@ -86,25 +133,49 @@ function NewTutorial(props: Props) {
 
     const mountedRef = useMountedRef();
 
+    const popupElementRef = React.useRef<{
+        setPopupVisibility: React.Dispatch<React.SetStateAction<boolean>>;
+    }>(null);
+
+    const [
+        tutorialSubmissionStatus,
+        setTutorialSubmissionStatus,
+    ] = React.useState<SubmissionStatus | undefined>();
+
     const {
         setFieldValue,
         value,
         error: formError,
         validate,
         setError,
-    } = useForm(tutorialFormSchema, defaultTutorialFormValue);
+    } = useForm(tutorialFormSchema, {
+        value: defaultTutorialFormValue,
+    });
 
-    const [
-        tutorialSubmissionStatus,
-        setTutorialSubmissionStatus,
-    ] = React.useState<'started' | 'imageUpload' | 'tutorialSubmit' | 'success' | 'failed' | undefined>();
+    const {
+        setValue: onScenarioFormChange,
+    } = useFormArray<
+        'scenarioPages',
+        ScenarioPagesType
+    >('scenarioPages', setFieldValue);
 
-    const error = React.useMemo(
-        () => getErrorObject(formError),
-        [formError],
-    );
+    const {
+        setValue: setOptionValue,
+        removeValue: onOptionRemove,
+    } = useFormArray<
+        'customOptions',
+        CustomOptionType
+    >('customOptions', setFieldValue);
 
-    const handleFormSubmission = React.useCallback((
+    const {
+        setValue: setInformationPageValue,
+        removeValue: onInformationPageRemove,
+    } = useFormArray<
+        'informationPages',
+        InformationPagesType
+    >('informationPages', setFieldValue);
+
+    const handleSubmission = React.useCallback((
         finalValuesFromProps: PartialTutorialFormType,
     ) => {
         const userId = user?.id;
@@ -123,39 +194,81 @@ function NewTutorial(props: Props) {
                 return;
             }
             const {
-                exampleImage1,
-                exampleImage2,
+                scenarioPages,
+                informationPages,
                 ...valuesToCopy
             } = finalValues;
 
+            const sanitizedScenarioPages = sanitizeScreens(scenarioPages);
+
+            try {
+                await navigator.clipboard.writeText(
+                    JSON.stringify(sanitizedScenarioPages, null, 2),
+                );
+                // FIXME: remove this in production
+                // eslint-disable-next-line no-alert
+                alert('Tutorial JSON copied to clipboard.');
+            } catch (err) {
+                // FIXME: remove this in production
+                // eslint-disable-next-line no-alert
+                alert(`Tutorial JSON could not be copied ${err}`);
+            }
+
             const storage = getStorage();
             const timestamp = (new Date()).getTime();
-            const uploadedImage1Ref = storageRef(storage, `projectImages/${timestamp}-tutorial-image-1-${exampleImage1.name}`);
-            const uploadedImage2Ref = storageRef(storage, `projectImages/${timestamp}-tutorial-image-2-${exampleImage2.name}`);
 
             setTutorialSubmissionStatus('imageUpload');
             try {
-                const uploadTask1 = await uploadBytes(uploadedImage1Ref, exampleImage1);
-                if (!mountedRef.current) {
-                    return;
-                }
-                const downloadUrl1 = await getDownloadURL(uploadTask1.ref);
-                if (!mountedRef.current) {
-                    return;
-                }
-                const uploadTask2 = await uploadBytes(uploadedImage2Ref, exampleImage2);
-                if (!mountedRef.current) {
-                    return;
-                }
-                const downloadUrl2 = await getDownloadURL(uploadTask2.ref);
-                if (!mountedRef.current) {
-                    return;
-                }
+                const informationPagesPromises = informationPages.map(async (info, index) => {
+                    const blocksPromise = info.blocks.map(async (block) => {
+                        if (!block.imageFile) {
+                            return block;
+                        }
+                        const {
+                            imageFile,
+                            ...otherBlocks
+                        } = block;
+
+                        const uploadImagesRef = storageRef(
+                            storage,
+                            `tutorialImages/${timestamp}-block-image-${block.blockNumber}-${imageFile?.name}`,
+                        );
+                        const uploadTask = await uploadBytes(uploadImagesRef, block.imageFile);
+                        const downloadUrl = await getDownloadURL(uploadTask.ref);
+
+                        return {
+                            ...otherBlocks,
+                            image: downloadUrl,
+                        };
+                    });
+
+                    const blocks = await Promise.all(blocksPromise);
+
+                    return {
+                        ...info,
+                        // We are making sure that page number starts with 1
+                        // and is sequential
+                        pageNumber: index + 1,
+                        blocks,
+                    };
+                });
+                const sanitizedInformationPages = await Promise.all(informationPagesPromises);
+
+                const sanitizedCustomOptions = valuesToCopy.customOptions?.map((option) => {
+                    const optionWithoutId = deleteKey(option, 'optionId');
+                    return {
+                        ...optionWithoutId,
+                        subOptions: optionWithoutId.subOptions?.map(
+                            (subOption) => deleteKey(subOption, 'subOptionsId'),
+                        ),
+                    };
+                });
 
                 const uploadData = {
                     ...valuesToCopy,
-                    exampleImage1: downloadUrl1,
-                    exampleImage2: downloadUrl2,
+                    customOptions: sanitizedCustomOptions ?? null,
+                    screens: sanitizedScenarioPages ?? null,
+                    informationPages: sanitizedInformationPages ?? null,
                     createdBy: userId,
                 };
 
@@ -165,6 +278,7 @@ function NewTutorial(props: Props) {
                 if (!mountedRef.current) {
                     return;
                 }
+
                 const newKey = newTutorialDraftsRef.key;
 
                 if (newKey) {
@@ -191,14 +305,95 @@ function NewTutorial(props: Props) {
         submitToFirebase();
     }, [user, mountedRef]);
 
-    const handleSubmitButtonClick = React.useMemo(
-        () => createSubmitHandler(validate, setError, handleFormSubmission),
-        [validate, setError, handleFormSubmission],
+    const handleSubmitButtonClick = React.useCallback(
+        () => {
+            createSubmitHandler(
+                validate,
+                setError,
+                handleSubmission,
+            )();
+        },
+        [validate, setError, handleSubmission],
     );
 
-    const hasErrors = React.useMemo(
-        () => analyzeErrors(error),
-        [error],
+    const handleAddDefineOptions = React.useCallback(
+        () => {
+            setFieldValue(
+                (oldValue: PartialTutorialFormType['customOptions']) => {
+                    const safeOldValues = oldValue ?? [];
+
+                    const newOptionId = safeOldValues.length > 0
+                        ? Math.max(...safeOldValues.map((option) => option.optionId)) + 1
+                        : 1;
+                    const newValue = safeOldValues.length > 0
+                        ? Math.max(...safeOldValues.map((option) => option.value ?? 0)) + 1
+                        : 1;
+
+                    const newDefineOption: CustomOptionType = {
+                        optionId: newOptionId,
+                        value: newValue,
+                        icon: undefined,
+                        title: undefined,
+                        iconColor: undefined,
+                    };
+
+                    return [...safeOldValues, newDefineOption];
+                },
+                'customOptions',
+            );
+        },
+        [
+            setFieldValue,
+        ],
+    );
+
+    const handleGeoJsonFile = React.useCallback((
+        geoProps: GeoJSON.GeoJSON | undefined,
+    ) => {
+        const tutorialTasks = geoProps as PartialTutorialFormType['tutorialTasks'];
+
+        setFieldValue(tutorialTasks, 'tutorialTasks');
+
+        // FIXME: we need to validate the geojson here
+
+        const uniqueArray = tutorialTasks && unique(
+            tutorialTasks.features, ((geo) => geo?.properties.screen),
+        );
+        const sorted = uniqueArray?.sort((a, b) => a.properties.screen - b.properties.screen);
+        const tutorialTaskArray = sorted?.map((geo) => (
+            {
+                scenarioId: geo.properties.screen,
+                hint: {},
+                instructions: {},
+                success: {},
+            }
+        ));
+        setFieldValue(tutorialTaskArray, 'scenarioPages');
+    }, [setFieldValue]);
+
+    const handleAddInformationPage = React.useCallback(
+        (template: InformationPageTemplateKey) => {
+            setFieldValue(
+                (oldValue: PartialInformationPagesType) => {
+                    const newOldValue = oldValue ?? [];
+
+                    const newPage = newOldValue.length > 0
+                        ? Math.max(...newOldValue.map((info) => info.pageNumber)) + 1
+                        : 1;
+
+                    const blocks = infoPageBlocksMap[template];
+                    const newPageInformation: InformationPagesType = {
+                        pageNumber: newPage,
+                        title: undefined,
+                        blocks,
+                    };
+                    return [...newOldValue, newPageInformation];
+                },
+                'informationPages',
+            );
+            popupElementRef.current?.setPopupVisibility(false);
+        },
+        [setFieldValue],
     );
 
     const submissionPending = (
@@ -207,19 +402,64 @@ function NewTutorial(props: Props) {
         || tutorialSubmissionStatus === 'tutorialSubmit'
     );
 
-    const tileServerBVisible = value?.projectType === PROJECT_TYPE_CHANGE_DETECTION
-        || value?.projectType === PROJECT_TYPE_COMPLETENESS;
+    const tileServerBVisible = value.projectType === PROJECT_TYPE_CHANGE_DETECTION
+        || value.projectType === PROJECT_TYPE_COMPLETENESS;
+
+    const error = React.useMemo(
+        () => getErrorObject(formError),
+        [formError],
+    );
+    const scenarioError = React.useMemo(
+        () => getErrorObject(error?.scenarioPages),
+        [error?.scenarioPages],
+    );
+
+    const optionsError = React.useMemo(
+        () => getErrorObject(error?.customOptions),
+        [error?.customOptions],
+    );
+
+    const informationPagesError = React.useMemo(
+        () => getErrorObject(error?.informationPages),
+        [error?.informationPages],
+    );
+
+    const hasErrors = React.useMemo(
+        () => analyzeErrors(error),
+        [error],
+    );
+
+    const getTileServerUrl = (val: PartialTutorialFormType['tileServer']) => {
+        const tileServerName = val?.name;
+        if (isNotDefined(tileServerName)) {
+            return undefined;
+        }
+        if (tileServerName === 'custom') {
+            return val?.url;
+        }
+        return tileServerUrls[tileServerName];
+    };
+
+    const projectTypeEmpty = isNotDefined(value.projectType);
+
+    const {
+        customOptions,
+        informationPages,
+    } = value;
 
     return (
         <div className={_cs(styles.newTutorial, className)}>
+            <Heading level={1}>
+                Create New Tutorial
+            </Heading>
             <div className={styles.container}>
                 <InputSection
-                    heading="Basic Tutorial Information"
+                    heading="Basic Information"
                 >
                     <SegmentInput
                         name={'projectType' as const}
                         onChange={setFieldValue}
-                        value={value?.projectType}
+                        value={value.projectType}
                         label="Project Type"
                         hint="Select the type of your project."
                         options={projectTypeOptions}
@@ -228,98 +468,167 @@ function NewTutorial(props: Props) {
                         error={error?.projectType}
                         disabled={submissionPending}
                     />
-                    <div className={styles.inputGroup}>
-                        <TextInput
-                            name={'lookFor' as const}
-                            value={value?.lookFor}
-                            onChange={setFieldValue}
-                            label="Look For"
-                            hint="What should the users look for (e.g. buildings, cars, trees)? (25 chars max)."
-                            error={error?.lookFor}
-                            disabled={submissionPending}
-                            autoFocus
-                        />
-                        <TextInput
-                            name={'name' as const}
-                            value={value?.name}
-                            onChange={setFieldValue}
-                            label="Name"
-                            hint="Provide a clear name for your tutorial. You can select tutorials based on their name later during the project creation."
-                            error={error?.name}
-                            disabled={submissionPending}
-                        />
-                    </div>
-                    <div className={styles.inputGroup}>
-                        <JsonFileInput
-                            name={'screens' as const}
-                            value={value?.screens}
-                            onChange={setFieldValue}
-                            label="Upload Tutorial Text as JSON"
-                            hint="It should end with .json"
-                            error={error?.screens}
-                            disabled={submissionPending}
-                        />
-                        <GeoJsonFileInput
-                            name={'tutorialTasks' as const}
-                            value={value?.tutorialTasks}
-                            onChange={setFieldValue}
-                            label="Upload Tutorial Tasks as GeoJSON"
-                            hint="It should end with .geojson or .geo.json"
-                            error={error?.tutorialTasks}
-                            disabled={submissionPending}
-                        />
-                    </div>
-                    <div className={styles.inputGroup}>
-                        <FileInput
-                            name={'exampleImage1' as const}
-                            value={value?.exampleImage1}
-                            onChange={setFieldValue}
-                            label="Upload Example Image 1"
-                            hint="Make sure you have the rights to use this image. It should end with  .jpg or .png."
-                            showPreview
-                            accept="image/png, image/jpeg"
-                            error={error?.exampleImage1}
-                            disabled={submissionPending}
-                        />
-                        <FileInput
-                            name={'exampleImage2' as const}
-                            value={value?.exampleImage2}
-                            onChange={setFieldValue}
-                            label="Upload Example Image 2"
-                            hint="Make sure you have the rights to use this image. It should end with  .jpg or .png."
-                            showPreview
-                            accept="image/png, image/jpeg"
-                            error={error?.exampleImage2}
-                            disabled={submissionPending}
-                        />
-                    </div>
+                    <TextInput
+                        name={'name' as const}
+                        value={value.name}
+                        onChange={setFieldValue}
+                        label="Name of the Tutorial"
+                        hint="Provide a clear name for your tutorial. You can select tutorials based on their name later during the project creation."
+                        error={error?.name}
+                        disabled={submissionPending || projectTypeEmpty}
+                    />
+                    <TextInput
+                        name={'lookFor' as const}
+                        value={value.lookFor}
+                        onChange={setFieldValue}
+                        label="Look For"
+                        hint="What should the users look for (e.g. buildings, cars, trees)?"
+                        error={error?.lookFor}
+                        disabled={submissionPending || projectTypeEmpty}
+                        autoFocus
+                    />
                 </InputSection>
-                {(value?.projectType === PROJECT_TYPE_BUILD_AREA
-                    || value?.projectType === PROJECT_TYPE_CHANGE_DETECTION
-                    || value?.projectType === PROJECT_TYPE_COMPLETENESS) && (
+                {value.projectType === PROJECT_TYPE_FOOTPRINT && (
                     <InputSection
-                        heading="Zoom Level"
+                        heading="Custom Options"
+                        actions={(
+                            <Button
+                                name={undefined}
+                                icons={<MdAdd />}
+                                onClick={handleAddDefineOptions}
+                                disabled={
+                                    submissionPending
+                                    || projectTypeEmpty
+                                    || (customOptions && customOptions.length >= MAX_OPTIONS)
+                                }
+                            >
+                                Add Option
+                            </Button>
+                        )}
                     >
-                        <NumberInput
-                            name={'zoomLevel' as const}
-                            value={value?.zoomLevel}
-                            onChange={setFieldValue}
-                            label="Zoom Level"
-                            hint="We use the Tile Map Service zoom levels. Please check for your area which zoom level is available. For example, Bing imagery is available at zoomlevel 18 for most regions. If you use a custom tile server you may be able to use even higher zoom levels."
-                            error={error?.zoomLevel}
-                            disabled={submissionPending}
+                        <NonFieldError
+                            error={optionsError}
                         />
+                        {(customOptions && customOptions.length > 0) ? (
+                            <div className={styles.customOptionContainer}>
+                                <div className={styles.customOptionList}>
+                                    {customOptions.map((option, index) => (
+                                        <ExpandableContainer
+                                            key={option.optionId}
+                                            header={option.title || `Option ${index + 1}`}
+                                            openByDefault={index === customOptions.length - 1}
+                                            actions={(
+                                                <Button
+                                                    name={index}
+                                                    onClick={onOptionRemove}
+                                                    variant="action"
+                                                    title="Delete Option"
+                                                    disabled={submissionPending || projectTypeEmpty}
+                                                >
+                                                    <IoIosTrash />
+                                                </Button>
+                                            )}
+                                        >
+                                            <CustomOptionInput
+                                                key={option.optionId}
+                                                value={option}
+                                                index={index}
+                                                onChange={setOptionValue}
+                                                error={optionsError?.[option.optionId]}
+                                                disabled={submissionPending || projectTypeEmpty}
+                                            />
+                                        </ExpandableContainer>
+                                    ))}
+                                </div>
+                                <CustomOptionPreview
+                                    value={customOptions}
+                                    lookFor={value.lookFor}
+                                />
+                            </div>
+                        ) : (
+                            <div>No options</div>
+                        )}
                     </InputSection>
                 )}
+                <InputSection
+                    heading="Information Pages"
+                    actions={(
+                        <PopupButton
+                            componentRef={popupElementRef}
+                            name={undefined}
+                            icons={<MdAdd />}
+                            label="Add Page"
+                            popupContentClassName={styles.newInfoButtonPopup}
+                            disabled={submissionPending || projectTypeEmpty}
+                        >
+                            {infoPageTemplateOptions.map((infoPageTemplate) => (
+                                <Button
+                                    className={styles.popupItem}
+                                    name={infoPageTemplate.key}
+                                    key={infoPageTemplate.key}
+                                    onClick={handleAddInformationPage}
+                                    variant="transparent"
+                                    disabled={(
+                                        submissionPending
+                                        || projectTypeEmpty
+                                        || (informationPages
+                                            && informationPages.length >= MAX_INFO_PAGES)
+                                    )}
+                                >
+                                    {infoPageTemplate.label}
+                                </Button>
+                            ))}
+                        </PopupButton>
+                    )}
+                >
+                    <NonFieldError
+                        error={informationPagesError}
+                    />
+                    <div className={styles.informationPageList}>
+                        {informationPages?.map((page, i) => (
+                            <ExpandableContainer
+                                key={page.pageNumber}
+                                header={page.title || `Intro ${i + 1}`}
+                                openByDefault={i === informationPages.length - 1}
+                                actions={(
+                                    <Button
+                                        name={i + 1}
+                                        onClick={onInformationPageRemove}
+                                        variant="action"
+                                        title="Delete page"
+                                        disabled={submissionPending || projectTypeEmpty}
+                                    >
+                                        <IoIosTrash />
+                                    </Button>
+                                )}
+                            >
+                                <InformationPageInput
+                                    value={page}
+                                    onChange={setInformationPageValue}
+                                    lookFor={value.lookFor}
+                                    index={i}
+                                    error={informationPagesError?.[page.pageNumber]}
+                                    disabled={submissionPending || projectTypeEmpty}
+                                />
+                            </ExpandableContainer>
+                        ))}
+                        {!(informationPages?.length) && (
+                            <EmptyMessage
+                                title="Start adding Information pages"
+                                description="Add pages selecting templates from “Add page” dropdown"
+                            />
+                        )}
+                    </div>
+                </InputSection>
                 <InputSection
                     heading={tileServerBVisible ? 'Tile Server A' : 'Tile Server'}
                 >
                     <TileServerInput
                         name={'tileServer' as const}
-                        value={value?.tileServer}
+                        value={value.tileServer}
                         error={error?.tileServer}
                         onChange={setFieldValue}
-                        disabled={submissionPending}
+                        disabled={submissionPending || projectTypeEmpty}
                     />
                 </InputSection>
                 {tileServerBVisible && (
@@ -328,13 +637,78 @@ function NewTutorial(props: Props) {
                     >
                         <TileServerInput
                             name={'tileServerB' as const}
-                            value={value?.tileServerB}
+                            value={value.tileServerB}
                             error={error?.tileServerB}
                             onChange={setFieldValue}
-                            disabled={submissionPending}
+                            disabled={submissionPending || projectTypeEmpty}
                         />
                     </InputSection>
                 )}
+                {
+                    (value.projectType === PROJECT_TYPE_BUILD_AREA
+                        || value.projectType === PROJECT_TYPE_CHANGE_DETECTION
+                        || value.projectType === PROJECT_TYPE_COMPLETENESS)
+                    && (
+                        <InputSection
+                            heading="Zoom Level"
+                        >
+                            <NumberInput
+                                name={'zoomLevel' as const}
+                                value={value.zoomLevel}
+                                onChange={setFieldValue}
+                                label="Zoom Level"
+                                hint="We use the Tile Map Service zoom levels. Please check for your area which zoom level is available. For example, Bing imagery is available at zoomlevel 18 for most regions. If you use a custom tile server you may be able to use even higher zoom levels."
+                                error={error?.zoomLevel}
+                                disabled={submissionPending || projectTypeEmpty}
+                            />
+                        </InputSection>
+                    )
+                }
+                <InputSection
+                    heading="Scenario Pages"
+                >
+                    <GeoJsonFileInput
+                        name={'tutorialTasks' as const}
+                        label="Upload Scenarios as GeoJSON"
+                        value={value.tutorialTasks}
+                        onChange={handleGeoJsonFile}
+                        hint="It should end with .geojson or .geo.json"
+                        error={error?.tutorialTasks}
+                        disabled={submissionPending || projectTypeEmpty}
+                    />
+                    <div className={styles.scenarioList}>
+                        {value.scenarioPages?.map((task, index) => (
+                            <ExpandableContainer
+                                key={task.scenarioId}
+                                // NOTE: only open first scenario by default
+                                openByDefault={index === 0}
+                                header={`Scenario ${task.scenarioId}`}
+                            >
+                                <ScenarioPageInput
+                                    key={task.scenarioId}
+                                    scenarioId={task.scenarioId}
+                                    index={index}
+                                    value={task}
+                                    projectType={value.projectType}
+                                    onChange={onScenarioFormChange}
+                                    error={scenarioError?.[task.scenarioId]}
+                                    customOptions={customOptions}
+                                    geoJson={value.tutorialTasks}
+                                    urlA={getTileServerUrl(value.tileServer)}
+                                    urlB={getTileServerUrl(value.tileServerB)}
+                                    lookFor={value.lookFor}
+                                    disabled={submissionPending || projectTypeEmpty}
+                                />
+                            </ExpandableContainer>
+                        ))}
+                        {(value.scenarioPages?.length ?? 0) === 0 && (
+                            <EmptyMessage
+                                title="Upload geojson file first"
+                                description="This section will automatically show scenarios after uploading geojson file"
+                            />
+                        )}
+                    </div>
+                </InputSection>
                 {hasErrors && (
                     <div className={styles.errorMessage}>
                         Please correct all the errors above before submission!
@@ -344,7 +718,7 @@ function NewTutorial(props: Props) {
                     <Button
                         name={undefined}
                         onClick={handleSubmitButtonClick}
-                        disabled={submissionPending}
+                        disabled={submissionPending || projectTypeEmpty}
                     >
                         Submit
                     </Button>
