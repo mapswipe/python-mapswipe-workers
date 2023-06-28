@@ -1,9 +1,69 @@
+import csv
 import datetime as dt
+import hashlib
+import os
+import shutil
 from typing import List, Optional
 
 from mapswipe_workers import auth
 from mapswipe_workers.definitions import DATA_PATH, logger
 from mapswipe_workers.generate_stats import overall_stats, project_stats
+
+
+def generate_data_for_mapswipe_website():
+    """
+    Generate data for website
+    """
+    website_data_dest = f"{DATA_PATH}/api/website-data"
+
+    # TODO: Move to utils
+    def _compute_md5(file_name):
+        hash_md5 = hashlib.md5()
+        with open(file_name, "rb") as f:
+            for chunk in iter(lambda: f.read(4096), b""):
+                hash_md5.update(chunk)
+        return hash_md5.hexdigest()
+
+    def _project_history_zip():
+        project_history_file = f"{website_data_dest}/project-history"
+        zip_file_name = shutil.make_archive(
+            project_history_file,
+            "zip",
+            f"{DATA_PATH}/api/history/",
+        )
+        logger.info("finished generate project-history zip")
+        return zip_file_name
+
+    def _manifest_file():
+        endpoints_dir = f"{DATA_PATH}/api/"
+        manifest_file = f"{website_data_dest}/overall-endpoints.csv"
+        with open(manifest_file, "w") as fp:
+            csv_writer = csv.writer(fp)
+            csv_writer.writerow(["endpoints", "size_bytes"])
+            for path, _, files in os.walk(endpoints_dir):
+                for name in files:
+                    file_path = os.path.join(path, name)
+                    csv_writer.writerow(
+                        [
+                            "/api/" + file_path.split("/api/")[1],
+                            os.path.getsize(file_path),
+                        ]
+                    )
+        logger.info("finished generate endpoints manifest for existing stats")
+        return manifest_file
+
+    def _generate_file_hash(files):
+        for file in files:
+            md5_hash = _compute_md5(file)
+            with open(f"{file}.md5", "w") as fp:
+                fp.write(md5_hash)
+
+    files_to_track_for_checksum = [
+        f"{DATA_PATH}/api/projects/projects_centroid.geojson",
+        f"{DATA_PATH}/api/projects/projects_geom.geojson",
+    ]
+    files_to_track_for_checksum.extend([_project_history_zip(), _manifest_file()])
+    _generate_file_hash(files_to_track_for_checksum)
 
 
 def get_recent_projects(hours: int = 3):
@@ -108,6 +168,7 @@ def generate_stats(project_id_list: Optional[List[str]] = None):
         overall_stats.get_overall_stats(projects_df, overall_stats_filename)
 
     logger.info(f"finished generate stats for: {project_id_list}")
+    generate_data_for_mapswipe_website()
 
 
 def generate_stats_all_projects():

@@ -64,6 +64,16 @@ def get_project_static_info(filename: str) -> pd.DataFrame:
                 project_details
                 ,regexp_replace(look_for, E'[\\n\\r]+', ' ', 'g' ) as look_for
                 ,project_type
+                ,image
+                ,created
+                -- Custom options values
+                ,CASE
+                  WHEN project_type_specifics->'customOptions' IS NOT NULL
+                  THEN -- thus if we have answer labels use them
+                    (project_type_specifics->'customOptions')::TEXT
+                  ELSE -- otherwise use below label range as the mapswipe app default
+                    '[{"value": 0}, {"value": 1}, {"value": 2}, {"value": 3}]'::TEXT
+                END as custom_options
                 -- add an array of the tile server names
                 ,CASE
                   WHEN project_type_specifics->'tileServer'->'name' IS NOT NULL THEN
