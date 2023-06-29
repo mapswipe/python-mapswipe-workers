@@ -37,6 +37,17 @@ def remove_project_manager_rights(email):
         raise CustomError(e)
 
 
+def list_all_project_managers():
+    fb_db = firebaseDB()  # noqa E841
+    page = auth.list_users()
+    while page:
+        for user in page.users:
+            if user.custom_claims:
+                print("User: " + user.uid + " " + user.email)
+        # Get next batch of users.
+        page = page.get_next_page()
+
+
 def update_username(email, username):
     fb_db = firebaseDB()
     try:
