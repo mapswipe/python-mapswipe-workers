@@ -28,3 +28,6 @@ deploy_latest_workers_version:
 
 update_tms_api_key:
 	@echo "first update the .env file with the new api key and then run this script with tms_name=your_tms_provider_name to update API key"; docker compose run --rm mapswipe_workers_creation python python_scripts/change_tms_api_key_for_projects.py $(tms_name)
+
+list_all_project_managers:
+    docker compose run --rm mapswipe_workers_creation python python_scripts/list_all_project_managers.py
