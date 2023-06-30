@@ -4,6 +4,7 @@ import {
     isDefined,
     unique,
     isNotDefined,
+    isTruthyString,
 } from '@togglecorp/fujs';
 import {
     useForm,
@@ -63,6 +64,7 @@ import {
     PROJECT_TYPE_COMPLETENESS,
     PROJECT_TYPE_CHANGE_DETECTION,
     PROJECT_TYPE_FOOTPRINT,
+    ProjectType,
 } from '#utils/common';
 
 import {
@@ -81,15 +83,14 @@ import {
     MAX_INFO_PAGES,
     MAX_OPTIONS,
     deleteKey,
+    TutorialTasksGeoJSON,
 } from './utils';
+
 import CustomOptionPreview from './CustomOptionInput/CustomOptionPreview';
 import CustomOptionInput from './CustomOptionInput';
 import ScenarioPageInput from './ScenarioPageInput';
 import InformationPageInput from './InformationPageInput';
 import styles from './styles.css';
-import { TutorialTasksGeoJSON } from './utils';
-import { FootprintProperties } from './utils';
-import { BuildAreaProperties, ChangeDetectionProperties } from './utils';
 
 type CustomScreen = Omit<TutorialFormType['scenarioPages'][number], 'scenarioId'>;
 function sanitizeScreens(scenarioPages: TutorialFormType['scenarioPages']) {
@@ -355,41 +356,138 @@ function NewTutorial(props: Props) {
         geoProps: GeoJSON.GeoJSON | undefined,
     ) => {
         const tutorialTasks = geoProps as TutorialTasksGeoJSON;
+        function getGeoJSONError() {
+            if (isNotDefined(tutorialTasks.features) || !Array.isArray(tutorialTasks.features)) {
+                return 'GeoJson does not contain iterable properties';
+            }
+
+            type ValidType ='number' | 'string' | 'boolean';
+            function checkSchema<T extends object>(
+                obj: T,
+                schema: Record<string, ValidType | ValidType[]>,
+            ) {
+                const schemaKeys = Object.keys(schema);
+                const errors = schemaKeys.map(
+                    (key) => {
+                        const expectedType = schema[key];
+
+                        const keySafe = key as keyof T;
+                        const currentValue: unknown = obj[keySafe];
+                        const valueType = typeof currentValue;
+
+                        if (Array.isArray(expectedType)) {
+                            const indexOfType = expectedType.findIndex(
+                                (type) => type === valueType,
+                            );
+                            if (indexOfType === -1) {
+                                return `type of ${key} expected to be one of type ${expectedType.join(', ')}`;
+                            }
+                        } else if (typeof currentValue !== expectedType) {
+                            return `type of ${key} expected to be of ${expectedType}`;
+                        }
+
+                        return undefined;
+                    },
+                ).filter(isDefined);
+
+                return errors;
+            }
+
+            if (value?.projectType === PROJECT_TYPE_FOOTPRINT) {
+                const errors = tutorialTasks.features.map(
+                    (feature) => checkSchema(feature.properties, {
+                        id: ['string', 'number'],
+                        reference: 'number',
+                        screen: 'number',
+                    }).join(', '),
+                ).filter(isTruthyString);
+
+                if (errors.length > 0) {
+                    return `Invalid GeoJson for Footprint: ${errors[0]} (${errors.length} total errors)`;
+                }
+            }
+
+            if (value?.projectType === PROJECT_TYPE_CHANGE_DETECTION) {
+                const errors = tutorialTasks.features.map(
+                    (feature) => checkSchema(feature.properties, {
+                        reference: 'number',
+                        screen: 'number',
+                        task_id: 'string',
+                        tile_x: 'number',
+                        tile_y: 'number',
+                        tile_z: 'number',
+                    }).join(', '),
+                ).filter(isTruthyString);
+
+                if (errors.length > 0) {
+                    // NOTE: only showing errors first error
+                    return `Invalid GeoJson for Change Detection: ${errors[0]} (${errors.length} total errors)`;
+                }
+            }
+
+            if (value?.projectType === PROJECT_TYPE_BUILD_AREA) {
+                const errors = tutorialTasks.features.map(
+                    (feature) => checkSchema(feature.properties, {
+                        reference: 'number',
+                        screen: 'number',
+                        task_id: 'string',
+                        tile_x: 'number',
+                        tile_y: 'number',
+                        tile_z: 'number',
+                    }).join(', '),
+                ).filter(isTruthyString);
+
+                if (errors.length > 0) {
+                    // NOTE: only showing errors first error
+                    return `Invalid GeoJson for Build Area: ${errors[0]} (${errors.length} total errors)`;
+                }
+            }
+
+            if (value?.projectType === PROJECT_TYPE_COMPLETENESS) {
+                const errors = tutorialTasks.features.map(
+                    (feature) => checkSchema(feature.properties, {
+                        reference: 'number',
+                        screen: 'number',
+                        task_id: 'string',
+                        tile_x: 'number',
+                        tile_y: 'number',
+                        tile_z: 'number',
+                    }).join(', '),
+                ).filter(isTruthyString);
+
+                if (errors.length > 0) {
+                    return `Invalid GeoJson for Completeness: ${errors[0]} (${errors.length} total errors)`;
+                }
+            }
+            // TODO: validate references
+
+            return undefined;
+        }
+
         if (!tutorialTasks) {
+            setFieldValue(undefined, 'tutorialTasks');
+            setFieldValue(undefined, 'scenarioPages');
             return;
         }
 
-        const everyTaskHasScreenAndReferenceProperty = tutorialTasks.features.every(
-            (feature) => isDefined(feature.properties.screen) && isDefined(feature.properties.reference),
-        );
-
-        if (!everyTaskHasScreenAndReferenceProperty) {
-            setError((prevValue) => ({
-                ...getErrorObject(prevValue),
-                tutorialTasks: 'GeoJson does not contain property "screen" or "reference"',
+        const errors = getGeoJSONError();
+        if (errors) {
+            setFieldValue(undefined, 'tutorialTasks');
+            setFieldValue(undefined, 'scenarioPages');
+            setError((prevError) => ({
+                ...getErrorObject(prevError),
+                tutorialTasks: errors,
             }));
-
             return;
         }
 
-        if (value?.projectType === PROJECT_TYPE_COMPLETENESS
-            || value?.projectType === PROJECT_TYPE_BUILD_AREA
-            || value?.projectType === PROJECT_TYPE_CHANGE_DETECTION) {
-            
-            tutorialTasks.features.every(
-                (feature: BuildAreaProperties | ChangeDetectionProperties) => isDefined(feature.properties.task_id),
-            );
-        }
-
-    
         setFieldValue(tutorialTasks, 'tutorialTasks');
 
-        // FIXME: we need to validate the geojson here
-
-        const uniqueArray = tutorialTasks && unique(
-            tutorialTasks.features, ((geo) => geo?.properties.screen),
+        const uniqueArray = unique(
+            tutorialTasks.features,
+            ((geo) => geo?.properties.screen),
         );
-        const sorted = uniqueArray?.sort((a, b) => a.properties.screen - b.properties.screen);
+        const sorted = uniqueArray.sort((a, b) => a.properties.screen - b.properties.screen);
         const tutorialTaskArray = sorted?.map((geo) => (
             {
                 scenarioId: geo.properties.screen,
@@ -400,10 +498,7 @@ function NewTutorial(props: Props) {
         ));
 
         setFieldValue(tutorialTaskArray, 'scenarioPages');
-
-    }, [setFieldValue]);
-
-    console.log(formError);
+    }, [setFieldValue, setError, value?.projectType]);
 
     const handleAddInformationPage = React.useCallback(
         (template: InformationPageTemplateKey) => {
@@ -480,6 +575,16 @@ function NewTutorial(props: Props) {
         customOptions,
         informationPages,
     } = value;
+
+    const handleProjectTypeChange = React.useCallback(
+        (newValue: ProjectType | undefined) => {
+            setFieldValue(undefined, 'tutorialTasks');
+            setFieldValue(undefined, 'scenarioPages');
+            setFieldValue(newValue, 'projectType');
+        },
+        [setFieldValue],
+    );
+
     return (
         <div className={_cs(styles.newTutorial, className)}>
             <Heading level={1}>
@@ -491,7 +596,7 @@ function NewTutorial(props: Props) {
                 >
                     <SegmentInput
                         name={'projectType' as const}
-                        onChange={setFieldValue}
+                        onChange={handleProjectTypeChange}
                         value={value.projectType}
                         label="Project Type"
                         hint="Select the type of your project."

@@ -341,7 +341,6 @@ export type TutorialTasksGeoJSON = GeoJSON.FeatureCollection<
     BuildAreaProperties | FootprintProperties | ChangeDetectionProperties
 >;
 
-
 export type CustomOptions = {
     optionId: number; // we clear this before sending to server
     title: string;
