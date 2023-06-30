@@ -9,6 +9,7 @@ import {
     ArraySchema,
     addCondition,
 } from '@togglecorp/toggle-form';
+import { isDefined, isNotDefined } from '@togglecorp/fujs';
 
 import {
     TileServer,
@@ -303,7 +304,7 @@ export interface FootprintProperties {
     screen: number;
 }
 
-interface ChangeDetectionProperties {
+export interface ChangeDetectionProperties {
     reference: number;
     screen: number;
     // eslint-disable-next-line camelcase
@@ -339,6 +340,7 @@ export type TutorialTasksGeoJSON = GeoJSON.FeatureCollection<
     GeoJSON.Geometry,
     BuildAreaProperties | FootprintProperties | ChangeDetectionProperties
 >;
+
 
 export type CustomOptions = {
     optionId: number; // we clear this before sending to server
@@ -403,7 +405,7 @@ export type PartialTutorialFormType = PartialForm<
         exampleImage2?: File;
     },
     // NOTE: we do not want to change File and FeatureCollection to partials
-    'image' |'tutorialTasks' | 'exampleImage1' | 'exampleImage2' | 'scenarioId' | 'optionId' | 'subOptionsId' | 'pageNumber' | 'blockNumber' | 'blockType' | 'imageFile'
+    'image' | 'tutorialTasks' | 'exampleImage1' | 'exampleImage2' | 'scenarioId' | 'optionId' | 'subOptionsId' | 'pageNumber' | 'blockNumber' | 'blockType' | 'imageFile'
 >;
 
 type TutorialFormSchema = ObjectSchema<PartialTutorialFormType>;
@@ -433,6 +435,23 @@ type InformationPagesFormSchemaMember = ReturnType<InformationPagesFormSchema['m
 export type PartialInformationPagesType = PartialTutorialFormType['informationPages'];
 export type PartialCustomOptionsType = PartialTutorialFormType['customOptions'];
 export type PartialBlocksType = NonNullable<NonNullable<PartialInformationPagesType>[number]>['blocks'];
+
+function checkDuplicate(array: Array<string | number>) {
+    const valueCounts: Record<string, number> = {};
+    for (let index = 0; index < array.length; index += 1) {
+        const item = array[index];
+        if (isNotDefined(item)) {
+            // eslint-disable-next-line
+            continue
+        }
+        if (valueCounts[item] !== undefined) {
+            valueCounts[item] += 1;
+            return true;
+        }
+        valueCounts[item] = 1;
+    }
+    return false;
+}
 
 export const MAX_OPTIONS = 6;
 export const MIN_OPTIONS = 2;
@@ -599,17 +618,43 @@ export const tutorialFormSchema: TutorialFormSchema = {
             ['customOptions'],
             (formValues) => {
                 const customOptionField: CustomOptionFormSchema = {
-                    validation: (option) => {
-                        if (!option) {
+                    validation: (options) => {
+                        if (!options) {
                             return undefined;
                         }
 
-                        if (option.length < MIN_OPTIONS) {
+                        const optionValue = options.flatMap(
+                            (val) => val.value,
+                        ).filter(isDefined);
+
+                        const subOptionValue = options.flatMap((val) => {
+                            const subValue = val.subOptions?.map(
+                                (sub) => sub.value,
+                            );
+                            return subValue;
+                        }).filter(isDefined);
+
+                        const allOptionValue = [...optionValue, ...subOptionValue];
+
+                        const hasDuplicateOptionValue = checkDuplicate(
+                            options.map((val) => val.value).filter(isDefined),
+                        );
+
+                        const hasDuplicateAllOptionValue = checkDuplicate(allOptionValue);
+
+                        if (options.length < MIN_OPTIONS) {
                             return `There should be at least ${MIN_OPTIONS} options`;
                         }
 
-                        if (option.length > MAX_OPTIONS) {
+                        if (options.length > MAX_OPTIONS) {
                             return `There shouldn\`t be more than ${MAX_OPTIONS} options`;
+                        }
+
+                        if (hasDuplicateOptionValue) {
+                            return 'Value cannot be same';
+                        }
+                        if (hasDuplicateAllOptionValue) {
+                            return 'Option and suboptions value cannot be same';
                         }
                         return undefined;
                     },
@@ -650,12 +695,19 @@ export const tutorialFormSchema: TutorialFormSchema = {
                                         return undefined;
                                     }
 
+                                    const hasDuplicateSubOptionValue = checkDuplicate(
+                                        sub.map((val) => val.value).filter(isDefined),
+                                    );
+
                                     if (sub.length < MIN_SUB_OPTIONS) {
                                         return `There should be at least ${MIN_SUB_OPTIONS} sub options`;
                                     }
 
                                     if (sub.length > MAX_SUB_OPTIONS) {
                                         return `There shouldn\`t be more than ${MAX_SUB_OPTIONS} sub options`;
+                                    }
+                                    if (hasDuplicateSubOptionValue) {
+                                        return 'Value cannot be same';
                                     }
 
                                     return undefined;
@@ -705,7 +757,8 @@ export const tutorialFormSchema: TutorialFormSchema = {
             ['zoomLevel'],
             (v) => (v?.projectType === PROJECT_TYPE_BUILD_AREA
                 || v?.projectType === PROJECT_TYPE_CHANGE_DETECTION
-                || v?.projectType === PROJECT_TYPE_COMPLETENESS ? {
+                || v?.projectType === PROJECT_TYPE_COMPLETENESS
+                ? {
                     zoomLevel: {
                         required: true,
                         validations: [

@@ -87,6 +87,9 @@ import CustomOptionInput from './CustomOptionInput';
 import ScenarioPageInput from './ScenarioPageInput';
 import InformationPageInput from './InformationPageInput';
 import styles from './styles.css';
+import { TutorialTasksGeoJSON } from './utils';
+import { FootprintProperties } from './utils';
+import { BuildAreaProperties, ChangeDetectionProperties } from './utils';
 
 type CustomScreen = Omit<TutorialFormType['scenarioPages'][number], 'scenarioId'>;
 function sanitizeScreens(scenarioPages: TutorialFormType['scenarioPages']) {
@@ -351,8 +354,34 @@ function NewTutorial(props: Props) {
     const handleGeoJsonFile = React.useCallback((
         geoProps: GeoJSON.GeoJSON | undefined,
     ) => {
-        const tutorialTasks = geoProps as PartialTutorialFormType['tutorialTasks'];
+        const tutorialTasks = geoProps as TutorialTasksGeoJSON;
+        if (!tutorialTasks) {
+            return;
+        }
 
+        const everyTaskHasScreenAndReferenceProperty = tutorialTasks.features.every(
+            (feature) => isDefined(feature.properties.screen) && isDefined(feature.properties.reference),
+        );
+
+        if (!everyTaskHasScreenAndReferenceProperty) {
+            setError((prevValue) => ({
+                ...getErrorObject(prevValue),
+                tutorialTasks: 'GeoJson does not contain property "screen" or "reference"',
+            }));
+
+            return;
+        }
+
+        if (value?.projectType === PROJECT_TYPE_COMPLETENESS
+            || value?.projectType === PROJECT_TYPE_BUILD_AREA
+            || value?.projectType === PROJECT_TYPE_CHANGE_DETECTION) {
+            
+            tutorialTasks.features.every(
+                (feature: BuildAreaProperties | ChangeDetectionProperties) => isDefined(feature.properties.task_id),
+            );
+        }
+
+    
         setFieldValue(tutorialTasks, 'tutorialTasks');
 
         // FIXME: we need to validate the geojson here
@@ -369,8 +398,12 @@ function NewTutorial(props: Props) {
                 success: {},
             }
         ));
+
         setFieldValue(tutorialTaskArray, 'scenarioPages');
+
     }, [setFieldValue]);
+
+    console.log(formError);
 
     const handleAddInformationPage = React.useCallback(
         (template: InformationPageTemplateKey) => {
@@ -447,7 +480,6 @@ function NewTutorial(props: Props) {
         customOptions,
         informationPages,
     } = value;
-
     return (
         <div className={_cs(styles.newTutorial, className)}>
             <Heading level={1}>
@@ -619,7 +651,7 @@ function NewTutorial(props: Props) {
                                 openByDefault={i === informationPages.length - 1}
                                 actions={(
                                     <Button
-                                        name={i + 1}
+                                        name={i}
                                         onClick={onInformationPageRemove}
                                         variant="action"
                                         title="Delete page"
