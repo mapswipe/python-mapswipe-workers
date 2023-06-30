@@ -79,7 +79,7 @@ export const projectTypeLabelMap: {
 export type IconKey = 'addOutline'
     | 'alertOutline'
     | 'banOutline'
-    | 'checkmarkOutline'
+    | 'check'
     | 'closeOutline'
     | 'eggOutline'
     | 'ellipseOutline'
@@ -104,9 +104,9 @@ export type IconKey = 'addOutline'
     | 'warningOutline'
     | 'generalTap'
     | 'tap'
-    | 'oneTap'
-    | 'twoTap'
-    | 'threeTap';
+    | 'tap-1'
+    | 'tap-2'
+    | 'tap-3';
 
 export interface IconItem {
     key: IconKey;
@@ -147,7 +147,7 @@ export const iconList: IconItem[] = [
         component: IoBanOutline,
     },
     {
-        key: 'checkmarkOutline',
+        key: 'check',
         label: 'Checkmark',
         component: IoCheckmarkOutline,
     },
@@ -272,17 +272,17 @@ export const iconList: IconItem[] = [
         component: getPngIcon(angularTapIcon, 'tap'),
     },
     {
-        key: 'oneTap',
+        key: 'tap-1',
         label: '1-Tap',
         component: getPngIcon(oneTapIcon, 'one tap'),
     },
     {
-        key: 'twoTap',
+        key: 'tap-2',
         label: '2-Tap',
         component: getPngIcon(twoTapIcon, 'two tap'),
     },
     {
-        key: 'threeTap',
+        key: 'tap-3',
         label: '3-Tap',
         component: getPngIcon(threeTapIcon, 'three tap'),
     },

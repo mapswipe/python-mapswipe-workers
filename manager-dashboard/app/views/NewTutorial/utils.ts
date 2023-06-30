@@ -248,7 +248,7 @@ export const defaultFootprintCustomOptions: PartialTutorialFormType['customOptio
         optionId: 1,
         value: 1,
         title: 'Yes',
-        icon: 'checkmarkOutline',
+        icon: 'check',
         iconColor: 'green',
         description: 'the shape does outline a building in the image',
     },
