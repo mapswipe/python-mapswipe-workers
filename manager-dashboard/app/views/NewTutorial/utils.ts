@@ -9,6 +9,10 @@ import {
     ArraySchema,
     addCondition,
 } from '@togglecorp/toggle-form';
+import {
+    isDefined,
+    getDuplicates,
+} from '@togglecorp/fujs';
 
 import {
     TileServer,
@@ -247,7 +251,7 @@ export const defaultFootprintCustomOptions: PartialTutorialFormType['customOptio
         optionId: 1,
         value: 1,
         title: 'Yes',
-        icon: 'checkmarkOutline',
+        icon: 'check',
         iconColor: 'green',
         description: 'the shape does outline a building in the image',
     },
@@ -255,7 +259,7 @@ export const defaultFootprintCustomOptions: PartialTutorialFormType['customOptio
         optionId: 2,
         value: 0,
         title: 'No',
-        icon: 'closeOutline',
+        icon: 'close-outline',
         iconColor: 'red',
         description: 'the shape doesn\'t match a building in the image',
     },
@@ -263,7 +267,7 @@ export const defaultFootprintCustomOptions: PartialTutorialFormType['customOptio
         optionId: 3,
         value: 2,
         title: 'Not Sure',
-        icon: 'removeOutline',
+        icon: 'remove-outline',
         iconColor: 'orange',
         description: 'if you\'re not sure or there is cloud cover / bad imagery',
     },
@@ -303,7 +307,7 @@ export interface FootprintProperties {
     screen: number;
 }
 
-interface ChangeDetectionProperties {
+export interface ChangeDetectionProperties {
     reference: number;
     screen: number;
     // eslint-disable-next-line camelcase
@@ -403,7 +407,7 @@ export type PartialTutorialFormType = PartialForm<
         exampleImage2?: File;
     },
     // NOTE: we do not want to change File and FeatureCollection to partials
-    'image' |'tutorialTasks' | 'exampleImage1' | 'exampleImage2' | 'scenarioId' | 'optionId' | 'subOptionsId' | 'pageNumber' | 'blockNumber' | 'blockType' | 'imageFile'
+    'image' | 'tutorialTasks' | 'exampleImage1' | 'exampleImage2' | 'scenarioId' | 'optionId' | 'subOptionsId' | 'pageNumber' | 'blockNumber' | 'blockType' | 'imageFile'
 >;
 
 type TutorialFormSchema = ObjectSchema<PartialTutorialFormType>;
@@ -599,17 +603,37 @@ export const tutorialFormSchema: TutorialFormSchema = {
             ['customOptions'],
             (formValues) => {
                 const customOptionField: CustomOptionFormSchema = {
-                    validation: (option) => {
-                        if (!option) {
+                    validation: (options) => {
+                        if (!options) {
                             return undefined;
                         }
 
-                        if (option.length < MIN_OPTIONS) {
+                        if (options.length < MIN_OPTIONS) {
                             return `There should be at least ${MIN_OPTIONS} options`;
                         }
 
-                        if (option.length > MAX_OPTIONS) {
+                        if (options.length > MAX_OPTIONS) {
                             return `There shouldn\`t be more than ${MAX_OPTIONS} options`;
+                        }
+
+                        const optionValues = options.flatMap(
+                            (val) => val.value,
+                        ).filter(isDefined);
+
+                        const subOptionValues = options.flatMap((val) => {
+                            const subValue = val.subOptions?.map(
+                                (sub) => sub.value,
+                            );
+                            return subValue;
+                        }).filter(isDefined);
+
+                        const allOptionValues = [...optionValues, ...subOptionValues];
+
+                        const hasDuplicateValue = getDuplicates(allOptionValues, (k) => k);
+                        if (hasDuplicateValue.length > 0) {
+                            return `The value for options and sub-options are duplicated: ${
+                                hasDuplicateValue.map((duplicate) => duplicate).join(', ')
+                            }`;
                         }
                         return undefined;
                     },
@@ -649,13 +673,12 @@ export const tutorialFormSchema: TutorialFormSchema = {
                                     if (!sub || sub.length === 0) {
                                         return undefined;
                                     }
-
                                     if (sub.length < MIN_SUB_OPTIONS) {
-                                        return `There should be at least ${MIN_SUB_OPTIONS} sub options`;
+                                        return `There should be at least ${MIN_SUB_OPTIONS} sub-options`;
                                     }
 
                                     if (sub.length > MAX_SUB_OPTIONS) {
-                                        return `There shouldn\`t be more than ${MAX_SUB_OPTIONS} sub options`;
+                                        return `There shouldn\`t be more than ${MAX_SUB_OPTIONS} sub-options`;
                                     }
 
                                     return undefined;
@@ -705,7 +728,8 @@ export const tutorialFormSchema: TutorialFormSchema = {
             ['zoomLevel'],
             (v) => (v?.projectType === PROJECT_TYPE_BUILD_AREA
                 || v?.projectType === PROJECT_TYPE_CHANGE_DETECTION
-                || v?.projectType === PROJECT_TYPE_COMPLETENESS ? {
+                || v?.projectType === PROJECT_TYPE_COMPLETENESS
+                ? {
                     zoomLevel: {
                         required: true,
                         validations: [

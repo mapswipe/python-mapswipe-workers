@@ -69,7 +69,7 @@ export default function FootprintGeoJsonPreview(props: Props) {
                 {customOptions?.map((option) => {
                     const Icon = option.icon
                         ? iconMap[option.icon]
-                        : iconMap.flagOutline;
+                        : iconMap['flag-outline'];
                     return (
                         <div
                             key={option.optionId}

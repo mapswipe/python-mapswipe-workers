@@ -146,7 +146,7 @@ export default function CustomOptionInput(props: Props) {
             {/* FIXME: use accordion open by default */}
             <div className={styles.subOptions}>
                 <Heading level={5}>
-                    Sub Options
+                    Sub-options
                 </Heading>
                 <NonFieldError
                     error={subOptionsError}
@@ -164,7 +164,7 @@ export default function CustomOptionInput(props: Props) {
                     />
                 ))}
                 {!value.subOptions?.length && (
-                    <div>No sub options</div>
+                    <div>No sub-options</div>
                 )}
                 {!readOnly && (
                     <Button
@@ -175,7 +175,7 @@ export default function CustomOptionInput(props: Props) {
                         // FIXME: use constant from utils
                         disabled={disabled || (value.subOptions && value.subOptions.length >= 6)}
                     >
-                        Add Sub Option
+                        Add Sub-option
                     </Button>
                 )}
             </div>
