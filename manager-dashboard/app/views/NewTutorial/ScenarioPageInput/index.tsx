@@ -126,6 +126,30 @@ export default function ScenarioPageInput(props: Props) {
         {},
     );
 
+    const handleInstructionFieldChange = React.useCallback<typeof onInstructionFieldChange>(
+        (...args) => {
+            setActiveInput('instructions');
+            onInstructionFieldChange(...args);
+        },
+        [onInstructionFieldChange],
+    );
+
+    const handleHintFieldChange = React.useCallback<typeof onHintFieldChange>(
+        (...args) => {
+            setActiveInput('hint');
+            onHintFieldChange(...args);
+        },
+        [onHintFieldChange],
+    );
+
+    const handleSuccessFieldChange = React.useCallback<typeof onSuccessFieldChange>(
+        (...args) => {
+            setActiveInput('success');
+            onSuccessFieldChange(...args);
+        },
+        [onSuccessFieldChange],
+    );
+
     const error = getErrorObject(riskyError);
     const instructionsError = getErrorObject(error?.instructions);
     const hintError = getErrorObject(error?.hint);
@@ -160,7 +184,7 @@ export default function ScenarioPageInput(props: Props) {
                             name={'title' as const}
                             value={value.instructions?.title}
                             label="Title"
-                            onChange={onInstructionFieldChange}
+                            onChange={handleInstructionFieldChange}
                             error={instructionsError?.title}
                             disabled={disabled}
                         />
@@ -168,7 +192,7 @@ export default function ScenarioPageInput(props: Props) {
                             name={'description' as const}
                             value={value.instructions?.description}
                             label="Description"
-                            onChange={onInstructionFieldChange}
+                            onChange={handleInstructionFieldChange}
                             error={instructionsError?.description}
                             disabled={disabled}
                         />
@@ -180,7 +204,7 @@ export default function ScenarioPageInput(props: Props) {
                         options={iconList}
                         keySelector={keySelector}
                         labelSelector={labelSelector}
-                        onChange={onInstructionFieldChange}
+                        onChange={handleInstructionFieldChange}
                         error={instructionsError?.icon}
                         disabled={disabled}
                     />
@@ -194,7 +218,7 @@ export default function ScenarioPageInput(props: Props) {
                             name={'title' as const}
                             value={value.hint?.title}
                             label="Title"
-                            onChange={onHintFieldChange}
+                            onChange={handleHintFieldChange}
                             error={hintError?.title}
                             disabled={disabled}
                         />
@@ -202,7 +226,7 @@ export default function ScenarioPageInput(props: Props) {
                             name={'description' as const}
                             value={value.hint?.description}
                             label="Description"
-                            onChange={onHintFieldChange}
+                            onChange={handleHintFieldChange}
                             error={hintError?.description}
                             disabled={disabled}
                         />
@@ -214,7 +238,7 @@ export default function ScenarioPageInput(props: Props) {
                         options={iconList}
                         keySelector={keySelector}
                         labelSelector={labelSelector}
-                        onChange={onHintFieldChange}
+                        onChange={handleHintFieldChange}
                         error={hintError?.icon}
                         disabled={disabled}
                     />
@@ -228,7 +252,7 @@ export default function ScenarioPageInput(props: Props) {
                             name={'title' as const}
                             value={value.success?.title}
                             label="Title"
-                            onChange={onSuccessFieldChange}
+                            onChange={handleSuccessFieldChange}
                             error={successError?.title}
                             disabled={disabled}
                         />
@@ -236,7 +260,7 @@ export default function ScenarioPageInput(props: Props) {
                             name={'description' as const}
                             value={value.success?.description}
                             label="Description"
-                            onChange={onSuccessFieldChange}
+                            onChange={handleSuccessFieldChange}
                             error={successError?.description}
                             disabled={disabled}
                         />
@@ -248,7 +272,7 @@ export default function ScenarioPageInput(props: Props) {
                         options={iconList}
                         keySelector={keySelector}
                         labelSelector={labelSelector}
-                        onChange={onSuccessFieldChange}
+                        onChange={handleSuccessFieldChange}
                         error={successError?.icon}
                         disabled={disabled}
                     />

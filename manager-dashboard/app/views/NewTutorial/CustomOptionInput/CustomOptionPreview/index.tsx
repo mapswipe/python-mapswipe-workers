@@ -22,7 +22,7 @@ export default function CustomOptionPreview(props: Props) {
 
     return (
         <MobilePreview
-            className={styles.optionPreview}
+            className={styles.customOptionPreview}
             contentClassName={styles.content}
             heading={lookFor || '{look for}'}
             headingLabel="You are looking for:"

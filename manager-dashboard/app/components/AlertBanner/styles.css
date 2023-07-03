@@ -1,0 +1,11 @@
+.banner {
+    display: flex;
+    gap: var(--spacing-large);
+    border-radius: var(--radius-card-border);
+    background-color: var(--color-banner-alert);
+    padding: var(--spacing-large);
+
+    .banner-icon {
+        font-size: var(--font-size-super-large);
+    }
+}

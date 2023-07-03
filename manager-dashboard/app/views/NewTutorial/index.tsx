@@ -55,6 +55,7 @@ import InputSection from '#components/InputSection';
 import Button from '#components/Button';
 import NonFieldError from '#components/NonFieldError';
 import EmptyMessage from '#components/EmptyMessage';
+import AlertBanner from '#components/AlertBanner';
 import {
     valueSelector,
     labelSelector,
@@ -506,6 +507,29 @@ function NewTutorial(props: Props) {
                             </Button>
                         )}
                     >
+                        <AlertBanner>
+                            <div className={styles.bannerContent}>
+                                <div className={styles.bannerText}>
+                                    While creating options,
+                                    please use the values as listed
+                                    below for HOT Tasking Manager Geometries
+                                </div>
+                                <div className={styles.indicatorList}>
+                                    <div className={styles.indicator}>
+                                        0 = No
+                                    </div>
+                                    <div className={styles.indicator}>
+                                        1 = Yes
+                                    </div>
+                                    <div className={styles.indicator}>
+                                        2 = Maybe
+                                    </div>
+                                    <div className={styles.indicator}>
+                                        3 = Bad Imagery
+                                    </div>
+                                </div>
+                            </div>
+                        </AlertBanner>
                         <NonFieldError
                             error={optionsError}
                         />
@@ -523,7 +547,10 @@ function NewTutorial(props: Props) {
                                                     onClick={onOptionRemove}
                                                     variant="action"
                                                     title="Delete Option"
-                                                    disabled={submissionPending || projectTypeEmpty}
+                                                    disabled={
+                                                        submissionPending
+                                                        || projectTypeEmpty
+                                                    }
                                                 >
                                                     <IoIosTrash />
                                                 </Button>

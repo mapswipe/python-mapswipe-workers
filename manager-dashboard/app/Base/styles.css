@@ -71,6 +71,8 @@ p {
     --color-accent: #4746f6;
     --color-danger: #e04656;
     --color-success: #53b391;
+    --color-banner-alert: #fdf4dc;
+    --color-banner-text: #5C4813;
     --color-separator: rgba(0, 0, 0, 0.1);
     --color-shadow: rgba(0, 0, 0, 0.2);
 
