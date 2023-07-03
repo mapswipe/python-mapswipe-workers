@@ -22,13 +22,41 @@
 
         .custom-option-container {
             display: flex;
+            flex-direction: column;
             gap: var(--spacing-large);
 
-            .custom-option-list {
+            .banner-content {
                 display: flex;
                 flex-direction: column;
-                flex-grow: 1;
                 gap: var(--spacing-medium);
+        
+                .banner-text {
+                    color: var(--color-banner-text);
+                    font-size: var(--spacing-medium);
+                }
+                .indicator-list {
+                    display: flex;
+                    gap: var(--spacing-medium);
+        
+                    .indicator {
+                        border-radius: var(--radius-badge-border);
+                        background-color: var(--color-backdrop-light);
+                        padding: var(--spacing-small) var(--spacing-medium);
+                        font-size: var(--spacing-medium);
+                    }
+                }
+            }
+            
+            .custom-option-content {
+                display: flex;
+                gap: var(--spacing-large);
+
+                .custom-option-list {
+                    display: flex;
+                    flex-direction: column;
+                    flex-grow: 1;
+                    gap: var(--spacing-medium);
+                }
             }
         }
 

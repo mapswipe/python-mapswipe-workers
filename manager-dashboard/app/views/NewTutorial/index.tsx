@@ -55,7 +55,7 @@ import InputSection from '#components/InputSection';
 import Button from '#components/Button';
 import NonFieldError from '#components/NonFieldError';
 import EmptyMessage from '#components/EmptyMessage';
-import CustomOptionsBanner from '#components/CustomOptionsBanner';
+import AlertBanner from '#components/AlertBanner';
 import {
     valueSelector,
     labelSelector,
@@ -512,40 +512,67 @@ function NewTutorial(props: Props) {
                         />
                         {(customOptions && customOptions.length > 0) ? (
                             <div className={styles.customOptionContainer}>
-                                <CustomOptionsBanner />
-                                <div className={styles.customOptionList}>
-                                    {customOptions.map((option, index) => (
-                                        <ExpandableContainer
-                                            key={option.optionId}
-                                            header={option.title || `Option ${index + 1}`}
-                                            openByDefault={index === customOptions.length - 1}
-                                            actions={(
-                                                <Button
-                                                    name={index}
-                                                    onClick={onOptionRemove}
-                                                    variant="action"
-                                                    title="Delete Option"
-                                                    disabled={submissionPending || projectTypeEmpty}
-                                                >
-                                                    <IoIosTrash />
-                                                </Button>
-                                            )}
-                                        >
-                                            <CustomOptionInput
+                                <AlertBanner>
+                                    <div className={styles.bannerContent}>
+                                        <div className={styles.bannerText}>
+                                            While creating options,
+                                            please use the values as listed
+                                            below for HOT Tasking Manager Geometries
+                                        </div>
+                                        <div className={styles.indicatorList}>
+                                            <div className={styles.indicator}>
+                                                0 = No
+                                            </div>
+                                            <div className={styles.indicator}>
+                                                1 = Yes
+                                            </div>
+                                            <div className={styles.indicator}>
+                                                2 = Maybe
+                                            </div>
+                                            <div className={styles.indicator}>
+                                                3 = bad
+                                            </div>
+                                        </div>
+                                    </div>
+                                </AlertBanner>
+                                <div className={styles.customOptionContent}>
+                                    <div className={styles.customOptionList}>
+                                        {customOptions.map((option, index) => (
+                                            <ExpandableContainer
                                                 key={option.optionId}
-                                                value={option}
-                                                index={index}
-                                                onChange={setOptionValue}
-                                                error={optionsError?.[option.optionId]}
-                                                disabled={submissionPending || projectTypeEmpty}
-                                            />
-                                        </ExpandableContainer>
-                                    ))}
+                                                header={option.title || `Option ${index + 1}`}
+                                                openByDefault={index === customOptions.length - 1}
+                                                actions={(
+                                                    <Button
+                                                        name={index}
+                                                        onClick={onOptionRemove}
+                                                        variant="action"
+                                                        title="Delete Option"
+                                                        disabled={
+                                                            submissionPending
+                                                            || projectTypeEmpty
+                                                        }
+                                                    >
+                                                        <IoIosTrash />
+                                                    </Button>
+                                                )}
+                                            >
+                                                <CustomOptionInput
+                                                    key={option.optionId}
+                                                    value={option}
+                                                    index={index}
+                                                    onChange={setOptionValue}
+                                                    error={optionsError?.[option.optionId]}
+                                                    disabled={submissionPending || projectTypeEmpty}
+                                                />
+                                            </ExpandableContainer>
+                                        ))}
+                                    </div>
+                                    <CustomOptionPreview
+                                        value={customOptions}
+                                        lookFor={value.lookFor}
+                                    />
                                 </div>
-                                <CustomOptionPreview
-                                    value={customOptions}
-                                    lookFor={value.lookFor}
-                                />
                             </div>
                         ) : (
                             <div>No options</div>
