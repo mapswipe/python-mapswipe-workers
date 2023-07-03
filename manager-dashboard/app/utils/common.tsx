@@ -35,6 +35,7 @@ import twoTapIcon from '#resources/icons/2_Tap_Black.png';
 import threeTapIcon from '#resources/icons/3_Tap_Black.png';
 import tapIcon from '#resources/icons/tap_icon.png';
 import angularTapIcon from '#resources/icons/tap_icon_angular.png';
+import swipeIcon from '#resources/icons/swipeleft_icon_black.png';
 
 export function valueSelector<T>(item: { value: T }) {
     return item.value;
@@ -106,7 +107,8 @@ export type IconKey = 'addOutline'
     | 'tap'
     | 'tap-1'
     | 'tap-2'
-    | 'tap-3';
+    | 'tap-3'
+    | 'swipe-left';
 
 export interface IconItem {
     key: IconKey;
@@ -285,6 +287,11 @@ export const iconList: IconItem[] = [
         key: 'tap-3',
         label: '3-Tap',
         component: getPngIcon(threeTapIcon, 'three tap'),
+    },
+    {
+        key: 'swipe-left',
+        label: 'Swipe Left',
+        component: getPngIcon(swipeIcon, 'swipe left'),
     },
 ];
 
