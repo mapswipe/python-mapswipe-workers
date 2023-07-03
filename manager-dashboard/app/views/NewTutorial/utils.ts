@@ -611,7 +611,6 @@ export const tutorialFormSchema: TutorialFormSchema = {
                         if (option.length > MAX_OPTIONS) {
                             return `There shouldn\`t be more than ${MAX_OPTIONS} options`;
                         }
-
                         return undefined;
                     },
                     keySelector: (key) => key.optionId,

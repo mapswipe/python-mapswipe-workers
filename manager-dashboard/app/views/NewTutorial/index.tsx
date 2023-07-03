@@ -55,6 +55,7 @@ import InputSection from '#components/InputSection';
 import Button from '#components/Button';
 import NonFieldError from '#components/NonFieldError';
 import EmptyMessage from '#components/EmptyMessage';
+import CustomOptionsBanner from '#components/CustomOptionsBanner';
 import {
     valueSelector,
     labelSelector,
@@ -511,6 +512,7 @@ function NewTutorial(props: Props) {
                         />
                         {(customOptions && customOptions.length > 0) ? (
                             <div className={styles.customOptionContainer}>
+                                <CustomOptionsBanner />
                                 <div className={styles.customOptionList}>
                                     {customOptions.map((option, index) => (
                                         <ExpandableContainer
