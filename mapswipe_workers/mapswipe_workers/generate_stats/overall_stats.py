@@ -68,7 +68,10 @@ def get_project_static_info(filename: str) -> pd.DataFrame:
                 ,created
                 -- Custom options values
                 ,CASE
-                  WHEN project_type_specifics->'customOptions' IS NOT NULL
+                  WHEN (
+                    project_type_specifics->'customOptions' IS NOT NULL AND
+                    (project_type_specifics->'customOptions')::TEXT != 'null'::TEXT
+                  )
                   THEN -- thus if we have answer labels use them
                     (project_type_specifics->'customOptions')::TEXT
                   ELSE -- otherwise use below label range as the mapswipe app default
