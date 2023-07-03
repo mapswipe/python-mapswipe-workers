@@ -608,21 +608,6 @@ export const tutorialFormSchema: TutorialFormSchema = {
                             return undefined;
                         }
 
-                        const optionValue = options.flatMap(
-                            (val) => val.value,
-                        ).filter(isDefined);
-
-                        const subOptionValue = options.flatMap((val) => {
-                            const subValue = val.subOptions?.map(
-                                (sub) => sub.value,
-                            );
-                            return subValue;
-                        }).filter(isDefined);
-
-                        const allOptionValue = [...optionValue, ...subOptionValue];
-
-                        const hasDuplicateAllOptionValue = getDuplicates(allOptionValue, (k) => k);
-
                         if (options.length < MIN_OPTIONS) {
                             return `There should be at least ${MIN_OPTIONS} options`;
                         }
@@ -630,9 +615,24 @@ export const tutorialFormSchema: TutorialFormSchema = {
                         if (options.length > MAX_OPTIONS) {
                             return `There shouldn\`t be more than ${MAX_OPTIONS} options`;
                         }
-                        if (hasDuplicateAllOptionValue.length > 0) {
-                            return `The value for options/sub-options are duplicated : ${
-                                hasDuplicateAllOptionValue.map((duplicate) => duplicate)
+
+                        const optionValues = options.flatMap(
+                            (val) => val.value,
+                        ).filter(isDefined);
+
+                        const subOptionValues = options.flatMap((val) => {
+                            const subValue = val.subOptions?.map(
+                                (sub) => sub.value,
+                            );
+                            return subValue;
+                        }).filter(isDefined);
+
+                        const allOptionValues = [...optionValues, ...subOptionValues];
+
+                        const hasDuplicateValue = getDuplicates(allOptionValues, (k) => k);
+                        if (hasDuplicateValue.length > 0) {
+                            return `The value for options and sub-options are duplicated: ${
+                                hasDuplicateValue.map((duplicate) => duplicate).join(', ')
                             }`;
                         }
                         return undefined;

@@ -89,6 +89,8 @@ function GeoJsonPreview(props: Props) {
                 const layer = new Layer(
                     finalUrl,
                     {
+                        // NOTE: we have a limit of 22
+                        maxZoom: 22,
                         // attribution: '',
                         // subdomains: ['a', 'b', 'c'],
                     },
