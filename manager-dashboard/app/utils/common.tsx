@@ -77,33 +77,33 @@ export const projectTypeLabelMap: {
     [PROJECT_TYPE_COMPLETENESS]: 'Completeness',
 };
 
-export type IconKey = 'addOutline'
-    | 'alertOutline'
-    | 'banOutline'
+export type IconKey = 'add-outline'
+    | 'alert-outline'
+    | 'ban-outline'
     | 'check'
-    | 'closeOutline'
-    | 'eggOutline'
-    | 'ellipseOutline'
-    | 'flagOutline'
-    | 'handLeftOutline'
-    | 'handRightOutline'
-    | 'happyOutline'
-    | 'heartOutline'
-    | 'helpOutline'
-    | 'informationOutline'
-    | 'prismOutline'
-    | 'refreshOutline'
-    | 'removeOutline'
-    | 'sadOutline'
-    | 'searchOutline'
-    | 'shapesOutline'
-    | 'squareOutline'
-    | 'starOutline'
-    | 'thumbsDownOutline'
-    | 'thumbsUpOutline'
-    | 'triangleOutline'
-    | 'warningOutline'
-    | 'generalTap'
+    | 'close-outline'
+    | 'egg-outline'
+    | 'ellipse-outline'
+    | 'flag-outline'
+    | 'hand-left-outline'
+    | 'hand-right-outline'
+    | 'happy-outline'
+    | 'heart-outline'
+    | 'help-outline'
+    | 'information-outline'
+    | 'prism-outline'
+    | 'refresh-outline'
+    | 'remove-outline'
+    | 'sad-outline'
+    | 'search-outline'
+    | 'shapes-outline'
+    | 'square-outline'
+    | 'star-outline'
+    | 'thumbs-down-outline'
+    | 'thumbs-up-outline'
+    | 'triangle-outline'
+    | 'warning-outline'
+    | 'general-tap'
     | 'tap'
     | 'tap-1'
     | 'tap-2'
@@ -134,137 +134,137 @@ function getPngIcon(src: string, alt: string) {
 
 export const iconList: IconItem[] = [
     {
-        key: 'addOutline',
+        key: 'add-outline',
         label: 'Add',
         component: IoAddOutline,
     },
     {
-        key: 'alertOutline',
+        key: 'alert-outline',
         label: 'Alert',
         component: IoAlertOutline,
     },
     {
-        key: 'banOutline',
+        key: 'ban-outline',
         label: 'Ban',
         component: IoBanOutline,
     },
     {
         key: 'check',
-        label: 'Checkmark',
+        label: 'Check',
         component: IoCheckmarkOutline,
     },
     {
-        key: 'closeOutline',
+        key: 'close-outline',
         label: 'Close',
         component: IoCloseOutline,
     },
     {
-        key: 'eggOutline',
+        key: 'egg-outline',
         label: 'Egg',
         component: IoEggOutline,
     },
     {
-        key: 'ellipseOutline',
+        key: 'ellipse-outline',
         label: 'Ellipse',
         component: IoEllipseOutline,
     },
     {
-        key: 'flagOutline',
+        key: 'flag-outline',
         label: 'Flag',
         component: IoFlagOutline,
     },
     {
-        key: 'handLeftOutline',
+        key: 'hand-left-outline',
         label: 'Hand Left',
         component: IoHandLeftOutline,
     },
     {
-        key: 'handRightOutline',
+        key: 'hand-right-outline',
         label: 'Hand Right',
         component: IoHandRightOutline,
     },
     {
-        key: 'happyOutline',
+        key: 'happy-outline',
         label: 'Happy',
         component: IoHappyOutline,
     },
     {
-        key: 'heartOutline',
+        key: 'heart-outline',
         label: 'Heart',
         component: IoHeartOutline,
     },
     {
-        key: 'helpOutline',
+        key: 'help-outline',
         label: 'Help',
         component: IoHelpOutline,
     },
     {
-        key: 'informationOutline',
+        key: 'information-outline',
         label: 'Information',
         component: IoInformationOutline,
     },
     {
-        key: 'prismOutline',
+        key: 'prism-outline',
         label: 'Prism',
         component: IoPrismOutline,
     },
     {
-        key: 'refreshOutline',
+        key: 'refresh-outline',
         label: 'Refresh',
         component: IoRefreshOutline,
     },
     {
-        key: 'removeOutline',
+        key: 'remove-outline',
         label: 'Remove',
         component: IoRemoveOutline,
     },
     {
-        key: 'sadOutline',
+        key: 'sad-outline',
         label: 'Sad',
         component: IoSadOutline,
     },
     {
-        key: 'searchOutline',
+        key: 'search-outline',
         label: 'Search',
         component: IoSearchOutline,
     },
     {
-        key: 'shapesOutline',
+        key: 'shapes-outline',
         label: 'Shapes',
         component: IoShapesOutline,
     },
     {
-        key: 'squareOutline',
+        key: 'square-outline',
         label: 'Square',
         component: IoSquareOutline,
     },
     {
-        key: 'starOutline',
+        key: 'star-outline',
         label: 'Star',
         component: IoStarOutline,
     },
     {
-        key: 'thumbsDownOutline',
+        key: 'thumbs-down-outline',
         label: 'Thumbs Down',
         component: IoThumbsDownOutline,
     },
     {
-        key: 'thumbsUpOutline',
+        key: 'thumbs-up-outline',
         label: 'Thumbs Up',
         component: IoThumbsUpOutline,
     },
     {
-        key: 'triangleOutline',
+        key: 'triangle-outline',
         label: 'Triangle',
         component: IoTriangleOutline,
     },
     {
-        key: 'warningOutline',
+        key: 'warning-outline',
         label: 'Warning',
         component: IoWarningOutline,
     },
     {
-        key: 'generalTap',
+        key: 'general-tap',
         label: 'General Tap',
         component: getPngIcon(tapIcon, 'general tap'),
     },

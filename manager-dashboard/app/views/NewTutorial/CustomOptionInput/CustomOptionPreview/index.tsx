@@ -30,7 +30,7 @@ export default function CustomOptionPreview(props: Props) {
             {value?.map((option, index) => {
                 const Icon = option.icon
                     ? iconMap[option.icon]
-                    : iconMap.flagOutline;
+                    : iconMap['flag-outline'];
 
                 const previewText = [
                     option.title || `{option ${index + 1}}`,

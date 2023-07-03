@@ -9,7 +9,10 @@ import {
     ArraySchema,
     addCondition,
 } from '@togglecorp/toggle-form';
-import { isDefined, isNotDefined } from '@togglecorp/fujs';
+import {
+    isDefined,
+    getDuplicates,
+} from '@togglecorp/fujs';
 
 import {
     TileServer,
@@ -256,7 +259,7 @@ export const defaultFootprintCustomOptions: PartialTutorialFormType['customOptio
         optionId: 2,
         value: 0,
         title: 'No',
-        icon: 'closeOutline',
+        icon: 'close-outline',
         iconColor: 'red',
         description: 'the shape doesn\'t match a building in the image',
     },
@@ -264,7 +267,7 @@ export const defaultFootprintCustomOptions: PartialTutorialFormType['customOptio
         optionId: 3,
         value: 2,
         title: 'Not Sure',
-        icon: 'removeOutline',
+        icon: 'remove-outline',
         iconColor: 'orange',
         description: 'if you\'re not sure or there is cloud cover / bad imagery',
     },
@@ -434,23 +437,6 @@ type InformationPagesFormSchemaMember = ReturnType<InformationPagesFormSchema['m
 export type PartialInformationPagesType = PartialTutorialFormType['informationPages'];
 export type PartialCustomOptionsType = PartialTutorialFormType['customOptions'];
 export type PartialBlocksType = NonNullable<NonNullable<PartialInformationPagesType>[number]>['blocks'];
-
-function checkDuplicate(array: Array<string | number>) {
-    const valueCounts: Record<string, number> = {};
-    for (let index = 0; index < array.length; index += 1) {
-        const item = array[index];
-        if (isNotDefined(item)) {
-            // eslint-disable-next-line
-            continue
-        }
-        if (valueCounts[item] !== undefined) {
-            valueCounts[item] += 1;
-            return true;
-        }
-        valueCounts[item] = 1;
-    }
-    return false;
-}
 
 export const MAX_OPTIONS = 6;
 export const MIN_OPTIONS = 2;
@@ -635,11 +621,7 @@ export const tutorialFormSchema: TutorialFormSchema = {
 
                         const allOptionValue = [...optionValue, ...subOptionValue];
 
-                        const hasDuplicateOptionValue = checkDuplicate(
-                            options.map((val) => val.value).filter(isDefined),
-                        );
-
-                        const hasDuplicateAllOptionValue = checkDuplicate(allOptionValue);
+                        const hasDuplicateAllOptionValue = getDuplicates(allOptionValue, (k) => k);
 
                         if (options.length < MIN_OPTIONS) {
                             return `There should be at least ${MIN_OPTIONS} options`;
@@ -648,12 +630,10 @@ export const tutorialFormSchema: TutorialFormSchema = {
                         if (options.length > MAX_OPTIONS) {
                             return `There shouldn\`t be more than ${MAX_OPTIONS} options`;
                         }
-
-                        if (hasDuplicateOptionValue) {
-                            return 'Value cannot be same';
-                        }
-                        if (hasDuplicateAllOptionValue) {
-                            return 'Option and suboptions value cannot be same';
+                        if (hasDuplicateAllOptionValue.length > 0) {
+                            return `The value for options/sub-options are duplicated : ${
+                                hasDuplicateAllOptionValue.map((duplicate) => duplicate)
+                            }`;
                         }
                         return undefined;
                     },
@@ -693,20 +673,12 @@ export const tutorialFormSchema: TutorialFormSchema = {
                                     if (!sub || sub.length === 0) {
                                         return undefined;
                                     }
-
-                                    const hasDuplicateSubOptionValue = checkDuplicate(
-                                        sub.map((val) => val.value).filter(isDefined),
-                                    );
-
                                     if (sub.length < MIN_SUB_OPTIONS) {
-                                        return `There should be at least ${MIN_SUB_OPTIONS} sub options`;
+                                        return `There should be at least ${MIN_SUB_OPTIONS} sub-options`;
                                     }
 
                                     if (sub.length > MAX_SUB_OPTIONS) {
-                                        return `There shouldn\`t be more than ${MAX_SUB_OPTIONS} sub options`;
-                                    }
-                                    if (hasDuplicateSubOptionValue) {
-                                        return 'Value cannot be same';
+                                        return `There shouldn\`t be more than ${MAX_SUB_OPTIONS} sub-options`;
                                     }
 
                                     return undefined;
