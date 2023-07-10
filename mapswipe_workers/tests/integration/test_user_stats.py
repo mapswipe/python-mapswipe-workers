@@ -1,6 +1,7 @@
 import os
 import tempfile
 import unittest
+import pandas as pd
 
 from . import tear_down
 from . import set_up
@@ -21,15 +22,23 @@ class TestUserStats(BaseTestCase):
         fixture_name = "osm_validation_malawi"
         self.project_id = "-NEaU7GXxWRqKaFUYp_2"
 
-        for data_type in [
-            "projects",
-            "groups",
-            "tasks",
-            "users",
-            "mapping_sessions",
-            "mapping_sessions_results",
+        for data_type, columns in [
+            ("projects", None),
+            ("groups", [
+                "project_id",
+                "group_id",
+                "number_of_tasks",
+                "finished_count",
+                "required_count",
+                "progress",
+                "project_type_specifics",
+            ]),
+            ("tasks", None),
+            ("users", None),
+            ("mapping_sessions", None),
+            ("mapping_sessions_results", None),
         ]:
-            set_up.set_postgres_test_data(project_type, data_type, fixture_name)
+            set_up.set_postgres_test_data(project_type, data_type, fixture_name, columns=columns)
 
         self.results_filename = os.path.join(
             tempfile._get_default_tempdir(), f"results_{self.project_id}.csv.gz"
@@ -48,7 +57,11 @@ class TestUserStats(BaseTestCase):
         tasks_df = get_tasks(self.tasks_filename, self.project_id)
         self.assertEqual(len(tasks_df), 67436)
 
-        agg_results_df = get_agg_results_by_task_id(results_df, tasks_df)
+        agg_results_df = get_agg_results_by_task_id(
+            results_df,
+            tasks_df,
+            pd.Series(data="[{\"value\": 0}, {\"value\": 1}, {\"value\": 2}, {\"value\": 3}]"),
+        )
         self.assertEqual(len(agg_results_df), 67436)
 
         agg_results_by_user_id_df = get_agg_results_by_user_id(

@@ -1,9 +1,10 @@
+import ast
 import datetime
 import gzip
 import json
 import os
 import tempfile
-from typing import List
+import typing
 
 import pandas as pd
 from pandas.api.types import is_numeric_dtype
@@ -238,76 +239,57 @@ def get_groups(filename: str, project_id: str) -> pd.DataFrame:
     return df
 
 
-def calc_agreement(total: int, no: int, yes: int, maybe: int, bad: int) -> float:
+def calc_agreement(row: pd.Series) -> float:
     """
-    for each task the "agreement" is computed as defined by Scott's Pi
-    Scott's Pi is a measure for inter-rater reliability
-    https://en.wikipedia.org/wiki/Scott%27s_Pi
+    for each task the "agreement" is computed (i.e. the extent to which
+    raters agree for the i-th subject). This measure is a component of
+    Fleiss' kappa: https://en.wikipedia.org/wiki/Fleiss%27_kappa
     """
 
-    # TODO: currently this is implemented only for the 4 given categories
+    # Calculate total count as the sum of all categories
+    n = row["total_count"]
 
-    if total == 1:
-        agreement = 1.0
+    row = row.drop(labels=["total_count"])
+    # extent to which raters agree for the ith subject
+    # set agreement to None if only one user contributed
+    if n == 1 or n == 0:
+        agreement = None
     else:
-        agreement = (
-            1.0
-            / (total * (total - 1))
-            * (
-                (no * (no - 1))
-                + (yes * (yes - 1))
-                + (maybe * (maybe - 1))
-                + (bad * (bad - 1))
-            )
-        )
+        agreement = (sum([i**2 for i in row]) - n) / (n * (n - 1))
 
     return agreement
 
 
-def calc_share(total: int, no: int, yes: int, maybe: int, bad: int) -> List[float]:
+def calc_share(df: pd.DataFrame) -> pd.DataFrame:
     """Calculate the share of each category on the total count."""
-    no_share = no / total
-    yes_share = yes / total
-    maybe_share = maybe / total
-    bad_share = bad / total
-
-    return [no_share, yes_share, maybe_share, bad_share]
+    share_df = df.filter(like="count").div(df.total_count, axis=0)
+    share_df.drop("total_count", inplace=True, axis=1)
+    share_df.columns = share_df.columns.str.replace("_count", "_share")
+    return df.join(share_df)
 
 
-def calc_count(row) -> List[int]:
-    """
-    Check if a count exists for each category ("no", "yes", "maybe", "bad").
-    Then calculate total count as the sum of all categories.
-    """
-
-    try:
-        no_count = row[0]
-    except KeyError:
-        no_count = 0
-
-    try:
-        yes_count = row[1]
-    except KeyError:
-        yes_count = 0
-
-    try:
-        maybe_count = row[2]
-    except KeyError:
-        maybe_count = 0
-
-    try:
-        bad_count = row[3]
-    except KeyError:
-        bad_count = 0
-
-    total_count = no_count + yes_count + maybe_count + bad_count
-    assert total_count > 0, "Total count for result must be bigger than zero."
-
-    return [total_count, no_count, yes_count, maybe_count, bad_count]
+def calc_parent_option_count(
+    df: pd.DataFrame,
+    custom_options: typing.Dict[int, typing.Set[int]],
+) -> pd.DataFrame:
+    df_new = df.copy()
+    # Update option count using sub options count
+    for option, sub_options in custom_options.items():
+        for sub_option in sub_options:
+            df_new[f"{option}_count"] += df_new[f"{sub_option}_count"]
+    return df_new
 
 
-def calc_quadkey(row):
+def calc_count(df: pd.DataFrame) -> pd.DataFrame:
+    df_new = df.filter(like="count")
+    df_new_sum = df_new.sum(axis=1)
+    return df_new_sum
+
+
+def calc_quadkey(row: pd.DataFrame):
     """Calculate quadkey based on task id."""
+    # TODO: This does not make sense for media type, digtitalization.
+    #  For these projects types we should move to project classes.
     try:
         tile_z, tile_x, tile_y = row["task_id"].split("-")
         quadkey = tile_functions.tile_coords_and_zoom_to_quadKey(
@@ -320,8 +302,42 @@ def calc_quadkey(row):
     return quadkey
 
 
+def get_custom_options(custom_options: pd.Series) -> typing.Dict[int, typing.Set[int]]:
+    eval_value = ast.literal_eval(custom_options.item())
+    return {
+        option["value"]: {
+            sub_option["value"] for sub_option in option.get("subOptions", [])
+        }
+        for option in eval_value
+    }
+
+
+def add_missing_result_columns(
+    df: typing.Union[pd.DataFrame, pd.Series],
+    custom_options: typing.Dict[int, typing.Set[int]],
+) -> pd.DataFrame:
+    """
+    Check if all possible answers columns are included in the grouped results
+    data frame and add columns if missing.
+    """
+
+    all_answer_label_values_set = set(
+        [
+            _option
+            for option, sub_options in custom_options.items()
+            for _option in [option, *sub_options]
+        ]
+    )
+    return df.reindex(
+        columns=sorted(all_answer_label_values_set),
+        fill_value=0,
+    )
+
+
 def get_agg_results_by_task_id(
-    results_df: pd.DataFrame, tasks_df: pd.DataFrame
+    results_df: pd.DataFrame,
+    tasks_df: pd.DataFrame,
+    custom_options_raw: pd.Series,
 ) -> pd.DataFrame:
     """
     For each task several users contribute results.
@@ -339,6 +355,7 @@ def get_agg_results_by_task_id(
     ----------
     results_df: pd.DataFrame
     tasks_df: pd.DataFrame
+    custom_options_raw: pd.Series
     """
 
     results_by_task_id_df = (
@@ -347,23 +364,31 @@ def get_agg_results_by_task_id(
         .unstack(fill_value=0)
     )
 
-    # calculate total count and check if other counts are defined
-    results_by_task_id_df[["total_count", 0, 1, 2, 3]] = results_by_task_id_df.apply(
-        lambda row: calc_count(row), axis=1, result_type="expand"
+    custom_options = get_custom_options(custom_options_raw)
+
+    # add columns for answer options that were not chosen for any task
+    results_by_task_id_df = add_missing_result_columns(
+        results_by_task_id_df,
+        custom_options,
+    )
+
+    # needed for ogr2ogr todo: might be legacy?
+    results_by_task_id_df = results_by_task_id_df.add_suffix("_count")
+
+    # calculate total count of votes per task
+    results_by_task_id_df["total_count"] = calc_count(results_by_task_id_df)
+
+    results_by_task_id_df = calc_parent_option_count(
+        results_by_task_id_df,
+        custom_options,
     )
 
     # calculate share based on counts
-    results_by_task_id_df[
-        ["0_share", "1_share", "2_share", "3_share"]
-    ] = results_by_task_id_df.apply(
-        lambda row: calc_share(row["total_count"], row[0], row[1], row[2], row[3]),
-        axis=1,
-        result_type="expand",
-    )
+    results_by_task_id_df = calc_share(results_by_task_id_df)
 
     # calculate agreement
     results_by_task_id_df["agreement"] = results_by_task_id_df.apply(
-        lambda row: calc_agreement(row["total_count"], row[0], row[1], row[2], row[3]),
+        calc_agreement,
         axis=1,
     )
     logger.info("calculated agreement")
@@ -382,11 +407,6 @@ def get_agg_results_by_task_id(
         right_on="task_id",
     )
     logger.info("added geometry to aggregated results")
-
-    # rename columns, ogr2ogr will fail otherwise
-    agg_results_df.rename(
-        columns={0: "0_count", 1: "1_count", 2: "2_count", 3: "3_count"}, inplace=True
-    )
 
     return agg_results_df
 
@@ -430,7 +450,11 @@ def get_per_project_statistics(project_id: str, project_info: pd.Series) -> dict
             add_metadata = False
 
         # aggregate results by task id
-        agg_results_df = get_agg_results_by_task_id(results_df, tasks_df)
+        agg_results_df = get_agg_results_by_task_id(
+            results_df,
+            tasks_df,
+            project_info["custom_options"],
+        )
         agg_results_df.to_csv(agg_results_filename, index_label="idx")
 
         geojson_functions.gzipped_csv_to_gzipped_geojson(

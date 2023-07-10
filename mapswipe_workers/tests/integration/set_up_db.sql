@@ -30,6 +30,9 @@ CREATE TABLE IF NOT EXISTS groups (
     required_count int,
     progress int,
     project_type_specifics json,
+    --  total_area & time_spent_max_allowed are maintaned and used by aggregated module
+    total_area float DEFAULT NULL,
+    time_spent_max_allowed float DEFAULT NULL,
     PRIMARY KEY (project_id, group_id),
     FOREIGN KEY (project_id) REFERENCES projects (project_id)
 );

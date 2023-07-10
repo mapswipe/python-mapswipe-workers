@@ -30,7 +30,7 @@ x-django: &base_django
       DJANGO_DB_NAME: '${POSTGRES_DB}'
       DJANGO_DB_USER: '${POSTGRES_USER}'
       DJANGO_DB_PWD: '${POSTGRES_PASSWORD}'
-      DJANGO_DB_HOST: 'postgres'
+      DJANGO_DB_HOST: '${POSTGRES_HOST:-postgres}'
       DJANGO_DB_PORT: 5432
       DJANGO_STATIC_ROOT: '/assets/static/'
       DJANGO_MEDIA_ROOT: '/assets/media/'
@@ -62,7 +62,7 @@ x-mapswipe-workers: &base_mapswipe_workers
         POSTGRES_PASSWORD: '${POSTGRES_PASSWORD}'
         POSTGRES_USER: '${POSTGRES_USER}'
         POSTGRES_DB: '${POSTGRES_DB}'
-        POSTGRES_HOST: 'postgres'
+        POSTGRES_HOST: '${POSTGRES_HOST:-postgres}'
         POSTGRES_PORT: 5432
         PGDATA: '/var/lib/postgresql/mapswipe'
         IMAGE_BING_API_KEY: '${IMAGE_BING_API_KEY}'
@@ -138,6 +138,10 @@ services:
             REACT_APP_SENTRY_DSN: ${MANAGER_DASHBOARD_SENTRY_DSN}
             REACT_APP_SENTRY_TRACES_SAMPLE_RATE: ${MANAGER_DASHBOARD_SENTRY_TRACES_SAMPLE_RATE}
             REACT_APP_COMMUNITY_DASHBOARD_URL: ${MANAGER_DASHBOARD_COMMUNITY_DASHBOARD_URL}
+            REACT_APP_IMAGE_BING_API_KEY: ${IMAGE_BING_API_KEY}
+            REACT_APP_IMAGE_MAPBOX_API_KEY: ${IMAGE_MAPBOX_API_KEY}
+            REACT_APP_IMAGE_MAXAR_PREMIUM_API_KEY: ${IMAGE_MAXAR_PREMIUM_API_KEY}
+            REACT_APP_IMAGE_MAXAR_STANDARD_API_KEY: ${IMAGE_MAXAR_STANDARD_API_KEY}
         volumes:
             - manager-dashboard-static:/code/build/
         command: bash -c 'yarn build'

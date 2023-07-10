@@ -12,12 +12,12 @@ import SmartLink from '#base/components/SmartLink';
 import useBooleanState from '#hooks/useBooleanState';
 
 import Button from '#components/Button';
-import OrganisationFormModal from '#components/OrganisationFormModal';
-import TutorialList from '#components/TutorialList';
-import OrganisationList from '#components/OrganisationList';
 import TextInput from '#components/TextInput';
 import useInputState from '#hooks/useInputState';
 
+import OrganisationFormModal from './OrganisationFormModal';
+import OrganisationList from './OrganisationList';
+import TutorialList from './TutorialList';
 import styles from './styles.css';
 
 interface Props {

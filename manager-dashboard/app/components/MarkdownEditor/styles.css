@@ -1,0 +1,12 @@
+.react-mde {
+    border: 0;
+    border-radius: 0;
+}
+
+.text-area {
+    background-color: transparent;
+}
+
+.toolbar {
+    background-color: transparent;
+}

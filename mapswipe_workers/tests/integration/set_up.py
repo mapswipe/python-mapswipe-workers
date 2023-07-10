@@ -10,6 +10,7 @@ Directory structure of fixtures: fixtures/project_type/data_type/fixture_name
 import json
 import os
 import time
+from typing import List, Union
 
 from mapswipe_workers import auth
 
@@ -32,7 +33,7 @@ def set_firebase_test_data(
 
 
 def set_postgres_test_data(
-    project_type: str, data_type: str, fixture_name: str
+    project_type: str, data_type: str, fixture_name: str, columns: Union[None, List[str]] = None
 ) -> None:
     test_dir = os.path.dirname(__file__)
     fixture_name = fixture_name + ".csv"
@@ -41,7 +42,7 @@ def set_postgres_test_data(
     )
     pg_db = auth.postgresDB()
     with open(file_path) as test_file:
-        pg_db.copy_from(test_file, data_type)
+        pg_db.copy_from(test_file, data_type, columns=columns)
 
 
 def create_test_project(
@@ -50,9 +51,21 @@ def create_test_project(
     """Create a test data in Firebase and Posgres."""
     project_id = "test_{0}".format(fixture_name)
 
-    for data_type in ["projects", "groups", "tasks"]:
+    for data_type, columns in [
+        ("projects", None),
+        ("groups", [
+            "project_id",
+            "group_id",
+            "number_of_tasks",
+            "finished_count",
+            "required_count",
+            "progress",
+            "project_type_specifics",
+        ]),
+        ("tasks", None),
+    ]:
         set_firebase_test_data(project_type, data_type, fixture_name, project_id)
-        set_postgres_test_data(project_type, data_type, fixture_name)
+        set_postgres_test_data(project_type, data_type, fixture_name, columns=columns)
 
     if results:
         set_firebase_test_data(project_type, "users", "user", project_id)

@@ -13,7 +13,7 @@ export type ButtonVariant = (
     | 'transparent'
 );
 
-export interface Props<N> extends RawButtonProps<N> {
+export interface ButtonProps<N> extends RawButtonProps<N> {
     /**
     * Variant of the button
     */
@@ -57,7 +57,7 @@ export interface Props<N> extends RawButtonProps<N> {
 type ButtonFeatureKeys = 'variant' | 'className' | 'actionsClassName' | 'iconsClassName' | 'childrenClassName' | 'children' | 'icons' | 'actions' | 'disabled';
 
 export function useButtonFeatures(
-    props: Pick<Props<string>, ButtonFeatureKeys>,
+    props: Pick<ButtonProps<string>, ButtonFeatureKeys>,
 ) {
     const {
         variant = 'default',
@@ -111,7 +111,7 @@ export function useButtonFeatures(
 /**
  * Basic button component
  */
-function Button<N>(props: Props<N>) {
+function Button<N>(props: ButtonProps<N>) {
     const {
         variant,
         className,
