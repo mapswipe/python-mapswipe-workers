@@ -3,8 +3,16 @@ from dataclasses import dataclass
 from typing import Dict, List
 
 from mapswipe_workers.firebase.firebase import Firebase
-from mapswipe_workers.project_types.base.project import BaseGroup, BaseProject, BaseTask
-from mapswipe_workers.project_types.base.tile_server import BaseTileServer
+from mapswipe_workers.firebase_to_postgres.transfer_results import (
+    results_to_file,
+    save_results_to_postgres,
+    truncate_temp_results,
+)
+from mapswipe_workers.generate_stats.project_stats import (
+    get_statistics_for_integer_result_project,
+)
+from mapswipe_workers.project_types.project import BaseGroup, BaseProject, BaseTask
+from mapswipe_workers.project_types.tile_server import BaseTileServer
 from mapswipe_workers.utils import tile_functions, tile_grouping_functions
 from mapswipe_workers.utils.validate_input import (
     save_geojson_to_file,
@@ -131,3 +139,18 @@ class TileMapServiceBaseProject(BaseProject):
                         )
                     )
             self.groups[group_id].numberOfTasks = len(self.tasks[group_id])
+
+    @staticmethod
+    def results_to_postgres(results: dict, project_id: str, filter_mode: bool):
+        """How to move the result data from firebase to postgres."""
+        results_file, user_group_results_file = results_to_file(results, project_id)
+        truncate_temp_results()
+        save_results_to_postgres(results_file, project_id, filter_mode)
+        return user_group_results_file
+
+    @staticmethod
+    def get_per_project_statistics(project_id, project_info):
+        """How to aggregate the project results."""
+        return get_statistics_for_integer_result_project(
+            project_id, project_info, generate_hot_tm_geometries=True
+        )

@@ -7,8 +7,8 @@ from osgeo import ogr
 
 from mapswipe_workers.definitions import DATA_PATH, CustomError, logger
 from mapswipe_workers.project_types.arbitrary_geometry import grouping_functions as g
-from mapswipe_workers.project_types.base.project import BaseGroup, BaseProject
-from mapswipe_workers.project_types.base.tile_server import BaseTileServer
+from mapswipe_workers.project_types.project import BaseGroup, BaseProject
+from mapswipe_workers.project_types.tile_server import BaseTileServer
 
 
 @dataclass
@@ -191,7 +191,7 @@ class ArbitraryGeometryProject(BaseProject):
             self.groups[group_id] = ArbitraryGeometryGroup(
                 projectId=self.projectId,
                 groupId=group_id,
-                numberOfTasks=0,
+                numberOfTasks=len(item["features"]),
                 progress=0,
                 finishedCount=0,
                 requiredCount=0,
@@ -229,4 +229,16 @@ class ArbitraryGeometryProject(BaseProject):
 
     @abstractmethod
     def save_tasks_to_firebase(self, projectId: str, tasks: dict):
+        pass
+
+    @staticmethod
+    @abstractmethod
+    def results_to_postgres(results: dict, project_id: str, filter_mode: bool):
+        """How to move the result data from firebase to postgres."""
+        pass
+
+    @staticmethod
+    @abstractmethod
+    def get_per_project_statistics(project_id, project_info):
+        """How to aggregate the project results."""
         pass

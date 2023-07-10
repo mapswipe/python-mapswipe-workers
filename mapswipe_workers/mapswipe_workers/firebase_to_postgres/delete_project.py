@@ -101,6 +101,16 @@ def delete_project(project_ids: list) -> bool:
                 AND ms.project_id = %(project_id)s;
         """
         pg_db.query(sql_query, {"project_id": project_id})
+
+        pg_db = auth.postgresDB()
+        sql_query = """
+            DELETE FROM mapping_sessions_results_geometry msr
+            USING mapping_sessions ms
+            WHERE ms.mapping_session_id = msr.mapping_session_id
+                AND ms.project_id = %(project_id)s;
+        """
+        pg_db.query(sql_query, {"project_id": project_id})
+
         sql_query = """
             DELETE
             FROM mapping_sessions
@@ -119,7 +129,10 @@ def delete_project(project_ids: list) -> bool:
             "aggregated_aggregatedusergroupstatdata",
         ]:
             if pg_db.table_exists(aggregated_table_name):
-                sql_query = f"DELETE FROM {aggregated_table_name} WHERE project_id = %(project_id)s;"
+                sql_query = f"""
+                    DELETE FROM {aggregated_table_name}
+                    WHERE project_id = %(project_id)s;
+                """
                 pg_db.query(sql_query, {"project_id": project_id})
         # Finally delete the project
         sql_query = "DELETE FROM projects WHERE project_id = %(project_id)s;"

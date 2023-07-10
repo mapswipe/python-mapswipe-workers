@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Dict, List
 
-from mapswipe_workers.project_types.base.project import BaseGroup, BaseTask
+from mapswipe_workers.project_types.project import BaseGroup, BaseTask
 
 
 class BaseTutorial(ABC):

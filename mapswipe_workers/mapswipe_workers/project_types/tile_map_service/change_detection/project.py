@@ -1,11 +1,11 @@
 from dataclasses import asdict, dataclass
 
 from mapswipe_workers.firebase.firebase import Firebase
-from mapswipe_workers.project_types.base.tile_server import BaseTileServer
 from mapswipe_workers.project_types.tile_map_service.project import (
     TileMapServiceBaseProject,
     TileMapServiceBaseTask,
 )
+from mapswipe_workers.project_types.tile_server import BaseTileServer
 from mapswipe_workers.utils.tile_functions import tile_coords_zoom_and_tileserver_to_url
 
 
@@ -36,5 +36,6 @@ class ChangeDetectionProject(TileMapServiceBaseProject):
             self.tasks[group_id] = tasks
 
     def save_tasks_to_firebase(self, projectId: str, tasks: dict):
+        """How to move the result data from firebase to postgres."""
         firebase = Firebase()
         firebase.save_tasks_to_firebase(projectId, tasks, useCompression=False)

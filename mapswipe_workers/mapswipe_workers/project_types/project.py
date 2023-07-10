@@ -663,3 +663,15 @@ class BaseProject(ABC):
     @abstractmethod
     def create_tasks(self):
         pass
+
+    @staticmethod
+    @abstractmethod
+    def results_to_postgres(results: dict, project_id: str, filter_mode: bool):
+        """How to move the result data from firebase to postgres."""
+        pass
+
+    @staticmethod
+    @abstractmethod
+    def get_per_project_statistics(project_id, project_info):
+        """How to aggregate the project results."""
+        pass

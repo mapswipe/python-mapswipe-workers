@@ -1,7 +1,7 @@
 import unittest
 
 from mapswipe_workers.definitions import CustomError
-from mapswipe_workers.project_types.base.tile_server import BaseTileServer
+from mapswipe_workers.project_types.tile_server import BaseTileServer
 
 
 class TestCheckImageryUrl(unittest.TestCase):

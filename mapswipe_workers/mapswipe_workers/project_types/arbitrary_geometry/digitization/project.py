@@ -1,6 +1,14 @@
 from urllib.request import urlretrieve
 
 from mapswipe_workers.firebase.firebase import Firebase
+from mapswipe_workers.firebase_to_postgres.transfer_results import (
+    results_to_file,
+    save_results_to_postgres,
+    truncate_temp_results,
+)
+from mapswipe_workers.generate_stats.project_stats import (
+    get_statistics_for_geometry_result_project,
+)
 from mapswipe_workers.project_types.arbitrary_geometry.project import (
     ArbitraryGeometryProject,
 )
@@ -25,3 +33,25 @@ class DigitizationProject(ArbitraryGeometryProject):
     def save_tasks_to_firebase(self, projectId: str, tasks: dict):
         firebase = Firebase()
         firebase.save_tasks_to_firebase(projectId, tasks, useCompression=False)
+
+    @staticmethod
+    def results_to_postgres(results: dict, project_id: str, filter_mode: bool):
+        """How to move the result data from firebase to postgres."""
+        results_file, user_group_results_file = results_to_file(
+            results, project_id, result_type="geometry"
+        )
+        truncate_temp_results(temp_table="results_geometry_temp")
+        save_results_to_postgres(
+            results_file,
+            project_id,
+            filter_mode,
+            result_temp_table="results_geometry_temp",
+            result_table="mapping_sessions_results_geometry",
+        )
+
+        return user_group_results_file
+
+    @staticmethod
+    def get_per_project_statistics(project_id, project_info):
+        """How to aggregate the project results."""
+        return get_statistics_for_geometry_result_project(project_id)

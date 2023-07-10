@@ -1,16 +1,17 @@
 import csv
 import io
-from typing import List
+from typing import List, Tuple
 
 import dateutil.parser
+import geojson
 import psycopg2
 
 from mapswipe_workers import auth
-from mapswipe_workers.definitions import logger, sentry
+from mapswipe_workers.definitions import ProjectType, logger, sentry
 from mapswipe_workers.firebase_to_postgres import update_data
 
 
-def transfer_results(project_id_list=None):
+def transfer_results(project_id_list: List[str] = None) -> List[str]:
     """Transfer results for one project after the other.
     Will only trigger the transfer of results for projects
     that are defined in the postgres database.
@@ -26,12 +27,12 @@ def transfer_results(project_id_list=None):
             logger.info("There are no results to transfer.")
 
     # Get all project ids from postgres.
-    # We will only transfer results for projects we in postgres.
-    postgres_project_ids = get_projects_from_postgres()
+    # We will only transfer results for projects we have in postgres.
+    project_type_per_id = get_projects_from_postgres()
 
     project_id_list_transfered = []
     for project_id in project_id_list:
-        if project_id not in postgres_project_ids:
+        if project_id not in project_type_per_id.keys():
             logger.info(
                 f"{project_id}: This project is not in postgres. "
                 f"We will not transfer results"
@@ -49,13 +50,17 @@ def transfer_results(project_id_list=None):
             results_ref = fb_db.reference(f"v2/results/{project_id}")
             results = results_ref.get()
             del fb_db
-            transfer_results_for_project(project_id, results)
+            project = ProjectType(project_type_per_id[project_id]).constructor
+
+            transfer_results_for_project(project_id, results, project)
             project_id_list_transfered.append(project_id)
 
     return project_id_list_transfered
 
 
-def transfer_results_for_project(project_id, results, filter_mode: bool = False):
+def transfer_results_for_project(
+    project_id: str, results: dict, project, filter_mode: bool = False
+) -> None:
     """Transfer the results for a specific project.
     Save results into an in-memory file.
     Copy the results to postgres.
@@ -104,10 +109,13 @@ def transfer_results_for_project(project_id, results, filter_mode: bool = False)
         # Results are dumped into an in-memory file.
         # This allows us to use the COPY statement to insert many
         # results at relatively high speed.
-        results_file, user_group_results_file = results_to_file(results, project_id)
-        truncate_temp_results()
+
         truncate_temp_user_groups_results()
-        save_results_to_postgres(results_file, project_id, filter_mode=filter_mode)
+
+        user_group_results_file = project.results_to_postgres(
+            results, project_id, filter_mode=filter_mode
+        )
+
         save_user_group_results_to_postgres(
             user_group_results_file, project_id, filter_mode=filter_mode
         )
@@ -135,7 +143,7 @@ def transfer_results_for_project(project_id, results, filter_mode: bool = False)
         # If it does not solve the issue we arrive again but
         # since filtermode is already true, we will not try to transfer results again.
         if not filter_mode:
-            transfer_results_for_project(project_id, results, filter_mode=True)
+            transfer_results_for_project(project_id, results, project, filter_mode=True)
     except Exception as e:
         sentry.capture_exception(e)
         sentry.capture_message(f"could not transfer results to postgres: {project_id}")
@@ -150,7 +158,7 @@ def transfer_results_for_project(project_id, results, filter_mode: bool = False)
         logger.info(f"{project_id}: Transferred results to postgres")
 
 
-def delete_results_from_firebase(project_id, results):
+def delete_results_from_firebase(project_id: str, results: dict) -> None:
     """Delete results from Firebase using update function.
     We use the update method of firebase instead of delete.
     Update allows to delete items at multiple locations at the same time
@@ -173,7 +181,38 @@ def delete_results_from_firebase(project_id, results):
     logger.info(f"removed results for project {project_id}")
 
 
-def results_to_file(results, projectId):
+def results_complete(
+    result_data: dict,
+    projectId: str,
+    groupId: str,
+    userId: str,
+    required_attributes: List[str],
+) -> bool:
+    """check if all attributes are set"""
+    complete = True
+    for attribute in required_attributes:
+
+        try:
+            result_data[attribute]
+        except KeyError as e:
+            sentry.capture_exception(e)
+            sentry.capture_message(
+                f"missing attribute '{attribute}' for: "
+                f"{projectId}/{groupId}/{userId}, will skip this one"
+            )
+            logger.exception(e)
+            logger.warning(
+                f"missing attribute '{attribute}' for: "
+                f"{projectId}/{groupId}/{userId}, will skip this one"
+            )
+            complete = False
+            continue
+    return complete
+
+
+def results_to_file(
+    results: dict, projectId: str, result_type: str = "integer"
+) -> Tuple[io.StringIO, io.StringIO]:
     """
     Writes results to an in-memory file like object
     formatted as a csv using the buffer module (StringIO).
@@ -183,7 +222,7 @@ def results_to_file(results, projectId):
     Parameters
     ----------
     results: dict
-        The results as retrived from the Firebase Realtime Database instance.
+        The results as retrieved from the Firebase Realtime Database instance.
     Returns
     -------
     results_file: io.StingIO
@@ -203,51 +242,15 @@ def results_to_file(results, projectId):
     for groupId, users in results.items():
         for userId, result_data in users.items():
 
-            # check if all attributes are set,
+            # check if all attributes are set
             # if not don't transfer the results for this group
-            try:
-                start_time = result_data["startTime"]
-            except KeyError as e:
-                sentry.capture_exception(e)
-                sentry.capture_message(
-                    "missing attribute 'startTime' for: "
-                    f"{projectId}/{groupId}/{userId}, will skip this one"
-                )
-                logger.exception(e)
-                logger.warning(
-                    "missing attribute 'startTime' for: "
-                    f"{projectId}/{groupId}/{userId}, will skip this one"
-                )
-                continue
-
-            try:
-                end_time = result_data["endTime"]
-            except KeyError as e:
-                sentry.capture_exception(e)
-                sentry.capture_message(
-                    "missing attribute 'endTime' for: "
-                    f"{projectId}/{groupId}/{userId}, will skip this one"
-                )
-                logger.exception(e)
-                logger.warning(
-                    "missing attribute 'endTime' for: "
-                    f"{projectId}/{groupId}/{userId}, will skip this one"
-                )
-                continue
-
-            try:
-                result_results = result_data["results"]
-            except KeyError as e:
-                sentry.capture_exception(e)
-                sentry.capture_message(
-                    "missing attribute 'results' for: "
-                    f"{projectId}/{groupId}/{userId}, will skip this one"
-                )
-                logger.exception(e)
-                logger.warning(
-                    "missing attribute 'results' for: "
-                    f"{projectId}/{groupId}/{userId}, will skip this one"
-                )
+            if not results_complete(
+                result_data,
+                projectId,
+                groupId,
+                userId,
+                required_attributes=["startTime", "endTime", "results"],
+            ):
                 continue
 
             user_group_ids = [
@@ -257,12 +260,15 @@ def results_to_file(results, projectId):
                 ).items()
                 if is_selected
             ]
-            start_time = dateutil.parser.parse(start_time)
-            end_time = dateutil.parser.parse(end_time)
+
+            start_time = dateutil.parser.parse(result_data["startTime"])
+            end_time = dateutil.parser.parse(result_data["endTime"])
             timestamp = end_time
 
-            if type(result_results) is dict:
-                for taskId, result in result_results.items():
+            if type(result_data["results"]) is dict:
+                for taskId, result in result_data["results"].items():
+                    if result_type == "geometry":
+                        result = geojson.dumps(geojson.GeometryCollection(result))
                     w.writerow(
                         [
                             projectId,
@@ -275,16 +281,18 @@ def results_to_file(results, projectId):
                             result,
                         ]
                     )
-            elif type(result_results) is list:
+            elif type(result_data["results"]) is list:
                 # TODO: optimize for performance
                 # (make sure data from firebase is always a dict)
                 # if key is a integer firebase will return a list
                 # if first key (list index) is 5
                 # list indicies 0-4 will have value None
-                for taskId, result in enumerate(result_results):
+                for taskId, result in enumerate(result_data["results"]):
                     if result is None:
                         continue
                     else:
+                        if result_type == "geometry":
+                            result = geojson.dumps(geojson.GeometryCollection(result))
                         w.writerow(
                             [
                                 projectId,
@@ -300,7 +308,7 @@ def results_to_file(results, projectId):
             else:
                 raise TypeError
 
-            if type(result_results) in [dict, list] and result_results:
+            if result_data["results"]:
                 user_group_results_csv.writerows(
                     [
                         [
@@ -319,7 +327,13 @@ def results_to_file(results, projectId):
     return results_file, user_group_results_file
 
 
-def save_results_to_postgres(results_file, project_id, filter_mode: bool):
+def save_results_to_postgres(
+    results_file: io.StringIO,
+    project_id: str,
+    filter_mode: bool,
+    result_temp_table: str = "results_temp",
+    result_table: str = "mapping_sessions_results",
+) -> None:
     """
     Saves results to a temporary table in postgres
     using the COPY Statement of Postgres
@@ -329,6 +343,12 @@ def save_results_to_postgres(results_file, project_id, filter_mode: bool):
     results_file: io.StringIO
     filter_mode: boolean
         If true, try to filter out invalid results.
+    result_temp_table:
+        result_temp_table and result_table are different from usual if
+        result type is not int
+    result_table:
+        result_temp_table and result_table are different from usual if
+        result type is not int
     """
 
     p_con = auth.postgresDB()
@@ -342,13 +362,13 @@ def save_results_to_postgres(results_file, project_id, filter_mode: bool):
         "end_time",
         "result",
     ]
-    p_con.copy_from(results_file, "results_temp", columns)
+    p_con.copy_from(results_file, result_temp_table, columns)
     results_file.close()
 
     if filter_mode:
         logger.warning(f"trying to remove invalid tasks from {project_id}.")
 
-        filter_query = """
+        filter_query = f"""
             with project_tasks as (
                 select
                     task_id
@@ -365,13 +385,13 @@ def save_results_to_postgres(results_file, project_id, filter_mode: bool):
                     r.task_id
                     ,r.group_id
                     ,r.user_id
-                from results_temp r
+                from {result_temp_table} r
                 left join project_tasks t on
                     r.task_id = t.task_id and
                     r.group_id = t.group_id
                 where t.task_id is null or t.group_id is null
             )
-            delete from results_temp r1
+            delete from {result_temp_table} r1
             using results_to_delete r2
             where
                 r1.task_id = r2.task_id and
@@ -380,7 +400,17 @@ def save_results_to_postgres(results_file, project_id, filter_mode: bool):
         """
         p_con.query(filter_query, {"project_id": project_id})
 
-    query_insert_mapping_sessions = """
+    # here we can handle different result types, e.g. convert Geojson to
+    # native postgis geometry object
+    if result_table == "mapping_sessions_results_geometry":
+        # webapp saves coordinates as web-mercator
+        result_sql = """
+            ST_Transform(ST_SetSRID(ST_GeomFromGeoJSON(r.result), 3857), 4326) as result
+        """
+    else:
+        result_sql = "r.result"
+
+    query_insert_mapping_sessions = f"""
         BEGIN;
         INSERT INTO mapping_sessions
             SELECT
@@ -391,16 +421,16 @@ def save_results_to_postgres(results_file, project_id, filter_mode: bool):
                 min(start_time),
                 max(end_time),
                 count(*)
-            FROM results_temp
+            FROM {result_temp_table}
             GROUP BY project_id, group_id, user_id
         ON CONFLICT (project_id,group_id,user_id)
         DO NOTHING;
-        INSERT INTO mapping_sessions_results
+        INSERT INTO {result_table}
             SELECT
                 ms.mapping_session_id,
                 r.task_id,
-                r.result
-            FROM results_temp r
+                {result_sql}
+            FROM {result_temp_table} r
             JOIN mapping_sessions ms ON
                 ms.project_id = r.project_id
                 AND ms.group_id = r.group_id
@@ -415,10 +445,10 @@ def save_results_to_postgres(results_file, project_id, filter_mode: bool):
 
 
 def save_user_group_results_to_postgres(
-    user_group_results_file,
-    project_id,
+    user_group_results_file: io.StringIO,
+    project_id: str,
     filter_mode: bool,
-):
+) -> None:
     """
     Saves results to a temporary table in postgres
     using the COPY Statement of Postgres
@@ -490,25 +520,20 @@ def save_user_group_results_to_postgres(
     logger.info("copied user_groups_results into postgres.")
 
 
-def truncate_temp_results():
+def truncate_temp_results(temp_table: str = "results_temp") -> None:
     p_con = auth.postgresDB()
-    query_truncate_temp_results = """
-                    TRUNCATE results_temp
-                """
+    query_truncate_temp_results = f"TRUNCATE {temp_table};"
     p_con.query(query_truncate_temp_results)
     del p_con
 
-    return
 
-
-def truncate_temp_user_groups_results():
+def truncate_temp_user_groups_results() -> None:
     p_con = auth.postgresDB()
     p_con.query("TRUNCATE results_user_groups_temp")
     del p_con
-    return
 
 
-def get_user_ids_from_results(results) -> List[str]:
+def get_user_ids_from_results(results: dict) -> List[str]:
     """
     Get all users based on the ids provided in the results
     """
@@ -521,17 +546,19 @@ def get_user_ids_from_results(results) -> List[str]:
     return list(user_ids)
 
 
-def get_projects_from_postgres():
+def get_projects_from_postgres() -> dict:
     """
     Get the id of all projects in postgres
     """
 
     pg_db = auth.postgresDB()
     sql_query = """
-        SELECT project_id from projects;
+        SELECT project_id, project_type from projects;
     """
-    raw_ids = pg_db.retr_query(sql_query, None)
-    project_ids = [i[0] for i in raw_ids]
+    result = pg_db.retr_query(sql_query, None)
+    project_type_per_id = {}
+    for _id, project_type in result:
+        project_type_per_id[_id] = project_type
 
     del pg_db
-    return project_ids
+    return project_type_per_id
