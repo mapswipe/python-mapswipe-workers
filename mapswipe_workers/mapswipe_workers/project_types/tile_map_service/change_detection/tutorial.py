@@ -1,8 +1,8 @@
 from mapswipe_workers.definitions import logger
-from mapswipe_workers.project_types.base.tile_server import BaseTileServer
 from mapswipe_workers.project_types.tile_map_service.tutorial import (
     TileMapServiceBaseTutorial,
 )
+from mapswipe_workers.project_types.tile_server import BaseTileServer
 from mapswipe_workers.utils import tile_functions
 
 

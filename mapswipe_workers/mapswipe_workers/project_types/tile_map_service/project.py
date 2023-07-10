@@ -11,8 +11,8 @@ from mapswipe_workers.firebase_to_postgres.transfer_results import (
 from mapswipe_workers.generate_stats.project_stats import (
     get_statistics_for_integer_result_project,
 )
-from mapswipe_workers.project_types.base.project import BaseGroup, BaseProject, BaseTask
-from mapswipe_workers.project_types.base.tile_server import BaseTileServer
+from mapswipe_workers.project_types.project import BaseGroup, BaseProject, BaseTask
+from mapswipe_workers.project_types.tile_server import BaseTileServer
 from mapswipe_workers.utils import tile_functions, tile_grouping_functions
 from mapswipe_workers.utils.validate_input import (
     save_geojson_to_file,

@@ -11,8 +11,8 @@ from mapswipe_workers.project_types.arbitrary_geometry.project import (
     ArbitraryGeometryGroup,
     ArbitraryGeometryTask,
 )
-from mapswipe_workers.project_types.base.tile_server import BaseTileServer
-from mapswipe_workers.project_types.base.tutorial import BaseTutorial
+from mapswipe_workers.project_types.tile_server import BaseTileServer
+from mapswipe_workers.project_types.tutorial import BaseTutorial
 
 
 @dataclass

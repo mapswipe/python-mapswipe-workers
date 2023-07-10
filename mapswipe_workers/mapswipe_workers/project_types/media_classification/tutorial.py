@@ -1,4 +1,4 @@
-from mapswipe_workers.project_types.base.tutorial import BaseTutorial
+from mapswipe_workers.project_types.tutorial import BaseTutorial
 
 
 class MediaClassificationTutorial(BaseTutorial):

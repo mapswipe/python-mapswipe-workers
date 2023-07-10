@@ -17,7 +17,7 @@ from mapswipe_workers.firebase_to_postgres.transfer_results import (
 from mapswipe_workers.generate_stats.project_stats import (
     get_statistics_for_integer_result_project,
 )
-from mapswipe_workers.project_types.base.project import BaseGroup, BaseProject, BaseTask
+from mapswipe_workers.project_types.project import BaseGroup, BaseProject, BaseTask
 
 
 @dataclass

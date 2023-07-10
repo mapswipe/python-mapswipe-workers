@@ -1,10 +1,10 @@
 from dataclasses import asdict, dataclass
 
-from mapswipe_workers.project_types.base.tile_server import BaseTileServer
 from mapswipe_workers.project_types.tile_map_service.project import (
     TileMapServiceBaseProject,
     TileMapServiceBaseTask,
 )
+from mapswipe_workers.project_types.tile_server import BaseTileServer
 from mapswipe_workers.utils.tile_functions import tile_coords_zoom_and_tileserver_to_url
 
 
