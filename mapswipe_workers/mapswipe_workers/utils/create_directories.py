@@ -7,6 +7,7 @@ def create_directories() -> None:
     """Create directories"""
     dirs = (
         "/api",
+        "/api/website-data",
         "/api/agg_results",
         "/api/groups",
         "/api/history",

@@ -89,6 +89,9 @@ class BaseProject(metaclass=ABCMeta):
             )
 
         self.tutorialId = project_draft.get("tutorialId", None)
+        # XXX: Additional fields (Used in manager dashboard for now)
+        self.informationPages = project_draft.get("informationPages", None)
+        self.customOptions = project_draft.get("customOptions", None)
 
     # TODO: Implement resultRequiredCounter as property.
     # Does not work because for some reason project['group'] = vars()

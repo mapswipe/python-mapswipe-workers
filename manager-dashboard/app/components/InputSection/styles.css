@@ -1,18 +1,32 @@
 .input-section {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-medium);
+    gap: var(--spacing-small);
 
     .header {
+        display: flex;
+        gap: var(--spacing-medium);
+        align-items: flex-end;
         padding: 0;
+
+        .heading {
+            flex-grow: 1;
+        }
+
+        .actions {
+            display: flex;
+            gap: var(--spacing-small);
+            align-items: flex-end;
+        }
     }
 
     .content {
         display: flex;
         flex-direction: column;
-        border-radius: var(--radius-card);
+        border-radius: var(--radius-card-border);
+        gap: var(--spacing-extra-large);
         background-color: var(--color-foreground);
         padding: var(--spacing-large);
-        gap: var(--spacing-extra-large);
+        min-height: 14rem;
     }
 }

@@ -1,0 +1,31 @@
+.custom-option {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-large);
+
+    .option-content {
+        display: flex;
+        gap: var(--spacing-medium);
+
+        .option-input {
+            flex-grow: 1;
+        }
+
+        .option-icon {
+            flex-basis: 10rem;
+        }
+    }
+
+    .add-button {
+        width: fit-content;
+    }
+
+    .sub-options {
+        display: flex;
+        flex-direction: column;
+        border-radius: var(--radius-card-border);
+        gap: var(--spacing-medium);
+        background-color: var(--color-background);
+        padding: var(--spacing-medium);
+    }
+}

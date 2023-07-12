@@ -3,7 +3,7 @@ import { Link, LinkProps } from 'react-router-dom';
 
 import {
     useButtonFeatures,
-    Props as ButtonProps,
+    ButtonProps,
 } from '#components/Button';
 
 import useRouteMatching, {

@@ -19,10 +19,14 @@ def load_data(project_id: str, gzipped_csv_file: str) -> list:
     project_data = []
     with gzip.open(gzipped_csv_file, mode="rt") as f:
         reader = csv.reader(f, delimiter=",")
+        column_index_map = {}
 
         for i, row in enumerate(reader):
             if i == 0:
                 # skip header
+                column_index_map = {
+                    column_label: index for index, column_label in enumerate(row)
+                }
                 continue
 
             # the last row of the csv might contain a comment about data use
@@ -42,14 +46,15 @@ def load_data(project_id: str, gzipped_csv_file: str) -> list:
                     "task_x": task_x,
                     "task_y": task_y,
                     "task_z": task_z,
-                    "no_count": int(row[2]),
-                    "yes_count": int(row[3]),
-                    "maybe_count": int(row[4]),
-                    "bad_imagery_count": int(row[5]),
-                    "no_share": float(row[7]),
-                    "yes_share": float(row[8]),
-                    "maybe_share": float(row[9]),
-                    "bad_imagery_share": float(row[10]),
+                    # XXX: Assuming 0->No, 1->Yes, 2->Maybe, 3->Bad
+                    "no_count": int(column_index_map.get("0_count", 0)),
+                    "yes_count": int(column_index_map.get("1_count", 0)),
+                    "maybe_count": int(column_index_map.get("2_count", 0)),
+                    "bad_imagery_count": int(column_index_map.get("3_count", 0)),
+                    "no_share": float(column_index_map.get("0_count", 0)),
+                    "yes_share": float(column_index_map.get("1_count", 0)),
+                    "maybe_share": float(column_index_map.get("2_count", 0)),
+                    "bad_imagery_share": float(column_index_map.get("3_count", 0)),
                     "wkt": tile_functions.geometry_from_tile_coords(
                         task_x, task_y, task_z
                     ),

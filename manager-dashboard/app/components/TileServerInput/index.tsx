@@ -7,7 +7,8 @@ import {
     SetValueArg,
     ObjectSchema,
     requiredStringCondition,
-    requiredCondition,
+    addCondition,
+    nullValue,
 } from '@togglecorp/toggle-form';
 
 import TextInput from '#components/TextInput';
@@ -30,7 +31,7 @@ export const TILE_SERVER_BING = 'bing';
 const TILE_SERVER_MAPBOX = 'mapbox';
 const TILE_SERVER_MAXAR_STANDARD = 'maxar_standard';
 const TILE_SERVER_MAXAR_PREMIUM = 'maxar_premium';
-const TILE_SERVER_ESRI = 'esri';
+export const TILE_SERVER_ESRI = 'esri';
 const TILE_SERVER_ESRI_BETA = 'esri_beta';
 const TILE_SERVER_CUSTOM = 'custom';
 
@@ -77,26 +78,53 @@ function imageryUrlCondition(value: string | null | undefined) {
     return 'Imagery url must contain {x}, {y} (or {-y}) & {z} placeholders or {quad_key} placeholder.';
 }
 
+const MD_TEXT_MAX_LENGTH = 1000;
+
 type TileServerInputType = PartialForm<TileServer>;
 type TileServerSchema = ObjectSchema<PartialForm<TileServerInputType>, unknown>;
 type TileServerFields = ReturnType<TileServerSchema['fields']>;
 export function tileServerFieldsSchema(value: TileServerInputType | undefined): TileServerFields {
-    const basicFields: TileServerFields = {
-        name: [requiredStringCondition, getNoMoreThanNCharacterCondition(1000)],
-        credits: [requiredStringCondition, getNoMoreThanNCharacterCondition(1000)],
+    let basicFields: TileServerFields = {
+        name: {
+            required: true,
+            requiredValidation: requiredStringCondition,
+            validations: [getNoMoreThanNCharacterCondition(MD_TEXT_MAX_LENGTH)],
+        },
+        credits: {
+            required: true,
+            requiredValidation: requiredStringCondition,
+            validations: [getNoMoreThanNCharacterCondition(MD_TEXT_MAX_LENGTH)],
+        },
     };
-
-    if (value?.name === TILE_SERVER_CUSTOM) {
-        return {
-            ...basicFields,
-            url: [
-                requiredStringCondition,
-                imageryUrlCondition,
-                getNoMoreThanNCharacterCondition(1000),
-            ],
-            wmtsLayerName: [requiredCondition, getNoMoreThanNCharacterCondition(1000)],
-        };
-    }
+    basicFields = addCondition(
+        basicFields,
+        value,
+        ['name'],
+        ['url', 'wmtsLayerName'],
+        (tileValues) => {
+            if (tileValues?.name === TILE_SERVER_CUSTOM) {
+                return {
+                    url: {
+                        required: true,
+                        requiredValidation: requiredStringCondition,
+                        validations: [
+                            getNoMoreThanNCharacterCondition(MD_TEXT_MAX_LENGTH),
+                            imageryUrlCondition,
+                        ],
+                    },
+                    wmtsLayerName: {
+                        required: true,
+                        requiredValidation: requiredStringCondition,
+                        validations: [getNoMoreThanNCharacterCondition(MD_TEXT_MAX_LENGTH)],
+                    },
+                };
+            }
+            return {
+                url: { forceValue: nullValue },
+                wmtsLayerName: { forceValue: nullValue },
+            };
+        },
+    );
     return basicFields;
 }
 

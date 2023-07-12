@@ -12,7 +12,7 @@ import {
     useForm,
     getErrorObject,
     createSubmitHandler,
-    internal,
+    nonFieldError,
 } from '@togglecorp/toggle-form';
 
 import TextInput from '#components/TextInput';
@@ -33,8 +33,14 @@ type LoginFormSchema = ObjectSchema<LoginFormFields>;
 type LoginFormSchemaFields = ReturnType<LoginFormSchema['fields']>
 const loginFormSchema: LoginFormSchema = {
     fields: (): LoginFormSchemaFields => ({
-        email: [requiredStringCondition],
-        password: [requiredStringCondition],
+        email: {
+            required: true,
+            requiredValidation: requiredStringCondition,
+        },
+        password: {
+            required: true,
+            requiredValidation: requiredStringCondition,
+        },
     }),
 };
 
@@ -57,7 +63,7 @@ function Login(props: Props) {
         value,
         validate,
         setError,
-    } = useForm(loginFormSchema, defaultLoginFormValue);
+    } = useForm(loginFormSchema, { value: defaultLoginFormValue });
     const error = getErrorObject(formError);
 
     const [pending, setPending] = React.useState(false);
@@ -83,7 +89,6 @@ function Login(props: Props) {
                 if (!mountedRef.current) {
                     return;
                 }
-                setErrorMessage(undefined);
                 setPending(false);
             } catch (submissionError) {
                 // eslint-disable-next-line no-console
@@ -118,7 +123,7 @@ function Login(props: Props) {
 
                 setError((prevError) => ({
                     ...getErrorObject(prevError),
-                    [internal]: 'Failed to authenticate',
+                    [nonFieldError]: 'Failed to authenticate',
                 }));
 
                 setPending(false);
@@ -168,9 +173,9 @@ function Login(props: Props) {
                         type="password"
                         disabled={pending}
                     />
-                    {error?.[internal] && (
+                    {error?.[nonFieldError] && (
                         <div className={styles.errorMessage}>
-                            {error?.[internal]}
+                            {error?.[nonFieldError]}
                         </div>
                     )}
                     <div className={styles.actions}>
