@@ -82,7 +82,7 @@ function BasicProjectInfoForm(props: Props<PartialProjectFormType>) {
                     onChange={setFieldValueAndGenerateName}
                     error={error?.projectTopic}
                     label="Project Topic"
-                    hint="Enter the topic of your project (50 char max)."
+                    hint="Enter the topic of your project."
                     disabled={disabled}
                     autoFocus
                 />
@@ -91,7 +91,7 @@ function BasicProjectInfoForm(props: Props<PartialProjectFormType>) {
                     value={value?.projectRegion}
                     onChange={setFieldValueAndGenerateName}
                     label="Project Region"
-                    hint="Enter name of your project Region (50 chars max)"
+                    hint="Enter name of your project Region"
                     error={error?.projectRegion}
                     disabled={disabled}
                 />
@@ -148,7 +148,7 @@ function BasicProjectInfoForm(props: Props<PartialProjectFormType>) {
                     onChange={setFieldValue}
                     error={error?.lookFor}
                     label="Look For"
-                    hint="What should the users look for (e.g. buildings, cars, trees)? (25 chars max)"
+                    hint="What should the users look for (e.g. buildings, cars, trees)?"
                     disabled={disabled}
                 />
             </div>
