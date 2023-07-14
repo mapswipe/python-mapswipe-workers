@@ -14,6 +14,9 @@ import {
 } from '../../utils';
 import styles from './styles.css';
 
+// NOTE: the padding is selected wrt the size of the preview
+const footprintGeojsonPadding = [140, 140];
+
 interface Props {
     className?: string;
     geoJson: FootprintGeoJSON | undefined;
@@ -64,6 +67,7 @@ export default function FootprintGeoJsonPreview(props: Props) {
                 previewStyle={previewStyles}
                 url={url}
                 geoJson={geoJson}
+                padding={footprintGeojsonPadding}
             />
             <div className={styles.options}>
                 {customOptions?.map((option) => {

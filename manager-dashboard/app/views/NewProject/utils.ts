@@ -185,13 +185,19 @@ export const MIN_OPTIONS = 2;
 export const MAX_SUB_OPTIONS = 6;
 export const MIN_SUB_OPTIONS = 2;
 
+const XS_TEXT_MAX_LENGTH = 25;
+const SM_TEXT_MAX_LENGTH = 50;
+const MD_TEXT_MAX_LENGTH = 1000;
+// const LG_TEXT_MAX_LENGTH = 2000;
+const XL_TEXT_MAX_LENGTH = 10000;
+
 export const projectFormSchema: ProjectFormSchema = {
     fields: (value): ProjectFormSchemaFields => {
         let baseSchema: ProjectFormSchemaFields = {
             projectTopic: {
                 required: true,
                 requiredValidation: requiredStringCondition,
-                validations: [getNoMoreThanNCharacterCondition(50)],
+                validations: [getNoMoreThanNCharacterCondition(SM_TEXT_MAX_LENGTH)],
             },
             projectType: {
                 required: true,
@@ -199,7 +205,7 @@ export const projectFormSchema: ProjectFormSchema = {
             projectRegion: {
                 required: true,
                 requiredValidation: requiredStringCondition,
-                validations: [getNoMoreThanNCharacterCondition(50)],
+                validations: [getNoMoreThanNCharacterCondition(SM_TEXT_MAX_LENGTH)],
             },
             projectNumber: {
                 required: true,
@@ -222,12 +228,12 @@ export const projectFormSchema: ProjectFormSchema = {
             lookFor: {
                 required: true,
                 requiredValidation: requiredStringCondition,
-                validations: [getNoMoreThanNCharacterCondition(25)],
+                validations: [getNoMoreThanNCharacterCondition(XS_TEXT_MAX_LENGTH)],
             },
             projectDetails: {
                 required: true,
                 requiredValidation: requiredStringCondition,
-                validations: [getNoMoreThanNCharacterCondition(10000)],
+                validations: [getNoMoreThanNCharacterCondition(XL_TEXT_MAX_LENGTH)],
             },
             tutorialId: {
                 required: true,
@@ -441,7 +447,7 @@ export const projectFormSchema: ProjectFormSchema = {
                         ? {
                             required: true,
                             requiredValidation: requiredStringCondition,
-                            validations: [getNoMoreThanNCharacterCondition(1000)],
+                            validations: [getNoMoreThanNCharacterCondition(MD_TEXT_MAX_LENGTH)],
                         }
                         : {
                             forceValue: nullValue,
@@ -492,7 +498,7 @@ export const projectFormSchema: ProjectFormSchema = {
                         filterText: {
                             required: true,
                             requiredValidation: requiredStringCondition,
-                            validations: [getNoMoreThanNCharacterCondition(1000)],
+                            validations: [getNoMoreThanNCharacterCondition(MD_TEXT_MAX_LENGTH)],
                         },
                     };
                 }
