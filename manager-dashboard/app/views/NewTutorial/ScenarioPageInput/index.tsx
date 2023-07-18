@@ -7,7 +7,7 @@ import {
     getErrorObject,
 } from '@togglecorp/toggle-form';
 import {
-    iconList,
+    combinedIconList,
     valueSelector,
     labelSelector,
     keySelector,
@@ -205,7 +205,7 @@ export default function ScenarioPageInput(props: Props) {
                         name="icon"
                         label="Icon"
                         value={value.instructions?.icon}
-                        options={iconList}
+                        options={combinedIconList}
                         keySelector={keySelector}
                         labelSelector={labelSelector}
                         onChange={handleInstructionFieldChange}
@@ -241,7 +241,7 @@ export default function ScenarioPageInput(props: Props) {
                                 name="icon"
                                 label="Icon"
                                 value={value.hint?.icon}
-                                options={iconList}
+                                options={combinedIconList}
                                 keySelector={keySelector}
                                 labelSelector={labelSelector}
                                 onChange={handleHintFieldChange}
@@ -279,7 +279,7 @@ export default function ScenarioPageInput(props: Props) {
                                 name="icon"
                                 label="Icon"
                                 value={value.success?.icon}
-                                options={iconList}
+                                options={combinedIconList}
                                 keySelector={keySelector}
                                 labelSelector={labelSelector}
                                 onChange={handleSuccessFieldChange}
