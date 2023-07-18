@@ -65,7 +65,7 @@ Or set up Postgres using the `initdb.sql` file in the `postgres/` folder.
 
 #### Installation
 
-The Python virtual environment needs to be created wiht `system-site-packages` option enabled to get access to GDAL/OGR Python packages.
+The Python virtual environment needs to be created with `system-site-packages` option enabled to get access to GDAL/OGR Python packages.
 Also the MapSwipe Workers Python Package needs access to a data directory for logs and data for the API.
 
 ```bash
