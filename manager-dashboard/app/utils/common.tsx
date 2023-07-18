@@ -33,7 +33,6 @@ import { IconType } from 'react-icons';
 import oneTapIcon from '#resources/icons/1_Tap_Black.png';
 import twoTapIcon from '#resources/icons/2_Tap_Black.png';
 import threeTapIcon from '#resources/icons/3_Tap_Black.png';
-import tapIcon from '#resources/icons/tap_icon.png';
 import angularTapIcon from '#resources/icons/tap_icon_angular.png';
 import swipeIcon from '#resources/icons/swipeleft_icon_black.png';
 
@@ -149,11 +148,6 @@ export const iconList: IconItem[] = [
         component: IoBanOutline,
     },
     {
-        key: 'check',
-        label: 'Check',
-        component: IoCheckmarkOutline,
-    },
-    {
         key: 'close-outline',
         label: 'Close',
         component: IoCloseOutline,
@@ -263,11 +257,9 @@ export const iconList: IconItem[] = [
         label: 'Warning',
         component: IoWarningOutline,
     },
-    {
-        key: 'general-tap',
-        label: 'General Tap',
-        component: getPngIcon(tapIcon, 'general tap'),
-    },
+];
+
+const instructionsIconList: IconItem[] = [
     {
         key: 'tap',
         label: 'Tap',
@@ -293,10 +285,17 @@ export const iconList: IconItem[] = [
         label: 'Swipe Left',
         component: getPngIcon(swipeIcon, 'swipe left'),
     },
+    {
+        key: 'check',
+        label: 'Check',
+        component: IoCheckmarkOutline,
+    },
 ];
 
+export const combinedIconList = [...instructionsIconList, ...iconList];
+
 export const iconMap = listToMap(
-    iconList,
+    combinedIconList,
     (icon) => icon.key,
     (icon) => icon.component,
 );
