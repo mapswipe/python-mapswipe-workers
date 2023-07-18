@@ -24,6 +24,9 @@ class BaseTutorial(ABC):
         self.status = "tutorial"
         # need to filter out None values in list due to Firebase
         self.screens = list(filter(None, tutorial_draft["screens"]))
+        # NOTE: Additional fields (Used in manager dashboard for now)
+        self.informationPages = tutorial_draft.get("informationPages", None)
+        self.customOptions = tutorial_draft.get("customOptions", None)
 
     @abstractmethod
     def save_tutorial(self):

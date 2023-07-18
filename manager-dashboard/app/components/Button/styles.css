@@ -4,6 +4,7 @@
     border: var(--width-separator-thin) solid rgba(0, 0, 0, 0.3);
     border-radius: var(--radius-button-border);
     padding: var(--spacing-small) var(--spacing-medium);
+    width: fit-content;
     color: rgba(0, 0, 0, 0.8);
     gap: var(--spacing-small);
 

@@ -1,0 +1,8 @@
+.scenario-geo-json-preview {
+    .content {
+        .map-container {
+            z-index: 0;
+            height: var(--height-mobile-preview-builarea-content);
+        }
+    }
+}

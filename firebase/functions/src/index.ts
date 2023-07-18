@@ -30,7 +30,7 @@ exports.osmAuth.token = functions.https.onRequest((req, res) => {
 
     This function also writes to the `contributions` section in the user profile.
 */
-exports.groupUsersCounter = functions.database.ref('/v2/results/{projectId}/{groupId}/{userId}/').onCreate((snapshot, context) => {
+exports.groupUsersCounter = functions.database.ref('/v2/results/{projectId}/{groupId}/{userId}/').onCreate(async (snapshot, context) => {
     // these references/values will be updated by this function
     const groupUsersRef = admin.database().ref('/v2/groupsUsers/' + context.params.projectId + '/' + context.params.groupId);
     const userRef = admin.database().ref('/v2/users/' + context.params.userId);
@@ -53,6 +53,30 @@ exports.groupUsersCounter = functions.database.ref('/v2/results/{projectId}/{gro
     }
 
     const result = snapshot.val();
+
+
+    // New versions of app will have the appVersion defined (> 2.2.5)
+    // appVersion: 2.2.5 (14)-dev
+    const appVersionString = result.appVersion as string | undefined | null;
+
+    // Check if the app is of older version
+    // (no need to check for specific version since old app won't sent the version info)
+    if (appVersionString === null || appVersionString === undefined || appVersionString.trim() === '') {
+        const projectRef = admin.database().ref(`/v2/projects/${context.params.projectId}`);
+        const dataSnapshot = await projectRef.once('value');
+
+        if (dataSnapshot.exists()) {
+            const project = dataSnapshot.val();
+            // Check if project type is footprint and also has
+            // custom options (i.e. these are new type of projects)
+            if (project.projectType === 2 && project.customOptions) {
+                // We remove the results submitted from older version of app (< v2.2.6)
+                console.info(`Result submitted for ${context.params.projectId} was discarded: submitted from older version of app`);
+                return thisResultRef.remove();
+            }
+        }
+    }
+
     // if result ref does not contain all required attributes we don't updated counters
     // e.g. due to some error when uploading from client
     if (!Object.prototype.hasOwnProperty.call(result, 'results')) {
@@ -90,77 +114,72 @@ exports.groupUsersCounter = functions.database.ref('/v2/results/{projectId}/{gro
         Update overall taskContributionCount and project taskContributionCount in the user profile
         based on the number of results submitted and the existing count values.
     */
-    return groupUsersRef.child(context.params.userId).once('value')
-        .then((dataSnapshot) => {
-            if (dataSnapshot.exists()) {
-                console.log('group contribution exists already. user: '+context.params.userId+' project: '+context.params.projectId+' group: '+context.params.groupId);
-                return null;
-            }
-            const latestNumberOfTasks = Object.keys(result['results']).length;
+    const dataSnapshot = await groupUsersRef.child(context.params.userId).once('value');
+    if (dataSnapshot.exists()) {
+        console.log('group contribution exists already. user: '+context.params.userId+' project: '+context.params.projectId+' group: '+context.params.groupId);
+        return null;
+    }
 
-            return Promise.all([
-                userContributionRef.child(context.params.groupId).set(true),
-                groupUsersRef.child(context.params.userId).set(true),
-                totalTaskContributionCountRef.transaction((currentCount) => {
-                    return currentCount + latestNumberOfTasks;
-                }),
-                totalGroupContributionCountRef.transaction((currentCount) => {
-                    return currentCount + 1;
-                }),
-                taskContributionCountRef.transaction((currentCount) => {
-                    return currentCount + latestNumberOfTasks;
-                }),
+    const latestNumberOfTasks = Object.keys(result['results']).length;
+    await Promise.all([
+        userContributionRef.child(context.params.groupId).set(true),
+        groupUsersRef.child(context.params.userId).set(true),
+        totalTaskContributionCountRef.transaction((currentCount) => {
+            return currentCount + latestNumberOfTasks;
+        }),
+        totalGroupContributionCountRef.transaction((currentCount) => {
+            return currentCount + 1;
+        }),
+        taskContributionCountRef.transaction((currentCount) => {
+            return currentCount + latestNumberOfTasks;
+        }),
+    ]);
 
-                // Tag userGroups of the user in the result
-                // eslint-disable-next-line promise/no-nesting
-                userRef.child('userGroups').once('value').then((userGroupsOfTheUserSnapshot) => {
-                    if (!userGroupsOfTheUserSnapshot.exists()) {
-                        return null;
-                    }
 
-                    // eslint-disable-next-line promise/no-nesting
-                    return userGroupsRef.once('value').then((allUserGroupsSnapshot) => {
-                        if (!allUserGroupsSnapshot.exists()) {
-                            return null;
-                        }
+    // Tag userGroups of the user in the result
+    const userGroupsOfTheUserSnapshot = await userRef.child('userGroups').once('value');
+    if (!userGroupsOfTheUserSnapshot.exists()) {
+        return null;
+    }
 
-                        const userGroupsOfTheUserKeyList = Object.keys(userGroupsOfTheUserSnapshot.val());
-                        if (userGroupsOfTheUserKeyList.length <= 0) {
-                            return null;
-                        }
+    const allUserGroupsSnapshot = await userGroupsRef.once('value');
+    if (!allUserGroupsSnapshot.exists()) {
+        return null;
+    }
 
-                        const allUserGroups = allUserGroupsSnapshot.val();
-                        const nonArchivedUserGroupKeys = userGroupsOfTheUserKeyList.filter((key) => {
-                            const currentUserGroup = allUserGroups[key];
+    const userGroupsOfTheUserKeyList = Object.keys(userGroupsOfTheUserSnapshot.val());
+    if (userGroupsOfTheUserKeyList.length <= 0) {
+        return null;
+    }
 
-                            // User might have joined some group that was removed but not cleared from their list
-                            if (!currentUserGroup) {
-                                return false;
-                            }
+    const allUserGroups = allUserGroupsSnapshot.val();
+    const nonArchivedUserGroupKeys = userGroupsOfTheUserKeyList.filter((key) => {
+        const currentUserGroup = allUserGroups[key];
 
-                            // Skip groups that have been archived
-                            if (currentUserGroup.archivedAt) {
-                                return false;
-                            }
+        // User might have joined some group that was removed but not cleared from their list
+        if (!currentUserGroup) {
+            return false;
+        }
 
-                            return true;
-                        });
+        // Skip groups that have been archived
+        if (currentUserGroup.archivedAt) {
+            return false;
+        }
 
-                        if (nonArchivedUserGroupKeys.length === 0) {
-                            return null;
-                        }
+        return true;
+    });
 
-                        const nonArchivedUserGroupsOfTheUser = nonArchivedUserGroupKeys.reduce((acc, val) => {
-                            acc[val] = true;
-                            return acc;
-                        }, {} as Record<string, boolean>);
+    if (nonArchivedUserGroupKeys.length === 0) {
+        return null;
+    }
 
-                        // Include userGroups of the user in the results
-                        return thisResultRef.child('userGroups').set(nonArchivedUserGroupsOfTheUser);
-                    });
-                }),
-            ]);
-        });
+    const nonArchivedUserGroupsOfTheUser = nonArchivedUserGroupKeys.reduce((acc, val) => {
+        acc[val] = true;
+        return acc;
+    }, {} as Record<string, boolean>);
+
+    // Include userGroups of the user in the results
+    return thisResultRef.child('userGroups').set(nonArchivedUserGroupsOfTheUser);
 });
 
 

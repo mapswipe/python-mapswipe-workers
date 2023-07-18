@@ -30,7 +30,7 @@ class TestCreateTileClassificationProject(unittest.TestCase):
             SELECT project_id
             FROM projects
             WHERE project_id = %s
-                and project_type_specifics::jsonb ? 'answerLabels'
+                and project_type_specifics::jsonb ? 'customOptions'
         """
         result = pg_db.retr_query(query, [self.project_id])[0][0]
         self.assertEqual(result, self.project_id)

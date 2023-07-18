@@ -53,6 +53,7 @@ interface Props<N> extends Omit<FileInputProps<N>, 'value' | 'onChange' | 'accep
     maxFileSize?: number;
     value: GeoJSON.GeoJSON | undefined | null;
     onChange: (newValue: GeoJSON.GeoJSON | undefined, name: N) => void;
+    preview?: boolean;
 }
 
 function GeoJsonFileInput<N>(props: Props<N>) {
@@ -63,6 +64,7 @@ function GeoJsonFileInput<N>(props: Props<N>) {
         maxFileSize = DEFAULT_MAX_FILE_SIZE,
         onChange,
         name,
+        preview = false,
         ...otherProps
     } = props;
 
@@ -109,6 +111,7 @@ function GeoJsonFileInput<N>(props: Props<N>) {
                     }
 
                     const parsedGeoJSON = parseGeoJSON(text);
+
                     if (!parsedGeoJSON.errored) {
                         fileAsJson = parsedGeoJSON.value;
                     } else {
@@ -143,9 +146,11 @@ function GeoJsonFileInput<N>(props: Props<N>) {
             description={(
                 <>
                     {description}
-                    <GeoJsonPreview
-                        geoJson={value ?? undefined}
-                    />
+                    {preview && (
+                        <GeoJsonPreview
+                            geoJson={value ?? undefined}
+                        />
+                    )}
                 </>
             )}
             onChange={handleChange}

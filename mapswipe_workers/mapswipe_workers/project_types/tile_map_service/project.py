@@ -50,8 +50,8 @@ class TileMapServiceBaseProject(BaseProject):
 
         # todo: maybe we should verify the incoming schema oj the json here
         # https://json-schema.org/
-        self.answerLabels = project_draft.get(
-            "answerLabels",
+        self.customOptions = project_draft.get(
+            "customOptions",
             [
                 {"color": "", "label": "no", "value": 0},
                 {"color": "green", "label": "yes", "value": 1},

@@ -4,6 +4,7 @@ import gzip
 import json
 import os
 import tempfile
+import typing
 
 import pandas as pd
 from pandas.api.types import is_numeric_dtype
@@ -279,6 +280,18 @@ def calc_share(df: pd.DataFrame) -> pd.DataFrame:
     return df.join(share_df)
 
 
+def calc_parent_option_count(
+    df: pd.DataFrame,
+    custom_options: typing.Dict[int, typing.Set[int]],
+) -> pd.DataFrame:
+    df_new = df.copy()
+    # Update option count using sub options count
+    for option, sub_options in custom_options.items():
+        for sub_option in sub_options:
+            df_new[f"{option}_count"] += df_new[f"{sub_option}_count"]
+    return df_new
+
+
 def calc_count(df: pd.DataFrame) -> pd.DataFrame:
     df_new = df.filter(like="count")
     df_new_sum = df_new.sum(axis=1)
@@ -287,8 +300,6 @@ def calc_count(df: pd.DataFrame) -> pd.DataFrame:
 
 def calc_quadkey(row: pd.Series) -> str:
     """Calculate quadkey based on task id."""
-    # ToDo: This does not make sense for media type, digtitalization.
-    #  For these projects types we should move to project classes.
     try:
         tile_z, tile_x, tile_y = row["task_id"].split("-")
         quadkey = tile_functions.tile_coords_and_zoom_to_quadKey(
@@ -301,23 +312,42 @@ def calc_quadkey(row: pd.Series) -> str:
     return quadkey
 
 
+def get_custom_options(custom_options: pd.Series) -> typing.Dict[int, typing.Set[int]]:
+    eval_value = ast.literal_eval(custom_options.item())
+    return {
+        option["value"]: {
+            sub_option["value"] for sub_option in option.get("subOptions", [])
+        }
+        for option in eval_value
+    }
+
+
 def add_missing_result_columns(
-    df: pd.DataFrame, all_answer_label_values: pd.Series
+    df: typing.Union[pd.DataFrame, pd.Series],
+    custom_options: typing.Dict[int, typing.Set[int]],
 ) -> pd.DataFrame:
     """
     Check if all possible answers columns are included in the grouped results
     data frame and add columns if missing.
     """
 
-    all_answer_label_values_list = list(
-        ast.literal_eval(all_answer_label_values.item())
+    all_custom_options_values_set = set(
+        [
+            _option
+            for option, sub_options in custom_options.items()
+            for _option in [option, *sub_options]
+        ]
     )
-    df = df.reindex(columns=all_answer_label_values_list, fill_value=0)
-    return df
+    return df.reindex(
+        columns=sorted(all_custom_options_values_set),
+        fill_value=0,
+    )
 
 
 def get_agg_results_by_task_id(
-    results_df: pd.DataFrame, tasks_df: pd.DataFrame, answer_label_values: pd.Series
+    results_df: pd.DataFrame,
+    tasks_df: pd.DataFrame,
+    custom_options_raw: pd.Series,
 ) -> pd.DataFrame:
     """
     For each task several users contribute results.
@@ -335,7 +365,7 @@ def get_agg_results_by_task_id(
     ----------
     results_df: pd.DataFrame
     tasks_df: pd.DataFrame
-    answer_label_values: pd.Series
+    custom_options_raw: pd.Series
     """
 
     results_by_task_id_df = (
@@ -344,9 +374,12 @@ def get_agg_results_by_task_id(
         .unstack(fill_value=0)
     )
 
+    custom_options = get_custom_options(custom_options_raw)
+
     # add columns for answer options that were not chosen for any task
     results_by_task_id_df = add_missing_result_columns(
-        results_by_task_id_df, answer_label_values
+        results_by_task_id_df,
+        custom_options,
     )
 
     # needed for ogr2ogr todo: might be legacy?
@@ -354,6 +387,11 @@ def get_agg_results_by_task_id(
 
     # calculate total count of votes per task
     results_by_task_id_df["total_count"] = calc_count(results_by_task_id_df)
+
+    results_by_task_id_df = calc_parent_option_count(
+        results_by_task_id_df,
+        custom_options,
+    )
 
     # calculate share based on counts
     results_by_task_id_df = calc_share(results_by_task_id_df)
@@ -379,7 +417,7 @@ def get_agg_results_by_task_id(
         left_on="task_id",
         right_on="task_id",
     )
-    logger.info("joined task data to aggregated results")
+    logger.info("added geometry to aggregated results")
 
     return agg_results_df
 
@@ -500,7 +538,9 @@ def get_statistics_for_integer_result_project(
 
         # aggregate results by task id
         agg_results_df = get_agg_results_by_task_id(
-            results_df, tasks_df, project_info["answer_label_values"]
+            results_df,
+            tasks_df,
+            project_info["custom_options"],
         )
         agg_results_df.to_csv(agg_results_filename, index_label="idx")
 

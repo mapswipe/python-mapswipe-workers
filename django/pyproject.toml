@@ -6,7 +6,7 @@ authors = ["Mapswipe <info@mapswipe.org>"]
 license = "Apache License 2.0"
 
 [tool.poetry.dependencies]
-Django = "^4.1.1"
+Django = "^4.1.9"
 django-cors-headers = "*"
 django-cte = "*"
 django-environ = "*"

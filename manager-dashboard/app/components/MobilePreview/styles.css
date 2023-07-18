@@ -1,0 +1,91 @@
+.mobile-preview {
+    display: flex;
+    flex-direction: column;
+    border: var(--width-separator-mobile-preview) solid var(--color-black);
+    border-radius: var(--radius-card-border);
+    background-color: var(--color-black);
+    padding: var(--spacing-small) 0;
+    width: calc(var(--width-mobile-preview) + var(--width-separator-mobile-preview));
+    height: var(--height-mobile-preview);
+    color: var(--color-text-on-dark);
+
+    .header {
+        display: flex;
+        flex-shrink: 0;
+        background-color: var(--color-primary);
+        padding: var(--spacing-medium);
+        gap: var(--spacing-medium);
+
+        .heading {
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+            text-align: center;
+
+            .label {
+                font-weight: var(--font-weight-medium);
+            }
+        }
+
+        .icons {
+            .back-icon {
+                font-size: var(--font-size-super-large);
+            }
+        }
+
+        .actions {
+            flex-shrink: 0;
+
+            .info-icon {
+                font-size: var(--font-size-extra-large);
+            }
+        }
+    }
+
+    .content-container {
+        display: flex;
+        position: relative;
+        flex-direction: column;
+        flex-grow: 1;
+        z-index: 0;
+        background-color: var(--color-primary);
+        padding: var(--spacing-medium);
+        overflow: auto;
+
+        .content {
+            flex-grow: 1;
+            overflow: auto;
+        }
+
+        .popup {
+            display: flex;
+            position: absolute;
+            top: var(--spacing-medium);
+            left: var(--spacing-small);
+            z-index: 1;
+            border-radius: var(--radius-card-border);
+            background-color: var(--color-foreground);
+            padding: var(--spacing-small) var(--spacing-medium);
+            width: calc(100% - 2 * var(--spacing-small));
+            color: var(--color-text);
+
+            &.vertically-centered {
+                top: 50%;
+                transform: translateY(-50%);
+            }
+
+            .details {
+                flex-grow: 1;
+
+                .popup-title {
+                    font-weight: var(--font-weight-bold);
+                }
+            }
+
+            .icons {
+                flex-shrink: 0;
+                font-size: var(--font-size-super-large);
+            }
+        }
+    }
+}

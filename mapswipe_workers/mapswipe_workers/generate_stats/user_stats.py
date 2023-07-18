@@ -45,7 +45,9 @@ def get_agg_results_by_user_id(
     Returns a pandas dataframe.
     """
     raw_contributions_df = results_df.merge(
-        agg_results_df, left_on="task_id", right_on="task_id"
+        agg_results_df,
+        left_on="task_id",
+        right_on="task_id",
     )
 
     raw_contributions_df["agreeing_contributions"] = raw_contributions_df.apply(
@@ -54,7 +56,8 @@ def get_agg_results_by_user_id(
     )
 
     raw_contributions_df["disagreeing_contributions"] = raw_contributions_df.apply(
-        get_disagreeing_contributions_per_user_and_task, axis=1
+        get_disagreeing_contributions_per_user_and_task,
+        axis=1,
     )
 
     agg_results_by_user_id_df = raw_contributions_df.groupby(

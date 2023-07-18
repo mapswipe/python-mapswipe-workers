@@ -79,6 +79,9 @@ class BaseProject(ABC):
             )
 
         self.tutorialId = project_draft.get("tutorialId", None)
+        # XXX: Additional fields (Used in manager dashboard for now)
+        self.informationPages = project_draft.get("informationPages", None)
+        self.customOptions = project_draft.get("customOptions", None)
 
         # currently crowdmap specific attributes
         # todo: discuss in group if empty attributes in mapswipe postgres are ok
@@ -356,7 +359,15 @@ class BaseProject(ABC):
             """
 
         query_insert_raw_groups = """
-            INSERT INTO groups
+            INSERT INTO groups (
+              project_id,
+              group_id,
+              number_of_tasks,
+              finished_count,
+              required_count,
+              progress,
+              project_type_specifics
+            )
             SELECT
               project_id,
               group_id,

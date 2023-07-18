@@ -45,8 +45,8 @@ class MediaClassificationProject(BaseProject):
         self.mediaurl = project_draft["mediaurl"]
         self.get_media()
 
-        self.answerLabels = project_draft.get(
-            "answerLabels",
+        self.customOptions = project_draft.get(
+            "customOptions",
             [
                 {"color": "green", "label": "yes", "value": 1},
                 {"color": "red", "label": "no", "value": 0},

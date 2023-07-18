@@ -42,8 +42,8 @@ class ArbitraryGeometryProject(BaseProject):
         if "TMId" in project_draft.keys():
             self.TMId = project_draft["TMId"]
 
-        self.answerLabels = project_draft.get(
-            "answerLabels",
+        self.customOptions = project_draft.get(
+            "customOptions",
             [
                 {"color": "green", "label": "yes", "value": 1},
                 {"color": "red", "label": "no", "value": 0},

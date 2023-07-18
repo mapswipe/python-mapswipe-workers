@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { EntriesAsList, ObjectError, SetBaseValueArg } from '@togglecorp/toggle-form';
 import TextInput from '#components/TextInput';
 import { generateProjectName, PartialProjectFormType } from '#views/NewProject/utils';
@@ -12,7 +12,7 @@ import styles from '#views/NewProject/styles.css';
 
 export interface Props<T extends PartialProjectFormType> {
     className?: string;
-    submissionPending: boolean;
+    disabled: boolean;
     value: T;
     setValue: (value: SetBaseValueArg<T>, doNotReset?: boolean) => void;
     setFieldValue: (...entries: EntriesAsList<T>) => void;
@@ -21,7 +21,7 @@ export interface Props<T extends PartialProjectFormType> {
 
 function BasicProjectInfoForm(props: Props<PartialProjectFormType>) {
     const {
-        submissionPending,
+        disabled,
         value,
         setValue,
         setFieldValue,
@@ -36,10 +36,6 @@ function BasicProjectInfoForm(props: Props<PartialProjectFormType>) {
         organisationOptions,
         organisationsPending,
     } = useProjectOptions(value?.projectType);
-
-    React.useEffect(() => {
-        setFieldValue(tutorialOptions?.[0]?.value, 'tutorialId');
-    }, [setFieldValue, value?.projectType, tutorialOptions]);
 
     const setFieldValueAndGenerateName = React.useCallback(
         (...entries: EntriesAsList<PartialProjectFormType>) => {
@@ -61,6 +57,21 @@ function BasicProjectInfoForm(props: Props<PartialProjectFormType>) {
         },
         [setFieldValue, setValue],
     );
+
+    const handleTutorialOptions = useCallback(
+        (tutorialId: string) => {
+            setFieldValue(tutorialId, 'tutorialId');
+
+            const newTutorial = tutorialOptions.find((tutorial) => tutorial.value === tutorialId);
+
+            setFieldValue(newTutorial?.customOptions, 'customOptions');
+        },
+        [
+            tutorialOptions,
+            setFieldValue,
+        ],
+    );
+
     return (
 
         <>
@@ -71,8 +82,8 @@ function BasicProjectInfoForm(props: Props<PartialProjectFormType>) {
                     onChange={setFieldValueAndGenerateName}
                     error={error?.projectTopic}
                     label="Project Topic"
-                    hint="Enter the topic of your project (50 char max)."
-                    disabled={submissionPending}
+                    hint="Enter the topic of your project."
+                    disabled={disabled}
                     autoFocus
                 />
                 <TextInput
@@ -80,9 +91,9 @@ function BasicProjectInfoForm(props: Props<PartialProjectFormType>) {
                     value={value?.projectRegion}
                     onChange={setFieldValueAndGenerateName}
                     label="Project Region"
-                    hint="Enter name of your project Region (50 chars max)"
+                    hint="Enter name of your project Region"
                     error={error?.projectRegion}
-                    disabled={submissionPending}
+                    disabled={disabled}
                 />
             </div>
             <div className={styles.inputGroup}>
@@ -93,7 +104,7 @@ function BasicProjectInfoForm(props: Props<PartialProjectFormType>) {
                     label="Project Number"
                     hint="Is this project part of a bigger campaign with multiple projects?"
                     error={error?.projectNumber}
-                    disabled={submissionPending}
+                    disabled={disabled}
                 />
                 <SelectInput
                     name={'requestingOrganisation' as const}
@@ -103,7 +114,7 @@ function BasicProjectInfoForm(props: Props<PartialProjectFormType>) {
                     error={error?.requestingOrganisation}
                     label="Requesting Organisation"
                     hint="Which group, institution or community is requesting this project?"
-                    disabled={submissionPending || organisationsPending}
+                    disabled={disabled || organisationsPending}
                     keySelector={valueSelector}
                     labelSelector={labelSelector}
                 />
@@ -116,7 +127,7 @@ function BasicProjectInfoForm(props: Props<PartialProjectFormType>) {
                 readOnly
                 placeholder="[Project Topic] - [Project Region] ([Task Number]) [Requesting Organisation]"
                 // error={error?.name}
-                disabled={submissionPending}
+                disabled={disabled}
             />
             <div className={styles.inputGroup}>
                 <SelectInput
@@ -129,7 +140,7 @@ function BasicProjectInfoForm(props: Props<PartialProjectFormType>) {
                     label="Visibility"
                     hint="Choose either 'public' or select the team for which this project should be displayed"
                     error={error?.visibility}
-                    disabled={submissionPending || teamsPending}
+                    disabled={disabled || teamsPending}
                 />
                 <TextInput
                     name={'lookFor' as const}
@@ -137,8 +148,8 @@ function BasicProjectInfoForm(props: Props<PartialProjectFormType>) {
                     onChange={setFieldValue}
                     error={error?.lookFor}
                     label="Look For"
-                    hint="What should the users look for (e.g. buildings, cars, trees)? (25 chars max)"
-                    disabled={submissionPending}
+                    hint="What should the users look for (e.g. buildings, cars, trees)?"
+                    disabled={disabled}
                 />
             </div>
             <TextArea
@@ -148,7 +159,7 @@ function BasicProjectInfoForm(props: Props<PartialProjectFormType>) {
                 error={error?.projectDetails}
                 label="Project Details"
                 hint="Enter the description for your project. (markdown syntax is supported)."
-                disabled={submissionPending}
+                disabled={disabled}
                 rows={4}
             />
             <div className={styles.inputGroup}>
@@ -160,7 +171,7 @@ function BasicProjectInfoForm(props: Props<PartialProjectFormType>) {
                     hint="Make sure you have the rights to use the image. It should end with .jpg or .png."
                     showPreview
                     error={error?.projectImage}
-                    disabled={submissionPending}
+                    disabled={disabled}
                 />
                 <div className={styles.verticalInputGroup}>
                     <SelectInput
@@ -168,12 +179,13 @@ function BasicProjectInfoForm(props: Props<PartialProjectFormType>) {
                         hint="Choose which tutorial should be used for this project. Make sure that this aligns with what you are looking for."
                         name={'tutorialId' as const}
                         value={value?.tutorialId}
-                        onChange={setFieldValue}
+                        onChange={handleTutorialOptions}
                         options={tutorialOptions}
                         error={error?.tutorialId}
                         keySelector={valueSelector}
                         labelSelector={labelSelector}
-                        disabled={submissionPending || tutorialsPending}
+                        disabled={disabled || tutorialsPending}
+                        nonClearable
                     />
                     <NumberInput
                         name={'verificationNumber' as const}
@@ -182,7 +194,7 @@ function BasicProjectInfoForm(props: Props<PartialProjectFormType>) {
                         label="Verification Number"
                         hint="How many people do you want to see every tile before you consider it finished? (default is 3 - more is recommended for harder tasks, but this will also make project take longer)"
                         error={error?.verificationNumber}
-                        disabled={submissionPending}
+                        disabled={disabled}
                     />
                     <NumberInput
                         name={'groupSize' as const}
@@ -191,7 +203,7 @@ function BasicProjectInfoForm(props: Props<PartialProjectFormType>) {
                         label="Group Size"
                         hint="How big should a mapping session be? Group size refers to the number of tasks per mapping session."
                         error={error?.groupSize}
-                        disabled={submissionPending}
+                        disabled={disabled}
                     />
                 </div>
             </div>

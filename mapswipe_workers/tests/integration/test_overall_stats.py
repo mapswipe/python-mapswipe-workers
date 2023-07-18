@@ -30,9 +30,21 @@ class TestOverallStats(unittest.TestCase):
         runner.invoke(mapswipe_workers.run_create_projects, catch_exceptions=False)
 
         df = get_project_static_info(f"{DATA_PATH}/api/projects/projects_static.csv")
-        answer_label_values = list(df["answer_label_values"])
+        custom_options_values = list(df["custom_options"])
         self.assertListEqual(
-            sorted(answer_label_values), sorted(["{-999,1,2,3}", "{0,1,2,3}"])
+            sorted(custom_options_values),
+            sorted(
+                [
+                    """[{"color": "", "label": "", "value": -999},
+{"color": "#008000", "label": "yes", "value": 1},
+{"color": "#FF0000", "label": "no", "value": 2},
+{"color": "#FFA500", "label": "maybe", "value": 3}]""",
+                    """[{"color": "", "label": "no", "value": 0},
+{"color": "green", "label": "yes", "value": 1},
+{"color": "orange", "label": "maybe", "value": 2},
+{"color": "red", "label": "bad imagery", "value": 3}]""",
+                ]
+            ),
         )
 
 
