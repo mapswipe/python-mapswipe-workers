@@ -54,97 +54,82 @@ export type ColorKey = (
 // FIXME: need to rethink the colors
 export const colorKeyToColorMap: Record<ColorKey, string> = {
     red: '#D32F2F',
-    pink: '#D81B60',
-    purple: '#9C27B0',
-    deepPurple: '#673AB7',
-    indigo: '#3F51B5',
+    pink: '#C2185B',
+    purple: '#7B1FA2',
+    deepPurple: '#512DA8',
+    indigo: '#303F9F',
     blue: '#1976D2',
     cyan: '#0097A7',
-    teal: '#00695C',
-    green: '#2E7D32',
-    lime: '#9E9D24',
-    yellow: '#FFD600',
-    orange: '#FF9100',
-    brown: '#795548',
-    gray: '#757575',
+    teal: '#00796B',
+    green: '#388E3C',
+    lime: '#AFB42B',
+    yellow: '#FBC02D',
+    orange: '#F57C00',
+    brown: '#5D4037',
+    gray: '#616161',
 };
 
 export interface ColorOptions {
-    key: ColorKey;
     label: string;
-    color: string;
+    key: string;
 }
 
 export const iconColorOptions: ColorOptions[] = [
     {
-        key: 'red',
         label: 'Red',
-        color: colorKeyToColorMap.red,
+        key: colorKeyToColorMap.red,
     },
     {
-        key: 'pink',
         label: 'Pink',
-        color: colorKeyToColorMap.pink,
+        key: colorKeyToColorMap.pink,
     },
     {
-        key: 'purple',
         label: 'Purple',
-        color: colorKeyToColorMap.purple,
+        key: colorKeyToColorMap.purple,
     },
     {
-        key: 'deepPurple',
         label: 'Deep Purple',
-        color: colorKeyToColorMap.deepPurple,
+        key: colorKeyToColorMap.deepPurple,
     },
     {
-        key: 'indigo',
         label: 'Indigo',
-        color: colorKeyToColorMap.indigo,
+        key: colorKeyToColorMap.indigo,
     },
     {
-        key: 'blue',
         label: 'Blue',
-        color: colorKeyToColorMap.blue,
+        key: colorKeyToColorMap.blue,
     },
     {
-        key: 'cyan',
         label: 'Cyan',
-        color: colorKeyToColorMap.cyan,
+        key: colorKeyToColorMap.cyan,
     },
     {
-        key: 'teal',
         label: 'Teal',
-        color: colorKeyToColorMap.teal,
+        key: colorKeyToColorMap.teal,
     },
     {
-        key: 'green',
         label: 'Green',
-        color: colorKeyToColorMap.green,
+        key: colorKeyToColorMap.green,
     },
     {
-        key: 'lime',
         label: 'Lime',
-        color: colorKeyToColorMap.lime,
+        key: colorKeyToColorMap.lime,
     },
     {
-        key: 'yellow',
         label: 'Yellow',
-        color: colorKeyToColorMap.yellow,
+        key: colorKeyToColorMap.yellow,
     },
     {
-        key: 'orange',
         label: 'Orange',
-        color: colorKeyToColorMap.orange,
+        key: colorKeyToColorMap.orange,
     },
     {
-        key: 'brown',
         label: 'Brown',
-        color: colorKeyToColorMap.brown,
+        key: colorKeyToColorMap.brown,
     },
     {
-        key: 'gray',
         label: 'Gray',
-        color: colorKeyToColorMap.gray,
+        key: colorKeyToColorMap.gray,
     },
 ];
 
@@ -245,14 +230,13 @@ export const infoPageBlocksMap: Record<InformationPageTemplateKey, Block[]> = {
     ],
 };
 
-// FIXME: need to confirm if the values are correct
 export const defaultFootprintCustomOptions: PartialTutorialFormType['customOptions'] = [
     {
         optionId: 1,
         value: 1,
         title: 'Yes',
-        icon: 'check',
-        iconColor: 'green',
+        icon: 'checkmark-outline',
+        iconColor: colorKeyToColorMap.green,
         description: 'the shape does outline a building in the image',
     },
     {
@@ -260,7 +244,7 @@ export const defaultFootprintCustomOptions: PartialTutorialFormType['customOptio
         value: 0,
         title: 'No',
         icon: 'close-outline',
-        iconColor: 'red',
+        iconColor: colorKeyToColorMap.red,
         description: 'the shape doesn\'t match a building in the image',
     },
     {
@@ -268,7 +252,7 @@ export const defaultFootprintCustomOptions: PartialTutorialFormType['customOptio
         value: 2,
         title: 'Not Sure',
         icon: 'remove-outline',
-        iconColor: 'orange',
+        iconColor: colorKeyToColorMap.gray,
         description: 'if you\'re not sure or there is cloud cover / bad imagery',
     },
 ];
@@ -445,7 +429,7 @@ export const MIN_SUB_OPTIONS = 2;
 
 export const MAX_INFO_PAGES = 10;
 
-const SM_TEXT_MAX_LENGTH = 25;
+const SM_TEXT_MAX_LENGTH = 50;
 const MD_TEXT_MAX_LENGTH = 1000;
 const LG_TEXT_MAX_LENGTH = 2000;
 
@@ -470,73 +454,6 @@ export const tutorialFormSchema: TutorialFormSchema = {
             },
             tutorialTasks: {
                 required: true,
-            },
-            scenarioPages: {
-                keySelector: (key) => key.scenarioId,
-                member: (): ScenarioPagesFormSchemaMember => ({
-                    fields: (): ScenarioPagesFormSchemaFields => ({
-                        scenarioId: {
-                            required: true,
-                        },
-                        hint: {
-                            fields: () => ({
-                                title: {
-                                    required: true,
-                                    requiredValidation: requiredStringCondition,
-                                    validations: [
-                                        getNoMoreThanNCharacterCondition(SM_TEXT_MAX_LENGTH),
-                                    ],
-                                },
-                                description: {
-                                    required: true,
-                                    requiredValidation: requiredStringCondition,
-                                    validations: [
-                                        getNoMoreThanNCharacterCondition(MD_TEXT_MAX_LENGTH),
-                                    ],
-                                },
-                                icon: { required: true },
-                            }),
-                        },
-                        instructions: {
-                            fields: () => ({
-                                title: {
-                                    required: true,
-                                    requiredValidation: requiredStringCondition,
-                                    validations: [
-                                        getNoMoreThanNCharacterCondition(SM_TEXT_MAX_LENGTH),
-                                    ],
-                                },
-                                description: {
-                                    required: true,
-                                    requiredValidation: requiredStringCondition,
-                                    validations: [
-                                        getNoMoreThanNCharacterCondition(MD_TEXT_MAX_LENGTH),
-                                    ],
-                                },
-                                icon: { required: true },
-                            }),
-                        },
-                        success: {
-                            fields: () => ({
-                                title: {
-                                    required: true,
-                                    requiredValidation: requiredStringCondition,
-                                    validations: [
-                                        getNoMoreThanNCharacterCondition(SM_TEXT_MAX_LENGTH),
-                                    ],
-                                },
-                                description: {
-                                    required: true,
-                                    requiredValidation: requiredStringCondition,
-                                    validations: [
-                                        getNoMoreThanNCharacterCondition(MD_TEXT_MAX_LENGTH),
-                                    ],
-                                },
-                                icon: { required: true },
-                            }),
-                        },
-                    }),
-                }),
             },
             informationPages: {
                 validation: (info) => {
@@ -595,6 +512,103 @@ export const tutorialFormSchema: TutorialFormSchema = {
                 }),
             },
         };
+
+        baseSchema = addCondition(
+            baseSchema,
+            value,
+            ['projectType'],
+            ['scenarioPages'],
+            (formValues) => ({
+                scenarioPages: {
+                    keySelector: (key) => key.scenarioId,
+                    member: (): ScenarioPagesFormSchemaMember => ({
+                        fields: (): ScenarioPagesFormSchemaFields => {
+                            const projectType = formValues?.projectType;
+                            let fields: ScenarioPagesFormSchemaFields = {
+                                scenarioId: {
+                                    required: true,
+                                },
+                                instructions: {
+                                    fields: () => ({
+                                        title: {
+                                            required: true,
+                                            requiredValidation: requiredStringCondition,
+                                            validations: [
+                                                // eslint-disable-next-line max-len
+                                                getNoMoreThanNCharacterCondition(SM_TEXT_MAX_LENGTH),
+                                            ],
+                                        },
+                                        description: {
+                                            required: true,
+                                            requiredValidation: requiredStringCondition,
+                                            validations: [
+                                                // eslint-disable-next-line max-len
+                                                getNoMoreThanNCharacterCondition(MD_TEXT_MAX_LENGTH),
+                                            ],
+                                        },
+                                        icon: { required: true },
+                                    }),
+                                },
+                            };
+                            if (projectType && projectType !== PROJECT_TYPE_FOOTPRINT) {
+                                fields = {
+                                    ...fields,
+                                    hint: {
+                                        fields: () => ({
+                                            title: {
+                                                required: true,
+                                                requiredValidation: requiredStringCondition,
+                                                validations: [
+                                                    // eslint-disable-next-line max-len
+                                                    getNoMoreThanNCharacterCondition(SM_TEXT_MAX_LENGTH),
+                                                ],
+                                            },
+                                            description: {
+                                                required: true,
+                                                requiredValidation: requiredStringCondition,
+                                                validations: [
+                                                    // eslint-disable-next-line max-len
+                                                    getNoMoreThanNCharacterCondition(MD_TEXT_MAX_LENGTH),
+                                                ],
+                                            },
+                                            icon: { required: true },
+                                        }),
+                                    },
+                                    success: {
+                                        fields: () => ({
+                                            title: {
+                                                required: true,
+                                                requiredValidation: requiredStringCondition,
+                                                validations: [
+                                                    // eslint-disable-next-line max-len
+                                                    getNoMoreThanNCharacterCondition(SM_TEXT_MAX_LENGTH),
+                                                ],
+                                            },
+                                            description: {
+                                                required: true,
+                                                requiredValidation: requiredStringCondition,
+                                                validations: [
+                                                    // eslint-disable-next-line max-len
+                                                    getNoMoreThanNCharacterCondition(MD_TEXT_MAX_LENGTH),
+                                                ],
+                                            },
+                                            icon: { required: true },
+                                        }),
+                                    },
+                                };
+                            } else {
+                                fields = {
+                                    ...fields,
+                                    hint: { forceValue: nullValue },
+                                    success: { forceValue: nullValue },
+                                };
+                            }
+                            return fields;
+                        },
+                    }),
+                },
+            }),
+        );
 
         baseSchema = addCondition(
             baseSchema,

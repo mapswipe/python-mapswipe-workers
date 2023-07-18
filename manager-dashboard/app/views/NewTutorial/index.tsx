@@ -70,6 +70,7 @@ import {
     PROJECT_TYPE_CHANGE_DETECTION,
     PROJECT_TYPE_FOOTPRINT,
     ProjectType,
+    projectTypeLabelMap,
 } from '#utils/common';
 
 import {
@@ -196,7 +197,7 @@ function getGeoJSONError(
         ).join(', '),
     ).filter(isTruthyString);
     if (schemaErrors.length > 0) {
-        return `Invalid GeoJSON for Footprint: ${schemaErrors[0]} (${schemaErrors.length} total errors)`;
+        return `Invalid GeoJSON for ${projectTypeLabelMap[projectType]}: ${schemaErrors[0]} (${schemaErrors.length} total errors)`;
     }
 
     return undefined;
@@ -426,18 +427,18 @@ function NewTutorial(props: Props) {
 
             const sanitizedScenarioPages = sanitizeScreens(scenarioPages);
 
+            /*
             try {
                 await navigator.clipboard.writeText(
                     JSON.stringify(sanitizedScenarioPages, null, 2),
                 );
-                // FIXME: remove this in production
                 // eslint-disable-next-line no-alert
                 alert('Tutorial JSON copied to clipboard.');
             } catch (err) {
-                // FIXME: remove this in production
                 // eslint-disable-next-line no-alert
                 alert(`Tutorial JSON could not be copied ${err}`);
             }
+            */
 
             const storage = getStorage();
             const timestamp = (new Date()).getTime();
@@ -778,29 +779,6 @@ function NewTutorial(props: Props) {
                             </Button>
                         )}
                     >
-                        <AlertBanner>
-                            <div className={styles.bannerContent}>
-                                <div className={styles.bannerText}>
-                                    While creating options,
-                                    please use the values as listed
-                                    below for HOT Tasking Manager Geometries
-                                </div>
-                                <div className={styles.indicatorList}>
-                                    <div className={styles.indicator}>
-                                        0 = No
-                                    </div>
-                                    <div className={styles.indicator}>
-                                        1 = Yes
-                                    </div>
-                                    <div className={styles.indicator}>
-                                        2 = Maybe
-                                    </div>
-                                    <div className={styles.indicator}>
-                                        3 = Bad Imagery
-                                    </div>
-                                </div>
-                            </div>
-                        </AlertBanner>
                         <NonFieldError
                             error={optionsError}
                         />

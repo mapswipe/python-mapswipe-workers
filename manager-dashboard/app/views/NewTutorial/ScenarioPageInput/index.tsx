@@ -7,7 +7,7 @@ import {
     getErrorObject,
 } from '@togglecorp/toggle-form';
 import {
-    iconList,
+    combinedIconList,
     valueSelector,
     labelSelector,
     keySelector,
@@ -102,7 +102,7 @@ export default function ScenarioPageInput(props: Props) {
         lookFor,
     } = props;
 
-    const [activeSegmentInput, setActiveInput] = React.useState<ScenarioSegmentType['value']>('instructions');
+    const [activeSegmentInputFromState, setActiveInput] = React.useState<ScenarioSegmentType['value']>('instructions');
 
     const onFieldChange = useFormObject(
         index,
@@ -170,6 +170,10 @@ export default function ScenarioPageInput(props: Props) {
         [geoJsonFromProps, scenarioId],
     );
 
+    const activeSegmentInput: ScenarioSegmentType['value'] = projectType && projectType !== PROJECT_TYPE_FOOTPRINT
+        ? activeSegmentInputFromState
+        : 'instructions';
+
     const previewPopUpData = value[activeSegmentInput];
 
     return (
@@ -201,7 +205,7 @@ export default function ScenarioPageInput(props: Props) {
                         name="icon"
                         label="Icon"
                         value={value.instructions?.icon}
-                        options={iconList}
+                        options={combinedIconList}
                         keySelector={keySelector}
                         labelSelector={labelSelector}
                         onChange={handleInstructionFieldChange}
@@ -209,74 +213,82 @@ export default function ScenarioPageInput(props: Props) {
                         disabled={disabled}
                     />
                 </div>
-                <Heading level={4}>
-                    Hint
-                </Heading>
-                <div className={styles.scenarioForm}>
-                    <div className={styles.scenarioFormContent}>
-                        <TextInput
-                            name={'title' as const}
-                            value={value.hint?.title}
-                            label="Title"
-                            onChange={handleHintFieldChange}
-                            error={hintError?.title}
-                            disabled={disabled}
-                        />
-                        <TextInput
-                            name={'description' as const}
-                            value={value.hint?.description}
-                            label="Description"
-                            onChange={handleHintFieldChange}
-                            error={hintError?.description}
-                            disabled={disabled}
-                        />
-                    </div>
-                    <SelectInput
-                        name="icon"
-                        label="Icon"
-                        value={value.hint?.icon}
-                        options={iconList}
-                        keySelector={keySelector}
-                        labelSelector={labelSelector}
-                        onChange={handleHintFieldChange}
-                        error={hintError?.icon}
-                        disabled={disabled}
-                    />
-                </div>
-                <Heading level={4}>
-                    Success
-                </Heading>
-                <div className={styles.scenarioForm}>
-                    <div className={styles.scenarioFormContent}>
-                        <TextInput
-                            name={'title' as const}
-                            value={value.success?.title}
-                            label="Title"
-                            onChange={handleSuccessFieldChange}
-                            error={successError?.title}
-                            disabled={disabled}
-                        />
-                        <TextInput
-                            name={'description' as const}
-                            value={value.success?.description}
-                            label="Description"
-                            onChange={handleSuccessFieldChange}
-                            error={successError?.description}
-                            disabled={disabled}
-                        />
-                    </div>
-                    <SelectInput
-                        name="icon"
-                        label="Icon"
-                        value={value.success?.icon}
-                        options={iconList}
-                        keySelector={keySelector}
-                        labelSelector={labelSelector}
-                        onChange={handleSuccessFieldChange}
-                        error={successError?.icon}
-                        disabled={disabled}
-                    />
-                </div>
+                {projectType && projectType !== PROJECT_TYPE_FOOTPRINT && (
+                    <>
+                        <Heading level={4}>
+                            Hint
+                        </Heading>
+                        <div className={styles.scenarioForm}>
+                            <div className={styles.scenarioFormContent}>
+                                <TextInput
+                                    name={'title' as const}
+                                    value={value.hint?.title}
+                                    label="Title"
+                                    onChange={handleHintFieldChange}
+                                    error={hintError?.title}
+                                    disabled={disabled}
+                                />
+                                <TextInput
+                                    name={'description' as const}
+                                    value={value.hint?.description}
+                                    label="Description"
+                                    onChange={handleHintFieldChange}
+                                    error={hintError?.description}
+                                    disabled={disabled}
+                                />
+                            </div>
+                            <SelectInput
+                                name="icon"
+                                label="Icon"
+                                value={value.hint?.icon}
+                                options={combinedIconList}
+                                keySelector={keySelector}
+                                labelSelector={labelSelector}
+                                onChange={handleHintFieldChange}
+                                error={hintError?.icon}
+                                disabled={disabled}
+                            />
+                        </div>
+                    </>
+                )}
+                {projectType && projectType !== PROJECT_TYPE_FOOTPRINT && (
+                    <>
+                        <Heading level={4}>
+                            Success
+                        </Heading>
+                        <div className={styles.scenarioForm}>
+                            <div className={styles.scenarioFormContent}>
+                                <TextInput
+                                    name={'title' as const}
+                                    value={value.success?.title}
+                                    label="Title"
+                                    onChange={handleSuccessFieldChange}
+                                    error={successError?.title}
+                                    disabled={disabled}
+                                />
+                                <TextInput
+                                    name={'description' as const}
+                                    value={value.success?.description}
+                                    label="Description"
+                                    onChange={handleSuccessFieldChange}
+                                    error={successError?.description}
+                                    disabled={disabled}
+                                />
+                            </div>
+                            <SelectInput
+                                name="icon"
+                                label="Icon"
+                                value={value.success?.icon}
+                                options={combinedIconList}
+                                keySelector={keySelector}
+                                labelSelector={labelSelector}
+                                onChange={handleSuccessFieldChange}
+                                error={successError?.icon}
+                                disabled={disabled}
+                            />
+                        </div>
+                    </>
+                )}
             </div>
             <div className={styles.scenarioPreview}>
                 {projectType === PROJECT_TYPE_CHANGE_DETECTION && (
@@ -306,14 +318,16 @@ export default function ScenarioPageInput(props: Props) {
                         lookFor={lookFor}
                     />
                 )}
-                <SegmentInput
-                    name={undefined}
-                    value={activeSegmentInput}
-                    options={previewOptions}
-                    keySelector={valueSelector}
-                    labelSelector={labelSelector}
-                    onChange={setActiveInput}
-                />
+                {(projectType && projectType !== PROJECT_TYPE_FOOTPRINT) && (
+                    <SegmentInput
+                        name={undefined}
+                        value={activeSegmentInput}
+                        options={previewOptions}
+                        keySelector={valueSelector}
+                        labelSelector={labelSelector}
+                        onChange={setActiveInput}
+                    />
+                )}
             </div>
         </div>
     );

@@ -6,6 +6,7 @@ import {
     TileLayer,
     Coords,
     StyleFunction,
+    PointExpression,
 } from 'leaflet';
 import { _cs } from '@togglecorp/fujs';
 
@@ -50,6 +51,7 @@ interface Props {
     geoJson: GeoJSON.GeoJSON | undefined;
     url?: string | undefined;
     previewStyle?: StyleFunction;
+    padding?: PointExpression;
 }
 
 function GeoJsonPreview(props: Props) {
@@ -58,6 +60,7 @@ function GeoJsonPreview(props: Props) {
         geoJson,
         url = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
         previewStyle,
+        padding,
     } = props;
 
     const mapRef = React.useRef<Map>();
@@ -91,8 +94,6 @@ function GeoJsonPreview(props: Props) {
                     {
                         // NOTE: we have a limit of 22
                         maxZoom: 22,
-                        // attribution: '',
-                        // subdomains: ['a', 'b', 'c'],
                     },
                 );
 
@@ -128,7 +129,7 @@ function GeoJsonPreview(props: Props) {
             const bounds = newGeoJson.getBounds();
 
             if (bounds.isValid()) {
-                map.fitBounds(bounds);
+                map.fitBounds(bounds, { padding });
             }
 
             return () => {
@@ -141,6 +142,7 @@ function GeoJsonPreview(props: Props) {
             geoJson,
             url,
             previewStyle,
+            padding,
         ],
     );
 
