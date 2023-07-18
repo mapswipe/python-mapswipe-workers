@@ -35,6 +35,7 @@ import twoTapIcon from '#resources/icons/2_Tap_Black.png';
 import threeTapIcon from '#resources/icons/3_Tap_Black.png';
 import angularTapIcon from '#resources/icons/tap_icon_angular.png';
 import swipeIcon from '#resources/icons/swipeleft_icon_black.png';
+import check from '#resources/icons/tick_green_on_white.png';
 
 export function valueSelector<T>(item: { value: T }) {
     return item.value;
@@ -81,6 +82,7 @@ export type IconKey = 'add-outline'
     | 'ban-outline'
     | 'check'
     | 'close-outline'
+    | 'checkmark-outline'
     | 'egg-outline'
     | 'ellipse-outline'
     | 'flag-outline'
@@ -131,7 +133,7 @@ function getPngIcon(src: string, alt: string) {
     return element;
 }
 
-export const iconList: IconItem[] = [
+export const customOptionsOnlyIconList: IconItem[] = [
     {
         key: 'add-outline',
         label: 'Add',
@@ -146,6 +148,11 @@ export const iconList: IconItem[] = [
         key: 'ban-outline',
         label: 'Ban',
         component: IoBanOutline,
+    },
+    {
+        key: 'checkmark-outline',
+        label: 'Checkmark',
+        component: IoCheckmarkOutline,
     },
     {
         key: 'close-outline',
@@ -259,7 +266,9 @@ export const iconList: IconItem[] = [
     },
 ];
 
-const instructionsIconList: IconItem[] = [
+// Icon List for scenario pages only.
+// They need to be treated diffrently as they are loaded as pngs
+const scenarioOnlyIconList: IconItem[] = [
     {
         key: 'tap',
         label: 'Tap',
@@ -288,11 +297,11 @@ const instructionsIconList: IconItem[] = [
     {
         key: 'check',
         label: 'Check',
-        component: IoCheckmarkOutline,
+        component: getPngIcon(check, 'check'),
     },
 ];
 
-export const combinedIconList = [...instructionsIconList, ...iconList];
+export const combinedIconList = [...scenarioOnlyIconList, ...customOptionsOnlyIconList];
 
 export const iconMap = listToMap(
     combinedIconList,
