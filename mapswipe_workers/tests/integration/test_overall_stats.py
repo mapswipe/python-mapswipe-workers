@@ -38,11 +38,15 @@ class TestOverallStats(unittest.TestCase):
                     """[{"color": "", "label": "", "value": -999},
 {"color": "#008000", "label": "yes", "value": 1},
 {"color": "#FF0000", "label": "no", "value": 2},
-{"color": "#FFA500", "label": "maybe", "value": 3}]""",
+{"color": "#FFA500", "label": "maybe", "value": 3}]""".replace(
+                        "\n", " "
+                    ),
                     """[{"color": "", "label": "no", "value": 0},
 {"color": "green", "label": "yes", "value": 1},
 {"color": "orange", "label": "maybe", "value": 2},
-{"color": "red", "label": "bad imagery", "value": 3}]""",
+{"color": "red", "label": "bad imagery", "value": 3}]""".replace(
+                        "\n", " "
+                    ),
                 ]
             ),
         )
