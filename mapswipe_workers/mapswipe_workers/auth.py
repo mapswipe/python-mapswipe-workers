@@ -30,9 +30,9 @@ def get_tileserver_url(tileserver: str) -> str:
 
 def firebaseDB() -> db:
     """Initialize the app.
-    
+
     Credentials will be retrieved from of following environment variable:
-    `GOOGLE_APPLICATION_CREDENTIALS` which contains the path to service account 
+    `GOOGLE_APPLICATION_CREDENTIALS` which contains the path to service account
     key.
     """
 
