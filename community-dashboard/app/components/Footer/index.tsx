@@ -58,21 +58,12 @@ function Footer() {
             <div className={styles.links}>
                 <a
                     aria-label="Privacy"
-                    href="https://mapswipe.org/en/privacy.html"
+                    href="https://mapswipe.org/en/privacy"
                     target="_blank"
                     rel="noreferrer"
                     className={styles.link}
                 >
                     Privacy
-                </a>
-                <a
-                    aria-label="Cookies"
-                    href="https://mapswipe.org/en/cookies.html"
-                    target="_blank"
-                    rel="noreferrer"
-                    className={styles.link}
-                >
-                    Cookies
                 </a>
                 <span
                     className={styles.link}

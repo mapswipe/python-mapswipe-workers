@@ -14,7 +14,7 @@ import TextInput from '#components/TextInput';
 import NumberInput from '#components/NumberInput';
 import SelectInput from '#components/SelectInput';
 import NonFieldError from '#components/NonFieldError';
-import { iconList, keySelector, labelSelector } from '#utils/common';
+import { customOptionsOnlyIconList, keySelector, labelSelector } from '#utils/common';
 
 import SubOptionInput from './SubOptionInput';
 import {
@@ -103,7 +103,7 @@ export default function CustomOptionInput(props: Props) {
                     name="icon"
                     label="Icon"
                     value={value?.icon}
-                    options={iconList}
+                    options={customOptionsOnlyIconList}
                     keySelector={keySelector}
                     labelSelector={labelSelector}
                     onChange={onOptionChange}
