@@ -26,6 +26,6 @@ AreaSqKm = strawberry.scalar(
 
 GenericJSON = strawberry.scalar(
     NewType("GenericJSON", JSON),
-    serialize=lambda v: json.loads(v) if type(v) == str else v,
+    serialize=lambda v: json.loads(v) if isinstance(v, str) else v,
     parse_value=lambda v: v,
 )

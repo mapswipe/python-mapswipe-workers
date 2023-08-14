@@ -2,9 +2,6 @@ import React, { useCallback } from 'react';
 import { useHistory } from 'react-router-dom';
 import { _cs } from '@togglecorp/fujs';
 
-import SmartNavLink from '#base/components/SmartNavLink';
-import route from '#base/configs/routes';
-
 import mapSwipeLogo from '#resources/img/logo.svg';
 import ItemSelectInput, { SearchItemType } from '#components/ItemSelectInput';
 
@@ -30,9 +27,8 @@ function Navbar(props: Props) {
         <nav className={_cs(className, styles.navbar)}>
             <div className={styles.container}>
                 <div className={styles.navLinks}>
-                    <SmartNavLink
-                        exact
-                        route={route.home}
+                    <a
+                        href={process.env.REACT_APP_MAPSWIPE_WEBSITE ?? 'https://mapswipe.org'}
                         className={styles.link}
                     >
                         <div className={styles.appBrand}>
@@ -42,7 +38,7 @@ function Navbar(props: Props) {
                                 alt="MapSwipe"
                             />
                         </div>
-                    </SmartNavLink>
+                    </a>
                 </div>
                 <ItemSelectInput
                     className={styles.filter}

@@ -33,9 +33,9 @@ import { IconType } from 'react-icons';
 import oneTapIcon from '#resources/icons/1_Tap_Black.png';
 import twoTapIcon from '#resources/icons/2_Tap_Black.png';
 import threeTapIcon from '#resources/icons/3_Tap_Black.png';
-import tapIcon from '#resources/icons/tap_icon.png';
 import angularTapIcon from '#resources/icons/tap_icon_angular.png';
 import swipeIcon from '#resources/icons/swipeleft_icon_black.png';
+import check from '#resources/icons/tick_green_on_white.png';
 
 export function valueSelector<T>(item: { value: T }) {
     return item.value;
@@ -82,6 +82,7 @@ export type IconKey = 'add-outline'
     | 'ban-outline'
     | 'check'
     | 'close-outline'
+    | 'checkmark-outline'
     | 'egg-outline'
     | 'ellipse-outline'
     | 'flag-outline'
@@ -132,7 +133,7 @@ function getPngIcon(src: string, alt: string) {
     return element;
 }
 
-export const iconList: IconItem[] = [
+export const customOptionsOnlyIconList: IconItem[] = [
     {
         key: 'add-outline',
         label: 'Add',
@@ -149,8 +150,8 @@ export const iconList: IconItem[] = [
         component: IoBanOutline,
     },
     {
-        key: 'check',
-        label: 'Check',
+        key: 'checkmark-outline',
+        label: 'Checkmark',
         component: IoCheckmarkOutline,
     },
     {
@@ -263,11 +264,11 @@ export const iconList: IconItem[] = [
         label: 'Warning',
         component: IoWarningOutline,
     },
-    {
-        key: 'general-tap',
-        label: 'General Tap',
-        component: getPngIcon(tapIcon, 'general tap'),
-    },
+];
+
+// Icon List for scenario pages only.
+// They need to be treated diffrently as they are loaded as pngs
+const scenarioOnlyIconList: IconItem[] = [
     {
         key: 'tap',
         label: 'Tap',
@@ -293,10 +294,17 @@ export const iconList: IconItem[] = [
         label: 'Swipe Left',
         component: getPngIcon(swipeIcon, 'swipe left'),
     },
+    {
+        key: 'check',
+        label: 'Check',
+        component: getPngIcon(check, 'check'),
+    },
 ];
 
+export const combinedIconList = [...scenarioOnlyIconList, ...customOptionsOnlyIconList];
+
 export const iconMap = listToMap(
-    iconList,
+    combinedIconList,
     (icon) => icon.key,
     (icon) => icon.component,
 );
