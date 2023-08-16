@@ -86,7 +86,9 @@ class BaseProject(ABC):
         # currently crowdmap specific attributes
         # todo: discuss in group if empty attributes in mapswipe postgres are ok
         self.language = project_draft.get("language", "en-us")
-        self.appId = project_draft.get("appId", None)
+        app_id = project_draft.get("appId", None)
+        if app_id is not None:
+            self.appId = int(app_id)
         self.manualUrl = project_draft.get("manualUrl", None)
 
     # TODO: Implement resultRequiredCounter as property.

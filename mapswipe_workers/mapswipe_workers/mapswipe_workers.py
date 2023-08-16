@@ -137,7 +137,7 @@ def run_create_user_groups():
 @cli.command("create-user")
 def run_create_users():
     firebase = Firebase()
-    ref = firebase.reference("v2/updates/users")
+    ref = firebase.fb_db.reference("v2/updates/users")
     changed_users_id = list((ref.get(shallow=True) or {}).keys())
 
     if not changed_users_id:
