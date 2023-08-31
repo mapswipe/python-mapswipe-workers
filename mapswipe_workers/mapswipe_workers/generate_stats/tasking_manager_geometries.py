@@ -1,6 +1,7 @@
 import csv
 import gzip
 import threading
+import typing
 from queue import Queue
 
 from osgeo import ogr
@@ -15,6 +16,21 @@ def load_data(project_id: str, gzipped_csv_file: str) -> list:
     For further steps we currently rely on task_x, task_y, task_z and yes_share and
     maybe_share and wkt
     """
+
+    def _get_row_value(
+        column_index_map: dict,
+        row: list,
+        label: str,
+        default: int = 0,
+        modifier: typing.Callable = int,
+    ):
+        """
+        Get row value by using column name.
+        """
+        if label not in column_index_map:
+            return modifier(default)
+        index = column_index_map[label]
+        return modifier(row[index])
 
     project_data = []
     with gzip.open(gzipped_csv_file, mode="rt") as f:
@@ -47,14 +63,24 @@ def load_data(project_id: str, gzipped_csv_file: str) -> list:
                     "task_y": task_y,
                     "task_z": task_z,
                     # XXX: Assuming 0->No, 1->Yes, 2->Maybe, 3->Bad
-                    "no_count": int(column_index_map.get("0_count", 0)),
-                    "yes_count": int(column_index_map.get("1_count", 0)),
-                    "maybe_count": int(column_index_map.get("2_count", 0)),
-                    "bad_imagery_count": int(column_index_map.get("3_count", 0)),
-                    "no_share": float(column_index_map.get("0_share", 0)),
-                    "yes_share": float(column_index_map.get("1_share", 0)),
-                    "maybe_share": float(column_index_map.get("2_share", 0)),
-                    "bad_imagery_share": float(column_index_map.get("3_share", 0)),
+                    "no_count": _get_row_value(column_index_map, row, "0_count"),
+                    "yes_count": _get_row_value(column_index_map, row, "1_count"),
+                    "maybe_count": _get_row_value(column_index_map, row, "2_count"),
+                    "bad_imagery_count": _get_row_value(
+                        column_index_map, row, "3_count"
+                    ),
+                    "no_share": _get_row_value(
+                        column_index_map, row, "0_share", modifier=float
+                    ),
+                    "yes_share": _get_row_value(
+                        column_index_map, row, "1_share", modifier=float
+                    ),
+                    "maybe_share": _get_row_value(
+                        column_index_map, row, "2_share", modifier=float
+                    ),
+                    "bad_imagery_share": _get_row_value(
+                        column_index_map, row, "3_share", modifier=float
+                    ),
                     "wkt": tile_functions.geometry_from_tile_coords(
                         task_x, task_y, task_z
                     ),
