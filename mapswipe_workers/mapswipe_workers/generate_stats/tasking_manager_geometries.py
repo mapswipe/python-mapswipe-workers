@@ -51,10 +51,10 @@ def load_data(project_id: str, gzipped_csv_file: str) -> list:
                     "yes_count": int(column_index_map.get("1_count", 0)),
                     "maybe_count": int(column_index_map.get("2_count", 0)),
                     "bad_imagery_count": int(column_index_map.get("3_count", 0)),
-                    "no_share": float(column_index_map.get("0_count", 0)),
-                    "yes_share": float(column_index_map.get("1_count", 0)),
-                    "maybe_share": float(column_index_map.get("2_count", 0)),
-                    "bad_imagery_share": float(column_index_map.get("3_count", 0)),
+                    "no_share": float(column_index_map.get("0_share", 0)),
+                    "yes_share": float(column_index_map.get("1_share", 0)),
+                    "maybe_share": float(column_index_map.get("2_share", 0)),
+                    "bad_imagery_share": float(column_index_map.get("3_share", 0)),
                     "wkt": tile_functions.geometry_from_tile_coords(
                         task_x, task_y, task_z
                     ),
