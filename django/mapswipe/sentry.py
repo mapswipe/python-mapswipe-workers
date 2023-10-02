@@ -5,6 +5,7 @@ from sentry_sdk.integrations.logging import ignore_logger
 
 IGNORED_ERRORS = [
     "apps.existing_database.models.User.DoesNotExist",
+    "apps.existing_database.models.UserGroup.DoesNotExist",
 ]
 
 IGNORED_LOGGERS = [
