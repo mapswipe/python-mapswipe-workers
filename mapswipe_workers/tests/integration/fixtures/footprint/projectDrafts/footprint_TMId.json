@@ -9,10 +9,10 @@
   "groupSize" : 25,
   "lookFor": "Buildings",
   "image": "http://www.fragosus.com/test/Javita.jpg",
-  "projectDetails": "This is a template for a Footprint TMId project. We use Bing as the tile server.",
+  "projectDetails": "This is a template for a Validate TMId project. We use Bing as the tile server.",
   "inputType" : "TMId",
-  "name" : "Test Footprint TMId",
-  "projectTopic" : "Test Footprint TMId",
+  "name" : "Test Validate TMId",
+  "projectTopic" : "Test Validate TMId",
   "projectType" : 2,
   "verificationNumber": 3,
   "tileServer" : {

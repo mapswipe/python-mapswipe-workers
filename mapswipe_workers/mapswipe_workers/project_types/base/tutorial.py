@@ -52,7 +52,7 @@ class BaseTutorial(metaclass=ABCMeta):
             )
 
         if self.projectType in [ProjectType.FOOTPRINT.value]:
-            # we compress tasks for footprint project type using gzip
+            # we compress tasks for Validate project type using gzip
             compressed_tasks = gzip_str.compress_tasks(tasks)
             tasks = {"101": compressed_tasks}
 

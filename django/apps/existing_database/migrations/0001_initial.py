@@ -65,9 +65,9 @@ class Migration(migrations.Migration):
                     models.IntegerField(
                         blank=True,
                         choices=[
-                            (1, "Build Area"),
-                            (2, "Footprint"),
-                            (3, "Change Detection"),
+                            (1, "Find"),
+                            (2, "Validate"),
+                            (3, "Compare"),
                             (4, "Completeness"),
                         ],
                         null=True,

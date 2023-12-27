@@ -18,7 +18,7 @@ class Tutorial(BaseTutorial):
         self.groups = dict()
         self.tasks = dict()
 
-        # get TileServerB for change detection and completeness type
+        # get TileServerB for Compare and completeness type
         if self.projectType in [3, 4]:
             self.tileServerB = vars(BaseTileServer(tutorial_draft["tileServerB"]))
 
@@ -46,7 +46,7 @@ class Tutorial(BaseTutorial):
         }
 
         if self.projectType in [ProjectType.CHANGE_DETECTION.value]:
-            # need to adjust xMax and yMax for Change Detection projects
+            # need to adjust xMax and yMax for Compare projects
             # since they use a different view with only one tile per screen
             self.groups[101]["xMax"] = str(100 + (number_of_screens - 1))
             self.groups[101]["yMax"] = str(self.groups[101]["yMin"])
@@ -109,7 +109,7 @@ class Tutorial(BaseTutorial):
                     ),
                 }
 
-                # Completeness and Change Detection projects use a second tile image url
+                # Completeness and Compare projects use a second tile image url
                 if self.projectType in [
                     ProjectType.CHANGE_DETECTION.value,
                     ProjectType.COMPLETENESS.value,

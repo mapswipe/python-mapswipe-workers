@@ -40,7 +40,7 @@ interface Tutorial {
     contributorCount: number;
     exampleImage1: string;
     exampleImage2: string;
-    inputGeometries?: string; // For Footprint
+    inputGeometries?: string; // For Validate
     lookFor: string;
     name: string;
     progress: number;
@@ -54,7 +54,7 @@ interface Tutorial {
     }[];
     status: string; // "tutorial"?
     tileServer: TileServerDetails;
-    tileServerB?: TileServerDetails; // For Change detection and Completeness
+    tileServerB?: TileServerDetails; // For Compare and Completeness
     tutorialDraftId: string;
     zoomLevel: number;
     customOptions: CustomOptions;

@@ -51,7 +51,7 @@ function Home(props: Props) {
                     </div>
                     <div className={styles.description}>
                         <p>
-                            You can set up a new mission by setting up project draft through
+                            You can set up a new project by setting up project draft through
                             &nbsp;
                             <Link to="/new-project/">
                                 New Project

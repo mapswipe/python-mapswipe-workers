@@ -177,7 +177,7 @@ function UserGroupDashboard(props: Props) {
             } : undefined,
             onCompleted: (data) => {
                 const userGroupData = [
-                    ['User', 'Total swipes', 'Mission contributed', 'Time spent(mins)'],
+                    ['User', 'Total swipes', 'Project contributed', 'Time spent(mins)'],
                     ...(data.userGroup.userMemberships.items.map((user) => (
                         [
                             user.username,
@@ -294,7 +294,7 @@ function UserGroupDashboard(props: Props) {
                                 Total Swipes
                             </div>
                             <div className={styles.tableHeading}>
-                                Mission contributed
+                                Project contributed
                             </div>
                             <div className={styles.tableHeading}>
                                 Time Spent

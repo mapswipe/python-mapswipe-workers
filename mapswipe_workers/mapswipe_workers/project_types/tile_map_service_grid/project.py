@@ -25,7 +25,7 @@ class Project(BaseProject):
         self.zoomLevel = int(project_draft.get("zoomLevel", 18))
         self.tileServer = vars(BaseTileServer(project_draft["tileServer"]))
 
-        # get TileServerB for change detection and completeness type
+        # get TileServerB for Compare and completeness type
         if self.projectType in [
             ProjectType.COMPLETENESS.value,
             ProjectType.CHANGE_DETECTION.value,

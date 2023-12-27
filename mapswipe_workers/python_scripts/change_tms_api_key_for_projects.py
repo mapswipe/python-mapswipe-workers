@@ -26,7 +26,7 @@ def get_all_projects_by_tms(tms_name: str):
         for project_id, data in projects.items():
             project_type = data.get("projectType", None)
 
-            # build area, footprint and completeness project types
+            # find, footprint and completeness project types
             # use a single tile server for satellite imagery
             if (
                 project_type

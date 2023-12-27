@@ -12,9 +12,9 @@ const mapswipeProjectTypeOptions: {
     value: ProjectType;
     label: string;
 }[] = [
-    { value: PROJECT_TYPE_BUILD_AREA, label: 'Build Area' },
-    { value: PROJECT_TYPE_FOOTPRINT, label: 'Footprint' },
-    { value: PROJECT_TYPE_CHANGE_DETECTION, label: 'Change Detection' },
+    { value: PROJECT_TYPE_BUILD_AREA, label: 'Find' },
+    { value: PROJECT_TYPE_FOOTPRINT, label: 'Validate' },
+    { value: PROJECT_TYPE_CHANGE_DETECTION, label: 'Compare' },
     { value: PROJECT_TYPE_COMPLETENESS, label: 'Completeness' },
 ];
 
@@ -22,7 +22,7 @@ const crowdmapProjectTypeOptions: {
     value: ProjectType;
     label: string;
 }[] = [
-    { value: PROJECT_TYPE_BUILD_AREA, label: 'Build Area' },
+    { value: PROJECT_TYPE_BUILD_AREA, label: 'Find' },
     { value: PROJECT_TYPE_COMPLETENESS, label: 'Completeness' },
 ];
 

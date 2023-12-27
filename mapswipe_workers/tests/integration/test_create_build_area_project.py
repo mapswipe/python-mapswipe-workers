@@ -36,7 +36,7 @@ class TestCreateProject(unittest.TestCase):
         result = ref.get(shallow=True)
         self.assertIsNotNone(result)
 
-        # Build area project do not have tasks in Firebase
+        # Find project do not have tasks in Firebase
         ref = fb_db.reference(f"/v2/tasks/{self.project_id}")
         result = ref.get(shallow=True)
         self.assertIsNone(result)

@@ -67,7 +67,7 @@ const CHART_BREAKPOINT = 700;
 export type ActualContributorTimeStatType = ContributorTimeStatType & { totalSwipeTime: number };
 const UNKNOWN = '-1';
 const BUILD_AREA = 'BUILD_AREA';
-const FOOTPRINT = 'FOOTPRINT';
+const FOOTPRINT = 'Validate';
 const CHANGE_DETECTION = 'CHANGE_DETECTION';
 const COMPLETENESS = 'COMPLETENESS';
 
@@ -78,15 +78,15 @@ const projectTypes: Record<string, { color: string, name: string }> = {
     },
     [BUILD_AREA]: {
         color: '#f8a769',
-        name: 'Build Area',
+        name: 'Find',
     },
     [FOOTPRINT]: {
         color: '#bbcb7d',
-        name: 'Footprint',
+        name: 'Validate',
     },
     [CHANGE_DETECTION]: {
         color: '#79aeeb',
-        name: 'Change Detection',
+        name: 'Compare',
     },
     [COMPLETENESS]: {
         color: '#fb8072',
@@ -631,7 +631,7 @@ function StatsBoard(props: Props) {
                                 Area Swipes
                             </div>
                         )}
-                        subHeading="Build Area"
+                        subHeading="Find"
                         variant="stat"
                     />
                     <InformationCard
@@ -654,7 +654,7 @@ function StatsBoard(props: Props) {
                                 Features Checked
                             </div>
                         )}
-                        subHeading="Footprint"
+                        subHeading="Validate"
                         variant="stat"
                     />
                     <InformationCard
@@ -686,7 +686,7 @@ function StatsBoard(props: Props) {
                                 Scene Compared
                             </div>
                         )}
-                        subHeading="Change Detection"
+                        subHeading="Compare"
                         variant="stat"
                     />
                 </div>
@@ -720,7 +720,7 @@ function StatsBoard(props: Props) {
                 </div>
                 <div className={styles.otherStatsContainer}>
                     <InformationCard
-                        label="Swipes by Mission Type"
+                        label="Swipes by Project Type"
                         variant="stat"
                         contentClassName={styles.pieChartContainer}
                     >
