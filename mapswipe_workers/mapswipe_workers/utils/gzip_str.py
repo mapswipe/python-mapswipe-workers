@@ -22,7 +22,7 @@ def gunzip_bytes_obj(bytes_obj: bytes) -> str:
 
 
 def compress_tasks(tasks_list: List[Dict]) -> str:
-    """Compress tasks for footprint project type using gzip."""
+    """Compress tasks for validate project type using gzip."""
     json_string_tasks = json.dumps(tasks_list).replace(" ", "").replace("\n", "")
     compressed_tasks = gzip_str(json_string_tasks)
     # we need to decode back, but only when using Python 3.6

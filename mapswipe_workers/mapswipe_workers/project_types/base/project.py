@@ -229,13 +229,13 @@ class BaseProject(metaclass=ABCMeta):
             ProjectType.FOOTPRINT.value,
             ProjectType.CHANGE_DETECTION.value,
         ]:
-            # The change detection and building footprint project types
+            # The Compare and building Validate project types
             # use tasks in Firebase.
-            # These tasks are compressed for building footprint type.
+            # These tasks are compressed for building Validate type.
             for group_id in groupsOfTasks.keys():
                 tasks_list = groupsOfTasks[group_id]
                 group_counter += 1
-                # for tasks of a building footprint project
+                # for tasks of a building Validate project
                 # we use compression to reduce storage size in firebase
                 # since the tasks hold geometries their storage size
                 # can get quite big otherwise
@@ -265,7 +265,7 @@ class BaseProject(metaclass=ABCMeta):
                     )
                     task_upload_dict = {}
         else:
-            # For all other projects (build_area, completeness, change detection)
+            # For all other projects (build_area, completeness, Compare)
             # tasks are not needed in Firebase.
             # The task urls are generated in the app based on the tile server
             # information which is set in the project attributes in Firebase

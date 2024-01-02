@@ -1,11 +1,11 @@
-# Build Area
+# Find
 
-![Build Area](_static/img/data_structure-firebase-1.svg)
+![Find](_static/img/data_structure-firebase-1.svg)
 
 ### Project Drafts
 
-To initialize a Build Area Project as a Project Manager you only need to upload a bounding polygon as well as fill in some information about your mission.
-Details on the basic information you need to fill in to describe you mission can be found on the [main project type site](project_type.html).
+To initialize a Find Project as a Project Manager you only need to upload a bounding polygon as well as fill in some information about your project.
+Details on the basic information you need to fill in to describe you project can be found on the [main project type site](project_type.html).
 
 ```json
 {
@@ -44,7 +44,7 @@ Details on the basic information you need to fill in to describe you mission can
 ```
 
 ### Projects
-Below you can find an example for a created Build Area project in firebase.
+Below you can find an example for a created Find project in firebase.
 
 ```json
 {
@@ -56,13 +56,13 @@ Below you can find an example for a created Build Area project in firebase.
 	"image": "https://firebasestorage.googleapis.com/v0/b/dev-mapswipe.appspot.com/o/projectImages%2Fbuildarea.png?alt=media&token=07505c0e-0f80-454c-b446-9b82a73d9d3e",
 	"isFeatured": false,
 	"lookFor": "Buildings",
-	"name": "Build Area with Bing Imagery Z18 - Kenya (1)\nMapSwipe Devs",
+	"name": "Find with Bing Imagery Z18 - Kenya (1)\nMapSwipe Devs",
 	"progress": 0,
-	"projectDetails": "This is a \"normal\" Build Area project. The project uses Bing Imagery at zoom level 18",
+	"projectDetails": "This is a \"normal\" Find project. The project uses Bing Imagery at zoom level 18",
 	"projectId": "-MrbXgHx8YJDt6cTIyGA",
 	"projectNumber": "1",
 	"projectRegion": "Kenya",
-	"projectTopic": "Build Area with Bing Imagery Z18",
+	"projectTopic": "Find with Bing Imagery Z18",
 	"projectType": 1,
 	"requestingOrganisation": "MapSwipe Devs",
 	"requiredResults": 148158,
@@ -87,7 +87,7 @@ Each group has a height of three tasks and a width of approximately 40 tasks.
 
 | Parameter    | Description                                                                                          |
 |--------------|------------------------------------------------------------------------------------------------------|
-| **Geometry** | The Build Area groups save the bounding box coordinates in fields labeled xMax, xMin, yMax and yMin. |
+| **Geometry** | The Find groups save the bounding box coordinates in fields labeled xMax, xMin, yMax and yMin. |
 
 ```json
 {

@@ -29,7 +29,7 @@ The data model is depicted in *Figure 1* and consists of the following parts:
 
 | <img src="_static/img/entity_relationship_diagram-postgres_desired.PNG"> |
 
-Below you can see the structure on the example of a Build Area project. The project manager supplies a bounding polygon, 
+Below you can see the structure on the example of a Find project. The project manager supplies a bounding polygon, 
 which is then divided into multiple groups, which are in turn divided into multiple tasks. 
 Results are always bound to a task and what a result means differs by project type.
 
@@ -68,7 +68,7 @@ A project consists of several groups.
 | *Basic Information*                 |                                                                                                                                                     |
 | **Name**                            | The name of your project (25 chars max)                                                                                                             |
 | **Look For**                        | What should the users look for (e.g. buildings, cars, trees)? (15 chars max).                                                                       |
-| **Project Type**                    | Is `1` for all Build Area projects.                                                                                                                 |
+| **Project Type**                    | Is `1` for all Find projects.                                                                                                                 |
 | **Direct Image Link**               | An url to an image. Make sure you have the rights to use this image. It should end with .jpg or .png.                                               |
 | **Project Details**                 | The description for your project. (3-5 sentences).                                                                                                  |
 | **Verification Number**             | How many people do you want to see every tile before you consider it finished? (default is 3 - more is recommended for harder tasks, but this will also make project take longer) |

@@ -27,7 +27,7 @@ class Task(BaseTask):
             self.screen = feature["properties"]["screen"]
             self.reference = feature["properties"]["reference"]
 
-        # Remove projectId and groupId for tasks of Footprint project type
+        # Remove projectId and groupId for tasks of validate project type
         del self.projectId
         del self.groupId
 

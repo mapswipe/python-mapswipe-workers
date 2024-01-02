@@ -15,8 +15,8 @@ Swiping is just the beginning -- MapSwipe data is created by our users and acces
 | name                       | string  | The name of the project as displayed in the app. For newer projects this will be a composition of project topic, project region and project number.                                                                           |
 | project_details            | string  | The project description. This is displayed in the app on the project page.                                                                                                                                                    |
 | look_for                   | string  | What should the users look for (e.g. buildings, cars, trees)?                                                                                                                                                                 |
-| project_type               | integer | The type of the project. 1=BuildArea, 2=Footprint, 3=ChangeDetection, 4=Completeness                                                                                                                                          |
-| tile_server_names          | string  | The names of the satellite imagery providers used for this project. Some projects, e.g. Change Detection Type projects, have multiple tile server names.                                                                      |
+| project_type               | integer | The type of the project. 1=BuildArea, 2=Validate, 3=ChangeDetection, 4=Completeness                                                                                                                                          |
+| tile_server_names          | string  | The names of the satellite imagery providers used for this project. Some projects, e.g. Compare Type projects, have multiple tile server names.                                                                      |
 | status                     | string  | The status of the project defines if the project is visible in the app. There are the following values: active, inactive, finished, archived. Archived projects can not be set to active again.                               |
 | area_sqkm                  | float   | The size of the project area in square kilometers.                                                                                                                                                                            |
 | geom                       | string  | The geometry of the project region as WKT geometry.                                                                                                                                                                           |
@@ -52,7 +52,7 @@ This gives you the unfiltered MapSwipe results. This is most suited if you want 
 | geom        | string   | The geometry of this task as WKT geometry.                                                                                                                                                                                                                     |
 
 
-Additionally, project type specific data can be found here. E.g. footprint projects which were created based on OSM data, will have data describing the original OSM object included.
+Additionally, project type specific data can be found here. E.g. Validate projects which were created based on OSM data, will have data describing the original OSM object included.
 
 ## HOT Tasking Manager Geometries
 This gives you filtered MapSwipe data ready to be imported to the HOT Tasking Manager.

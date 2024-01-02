@@ -1,9 +1,9 @@
 # For MapSwipe Managers
 
-## Setting up a new MapSwipe mission 
-Any of the Missing Maps members can request a MapSwipe mission. If you want to add a new mission, but don't know how to do it, it will be best to reach out to the MapSwipe community via Slack.
+## Setting up a new MapSwipe project 
+Any of the Missing Maps members can request a MapSwipe project. If you want to add a new project, but don't know how to do it, it will be best to reach out to the MapSwipe community via Slack.
 
-To set up a new mission you can create a project draft through the [Manager Dashboard](https://dev.mapswipe.org/manager_dashboard/). Sign in with your MapSwipe account. In order to create new projects you need dedicated *project manager credentials*. Reach out to the MapSwipe community if you don't have these already. Once you're signed in, you will see a screen similar to the one below.
+To set up a new project you can create a project draft through the [Manager Dashboard](https://dev.mapswipe.org/manager_dashboard/). Sign in with your MapSwipe account. In order to create new projects you need dedicated *project manager credentials*. Reach out to the MapSwipe community if you don't have these already. Once you're signed in, you will see a screen similar to the one below.
 
 ![Manager Dashboard](_static/img/manager_dashboard_screenshot.png)
 
@@ -15,15 +15,15 @@ General points of attention:
 * Verify if the project name is short and clear
 * The minimum verification count is 3. The algorithm is calculated on that. Less persons looking at one square has implications on the quality of the MapSwipe data. The best results we have with a 5 person verification.
 * Reread, correct and improve the description given through the request.
-* Check if the image is the good format and if the size is not to big - max 1MB. The image will be show as a thumbnail for your mission.
+* Check if the image is the good format and if the size is not to big - max 1MB. The image will be show as a thumbnail for your project.
 * Tile server import, which imagery are you using is the question here. We only have legal permission to use Bing for now. For custom tile servers (e.g. from OpenAerial Map) check the permission.
-* Check the (Bing) imagery available for the area, we learned that good imagery is key to keep a mission going. If the imagery is not good enough or covered by clouds adjust the area. You need to zoom in till level 18. 
+* Check the (Bing) imagery available for the area, we learned that good imagery is key to keep a project going. If the imagery is not good enough or covered by clouds adjust the area. You need to zoom in till level 18. 
 
 For BuildArea and ChangeDetection projects:
-* MapSwipe can only process geographical areas up to 5,000km<sup>2</sup>. Check if the GeoJSON you received has this size. If not, you may need to split up the area into multiple pieces, and create more than one MapSwipe mission out of the area.
+* MapSwipe can only process geographical areas up to 5,000km<sup>2</sup>. Check if the GeoJSON you received has this size. If not, you may need to split up the area into multiple pieces, and create more than one MapSwipe project out of the area.
 * The GeoJSON needs to be a flat polygon, check this and change (in [geojson.io](https://geojson.io) or QGIS) if needed.
 
-For Footprint projects:
+For Validate projects:
 * The GeoJSON file should contain only simple Polygons. We currently don't support complex Multipolygon geometries (e.g. [polygon with holes](https://developers.google.com/maps/documentation/javascript/examples/polygon-hole)) 
 
 Once you submit, the task should appear relatively quickly in the manager dashboard. You will receive a message in Slack. 
