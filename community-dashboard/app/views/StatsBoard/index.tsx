@@ -67,7 +67,7 @@ const CHART_BREAKPOINT = 700;
 export type ActualContributorTimeStatType = ContributorTimeStatType & { totalSwipeTime: number };
 const UNKNOWN = '-1';
 const BUILD_AREA = 'BUILD_AREA';
-const FOOTPRINT = 'VALIDATE';
+const FOOTPRINT = 'FOOTPRINT';
 const CHANGE_DETECTION = 'CHANGE_DETECTION';
 const COMPLETENESS = 'COMPLETENESS';
 
