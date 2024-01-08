@@ -2,8 +2,7 @@ import unittest
 
 from click.testing import CliRunner
 
-import set_up
-import tear_down
+from tests.integration import set_up, tear_down
 from mapswipe_workers import auth, mapswipe_workers
 from mapswipe_workers.utils.create_directories import create_directories
 
