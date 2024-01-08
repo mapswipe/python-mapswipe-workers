@@ -67,7 +67,7 @@ exports.groupUsersCounter = functions.database.ref('/v2/results/{projectId}/{gro
 
         if (dataSnapshot.exists()) {
             const project = dataSnapshot.val();
-            // Check if project type is footprint and also has
+            // Check if project type is validate and also has
             // custom options (i.e. these are new type of projects)
             if (project.projectType === 2 && project.customOptions) {
                 // We remove the results submitted from older version of app (< v2.2.6)

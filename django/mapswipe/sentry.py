@@ -3,7 +3,10 @@ from django.conf import settings
 from sentry_sdk.integrations.django import DjangoIntegration
 from sentry_sdk.integrations.logging import ignore_logger
 
-IGNORED_ERRORS = []
+IGNORED_ERRORS = [
+    "apps.existing_database.models.User.DoesNotExist",
+]
+
 IGNORED_LOGGERS = [
     "graphql.execution.utils",
 ]

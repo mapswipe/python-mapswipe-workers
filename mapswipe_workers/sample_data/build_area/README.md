@@ -1,4 +1,4 @@
-# Creating a new 'build area' tutorial
+# Creating a new 'Find' tutorial
 
 
 ## Create the tutorial areas
@@ -37,7 +37,7 @@
 ## Test the tutorial on the dev server
 
 1. Login to https://dev.mapswipe.org/ and selecte **CREATE TUTORIAL**.
-1. Check that **Project Type** is set to **Build Area**.
+1. Check that **Project Type** is set to **Find**.
 1. Set **Look For** - this will show up on the second screen of the tutorial.
 1. Set the **Name** - you should include a number that you can increment in case you need to make an edit and upload a new version.
 1. Upload your JSON tutorial text file, GEOJSON tutorial tasks file, 2 images, set your zoom level, and set the tile server. Click **Submit** and wait for about 5 minutes.

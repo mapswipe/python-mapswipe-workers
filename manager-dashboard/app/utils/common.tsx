@@ -71,9 +71,9 @@ export type ProjectType = 1 | 2 | 3 | 4;
 export const projectTypeLabelMap: {
     [key in ProjectType]: string
 } = {
-    [PROJECT_TYPE_BUILD_AREA]: 'Build Area',
-    [PROJECT_TYPE_FOOTPRINT]: 'Footprint',
-    [PROJECT_TYPE_CHANGE_DETECTION]: 'Change Detection',
+    [PROJECT_TYPE_BUILD_AREA]: 'Find',
+    [PROJECT_TYPE_FOOTPRINT]: 'Validate',
+    [PROJECT_TYPE_CHANGE_DETECTION]: 'Compare',
     [PROJECT_TYPE_COMPLETENESS]: 'Completeness',
 };
 

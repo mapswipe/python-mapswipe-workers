@@ -1,14 +1,14 @@
-# Footprint
+# Validate
 
 ## Project Draft
 
-Footprint projects can be supplied with geometries in three seperate ways. 
+Validate projects can be supplied with geometries in three seperate ways. 
 1. by specifying a HOT Tasking Manager Project ID and an object [filter](https://docs.ohsome.org/ohsome-api/v1/filter.html)
 2. by specifying an url to the data (e.g. an [ohsomeAPI](https://docs.ohsome.org/ohsome-api/v1/) call)
 3. by uploading an aoi and an object [filter](https://docs.ohsome.org/ohsome-api/v1/filter.html)
 
 
-Project Draft example for a footprint project which was initialized with an aoi and a filter:
+Project Draft example for a Validate project which was initialized with an aoi and a filter:
 ```json
 {
   "createdBy" : "Sample Admin",
@@ -30,8 +30,8 @@ Project Draft example for a footprint project which was initialized with an aoi 
   "image": "http://www.fragosus.com/test/Javita.jpg",
   "projectDetails": "This is a template for a GeoJSON AOI project. We use Bing as the tile server.",
   "inputType" : "aoi_file",
-  "name" : "Test Footprint GeoJSON AOI",
-  "projectTopic" : "Test Footprint GeoJSON AOI",
+  "name" : "Test Validate GeoJSON AOI",
+  "projectTopic" : "Test Validate GeoJSON AOI",
   "projectType" : 2,
   "verificationNumber": 3,
   "tileServer" : {
@@ -87,7 +87,7 @@ Project Structure example for a project which was created via HOT Tasking Manage
 
 ## Group structure
 
-The footprint groups follow the standard group structure.
+The validate groups follow the standard group structure.
 ```json
 {
   "finishedCount" : 0,
@@ -120,4 +120,4 @@ The footprint groups follow the standard group structure.
 
 ## Result Structure
 
-The Result for a footprint project are explicitly given via the "yes", "no" and "not sure" buttons.
+The Result for a validate project are explicitly given via the "yes", "no" and "not sure" buttons.

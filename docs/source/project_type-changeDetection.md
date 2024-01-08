@@ -1,17 +1,17 @@
-# Change Detection
+# Compare
 
 ## Project Draft
 
-The Change detection project type is initialized in the same way as the standard buildArea project.
+The Compare project type is initialized in the same way as the standard buildArea project.
 
-Project Draft example for a Change Detection project:
+Project Draft example for a Compare project:
 ```json
 {
   "createdBy": "Sample Manager",
   "geometry": {"type":"FeatureCollection","features":[{"type":"Feature","properties":{},"geometry":{"type":"Polygon","coordinates":[[[-175.21785736083984,-21.122295110595505],[-175.2367401123047,-21.148873980682744],[-175.21339416503906,-21.152716314425852],[-175.19931793212888,-21.15239612375494],[-175.19588470458984,-21.147913381670975],[-175.1931381225586,-21.136385707660683],[-175.1934814453125,-21.129660817021904],[-175.21785736083984,-21.122295110595505]]]}}]},
   "image": "http://www.redcrosseth.org/media/k2/items/cache/5a05a447acfdf6fcc40548cc4c1cea8d_L.jpg",
   "lookFor": "DESTROYED BUILDINGS",
-  "name": "Change Detection Sample Project",
+  "name": "Compare Sample Project",
   "projectDetails": "This project uses Bing as the tile server and zoom level 18 for the before image. For after we use imagery from open aerial map.",
   "verificationNumber": 3,
   "groupSize": 15,
@@ -81,7 +81,7 @@ Project Structure example for a project which was created via HOT Tasking Manage
 
 | Parameter    | Description                                                                                                |
 |--------------|------------------------------------------------------------------------------------------------------------|
-| **Geometry** | The Change Detection groups save the bounding box coordinates in fields labeled xMax, xMin, yMax and yMin. |
+| **Geometry** | The Compare groups save the bounding box coordinates in fields labeled xMax, xMin, yMax and yMin. |
 
 ```json
 {

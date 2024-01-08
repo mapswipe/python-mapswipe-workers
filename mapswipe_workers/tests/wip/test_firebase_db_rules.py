@@ -259,7 +259,7 @@ class TestFirebaseDBRules(unittest.TestCase):
             (False, False),  # private project status attribute
             (False, False),  # private project b query
             (False, False),  # private project b status attribute
-            (True, False),  # build area tutorial query
+            (True, False),  # Find tutorial query
             (False, False),  # team
             (False, False),  # teamName
             (False, False),  # teamToken
@@ -302,7 +302,7 @@ class TestFirebaseDBRules(unittest.TestCase):
             (True, False),  # private project status
             (False, False),  # private project b query
             (False, False),  # private project b status
-            (True, False),  # build area tutorial query
+            (True, False),  # Find tutorial query
             (False, False),  # team
             (True, False),  # teamName
             (False, False),  # teamToken
@@ -346,7 +346,7 @@ class TestFirebaseDBRules(unittest.TestCase):
             (True, True),  # private project status
             (True, False),  # private project b query
             (True, True),  # private project b status
-            (True, False),  # build area tutorial query
+            (True, False),  # Find tutorial query
             (True, True),  # team
             (True, True),  # teamName
             (True, True),  # teamToken

@@ -18,8 +18,8 @@
   "image": "http://www.fragosus.com/test/Javita.jpg",
   "projectDetails": "This is a template for a GeoJSON AOI project. We use Bing as the tile server.",
   "inputType" : "aoi_file",
-  "name" : "Test Footprint GeoJSON AOI",
-  "projectTopic" : "Test Footprint GeoJSON AOI",
+  "name" : "Test Validate GeoJSON AOI",
+  "projectTopic" : "Test Validate GeoJSON AOI",
   "projectType" : 2,
   "verificationNumber": 3,
   "tileServer" : {

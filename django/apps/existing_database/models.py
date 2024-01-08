@@ -62,9 +62,9 @@ class UserGroupUserMembership(Model):
 
 class Project(Model):
     class Type(models.IntegerChoices):
-        BUILD_AREA = 1, "Build Area"
-        FOOTPRINT = 2, "Footprint"
-        CHANGE_DETECTION = 3, "Change Detection"
+        BUILD_AREA = 1, "Find"
+        FOOTPRINT = 2, "Validate"
+        CHANGE_DETECTION = 3, "Compare"
         COMPLETENESS = 4, "Completeness"
 
     project_id = models.CharField(primary_key=True, max_length=999)

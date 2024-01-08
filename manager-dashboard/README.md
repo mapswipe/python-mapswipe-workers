@@ -1,6 +1,6 @@
 # Manager Dashboard
 A web interface for create and manage
-missions, tutorials, groups for the MapSwipe.
+projects, tutorials, groups for the MapSwipe.
 
 ## Development
 
