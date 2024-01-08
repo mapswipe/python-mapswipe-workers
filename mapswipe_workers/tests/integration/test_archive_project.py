@@ -1,8 +1,7 @@
 import time
 import unittest
 
-from tests.integration import set_up
-import tear_down
+from tests.integration import set_up, tear_down
 from mapswipe_workers import auth
 from mapswipe_workers.config import FIREBASE_DB
 from mapswipe_workers.firebase_to_postgres import archive_project
