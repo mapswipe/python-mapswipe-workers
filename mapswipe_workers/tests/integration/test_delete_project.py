@@ -49,7 +49,7 @@ class TestDeleteProject(BaseTestCase):
         self.assertIsNotNone(ref.get(shallow=True))
         ref = fb_db.reference("v2/groups")
         self.assertIsNotNone(ref.get(shallow=True))
-        ref = fb_db.reference("v2/groupsUsers")
+        ref = fb_db.reference("v2/userGroups")
         self.assertIsNotNone(ref.get(shallow=True))
         ref = fb_db.reference("v2/projects")
         self.assertIsNotNone(ref.get(shallow=True))

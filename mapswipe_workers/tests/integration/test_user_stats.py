@@ -12,7 +12,7 @@ from mapswipe_workers.generate_stats.project_stats import (
 from mapswipe_workers.generate_stats.user_stats import get_agg_results_by_user_id
 from tests.integration import set_up, tear_down
 
-from .base import BaseTestCase
+from base import BaseTestCase
 
 
 class TestUserStats(BaseTestCase):
