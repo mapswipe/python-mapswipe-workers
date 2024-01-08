@@ -1,13 +1,13 @@
 import time
 import unittest
 
+import set_up
+import tear_down
 from mapswipe_workers import auth
 from mapswipe_workers.config import FIREBASE_DB
 from mapswipe_workers.definitions import CustomError
 from mapswipe_workers.firebase_to_postgres import delete_project
-
-from . import set_up, tear_down
-from .base import BaseTestCase
+from base import BaseTestCase
 
 
 class TestDeleteProject(BaseTestCase):

@@ -2,13 +2,13 @@ import os
 import tempfile
 import unittest
 
+import set_up
+import tear_down
 from mapswipe_workers.firebase_to_postgres.update_data import (
     get_contributor_count_from_postgres,
     get_project_progress,
 )
-
-from . import set_up, tear_down
-from .base import BaseTestCase
+from base import BaseTestCase
 
 
 class TestUpdateData(BaseTestCase):

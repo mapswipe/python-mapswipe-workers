@@ -2,10 +2,10 @@ import os
 import tempfile
 import unittest
 
+import set_up
+import tear_down
 from mapswipe_workers.generate_stats.project_stats import get_results
-
-from . import set_up, tear_down
-from .base import BaseTestCase
+from base import BaseTestCase
 
 
 class TestGetResults(BaseTestCase):

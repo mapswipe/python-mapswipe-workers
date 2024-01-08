@@ -5,7 +5,7 @@ from unittest import mock
 
 from mapswipe_workers.firebase_to_postgres import update_data
 
-from .base import BaseTestCase
+from base import BaseTestCase
 
 
 class TestUpdateProjectData(BaseTestCase):
