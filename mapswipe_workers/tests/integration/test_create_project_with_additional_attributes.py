@@ -2,10 +2,9 @@ import unittest
 
 from click.testing import CliRunner
 
+from tests.integration import set_up, tear_down
 from mapswipe_workers import auth, mapswipe_workers
 from mapswipe_workers.utils.create_directories import create_directories
-
-from . import set_up, tear_down
 
 
 def setUpProjectDraft(project_type_name, file_name):

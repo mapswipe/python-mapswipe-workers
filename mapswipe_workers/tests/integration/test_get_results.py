@@ -3,12 +3,10 @@ import tempfile
 import unittest
 
 from mapswipe_workers.generate_stats.project_stats import get_results
-
-from . import set_up, tear_down
-from .base import BaseTestCase
+from tests.integration import base, set_up, tear_down
 
 
-class TestGetResults(BaseTestCase):
+class TestGetResults(base.BaseTestCase):
     def setUp(self):
         super().setUp()
         project_type = "tile_map_service_grid"
