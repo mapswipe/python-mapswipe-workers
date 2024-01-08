@@ -3,12 +3,11 @@ import unittest
 from typing import Union
 from unittest import mock
 
+from tests.integration import base
 from mapswipe_workers.firebase_to_postgres import update_data
 
-from base import BaseTestCase
 
-
-class TestUpdateProjectData(BaseTestCase):
+class TestUpdateProjectData(base.BaseTestCase):
     class FbDbMock:
         url: Union[str, None]
 
@@ -168,35 +167,35 @@ class TestUpdateProjectData(BaseTestCase):
 
         for query, expected_value in [
             (
-                UG_QUERY,
-                [
-                    ("user-group-1", "User Group 1", "User Group 1 description", True),
-                    ("user-group-2", "User Group 2", "User Group 2 description", False),
-                    ("user-group-3", "User Group 3", "User Group 3 description", True),
-                ],
+                    UG_QUERY,
+                    [
+                        ("user-group-1", "User Group 1", "User Group 1 description", True),
+                        ("user-group-2", "User Group 2", "User Group 2 description", False),
+                        ("user-group-3", "User Group 3", "User Group 3 description", True),
+                    ],
             ),
             (T_UG_QUERY, []),
             (
-                UGM_QUERY,
-                [
-                    ("user-group-1", "user-1", True),
-                    ("user-group-1", "user-2", True),
-                    ("user-group-1", "user-3", True),
-                    ("user-group-2", "user-1", True),
-                    ("user-group-2", "user-2", True),
-                    ("user-group-2", "user-4", True),
-                    ("user-group-3", "user-2", True),
-                ],
+                    UGM_QUERY,
+                    [
+                        ("user-group-1", "user-1", True),
+                        ("user-group-1", "user-2", True),
+                        ("user-group-1", "user-3", True),
+                        ("user-group-2", "user-1", True),
+                        ("user-group-2", "user-2", True),
+                        ("user-group-2", "user-4", True),
+                        ("user-group-3", "user-2", True),
+                    ],
             ),
             (T_UGM_QUERY, []),
             (
-                U_QUERY,
-                [
-                    ("user-1",),
-                    ("user-2",),
-                    ("user-3",),
-                    ("user-4",),
-                ],
+                    U_QUERY,
+                    [
+                        ("user-1",),
+                        ("user-2",),
+                        ("user-3",),
+                        ("user-4",),
+                    ],
             ),
         ]:
             self.assertEqual(
@@ -228,52 +227,52 @@ class TestUpdateProjectData(BaseTestCase):
 
         for query, expected_value in [
             (
-                UG_QUERY,
-                [
-                    ("user-group-1", "User Group 1", "User Group 1 description", True),
-                    (
-                        "user-group-2",
-                        "User Group 2 (UPDATED)",
-                        "User Group 2 description (UPDATED)",
-                        False,
-                    ),
-                    ("user-group-3", "User Group 3", "User Group 3 description", True),
-                    ("user-group-4", "User Group 4", "User Group 4 description", False),
-                    ("user-group-5", "User Group 5", "User Group 5 description", False),
-                ],
+                    UG_QUERY,
+                    [
+                        ("user-group-1", "User Group 1", "User Group 1 description", True),
+                        (
+                                "user-group-2",
+                                "User Group 2 (UPDATED)",
+                                "User Group 2 description (UPDATED)",
+                                False,
+                        ),
+                        ("user-group-3", "User Group 3", "User Group 3 description", True),
+                        ("user-group-4", "User Group 4", "User Group 4 description", False),
+                        ("user-group-5", "User Group 5", "User Group 5 description", False),
+                    ],
             ),
             (T_UG_QUERY, []),
             (
-                UGM_QUERY,
-                [
-                    ("user-group-1", "user-1", True),
-                    ("user-group-1", "user-2", True),
-                    ("user-group-1", "user-3", True),
-                    ("user-group-2", "user-1", True),
-                    ("user-group-2", "user-2", False),
-                    ("user-group-2", "user-4", False),
-                    ("user-group-2", "user-8", True),
-                    ("user-group-3", "user-2", True),
-                    ("user-group-4", "user-1", True),
-                ],
+                    UGM_QUERY,
+                    [
+                        ("user-group-1", "user-1", True),
+                        ("user-group-1", "user-2", True),
+                        ("user-group-1", "user-3", True),
+                        ("user-group-2", "user-1", True),
+                        ("user-group-2", "user-2", False),
+                        ("user-group-2", "user-4", False),
+                        ("user-group-2", "user-8", True),
+                        ("user-group-3", "user-2", True),
+                        ("user-group-4", "user-1", True),
+                    ],
             ),
             (T_UGM_QUERY, []),
             (
-                U_QUERY,
-                [
-                    ("user-1",),
-                    ("user-2",),
-                    ("user-3",),
-                    ("user-4",),
-                    ("user-8",),
-                ],
+                    U_QUERY,
+                    [
+                        ("user-1",),
+                        ("user-2",),
+                        ("user-3",),
+                        ("user-4",),
+                        ("user-8",),
+                    ],
             ),
             (
-                UML_QUERY,
-                [
-                    ("user-group-1", "user-1", "join"),
-                    ("user-group-2", "user-2", "leave"),
-                ],
+                    UML_QUERY,
+                    [
+                        ("user-group-1", "user-1", "join"),
+                        ("user-group-2", "user-2", "leave"),
+                    ],
             ),
         ]:
             self.assertEqual(
@@ -300,11 +299,11 @@ class TestUpdateProjectData(BaseTestCase):
         U_QUERY = "SELECT user_id, username FROM users"
         for query, expected_value in [
             (
-                U_QUERY,
-                [
-                    ("user-1", "test user"),
-                    ("user-2", "test user 2"),
-                ],
+                    U_QUERY,
+                    [
+                        ("user-1", "test user"),
+                        ("user-2", "test user 2"),
+                    ],
             ),
         ]:
             self.assertEqual(
