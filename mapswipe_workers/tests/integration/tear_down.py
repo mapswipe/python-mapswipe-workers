@@ -111,7 +111,7 @@ def delete_test_data(project_id: str) -> None:
 def delete_test_user_group(user_group_ids: List) -> None:
     # Make sure delete_test_data is runned first.
     fb_db = auth.firebaseDB()
-    ref = fb_db.reference("v2/usersGroups")
+    ref = fb_db.reference("v2/userGroups")
     ref.delete()
 
     pg_db = auth.postgresDB()
