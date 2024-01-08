@@ -62,7 +62,7 @@ def archive_project(project_ids: list) -> bool:
                 ref.update({key: None for key in chunk})
             ref.delete()
 
-        ref = fb_db.reference(f"v2/groupsUsers/{project_id}")
+        ref = fb_db.reference(f"v2/userGroups/{project_id}")
         if not re.match(r"/v2/\w+/[-a-zA-Z0-9]+", ref.path):
             raise CustomError(
                 "Given argument resulted in invalid "

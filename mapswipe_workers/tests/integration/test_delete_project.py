@@ -36,7 +36,7 @@ class TestDeleteProject(BaseTestCase):
         self.assertIsNone(ref.get())
         ref = fb_db.reference(f"v2/groups/{self.project_id}")
         self.assertIsNone(ref.get())
-        ref = fb_db.reference(f"v2/groupsUsers/{self.project_id}")
+        ref = fb_db.reference(f"v2/userGroups/{self.project_id}")
         self.assertIsNone(ref.get())
         ref = fb_db.reference(f"v2/projects/{self.project_id}")
         self.assertIsNone(ref.get())

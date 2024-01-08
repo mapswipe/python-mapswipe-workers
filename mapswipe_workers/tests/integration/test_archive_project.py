@@ -33,7 +33,7 @@ class TestArchiveProject(unittest.TestCase):
         ref = fb_db.reference(f"v2/groups/{self.project_id}")
         self.assertIsNone(ref.get())
 
-        ref = fb_db.reference(f"v2/groupsUsers/{self.project_id}")
+        ref = fb_db.reference(f"v2/userGroups/{self.project_id}")
         self.assertIsNone(ref.get())
 
         ref = fb_db.reference(f"v2/tasks/{self.project_id}")
@@ -48,7 +48,7 @@ class TestArchiveProject(unittest.TestCase):
         self.assertEqual(result, "archived")
 
     def test_project_id_not_exists(self):
-        """Test for project id which does not exists."""
+        """Test for project id which does not exist."""
         archive_project.archive_project(["tuna"])
 
         time.sleep(1)  # Wait for Firebase Functions to complete
