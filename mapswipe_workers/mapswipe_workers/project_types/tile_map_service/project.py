@@ -68,11 +68,6 @@ class TileMapServiceBaseProject(BaseProject):
         )
         return wkt_geometry
 
-    def save_to_firebase(self, project, groups, tasks):
-        self.save_project_to_firebase(project)
-        self.save_groups_to_firebase(project["projectId"], groups)
-        self.save_tasks_to_firebase(project["projectId"], tasks)
-
     def save_project_to_firebase(self, project):
         project.pop("geometry")
         firebase = Firebase()

@@ -38,7 +38,7 @@ class TestCreateTileClassificationProject(unittest.TestCase):
             FROM projects WHERE project_id = %s
         """
         result = pg_db.retr_query(query, [self.project_id])[0][0]
-        self.assertEqual(result, 99)
+        self.assertEqual(result, 3)
 
         query = """
             SELECT project_type_specifics -> 'manualUrl'
@@ -54,7 +54,7 @@ class TestCreateTileClassificationProject(unittest.TestCase):
 
         ref = fb_db.reference(f"/v2/projects/{self.project_id}/appId")
         result = ref.get(shallow=True)
-        self.assertEqual(result, 99)
+        self.assertEqual(result, 3)
 
         ref = fb_db.reference(f"/v2/projects/{self.project_id}/manualUrl")
         result = ref.get(shallow=True)

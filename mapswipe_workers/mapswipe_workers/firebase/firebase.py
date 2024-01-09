@@ -59,6 +59,12 @@ class Firebase:
                 )
                 task_upload_dict = {}
 
+    def delete_project_draft_from_firebase(self, projectId):
+        self.ref.update({f"v2/projectDrafts/{projectId}": {}})
+        logger.info(
+            f"{projectId} -" f" deleted project draft from firebase realtime database"
+        )
+
     def save_tutorial_to_firebase(
         self, tutorial, groups, groupsOfTasks, useCompression: bool
     ):

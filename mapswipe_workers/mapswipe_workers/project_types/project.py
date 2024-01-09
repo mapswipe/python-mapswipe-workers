@@ -9,15 +9,9 @@ from typing import Dict, List
 from osgeo import ogr
 
 from mapswipe_workers import auth
-from mapswipe_workers.definitions import (
-    DATA_PATH,
-    CustomError,
-    ProjectType,
-    logger,
-    sentry,
-)
+from mapswipe_workers.definitions import DATA_PATH, CustomError, logger, sentry
 from mapswipe_workers.firebase.firebase import Firebase
-from mapswipe_workers.utils import geojson_functions, gzip_str
+from mapswipe_workers.utils import geojson_functions
 
 
 @dataclass
@@ -162,12 +156,15 @@ class BaseProject(ABC):
             self.save_project_to_firebase(project)
             self.save_groups_to_firebase(project["projectId"], groups)
             self.save_tasks_to_firebase(project["projectId"], tasks)
+            # Delete project draft in Firebase once all things are in Firebase
+            self.delete_draft_from_firebase()
 
             logger.info(
                 f"{self.projectId}" f" - the project has been saved" f" to firebase"
             )
         # if project can't be saved to firebase, delete also in postgres
         except Exception as e:
+            self.delete_draft_from_firebase()
             self.delete_from_postgres()
             self.delete_from_files()
             logger.exception(
@@ -194,84 +191,6 @@ class BaseProject(ABC):
     @abstractmethod
     def save_tasks_to_firebase(self, projectId: str, tasks: dict):
         pass
-
-    def save_to_firebase(self, project, groups, groupsOfTasks):
-
-        # remove wkt geometry attribute of projects and tasks
-        project.pop("geometry", None)
-        for group_id in groupsOfTasks.keys():
-            for i in range(0, len(groupsOfTasks[group_id])):
-                groupsOfTasks[group_id][i].pop("geometry", None)
-
-        fb_db = auth.firebaseDB()
-        ref = fb_db.reference("")
-        # save project
-        ref.update({f"v2/projects/{self.projectId}": project})
-        logger.info(
-            f"{self.projectId} -" f" uploaded project to firebase realtime database"
-        )
-        # save groups
-        ref.update({f"v2/groups/{self.projectId}": groups})
-        logger.info(
-            f"{self.projectId} -" f" uploaded groups to firebase realtime database"
-        )
-        # save tasks, to avoid firebase write size limit we write chunks of task
-        # we write the tasks for 250 groups at once
-        task_upload_dict = {}
-
-        logger.info(f"there are {len(groupsOfTasks)} groups for this project")
-        group_counter = 0
-
-        if self.projectType in [
-            ProjectType.FOOTPRINT.value,
-            ProjectType.CHANGE_DETECTION.value,
-        ]:
-            # The Compare and building Validate project types
-            # use tasks in Firebase.
-            # These tasks are compressed for building Validate type.
-            for group_id in groupsOfTasks.keys():
-                tasks_list = groupsOfTasks[group_id]
-                group_counter += 1
-                # for tasks of a building Validate project
-                # we use compression to reduce storage size in firebase
-                # since the tasks hold geometries their storage size
-                # can get quite big otherwise
-                if self.projectType in [ProjectType.FOOTPRINT.value]:
-                    # removing properties from each task
-                    for task in tasks_list:
-                        task.pop("properties", None)
-
-                    compressed_tasks = gzip_str.compress_tasks(tasks_list)
-                    task_upload_dict[
-                        f"v2/tasks/{self.projectId}/{group_id}"
-                    ] = compressed_tasks
-                else:
-                    task_upload_dict[
-                        f"v2/tasks/{self.projectId}/{group_id}"
-                    ] = tasks_list
-
-                # we upload tasks in batches of maximum 150 groups
-                # this is to avoid the maximum write size limit in firebase
-                if len(task_upload_dict) % 150 == 0 or group_counter == len(
-                    groupsOfTasks
-                ):
-                    ref.update(task_upload_dict)
-                    logger.info(
-                        f"{self.projectId} -"
-                        f" uploaded 150 groups with tasks to firebase realtime database"
-                    )
-                    task_upload_dict = {}
-        else:
-            # For all other projects:
-            # build_area, completeness, compare)
-            # tasks are not needed in Firebase.
-            # The task urls are generated in the app based on the tile server
-            # information which is set in the project attributes in Firebase
-            pass
-
-        # delete project draft in Firebase once all things are in Firebase
-        ref = fb_db.reference(f"v2/projectDrafts/{self.projectId}")
-        ref.set({})
 
     def save_to_postgres(self, project, groups, groupsOfTasks):
         """
@@ -638,6 +557,10 @@ class BaseProject(ABC):
                 w.writerow(output_dict)
         tasks_txt_file.close()
         return tasks_txt_filename
+
+    def delete_draft_from_firebase(self):
+        firebase = Firebase()
+        firebase.delete_project_draft_from_firebase(self.projectId)
 
     def delete_from_postgres(self):
         p_con = auth.postgresDB()
