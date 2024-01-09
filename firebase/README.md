@@ -7,7 +7,7 @@ Create a docker image from the latest data.
 * `docker-compose build firebase_image`
 
 Alternatively you could do
-* `sudo docker build -t . firebase_image`
+* `sudo docker build -t firebase_image .`
 
 Then run the container interactively and open a bash shell.
 * `sudo docker run -it firebase_image /bin/bash`
