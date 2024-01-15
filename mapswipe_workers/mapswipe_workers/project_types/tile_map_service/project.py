@@ -16,7 +16,7 @@ from mapswipe_workers.project_types.tile_server import BaseTileServer
 from mapswipe_workers.utils import tile_functions, tile_grouping_functions
 from mapswipe_workers.utils.validate_input import (
     save_geojson_to_file,
-    validate_geometries,
+    validate_and_collect_geometries_to_multipolyon, multipolygon_to_wkt,
 )
 
 
@@ -51,9 +51,10 @@ class TileMapServiceBaseProject(BaseProject):
     def validate_geometries(self):
         # TODO rename attribute validInputGeometries, it is a path to a geojson.
         self.validInputGeometries = save_geojson_to_file(self.projectId, self.geometry)
-        wkt_geometry = validate_geometries(
+        multi_polygon = validate_and_collect_geometries_to_multipolyon(
             self.projectId, self.zoomLevel, self.validInputGeometries
         )
+        wkt_geometry = multipolygon_to_wkt(multi_polygon)
         return wkt_geometry
 
     def save_project_to_firebase(self, project):

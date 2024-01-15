@@ -7,7 +7,7 @@ from osgeo import ogr
 from mapswipe_workers.definitions import CustomError
 from mapswipe_workers.utils.validate_input import (
     save_geojson_to_file,
-    validate_geometries,
+    validate_and_collect_geometries_to_multipolyon, multipolygon_to_wkt,
 )
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -31,7 +31,7 @@ class TestValidateGeometries(unittest.TestCase):
             "fixtures/tile_map_service_grid/projects/projectDraft_area_too_large.json"
         )
         project_draft, path_to_geometries = get_project_draft(path)
-        self.assertRaises(CustomError, validate_geometries, 1, 18, path_to_geometries)
+        self.assertRaises(CustomError, validate_and_collect_geometries_to_multipolyon, 1, 18, path_to_geometries)
 
     def test_broken_geojson_string(self):
         """Test if validate_geometries throws an error
@@ -42,7 +42,7 @@ class TestValidateGeometries(unittest.TestCase):
             "fixtures/tile_map_service_grid/projects/projectDraft_broken_geojson.json"
         )
         project_draft, path_to_geometries = get_project_draft(path)
-        self.assertRaises(CustomError, validate_geometries, 1, 18, path_to_geometries)
+        self.assertRaises(CustomError, validate_and_collect_geometries_to_multipolyon, 1, 18, path_to_geometries)
 
     def test_feature_is_none(self):
         """Test if validate_geometries throws an error
@@ -52,7 +52,7 @@ class TestValidateGeometries(unittest.TestCase):
             "fixtures/tile_map_service_grid/projects/projectDraft_feature_is_none.json"
         )
         project_draft, path_to_geometries = get_project_draft(path)
-        self.assertRaises(CustomError, validate_geometries, 1, 18, path_to_geometries)
+        self.assertRaises(CustomError, validate_and_collect_geometries_to_multipolyon, 1, 18, path_to_geometries)
 
     def test_no_features(self):
         """Test if validate_geometries throws an error
@@ -60,7 +60,7 @@ class TestValidateGeometries(unittest.TestCase):
 
         path = "fixtures/tile_map_service_grid/projects/projectDraft_no_features.json"
         project_draft, path_to_geometries = get_project_draft(path)
-        self.assertRaises(CustomError, validate_geometries, 1, 18, path_to_geometries)
+        self.assertRaises(CustomError, validate_and_collect_geometries_to_multipolyon, 1, 18, path_to_geometries)
 
     def test_single_geom_validation(self):
         path = "fixtures/completeness/projectDraft_single.json"
@@ -87,7 +87,9 @@ class TestValidateGeometries(unittest.TestCase):
         wkt_geometry_collection = dissolved_geometry.ExportToWkt()
 
         # results coming from the validate_geometries function
-        wkt = validate_geometries(1, 18, path_to_geometries)
+        wkt = multipolygon_to_wkt(
+            validate_and_collect_geometries_to_multipolyon(1, 18, path_to_geometries)
+        )
         # Test that sequence first contains the same elements as second
         self.assertCountEqual(wkt, wkt_geometry_collection)
 
@@ -121,7 +123,9 @@ class TestValidateGeometries(unittest.TestCase):
                 wkt_geometry_collection = geometry_collection.ExportToWkt()
 
         # results coming from the validate_geometries function
-        wkt = validate_geometries(1, 18, path_to_geometries)
+        wkt = multipolygon_to_wkt(
+            validate_and_collect_geometries_to_multipolyon(1, 18, path_to_geometries)
+        )
         # Test that sequence first contains the same elements as second
         self.assertEqual(wkt, wkt_geometry_collection)
 
