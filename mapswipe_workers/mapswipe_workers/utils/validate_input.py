@@ -82,7 +82,7 @@ def check_if_geom_is_valid(projectId, feat_geom):
             f"Probably self-intersections."
         )
 
-        raise CustomError(f"Geometry is not valid. ")
+        raise CustomError("Geometry is not valid.")
 
 
 def check_if_project_area_is_too_big(projectId, project_area, zoomLevel):
@@ -189,7 +189,9 @@ def build_multipolygon_from_layer_geometries(projectId, layer):
     return multi_polygon, project_area
 
 
-def validate_and_collect_geometries_to_multipolyon(projectId, zoomLevel, input_file_path):
+def validate_and_collect_geometries_to_multipolyon(
+    projectId, zoomLevel, input_file_path
+):
     """Validate all geometries contained in input file and collect them to a single multi polygon."""
     layer, datasource = load_geojson_to_ogr(projectId, input_file_path)
 
@@ -197,7 +199,9 @@ def validate_and_collect_geometries_to_multipolyon(projectId, zoomLevel, input_f
     check_if_layer_is_empty(projectId, layer)
     check_if_zoom_level_is_too_high(zoomLevel)
 
-    multi_polygon, project_area = build_multipolygon_from_layer_geometries(projectId, layer)
+    multi_polygon, project_area = build_multipolygon_from_layer_geometries(
+        projectId, layer
+    )
 
     check_if_layer_has_too_many_geometries(projectId, multi_polygon)
     check_if_project_area_is_too_big(projectId, project_area, zoomLevel)

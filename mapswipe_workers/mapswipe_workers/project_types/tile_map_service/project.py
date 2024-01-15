@@ -16,7 +16,8 @@ from mapswipe_workers.project_types.tile_server import BaseTileServer
 from mapswipe_workers.utils import tile_functions, tile_grouping_functions
 from mapswipe_workers.utils.validate_input import (
     save_geojson_to_file,
-    validate_and_collect_geometries_to_multipolyon, multipolygon_to_wkt,
+    validate_and_collect_geometries_to_multipolyon,
+    multipolygon_to_wkt,
 )
 
 
@@ -49,7 +50,9 @@ class TileMapServiceBaseProject(BaseProject):
         self.tileServer = vars(BaseTileServer(project_draft["tileServer"]))
 
     def validate_geometries(self):
-        self.inputGeometriesFileName = save_geojson_to_file(self.projectId, self.geometry)
+        self.inputGeometriesFileName = save_geojson_to_file(
+            self.projectId, self.geometry
+        )
         multi_polygon = validate_and_collect_geometries_to_multipolyon(
             self.projectId, self.zoomLevel, self.inputGeometriesFileName
         )
