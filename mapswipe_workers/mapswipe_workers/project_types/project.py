@@ -112,7 +112,7 @@ class BaseProject(ABC):
         project.pop("groups")
         project.pop("tasks")
         project.pop("inputGeometries", None)
-        project.pop("validInputGeometries", None)
+        project.pop("inputGeometriesFileName", None)
 
         # Convert Date object to ISO Datetime:
         # https://www.w3.org/TR/NOTE-datetime

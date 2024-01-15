@@ -49,10 +49,9 @@ class TileMapServiceBaseProject(BaseProject):
         self.tileServer = vars(BaseTileServer(project_draft["tileServer"]))
 
     def validate_geometries(self):
-        # TODO rename attribute validInputGeometries, it is a path to a geojson.
-        self.validInputGeometries = save_geojson_to_file(self.projectId, self.geometry)
+        self.inputGeometriesFileName = save_geojson_to_file(self.projectId, self.geometry)
         multi_polygon = validate_and_collect_geometries_to_multipolyon(
-            self.projectId, self.zoomLevel, self.validInputGeometries
+            self.projectId, self.zoomLevel, self.inputGeometriesFileName
         )
         wkt_geometry = multipolygon_to_wkt(multi_polygon)
         return wkt_geometry
@@ -74,7 +73,7 @@ class TileMapServiceBaseProject(BaseProject):
         """Create groups for project extent."""
         # first step get properties of each group from extent
         raw_groups = tile_grouping_functions.extent_to_groups(
-            self.validInputGeometries,
+            self.inputGeometriesFileName,
             self.zoomLevel,
             self.groupSize,
         )

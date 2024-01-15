@@ -163,7 +163,7 @@ class ArbitraryGeometryProject(BaseProject):
         del outDataSource
         del layer
 
-        self.validInputGeometries = valid_input_file
+        self.inputGeometriesFileName = valid_input_file
 
         logger.info(
             f"{self.projectId}"
@@ -175,7 +175,7 @@ class ArbitraryGeometryProject(BaseProject):
 
     def create_groups(self):
         self.raw_groups = g.group_input_geometries(
-            self.validInputGeometries, self.groupSize
+            self.inputGeometriesFileName, self.groupSize
         )
 
         for group_id, item in self.raw_groups.items():
