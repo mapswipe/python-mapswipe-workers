@@ -6,9 +6,9 @@ from osgeo import ogr
 
 from mapswipe_workers.definitions import CustomError
 from mapswipe_workers.utils.validate_input import (
+    multipolygon_to_wkt,
     save_geojson_to_file,
     validate_and_collect_geometries_to_multipolyon,
-    multipolygon_to_wkt,
 )
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))

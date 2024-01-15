@@ -1,9 +1,9 @@
 import unittest
 import uuid
 
-from tests.integration import set_up, tear_down
 from mapswipe_workers import auth
 from mapswipe_workers.firebase_to_postgres import update_data
+from tests.integration import set_up, tear_down
 
 
 class TestUpdateUserData(unittest.TestCase):
