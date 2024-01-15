@@ -143,7 +143,7 @@ class BaseProject(ABC):
                 f"{self.projectId}" f" - the project has been saved" f" to files"
             )
         except Exception as e:
-            self.delete_from_postgres()
+            self.delete_from_postgres(self.projectId)
             logger.exception(
                 f"{self.projectId}" f" - the project could not be saved" f" to files. "
             )
@@ -165,7 +165,7 @@ class BaseProject(ABC):
         # if project can't be saved to firebase, delete also in postgres
         except Exception as e:
             self.delete_draft_from_firebase()
-            self.delete_from_postgres()
+            self.delete_from_postgres(self.projectId)
             self.delete_from_files()
             logger.exception(
                 f"{self.projectId}"
@@ -562,23 +562,50 @@ class BaseProject(ABC):
         firebase = Firebase()
         firebase.delete_project_draft_from_firebase(self.projectId)
 
-    def delete_from_postgres(self):
+    @staticmethod
+    def delete_mapping_session_results(project_id):
+        p_con = auth.postgresDB()
+        sql_query = """
+            DELETE FROM mapping_sessions_results msr
+            USING mapping_sessions ms
+            WHERE ms.mapping_session_id = msr.mapping_session_id
+                AND ms.project_id = %(project_id)s;
+        """
+        p_con.query(sql_query, {"project_id": project_id})
+
+    @classmethod
+    def delete_from_postgres(cls, project_id):
         p_con = auth.postgresDB()
 
+        cls.delete_mapping_session_results(project_id)
+
         sql_query = """
-            DELETE FROM tasks WHERE project_id = %s;
-            DELETE FROM groups WHERE project_id = %s;
-            DELETE FROM projects WHERE project_id = %s;
+            DELETE FROM mapping_sessions WHERE project_id = %(project_id)s;
+            DELETE FROM tasks WHERE project_id = %(project_id)s;
+            DELETE FROM groups WHERE project_id = %(project_id)s;
             """
-        data = [
-            self.projectId,
-            self.projectId,
-            self.projectId,
-        ]
-        p_con.query(sql_query, data)
+        p_con.query(sql_query, {"project_id": project_id})
+
+        # -- Table from django/apps/aggregated/models.py. Used to cache stats data
+        # NOTE: Django doesn't support database-level CASCADE delete
+        #  https://docs.djangoproject.com/en/4.1/ref/models/fields/#django.db.models.ForeignKey.on_delete
+        for aggregated_table_name in [
+            "aggregated_aggregateduserstatdata",
+            "aggregated_aggregatedusergroupstatdata",
+        ]:
+            if p_con.table_exists(aggregated_table_name):
+                sql_query = f"""
+                    DELETE FROM {aggregated_table_name}
+                    WHERE project_id = %(project_id)s;
+                """
+                p_con.query(sql_query, {"project_id": project_id})
+
+        sql_query = """DELETE FROM projects WHERE project_id = %(project_id)s;"""
+        p_con.query(sql_query, {"project_id": project_id})
+
         del p_con
         logger.info(
-            f"{self.projectId} - "
+            f"{project_id} - "
             f"deleted project, groups and tasks "
             f"from postgres"
         )
