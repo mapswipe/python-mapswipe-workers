@@ -18,7 +18,12 @@ class TestUpdateUserData(unittest.TestCase):
             self.user_ids.append(user_id)
 
     def tearDown(self):
-        tear_down.delete_test_user(self.user_ids)
+        tear_down.delete_test_user(
+            self.user_ids
+            # todo: this does not belong here, but for some reason it is needed for cleanup
+            # probably because an earlier test does not correctly clean up its firebase users
+            + ["test_build_area_heidelberg"]
+        )
 
     def test_no_users_in_postgres(self):
         """Test update users when no users are in postgres yet."""
