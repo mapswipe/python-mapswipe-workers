@@ -127,7 +127,7 @@ def validate_geometries(projectId, zoomLevel, input_file_path):
 
         transform = osr.CoordinateTransformation(source, target)
         feat_geom.Transform(transform)
-        project_area = +feat_geom.GetArea() / 1000000
+        project_area += feat_geom.GetArea() / 1000000
 
     # max zoom level is 22
     if zoomLevel > 22:
