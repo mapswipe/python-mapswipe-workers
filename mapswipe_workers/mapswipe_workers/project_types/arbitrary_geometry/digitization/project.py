@@ -1,7 +1,5 @@
 from urllib.request import urlretrieve
 
-from overrides import overrides
-
 from mapswipe_workers import auth
 from mapswipe_workers.firebase.firebase import Firebase
 from mapswipe_workers.firebase_to_postgres.transfer_results import (
@@ -60,7 +58,6 @@ class DigitizationProject(ArbitraryGeometryProject):
         return get_statistics_for_geometry_result_project(project_id)
 
     @staticmethod
-    @overrides()
     def delete_mapping_session_results(project_id):
         p_con = auth.postgresDB()
         sql_query = """
