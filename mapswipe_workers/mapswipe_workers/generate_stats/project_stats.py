@@ -421,6 +421,10 @@ def get_agg_results_by_task_id(
     )
     logger.info("added geometry to aggregated results")
 
+    agg_results_df: pd.DataFrame = agg_results_df.loc[
+        :, ~agg_results_df.columns.str.contains("Unnamed")
+    ]
+
     return agg_results_df
 
 
