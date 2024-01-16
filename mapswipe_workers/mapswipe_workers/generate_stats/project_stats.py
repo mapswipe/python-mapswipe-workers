@@ -397,7 +397,9 @@ def get_agg_results_by_task_id(
     results_by_task_id_df = calc_share(results_by_task_id_df)
 
     # calculate agreement
-    results_by_task_id_df["agreement"] = results_by_task_id_df.filter(like="count").apply(
+    results_by_task_id_df["agreement"] = results_by_task_id_df.filter(
+        like="count"
+    ).apply(
         calc_agreement,
         axis=1,
     )
