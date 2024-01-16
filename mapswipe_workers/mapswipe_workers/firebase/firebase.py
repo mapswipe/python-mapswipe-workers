@@ -98,7 +98,7 @@ class Firebase:
         )
         self.ref.update(
             {
-                f"v2/groups/{tutorial.projectId}": [groups],
+                f"v2/groups/{tutorial.projectId}": groups,
             }
         )
         self.ref.update(
