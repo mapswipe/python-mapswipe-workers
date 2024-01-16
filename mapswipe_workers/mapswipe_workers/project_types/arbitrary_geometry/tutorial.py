@@ -34,7 +34,7 @@ class ArbitraryGeometryTutorial(BaseTutorial):
         self.tileServer = vars(BaseTileServer(tutorial_draft["tileServer"]))
         self.tutorial_tasks = tutorial_draft["tutorialTasks"]
         self.groups = dict()
-        self.tasks = []
+        self.tasks = dict()
 
         # save tasks as geojson
         self.inputGeometries = (
@@ -54,16 +54,15 @@ class ArbitraryGeometryTutorial(BaseTutorial):
         group = ArbitraryGeometryGroup(
             groupId=101,
             projectId=self.projectId,
-            numberOfTasks=0,
+            numberOfTasks=len(self.tutorial_tasks["features"]),
             progress=0,
             finishedCount=0,
             requiredCount=0,
         )
-        self.groups[101] = asdict(group)
+        self.groups[101] = group
 
         # Add number of tasks for the group here. This needs to be set according to
         # the number of features/examples in the geojson file
-        self.groups[101]["numberOfTasks"] = len(self.tutorial_tasks["features"])
 
         logger.info(
             f"{self.projectId}"
@@ -102,7 +101,7 @@ class ArbitraryGeometryTutorial(BaseTutorial):
                 )
                 task_list.append(asdict(task))
             if task_list:
-                self.tasks = task_list
+                self.tasks[101] = task_list
             else:
                 # remove group if it would contain no tasks
                 self.groups.pop(group_id)

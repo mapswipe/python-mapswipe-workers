@@ -66,9 +66,13 @@ class Firebase:
         )
 
     def save_tutorial_to_firebase(
-        self, tutorial, groups, groupsOfTasks, useCompression: bool
+        self, tutorial, groups: dict, groupsOfTasks: dict, useCompression: bool
     ):
-        tasks = {k: [asdict(i) for i in v] for k, v in groupsOfTasks.items()}
+        if useCompression:
+            tasks = {101: gzip_str.compress_tasks(groupsOfTasks[101])}
+        else:
+            tasks = {k: [asdict(i) for i in v] for k, v in groupsOfTasks.items()}
+
         groups = {k: asdict(v) for k, v in groups.items()}
 
         tutorialDict = vars(tutorial)
@@ -85,11 +89,6 @@ class Firebase:
                 "Firebase Realtime Database reference. "
                 f"Project Id is invalid: {tutorial.projectId}"
             )
-
-        if useCompression:
-            # we compress tasks for footprint project type using gzip
-            compressed_tasks = gzip_str.compress_tasks(groupsOfTasks)
-            tasks = {"101": compressed_tasks}
 
         self.ref.update(
             {
