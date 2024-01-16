@@ -605,9 +605,7 @@ class BaseProject(ABC):
 
         del p_con
         logger.info(
-            f"{project_id} - "
-            f"deleted project, groups and tasks "
-            f"from postgres"
+            f"{project_id} - " f"deleted project, groups and tasks " f"from postgres"
         )
 
     def calc_required_results(self):

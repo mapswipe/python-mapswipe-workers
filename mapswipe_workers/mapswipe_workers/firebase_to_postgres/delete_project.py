@@ -8,7 +8,7 @@ from typing import Iterable
 from firebase_admin import exceptions
 
 from mapswipe_workers import auth
-from mapswipe_workers.definitions import CustomError, logger, ProjectType
+from mapswipe_workers.definitions import CustomError, ProjectType, logger
 
 
 def chunks(data: list, size: int = 250) -> Iterable[list]:
@@ -96,8 +96,8 @@ def delete_project(project_ids: list) -> bool:
         pg_db = auth.postgresDB()
         try:
             project_type = pg_db.retr_query(
-                f"Select project_type from projects where project_id = %(project_id)s;",
-                {"project_id": project_id}
+                "Select project_type from projects where project_id = %(project_id)s;",
+                {"project_id": project_id},
             )[0][0]
             project = ProjectType(project_type).constructor
             project.delete_from_postgres(project_id)
@@ -106,6 +106,5 @@ def delete_project(project_ids: list) -> bool:
             logger.info(
                 f"Tried to delete project which does not exist in postgres: {project_id}"
             )
-
 
     return True

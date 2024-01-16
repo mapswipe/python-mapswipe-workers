@@ -2,8 +2,6 @@ import time
 import unittest
 
 from mapswipe_workers import auth
-from mapswipe_workers.config import FIREBASE_DB
-from mapswipe_workers.definitions import CustomError
 from mapswipe_workers.firebase_to_postgres import delete_project
 from tests.integration import base, set_up, tear_down
 
@@ -21,7 +19,6 @@ class TestDeleteProjectDigitization(base.BaseTestCase):
 
     def tearDown(self):
         tear_down.delete_test_data(self.project_id)
-
 
     def verify_postgres_not_empty(self):
         pg_db = auth.postgresDB()
