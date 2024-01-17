@@ -3,7 +3,7 @@
 Most of the configuration is stored in environment variables.
 At the root of the GitHub repository (in the same directory as `docker-compose.yml`) an example file (`example.env`) with all possible configuration variables exists. To get started copy this file to `.env` (no name is required) and fill in missing variables. The Docker Compose file will access those variables when needed.
 
-> Note: If you want those variables to be accessible as Environment Variables in your current shell (Eg. Inside a Python virtual environment for development.) your need to parse the file and export the variables: `export $(cat .env | xargs)`
+> Note: If you want those variables to be accessible as Environment Variables in your current shell (E.g. Inside a Python virtual environment for development.) your need to parse the file and export the variables: `export $(cat .env | xargs)`
 
 In following chapters configuration values and keys are discussed for each part of the MapSwipe Back-end.
 
@@ -17,6 +17,7 @@ Required environment variables are:
 - FIREBASE_API_KEY
 - FIREBASE_DB
 - FIREBASE_TOKEN
+- FIREBASE_STORAGE_BUCKET
 - GOOGLE_APPLICATION_CREDENTIALS
 
 ### Postgres DB

@@ -1,11 +1,10 @@
 import unittest
 
-import set_up
-import tear_down
 from click.testing import CliRunner
 
 from mapswipe_workers import auth, mapswipe_workers
 from mapswipe_workers.utils.create_directories import create_directories
+from tests.integration import set_up, tear_down
 
 
 class TestCreateProject(unittest.TestCase):

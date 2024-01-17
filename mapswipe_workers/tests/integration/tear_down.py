@@ -33,6 +33,8 @@ def delete_test_data(project_id: str) -> None:
     ref.delete()
     ref = fb_db.reference(f"v2/projectDrafts/{project_id}")
     ref.delete()
+    ref = fb_db.reference(f"v2/tutorialDrafts/{project_id}")
+    ref.delete()
     ref = fb_db.reference(f"v2/users/{project_id}")
     ref.delete()
 
@@ -58,6 +60,13 @@ def delete_test_data(project_id: str) -> None:
         "FROM mapping_sessions WHERE project_id = %s)"
     )
     pg_db.query(sql_query, [project_id])
+    sql_query = (
+        "DELETE FROM mapping_sessions_results_geometry "
+        "WHERE mapping_session_id IN ("
+        "SELECT mapping_session_id "
+        "FROM mapping_sessions WHERE project_id = %s)"
+    )
+    pg_db.query(sql_query, [project_id])
     # Delete user-groups results data
     sql_query = (
         "DELETE FROM mapping_sessions_user_groups "
@@ -70,6 +79,8 @@ def delete_test_data(project_id: str) -> None:
     sql_query = "DELETE FROM mapping_sessions WHERE project_id = %s"
     pg_db.query(sql_query, [project_id])
     sql_query = "DELETE FROM results_temp WHERE project_id = %s"
+    pg_db.query(sql_query, [project_id])
+    sql_query = "DELETE FROM results_geometry_temp WHERE project_id = %s"
     pg_db.query(sql_query, [project_id])
     sql_query = "DELETE FROM tasks WHERE project_id = %s"
     pg_db.query(sql_query, [project_id])
@@ -100,7 +111,7 @@ def delete_test_data(project_id: str) -> None:
 def delete_test_user_group(user_group_ids: List) -> None:
     # Make sure delete_test_data is runned first.
     fb_db = auth.firebaseDB()
-    ref = fb_db.reference("v2/usersGroups")
+    ref = fb_db.reference("v2/groupsUsers")
     ref.delete()
 
     pg_db = auth.postgresDB()
@@ -136,3 +147,4 @@ def delete_test_user(user_ids: List) -> None:
 if __name__ == "__main__":
     delete_test_data("test_build_area")
     delete_test_data("test_build_area_heidelberg")
+    delete_test_data("test_tile_classification")

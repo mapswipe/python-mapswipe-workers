@@ -7,7 +7,6 @@ def get_agreeing_contributions_per_user_and_task(row):
     the number of agreeing and disagreeing results.
     """
 
-    # XXX: We need to figure what which values to check? Parent or child
     r = row["result"]
     count_str = f"{r}_count"
     # ignore -999 values
@@ -36,7 +35,7 @@ def get_agg_results_by_user_id(
     results_df: pd.DataFrame, agg_results_df: pd.DataFrame
 ) -> pd.DataFrame:
     """
-    For each users we calcuate the number of total contributions (tasks)
+    For each user we calculate the number of total contributions (tasks)
     and completed groups.
     Then we compute agreeing and disagreeing contributions from other users.
     This is the basis for a simple agreement score.

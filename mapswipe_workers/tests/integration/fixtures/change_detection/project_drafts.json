@@ -9,7 +9,7 @@
         "verificationNumber": 3,
         "groupSize": 15,
         "projectType": 3,
-        "tileServerA": {
+        "tileServer": {
               "name": "bing",
               "apiKeyRequired": true,
               "caption": "Before",
@@ -35,7 +35,7 @@
         "verificationNumber": 3,
         "groupSize": 15,
         "projectType": 3,
-        "tileServerA": {
+        "tileServer": {
               "name": "bing",
               "apiKeyRequired": true,
               "caption": "Before",
@@ -59,7 +59,7 @@
         "groupSize": 15,
         "projectType": 3,
         "zoomLevel": 16,
-        "tileServerA": {
+        "tileServer": {
               "name": "custom",
               "url": "https://tiles.planet.com/basemaps/v1/planet-tiles/global_quarterly_2017q1_mosaic/gmap/{z}/{x}/{y}.png?",
               "apiKeyRequired": false,
@@ -89,7 +89,7 @@
         "groupSize": 15,
         "projectType": 3,
         "zoomLevel": 16,
-        "tileServerA": {
+        "tileServer": {
               "name": "custom",
               "url": "https://tiles.planet.com/basemaps/v1/planet-tiles/global_quarterly_2017q1_mosaic/gmap/{z}/{x}/{y}.png?",
               "apiKeyRequired": false,

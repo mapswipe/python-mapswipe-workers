@@ -1,11 +1,8 @@
 import os
 import tempfile
 import unittest
-import pandas as pd
 
-import set_up
-import tear_down
-from base import BaseTestCase
+import pandas as pd
 
 from mapswipe_workers.generate_stats.project_stats import (
     get_agg_results_by_task_id,
@@ -13,9 +10,10 @@ from mapswipe_workers.generate_stats.project_stats import (
     get_tasks,
 )
 from mapswipe_workers.generate_stats.user_stats import get_agg_results_by_user_id
+from tests.integration import base, set_up, tear_down
 
 
-class TestUserStats(BaseTestCase):
+class TestUserStats(base.BaseTestCase):
     def setUp(self):
         super().setUp()
         project_type = "footprint"
@@ -24,21 +22,26 @@ class TestUserStats(BaseTestCase):
 
         for data_type, columns in [
             ("projects", None),
-            ("groups", [
-                "project_id",
-                "group_id",
-                "number_of_tasks",
-                "finished_count",
-                "required_count",
-                "progress",
-                "project_type_specifics",
-            ]),
+            (
+                "groups",
+                [
+                    "project_id",
+                    "group_id",
+                    "number_of_tasks",
+                    "finished_count",
+                    "required_count",
+                    "progress",
+                    "project_type_specifics",
+                ],
+            ),
             ("tasks", None),
             ("users", None),
             ("mapping_sessions", None),
             ("mapping_sessions_results", None),
         ]:
-            set_up.set_postgres_test_data(project_type, data_type, fixture_name, columns=columns)
+            set_up.set_postgres_test_data(
+                project_type, data_type, fixture_name, columns=columns
+            )
 
         self.results_filename = os.path.join(
             tempfile._get_default_tempdir(), f"results_{self.project_id}.csv.gz"
@@ -60,7 +63,7 @@ class TestUserStats(BaseTestCase):
         agg_results_df = get_agg_results_by_task_id(
             results_df,
             tasks_df,
-            pd.Series(data="[{\"value\": 0}, {\"value\": 1}, {\"value\": 2}, {\"value\": 3}]"),
+            pd.Series(data='[{"value": 0}, {"value": 1}, {"value": 2}, {"value": 3}]'),
         )
         self.assertEqual(len(agg_results_df), 67436)
 

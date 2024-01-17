@@ -2,15 +2,14 @@ import json
 import os
 import unittest
 
-import set_up
-import tear_down
-from base import BaseTestCase
-
 from mapswipe_workers import auth
+from mapswipe_workers.definitions import ProjectType
 from mapswipe_workers.firebase_to_postgres.transfer_results import (
     transfer_results,
     transfer_results_for_project,
 )
+from tests.integration import set_up, tear_down
+from tests.integration.base import BaseTestCase
 
 
 class TestTransferResultsProject(BaseTestCase):
@@ -145,7 +144,9 @@ class TestTransferResultsProject(BaseTestCase):
         results_ref.set(new_results)
 
         # run transfer results function
-        transfer_results_for_project(self.project_id, results)
+        transfer_results_for_project(
+            self.project_id, results, ProjectType(1).constructor
+        )
 
         self.verify_mapping_results_in_postgres()
 
@@ -187,7 +188,9 @@ class TestTransferResultsProject(BaseTestCase):
         results_ref.set(new_results)
 
         # run transfer results function
-        transfer_results_for_project(self.project_id, results)
+        transfer_results_for_project(
+            self.project_id, results, ProjectType(1).constructor
+        )
 
         self.verify_mapping_results_in_postgres()
 
@@ -202,9 +205,11 @@ class TestTransferResultsProject(BaseTestCase):
         transfer_results()
 
         UG_QUERY = "SELECT user_group_id FROM user_groups ORDER BY user_group_id"
-        RUG_QUERY = (
-            "SELECT user_group_id FROM mapping_sessions_user_groups ORDER BY user_group_id"
-        )
+        RUG_QUERY = """
+            SELECT user_group_id
+            FROM mapping_sessions_user_groups
+            ORDER BY user_group_id
+        """
         for query, expected_value in [
             (
                 UG_QUERY,

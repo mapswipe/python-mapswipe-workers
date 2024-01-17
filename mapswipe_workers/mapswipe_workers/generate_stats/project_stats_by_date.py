@@ -188,7 +188,10 @@ def get_contributors_by_date(results_df: pd.DataFrame) -> pd.DataFrame:
 
 
 def get_project_history(
-    results_df: pd.DataFrame, groups_df: pd.DataFrame
+    results_df: pd.DataFrame,
+    groups_df: pd.DataFrame,
+    project_id,
+    project_stats_by_date_filename,
 ) -> pd.DataFrame:
     """
     Calculate the progress df for every day based on results and groups df.
@@ -212,5 +215,7 @@ def get_project_history(
     project_history_df = progress_by_date_df.merge(
         contributors_by_date_df, left_on="day", right_on="day"
     )
+    project_history_df["project_id"] = project_id
+    project_history_df.to_csv(project_stats_by_date_filename)
 
     return project_history_df

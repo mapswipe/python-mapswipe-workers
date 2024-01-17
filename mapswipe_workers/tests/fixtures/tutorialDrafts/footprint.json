@@ -1,0 +1,279 @@
+{
+  "createdBy": "LtCUyou6CnSSc1H0Q0nDrN97x892",
+  "customOptions": [
+    {
+      "description": "the shape does outline a building in the image",
+      "icon": "hand-right-outline",
+      "iconColor": "#00796B",
+      "subOptions": [
+        {
+          "description": "doppelt",
+          "value": 2
+        },
+        {
+          "description": "dreifach",
+          "value": 3
+        }
+      ],
+      "title": "Jetzt rede ich",
+      "value": 1
+    },
+    {
+      "description": "the shape doesn't match a building in the image",
+      "icon": "close-outline",
+      "iconColor": "#D32F2F",
+      "title": "No",
+      "value": 0
+    }
+  ],
+  "informationPages": [
+    {
+      "blocks": [
+        {
+          "blockNumber": 1,
+          "blockType": "text",
+          "textDescription": "asdf"
+        },
+        {
+          "blockNumber": 2,
+          "blockType": "image",
+          "image": "https://firebasestorage.googleapis.com/v0/b/dev-mapswipe.appspot.com/o/tutorialImages%2F1705402528654-block-image-2-base-query-form.png?alt=media&token=54325ab8-c5e7-45a3-be41-1926a5984a05"
+        }
+      ],
+      "pageNumber": 1,
+      "title": "asdf"
+    }
+  ],
+  "lookFor": "prints",
+  "name": "Validated/Footprint Mapswipe4Web Tutorial",
+  "projectType": 2,
+  "screens": [
+    null,
+    {
+      "instructions": {
+        "description": "sadf",
+        "icon": "tap-1",
+        "title": "sadf"
+      }
+    },
+    {
+      "instructions": {
+        "description": "asdf",
+        "icon": "ellipse-outline",
+        "title": "asdf"
+      }
+    },
+    {
+      "instructions": {
+        "description": "sdaf",
+        "icon": "flag-outline",
+        "title": "asdf"
+      }
+    },
+    {
+      "instructions": {
+        "description": "sadf",
+        "icon": "egg-outline",
+        "title": "asdf"
+      }
+    },
+    {
+      "instructions": {
+        "description": "sadf",
+        "icon": "checkmark-outline",
+        "title": "asdf"
+      }
+    }
+  ],
+  "tileServer": {
+    "credits": "© 2019 Microsoft Corporation, Earthstar Geographics SIO",
+    "name": "bing"
+  },
+  "tutorialTasks": {
+    "crs": {
+      "properties": {
+        "name": "urn:ogc:def:crs:OGC:1.3:CRS84"
+      },
+      "type": "name"
+    },
+    "features": [
+      {
+        "geometry": {
+          "coordinates": [
+            [
+              [
+                36.952541,
+                -1.196843
+              ],
+              [
+                36.9526309,
+                -1.196843
+              ],
+              [
+                36.9526309,
+                -1.1967531
+              ],
+              [
+                36.952541,
+                -1.1967531
+              ],
+              [
+                36.952541,
+                -1.196843
+              ]
+            ]
+          ],
+          "type": "Polygon"
+        },
+        "properties": {
+          "id": 1543,
+          "reference": 1,
+          "screen": 1
+        },
+        "type": "Feature"
+      },
+      {
+        "geometry": {
+          "coordinates": [
+            [
+              [
+                36.9532597,
+                -1.1998972
+              ],
+              [
+                36.9533495,
+                -1.1998972
+              ],
+              [
+                36.9533495,
+                -1.1998074
+              ],
+              [
+                36.9532597,
+                -1.1998074
+              ],
+              [
+                36.9532597,
+                -1.1998972
+              ]
+            ]
+          ],
+          "type": "Polygon"
+        },
+        "properties": {
+          "id": 1621,
+          "reference": 1,
+          "screen": 2
+        },
+        "type": "Feature"
+      },
+      {
+        "geometry": {
+          "coordinates": [
+            [
+              [
+                36.9537088,
+                -1.1994481
+              ],
+              [
+                36.9537987,
+                -1.1994481
+              ],
+              [
+                36.9537987,
+                -1.1993582
+              ],
+              [
+                36.9537088,
+                -1.1993582
+              ],
+              [
+                36.9537088,
+                -1.1994481
+              ]
+            ]
+          ],
+          "type": "Polygon"
+        },
+        "properties": {
+          "id": 1599,
+          "reference": 0,
+          "screen": 3
+        },
+        "type": "Feature"
+      },
+      {
+        "geometry": {
+          "coordinates": [
+            [
+              [
+                36.9483189,
+                -1.1999871
+              ],
+              [
+                36.9484088,
+                -1.1999871
+              ],
+              [
+                36.9484088,
+                -1.1998972
+              ],
+              [
+                36.9483189,
+                -1.1998972
+              ],
+              [
+                36.9483189,
+                -1.1999871
+              ]
+            ]
+          ],
+          "type": "Polygon"
+        },
+        "properties": {
+          "id": 1639,
+          "reference": 0,
+          "screen": 4
+        },
+        "type": "Feature"
+      },
+      {
+        "geometry": {
+          "coordinates": [
+            [
+              [
+                36.9483189,
+                -1.2001667
+              ],
+              [
+                36.9484088,
+                -1.2001667
+              ],
+              [
+                36.9484088,
+                -1.2000769
+              ],
+              [
+                36.9483189,
+                -1.2000769
+              ],
+              [
+                36.9483189,
+                -1.2001667
+              ]
+            ]
+          ],
+          "type": "Polygon"
+        },
+        "properties": {
+          "id": 1641,
+          "reference": 2,
+          "screen": 5
+        },
+        "type": "Feature"
+      }
+    ],
+    "name": "tutorial_tasks",
+    "type": "FeatureCollection"
+  }
+}

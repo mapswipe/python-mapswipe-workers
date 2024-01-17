@@ -1,0 +1,18 @@
+{
+    "appId": 3,
+    "createdBy": "test",
+    "geometry": {"type":"FeatureCollection","features":[{"type":"Feature","geometry":{"type":"Polygon","coordinates":[[[34.975833892822266,-15.899098066386088],[35.089302062988274,-15.899098066386088],[35.089302062988274,-15.820002241903946],[34.975833892822266,-15.820002241903946],[34.975833892822266,-15.899098066386088]]]},"properties":{}}]},
+    "image": "",
+    "language": "de-de",
+    "lookFor": "buildings",
+    "manualUrl": "https://www.mapswipe.org",
+    "name": "test - Malawi (1)\ntest",
+    "projectDetails": "test",
+    "verificationNumber": 3,
+    "groupSize": 120,
+    "tileServer": {
+        "name": "bing",
+        "credits": "© 2019 Microsoft Corporation, Earthstar Geographics SIO"
+    },
+    "projectType": 1
+}

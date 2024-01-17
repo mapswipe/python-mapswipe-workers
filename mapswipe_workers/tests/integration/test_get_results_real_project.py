@@ -2,14 +2,11 @@ import os
 import tempfile
 import unittest
 
-import set_up
-import tear_down
-from base import BaseTestCase
-
 from mapswipe_workers.generate_stats.project_stats import get_results
+from tests.integration import base, set_up, tear_down
 
 
-class TestGetResults(BaseTestCase):
+class TestGetResults(base.BaseTestCase):
     def setUp(self):
         super().setUp()
         project_type = "tile_map_service_grid"
@@ -18,21 +15,26 @@ class TestGetResults(BaseTestCase):
 
         for data_type, columns in [
             ("projects", None),
-            ("groups", [
-                "project_id",
-                "group_id",
-                "number_of_tasks",
-                "finished_count",
-                "required_count",
-                "progress",
-                "project_type_specifics",
-            ]),
+            (
+                "groups",
+                [
+                    "project_id",
+                    "group_id",
+                    "number_of_tasks",
+                    "finished_count",
+                    "required_count",
+                    "progress",
+                    "project_type_specifics",
+                ],
+            ),
             ("tasks", None),
             ("users", None),
             ("mapping_sessions", None),
             ("mapping_sessions_results", None),
         ]:
-            set_up.set_postgres_test_data(project_type, data_type, fixture_name, columns=columns)
+            set_up.set_postgres_test_data(
+                project_type, data_type, fixture_name, columns=columns
+            )
 
         self.results_filename = os.path.join(
             tempfile._get_default_tempdir(), f"results_{self.project_id}.csv.gz"

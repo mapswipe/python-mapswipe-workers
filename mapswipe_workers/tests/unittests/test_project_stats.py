@@ -43,25 +43,18 @@ class TestProjectStats(BaseTestCase):
     def test_get_custom_options(self):
         for raw_custom_options, excepted_values in [
             (
-                [
-                    {"value": 0},
-                    {"value": 1},
-                    {"value": 2},
-                    {"value": 3}
-                ],
+                [{"value": 0}, {"value": 1}, {"value": 2}, {"value": 3}],
                 {0: set(), 1: set(), 2: set(), 3: set()},
             ),
             (
                 [
                     {
                         "value": 0,
-                        "subOptions": [
-                            {"value": 4}, {"value": 5}
-                        ],
+                        "subOptions": [{"value": 4}, {"value": 5}],
                     },
                     {"value": 1},
                     {"value": 2},
-                    {"value": 3}
+                    {"value": 3},
                 ],
                 {0: {4, 5}, 1: set(), 2: set(), 3: set()},
             ),
@@ -69,18 +62,13 @@ class TestProjectStats(BaseTestCase):
                 [
                     {
                         "value": 0,
-                        "subOptions": [
-                            {"value": 4}, {"value": 5}
-                        ],
+                        "subOptions": [{"value": 4}, {"value": 5}],
                     },
                     {"value": 1},
                     {"value": 2},
                     {
                         "value": 3,
-                        "subOptions": [
-                            {"value": 10},
-                            {"value": 12}
-                        ],
+                        "subOptions": [{"value": 10}, {"value": 12}],
                     },
                 ],
                 {0: {4, 5}, 1: set(), 2: set(), 3: {10, 12}},
@@ -106,11 +94,7 @@ class TestProjectStats(BaseTestCase):
                 "result",
             ],
         )
-        df = (
-            df.groupby(["task_id", "result"])
-            .size()
-            .unstack(fill_value=0)
-        )
+        df = df.groupby(["task_id", "result"]).size().unstack(fill_value=0)
         updated_df = add_missing_result_columns(
             df,
             {
@@ -125,19 +109,19 @@ class TestProjectStats(BaseTestCase):
         assert list(updated_df.columns) == [1, 2, 3, 4, 5, 6]
         # Existing data
         assert df.to_csv() == (
-            'task_id,1,2,3,5\n'
-            'project-1-group-1-task-1,1,0,0,1\n'
-            'project-1-group-2-task-1,3,0,0,0\n'
-            'project-2-group-1-task-1,0,0,1,0\n'
-            'project-2-group-3-task-1,0,1,0,0\n'
+            "task_id,1,2,3,5\n"
+            "project-1-group-1-task-1,1,0,0,1\n"
+            "project-1-group-2-task-1,3,0,0,0\n"
+            "project-2-group-1-task-1,0,0,1,0\n"
+            "project-2-group-3-task-1,0,1,0,0\n"
         )
         # New data
         assert updated_df.to_csv() == (
-            'task_id,1,2,3,4,5,6\n'
-            'project-1-group-1-task-1,1,0,0,0,1,0\n'
-            'project-1-group-2-task-1,3,0,0,0,0,0\n'
-            'project-2-group-1-task-1,0,0,1,0,0,0\n'
-            'project-2-group-3-task-1,0,1,0,0,0,0\n'
+            "task_id,1,2,3,4,5,6\n"
+            "project-1-group-1-task-1,1,0,0,0,1,0\n"
+            "project-1-group-2-task-1,3,0,0,0,0,0\n"
+            "project-2-group-1-task-1,0,0,1,0,0,0\n"
+            "project-2-group-3-task-1,0,1,0,0,0,0\n"
         )
 
     def test_calc_parent_option_count(self):
@@ -185,8 +169,8 @@ class TestProjectStats(BaseTestCase):
             ("2_count", [2, 3, 4], [11, 5, 14]),
         ]:
             compared = df[column].compare(updated_df[column])
-            assert list(compared['other'].index) == updated_index
-            assert list(compared['other']) == updated_value
+            assert list(compared["other"].index) == updated_index
+            assert list(compared["other"]) == updated_value
 
 
 if __name__ == "__main__":

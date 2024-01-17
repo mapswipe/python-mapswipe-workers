@@ -1,82 +1,65 @@
-import json
 import os
-import urllib.request
+from abc import abstractmethod
+from dataclasses import dataclass
+from typing import Dict, List
 
 from osgeo import ogr
 
 from mapswipe_workers.definitions import DATA_PATH, CustomError, logger
 from mapswipe_workers.project_types.arbitrary_geometry import grouping_functions as g
-from mapswipe_workers.project_types.arbitrary_geometry.group import Group
-from mapswipe_workers.project_types.base.project import BaseProject
-from mapswipe_workers.project_types.base.tile_server import BaseTileServer
-from mapswipe_workers.utils.api_calls import geojsonToFeatureCollection, ohsome
+from mapswipe_workers.project_types.project import BaseGroup, BaseProject
+from mapswipe_workers.project_types.tile_server import BaseTileServer
 
 
-class Project(BaseProject):
+@dataclass
+class ArbitraryGeometryGroup(BaseGroup):
+    pass
+
+
+# Since Arbitrary Geometry Tasks do not have a ProjectId and GroupId
+# they do not inherit from BaseTask
+@dataclass
+class ArbitraryGeometryTask:
+    taskId: str
+    geojson: dict
+    properties: dict
+    geometry: str
+
+
+class ArbitraryGeometryProject(BaseProject):
     def __init__(self, project_draft: dict) -> None:
         super().__init__(project_draft)
+        self.groups: Dict[str, ArbitraryGeometryGroup] = {}
+        self.tasks: Dict[
+            str, List[ArbitraryGeometryTask]
+        ] = {}  # dict keys are group ids
 
         # set group size
-        self.groupSize = project_draft["groupSize"]
         self.geometry = project_draft["geometry"]
-        self.inputType = project_draft["inputType"]
         self.tileServer = vars(BaseTileServer(project_draft["tileServer"]))
         if "filter" in project_draft.keys():
             self.filter = project_draft["filter"]
         if "TMId" in project_draft.keys():
             self.TMId = project_draft["TMId"]
 
+    @abstractmethod
     def handle_input_type(self, raw_input_file: str):
-        """
-        Handle different input types.
-
-        Input (inputGeometries) can be:
-        'aoi_file' -> query ohsome with aoi from geometry then write
-            result to raw_input_file
-        a Link (str) -> download geojson from link and write to raw_input_file
-        a TMId -> get project info from geometry and query ohsome
-            for objects, then write to raw_input_file.
-        """
-        if not isinstance(self.geometry, str):
-            self.geometry = geojsonToFeatureCollection(self.geometry)
-            self.geometry = json.dumps(self.geometry)
-
-        if self.inputType == "aoi_file":
-            logger.info("aoi file detected")
-            # write string to geom file
-            ohsome_request = {"endpoint": "elements/geometry", "filter": self.filter}
-
-            result = ohsome(ohsome_request, self.geometry, properties="tags, metadata")
-            with open(raw_input_file, "w") as geom_file:
-                json.dump(result, geom_file)
-        elif self.inputType == "TMId":
-            logger.info("TMId detected")
-            hot_tm_project_id = int(self.TMId)
-            ohsome_request = {"endpoint": "elements/geometry", "filter": self.filter}
-            result = ohsome(ohsome_request, self.geometry, properties="tags, metadata")
-            result["properties"] = {}
-            result["properties"]["hot_tm_project_id"] = hot_tm_project_id
-            with open(raw_input_file, "w") as geom_file:
-                json.dump(result, geom_file)
-        elif self.inputType == "link":
-            logger.info("link detected")
-            urllib.request.urlretrieve(self.geometry, raw_input_file)
+        """Specify how the geometries used in this project type are received"""
+        pass
 
     def validate_geometries(self):
         raw_input_file = (
-            f"{DATA_PATH}/" f"input_geometries/raw_input_{self.projectId}.geojson"
-        )
-        valid_input_file = (
-            f"{DATA_PATH}/" f"input_geometries/valid_input_{self.projectId}.geojson"
+            f"{DATA_PATH}/input_geometries/raw_input_{self.projectId}.geojson"
         )
 
-        if not os.path.isdir("{}/input_geometries".format(DATA_PATH)):
-            os.mkdir("{}/input_geometries".format(DATA_PATH))
+        if not os.path.isdir(f"{DATA_PATH}/input_geometries"):
+            os.mkdir(f"{DATA_PATH}/input_geometries")
 
-        # input can be file, HOT TM projectId or link to geojson, after the call,
-        # whatever the input is will be made
-        # to a geojson file containing buildings in an area in raw_input_file
         self.handle_input_type(raw_input_file)
+
+        valid_input_file = (
+            f"{DATA_PATH}/input_geometries/valid_input_{self.projectId}.geojson"
+        )
 
         logger.info(
             f"{self.projectId}"
@@ -180,7 +163,7 @@ class Project(BaseProject):
         del outDataSource
         del layer
 
-        self.validInputGeometries = valid_input_file
+        self.inputGeometriesFileName = valid_input_file
 
         logger.info(
             f"{self.projectId}"
@@ -191,16 +174,62 @@ class Project(BaseProject):
         return wkt_geometry
 
     def create_groups(self):
-        raw_groups = g.group_input_geometries(self.validInputGeometries, self.groupSize)
+        self.raw_groups = g.group_input_geometries(
+            self.inputGeometriesFileName, self.groupSize
+        )
 
-        for group_id, item in raw_groups.items():
-            group = Group(self, group_id)
-            group.create_tasks(item["feature_ids"], item["features"])
-
-            # only append valid groups
-            if group.is_valid():
-                self.groups.append(group)
-
+        for group_id, item in self.raw_groups.items():
+            self.groups[group_id] = ArbitraryGeometryGroup(
+                projectId=self.projectId,
+                groupId=group_id,
+                numberOfTasks=len(item["features"]),
+                progress=0,
+                finishedCount=0,
+                requiredCount=0,
+            )
         logger.info(
             f"{self.projectId} " f"- create_groups - " f"created groups dictionary"
         )
+
+    def create_tasks(self):
+        for group_id, item in self.raw_groups.items():
+            features = item["features"]
+            f_ids = item["feature_ids"]
+            task_list = []
+            for i, f_id in enumerate(f_ids):
+                feature = features[i]
+                task = ArbitraryGeometryTask(
+                    taskId=f"t{f_id}",
+                    geojson=feature["geometry"],
+                    geometry=ogr.CreateGeometryFromJson(
+                        str(feature["geometry"])
+                    ).ExportToWkt(),
+                    properties=feature["properties"],
+                )
+                task_list.append(task)
+            if task_list:
+                self.tasks[group_id] = task_list
+            else:
+                # remove group if it would contain no tasks
+                self.groups.pop(group_id)
+                logger.info(
+                    f"group in project {self.projectId} is not valid: {group_id}"
+                )
+        # remove raw groups after task creation
+        del self.raw_groups
+
+    @abstractmethod
+    def save_tasks_to_firebase(self, projectId: str, tasks: dict):
+        pass
+
+    @staticmethod
+    @abstractmethod
+    def results_to_postgres(results: dict, project_id: str, filter_mode: bool):
+        """How to move the result data from firebase to postgres."""
+        pass
+
+    @staticmethod
+    @abstractmethod
+    def get_per_project_statistics(project_id, project_info):
+        """How to aggregate the project results."""
+        pass

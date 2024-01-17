@@ -11,7 +11,7 @@ from pandas.api.types import is_numeric_dtype
 from psycopg2 import sql
 
 from mapswipe_workers import auth
-from mapswipe_workers.definitions import DATA_PATH, ProjectType, logger, sentry
+from mapswipe_workers.definitions import DATA_PATH, logger, sentry
 from mapswipe_workers.generate_stats import (
     project_stats_by_date,
     tasking_manager_geometries,
@@ -86,14 +86,18 @@ def load_df_from_csv(filename: str) -> pd.DataFrame:
     return df
 
 
-def get_results(filename: str, project_id: str) -> pd.DataFrame:
+def get_results(
+    filename: str,
+    project_id: str,
+    result_table: str = "mapping_sessions_results",
+) -> pd.DataFrame:
     """
     Query results from postgres database for project id.
     Save results to a csv file.
     Load pandas dataframe from this csv file.
     Parse timestamp as datetime object and add attribute "day" for each result.
     Return None if there are no results for this project.
-    Otherwise return dataframe.
+    Otherwise, return dataframe.
 
     Parameters
     ----------
@@ -101,8 +105,13 @@ def get_results(filename: str, project_id: str) -> pd.DataFrame:
     project_id: str
     """
 
+    if result_table == "mapping_sessions_results_geometry":
+        result_sql = "ST_AsGeoJSON(msr.result) as result"
+    else:
+        result_sql = "msr.result"
+
     sql_query = sql.SQL(
-        """
+        f"""
         COPY (
             SELECT
                 ms.project_id,
@@ -112,7 +121,7 @@ def get_results(filename: str, project_id: str) -> pd.DataFrame:
                 ms.start_time as timestamp,
                 ms.start_time,
                 ms.end_time,
-                msr.result,
+                {result_sql},
                 -- the username for users which login to MapSwipe with their
                 -- OSM account is not defined or ''.
                 -- We capture this here as it will cause problems
@@ -121,11 +130,11 @@ def get_results(filename: str, project_id: str) -> pd.DataFrame:
                     WHEN U.username IS NULL or U.username = '' THEN 'unknown'
                     ELSE U.username
                 END as username
-            FROM mapping_sessions_results msr
+            FROM {result_table} msr
             LEFT JOIN mapping_sessions ms ON
                 ms.mapping_session_id = msr.mapping_session_id
             LEFT JOIN users U USING (user_id)
-            WHERE project_id = {}
+            WHERE project_id = {"{}"}
         ) TO STDOUT WITH CSV HEADER
         """
     ).format(sql.Literal(project_id))
@@ -145,7 +154,10 @@ def get_results(filename: str, project_id: str) -> pd.DataFrame:
         return df
 
 
-def get_tasks(filename: str, project_id: str) -> pd.DataFrame:
+def get_tasks(
+    filename: str,
+    project_id: str,
+) -> pd.DataFrame:
     """
     Check if tasks have been downloaded already.
     If not: Query tasks from postgres database for project id and
@@ -286,10 +298,8 @@ def calc_count(df: pd.DataFrame) -> pd.DataFrame:
     return df_new_sum
 
 
-def calc_quadkey(row: pd.DataFrame):
+def calc_quadkey(row: pd.Series) -> str:
     """Calculate quadkey based on task id."""
-    # TODO: This does not make sense for media type, digtitalization.
-    #  For these projects types we should move to project classes.
     try:
         tile_z, tile_x, tile_y = row["task_id"].split("-")
         quadkey = tile_functions.tile_coords_and_zoom_to_quadKey(
@@ -321,7 +331,7 @@ def add_missing_result_columns(
     data frame and add columns if missing.
     """
 
-    all_answer_label_values_set = set(
+    all_custom_options_values_set = set(
         [
             _option
             for option, sub_options in custom_options.items()
@@ -329,7 +339,7 @@ def add_missing_result_columns(
         ]
     )
     return df.reindex(
-        columns=sorted(all_answer_label_values_set),
+        columns=sorted(all_custom_options_values_set),
         fill_value=0,
     )
 
@@ -387,11 +397,14 @@ def get_agg_results_by_task_id(
     results_by_task_id_df = calc_share(results_by_task_id_df)
 
     # calculate agreement
-    results_by_task_id_df["agreement"] = results_by_task_id_df.apply(
+    results_by_task_id_df["agreement"] = results_by_task_id_df.filter(
+        like="count"
+    ).apply(
         calc_agreement,
         axis=1,
     )
-    logger.info("calculated agreement")
+
+    logger.info("calculated agreement, share and total count")
 
     # add quadkey
     results_by_task_id_df.reset_index(level=["task_id"], inplace=True)
@@ -399,7 +412,7 @@ def get_agg_results_by_task_id(
         lambda row: calc_quadkey(row), axis=1
     )
 
-    # add task geometry using left join
+    # this joins all project_type_specifics in tasks to the result
     tasks_df.drop(columns=["project_id", "group_id"], inplace=True)
     agg_results_df = results_by_task_id_df.merge(
         tasks_df,
@@ -408,10 +421,90 @@ def get_agg_results_by_task_id(
     )
     logger.info("added geometry to aggregated results")
 
+    agg_results_df: pd.DataFrame = agg_results_df.loc[
+        :, ~agg_results_df.columns.str.contains("Unnamed")
+    ]
+
     return agg_results_df
 
 
-def get_per_project_statistics(project_id: str, project_info: pd.Series) -> dict:
+def explode_result_geometry_column(results_df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Explode GeometryCollection to individual geometries and number them.
+    Each geometry can be uniquely identified by combining the following columns:
+    "project_id", "group_id", "task_id", "user_id" and "geometry_id"
+    """
+    results_df["result"] = results_df["result"].apply(
+        lambda x: json.loads(x)["geometries"]
+    )
+    results_df = results_df.explode("result")
+    results_df["geometry_id"] = (
+        results_df.groupby(["project_id", "group_id", "task_id", "user_id"]).cumcount()
+        + 1
+    )
+    return results_df
+
+
+def create_project_stats_dict(project_id, project_stats_by_date_df):
+    return {
+        "project_id": project_id,
+        "progress": project_stats_by_date_df["cum_progress"].iloc[-1],
+        "number_of_users": project_stats_by_date_df["cum_number_of_users"].iloc[-1],
+        "number_of_results": project_stats_by_date_df["cum_number_of_results"].iloc[-1],
+        "number_of_results_progress": project_stats_by_date_df[
+            "cum_number_of_results_progress"
+        ].iloc[-1],
+        "day": project_stats_by_date_df.index[-1],
+    }
+
+
+def get_statistics_for_geometry_result_project(project_id: str):
+    # set filenames
+    temp_results_filename = f"{DATA_PATH}/api/results/results_{project_id}_temp.csv.gz"
+    results_filename = f"{DATA_PATH}/api/results/results_{project_id}.csv.gz"
+    tasks_filename = f"{DATA_PATH}/api/tasks/tasks_{project_id}.csv.gz"
+    groups_filename = f"{DATA_PATH}/api/groups/groups_{project_id}.csv.gz"
+    project_stats_by_date_filename = f"{DATA_PATH}/api/history/history_{project_id}.csv"
+
+    results_df = get_results(
+        temp_results_filename,
+        project_id,
+        result_table="mapping_sessions_results_geometry",
+    )
+
+    if results_df is None:
+        logger.info(f"no results: skipping per project stats for {project_id}")
+        return {}
+    else:
+        groups_df = get_groups(groups_filename, project_id)
+        get_tasks(tasks_filename, project_id)
+
+        results_df = explode_result_geometry_column(results_df)
+
+        # remove unnamed column
+        results_df: pd.DataFrame = results_df.loc[
+            :, ~results_df.columns.str.contains("^Unnamed")
+        ]
+        results_df.to_csv(results_filename, compression="gzip")
+        os.remove(temp_results_filename)
+
+        project_stats_by_date_df = project_stats_by_date.get_project_history(
+            results_df, groups_df, project_id, project_stats_by_date_filename
+        )
+        logger.info(
+            f"saved project stats by date for {project_id}: "
+            f"{project_stats_by_date_filename}"
+        )
+
+        project_stats_dict = create_project_stats_dict(
+            project_id, project_stats_by_date_df
+        )
+        return project_stats_dict
+
+
+def get_statistics_for_integer_result_project(
+    project_id: str, project_info: pd.Series, generate_hot_tm_geometries: bool
+) -> dict:
     """
     The function calculates all project related statistics.
     Always save results to csv file.
@@ -482,36 +575,21 @@ def get_per_project_statistics(project_id: str, project_info: pd.Series) -> dict
 
         # calculate progress and contributors over time for project
         project_stats_by_date_df = project_stats_by_date.get_project_history(
-            results_df, groups_df
+            results_df, groups_df, project_id, project_stats_by_date_filename
         )
-        project_stats_by_date_df["project_id"] = project_id
-        project_stats_by_date_df.to_csv(project_stats_by_date_filename)
         logger.info(
             f"saved project stats by date for {project_id}: "
             f"{project_stats_by_date_filename}"
         )
 
-        # generate geometries for HOT Tasking Manager
-        if project_info.iloc[0]["project_type"] in [ProjectType.FOOTPRINT.value]:
-            # do not do this for ArbitraryGeometry / BuildingFootprint projects
-            logger.info(f"do NOT generate tasking manager geometries for {project_id}")
-        else:
+        if generate_hot_tm_geometries:
             tasking_manager_geometries.generate_tasking_manager_geometries(
                 project_id=project_id, agg_results_filename=agg_results_filename
             )
 
         # prepare output of function
-        project_stats_dict = {
-            "project_id": project_id,
-            "progress": project_stats_by_date_df["cum_progress"].iloc[-1],
-            "number_of_users": project_stats_by_date_df["cum_number_of_users"].iloc[-1],
-            "number_of_results": project_stats_by_date_df["cum_number_of_results"].iloc[
-                -1
-            ],
-            "number_of_results_progress": project_stats_by_date_df[
-                "cum_number_of_results_progress"
-            ].iloc[-1],
-            "day": project_stats_by_date_df.index[-1],
-        }
+        project_stats_dict = create_project_stats_dict(
+            project_id, project_stats_by_date_df
+        )
 
         return project_stats_dict

@@ -23,7 +23,10 @@ def set_firebase_test_data(
     file_path = os.path.join(
         test_dir, "fixtures", project_type, data_type, fixture_name
     )
+    upload_file_to_firebase(file_path, data_type, identifier)
 
+
+def upload_file_to_firebase(file_path: str, data_type: str, identifier: str):
     with open(file_path) as test_file:
         test_data = json.load(test_file)
 
@@ -33,7 +36,10 @@ def set_firebase_test_data(
 
 
 def set_postgres_test_data(
-    project_type: str, data_type: str, fixture_name: str, columns: Union[None, List[str]] = None
+    project_type: str,
+    data_type: str,
+    fixture_name: str,
+    columns: Union[None, List[str]] = None,
 ) -> None:
     test_dir = os.path.dirname(__file__)
     fixture_name = fixture_name + ".csv"
@@ -46,22 +52,28 @@ def set_postgres_test_data(
 
 
 def create_test_project(
-    project_type: str, fixture_name: str, results: bool = False
+    project_type: str,
+    fixture_name: str,
+    results: bool = False,
+    mapping_sessions_results: str = "mapping_sessions_results",
 ) -> str:
     """Create a test data in Firebase and Posgres."""
     project_id = "test_{0}".format(fixture_name)
 
     for data_type, columns in [
         ("projects", None),
-        ("groups", [
-            "project_id",
-            "group_id",
-            "number_of_tasks",
-            "finished_count",
-            "required_count",
-            "progress",
-            "project_type_specifics",
-        ]),
+        (
+            "groups",
+            [
+                "project_id",
+                "group_id",
+                "number_of_tasks",
+                "finished_count",
+                "required_count",
+                "progress",
+                "project_type_specifics",
+            ],
+        ),
         ("tasks", None),
     ]:
         set_firebase_test_data(project_type, data_type, fixture_name, project_id)
@@ -73,7 +85,7 @@ def create_test_project(
         set_firebase_test_data(project_type, "userGroups", "user_group", "")
         set_firebase_test_data(project_type, "results", fixture_name, project_id)
         set_postgres_test_data(project_type, "mapping_sessions", fixture_name)
-        set_postgres_test_data(project_type, "mapping_sessions_results", fixture_name)
+        set_postgres_test_data(project_type, mapping_sessions_results, fixture_name)
 
     time.sleep(5)  # Wait for Firebase Functions to complete
     return project_id
@@ -106,6 +118,17 @@ def create_test_project_draft(
         identifier = f"test_{fixture_name}"
     set_firebase_test_data(project_type, "projectDrafts", fixture_name, identifier)
     return identifier
+
+
+def create_test_tutorial_draft(
+    project_type: str, fixture_name: str = "user", identifier: str = ""
+) -> str:
+    """."""
+    if not identifier:
+        identifier = f"test_{fixture_name}"
+    set_firebase_test_data(project_type, "tutorialDrafts", fixture_name, identifier)
+
+    return f"tutorial_{identifier}"
 
 
 if __name__ == "__main__":

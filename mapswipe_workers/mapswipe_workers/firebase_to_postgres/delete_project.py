@@ -8,7 +8,7 @@ from typing import Iterable
 from firebase_admin import exceptions
 
 from mapswipe_workers import auth
-from mapswipe_workers.definitions import CustomError, logger
+from mapswipe_workers.definitions import CustomError, ProjectType, logger
 
 
 def chunks(data: list, size: int = 250) -> Iterable[list]:
@@ -94,35 +94,17 @@ def delete_project(project_ids: list) -> bool:
         ref.delete()
 
         pg_db = auth.postgresDB()
-        sql_query = """
-            DELETE FROM mapping_sessions_results msr
-            USING mapping_sessions ms
-            WHERE ms.mapping_session_id = msr.mapping_session_id
-                AND ms.project_id = %(project_id)s;
-        """
-        pg_db.query(sql_query, {"project_id": project_id})
-        sql_query = """
-            DELETE
-            FROM mapping_sessions
-            WHERE project_id = %(project_id)s ;
-        """
-        pg_db.query(sql_query, {"project_id": project_id})
-        sql_query = "DELETE FROM tasks WHERE project_id = %(project_id)s;"
-        pg_db.query(sql_query, {"project_id": project_id})
-        sql_query = "DELETE FROM groups WHERE project_id = %(project_id)s;"
-        pg_db.query(sql_query, {"project_id": project_id})
-        # -- Table from django/apps/aggregated/models.py. Used to cache stats data
-        # NOTE: Django doesn't support database-level CASCADE delete
-        #  https://docs.djangoproject.com/en/4.1/ref/models/fields/#django.db.models.ForeignKey.on_delete
-        for aggregated_table_name in [
-            "aggregated_aggregateduserstatdata",
-            "aggregated_aggregatedusergroupstatdata",
-        ]:
-            if pg_db.table_exists(aggregated_table_name):
-                sql_query = f"DELETE FROM {aggregated_table_name} WHERE project_id = %(project_id)s;"
-                pg_db.query(sql_query, {"project_id": project_id})
-        # Finally delete the project
-        sql_query = "DELETE FROM projects WHERE project_id = %(project_id)s;"
-        pg_db.query(sql_query, {"project_id": project_id})
+        try:
+            project_type = pg_db.retr_query(
+                "Select project_type from projects where project_id = %(project_id)s;",
+                {"project_id": project_id},
+            )[0][0]
+            project = ProjectType(project_type).constructor
+            project.delete_from_postgres(project_id)
+
+        except IndexError:
+            logger.info(
+                f"Tried to delete project which does not exist in postgres: {project_id}"
+            )
 
     return True

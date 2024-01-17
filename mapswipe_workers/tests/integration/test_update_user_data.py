@@ -1,11 +1,9 @@
 import unittest
 import uuid
 
-import set_up
-import tear_down
-
 from mapswipe_workers import auth
 from mapswipe_workers.firebase_to_postgres import update_data
+from tests.integration import set_up, tear_down
 
 
 class TestUpdateUserData(unittest.TestCase):
@@ -20,7 +18,12 @@ class TestUpdateUserData(unittest.TestCase):
             self.user_ids.append(user_id)
 
     def tearDown(self):
-        tear_down.delete_test_user(self.user_ids)
+        tear_down.delete_test_user(
+            self.user_ids
+            # todo: this does not belong here, but for some reason it is needed for cleanup
+            # probably because an earlier test does not correctly clean up its firebase users
+            + ["test_build_area_heidelberg"]
+        )
 
     def test_no_users_in_postgres(self):
         """Test update users when no users are in postgres yet."""
