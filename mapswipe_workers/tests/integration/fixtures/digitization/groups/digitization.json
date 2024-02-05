@@ -1,0 +1,10 @@
+{
+  "g100": {
+    "finishedCount": 0,
+    "groupId": "g100",
+    "numberOfTasks": 1,
+    "progress": 0,
+    "projectId": "digitization",
+    "requiredCount": 5
+  }
+}

@@ -29,18 +29,25 @@ def get_tileserver_url(tileserver: str) -> str:
 
 
 def firebaseDB() -> db:
+    """Initialize the app.
+
+    Credentials will be retrieved from of following environment variable:
+    `GOOGLE_APPLICATION_CREDENTIALS` which contains the path to service account
+    key.
+    """
+
     try:
         # Is an App instance already initialized?
         firebase_admin.get_app()
         # Return the imported Firebase Realtime Database module
         return db
     except ValueError:
-        databaseURL = f"https://{FIREBASE_DB}.firebaseio.com"
-        # Initialize the app.
-        # Credentials will be retrieved from of following environment variable:
-        # GOOGLE_APPLICATION_CREDENTIALS (Path to service account key in json format)
-        firebase_admin.initialize_app(options={"databaseURL": databaseURL})
-        # Return the imported Firebase Realtime Database module
+        if "https://" in FIREBASE_DB:
+            firebase_admin.initialize_app(options={"databaseURL": FIREBASE_DB})
+        else:
+            databaseURL = f"https://{FIREBASE_DB}.firebaseio.com"
+            firebase_admin.initialize_app(options={"databaseURL": databaseURL})
+
         return db
 
 

@@ -1,0 +1,27 @@
+{
+  "appId": 2,
+  "language": "en-us",
+  "createdBy": "T8jltQ14RjS6gCQ9DlQfgWvy6T72",
+  "drawType": "Point",
+  "groupMaxSize": 6,
+  "groupSize": 6,
+  "image": "",
+  "language": "en-us",
+  "lookFor": "mangrove loss",
+  "name": "Mapping mangrove loss",
+  "projectDetails": "Showcase",
+  "projectRegion": "Mexcio",
+  "projectTopic": "Mapping mangrove loss",
+  "projectType": 6,
+  "requestingOrganisation": "Conabio",
+  "geometry": "exampleLink",
+  "tileServer": {
+    "apiKey": "",
+    "credits": "© 2019 Microsoft Corporation, Earthstar Geographics SIO",
+    "name": "bing",
+    "url": "",
+    "maxZoom": 18
+  },
+  "tutorialId": "",
+  "verificationNumber": 5
+}

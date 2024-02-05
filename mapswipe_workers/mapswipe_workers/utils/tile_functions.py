@@ -125,7 +125,7 @@ def tile_coords_zoom_and_tileserver_to_url(
     return url
 
 
-def tile_coords_and_zoom_to_quadKey(TileX, TileY, zoom):
+def tile_coords_and_zoom_to_quadKey(TileX, TileY, zoom) -> str:
     """Create a quadkey for use with certain tileservers that use them, e.g. Bing."""
 
     quadKey = ""

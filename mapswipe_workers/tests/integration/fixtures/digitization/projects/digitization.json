@@ -1,0 +1,49 @@
+{
+  "customOptions": [
+    {
+      "color": "green",
+      "label": "yes",
+      "value": 1
+    },
+    {
+      "color": "red",
+      "label": "no",
+      "value": 0
+    },
+    {
+      "color": "grey",
+      "label": "not sure",
+      "value": 2
+    }
+  ],
+  "appId": 2,
+  "contributorCount": 0,
+  "created": "2023-06-14T15:00:33.176060Z",
+  "createdBy": "T8jltQ14RjS6gCQ9DlQfgWvy6T72",
+  "drawType": "Point",
+  "groupMaxSize": 6,
+  "groupSize": 6,
+  "image": "",
+  "isFeatured": false,
+  "language": "en-us",
+  "lookFor": "mangrove loss",
+  "name": "Mapping mangrove loss",
+  "progress": 0,
+  "projectDetails": "Showcase",
+  "projectId": "digitization",
+  "projectRegion": "Mexcio",
+  "projectTopic": "Mapping mangrove loss",
+  "projectType": 6,
+  "requestingOrganisation": "Conabio",
+  "requiredResults": 0,
+  "resultCount": 0,
+  "status": "inactive",
+  "tileServer": {
+    "credits": "© 2019 Microsoft Corporation, Earthstar Geographics SIO",
+    "maxZoom": 18,
+    "name": "bing",
+    "url": "https://ecn.t0.tiles.virtualearth.net/tiles/a{quad_key}.jpeg?g=1&token={key}"
+  },
+  "tutorialId": "",
+  "verificationNumber": 5
+}

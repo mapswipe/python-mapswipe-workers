@@ -8,7 +8,7 @@
   "projectDetails": "This is a tutorial",
   "progress": 0,
   "contributorCount": 0,
-  "tileServerA" : {
+  "tileServer" : {
     "apiKey" : "",
     "captions" : "",
     "date" : "",

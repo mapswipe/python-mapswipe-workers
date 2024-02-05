@@ -1,0 +1,31 @@
+{
+  "geometry": {"type":"FeatureCollection","features":[{"type":"Feature","geometry":{"type":"Polygon","coordinates":[[[34.975833892822266,-15.899098066386088],[35.089302062988274,-15.899098066386088],[35.089302062988274,-15.820002241903946],[34.975833892822266,-15.820002241903946],[34.975833892822266,-15.899098066386088]]]},"properties":{}}]},
+  "archived" : false,
+  "created" : "2020-02-03T14:31:08.192136Z",
+  "createdBy" : "test manager",
+  "groupMaxSize" : 0,
+  "groupSize" : 120,
+  "image" : "",
+  "isFeatured" : false,
+  "lookFor" : "buildings",
+  "name" : "test - Malawi \ntest",
+  "progress" : 0,
+  "projectDetails" : "test",
+  "projectId" : "test_build_area",
+  "projectNumber" : "1",
+  "projectRegion" : "Malawi",
+  "projectTopic" : "test",
+  "projectType" : 1,
+  "requestingOrganisation" : "test",
+  "requiredResults" : 12537,
+  "resultCount" : 0,
+  "status" : "inactive",
+  "tileServer" : {
+    "apiKey" : "",
+    "credits" : "© 2019 Microsoft Corporation, Earthstar Geographics SIO",
+    "name" : "bing",
+    "url" : "https://ecn.t0.tiles.virtualearth.net/tiles/a{quad_key}.jpeg?g=7505&mkt=en-US&token={key}"
+  },
+  "verificationNumber" : 3,
+  "zoomLevel" : 18
+}

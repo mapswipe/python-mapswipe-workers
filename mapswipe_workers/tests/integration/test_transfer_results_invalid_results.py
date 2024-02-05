@@ -2,15 +2,12 @@ import json
 import os
 import unittest
 
-import set_up
-import tear_down
-from base import BaseTestCase
-
 from mapswipe_workers import auth
 from mapswipe_workers.firebase_to_postgres import transfer_results
+from tests.integration import base, set_up, tear_down
 
 
-class TestTransferResultsProject(BaseTestCase):
+class TestTransferInvalidResultsProject(base.BaseTestCase):
     def setUp(self):
         super().setUp()
         project_type = "tile_map_service_grid"

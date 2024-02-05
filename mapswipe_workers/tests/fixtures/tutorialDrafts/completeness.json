@@ -1,0 +1,682 @@
+{
+  "createdBy": "T8jltQ14RjS6gCQ9DlQfgWvy6T72",
+  "exampleImage1": "https://firebasestorage.googleapis.com/v0/b/heigit-crowdmap.appspot.com/o/projectImages%2F1686065132355-tutorial-image-1-1x1.png?alt=media&token=41c8266d-de2d-49c1-9029-7285d0ff4e6a",
+  "exampleImage2": "https://firebasestorage.googleapis.com/v0/b/heigit-crowdmap.appspot.com/o/projectImages%2F1686065132355-tutorial-image-2-1x1.png?alt=media&token=bf8e67bc-d34c-4676-ba17-56bffc6b3f2d",
+  "lookFor": "buildings",
+  "name": "completeness_tutorial",
+  "projectType": 4,
+  "screens": {
+    "categories": {
+      "bad_clouds_1": {
+        "post_correct": "Perfect. Let's move on.",
+        "post_wrong": "Oh no. Make sure to indicate clouds as well.",
+        "pre": "If you see clouds and no buildings tap three times."
+      },
+      "bad_no_imagery_1": {
+        "post_correct": "Nice.",
+        "post_wrong": "Please mark all tiles for which there is no imagery.",
+        "pre": "If imagery is lacking also tap three times."
+      },
+      "bad_no_imagery_2": {
+        "post_correct": "Cool. We're done with the tutorial. Now you are ready for some real mapping projects.",
+        "post_wrong": "Try again.",
+        "pre": "You can also swipe down to mark all tiles red at once. (And you can swipe up to redo this.)"
+      },
+      "building_easy_1": {
+        "post_correct": "Great. Swipe left and let's have a look a some more difficult examples.",
+        "post_wrong": "... Oh no. Please make sure if all of blue buildings match with satellite imagery. ",
+        "pre": "Look at the blue buildings on top of the imagery and tap once if it matches the buildings underneath it."
+      },
+      "building_easy_2": {
+        "post_correct": "Perfect. Swipe left and let's have a look at examples with incomplete tiles.",
+        "post_wrong": "Oh no. Make sure to tap correctly.",
+        "pre": "Sometimes the imagery underneath the blue buildings is older. Mark such tiles as complete anyway."
+      },
+      "maybe_1": {
+        "post_correct": "Great.",
+        "post_wrong": "Sometimes there are no blue buildings on top of the imagery at all, tap twice two mark such tile as incomplete.",
+        "pre": "Tap two times to indicate incomplete tiles, for example buildings on satellite imagery aren't pictured as blue buildings. Don't be distracted if blue buildings don't align with the imagery properly."
+      },
+      "maybe_2": {
+        "post_correct": "Great.",
+        "post_wrong": "Oh no. Try it again!",
+        "pre": "Sometimes there are areas that aren't mapped at all. Tap twice to mark these tiles as incomplete."
+      },
+      "no_building_easy_1": {
+        "post_correct": "Nice. Well done.",
+        "post_wrong": "Be careful. We can't find any buildings here.",
+        "pre": "In many cases there will be no buildings at all. Just swipe left to map further."
+      },
+      "no_building_easy_2": {
+        "post_correct": "Isn't it simple? Swipe left and see more examples.",
+        "post_wrong": "... even if there are other objects, there are no buildings here.",
+        "pre": "Also in this example we can't find any building. Swipe left and move on."
+      }
+    },
+    "contributorCount": 0,
+    "examplesFile": "sample_data/completeness/completeness_tutorial_tasks.geojson",
+    "lookFor": "completeness of buildings",
+    "name": "Build Area Tutorial",
+    "progress": 0,
+    "projectDetails": "This is a tutorial",
+    "projectId": "completeness_tutorial",
+    "projectType": 4,
+    "status": "completeness_tutorial",
+    "tileServer": {
+      "name": "bing"
+    },
+    "tileServerB": {
+      "name": "bing"
+    },
+    "zoomLevel": 18
+  },
+  "tileServer": {
+    "credits": "© 2019 Microsoft Corporation, Earthstar Geographics SIO",
+    "name": "bing"
+  },
+  "tileServerB": {
+    "credits": "© 2019 Microsoft Corporation, Earthstar Geographics SIO",
+    "name": "bing"
+  },
+  "tutorialTasks": {
+    "features": [
+      {
+        "properties": {
+          "category": "building_easy_1",
+          "reference": 0,
+          "screen": 1,
+          "tile_x": 139102,
+          "tile_y": 89578,
+          "tile_z": 18
+        },
+        "type": "Feature"
+      },
+      {
+        "properties": {
+          "category": "building_easy_1",
+          "reference": 1,
+          "screen": 1,
+          "tile_x": 139102,
+          "tile_y": 89579,
+          "tile_z": 18
+        },
+        "type": "Feature"
+      },
+      {
+        "properties": {
+          "category": "building_easy_1",
+          "reference": 0,
+          "screen": 1,
+          "tile_x": 139102,
+          "tile_y": 89580,
+          "tile_z": 18
+        },
+        "type": "Feature"
+      },
+      {
+        "properties": {
+          "category": "building_easy_1",
+          "reference": 1,
+          "screen": 1,
+          "tile_x": 139103,
+          "tile_y": 89578,
+          "tile_z": 18
+        },
+        "type": "Feature"
+      },
+      {
+        "properties": {
+          "category": "building_easy_1",
+          "reference": 1,
+          "screen": 1,
+          "tile_x": 139103,
+          "tile_y": 89579,
+          "tile_z": 18
+        },
+        "type": "Feature"
+      },
+      {
+        "properties": {
+          "category": "building_easy_1",
+          "reference": 1,
+          "screen": 1,
+          "tile_x": 139103,
+          "tile_y": 89580,
+          "tile_z": 18
+        },
+        "type": "Feature"
+      },
+      {
+        "properties": {
+          "category": "building_easy_2",
+          "reference": 1,
+          "screen": 2,
+          "tile_x": 139074,
+          "tile_y": 89507,
+          "tile_z": 18
+        },
+        "type": "Feature"
+      },
+      {
+        "properties": {
+          "category": "building_easy_2",
+          "reference": 1,
+          "screen": 2,
+          "tile_x": 139074,
+          "tile_y": 89508,
+          "tile_z": 18
+        },
+        "type": "Feature"
+      },
+      {
+        "properties": {
+          "category": "building_easy_2",
+          "reference": 1,
+          "screen": 2,
+          "tile_x": 139074,
+          "tile_y": 89509,
+          "tile_z": 18
+        },
+        "type": "Feature"
+      },
+      {
+        "properties": {
+          "category": "building_easy_2",
+          "reference": 1,
+          "screen": 2,
+          "tile_x": 139075,
+          "tile_y": 89507,
+          "tile_z": 18
+        },
+        "type": "Feature"
+      },
+      {
+        "properties": {
+          "category": "building_easy_2",
+          "reference": 1,
+          "screen": 2,
+          "tile_x": 139075,
+          "tile_y": 89508,
+          "tile_z": 18
+        },
+        "type": "Feature"
+      },
+      {
+        "properties": {
+          "category": "building_easy_2",
+          "reference": 1,
+          "screen": 2,
+          "tile_x": 139075,
+          "tile_y": 89509,
+          "tile_z": 18
+        },
+        "type": "Feature"
+      },
+      {
+        "properties": {
+          "category": "no_building_easy_1",
+          "reference": 0,
+          "screen": 3,
+          "tile_x": 139146,
+          "tile_y": 89591,
+          "tile_z": 18
+        },
+        "type": "Feature"
+      },
+      {
+        "properties": {
+          "category": "no_building_easy_1",
+          "reference": 0,
+          "screen": 3,
+          "tile_x": 139146,
+          "tile_y": 89592,
+          "tile_z": 18
+        },
+        "type": "Feature"
+      },
+      {
+        "properties": {
+          "category": "no_building_easy_1",
+          "reference": 0,
+          "screen": 3,
+          "tile_x": 139146,
+          "tile_y": 89593,
+          "tile_z": 18
+        },
+        "type": "Feature"
+      },
+      {
+        "properties": {
+          "category": "no_building_easy_1",
+          "reference": 0,
+          "screen": 3,
+          "tile_x": 139147,
+          "tile_y": 89591,
+          "tile_z": 18
+        },
+        "type": "Feature"
+      },
+      {
+        "properties": {
+          "category": "no_building_easy_1",
+          "reference": 0,
+          "screen": 3,
+          "tile_x": 139147,
+          "tile_y": 89592,
+          "tile_z": 18
+        },
+        "type": "Feature"
+      },
+      {
+        "properties": {
+          "category": "no_building_easy_1",
+          "reference": 0,
+          "screen": 3,
+          "tile_x": 139147,
+          "tile_y": 89593,
+          "tile_z": 18
+        },
+        "type": "Feature"
+      },
+      {
+        "properties": {
+          "category": "maybe_1",
+          "reference": 2,
+          "screen": 4,
+          "tile_x": 148151,
+          "tile_y": 101576,
+          "tile_z": 18
+        },
+        "type": "Feature"
+      },
+      {
+        "properties": {
+          "category": "maybe_1",
+          "reference": 2,
+          "screen": 4,
+          "tile_x": 148151,
+          "tile_y": 101577,
+          "tile_z": 18
+        },
+        "type": "Feature"
+      },
+      {
+        "properties": {
+          "category": "maybe_1",
+          "reference": 2,
+          "screen": 4,
+          "tile_x": 148151,
+          "tile_y": 101578,
+          "tile_z": 18
+        },
+        "type": "Feature"
+      },
+      {
+        "properties": {
+          "category": "maybe_1",
+          "reference": 2,
+          "screen": 4,
+          "tile_x": 148152,
+          "tile_y": 101576,
+          "tile_z": 18
+        },
+        "type": "Feature"
+      },
+      {
+        "properties": {
+          "category": "maybe_1",
+          "reference": 2,
+          "screen": 4,
+          "tile_x": 148152,
+          "tile_y": 101577,
+          "tile_z": 18
+        },
+        "type": "Feature"
+      },
+      {
+        "properties": {
+          "category": "maybe_1",
+          "reference": 2,
+          "screen": 4,
+          "tile_x": 148152,
+          "tile_y": 101578,
+          "tile_z": 18
+        },
+        "type": "Feature"
+      },
+      {
+        "properties": {
+          "category": "maybe_2",
+          "reference": 2,
+          "screen": 9,
+          "tile_x": 147944,
+          "tile_y": 101610,
+          "tile_z": 18
+        },
+        "type": "Feature"
+      },
+      {
+        "properties": {
+          "category": "maybe_2",
+          "reference": 2,
+          "screen": 9,
+          "tile_x": 147944,
+          "tile_y": 101611,
+          "tile_z": 18
+        },
+        "type": "Feature"
+      },
+      {
+        "properties": {
+          "category": "maybe_2",
+          "reference": 2,
+          "screen": 9,
+          "tile_x": 147944,
+          "tile_y": 101612,
+          "tile_z": 18
+        },
+        "type": "Feature"
+      },
+      {
+        "properties": {
+          "category": "maybe_2",
+          "reference": 2,
+          "screen": 9,
+          "tile_x": 147945,
+          "tile_y": 101610,
+          "tile_z": 18
+        },
+        "type": "Feature"
+      },
+      {
+        "properties": {
+          "category": "maybe_2",
+          "reference": 2,
+          "screen": 9,
+          "tile_x": 147945,
+          "tile_y": 101611,
+          "tile_z": 18
+        },
+        "type": "Feature"
+      },
+      {
+        "properties": {
+          "category": "maybe_2",
+          "reference": 2,
+          "screen": 9,
+          "tile_x": 147945,
+          "tile_y": 101612,
+          "tile_z": 18
+        },
+        "type": "Feature"
+      },
+      {
+        "properties": {
+          "category": "bad_clouds_1",
+          "reference": 3,
+          "screen": 5,
+          "tile_x": 64984,
+          "tile_y": 120438,
+          "tile_z": 18
+        },
+        "type": "Feature"
+      },
+      {
+        "properties": {
+          "category": "bad_clouds_1",
+          "reference": 0,
+          "screen": 5,
+          "tile_x": 64984,
+          "tile_y": 120439,
+          "tile_z": 18
+        },
+        "type": "Feature"
+      },
+      {
+        "properties": {
+          "category": "bad_clouds_1",
+          "reference": 3,
+          "screen": 5,
+          "tile_x": 64984,
+          "tile_y": 120437,
+          "tile_z": 18
+        },
+        "type": "Feature"
+      },
+      {
+        "properties": {
+          "category": "bad_clouds_1",
+          "reference": 3,
+          "screen": 5,
+          "tile_x": 64985,
+          "tile_y": 120439,
+          "tile_z": 18
+        },
+        "type": "Feature"
+      },
+      {
+        "properties": {
+          "category": "bad_clouds_1",
+          "reference": 3,
+          "screen": 5,
+          "tile_x": 64985,
+          "tile_y": 120437,
+          "tile_z": 18
+        },
+        "type": "Feature"
+      },
+      {
+        "properties": {
+          "category": "bad_clouds_1",
+          "reference": 3,
+          "screen": 5,
+          "tile_x": 64985,
+          "tile_y": 120438,
+          "tile_z": 18
+        },
+        "type": "Feature"
+      },
+      {
+        "properties": {
+          "category": "bad_no_imagery_1",
+          "reference": 0,
+          "screen": 6,
+          "tile_x": 208640,
+          "tile_y": 120212,
+          "tile_z": 18
+        },
+        "type": "Feature"
+      },
+      {
+        "properties": {
+          "category": "bad_no_imagery_1",
+          "reference": 0,
+          "screen": 6,
+          "tile_x": 208640,
+          "tile_y": 120213,
+          "tile_z": 18
+        },
+        "type": "Feature"
+      },
+      {
+        "properties": {
+          "category": "bad_no_imagery_1",
+          "reference": 0,
+          "screen": 6,
+          "tile_x": 208640,
+          "tile_y": 120214,
+          "tile_z": 18
+        },
+        "type": "Feature"
+      },
+      {
+        "properties": {
+          "category": "bad_no_imagery_1",
+          "reference": 3,
+          "screen": 6,
+          "tile_x": 208639,
+          "tile_y": 120213,
+          "tile_z": 18
+        },
+        "type": "Feature"
+      },
+      {
+        "properties": {
+          "category": "bad_no_imagery_1",
+          "reference": 3,
+          "screen": 6,
+          "tile_x": 208639,
+          "tile_y": 120214,
+          "tile_z": 18
+        },
+        "type": "Feature"
+      },
+      {
+        "properties": {
+          "category": "bad_no_imagery_1",
+          "reference": 3,
+          "screen": 6,
+          "tile_x": 208639,
+          "tile_y": 120212,
+          "tile_z": 18
+        },
+        "type": "Feature"
+      },
+      {
+        "properties": {
+          "category": "bad_no_imagery_2",
+          "reference": 3,
+          "screen": 7,
+          "tile_x": 157556,
+          "tile_y": 134648,
+          "tile_z": 18
+        },
+        "type": "Feature"
+      },
+      {
+        "properties": {
+          "category": "bad_no_imagery_2",
+          "reference": 3,
+          "screen": 7,
+          "tile_x": 157555,
+          "tile_y": 134649,
+          "tile_z": 18
+        },
+        "type": "Feature"
+      },
+      {
+        "properties": {
+          "category": "bad_no_imagery_2",
+          "reference": 3,
+          "screen": 7,
+          "tile_x": 157556,
+          "tile_y": 134649,
+          "tile_z": 18
+        },
+        "type": "Feature"
+      },
+      {
+        "properties": {
+          "category": "bad_no_imagery_2",
+          "reference": 3,
+          "screen": 7,
+          "tile_x": 157555,
+          "tile_y": 134647,
+          "tile_z": 18
+        },
+        "type": "Feature"
+      },
+      {
+        "properties": {
+          "category": "bad_no_imagery_2",
+          "reference": 3,
+          "screen": 7,
+          "tile_x": 157555,
+          "tile_y": 134648,
+          "tile_z": 18
+        },
+        "type": "Feature"
+      },
+      {
+        "properties": {
+          "category": "bad_no_imagery_2",
+          "reference": 3,
+          "screen": 7,
+          "tile_x": 157556,
+          "tile_y": 134647,
+          "tile_z": 18
+        },
+        "type": "Feature"
+      },
+      {
+        "properties": {
+          "category": "no_building_easy_2",
+          "reference": 0,
+          "screen": 8,
+          "tile_x": 208633,
+          "tile_y": 119337,
+          "tile_z": 18
+        },
+        "type": "Feature"
+      },
+      {
+        "properties": {
+          "category": "no_building_easy_2",
+          "reference": 0,
+          "screen": 8,
+          "tile_x": 208632,
+          "tile_y": 119337,
+          "tile_z": 18
+        },
+        "type": "Feature"
+      },
+      {
+        "properties": {
+          "category": "no_building_easy_2",
+          "reference": 0,
+          "screen": 8,
+          "tile_x": 208632,
+          "tile_y": 119338,
+          "tile_z": 18
+        },
+        "type": "Feature"
+      },
+      {
+        "properties": {
+          "category": "no_building_easy_2",
+          "reference": 0,
+          "screen": 8,
+          "tile_x": 208633,
+          "tile_y": 119338,
+          "tile_z": 18
+        },
+        "type": "Feature"
+      },
+      {
+        "properties": {
+          "category": "no_building_easy_2",
+          "reference": 0,
+          "screen": 8,
+          "tile_x": 208632,
+          "tile_y": 119336,
+          "tile_z": 18
+        },
+        "type": "Feature"
+      },
+      {
+        "properties": {
+          "category": "no_building_easy_2",
+          "reference": 0,
+          "screen": 8,
+          "tile_x": 208633,
+          "tile_y": 119336,
+          "tile_z": 18
+        },
+        "type": "Feature"
+      }
+    ],
+    "name": "completeness_tutorial_tasks",
+    "type": "FeatureCollection"
+  },
+  "zoomLevel": 18
+}
