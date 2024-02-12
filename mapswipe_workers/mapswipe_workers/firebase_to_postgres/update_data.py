@@ -5,6 +5,7 @@ import csv
 import datetime as dt
 import io
 from typing import List, Optional
+from google.auth.exceptions import TransportError
 
 from mapswipe_workers import auth
 from mapswipe_workers.definitions import logger
@@ -478,7 +479,14 @@ def get_project_attribute_from_firebase(project_ids: List[str], attribute: str):
     """
 
     def get_project_attribute(_project_id, _attribute):
-        ref = fb_db.reference(f"v2/projects/{_project_id}/{_attribute}")
+        try:
+            ref = fb_db.reference(f"v2/projects/{_project_id}/{_attribute}")
+        except TransportError as e:
+            logger.exception(e)
+            logger.info(
+                "Failed to estabilish a connection to Firebase. Retry will be attempted upon the next function call."
+            )
+            attribute_value = None
         return [_project_id, ref.get()]
 
     fb_db = auth.firebaseDB()

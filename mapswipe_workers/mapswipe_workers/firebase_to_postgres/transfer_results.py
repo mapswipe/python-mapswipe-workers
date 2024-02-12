@@ -6,6 +6,8 @@ import dateutil.parser
 import geojson
 import psycopg2
 
+from google.auth.exceptions import TransportError
+
 from mapswipe_workers import auth
 from mapswipe_workers.definitions import ProjectType, logger, sentry
 from mapswipe_workers.firebase_to_postgres import update_data
@@ -18,10 +20,20 @@ def transfer_results(project_id_list: List[str] = None) -> List[str]:
     Will not transfer results for tutorials and
     for projects which are not set up in postgres.
     """
+    project_id_list_transfered = []
+
     if project_id_list is None:
         # get project_ids from existing results if no project ids specified
-        fb_db = auth.firebaseDB()
-        project_id_list = fb_db.reference("v2/results/").get(shallow=True)
+        try:
+            fb_db = auth.firebaseDB()
+            project_id_list = fb_db.reference("v2/results/").get(shallow=True)
+        except TransportError as e:
+            logger.exception(e)
+            logger.info(
+                "Failed to estabilish a connection to Firebase. Retry will be attempted upon the next function call"
+            )
+            return project_id_list_transfered
+
         if project_id_list is None:
             project_id_list = []
             logger.info("There are no results to transfer.")
@@ -30,7 +42,6 @@ def transfer_results(project_id_list: List[str] = None) -> List[str]:
     # We will only transfer results for projects we have in postgres.
     project_type_per_id = get_projects_from_postgres()
 
-    project_id_list_transfered = []
     for project_id in project_id_list:
         if project_id not in project_type_per_id.keys():
             logger.info(
@@ -47,8 +58,16 @@ def transfer_results(project_id_list: List[str] = None) -> List[str]:
         else:
             logger.info(f"{project_id}: Start transfer results")
             fb_db = auth.firebaseDB()
-            results_ref = fb_db.reference(f"v2/results/{project_id}")
-            results = results_ref.get()
+            try:
+                results_ref = fb_db.reference(f"v2/results/{project_id}")
+                results = results_ref.get()
+            except TransportError as e:
+                logger.exception(e)
+                logger.info(
+                    "Failed to estabilish a connection to Firebase. Retry will be attempted upon the next function call."
+                )
+                continue
+
             del fb_db
             project = ProjectType(project_type_per_id[project_id]).constructor
 
@@ -191,7 +210,6 @@ def results_complete(
     """check if all attributes are set"""
     complete = True
     for attribute in required_attributes:
-
         try:
             result_data[attribute]
         except KeyError as e:
@@ -241,7 +259,6 @@ def results_to_file(
     logger.info(f"Got {len(results.items())} groups for project {projectId}")
     for groupId, users in results.items():
         for userId, result_data in users.items():
-
             # check if all attributes are set
             # if not don't transfer the results for this group
             if not results_complete(
