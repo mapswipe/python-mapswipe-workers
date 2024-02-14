@@ -7,6 +7,8 @@ from typing import List, Optional
 import click
 import schedule as sched
 
+from google.auth.exceptions import TransportError
+
 from mapswipe_workers.definitions import (
     CustomError,
     MessageType,
@@ -59,9 +61,16 @@ def run_create_projects():
     Create projects with groups and tasks.
     Save created projects, groups and tasks to Firebase and Postgres.
     """
-    firebase = Firebase()
-    ref = firebase.fb_db.reference("v2/projectDrafts/")
-    project_drafts = ref.get()
+
+    try:
+        firebase = Firebase()
+        ref = firebase.fb_db.reference("v2/projectDrafts/")
+        project_drafts = ref.get()
+    except TransportError as e:
+        logger.exception(e)
+        logger.info(
+            "Failed to establish a connection to Firebase. Retry will be attempted upon the next function call."
+        )
 
     if project_drafts is None:
         logger.info("There are no project drafts in firebase.")
@@ -361,9 +370,16 @@ def run_team_management(team_name, team_id, action) -> None:
 
 @cli.command("create-tutorials")
 def run_create_tutorials() -> None:
-    firebase = Firebase()
-    ref = firebase.fb_db.reference("v2/tutorialDrafts/")
-    tutorial_drafts = ref.get()
+    try:
+        firebase = Firebase()
+        ref = firebase.fb_db.reference("v2/tutorialDrafts/")
+        tutorial_drafts = ref.get()
+    except TransportError as e:
+        logger.exception(e)
+        logger.info(
+            "Failed to estabilish a connection to Firebase. Retry will be attempted upon the next function call."
+        )
+        return True
 
     if tutorial_drafts is None:
         logger.info("There are no tutorial drafts in firebase.")
