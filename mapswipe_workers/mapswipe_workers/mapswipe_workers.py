@@ -71,6 +71,7 @@ def run_create_projects():
         logger.info(
             "Failed to establish a connection to Firebase. Retry will be attempted upon the next function call."
         )
+        return True
 
     if project_drafts is None:
         logger.info("There are no project drafts in firebase.")
