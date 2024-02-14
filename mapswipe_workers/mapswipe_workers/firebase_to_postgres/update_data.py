@@ -481,13 +481,14 @@ def get_project_attribute_from_firebase(project_ids: List[str], attribute: str):
     def get_project_attribute(_project_id, _attribute):
         try:
             ref = fb_db.reference(f"v2/projects/{_project_id}/{_attribute}")
+            attribute_value = ref.get()
         except TransportError as e:
             logger.exception(e)
             logger.info(
                 "Failed to estabilish a connection to Firebase. Retry will be attempted upon the next function call."
             )
             attribute_value = None
-        return [_project_id, ref.get()]
+        return [_project_id, attribute_value]
 
     fb_db = auth.firebaseDB()
     project_attribute_dict = {}
