@@ -212,6 +212,13 @@ function ItemSelectInput<Name extends string>(props: ItemSelectInputProps<Name>)
         // [selectedItem],
     );
 
+    // TODO: only for test remove later
+    const handleShowMoreClick = useCallback(
+        () => {
+            console.log('puran ban');
+        }, [],
+    );
+
     return (
         <SearchSelectInput
             {...otherProps}
@@ -235,6 +242,7 @@ function ItemSelectInput<Name extends string>(props: ItemSelectInputProps<Name>)
             searchOptions={data}
             optionsPending={loading}
             totalOptionsCount={count}
+            handleShowMoreClick={handleShowMoreClick}
         />
     );
 }
