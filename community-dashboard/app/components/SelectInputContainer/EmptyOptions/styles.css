@@ -1,4 +1,21 @@
 .empty {
     padding: var(--spacing-small) var(--spacing-large);
+    min-height: 2em;
     color: var(--color-text-watermark);
+}
+.hidden-options-count {
+    display: flex;
+    align-items: baseline;
+    padding: var(--dui-spacing-medium);
+    gap: var(--dui-spacing-medium);
+}
+.hidden-count-message {
+    display: flex;
+    flex-grow: 1;
+    justify-content: flex-start;
+    color: var(--color-text-watermark);
+}
+.button {
+    flex-shrink: 0;
+    padding: 0;
 }
