@@ -73,7 +73,7 @@ class MappingSessionUserGroupFactory(DjangoModelFactory):
 
 
 class UserGroupFactory(DjangoModelFactory):
-    user_group_id = factory.Sequence(lambda n: f"dummy-user-group-id-{n}")
+    user_group_id = factory.Sequence(lambda n: f"dummy-user-group-id-{n:02d}")
     name = factory.Sequence(lambda n: f"UserGroup-{n}")
     description = factory.Faker("sentence", nb_words=20)
     archived_by_id = factory.SubFactory(UserFactory)

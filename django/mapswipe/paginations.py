@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import copy
-from typing import Any, Generic, TypeVar
+from typing import Any, Callable, Generic, Type, TypeVar
 
 import strawberry
 from asgiref.sync import sync_to_async
@@ -13,20 +13,28 @@ from strawberry_django.pagination import (
     OffsetPaginationInput,
     StrawberryDjangoPagination,
 )
+from strawberry_django.resolvers import django_resolver
+
+
+def process_pagination(pagination):
+    """
+    Mutate pagination object to make sure limit are under given threshold
+    """
+    if pagination is strawberry.UNSET or pagination is None:
+        pagination = OffsetPaginationInput(
+            offset=0,
+            limit=settings.DEFAULT_PAGINATION_LIMIT,
+        )
+    if pagination.limit == -1:
+        pagination.limit = settings.DEFAULT_PAGINATION_LIMIT
+    pagination.limit = min(pagination.limit, settings.MAX_PAGINATION_LIMIT)
+    return pagination
 
 
 def apply_pagination(pagination, queryset):
-    # strawberry_django.pagination.apply
-    if pagination is strawberry.UNSET or pagination is None:
-        return queryset
-
-    limit = pagination.limit
-    if limit == -1:
-        limit = settings.DEFAULT_PAGINATION_LIMIT
-
-    limit = min(limit, settings.MAX_PAGINATION_LIMIT)
+    pagination = process_pagination(pagination)
     start = pagination.offset
-    stop = start + limit
+    stop = start + pagination.limit
     return queryset[start:stop]
 
 
@@ -38,19 +46,11 @@ class CountBeforePaginationMonkeyPatch(StrawberryDjangoPagination):
         pagination=strawberry.UNSET,
         **kwargs,
     ) -> QuerySet:
-        _current_queryset = copy.copy(queryset)
-
-        @sync_to_async
-        def _get_count():
-            return _current_queryset.count()
-
-        self.count_callback = _get_count
-        queryset = apply_pagination(pagination, queryset)
-        return super(StrawberryDjangoPagination, self).get_queryset(
-            queryset,
-            info,
-            **kwargs,
+        queryset = super(StrawberryDjangoPagination, self).get_queryset(
+            queryset, info, **kwargs
         )
+        queryset = apply_pagination(pagination, queryset)
+        return queryset
 
 
 StrawberryDjangoPagination.get_queryset = CountBeforePaginationMonkeyPatch.get_queryset
@@ -61,26 +61,24 @@ DjangoModelTypeVar = TypeVar("DjangoModelTypeVar")
 
 @strawberry.type
 class CountList(Generic[DjangoModelTypeVar]):
-    @staticmethod
-    def resolve_count(root):
-        return root.node["count_callback"]()
+    limit: int
+    offset: int
+    queryset: strawberry.Private[QuerySet | list[DjangoModelTypeVar]]
+    get_count: strawberry.Private[Callable]
 
-    @staticmethod
-    async def resolve_items(root):
-        qs = root.node["queryset"]
-        if type(qs) in [list, tuple]:
-            return qs
-        return [d async for d in qs]
+    @strawberry.field
+    async def count(self) -> int:
+        return await self.get_count()
 
-    count: int = strawberry.field(resolver=resolve_count)
-    items: list[DjangoModelTypeVar] = strawberry.field(resolver=resolve_items)
-
-    def __init__(self, *args, **kwargs):
-        self.node = kwargs.pop("node", {})
-        super().__init__(*args, **kwargs)
+    @strawberry.field
+    async def items(self) -> list[DjangoModelTypeVar]:
+        queryset = self.queryset
+        if type(self.queryset) in [list, tuple]:
+            return queryset
+        return [d async for d in queryset]
 
 
-class StrawberryDjangoCountList(CountList[DjangoModelTypeVar], StrawberryDjangoField):
+class StrawberryDjangoCountList(StrawberryDjangoField):
     @property
     def is_list(self):
         return True
@@ -98,19 +96,66 @@ class StrawberryDjangoCountList(CountList[DjangoModelTypeVar], StrawberryDjangoF
             return utils.get_django_model(type_)
         return None
 
-    def resolver(self, info, source, **kwargs):
-        qs = super().resolver(info, source, **kwargs)
-        return CountList[self._base_type](
-            node=dict(
-                count_callback=self.count_callback,
-                queryset=qs,
-            )
-        )
+    def resolver(
+        self,
+        info,
+        source,
+        pk=strawberry.UNSET,
+        filters: Type = strawberry.UNSET,
+        order: Type = strawberry.UNSET,
+        pagination: Type = strawberry.UNSET,
+    ):
+        if self.django_model is None or self._base_type is None:
+            # This needs to be fixed by developers
+            raise Exception("django_model should be defined!!")
 
-    def get_queryset(self, queryset, info, order=strawberry.UNSET, **kwargs):
+        queryset = self.django_model.objects.all()
+
         type_ = self._base_type or self.child.type
         type_ = utils.unwrap_type(type_)
         get_queryset = getattr(type_, "get_queryset", None)
         if get_queryset:
-            queryset = get_queryset(self, queryset, info, **kwargs)
-        return super().get_queryset(queryset, info, order=order, **kwargs)
+            queryset = get_queryset(type_, queryset, info)
+
+        queryset = self.apply_filters(queryset, filters, pk, info)
+        queryset = self.apply_order(queryset, order)
+
+        _current_queryset = copy.copy(queryset)
+
+        @sync_to_async
+        def get_count():
+            return _current_queryset.count()
+
+        pagination = process_pagination(pagination)
+
+        queryset = self.apply_pagination(queryset, pagination)
+        return CountList[self._base_type](
+            get_count=get_count,
+            queryset=queryset,
+            limit=pagination.limit,
+            offset=pagination.offset,
+        )
+
+
+def pagination_field(
+    resolver=None,
+    *,
+    name=None,
+    field_name=None,
+    filters=strawberry.UNSET,
+    default=strawberry.UNSET,
+    **kwargs,
+) -> Any:
+    field_ = StrawberryDjangoCountList(
+        python_name=None,
+        graphql_name=name,
+        type_annotation=None,
+        filters=filters,
+        django_name=field_name,
+        default=default,
+        **kwargs,
+    )
+    if resolver:
+        resolver = django_resolver(resolver)
+        return field_(resolver)
+    return field_

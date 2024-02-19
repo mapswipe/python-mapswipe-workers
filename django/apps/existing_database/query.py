@@ -9,8 +9,9 @@ from django.contrib.gis.db.models.functions import Centroid
 from django.db import models
 from django.utils import timezone
 from django_cte import With
-from mapswipe.paginations import CountList, StrawberryDjangoCountList
+from mapswipe.paginations import CountList, pagination_field
 from mapswipe.types import AreaSqKm
+from strawberry.types import Info
 
 from .filters import ProjectFilter, UserFilter, UserGroupFilter
 from .models import Project
@@ -225,22 +226,26 @@ class Query:
         description=get_community_stats_latest.__doc__,
     )
 
-    projects: CountList[ProjectType] = StrawberryDjangoCountList(
+    projects: CountList[ProjectType] = pagination_field(
         pagination=True,
         filters=ProjectFilter,
     )
 
-    users: CountList[UserType] = StrawberryDjangoCountList(
-        pagination=True, filters=UserFilter
+    users: CountList[UserType] = pagination_field(
+        pagination=True,
+        filters=UserFilter,
     )
-    user: UserType = strawberry_django.field()
+    user: UserType | None = strawberry_django.field()
 
-    user_groups: CountList[UserGroupType] = StrawberryDjangoCountList(
+    user_groups: CountList[UserGroupType] = pagination_field(
         pagination=True,
         filters=UserGroupFilter,
         order=UserGroupOrder,
     )
-    user_group: UserGroupType = strawberry_django.field()
+
+    @strawberry_django.field
+    async def user_group(self, info: Info, pk: strawberry.ID) -> UserGroupType | None:
+        return await UserGroupType.get_queryset(None, None, info).filter(pk=pk).afirst()
 
     @strawberry.field
     async def filtered_stats(

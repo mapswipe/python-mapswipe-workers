@@ -1,4 +1,8 @@
+import copy
 import os
+import typing
+
+from django.db import models
 
 
 class InvalidGitRepository(Exception):
@@ -66,3 +70,12 @@ def raise_if_field_not_found(obj: dict, fields: list[str], custom_exception=Exce
     empty_keys = [field for field in fields if obj.get(field) is None]
     if empty_keys:
         raise custom_exception(f"Please define this fields {empty_keys}")
+
+
+def get_queryset_for_model(
+    model: typing.Type[models.Model],
+    queryset: models.QuerySet | None = None,
+) -> models.QuerySet:
+    if queryset is not None:
+        return copy.deepcopy(queryset)
+    return model.objects.all()
