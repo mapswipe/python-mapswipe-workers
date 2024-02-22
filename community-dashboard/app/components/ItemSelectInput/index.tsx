@@ -30,27 +30,33 @@ export type SearchItemType = {
     isArchived?: boolean,
 };
 
+const LIMIT = 5;
+
 const USERS = gql`
-query UserOptions($search: String) {
-    users(filters: { search: $search }, pagination: { limit: 5, offset: 0 }) {
+query UserOptions($search: String, $offset: Int!, $limit: Int!) {
+    users(filters: { search: $search }, pagination: { limit: $limit, offset: $offset }) {
         items {
             userId
             username
         }
         count
+        offset
+        limit
     }
 }
 `;
 
 const USER_GROUPS = gql`
-query UserGroupOptions($search: String) {
-    userGroups(filters: { search: $search }, pagination: { limit: 5, offset: 0 }) {
+query UserGroupOptions($search: String, $offset: Int!, $limit: Int!) {
+    userGroups(filters: { search: $search }, pagination: { limit: $limit, offset: $offset }) {
         items {
             isArchived
             userGroupId
             name
         }
         count
+        offset
+        limit
     }
 }
 `;
@@ -135,17 +141,19 @@ function ItemSelectInput<Name extends string>(props: ItemSelectInputProps<Name>)
 
     const [opened, setOpened] = useState(false);
     const [searchText, setSearchText] = useState<string>('');
-
     const debouncedSearchText = useDebouncedValue(searchText);
 
     const variables = useMemo(() => ({
         search: debouncedSearchText,
+        offset: 0,
+        limit: 5,
     }), [debouncedSearchText]);
 
     const {
         previousData: previousUserData,
         data: userData = previousUserData,
         loading: userDataLoading,
+        fetchMore: fetchMoreUser,
     } = useQuery<UserOptionsQuery, UserOptionsQueryVariables>(
         USERS,
         {
@@ -158,6 +166,7 @@ function ItemSelectInput<Name extends string>(props: ItemSelectInputProps<Name>)
         previousData: previousUserGroupData,
         data: userGroupData = previousUserGroupData,
         loading: userGroupDataLoading,
+        fetchMore: fetchMoreUserGroup,
     } = useQuery<UserGroupOptionsQuery, UserGroupOptionsQueryVariables>(
         USER_GROUPS,
         {
@@ -168,8 +177,14 @@ function ItemSelectInput<Name extends string>(props: ItemSelectInputProps<Name>)
 
     const loading = userDataLoading || userGroupDataLoading;
     const count = (userData?.users.count ?? 0) + (userGroupData?.userGroups.count ?? 0);
-    const usersData = userData?.users.items;
-    const userGroupsData = userGroupData?.userGroups.items;
+    const usersData = useMemo(
+        () => userData?.users.items,
+        [userData?.users.items],
+    );
+    const userGroupsData = useMemo(
+        () => userGroupData?.userGroups.items,
+        [userGroupData?.userGroups.items],
+    );
 
     const data: SearchItemType[] = useMemo(
         () => ([
@@ -198,7 +213,6 @@ function ItemSelectInput<Name extends string>(props: ItemSelectInputProps<Name>)
 
     const optionRendererParams = useCallback(
         (_: number | string, option: SearchItemType) => {
-            // const isActive = key === selectedItem;
             const isActive = false;
 
             return {
@@ -209,19 +223,69 @@ function ItemSelectInput<Name extends string>(props: ItemSelectInputProps<Name>)
             };
         },
         [],
-        // [selectedItem],
     );
 
-    // TODO: only for test remove later
     const handleShowMoreClick = useCallback(
         () => {
-            console.log('puran ban');
-        }, [],
+            fetchMoreUser({
+                variables: {
+                    offset: (userData?.users.offset ?? 0) + LIMIT,
+                },
+                updateQuery: (previousResult, { fetchMoreResult }) => {
+                    const oldUsers = previousResult;
+                    const newUsers = fetchMoreResult;
+
+                    if (!newUsers) {
+                        return previousResult;
+                    }
+
+                    return ({
+                        users: {
+                            ...newUsers.users,
+                            items: [
+                                ...oldUsers.users?.items ?? [],
+                                ...newUsers.users?.items ?? [],
+                            ],
+                        },
+                    });
+                },
+            });
+            fetchMoreUserGroup({
+                variables: {
+                    offset: (userGroupData?.userGroups.offset ?? 0) + LIMIT,
+                },
+                updateQuery: (previousResult, { fetchMoreResult }) => {
+                    const oldUserGroups = previousResult;
+                    const newUserGroups = fetchMoreResult;
+
+                    if (!newUserGroups) {
+                        return previousResult;
+                    }
+
+                    return ({
+                        userGroups: {
+                            ...newUserGroups.userGroups,
+                            items: [
+                                ...oldUserGroups.userGroups.items ?? [],
+                                ...newUserGroups.userGroups.items ?? [],
+                            ],
+                        },
+                    });
+                },
+            });
+        }, [
+            variables,
+            fetchMoreUser,
+            fetchMoreUserGroup,
+            userData?.users.offset,
+            userGroupData?.userGroups.offset,
+        ],
     );
 
     return (
         <SearchSelectInput
             {...otherProps}
+            className={className}
             name="item-select-input"
             icons={(
                 <IoSearch />
@@ -229,12 +293,8 @@ function ItemSelectInput<Name extends string>(props: ItemSelectInputProps<Name>)
             optionRendererParams={optionRendererParams}
             optionRenderer={Option}
             options={[]}
-            // onOptionsChange={setItemOptions}
-            // value={selectedItem}
             value={undefined}
             onChange={handleSelectItem}
-            // Other props
-            className={className}
             keySelector={keySelector}
             labelSelector={titleSelector}
             onSearchValueChange={setSearchText}
