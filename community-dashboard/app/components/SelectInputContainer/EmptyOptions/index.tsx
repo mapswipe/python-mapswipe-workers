@@ -65,7 +65,7 @@ function EmptyOptions(props: DefaultEmptyComponentProps) {
                         actions={<IoChevronForward />}
                         variant="transparent"
                     >
-                        show more
+                        Show more
                     </Button>
                 )}
             </div>

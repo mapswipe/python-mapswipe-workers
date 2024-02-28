@@ -6,8 +6,7 @@
 .hidden-options-count {
     display: flex;
     align-items: baseline;
-    padding: var(--dui-spacing-medium);
-    gap: var(--dui-spacing-medium);
+    padding: var(--spacing-small) var(--spacing-large);
 }
 .hidden-count-message {
     display: flex;
