@@ -12,21 +12,25 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
+
     - name: Install dependencies
       working-directory: ./mapswipe_workers
       run: |
         python -m pip install --upgrade pip
         pip install flake8 black==22.3.0 isort
+
     - name: Code style
       working-directory: ./mapswipe_workers
       run: |
         black --check mapswipe_workers ../django
         flake8 --count --config setup.cfg mapswipe_workers/ ../django/
         isort --check --settings-file setup.cfg mapswipe_workers/ ../django/
+
     - name: Assert check
       run: |
           cmp --silent ./postgres/initdb.sql ./mapswipe_workers/tests/integration/set_up_db.sql || {
@@ -34,7 +38,8 @@ jobs:
             diff ./postgres/initdb.sql ./mapswipe_workers/tests/integration/set_up_db.sql;
             exit 1;
           }
-    - name:  Setup Postgres Database Container
+
+    - name: Setup Postgres Database Container
       env:
         POSTGRES_PASSWORD: postgres
         POSTGRES_USER: postgres
@@ -44,12 +49,14 @@ jobs:
         touch postgres/serviceAccountKey.json
         docker-compose up --build --detach postgres
         for i in {1..5}; do docker-compose exec -T postgres pg_isready && s=0 && break || s=$? && sleep 5; done; (docker-compose logs postgres && exit $s)
+
     - name: Deploy Firebase Rules and Functions
       env:
         FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
         FIREBASE_DB: ${{ secrets.FIREBASE_DB }}
       run: |
         docker-compose run --rm firebase_deploy sh -c "firebase use $FIREBASE_DB && firebase deploy --token $FIREBASE_TOKEN --only database"
+
     - name: Decrypt Service Account Key File
       working-directory: ./
       run: |
@@ -58,6 +65,7 @@ jobs:
         OPENSSL_PASSPHRASE: ${{ secrets.OPENSSL_PASSPHRASE }}
         OPENSSL_KEY: ${{ secrets.OPENSSL_KEY }}
         OPENSSL_IV: ${{ secrets.OPENSSL_IV }}
+
     - name: Run Tests
       working-directory: ./mapswipe_workers
       env:
@@ -73,3 +81,27 @@ jobs:
         docker-compose run --rm mapswipe_workers_creation python -m unittest discover --verbose --start-directory tests/unittests/
         docker-compose run --rm mapswipe_workers_creation bash -c 'pip install pytest && pytest -ra -v --durations=10 tests/integration/'
         docker-compose run --rm django pytest -ra -v --durations=10
+
+    - name: Django Graphql Schema Check
+      env:
+        SOURCE_SCHEMA: './django/schema.graphql'
+        LATEST_SCHEMA: './django-data/schema-latest.graphql'
+      run: |
+        docker-compose run --rm django bash -c 'wait-for-it postgres:5432 && ./manage.py graphql_schema --out /django-data/schema-latest.graphql' &&
+        cmp --silent $SOURCE_SCHEMA $LATEST_SCHEMA || {
+          echo 'The schema.graphql is not up to date with the latest changes. Please update and push latest';
+          diff $SOURCE_SCHEMA $LATEST_SCHEMA;
+          exit 1;
+        }
+
+    - name: Django Database Migration Check
+      env:
+        POSTGRES_PASSWORD: postgres
+        POSTGRES_USER: postgres
+        POSTGRES_DB: postgres
+        DJANGO_SECRET_KEY: test-django-secret-key
+      run: |
+        docker-compose run --rm django bash -c 'wait-for-it postgres:5432 && ./manage.py makemigrations --check --dry-run' || {
+          echo 'There are some changes to be reflected in the migration. Make sure to run makemigrations';
+          exit 1;
+        }

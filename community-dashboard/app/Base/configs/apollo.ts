@@ -4,7 +4,7 @@ const GRAPHQL_ENDPOINT = process.env.REACT_APP_GRAPHQL_ENDPOINT as string;
 
 const link = new HttpLink({
     uri: GRAPHQL_ENDPOINT,
-    credentials: 'include',
+    credentials: 'omit',
 }) as unknown as ApolloLinkFromClient;
 
 /*
@@ -39,8 +39,9 @@ const apolloOptions: ApolloClientOptions<NormalizedCacheObject> = {
             errorPolicy: 'all',
         },
         watchQuery: {
-            fetchPolicy: 'cache-and-network',
-            nextFetchPolicy: 'cache-and-network',
+            // NOTE: setting nextFetchPolicy to cache-and-network is risky
+            fetchPolicy: 'network-only',
+            nextFetchPolicy: 'cache-only',
             errorPolicy: 'all',
         },
     },
