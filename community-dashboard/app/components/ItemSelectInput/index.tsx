@@ -146,7 +146,7 @@ function ItemSelectInput<Name extends string>(props: ItemSelectInputProps<Name>)
     const variables = useMemo(() => ({
         search: debouncedSearchText,
         offset: 0,
-        limit: 5,
+        limit: LIMIT,
     }), [debouncedSearchText]);
 
     const {
