@@ -36,6 +36,7 @@ const USERS = gql`
 query UserOptions($search: String, $offset: Int!, $limit: Int!) {
     users(filters: { search: $search }, pagination: { limit: $limit, offset: $offset }) {
         items {
+            id
             userId
             username
         }
@@ -50,6 +51,7 @@ const USER_GROUPS = gql`
 query UserGroupOptions($search: String, $offset: Int!, $limit: Int!) {
     userGroups(filters: { search: $search }, pagination: { limit: $limit, offset: $offset }) {
         items {
+            id
             isArchived
             userGroupId
             name
