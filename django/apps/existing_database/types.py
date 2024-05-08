@@ -482,7 +482,7 @@ class UserType:
                 ).values("user_group_id")
             )
             .annotate(
-                _user_id=models.V(root.user_id, output_field=models.IntegerField()),
+                _user_id=models.Value(root.user_id, output_field=models.IntegerField()),
                 user_group_name=models.F("name"),
                 members_count=models.functions.Coalesce(
                     models.Subquery(
