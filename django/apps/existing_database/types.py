@@ -395,6 +395,10 @@ class UserGroupStats:
         )
 
     @strawberry.field
+    async def id(self) -> strawberry.ID:
+        return self._user_group_id
+
+    @strawberry.field
     async def stats(self) -> UserGroupStatsType:
         agg_data = await self.qs.aaggregate(
             total_swipes=models.Sum("swipes"),
@@ -449,11 +453,19 @@ class UserUserGroupMembershipType:
     user_group_name: str
     members_count: int
 
+    @strawberry.field
+    async def id(self, info: Info, root: UserGroup) -> strawberry.ID:
+        return f"{root.user_group_id}-{getattr(root, '_user_id', 'NA')}"
+
 
 @strawberry_django.type(User)
 class UserType:
     user_id: strawberry.ID
     username: strawberry.auto
+
+    @strawberry.field
+    async def id(self, info: Info, root: UserGroup) -> strawberry.ID:
+        return root.user_id
 
     @strawberry.field
     async def user_in_user_groups(
@@ -470,6 +482,7 @@ class UserType:
                 ).values("user_group_id")
             )
             .annotate(
+                _user_id=models.V(root.user_id, output_field=models.IntegerField()),
                 user_group_name=models.F("name"),
                 members_count=models.functions.Coalesce(
                     models.Subquery(
@@ -512,9 +525,14 @@ class ProjectType:
     geom: str
     organization_name: str
 
+    @strawberry.field
+    async def id(self, info: Info, root: UserGroup) -> strawberry.ID:
+        return root.project_id
+
 
 @strawberry.type
 class UserGroupUserMembershipType:
+    id: strawberry.ID
     user_id: str
     username: str
     is_active: bool
@@ -534,6 +552,10 @@ class UserGroupType:
     created_at: strawberry.auto
     archived_at: strawberry.auto
     is_archived: strawberry.auto
+
+    @strawberry.field
+    async def id(self, info: Info, root: UserGroup) -> strawberry.ID:
+        return root.user_group_id
 
     # TODO: Make this a generic module
     @strawberry.field
@@ -579,10 +601,14 @@ class UserGroupType:
             offset=pagination.offset,
             get_count=lambda: qs.acount(),
             queryset=[
-                UserGroupUserMembershipType(**item)
+                UserGroupUserMembershipType(
+                    id=f"{item['user_id']}-{item.pop('user_group_id')}",
+                    **item,
+                )
                 async for item in paginated_qs.values(
                     # NOTE: Defining manual select fields since DB doesn't have field id but Django assumes it has
                     "user_id",
+                    "user_group_id",
                     "is_active",
                     # Annotate fields
                     "username",

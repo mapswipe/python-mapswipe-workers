@@ -75,6 +75,7 @@ type ProjectType {
   status: String
   geom: String
   organizationName: String
+  id: ID!
 }
 
 type ProjectTypeAreaStatsType {
@@ -182,6 +183,7 @@ input UserGroupOrder {
 }
 
 type UserGroupStats {
+  id: ID!
   stats: UserGroupStatsType!
 
   """Stats from last 30 days"""
@@ -207,6 +209,7 @@ type UserGroupType {
   createdAt: DateTime
   archivedAt: DateTime
   isArchived: Boolean
+  id: ID!
   userMemberships(pagination: OffsetPaginationInput!): UserGroupUserMembershipTypeCountList!
 }
 
@@ -218,6 +221,7 @@ type UserGroupTypeCountList {
 }
 
 type UserGroupUserMembershipType {
+  id: ID!
   userId: String!
   username: String!
   isActive: Boolean!
@@ -266,6 +270,7 @@ type UserStats {
 type UserType {
   userId: ID!
   username: String
+  id: ID!
   userInUserGroups(pagination: OffsetPaginationInput!): UserUserGroupMembershipTypeCountList!
 }
 
@@ -289,6 +294,7 @@ type UserUserGroupMembershipType {
   userGroupId: ID!
   userGroupName: String!
   membersCount: Int!
+  id: ID!
 }
 
 type UserUserGroupMembershipTypeCountList {
