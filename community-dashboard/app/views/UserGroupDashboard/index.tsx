@@ -32,12 +32,14 @@ const EXPORT_LIMIT = 500;
 const USER_GROUP_STATS = gql`
     query UserGroupStats($pk: ID!, $limit: Int!, $offset: Int!) {
         userGroup(pk: $pk) {
+            id
             userGroupId
             name
             description
             userMemberships(pagination: { limit: $limit, offset: $offset }) {
                 count
                 items {
+                    id
                     userId
                     username
                     isActive
@@ -48,6 +50,7 @@ const USER_GROUP_STATS = gql`
             }
         }
         userGroupStats(userGroupId: $pk) {
+            id
             stats {
                 totalContributors
                 totalSwipes
@@ -65,6 +68,7 @@ const USER_GROUP_STATS = gql`
 const FILTERED_USER_GROUP_STATS = gql`
     query FilteredUserGroupStats($pk: ID!, $fromDate: DateTime! $toDate: DateTime!) {
         userGroupStats(userGroupId: $pk) {
+            id
             filteredStats(dateRange: { fromDate: $fromDate, toDate: $toDate}) {
                 userStats {
                     totalMappingProjects
@@ -111,11 +115,13 @@ const USER_MEMBERSHIPS_EXPORT = gql`
         $offset: Int!,
     ) {
         userGroup(pk: $pk) {
+            id
             userMemberships(pagination: { limit: $limit, offset: $offset }) {
                 count
                 limit
                 offset
                 items {
+                    id
                     userId
                     username
                     isActive
@@ -215,11 +221,9 @@ function UserGroupDashboard(props: Props) {
             onCompleted: (response) => {
                 const result = response?.userGroup?.userMemberships;
                 const userMembershipsCount = response?.userGroup?.userMemberships?.count ?? 0;
+                const newUserMembershipsData = [...userMembershipsData, ...(result?.items ?? [])];
 
-                setUserMembershipsData((prevValue) => [...prevValue, ...result?.items ?? []]);
-                setOffset((prevValue) => prevValue + EXPORT_LIMIT);
-
-                if (userMembershipsData?.length < userMembershipsCount) {
+                if (newUserMembershipsData?.length < userMembershipsCount) {
                     setExportPending(true);
                     exportUserMembership({
                         variables: userGroupId ? ({
@@ -230,10 +234,10 @@ function UserGroupDashboard(props: Props) {
                     });
                 }
 
-                if (userMembershipsData?.length === userMembershipsCount) {
+                if (newUserMembershipsData.length === userMembershipsCount) {
                     const userGroupData = [
                         ['User', 'Total swipes', 'Project contributed', 'Time spent(mins)'],
-                        ...(userMembershipsData?.map((user) => (
+                        ...(newUserMembershipsData?.map((user) => (
                             [
                                 user.username,
                                 user.totalSwipes,
@@ -263,6 +267,8 @@ function UserGroupDashboard(props: Props) {
                     window.URL.revokeObjectURL(objUrl);
                     setExportPending(false);
                 }
+                setOffset((prevValue) => prevValue + EXPORT_LIMIT);
+                setUserMembershipsData(() => newUserMembershipsData);
             },
             onError: (err) => {
                 // NOTE: we don't show any alert on failure and success for now
