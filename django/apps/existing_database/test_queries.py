@@ -309,6 +309,7 @@ class ExistingDatabaseTestCase(TestCase):
         query = """
             query MyQuery($userId: ID!, $pagination: OffsetPaginationInput!) {
               user(pk: $userId) {
+                id
                 userId
                 username
                 userInUserGroups(pagination: $pagination) {
@@ -391,6 +392,7 @@ class ExistingDatabaseTestCase(TestCase):
             assert resp == {
                 "data": {
                     "user": {
+                        "id": user.user_id,
                         "userId": user.user_id,
                         "username": user.username,
                         "userInUserGroups": {

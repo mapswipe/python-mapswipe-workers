@@ -464,7 +464,7 @@ class UserType:
     username: strawberry.auto
 
     @strawberry.field
-    async def id(self, info: Info, root: UserGroup) -> strawberry.ID:
+    async def id(self, info: Info, root: User) -> strawberry.ID:
         return root.user_id
 
     @strawberry.field
@@ -482,7 +482,7 @@ class UserType:
                 ).values("user_group_id")
             )
             .annotate(
-                _user_id=models.Value(root.user_id, output_field=models.IntegerField()),
+                _user_id=models.Value(root.user_id, output_field=models.CharField()),
                 user_group_name=models.F("name"),
                 members_count=models.functions.Coalesce(
                     models.Subquery(
