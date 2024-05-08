@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { gql, useQuery, useLazyQuery } from '@apollo/client';
 import { encodeDate } from '@togglecorp/fujs';
 import { useParams } from 'react-router-dom';
@@ -20,10 +20,14 @@ import {
     UserGroupStatsQueryVariables,
     FilteredUserGroupStatsQuery,
     FilteredUserGroupStatsQueryVariables,
+    UserMembershipsExportQuery,
+    UserMembershipsExportQueryVariables,
 } from '#generated/types';
 import { defaultPagePerItemOptions } from '#utils/common';
 
 import styles from './styles.css';
+
+const EXPORT_LIMIT = 500;
 
 const USER_GROUP_STATS = gql`
     query UserGroupStats($pk: ID!, $limit: Int!, $offset: Int!) {
@@ -100,6 +104,30 @@ const FILTERED_USER_GROUP_STATS = gql`
     }
 `;
 
+const USER_MEMBERSHIPS_EXPORT = gql`
+    query UserMembershipsExport(
+        $pk: ID!,
+        $limit: Int!,
+        $offset: Int!,
+    ) {
+        userGroup(pk: $pk) {
+            userMemberships(pagination: { limit: $limit, offset: $offset }) {
+                count
+                limit
+                offset
+                items {
+                    userId
+                    username
+                    isActive
+                    totalMappingProjects
+                    totalSwipeTime
+                    totalSwipes
+                }
+            }
+        }
+    }
+`;
+
 type UserGroupMember = NonNullable<NonNullable<NonNullable<UserGroupStatsQuery['userGroup']>['userMemberships']>['items']>[number];
 
 function memberKeySelector(member: UserGroupMember) {
@@ -120,10 +148,15 @@ interface Props {
     className?: string;
 }
 
+type UserMembershipType = NonNullable<NonNullable<UserMembershipsExportQuery['userGroup']>['userMemberships']>['items'];
+
 function UserGroupDashboard(props: Props) {
     const { className } = props;
 
     const { userGroupId } = useParams<{ userGroupId: string | undefined }>();
+    const [userMembershipsData, setUserMembershipsData] = useState<UserMembershipType>([]);
+    const [exportPending, setExportPending] = useState<boolean>(false);
+
     const [
         dateRange,
         setDateRange,
@@ -146,6 +179,7 @@ function UserGroupDashboard(props: Props) {
 
     const [activePage, setActivePage] = React.useState(1);
     const [pagePerItem, setPagePerItem] = React.useState(10);
+    const [offset, setOffset] = useState<number>(EXPORT_LIMIT);
 
     const {
         data: userGroupStats,
@@ -162,49 +196,78 @@ function UserGroupDashboard(props: Props) {
         },
     );
 
-    const [
-        getUserGroupStatsDownload,
-        {
-            loading: userGroupStatsDownloadLoading,
-        },
-    ] = useLazyQuery<UserGroupStatsQuery, UserGroupStatsQueryVariables>(
-        USER_GROUP_STATS,
-        {
-            variables: userGroupId ? {
+    const userGroupExportVariable = useMemo(
+        (): UserMembershipsExportQueryVariables | undefined => (
+            userGroupId ? {
                 pk: userGroupId,
-                limit: 500, // NOTE this is a temporary fix we need to do recursive fetch later
+                limit: EXPORT_LIMIT,
                 offset: 0,
-            } : undefined,
-            onCompleted: (data) => {
-                const userGroupData = [
-                    ['User', 'Total swipes', 'Project contributed', 'Time spent(mins)'],
-                    ...(data.userGroup.userMemberships.items.map((user) => (
-                        [
-                            user.username,
-                            user.totalSwipes,
-                            user.totalMappingProjects,
-                            user.totalSwipeTime,
-                        ]
-                    )) ?? [])];
-                let csvContent = '';
-                userGroupData.forEach((row) => {
-                    csvContent += `${row.join(',')} \n`;
-                });
-                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8,' });
-                const objUrl = URL.createObjectURL(blob);
-                const link = document.createElement('a');
-                link.href = objUrl;
-                link.download = `${userGroupStats?.userGroup?.name ?? 'users'}.csv`;
-                document.body.appendChild(link);
-                link.dispatchEvent(
-                    new MouseEvent('click', {
-                        bubbles: true,
-                        cancelable: true,
-                        view: window,
-                    }),
-                );
-                document.body.removeChild(link);
-                window.URL.revokeObjectURL(objUrl);
+            } : undefined
+        ), [userGroupId],
+    );
+
+    const [
+        exportUserMembership,
+    ] = useLazyQuery<UserMembershipsExportQuery, UserGroupStatsQueryVariables>(
+        USER_MEMBERSHIPS_EXPORT,
+        {
+            variables: userGroupExportVariable,
+            onCompleted: (response) => {
+                const result = response?.userGroup?.userMemberships;
+                const userMembershipsCount = response?.userGroup?.userMemberships?.count ?? 0;
+
+                setUserMembershipsData((prevValue) => [...prevValue, ...result?.items ?? []]);
+                setOffset((prevValue) => prevValue + EXPORT_LIMIT);
+
+                if (userMembershipsData?.length < userMembershipsCount) {
+                    setExportPending(true);
+                    exportUserMembership({
+                        variables: userGroupId ? ({
+                            pk: userGroupId,
+                            limit: EXPORT_LIMIT,
+                            offset,
+                        }) : undefined,
+                    });
+                }
+
+                if (userMembershipsData?.length === userMembershipsCount) {
+                    const userGroupData = [
+                        ['User', 'Total swipes', 'Project contributed', 'Time spent(mins)'],
+                        ...(userMembershipsData?.map((user) => (
+                            [
+                                user.username,
+                                user.totalSwipes,
+                                user.totalMappingProjects,
+                                user.totalSwipeTime,
+                            ]
+                        )) ?? []),
+                    ];
+                    let csvContent = '';
+                    userGroupData.forEach((row) => {
+                        csvContent += `${row.join(',')} \n`;
+                    });
+                    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8,' });
+                    const objUrl = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = objUrl;
+                    link.download = `${userGroupStats?.userGroup?.name ?? 'users'}.csv`;
+                    document.body.appendChild(link);
+                    link.dispatchEvent(
+                        new MouseEvent('click', {
+                            bubbles: true,
+                            cancelable: true,
+                            view: window,
+                        }),
+                    );
+                    document.body.removeChild(link);
+                    window.URL.revokeObjectURL(objUrl);
+                    setExportPending(false);
+                }
+            },
+            onError: (err) => {
+                // NOTE: we don't show any alert on failure and success for now
+                // eslint-disable-next-line no-console
+                console.log('some error ocoured', err);
             },
         },
     );
@@ -278,11 +341,11 @@ function UserGroupDashboard(props: Props) {
                             Group Members
                         </Heading>
                         <Button
-                            disabled={userGroupStatsDownloadLoading}
-                            onClick={getUserGroupStatsDownload}
+                            disabled={exportPending}
+                            onClick={exportUserMembership}
                             name={undefined}
                         >
-                            { userGroupStatsDownloadLoading ? 'Exporting' : 'Export' }
+                            { exportPending ? 'Exporting' : 'Export' }
                         </Button>
                     </div>
                     <div className={styles.membersContainer}>

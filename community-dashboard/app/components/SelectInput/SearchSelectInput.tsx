@@ -84,9 +84,17 @@ export type SearchSelectInputProps<
             | 'optionRendererParams'
         >
     ) & (
-        { nonClearable: true; onChange: (newValue: T, name: K) => void }
-        | { nonClearable?: false; onChange: (newValue: T | undefined, name: K) => void }
-);
+        {
+            nonClearable: true;
+            onChange: (newValue: T, name: K) => void
+        }
+        | {
+            nonClearable?: false;
+            onChange: (newValue: T | undefined, name: K) => void
+        }
+) & {
+    handleShowMoreClick?: () => void;
+};
 
 const emptyList: unknown[] = [];
 
@@ -113,6 +121,7 @@ function SearchSelectInput<
         onShowDropdownChange,
         optionRendererParams,
         optionRenderer,
+        handleShowMoreClick,
         ...otherProps
     } = props;
 
@@ -288,6 +297,7 @@ function SearchSelectInput<
             onFocusedKeyChange={setFocusedKey}
             hasValue={isDefined(value)}
             persistentOptionPopup={false}
+            handleShowMoreClick={handleShowMoreClick}
         />
     );
 }
