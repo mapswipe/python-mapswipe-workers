@@ -274,7 +274,6 @@ function ItemSelectInput<Name extends string>(props: ItemSelectInputProps<Name>)
                 },
             });
         }, [
-            variables,
             fetchMoreUser,
             fetchMoreUserGroup,
             userData?.users.offset,

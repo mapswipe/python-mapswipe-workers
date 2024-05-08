@@ -298,14 +298,16 @@ function UserGroupDashboard(props: Props) {
         setDateRange(newValue ?? defaultDateRange);
     }, [setDateRange]);
 
-    const totalSwipes = userGroupStats?.userGroupStats.stats.totalSwipes;
-    const totalSwipesLastMonth = userGroupStats?.userGroupStats.statsLatest.totalSwipes;
+    const totalSwipes = userGroupStats?.userGroupStats?.stats?.totalSwipes ?? 0;
+    const totalSwipesLastMonth = userGroupStats?.userGroupStats?.statsLatest?.totalSwipes ?? 0;
 
-    const totalSwipeTime = userGroupStats?.userGroupStats.stats.totalSwipeTime;
-    const totalSwipeTimeLastMonth = userGroupStats?.userGroupStats.statsLatest.totalSwipeTime;
+    const totalSwipeTime = userGroupStats?.userGroupStats?.stats?.totalSwipeTime ?? 0;
+    // eslint-disable-next-line max-len
+    const totalSwipeTimeLastMonth = userGroupStats?.userGroupStats?.statsLatest?.totalSwipeTime ?? 0;
 
-    const totalContributors = userGroupStats?.userGroupStats.stats.totalContributors;
-    const totalContributorsLastMonth = userGroupStats?.userGroupStats.statsLatest.totalContributors;
+    const totalContributors = userGroupStats?.userGroupStats?.stats?.totalContributors ?? 0;
+    // eslint-disable-next-line max-len
+    const totalContributorsLastMonth = userGroupStats?.userGroupStats?.statsLatest?.totalContributors ?? 0;
 
     const filteredStats = filteredUserGroupStats?.userGroupStats?.filteredStats;
 
@@ -313,7 +315,7 @@ function UserGroupDashboard(props: Props) {
         <Page
             className={className}
             variant="userGroup"
-            heading={userGroupStats?.userGroup.name}
+            heading={userGroupStats?.userGroup?.name}
             totalSwipes={totalSwipes}
             totalSwipesLastMonth={totalSwipesLastMonth}
             totalTimeSpent={totalSwipeTime}
