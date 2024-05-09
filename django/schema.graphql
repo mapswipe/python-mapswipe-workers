@@ -1,0 +1,305 @@
+scalar AreaSqKm
+
+type CommunityStatsType {
+  totalSwipes: Int!
+  totalContributors: Int!
+  totalUserGroups: Int!
+}
+
+type ContributorSwipeStatType {
+  taskDate: Date!
+  totalSwipes: Int!
+}
+
+type ContributorTimeStatType {
+  date: Date!
+  totalSwipeTime: TimeInSeconds!
+}
+
+"""Date (isoformat)"""
+scalar Date
+
+input DateRangeInput {
+  fromDate: DateTime!
+  toDate: DateTime!
+}
+
+"""Date with time (isoformat)"""
+scalar DateTime
+
+type FilteredStats {
+  contributorTimeStats: [ContributorTimeStatType!]!
+  swipeByProjectType: [ProjectTypeSwipeStatsType!]!
+  areaSwipedByProjectType: [ProjectTypeAreaStatsType!]!
+  organizationTypeStats: [OrganizationSwipeStatsType!]!
+  projectGeoContribution: [MapContributionStatsType!]!
+}
+
+scalar GenericJSON
+
+type MapContributionStatsType {
+  geojson: GenericJSON!
+  totalContribution: Int!
+}
+
+input OffsetPaginationInput {
+  offset: Int! = 0
+  limit: Int! = -1
+}
+
+enum Ordering {
+  ASC
+  DESC
+}
+
+type OrganizationSwipeStatsType {
+  organizationName: String!
+  totalSwipes: Int!
+}
+
+input ProjectFilter {
+  projectId: StrFilterLookup
+  search: String
+}
+
+type ProjectType {
+  projectId: ID!
+  created: DateTime
+  name: String
+  createdBy: String
+  progress: Int
+  projectDetails: String
+  projectType: ProjectTypeEnum
+  requiredResults: Int
+  resultCount: Int
+  status: String
+  geom: String
+  organizationName: String
+  id: ID!
+}
+
+type ProjectTypeAreaStatsType {
+  projectType: ProjectTypeEnum!
+  totalArea: AreaSqKm!
+  projectTypeDisplay: String!
+}
+
+type ProjectTypeCountList {
+  limit: Int!
+  offset: Int!
+  count: Int!
+  items: [ProjectType!]!
+}
+
+enum ProjectTypeEnum {
+  BUILD_AREA
+  FOOTPRINT
+  CHANGE_DETECTION
+  COMPLETENESS
+}
+
+type ProjectTypeSwipeStatsType {
+  projectType: ProjectTypeEnum!
+  totalSwipes: Int!
+  projectTypeDisplay: String!
+}
+
+type Query {
+  communityStats: CommunityStatsType!
+
+  "\n    Stats from last 30 days\n    "
+  communityStatsLatest: CommunityStatsType!
+  projects(filters: ProjectFilter, pagination: OffsetPaginationInput): ProjectTypeCountList!
+  users(filters: UserFilter, pagination: OffsetPaginationInput): UserTypeCountList!
+  user(pk: ID!): UserType
+  userGroups(filters: UserGroupFilter, order: UserGroupOrder, pagination: OffsetPaginationInput): UserGroupTypeCountList!
+  userGroup(pk: ID!): UserGroupType
+  filteredStats(dateRange: DateRangeInput = null): FilteredStats!
+  userStats(userId: ID!): UserStats!
+  userGroupStats(userGroupId: ID!): UserGroupStats!
+}
+
+input StrFilterLookup {
+  exact: String
+  iExact: String
+  contains: String
+  iContains: String
+  inList: [String!]
+  gt: String
+  gte: String
+  lt: String
+  lte: String
+  startsWith: String
+  iStartsWith: String
+  endsWith: String
+  iEndsWith: String
+  range: [String!]
+  isNull: Boolean
+  regex: String
+  iRegex: String
+}
+
+scalar TimeInSeconds
+
+input UserFilter {
+  userId: StrFilterLookup
+  search: String
+}
+
+type UserFilteredStats implements UserUserGroupBaseFilterStatsQuery {
+  swipeByDate: [ContributorSwipeStatType!]!
+  swipeTimeByDate: [ContributorTimeStatType!]!
+  areaSwipedByProjectType: [ProjectTypeAreaStatsType!]!
+  swipeByProjectType: [ProjectTypeSwipeStatsType!]!
+  swipeByOrganizationName: [OrganizationSwipeStatsType!]!
+  contributionByGeo: [MapContributionStatsType!]!
+}
+
+input UserGroupFilter {
+  userGroupId: StrFilterLookup
+  search: String
+}
+
+type UserGroupFilteredStats implements UserUserGroupBaseFilterStatsQuery {
+  swipeByDate: [ContributorSwipeStatType!]!
+  swipeTimeByDate: [ContributorTimeStatType!]!
+  areaSwipedByProjectType: [ProjectTypeAreaStatsType!]!
+  swipeByProjectType: [ProjectTypeSwipeStatsType!]!
+  swipeByOrganizationName: [OrganizationSwipeStatsType!]!
+  contributionByGeo: [MapContributionStatsType!]!
+  userStats: [UserGroupUserStatsType!]!
+}
+
+type UserGroupLatestStatsType {
+  totalSwipes: Int!
+  totalSwipeTime: TimeInSeconds!
+  totalMappingProjects: Int!
+  totalContributors: Int!
+}
+
+input UserGroupOrder {
+  userGroupId: Ordering
+  name: Ordering
+}
+
+type UserGroupStats {
+  id: ID!
+  stats: UserGroupStatsType!
+
+  """Stats from last 30 days"""
+  statsLatest: UserGroupLatestStatsType!
+  filteredStats(dateRange: DateRangeInput = null): UserGroupFilteredStats!
+}
+
+type UserGroupStatsType {
+  totalSwipes: Int!
+  totalSwipeTime: TimeInSeconds!
+  totalMappingProjects: Int!
+  totalContributors: Int!
+  totalAreaSwiped: AreaSqKm!
+  totalOrganization: Int!
+}
+
+type UserGroupType {
+  userGroupId: ID!
+  name: String
+  description: String
+  createdBy: UserType!
+  archivedBy: UserType!
+  createdAt: DateTime
+  archivedAt: DateTime
+  isArchived: Boolean
+  id: ID!
+  userMemberships(pagination: OffsetPaginationInput!): UserGroupUserMembershipTypeCountList!
+}
+
+type UserGroupTypeCountList {
+  limit: Int!
+  offset: Int!
+  count: Int!
+  items: [UserGroupType!]!
+}
+
+type UserGroupUserMembershipType {
+  id: ID!
+  userId: String!
+  username: String!
+  isActive: Boolean!
+  totalMappingProjects: Int!
+  totalSwipes: Int!
+  totalSwipeTime: TimeInSeconds!
+}
+
+type UserGroupUserMembershipTypeCountList {
+  limit: Int!
+  offset: Int!
+  count: Int!
+  items: [UserGroupUserMembershipType!]!
+}
+
+type UserGroupUserStatsType {
+  userId: String!
+  username: String!
+  totalMappingProjects: Int!
+  totalSwipes: Int!
+  totalSwipeTime: TimeInSeconds!
+}
+
+type UserLatestStatsType {
+  totalSwipes: Int!
+  totalSwipeTime: TimeInSeconds!
+  totalUserGroups: Int!
+}
+
+type UserStatType {
+  totalSwipes: Int!
+  totalSwipeTime: TimeInSeconds!
+  totalMappingProjects: Int!
+  totalAreaSwiped: AreaSqKm!
+  totalOrganization: Int!
+}
+
+type UserStats {
+  stats: UserStatType!
+
+  """Stats from last 30 days"""
+  statsLatest: UserLatestStatsType!
+  filteredStats(dateRange: DateRangeInput = null): UserFilteredStats!
+}
+
+type UserType {
+  userId: ID!
+  username: String
+  id: ID!
+  userInUserGroups(pagination: OffsetPaginationInput!): UserUserGroupMembershipTypeCountList!
+}
+
+type UserTypeCountList {
+  limit: Int!
+  offset: Int!
+  count: Int!
+  items: [UserType!]!
+}
+
+interface UserUserGroupBaseFilterStatsQuery {
+  swipeByDate: [ContributorSwipeStatType!]!
+  swipeTimeByDate: [ContributorTimeStatType!]!
+  areaSwipedByProjectType: [ProjectTypeAreaStatsType!]!
+  swipeByProjectType: [ProjectTypeSwipeStatsType!]!
+  swipeByOrganizationName: [OrganizationSwipeStatsType!]!
+  contributionByGeo: [MapContributionStatsType!]!
+}
+
+type UserUserGroupMembershipType {
+  userGroupId: ID!
+  userGroupName: String!
+  membersCount: Int!
+  id: ID!
+}
+
+type UserUserGroupMembershipTypeCountList {
+  limit: Int!
+  offset: Int!
+  count: Int!
+  items: [UserUserGroupMembershipType!]!
+}

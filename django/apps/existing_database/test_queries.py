@@ -15,7 +15,7 @@ from apps.existing_database.factories import (
     UserGroupFactory,
     UserGroupMembershipFactory,
 )
-from apps.existing_database.models import Project
+from apps.existing_database.models import Project, UserGroup
 from django.utils import timezone
 from mapswipe.tests import TestCase
 
@@ -160,6 +160,8 @@ class ExistingDatabaseTestCase(TestCase):
                 isArchived
                 userMemberships(pagination: $pagination) {
                   count
+                  offset
+                  limit
                   items {
                     userId
                     username
@@ -245,21 +247,75 @@ class ExistingDatabaseTestCase(TestCase):
                         "name": user_group.name,
                         "userMemberships": {
                             "count": 3,
+                            "offset": offset,
+                            "limit": 2,
                             "items": expected_memberships,
                         },
                     },
                 },
             }
 
+    def test_user_groups_query(self):
+        query = """
+            query MyQuery($pagination: OffsetPaginationInput!) {
+              userGroups(pagination: $pagination, order: {userGroupId: ASC}) {
+                count
+                offset
+                limit
+                items {
+                    name
+                    createdAt
+                    archivedAt
+                    isArchived
+                  }
+              }
+            }
+        """
+        existing_user_groups_count = UserGroup.objects.count()
+        # UserGroup with None name should not be filtered out
+        UserGroupFactory.create_batch(3, name=None)
+
+        offset = 0
+        resp = self.query_check(
+            query,
+            variables=dict(
+                pagination=dict(
+                    limit=2,
+                    offset=offset,
+                ),
+            ),
+        )
+        assert resp == {
+            "data": {
+                "userGroups": {
+                    "count": existing_user_groups_count,
+                    "limit": 2,
+                    "offset": offset,
+                    "items": [
+                        {
+                            "archivedAt": user_group.archived_at,
+                            "createdAt": user_group.created_at,
+                            "isArchived": user_group.is_archived,
+                            "name": user_group.name,
+                        }
+                        for user_group in self.user_groups[:2]
+                    ],
+                },
+            },
+        }
+
     def test_user_query(self):
         # TODO:
         query = """
             query MyQuery($userId: ID!, $pagination: OffsetPaginationInput!) {
               user(pk: $userId) {
+                id
                 userId
                 username
                 userInUserGroups(pagination: $pagination) {
                   count
+                  offset
+                  limit
                   items {
                     userGroupId
                     userGroupName
@@ -280,7 +336,7 @@ class ExistingDatabaseTestCase(TestCase):
                     user_group=user_group,
                     user=user,
                 )
-            # Additinal users
+            # Additional users
             for additional_user in additional_users[:index]:
                 UserGroupMembershipFactory.create(
                     user_group=user_group, user=additional_user
@@ -336,10 +392,13 @@ class ExistingDatabaseTestCase(TestCase):
             assert resp == {
                 "data": {
                     "user": {
+                        "id": user.user_id,
                         "userId": user.user_id,
                         "username": user.username,
                         "userInUserGroups": {
                             "count": 3,
+                            "offset": offset,
+                            "limit": 2,
                             "items": expected_memberships,
                         },
                     },

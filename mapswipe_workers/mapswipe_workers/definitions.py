@@ -70,7 +70,7 @@ sentry = sentry_sdk
 IMAGE_URLS = {
     "bing": (
         "https://ecn.t0.tiles.virtualearth.net"
-        + "/tiles/a{quad_key}.jpeg?g=1&token={key}"
+        + "/tiles/a{quad_key}.jpeg?g=7505&token={key}"
     ),
     "mapbox": (
         "https://d.tiles.mapbox.com"
