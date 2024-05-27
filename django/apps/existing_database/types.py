@@ -24,6 +24,7 @@ class DateRangeInput:
 
 @strawberry.type
 class CommunityStatsType:
+    id: strawberry.ID
     total_swipes: int
     total_contributors: int
     total_user_groups: int
@@ -264,6 +265,7 @@ class UserFilteredStats(UserUserGroupBaseFilterStatsQuery):
         filters = {
             "user_id": user_id,
         }
+        self._user_id = user_id
         if date_range:
             filters.update(
                 timestamp_date__gte=date_range.from_date,
@@ -271,15 +273,24 @@ class UserFilteredStats(UserUserGroupBaseFilterStatsQuery):
             )
         self._qs = AggregatedUserStatData.objects.filter(**filters)
 
+    @strawberry.field
+    async def id(self) -> strawberry.ID:
+        return self._user_id
+
 
 @strawberry.type
 class UserStats:
     user_id: InitVar[str]
 
     def __post_init__(self, user_id):
+        self.id = user_id
         self._user_id = user_id
         self.qs = AggregatedUserStatData.objects.filter(user_id=user_id)
         self.ug_qs = AggregatedUserGroupStatData.objects.filter(user_id=user_id)
+
+    @strawberry.field
+    async def id(self) -> strawberry.ID:
+        return self._user_id
 
     @strawberry.field
     async def stats(self) -> UserStatType:
