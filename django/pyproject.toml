@@ -20,7 +20,7 @@ strawberry-graphql = "^0.177"
 strawberry-django-plus = "*"
 
 [tool.poetry.dev-dependencies]
-django-stubs = { version = "*", allow-prereleases = true }
+django-stubs = "==4.2.6"  # NOTE: 4.2.7 is messing with TextChoices/IntergerChoices
 ipython = "*"
 pytest-django = "*"
 pytest-icdiff = "*"
