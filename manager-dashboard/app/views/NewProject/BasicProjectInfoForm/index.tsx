@@ -187,6 +187,16 @@ function BasicProjectInfoForm(props: Props<PartialProjectFormType>) {
                         disabled={disabled || tutorialsPending}
                         nonClearable
                     />
+                    <TextInput
+                        name={'manualUrl' as const}
+                        value={value?.manualUrl}
+                        onChange={setFieldValue}
+                        error={error?.manualUrl}
+                        label="Additional information resource (URL)"
+                        hint="Provide an optional link to a resource with additional information on the project (only visible in the MapSwipe web app)"
+                        spellCheck="false"
+                        disabled={disabled}
+                    />
                     <NumberInput
                         name={'verificationNumber' as const}
                         value={value?.verificationNumber}
