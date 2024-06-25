@@ -6,6 +6,7 @@ import datetime as dt
 import io
 from typing import List, Optional
 from google.auth.exceptions import TransportError
+from firebase_admin import exceptions
 
 from mapswipe_workers import auth
 from mapswipe_workers.definitions import logger
@@ -482,7 +483,7 @@ def get_project_attribute_from_firebase(project_ids: List[str], attribute: str):
         try:
             ref = fb_db.reference(f"v2/projects/{_project_id}/{_attribute}")
             attribute_value = ref.get()
-        except TransportError as e:
+        except (TransportError, exceptions.UnavailableError) as e:
             logger.exception(e)
             logger.info(
                 "Failed to estabilish a connection to Firebase. Retry will be attempted upon the next function call."
