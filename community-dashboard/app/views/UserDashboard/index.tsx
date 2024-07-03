@@ -26,11 +26,13 @@ import styles from './styles.css';
 const USER_STATS = gql`
     query UserStats($pk: ID!, $limit: Int!, $offset: Int!) {
         user(pk: $pk) {
+            id
             userId
             username
             userInUserGroups(pagination: {limit: $limit, offset: $offset}) {
                 count
                 items {
+                    id
                     userGroupId
                     userGroupName
                     membersCount
@@ -38,6 +40,7 @@ const USER_STATS = gql`
             }
         }
         userStats(userId: $pk) {
+            id
             stats {
                 totalSwipes
                 totalSwipeTime
@@ -54,7 +57,9 @@ const USER_STATS = gql`
 const FILTERED_USER_STATS = gql`
     query FilteredUserStats($pk: ID!, $fromDate: DateTime!, $toDate: DateTime!) {
         userStats(userId: $pk) {
+            id
             filteredStats(dateRange: { fromDate: $fromDate, toDate: $toDate}) {
+                id
                 areaSwipedByProjectType {
                     totalArea
                     projectType

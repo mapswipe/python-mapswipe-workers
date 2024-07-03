@@ -39,7 +39,8 @@ class Schema(strawberry.Schema):
         operation_name = kwargs.get("operation_name")
         with sentry_sdk.configure_scope() as scope:
             scope.set_tag("kind", operation_name)
-            scope.transaction.name = operation_name
+            if scope.transaction:
+                scope.transaction.name = operation_name
             return execute_func(*args, **kwargs)
 
     def execute_sync(self, *args, **kwargs) -> ExecutionResult:

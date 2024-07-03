@@ -19,11 +19,13 @@ import {
 const COMMUNITY_STATS = gql`
     query CommunityStats {
         communityStatsLatest {
+            id
             totalContributors
             totalUserGroups
             totalSwipes
         }
         communityStats {
+            id
             totalContributors
             totalUserGroups
             totalSwipes

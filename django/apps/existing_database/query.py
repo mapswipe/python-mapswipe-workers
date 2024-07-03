@@ -41,6 +41,7 @@ def get_community_stats() -> CommunityStatsType:
         total_user_groups=models.Count("user_group", distinct=True),
     )
     return CommunityStatsType(
+        id="all",
         total_contributors=user_agg_data["total_users"] or 0,
         total_user_groups=user_group_agg_data["total_user_groups"] or 0,
         total_swipes=user_agg_data["swipes_sum"] or 0,
@@ -64,6 +65,7 @@ def get_community_stats_latest() -> CommunityStatsType:
         total_user_groups=models.Count("user_group", distinct=True),
     )
     return CommunityStatsType(
+        id="last-30-days",
         total_contributors=user_agg_data["total_users"] or 0,
         total_user_groups=user_group_agg_data["total_user_groups"] or 0,
         total_swipes=user_agg_data["swipes_sum"] or 0,

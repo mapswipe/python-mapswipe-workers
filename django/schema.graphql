@@ -1,6 +1,7 @@
 scalar AreaSqKm
 
 type CommunityStatsType {
+  id: ID!
   totalSwipes: Int!
   totalContributors: Int!
   totalUserGroups: Int!
@@ -153,6 +154,7 @@ type UserFilteredStats implements UserUserGroupBaseFilterStatsQuery {
   swipeByProjectType: [ProjectTypeSwipeStatsType!]!
   swipeByOrganizationName: [OrganizationSwipeStatsType!]!
   contributionByGeo: [MapContributionStatsType!]!
+  id: ID!
 }
 
 input UserGroupFilter {
@@ -260,6 +262,7 @@ type UserStatType {
 }
 
 type UserStats {
+  id: ID!
   stats: UserStatType!
 
   """Stats from last 30 days"""
