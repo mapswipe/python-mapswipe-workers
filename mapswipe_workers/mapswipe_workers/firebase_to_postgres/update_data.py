@@ -487,7 +487,7 @@ def get_project_attribute_from_firebase(project_ids: List[str], attribute: str):
         except (
             TransportError,
             firebase_exceptions.UnavailableError,
-            firebase_exceptions.UnkownError,
+            firebase_exceptions.UnknownError,
             requests.exceptions.HTTPError,
         ) as e:
             logger.exception(e)

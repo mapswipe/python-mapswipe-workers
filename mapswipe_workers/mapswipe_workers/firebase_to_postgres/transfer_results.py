@@ -32,7 +32,7 @@ def transfer_results(project_id_list: List[str] = None) -> List[str]:
         except (
             TransportError,
             firebase_exceptions.UnavailableError,
-            firebase_exceptions.UnkownError,
+            firebase_exceptions.UnknownError,
             requests.exceptions.HTTPError,
         ) as e:
             logger.exception(e)
@@ -71,7 +71,7 @@ def transfer_results(project_id_list: List[str] = None) -> List[str]:
             except (
                 TransportError,
                 firebase_exceptions.UnavailableError,
-                firebase_exceptions.UnkownError,
+                firebase_exceptions.UnknownError,
                 requests.exceptions.HTTPError,
             ) as e:
                 logger.exception(e)

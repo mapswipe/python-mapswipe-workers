@@ -71,7 +71,7 @@ def run_create_projects():
     except (
         TransportError,
         firebase_exceptions.UnavailableError,
-        firebase_exceptions.UnkownError,
+        firebase_exceptions.UnknownError,
         requests.exceptions.HTTPError,
     ) as e:
         logger.exception(e)
@@ -385,7 +385,7 @@ def run_create_tutorials() -> None:
     except (
         TransportError,
         firebase_exceptions.UnavailableError,
-        firebase_exceptions.UnkownError,
+        firebase_exceptions.UnknownError,
         requests.exceptions.HTTPError,
     ) as e:
         logger.exception(e)
