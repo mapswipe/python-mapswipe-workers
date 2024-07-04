@@ -7,6 +7,8 @@ import geojson
 import psycopg2
 
 from google.auth.exceptions import TransportError
+from firebase_admin import db, exceptions as firebase_exceptions
+import requests
 
 from mapswipe_workers import auth
 from mapswipe_workers.definitions import ProjectType, logger, sentry
@@ -27,7 +29,12 @@ def transfer_results(project_id_list: List[str] = None) -> List[str]:
         try:
             fb_db = auth.firebaseDB()
             project_id_list = fb_db.reference("v2/results/").get(shallow=True)
-        except TransportError as e:
+        except (
+            TransportError,
+            firebase_exceptions.UnavailableError,
+            firebase_exceptions.UnkownError,
+            requests.exceptions.HTTPError,
+        ) as e:
             logger.exception(e)
             logger.info(
                 "Failed to estabilish a connection to Firebase. Retry will be attempted upon the next function call"
@@ -61,7 +68,12 @@ def transfer_results(project_id_list: List[str] = None) -> List[str]:
             try:
                 results_ref = fb_db.reference(f"v2/results/{project_id}")
                 results = results_ref.get()
-            except TransportError as e:
+            except (
+                TransportError,
+                firebase_exceptions.UnavailableError,
+                firebase_exceptions.UnkownError,
+                requests.exceptions.HTTPError,
+            ) as e:
                 logger.exception(e)
                 logger.info(
                     "Failed to estabilish a connection to Firebase. Retry will be attempted upon the next function call."

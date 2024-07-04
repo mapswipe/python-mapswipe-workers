@@ -8,6 +8,8 @@ import click
 import schedule as sched
 
 from google.auth.exceptions import TransportError
+from firebase_admin import db, exceptions as firebase_exceptions
+import requests
 
 from mapswipe_workers.definitions import (
     CustomError,
@@ -66,7 +68,12 @@ def run_create_projects():
         firebase = Firebase()
         ref = firebase.fb_db.reference("v2/projectDrafts/")
         project_drafts = ref.get()
-    except TransportError as e:
+    except (
+        TransportError,
+        firebase_exceptions.UnavailableError,
+        firebase_exceptions.UnkownError,
+        requests.exceptions.HTTPError,
+    ) as e:
         logger.exception(e)
         logger.info(
             "Failed to establish a connection to Firebase. Retry will be attempted upon the next function call."
@@ -375,7 +382,12 @@ def run_create_tutorials() -> None:
         firebase = Firebase()
         ref = firebase.fb_db.reference("v2/tutorialDrafts/")
         tutorial_drafts = ref.get()
-    except TransportError as e:
+    except (
+        TransportError,
+        firebase_exceptions.UnavailableError,
+        firebase_exceptions.UnkownError,
+        requests.exceptions.HTTPError,
+    ) as e:
         logger.exception(e)
         logger.info(
             "Failed to estabilish a connection to Firebase. Retry will be attempted upon the next function call."
