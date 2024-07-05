@@ -343,3 +343,34 @@ exports.incProjectProgress = functions.database.ref('/v2/projects/{projectId}/re
 exports.decProjectProgress = functions.database.ref('/v2/projects/{projectId}/requiredResults/').onUpdate(() => {
     return null;
 });
+
+exports.addProjectTopicKey = functions.https.onRequest(async (_, res) => {
+    try {
+        const projectRef = admin.database().ref('v2/projects');
+        const snapshot = projectRef.once('value');
+        const data = (await snapshot).val();
+
+        if (data) {
+            const newProjectData: {[key: string]: string} = {};
+
+            Object.keys(data).forEach((id) => {
+                if (data[id]?.projectTopic) {
+                    const newProjectTopicKey = data[id]?.projectTopic?.toLowerCase() as string;
+                    newProjectData[`v2/projects/${id}/projectTopicKey`] = newProjectTopicKey;
+                }
+            });
+            // NOTE: Update database with the new topic key
+            await admin.database().ref().update(newProjectData);
+
+            // Fetch updated data
+            const updatedSnapshot = await admin.database().ref('v2/projects').once('value');
+            const updatedProjectData = updatedSnapshot.val();
+
+            res.status(200).send(updatedProjectData);
+        } else {
+            res.status(404).send('No projects found');
+        }
+    } catch (error) {
+        res.status(500).send('Error fetching projects data');
+    }
+});
