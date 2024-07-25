@@ -374,3 +374,34 @@ exports.addProjectTopicKey = functions.https.onRequest(async (_, res) => {
         res.status(500).send('Error fetching projects data');
     }
 });
+
+exports.addUserNameLowercase = functions.https.onRequest(async (_, res) => {
+    try {
+        const userRef = admin.database().ref('v2/users');
+        const snapshot = userRef.once('value');
+        const data = (await snapshot).val();
+
+        if (data) {
+            const newUserData: {[key: string]: string} = {};
+
+            Object.keys(data).forEach((id) => {
+                if (data[id]?.username) {
+                    const newUserNameKey = data[id]?.username?.toLowerCase() as string;
+                    newUserData[`v2/users/${id}/userNameKey`] = newUserNameKey;
+                }
+            });
+            // NOTE: Update database with the new username lowercase
+            await admin.database().ref().update(newUserData);
+
+            // Fetch updated data
+            const updatedSnapshot = await admin.database().ref('v2/users').once('value');
+            const updatedUsersData = updatedSnapshot.val();
+
+            res.status(200).send(updatedUsersData);
+        } else {
+            res.status(404).send('No user found');
+        }
+    } catch (error) {
+        res.status(500).send('Error fetching user data');
+    }
+});
