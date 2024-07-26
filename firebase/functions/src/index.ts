@@ -346,16 +346,15 @@ exports.decProjectProgress = functions.database.ref('/v2/projects/{projectId}/re
 
 exports.addProjectTopicKey = functions.https.onRequest(async (_, res) => {
     try {
-        const projectRef = admin.database().ref('v2/projects');
-        const snapshot = projectRef.once('value');
-        const data = (await snapshot).val();
+        const projectRef = await admin.database().ref('v2/projects').once('value');
+        const data = projectRef.val();
 
         if (data) {
             const newProjectData: {[key: string]: string} = {};
 
             Object.keys(data).forEach((id) => {
                 if (data[id]?.projectTopic) {
-                    const newProjectTopicKey = data[id]?.projectTopic?.toLowerCase() as string;
+                    const newProjectTopicKey = data[id].projectTopic?.toLowerCase() as string;
                     newProjectData[`v2/projects/${id}/projectTopicKey`] = newProjectTopicKey;
                 }
             });
@@ -372,5 +371,35 @@ exports.addProjectTopicKey = functions.https.onRequest(async (_, res) => {
         }
     } catch (error) {
         res.status(500).send('Error fetching projects data');
+    }
+});
+
+exports.addUserNameLowercase = functions.https.onRequest(async (_, res) => {
+    try {
+        const userRef = await admin.database().ref('v2/users').once('value');
+        const data = userRef.val();
+
+        if (data) {
+            const newUserData: {[key: string]: string} = {};
+
+            Object.keys(data).forEach((id) => {
+                if (data[id]?.username) {
+                    const newUserNameKey = data[id].username?.toLowerCase() as string;
+                    newUserData[`v2/users/${id}/userNameKey`] = newUserNameKey;
+                }
+            });
+            // NOTE: Update database with the new username lowercase
+            await admin.database().ref().update(newUserData);
+
+            // Fetch updated data
+            const updatedSnapshot = await admin.database().ref('v2/users').once('value');
+            const updatedUsersData = updatedSnapshot.val();
+
+            res.status(200).send(updatedUsersData);
+        } else {
+            res.status(404).send('No user found');
+        }
+    } catch (error) {
+        res.status(500).send('Error fetching user data');
     }
 });
