@@ -349,7 +349,12 @@ exports.addProjectTopicKey = functions.https.onRequest(async (_, res) => {
         const projectRef = await admin.database().ref('v2/projects').once('value');
         const data = projectRef.val();
 
-        if (data) {
+        const isEmptyProject = Object.keys(data).length === 0;
+        if (isEmptyProject) {
+            res.status(404).send('No projects found');
+        }
+
+        if (!isEmptyProject && data) {
             const newProjectData: {[key: string]: string} = {};
 
             Object.keys(data).forEach((id) => {
@@ -361,16 +366,14 @@ exports.addProjectTopicKey = functions.https.onRequest(async (_, res) => {
             // NOTE: Update database with the new topic key
             await admin.database().ref().update(newProjectData);
 
-            // Fetch updated data
-            const updatedSnapshot = await admin.database().ref('v2/projects').once('value');
-            const updatedProjectData = updatedSnapshot.val();
-
-            res.status(200).send(updatedProjectData);
-        } else {
-            res.status(404).send('No projects found');
+            await admin.database().ref().update(newProjectData).then(() => {
+                const updatedProjectsCount = Object.keys(newProjectData).length;
+                res.status(200).send(`Updated ${updatedProjectsCount} projects.`);
+                return;
+            });
         }
     } catch (error) {
-        res.status(500).send('Error fetching projects data');
+        res.status(500).send(error);
     }
 });
 
@@ -379,27 +382,28 @@ exports.addUserNameLowercase = functions.https.onRequest(async (_, res) => {
         const userRef = await admin.database().ref('v2/users').once('value');
         const data = userRef.val();
 
-        if (data) {
+        const isEmptyUser = Object.keys(data).length === 0;
+        if (isEmptyUser) {
+            res.status(404).send('No user found');
+        }
+
+        if (!isEmptyUser && data) {
             const newUserData: {[key: string]: string} = {};
 
             Object.keys(data).forEach((id) => {
                 if (data[id]?.username) {
-                    const newUserNameKey = data[id].username?.toLowerCase() as string;
+                    const newUserNameKey = (data[id].username.trim()).toLowerCase() as string;
                     newUserData[`v2/users/${id}/userNameKey`] = newUserNameKey;
                 }
             });
             // NOTE: Update database with the new username lowercase
-            await admin.database().ref().update(newUserData);
-
-            // Fetch updated data
-            const updatedSnapshot = await admin.database().ref('v2/users').once('value');
-            const updatedUsersData = updatedSnapshot.val();
-
-            res.status(200).send(updatedUsersData);
-        } else {
-            res.status(404).send('No user found');
+            await admin.database().ref().update(newUserData).then(() => {
+                const updatedUserCount = Object.keys(newUserData).length;
+                res.status(200).send(`Updated ${updatedUserCount} users.`);
+                return;
+            });
         }
     } catch (error) {
-        res.status(500).send('Error fetching user data');
+        res.status(500).send(error);
     }
 });

@@ -85,8 +85,6 @@ import BasicProjectInfoForm from './BasicProjectInfoForm';
 // eslint-disable-next-line postcss-modules/no-unused-class
 import styles from './styles.css';
 
-const PROJECT_ERROR_MESSAGE = 'A project with this name already exists, please use a different project name (Please note that the name comparison is not case sensitive)';
-
 const defaultProjectFormValue: PartialProjectFormType = {
     // projectType: PROJECT_TYPE_BUILD_AREA,
     projectNumber: 1,
@@ -330,7 +328,8 @@ function NewProject(props: Props) {
                 }
 
                 const database = getDatabase();
-                const projectTopicKey = projectTopic?.toLowerCase() as string;
+                // Note: remove start and end space
+                const projectTopicKey = (projectTopic?.trim())?.toLowerCase() as string;
 
                 const projectRef = databaseRef(database, 'v2/projects/');
                 const prevProjectNameQuery = query(
@@ -347,7 +346,7 @@ function NewProject(props: Props) {
                 if (snapshot.exists()) {
                     setError((prevErr) => ({
                         ...getErrorObject(prevErr),
-                        [nonFieldError]: PROJECT_ERROR_MESSAGE,
+                        [nonFieldError]: 'A project with this name already exists, please use a different project name (Please note that the name comparison is not case sensitive)',
                         projectTopic: 'A project with this name already exists',
                     }));
                     setProjectSubmissionStatus(undefined);
