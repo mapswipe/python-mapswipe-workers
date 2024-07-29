@@ -36,7 +36,10 @@
           "
         },
         ".indexOn": [
-            "status", "isFeatured", "teamId"
+            "status",
+            "isFeatured",
+            "teamId",
+            "projectTopicKey"
         ]
       },
       "projectDrafts": {
