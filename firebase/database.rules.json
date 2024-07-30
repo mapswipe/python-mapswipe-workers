@@ -141,7 +141,8 @@
         },
         ".indexOn": [
           "created",
-          "teamId"
+          "teamId",
+          "usernameKey"
         ]
       },
       "OSMAccessToken": {

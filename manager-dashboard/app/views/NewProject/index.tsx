@@ -59,6 +59,7 @@ import {
     PROJECT_TYPE_FOOTPRINT,
     PROJECT_TYPE_COMPLETENESS,
     PROJECT_TYPE_CHANGE_DETECTION,
+    formatProjectTopic,
 } from '#utils/common';
 import { getValueFromFirebase } from '#utils/firebase';
 
@@ -327,11 +328,13 @@ function NewProject(props: Props) {
                     return;
                 }
 
+                // NOTE: All the user don't have permission to access draft project
+                // FIXME: The firebase rules need to be changed to perform this on draft project
                 const database = getDatabase();
-                // Note: remove start and end space
-                const projectTopicKey = (projectTopic?.trim())?.toLowerCase() as string;
-
+                const projectTopicKeyLowercase = (projectTopic?.trim())?.toLowerCase() as string;
+                const projectTopicKey = formatProjectTopic(projectTopicKeyLowercase);
                 const projectRef = databaseRef(database, 'v2/projects/');
+
                 const prevProjectNameQuery = query(
                     projectRef,
                     orderByChild('projectTopicKey'),

@@ -9,6 +9,7 @@ admin.initializeApp();
 // seem possible to split them using the split system for multiple sites from
 // https://firebase.google.com/docs/hosting/multisites
 import {redirect, token} from './osm_auth';
+import { formatProjectTopic, formatUserName } from './utils';
 
 exports.osmAuth = {};
 
@@ -359,21 +360,18 @@ exports.addProjectTopicKey = functions.https.onRequest(async (_, res) => {
 
             Object.keys(data).forEach((id) => {
                 if (data[id]?.projectTopic) {
-                    const newProjectTopicKey = data[id].projectTopic?.toLowerCase() as string;
+                    const newProjectTopicKey = formatProjectTopic(data[id].projectTopic);
                     newProjectData[`v2/projects/${id}/projectTopicKey`] = newProjectTopicKey;
                 }
             });
-            // NOTE: Update database with the new topic key
-            await admin.database().ref().update(newProjectData);
 
-            await admin.database().ref().update(newProjectData).then(() => {
-                const updatedProjectsCount = Object.keys(newProjectData).length;
-                res.status(200).send(`Updated ${updatedProjectsCount} projects.`);
-                return;
-            });
+            await admin.database().ref().update(newProjectData);
+            const updatedProjectsCount = Object.keys(newProjectData).length;
+            res.status(200).send(`Updated ${updatedProjectsCount} projects.`);
         }
     } catch (error) {
-        res.status(500).send(error);
+        console.log(error);
+        res.status(500).send('Some error occurred');
     }
 });
 
@@ -392,18 +390,17 @@ exports.addUserNameLowercase = functions.https.onRequest(async (_, res) => {
 
             Object.keys(data).forEach((id) => {
                 if (data[id]?.username) {
-                    const newUserNameKey = (data[id].username.trim()).toLowerCase() as string;
-                    newUserData[`v2/users/${id}/userNameKey`] = newUserNameKey;
+                    const newUsernameKey = formatUserName(data[id].username);
+                    newUserData[`v2/users/${id}/usernameKey`] = newUsernameKey;
                 }
             });
-            // NOTE: Update database with the new username lowercase
-            await admin.database().ref().update(newUserData).then(() => {
-                const updatedUserCount = Object.keys(newUserData).length;
-                res.status(200).send(`Updated ${updatedUserCount} users.`);
-                return;
-            });
+
+            await admin.database().ref().update(newUserData);
+            const updatedUserCount = Object.keys(newUserData).length;
+            res.status(200).send(`Updated ${updatedUserCount} users.`);
         }
     } catch (error) {
-        res.status(500).send(error);
+        console.log(error);
+        res.status(500).send('Some error occurred');
     }
 });
