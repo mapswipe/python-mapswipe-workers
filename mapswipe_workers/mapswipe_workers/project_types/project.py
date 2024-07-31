@@ -566,10 +566,19 @@ class BaseProject(ABC):
     @staticmethod
     def delete_mapping_session_results(project_id):
         p_con = auth.postgresDB()
+        # User data
         sql_query = """
             DELETE FROM mapping_sessions_results msr
             USING mapping_sessions ms
             WHERE ms.mapping_session_id = msr.mapping_session_id
+                AND ms.project_id = %(project_id)s;
+        """
+        p_con.query(sql_query, {"project_id": project_id})
+        # User Group data
+        sql_query = """
+            DELETE FROM mapping_sessions_user_groups msug
+            USING mapping_sessions ms
+            WHERE ms.mapping_session_id = msug.mapping_session_id
                 AND ms.project_id = %(project_id)s;
         """
         p_con.query(sql_query, {"project_id": project_id})

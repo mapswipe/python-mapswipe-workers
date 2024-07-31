@@ -14,7 +14,7 @@ class TestTransferManyResults(base.BaseTestCase):
         )
         # add some results in firebase
         set_up.set_firebase_test_data(project_type, "users", "user", self.project_id)
-        set_up.set_firebase_test_data(project_type, "userGroups", "user_group", "")
+        set_up.set_firebase_test_data(project_type, "user_groups", "user_group", "")
         set_up.set_firebase_test_data(
             project_type, "results", fixture_name, self.project_id
         )
