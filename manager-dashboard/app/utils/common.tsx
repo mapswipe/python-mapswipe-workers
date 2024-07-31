@@ -308,3 +308,16 @@ export const iconMap = listToMap(
     (icon) => icon.key,
     (icon) => icon.component,
 );
+
+// NOTE: We have a similar function in firebase function utils
+// firebase/functions/src/utils/index.ts
+export const formatProjectTopic = (projectTopic: string) => {
+    // Note: this will remove start and end space
+    const projectWithoutStartAndEndSpace = projectTopic.trim();
+
+    // Note: this will change multi space to single space
+    const removeMultiSpaceToSingle = projectWithoutStartAndEndSpace.replace(/\s+/g, ' ');
+    const newProjectTopic = removeMultiSpaceToSingle.toLowerCase();
+
+    return newProjectTopic;
+};

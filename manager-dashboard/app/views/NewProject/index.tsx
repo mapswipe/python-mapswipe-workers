@@ -59,6 +59,7 @@ import {
     PROJECT_TYPE_FOOTPRINT,
     PROJECT_TYPE_COMPLETENESS,
     PROJECT_TYPE_CHANGE_DETECTION,
+    formatProjectTopic,
 } from '#utils/common';
 import { getValueFromFirebase } from '#utils/firebase';
 
@@ -278,68 +279,7 @@ function NewProject(props: Props) {
                 ...valuesToCopy
             } = finalValues;
 
-            try {
-                const db = getDatabase();
-                const projectRef = databaseRef(db, 'v2/projects/');
-                const projectTopicKey = projectTopic?.toLowerCase() as string;
-
-                const prevProjectNameQuery = query(
-                    projectRef,
-                    orderByChild('projectTopicKey'),
-                    equalTo(projectTopicKey),
-                );
-
-                const snapshot = await getValueFromFirebase(prevProjectNameQuery);
-
-                if (snapshot.exists()) {
-                    setError((prevErr) => ({
-                        ...getErrorObject(prevErr),
-                        [nonFieldError]: 'A project with this name already exists, please use a different project name (Please note that the name comparision is not case sensitive)',
-                        projectTopic: 'A project with this name already exists, please use a different project name (Please note that the name comparision is not case sensitive)',
-                    }));
-                    setProjectSubmissionStatus(undefined);
-                    return;
-                }
-
-                const newProjectRef = await pushToDatabase(projectRef);
-                const newKey = newProjectRef.key;
-
-                if (!mountedRef.current) {
-                    return;
-                }
-
-                if (!newKey) {
-                    setError((err) => ({
-                        ...getErrorObject(err),
-                        [nonFieldError]: 'Failed to push new key for the project',
-                    }));
-                    setProjectSubmissionStatus('failed');
-                    return;
-                }
-
-                const uploadData = {
-                    ...finalValues,
-                    projectTopicKey,
-                    createdAt: (new Date()).getTime(),
-                };
-
-                const putProjectRef = databaseRef(db, `v2/projects/${newKey}`);
-                await setToDatabase(putProjectRef, uploadData);
-            } catch (submissionError: unknown) {
-                if (!mountedRef.current) {
-                    return;
-                }
-                // eslint-disable-next-line no-console
-                console.error(submissionError);
-                setError((err) => ({
-                    ...getErrorObject(err),
-                    [nonFieldError]: 'Some error occurred',
-                }));
-            }
-
-            const finalFilter = filter === FILTER_OTHERS
-                ? filterText
-                : filter;
+            const finalFilter = filter === FILTER_OTHERS ? filterText : filter;
 
             if (valuesToCopy.projectType === PROJECT_TYPE_FOOTPRINT && valuesToCopy.inputType === 'aoi_file') {
                 const res = await validateAoiOnOhsome(valuesToCopy.geometry, finalFilter);
@@ -388,7 +328,34 @@ function NewProject(props: Props) {
                     return;
                 }
 
+                // NOTE: All the user don't have permission to access draft project
+                // FIXME: The firebase rules need to be changed to perform this on draft project
                 const database = getDatabase();
+                const projectTopicKeyLowercase = (projectTopic?.trim())?.toLowerCase() as string;
+                const projectTopicKey = formatProjectTopic(projectTopicKeyLowercase);
+                const projectRef = databaseRef(database, 'v2/projects/');
+
+                const prevProjectNameQuery = query(
+                    projectRef,
+                    orderByChild('projectTopicKey'),
+                    equalTo(projectTopicKey),
+                );
+
+                const snapshot = await getValueFromFirebase(prevProjectNameQuery);
+                if (!mountedRef.current) {
+                    return;
+                }
+
+                if (snapshot.exists()) {
+                    setError((prevErr) => ({
+                        ...getErrorObject(prevErr),
+                        [nonFieldError]: 'A project with this name already exists, please use a different project name (Please note that the name comparison is not case sensitive)',
+                        projectTopic: 'A project with this name already exists',
+                    }));
+                    setProjectSubmissionStatus(undefined);
+                    return;
+                }
+
                 const projectDraftsRef = databaseRef(database, 'v2/projectDrafts/');
                 const newProjectDraftsRef = await pushToDatabase(projectDraftsRef);
                 if (!mountedRef.current) {
@@ -402,11 +369,14 @@ function NewProject(props: Props) {
 
                     const uploadData = {
                         ...valuesToCopy,
+                        projectTopic,
+                        projectTopicKey,
                         filter: finalFilter,
                         image: downloadUrl,
                         createdBy: userId,
                         teamId: visibility === 'public' ? null : visibility,
                     };
+
                     await setToDatabase(newProjectRef, uploadData);
                     if (!mountedRef.current) {
                         return;

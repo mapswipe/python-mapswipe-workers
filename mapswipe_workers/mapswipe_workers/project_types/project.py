@@ -54,6 +54,7 @@ class BaseProject(ABC):
         self.projectNumber = project_draft.get("projectNumber", None)
         self.projectRegion = project_draft.get("projectRegion", None)
         self.projectTopic = project_draft.get("projectTopic", None)
+        self.projectTopicKey = project_draft.get("projectTopicKey", None)
         self.projectType = int(project_draft["projectType"])
         self.requestingOrganisation = project_draft.get("requestingOrganisation", None)
         self.requiredResults = 0

@@ -50,6 +50,7 @@ export type CustomOptionsForProject = {
 }[];
 
 export interface ProjectFormType {
+    projectTopicKey: string;
     projectTopic: string;
     projectType: ProjectType;
     projectRegion: string;

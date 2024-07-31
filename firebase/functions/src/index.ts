@@ -9,6 +9,7 @@ admin.initializeApp();
 // seem possible to split them using the split system for multiple sites from
 // https://firebase.google.com/docs/hosting/multisites
 import {redirect, token} from './osm_auth';
+import { formatProjectTopic, formatUserName } from './utils';
 
 exports.osmAuth = {};
 
@@ -349,28 +350,28 @@ exports.addProjectTopicKey = functions.https.onRequest(async (_, res) => {
         const projectRef = await admin.database().ref('v2/projects').once('value');
         const data = projectRef.val();
 
-        if (data) {
+        const isEmptyProject = Object.keys(data).length === 0;
+        if (isEmptyProject) {
+            res.status(404).send('No projects found');
+        }
+
+        if (!isEmptyProject && data) {
             const newProjectData: {[key: string]: string} = {};
 
             Object.keys(data).forEach((id) => {
                 if (data[id]?.projectTopic) {
-                    const newProjectTopicKey = data[id].projectTopic?.toLowerCase() as string;
+                    const newProjectTopicKey = formatProjectTopic(data[id].projectTopic);
                     newProjectData[`v2/projects/${id}/projectTopicKey`] = newProjectTopicKey;
                 }
             });
-            // NOTE: Update database with the new topic key
+
             await admin.database().ref().update(newProjectData);
-
-            // Fetch updated data
-            const updatedSnapshot = await admin.database().ref('v2/projects').once('value');
-            const updatedProjectData = updatedSnapshot.val();
-
-            res.status(200).send(updatedProjectData);
-        } else {
-            res.status(404).send('No projects found');
+            const updatedProjectsCount = Object.keys(newProjectData).length;
+            res.status(200).send(`Updated ${updatedProjectsCount} projects.`);
         }
     } catch (error) {
-        res.status(500).send('Error fetching projects data');
+        console.log(error);
+        res.status(500).send('Some error occurred');
     }
 });
 
@@ -379,27 +380,27 @@ exports.addUserNameLowercase = functions.https.onRequest(async (_, res) => {
         const userRef = await admin.database().ref('v2/users').once('value');
         const data = userRef.val();
 
-        if (data) {
+        const isEmptyUser = Object.keys(data).length === 0;
+        if (isEmptyUser) {
+            res.status(404).send('No user found');
+        }
+
+        if (!isEmptyUser && data) {
             const newUserData: {[key: string]: string} = {};
 
             Object.keys(data).forEach((id) => {
                 if (data[id]?.username) {
-                    const newUserNameKey = data[id].username?.toLowerCase() as string;
-                    newUserData[`v2/users/${id}/userNameKey`] = newUserNameKey;
+                    const newUsernameKey = formatUserName(data[id].username);
+                    newUserData[`v2/users/${id}/usernameKey`] = newUsernameKey;
                 }
             });
-            // NOTE: Update database with the new username lowercase
+
             await admin.database().ref().update(newUserData);
-
-            // Fetch updated data
-            const updatedSnapshot = await admin.database().ref('v2/users').once('value');
-            const updatedUsersData = updatedSnapshot.val();
-
-            res.status(200).send(updatedUsersData);
-        } else {
-            res.status(404).send('No user found');
+            const updatedUserCount = Object.keys(newUserData).length;
+            res.status(200).send(`Updated ${updatedUserCount} users.`);
         }
     } catch (error) {
-        res.status(500).send('Error fetching user data');
+        console.log(error);
+        res.status(500).send('Some error occurred');
     }
 });
