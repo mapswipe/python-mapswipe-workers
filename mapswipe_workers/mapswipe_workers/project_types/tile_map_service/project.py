@@ -41,9 +41,9 @@ class TileMapServiceBaseProject(BaseProject):
     def __init__(self, project_draft: dict):
         super().__init__(project_draft)
         self.groups: Dict[str, TileMapServiceBaseGroup] = {}
-        self.tasks: Dict[
-            str, List[TileMapServiceBaseTask]
-        ] = {}  # dict keys are group ids
+        self.tasks: Dict[str, List[TileMapServiceBaseTask]] = (
+            {}
+        )  # dict keys are group ids
 
         self.geometry = project_draft["geometry"]
         self.zoomLevel = int(project_draft.get("zoomLevel", 18))

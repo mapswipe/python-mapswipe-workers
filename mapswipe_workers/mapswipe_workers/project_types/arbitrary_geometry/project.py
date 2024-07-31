@@ -30,9 +30,9 @@ class ArbitraryGeometryProject(BaseProject):
     def __init__(self, project_draft: dict) -> None:
         super().__init__(project_draft)
         self.groups: Dict[str, ArbitraryGeometryGroup] = {}
-        self.tasks: Dict[
-            str, List[ArbitraryGeometryTask]
-        ] = {}  # dict keys are group ids
+        self.tasks: Dict[str, List[ArbitraryGeometryTask]] = (
+            {}
+        )  # dict keys are group ids
 
         # set group size
         self.geometry = project_draft["geometry"]

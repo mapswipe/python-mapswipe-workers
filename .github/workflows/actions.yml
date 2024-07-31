@@ -22,7 +22,7 @@ jobs:
       working-directory: ./mapswipe_workers
       run: |
         python -m pip install --upgrade pip
-        pip install flake8 black==22.3.0 isort
+        pip install flake8 black==24.4.2 isort
 
     - name: Code style
       working-directory: ./mapswipe_workers
