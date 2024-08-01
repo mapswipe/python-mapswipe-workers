@@ -26,9 +26,9 @@ class TileMapServiceBaseTutorial(BaseTutorial):
         super().__init__(tutorial_draft)
 
         self.groups: Dict[str, TileMapServiceBaseGroup] = {}
-        self.tasks: Dict[
-            str, List[TileMapServiceBaseTutorialTask]
-        ] = {}  # dict keys are group ids
+        self.tasks: Dict[str, List[TileMapServiceBaseTutorialTask]] = (
+            {}
+        )  # dict keys are group ids
 
         self.zoomLevel = int(tutorial_draft.get("zoomLevel", 18))
         self.tileServer = vars(BaseTileServer(tutorial_draft["tileServer"]))

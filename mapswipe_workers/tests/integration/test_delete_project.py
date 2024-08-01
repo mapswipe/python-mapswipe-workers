@@ -14,7 +14,7 @@ class TestDeleteProject(base.BaseTestCase):
         project_type = "tile_map_service_grid"
         fixture_name = "build_area"
         self.project_id = set_up.create_test_project(
-            project_type, fixture_name, results=True
+            project_type, fixture_name, results=True, create_user_group_session_data=True,
         )
 
     def tearDown(self):
