@@ -47,15 +47,15 @@ jobs:
       run: |
         # Create a mock file for wal-g setup
         touch postgres/serviceAccountKey.json
-        docker-compose up --build --detach postgres
-        for i in {1..5}; do docker-compose exec -T postgres pg_isready && s=0 && break || s=$? && sleep 5; done; (docker-compose logs postgres && exit $s)
+        docker compose up --build --detach postgres
+        for i in {1..5}; do docker compose exec -T postgres pg_isready && s=0 && break || s=$? && sleep 5; done; (docker compose logs postgres && exit $s)
 
     - name: Deploy Firebase Rules and Functions
       env:
         FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
         FIREBASE_DB: ${{ secrets.FIREBASE_DB }}
       run: |
-        docker-compose run --rm firebase_deploy sh -c "firebase use $FIREBASE_DB && firebase deploy --token $FIREBASE_TOKEN --only database"
+        docker compose run --rm firebase_deploy sh -c "firebase use $FIREBASE_DB && firebase deploy --token $FIREBASE_TOKEN --only database"
 
     - name: Decrypt Service Account Key File
       working-directory: ./
@@ -78,16 +78,16 @@ jobs:
         OSMCHA_API_KEY: ${{ secrets.OSMCHA_API_KEY }}
         DJANGO_SECRET_KEY: test-django-secret-key
       run: |
-        docker-compose run --rm mapswipe_workers_creation python -m unittest discover --verbose --start-directory tests/unittests/
-        docker-compose run --rm mapswipe_workers_creation bash -c 'pip install pytest && pytest -ra -v --durations=10 tests/integration/'
-        docker-compose run --rm django pytest -ra -v --durations=10
+        docker compose run --rm mapswipe_workers_creation python -m unittest discover --verbose --start-directory tests/unittests/
+        docker compose run --rm mapswipe_workers_creation bash -c 'pip install pytest && pytest -ra -v --durations=10 tests/integration/'
+        docker compose run --rm django pytest -ra -v --durations=10
 
     - name: Django Graphql Schema Check
       env:
         SOURCE_SCHEMA: './django/schema.graphql'
         LATEST_SCHEMA: './django-data/schema-latest.graphql'
       run: |
-        docker-compose run --rm django bash -c 'wait-for-it postgres:5432 && ./manage.py graphql_schema --out /django-data/schema-latest.graphql' &&
+        docker compose run --rm django bash -c 'wait-for-it postgres:5432 && ./manage.py graphql_schema --out /django-data/schema-latest.graphql' &&
         cmp --silent $SOURCE_SCHEMA $LATEST_SCHEMA || {
           echo 'The schema.graphql is not up to date with the latest changes. Please update and push latest';
           diff $SOURCE_SCHEMA $LATEST_SCHEMA;
@@ -101,7 +101,7 @@ jobs:
         POSTGRES_DB: postgres
         DJANGO_SECRET_KEY: test-django-secret-key
       run: |
-        docker-compose run --rm django bash -c 'wait-for-it postgres:5432 && ./manage.py makemigrations --check --dry-run' || {
+        docker compose run --rm django bash -c 'wait-for-it postgres:5432 && ./manage.py makemigrations --check --dry-run' || {
           echo 'There are some changes to be reflected in the migration. Make sure to run makemigrations';
           exit 1;
         }
