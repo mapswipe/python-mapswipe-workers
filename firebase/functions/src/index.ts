@@ -9,6 +9,7 @@ admin.initializeApp();
 // seem possible to split them using the split system for multiple sites from
 // https://firebase.google.com/docs/hosting/multisites
 import {redirect, token} from './osm_auth';
+import { formatProjectTopic, formatUserName } from './utils';
 
 exports.osmAuth = {};
 
@@ -342,4 +343,64 @@ exports.incProjectProgress = functions.database.ref('/v2/projects/{projectId}/re
 // Gets triggered when project.requiredResults gets changed.
 exports.decProjectProgress = functions.database.ref('/v2/projects/{projectId}/requiredResults/').onUpdate(() => {
     return null;
+});
+
+exports.addProjectTopicKey = functions.https.onRequest(async (_, res) => {
+    try {
+        const projectRef = await admin.database().ref('v2/projects').once('value');
+        const data = projectRef.val();
+
+        const isEmptyProject = Object.keys(data).length === 0;
+        if (isEmptyProject) {
+            res.status(404).send('No projects found');
+        }
+
+        if (!isEmptyProject && data) {
+            const newProjectData: {[key: string]: string} = {};
+
+            Object.keys(data).forEach((id) => {
+                if (data[id]?.projectTopic) {
+                    const newProjectTopicKey = formatProjectTopic(data[id].projectTopic);
+                    newProjectData[`v2/projects/${id}/projectTopicKey`] = newProjectTopicKey;
+                }
+            });
+
+            await admin.database().ref().update(newProjectData);
+            const updatedProjectsCount = Object.keys(newProjectData).length;
+            res.status(200).send(`Updated ${updatedProjectsCount} projects.`);
+        }
+    } catch (error) {
+        console.log(error);
+        res.status(500).send('Some error occurred');
+    }
+});
+
+exports.addUserNameLowercase = functions.https.onRequest(async (_, res) => {
+    try {
+        const userRef = await admin.database().ref('v2/users').once('value');
+        const data = userRef.val();
+
+        const isEmptyUser = Object.keys(data).length === 0;
+        if (isEmptyUser) {
+            res.status(404).send('No user found');
+        }
+
+        if (!isEmptyUser && data) {
+            const newUserData: {[key: string]: string} = {};
+
+            Object.keys(data).forEach((id) => {
+                if (data[id]?.username) {
+                    const newUsernameKey = formatUserName(data[id].username);
+                    newUserData[`v2/users/${id}/usernameKey`] = newUsernameKey;
+                }
+            });
+
+            await admin.database().ref().update(newUserData);
+            const updatedUserCount = Object.keys(newUserData).length;
+            res.status(200).send(`Updated ${updatedUserCount} users.`);
+        }
+    } catch (error) {
+        console.log(error);
+        res.status(500).send('Some error occurred');
+    }
 });

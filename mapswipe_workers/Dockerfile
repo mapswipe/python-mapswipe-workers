@@ -19,7 +19,8 @@ RUN mkdir --parents .local/share/mapswipe_workers
 COPY . .
 
 # Update setuptools and install mapswipe-workers with dependencies (requirements.txt)
-RUN pip3 install --upgrade setuptools
+# XXX: setuptools==70.3.0 Fix packaging.version.InvalidVersion error
+RUN pip3 install --upgrade "setuptools==70.3.0"
 RUN pip3 install .
 
 # Don't use a CMD here, this will be defined in docker-compose.yaml

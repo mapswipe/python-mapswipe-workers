@@ -50,6 +50,7 @@ export type CustomOptionsForProject = {
 }[];
 
 export interface ProjectFormType {
+    projectTopicKey: string;
     projectTopic: string;
     projectType: ProjectType;
     projectRegion: string;
@@ -59,6 +60,7 @@ export interface ProjectFormType {
     visibility: string;
     lookFor: string;
     tutorialId: string;
+    manualUrl: string;
     projectDetails: string;
     projectImage: File; // image
     verificationNumber: number;
@@ -229,6 +231,10 @@ export const projectFormSchema: ProjectFormSchema = {
                 required: true,
                 requiredValidation: requiredStringCondition,
                 validations: [getNoMoreThanNCharacterCondition(XS_TEXT_MAX_LENGTH)],
+            },
+            manualUrl: {
+                required: false,
+                validations: [urlCondition],
             },
             projectDetails: {
                 required: true,

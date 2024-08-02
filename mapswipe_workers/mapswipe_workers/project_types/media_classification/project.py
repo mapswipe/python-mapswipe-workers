@@ -36,9 +36,9 @@ class MediaClassificationProject(BaseProject):
     def __init__(self, project_draft: dict):
         super().__init__(project_draft)
         self.groups: Dict[str, MediaClassificationGroup] = {}
-        self.tasks: Dict[
-            str, List[MediaClassificationTask]
-        ] = {}  # dict keys are group ids
+        self.tasks: Dict[str, List[MediaClassificationTask]] = (
+            {}
+        )  # dict keys are group ids
 
         self.mediaCredits = project_draft.get("mediaCredits", None)
         self.medialist = []

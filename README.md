@@ -17,6 +17,7 @@ Please refer to the documentation for more information: https://mapswipe-workers
 
 - MapSwipe Back-End: https://github.com/mapswipe/python-mapswipe-workers
 - MapSwipe App https://github.com/mapswipe/mapswipe
+- MapSwipe Web App https://github.com/mapswipe/mapswipe-web
 - MapSwipe Website: https://mapswipe.org
 - MapSwipe OSM-Wiki: https://wiki.openstreetmap.org/wiki/MapSwipe
 

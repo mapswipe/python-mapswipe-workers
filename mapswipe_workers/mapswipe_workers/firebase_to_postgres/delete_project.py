@@ -1,6 +1,7 @@
 """
 Delete projects.
 """
+
 import re
 import time
 from typing import Iterable

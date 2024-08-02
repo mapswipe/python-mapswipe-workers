@@ -22,6 +22,9 @@ import {
     ref as databaseRef,
     push as pushToDatabase,
     set as setToDatabase,
+    query,
+    orderByChild,
+    equalTo,
 } from 'firebase/database';
 import {
     MdOutlinePublishedWithChanges,
@@ -30,6 +33,7 @@ import {
 import { Link } from 'react-router-dom';
 
 import UserContext from '#base/context/UserContext';
+import projectTypeOptions from '#base/configs/projectTypes';
 import useMountedRef from '#hooks/useMountedRef';
 import Modal from '#components/Modal';
 import TextInput from '#components/TextInput';
@@ -55,7 +59,9 @@ import {
     PROJECT_TYPE_FOOTPRINT,
     PROJECT_TYPE_COMPLETENESS,
     PROJECT_TYPE_CHANGE_DETECTION,
+    formatProjectTopic,
 } from '#utils/common';
+import { getValueFromFirebase } from '#utils/firebase';
 
 import CustomOptionInput from '#views/NewTutorial/CustomOptionInput';
 import CustomOptionPreview from '#views/NewTutorial/CustomOptionInput/CustomOptionPreview';
@@ -79,8 +85,6 @@ import BasicProjectInfoForm from './BasicProjectInfoForm';
 
 // eslint-disable-next-line postcss-modules/no-unused-class
 import styles from './styles.css';
-
-import projectTypeOptions from '#base/configs/projectTypes';
 
 const defaultProjectFormValue: PartialProjectFormType = {
     // projectType: PROJECT_TYPE_BUILD_AREA,
@@ -271,12 +275,11 @@ function NewProject(props: Props) {
                 visibility,
                 filter,
                 filterText,
+                projectTopic,
                 ...valuesToCopy
             } = finalValues;
 
-            const finalFilter = filter === FILTER_OTHERS
-                ? filterText
-                : filter;
+            const finalFilter = filter === FILTER_OTHERS ? filterText : filter;
 
             if (valuesToCopy.projectType === PROJECT_TYPE_FOOTPRINT && valuesToCopy.inputType === 'aoi_file') {
                 const res = await validateAoiOnOhsome(valuesToCopy.geometry, finalFilter);
@@ -325,7 +328,34 @@ function NewProject(props: Props) {
                     return;
                 }
 
+                // NOTE: All the user don't have permission to access draft project
+                // FIXME: The firebase rules need to be changed to perform this on draft project
                 const database = getDatabase();
+                const projectTopicKeyLowercase = (projectTopic?.trim())?.toLowerCase() as string;
+                const projectTopicKey = formatProjectTopic(projectTopicKeyLowercase);
+                const projectRef = databaseRef(database, 'v2/projects/');
+
+                const prevProjectNameQuery = query(
+                    projectRef,
+                    orderByChild('projectTopicKey'),
+                    equalTo(projectTopicKey),
+                );
+
+                const snapshot = await getValueFromFirebase(prevProjectNameQuery);
+                if (!mountedRef.current) {
+                    return;
+                }
+
+                if (snapshot.exists()) {
+                    setError((prevErr) => ({
+                        ...getErrorObject(prevErr),
+                        [nonFieldError]: 'A project with this name already exists, please use a different project name (Please note that the name comparison is not case sensitive)',
+                        projectTopic: 'A project with this name already exists',
+                    }));
+                    setProjectSubmissionStatus(undefined);
+                    return;
+                }
+
                 const projectDraftsRef = databaseRef(database, 'v2/projectDrafts/');
                 const newProjectDraftsRef = await pushToDatabase(projectDraftsRef);
                 if (!mountedRef.current) {
@@ -339,11 +369,14 @@ function NewProject(props: Props) {
 
                     const uploadData = {
                         ...valuesToCopy,
+                        projectTopic,
+                        projectTopicKey,
                         filter: finalFilter,
                         image: downloadUrl,
                         createdBy: userId,
                         teamId: visibility === 'public' ? null : visibility,
                     };
+
                     await setToDatabase(newProjectRef, uploadData);
                     if (!mountedRef.current) {
                         return;
@@ -654,7 +687,12 @@ function NewProject(props: Props) {
                         />
                     </InputSection>
                 )}
-                {hasErrors && (
+                {error?.[nonFieldError] && (
+                    <div className={styles.errorMessage}>
+                        {error?.[nonFieldError]}
+                    </div>
+                )}
+                {!nonFieldError && hasErrors && (
                     <div className={styles.errorMessage}>
                         Please correct all the errors above before submission!
                     </div>
