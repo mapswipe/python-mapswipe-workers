@@ -355,12 +355,14 @@ exports.addProjectTopicKey = functions.https.onRequest(async (_, res) => {
             res.status(404).send('No projects found');
         }
 
-        if (!isEmptyProject && data) {
+        if (data) {
             const newProjectData: {[key: string]: string} = {};
 
             Object.keys(data).forEach((id) => {
-                if (data[id]?.projectTopic) {
-                    const newProjectTopicKey = formatProjectTopic(data[id].projectTopic);
+                const projectData = data[id];
+
+                if (projectData.name) {
+                    const newProjectTopicKey = formatProjectTopic(projectData.name);
                     newProjectData[`v2/projects/${id}/projectTopicKey`] = newProjectTopicKey;
                 }
             });

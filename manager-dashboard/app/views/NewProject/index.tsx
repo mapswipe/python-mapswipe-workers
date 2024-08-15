@@ -275,7 +275,7 @@ function NewProject(props: Props) {
                 visibility,
                 filter,
                 filterText,
-                projectTopic,
+                name,
                 ...valuesToCopy
             } = finalValues;
 
@@ -331,8 +331,7 @@ function NewProject(props: Props) {
                 // NOTE: All the user don't have permission to access draft project
                 // FIXME: The firebase rules need to be changed to perform this on draft project
                 const database = getDatabase();
-                const projectTopicKeyLowercase = (projectTopic?.trim())?.toLowerCase() as string;
-                const projectTopicKey = formatProjectTopic(projectTopicKeyLowercase);
+                const projectTopicKey = formatProjectTopic(name);
                 const projectRef = databaseRef(database, 'v2/projects/');
 
                 const prevProjectNameQuery = query(
@@ -350,7 +349,7 @@ function NewProject(props: Props) {
                     setError((prevErr) => ({
                         ...getErrorObject(prevErr),
                         [nonFieldError]: 'A project with this name already exists, please use a different project name (Please note that the name comparison is not case sensitive)',
-                        projectTopic: 'A project with this name already exists',
+                        name: 'A project with this name already exists',
                     }));
                     setProjectSubmissionStatus(undefined);
                     return;
@@ -369,7 +368,7 @@ function NewProject(props: Props) {
 
                     const uploadData = {
                         ...valuesToCopy,
-                        projectTopic,
+                        name,
                         projectTopicKey,
                         filter: finalFilter,
                         image: downloadUrl,
