@@ -353,15 +353,13 @@ exports.addProjectTopicKey = functions.https.onRequest(async (_, res) => {
         const isEmptyProject = Object.keys(data).length === 0;
         if (isEmptyProject) {
             res.status(404).send('No projects found');
-        }
-
-        if (data) {
+        } else {
             const newProjectData: {[key: string]: string} = {};
 
             Object.keys(data).forEach((id) => {
                 const projectData = data[id];
 
-                if (projectData.name) {
+                if (projectData?.name) {
                     const newProjectTopicKey = formatProjectTopic(projectData.name);
                     newProjectData[`v2/projects/${id}/projectTopicKey`] = newProjectTopicKey;
                 }
@@ -385,9 +383,7 @@ exports.addUserNameLowercase = functions.https.onRequest(async (_, res) => {
         const isEmptyUser = Object.keys(data).length === 0;
         if (isEmptyUser) {
             res.status(404).send('No user found');
-        }
-
-        if (!isEmptyUser && data) {
+        } else {
             const newUserData: {[key: string]: string} = {};
 
             Object.keys(data).forEach((id) => {
