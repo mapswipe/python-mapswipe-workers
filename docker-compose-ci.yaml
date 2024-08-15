@@ -1,0 +1,8 @@
+# Quick hack to avoid on GH CI
+# Check .github/workflows/actions.yml for usages
+# Related error:
+#  failed to create network python-mapswipe-workers_mapswipe_network:
+#  Error response from daemon: Pool overlaps with other one on this address space
+networks:
+    mapswipe_network:
+        ipam: !reset null
