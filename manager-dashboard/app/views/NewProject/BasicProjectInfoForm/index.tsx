@@ -126,7 +126,7 @@ function BasicProjectInfoForm(props: Props<PartialProjectFormType>) {
                 hint="We will generate you project name based on your inputs above."
                 readOnly
                 placeholder="[Project Topic] - [Project Region] ([Task Number]) [Requesting Organisation]"
-                // error={error?.name}
+                error={error?.name}
                 disabled={disabled}
             />
             <div className={styles.inputGroup}>
