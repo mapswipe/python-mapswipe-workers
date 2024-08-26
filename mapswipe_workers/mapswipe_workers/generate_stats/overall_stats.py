@@ -65,6 +65,7 @@ def get_project_static_info(filename: str) -> pd.DataFrame:
                 project_details
                 ,regexp_replace(look_for, E'[\\n\\r]+', ' ', 'g' ) as look_for
                 ,project_type
+                ,organization_name
                 ,image
                 ,created
                 -- Custom options values
