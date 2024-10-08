@@ -149,7 +149,7 @@ def remove_noise_and_add_user_info(json: dict) -> dict:
     for i, subset in enumerate(chunk_list):
         changeset_results = query_osmcha(subset, changeset_results)
         progress = round(100 * ((i + 1) / len(chunk_list)), 1)
-        logger.info(f"finished query {i+1}/{len(chunk_list)}, {progress}")
+        logger.info(f"finished query {i + 1}/{len(chunk_list)}, {progress}")
 
     missing_ids = [i for i, v in changeset_results.items() if v is None]
     chunk_list = chunks(missing_ids, batch_size)
@@ -160,7 +160,7 @@ def remove_noise_and_add_user_info(json: dict) -> dict:
     for i, subset in enumerate(chunk_list):
         changeset_results = query_osm(subset, changeset_results)
         progress = round(100 * ((i + 1) / len(chunk_list)), 1)
-        logger.info(f"finished query {i+1}/{len(chunk_list)}, {progress}")
+        logger.info(f"finished query {i + 1}/{len(chunk_list)}, {progress}")
 
     for feature in json["features"]:
         changeset = changeset_results[int(feature["properties"]["changesetId"])]

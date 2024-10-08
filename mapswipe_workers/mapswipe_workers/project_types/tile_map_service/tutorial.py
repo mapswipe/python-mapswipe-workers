@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Dict, List
+from typing import Dict, List, Union
 
 from mapswipe_workers.definitions import logger
 from mapswipe_workers.firebase.firebase import Firebase
@@ -25,8 +25,8 @@ class TileMapServiceBaseTutorial(BaseTutorial):
     def __init__(self, tutorial_draft):
         super().__init__(tutorial_draft)
 
-        self.groups: Dict[str, TileMapServiceBaseGroup] = {}
-        self.tasks: Dict[str, List[TileMapServiceBaseTutorialTask]] = (
+        self.groups: Dict[Union[str, int], TileMapServiceBaseGroup] = {}
+        self.tasks: Dict[Union[str, int], List[TileMapServiceBaseTutorialTask]] = (
             {}
         )  # dict keys are group ids
 
