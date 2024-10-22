@@ -233,6 +233,8 @@ class MappingSession(Model):
     start_time = models.DateTimeField(blank=True, null=True)
     end_time = models.DateTimeField(blank=True, null=True)
     items_count = models.SmallIntegerField(null=False, default=0)
+    app_version = models.CharField(max_length=999)
+    client_type = models.CharField(max_length=999)
 
     class Meta:
         managed = False

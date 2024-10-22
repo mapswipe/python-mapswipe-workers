@@ -91,7 +91,9 @@ CREATE TABLE IF NOT EXISTS results_temp (
     "timestamp" timestamp,
     start_time timestamp,
     end_time timestamp,
-    result int
+    result int,
+    app_version varchar,
+    client_type varchar
 );
 
 -- create table for results import through csv
@@ -103,7 +105,9 @@ CREATE TABLE IF NOT EXISTS results_geometry_temp (
     "timestamp" timestamp,
     start_time timestamp,
     end_time timestamp,
-    result varchar
+    result varchar,
+    app_version varchar,
+    client_type varchar
 );
 
 
@@ -175,6 +179,8 @@ CREATE TABLE IF NOT EXISTS mapping_sessions (
     start_time timestamp DEFAULT NULL,
     end_time timestamp DEFAULT NULL,
     items_count int2 not null,
+    app_version varchar,
+    client_type varchar,
     PRIMARY KEY (project_id, group_id, user_id),
     FOREIGN KEY (project_id, group_id)
     REFERENCES groups (project_id, group_id),

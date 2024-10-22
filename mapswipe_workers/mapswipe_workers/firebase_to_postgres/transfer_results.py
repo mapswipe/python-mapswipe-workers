@@ -264,6 +264,8 @@ def results_to_file(
             start_time = dateutil.parser.parse(result_data["startTime"])
             end_time = dateutil.parser.parse(result_data["endTime"])
             timestamp = end_time
+            app_version = result_data.get("appVersion", "")
+            client_type = result_data.get("clientType", "")
 
             if type(result_data["results"]) is dict:
                 for taskId, result in result_data["results"].items():
@@ -279,6 +281,8 @@ def results_to_file(
                             start_time,
                             end_time,
                             result,
+                            app_version,
+                            client_type,
                         ]
                     )
             elif type(result_data["results"]) is list:
@@ -303,6 +307,8 @@ def results_to_file(
                                 start_time,
                                 end_time,
                                 result,
+                                app_version,
+                                client_type,
                             ]
                         )
             else:
@@ -361,6 +367,8 @@ def save_results_to_postgres(
         "start_time",
         "end_time",
         "result",
+        "app_version",
+        "client_type",
     ]
     p_con.copy_from(results_file, result_temp_table, columns)
     results_file.close()
@@ -420,9 +428,11 @@ def save_results_to_postgres(
                 nextval('mapping_sessions_mapping_session_id_seq'),
                 min(start_time),
                 max(end_time),
-                count(*)
+                count(*),
+                app_version,
+                client_type
             FROM {result_temp_table}
-            GROUP BY project_id, group_id, user_id
+            GROUP BY project_id, group_id, user_id, app_version, client_type
         ON CONFLICT (project_id,group_id,user_id)
         DO NOTHING;
         INSERT INTO {result_table}
