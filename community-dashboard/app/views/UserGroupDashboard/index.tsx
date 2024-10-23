@@ -137,7 +137,7 @@ const USER_MEMBERSHIPS_EXPORT = gql`
 type UserGroupMember = NonNullable<NonNullable<NonNullable<UserGroupStatsQuery['userGroup']>['userMemberships']>['items']>[number];
 
 function memberKeySelector(member: UserGroupMember) {
-    return member.username;
+    return member.userId;
 }
 
 interface DateRangeValue {
