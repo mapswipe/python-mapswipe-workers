@@ -6,7 +6,7 @@ import {
     IoPeople,
     IoSearch,
 } from 'react-icons/io5';
-import { _cs } from '@togglecorp/fujs';
+import { isFalsyString, _cs } from '@togglecorp/fujs';
 import {
     useQuery,
     gql,
@@ -192,7 +192,7 @@ function ItemSelectInput<Name extends string>(props: ItemSelectInputProps<Name>)
         () => ([
             ...(usersData?.map((user) => ({
                 id: user.userId,
-                name: user.username ?? 'Unknown',
+                name: (isFalsyString(user.username) ? user.userId : user.username) ?? 'Unknown',
                 type: 'user' as const,
             })) ?? []),
             ...(userGroupsData?.map((userGroup) => ({

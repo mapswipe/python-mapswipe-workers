@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, generatePath } from 'react-router-dom';
-import { isDefined, isFalsyString, isNotDefined } from '@togglecorp/fujs';
+import { isDefined, isFalsyString } from '@togglecorp/fujs';
 
 import NumberOutput from '#components/NumberOutput';
 import routes from '#base/configs/routes';
