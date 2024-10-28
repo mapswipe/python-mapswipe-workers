@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { gql, useQuery } from '@apollo/client';
-import { encodeDate, isDefined, isNotDefined } from '@togglecorp/fujs';
+import { encodeDate, isDefined, isFalsyString } from '@togglecorp/fujs';
 import { useParams, generatePath, Link } from 'react-router-dom';
 
 import useUrlState from '#hooks/useUrlState';
@@ -184,7 +184,7 @@ function UserDashboard(props: Props) {
     // NOTE: OSM user does not have username stored
     const userName = useMemo(() => {
         if (isDefined(userStats) && isDefined(userStats.user)) {
-            return isNotDefined(userStats.user.username)
+            return isFalsyString(userStats.user.username)
                 ? userStats.user.userId
                 : userStats.user.username;
         }

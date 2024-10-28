@@ -192,7 +192,7 @@ function ItemSelectInput<Name extends string>(props: ItemSelectInputProps<Name>)
         () => ([
             ...(usersData?.map((user) => ({
                 id: user.userId,
-                name: (isFalsyString(user.username) ? user.userId : user.username) ?? 'Unknown',
+                name: (isFalsyString(user.username) ? user.userId : user.username),
                 type: 'user' as const,
             })) ?? []),
             ...(userGroupsData?.map((userGroup) => ({
