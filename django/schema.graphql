@@ -225,7 +225,7 @@ type UserGroupTypeCountList {
 type UserGroupUserMembershipType {
   id: ID!
   userId: String!
-  username: String!
+  username: String
   isActive: Boolean!
   totalMappingProjects: Int!
   totalSwipes: Int!
@@ -241,7 +241,7 @@ type UserGroupUserMembershipTypeCountList {
 
 type UserGroupUserStatsType {
   userId: String!
-  username: String!
+  username: String
   totalMappingProjects: Int!
   totalSwipes: Int!
   totalSwipeTime: TimeInSeconds!
