@@ -134,6 +134,7 @@ class ProjectType(Enum):
     COMPLETENESS = 4
     MEDIA_CLASSIFICATION = 5
     DIGITIZATION = 6
+    STREET = 7
 
     @property
     def constructor(self):
@@ -145,6 +146,7 @@ class ProjectType(Enum):
             DigitizationProject,
             FootprintProject,
             MediaClassificationProject,
+            StreetProject,
         )
 
         project_type_classes = {
@@ -154,6 +156,7 @@ class ProjectType(Enum):
             4: CompletenessProject,
             5: MediaClassificationProject,
             6: DigitizationProject,
+            7: StreetProject,
         }
         return project_type_classes[self.value]
 
