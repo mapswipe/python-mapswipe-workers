@@ -35,6 +35,8 @@ class TestGetResults(base.BaseTestCase):
                 "timestamp",
                 "start_time",
                 "end_time",
+                "app_version",
+                "client_type",
                 "result",
                 "username",
                 "day",

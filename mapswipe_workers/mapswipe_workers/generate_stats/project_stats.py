@@ -121,6 +121,8 @@ def get_results(
                 ms.start_time as timestamp,
                 ms.start_time,
                 ms.end_time,
+                ms.app_version,
+                ms.client_type,
                 {result_sql},
                 -- the username for users which login to MapSwipe with their
                 -- OSM account is not defined or ''.
