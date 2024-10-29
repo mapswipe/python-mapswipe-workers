@@ -13,7 +13,7 @@ interface Props {
         totalMappingProjects: number;
         totalSwipeTime: number;
         totalSwipes: number;
-        username: string;
+        username?: string | null;
         userId: string;
         isActive: boolean;
     };

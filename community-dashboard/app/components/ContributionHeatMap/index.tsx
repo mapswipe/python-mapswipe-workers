@@ -50,7 +50,9 @@ function HeatmapComponent(props: HeatmapComponentProps) {
     const map = useMap();
 
     useEffect(() => {
-        map.gestureHandling.enable();
+        // NOTE: We need to cast type of map here because of how gesture handle plugin works
+        type MapWithGestureHandle = typeof map & { gestureHandling: { enable: () => void }};
+        (map as MapWithGestureHandle).gestureHandling.enable();
     }, [map]);
 
     useEffect(() => {

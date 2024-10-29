@@ -231,7 +231,7 @@ function SearchSelectInput<
     );
 
     const optionRendererParamsDefault = useCallback(
-        (key: T, option: O) => {
+        (key: T, option: O): P => {
             const isActive = key === value;
 
             return {
