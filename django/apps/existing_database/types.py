@@ -71,7 +71,7 @@ class UserGroupLatestStatsType:
 @strawberry.type
 class UserGroupUserStatsType:
     user_id: str
-    username: str
+    username: str | None
     total_mapping_projects: int
     total_swipes: int
     total_swipe_time: TimeInSeconds
