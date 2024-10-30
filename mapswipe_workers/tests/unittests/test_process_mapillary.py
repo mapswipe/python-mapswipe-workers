@@ -4,7 +4,7 @@ import json
 from shapely.geometry import Polygon, MultiPolygon, Point, LineString, MultiLineString, GeometryCollection
 import pandas as pd
 from unittest.mock import patch, MagicMock
-from mapswipe_workers.utils.process_mapillary import create_tiles, download_and_process_tile, coordinate_download, geojson_to_polygon
+from mapswipe_workers.utils.process_mapillary import create_tiles, download_and_process_tile, coordinate_download, geojson_to_polygon, filter_by_timerange, filter_results
 
 
 # Assuming create_tiles, download_and_process_tile, and coordinate_download are imported
@@ -182,6 +182,49 @@ class TestTileGroupingFunctions(unittest.TestCase):
         self.assertTrue(metadata.empty)
         self.assertFalse(failed.empty)
 
+    def test_filter_within_time_range(self):
+        start_time = '2016-01-20 00:00:00'
+        end_time = '2022-01-21 23:59:59'
+        filtered_df = filter_by_timerange(self.fixture_df, start_time, end_time)
+
+        self.assertEqual(len(filtered_df), 3)
+        self.assertTrue(all(filtered_df['captured_at'] >= pd.to_datetime(start_time)))
+        self.assertTrue(all(filtered_df['captured_at'] <= pd.to_datetime(end_time)))
+
+    def test_filter_without_end_time(self):
+        start_time = '2020-01-20 00:00:00'
+        filtered_df = filter_by_timerange(self.fixture_df, start_time)
+
+        self.assertEqual(len(filtered_df), 3)
+        self.assertTrue(all(filtered_df['captured_at'] >= pd.to_datetime(start_time)))
+
+    def test_filter_time_no_data(self):
+        start_time = '2016-01-30 00:00:00'
+        end_time = '2016-01-31 00:00:00'
+        filtered_df = filter_by_timerange(self.fixture_df, start_time, end_time)
+        self.assertTrue(filtered_df.empty)
+
+    def test_filter_default(self):
+        filtered_df = filter_results(self.fixture_df)
+        self.assertTrue(len(filtered_df) == len(self.fixture_df))
+
+    def test_filter_pano_true(self):
+        filtered_df = filter_results(self.fixture_df, is_pano=True)
+        self.assertEqual(len(filtered_df), 3)
+
+    def test_filter_pano_false(self):
+        filtered_df = filter_results(self.fixture_df, is_pano=False)
+        self.assertEqual(len(filtered_df), 3)
+
+    def test_filter_organization_id(self):
+        filtered_df = filter_results(self.fixture_df, organization_id=1)
+        self.assertEqual(len(filtered_df), 1)
+
+    def test_filter_time_range(self):
+        start_time = '2016-01-20 00:00:00'
+        end_time = '2022-01-21 23:59:59'
+        filtered_df = filter_results(self.fixture_df, start_time=start_time, end_time=end_time)
+        self.assertEqual(len(filtered_df), 3)
 
 if __name__ == '__main__':
     unittest.main()
