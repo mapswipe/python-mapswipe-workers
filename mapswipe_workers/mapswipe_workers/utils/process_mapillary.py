@@ -3,13 +3,13 @@ import json
 import requests
 import os
 import time
-from shapely import box, Polygon, MultiPolygon, Point, LineString, MultiLineString
+from shapely import box, Polygon, MultiPolygon, Point, LineString, MultiLineString, unary_union
+from shapely.geometry import shape
 import pandas as pd
 from vt2geojson import tools as vt2geojson_tools
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-def get_image_ids():
-    return [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+import logging
 
 
 def create_tiles(polygon, level):
@@ -46,7 +46,6 @@ def download_and_process_tile(row, token, attempt_limit=3):
             r = requests.get(url)
             assert r.status_code == 200, r.content
             features = vt2geojson_tools.vt_bytes_to_geojson(r.content, x, y, z).get('features', [])
-
             data = []
             for feature in features:
                 geometry = feature.get('geometry', {})
@@ -124,3 +123,27 @@ def coordinate_download(polygon, level, token, use_concurrency=True, attempt_lim
         failed_tiles = pd.DataFrame(failed_tiles, columns=tiles.columns).reset_index(drop=True)
 
         return downloaded_metadata, failed_tiles
+
+def geojson_to_polygon(geojson_data):
+    if geojson_data["type"] == "FeatureCollection":
+        features = geojson_data["features"]
+    elif geojson_data["type"] == "Feature":
+        features = [geojson_data]
+    else:
+        raise ValueError("Unsupported GeoJSON type.")
+
+    polygons = []
+    for feature in features:
+        geometry = shape(feature["geometry"])
+        if isinstance(geometry, (Polygon, MultiPolygon)):
+            polygons.append(geometry)
+        else:
+            raise ValueError("Non-polygon geometries cannot be combined into a MultiPolygon.")
+
+    combined_multipolygon = unary_union(polygons)
+
+    return combined_multipolygon
+
+
+def get_image_ids():
+    return [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
