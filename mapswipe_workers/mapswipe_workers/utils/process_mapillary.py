@@ -144,6 +144,31 @@ def geojson_to_polygon(geojson_data):
 
     return combined_multipolygon
 
+def filter_by_timerange(df: pd.DataFrame, start_time: str, end_time: str = None):
+    df['captured_at'] = pd.to_datetime(df['captured_at'], unit='ms')
+    start_time = pd.Timestamp(start_time)
 
-def get_image_ids():
-    return [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+    if end_time is None:
+        end_time = pd.Timestamp.now()
+
+    filtered_df = df[(df['captured_at'] >= start_time) & (df['captured_at'] <= end_time)]
+    return filtered_df
+
+def filter_results(results_df: pd.DataFrame, is_pano: bool = None, organization_id: str = None, start_time: str = None, end_time: str = None):
+    df = results_df.copy()
+    if is_pano is not None:
+        df = df[df["is_pano"] == is_pano]
+    if organization_id is not None:
+        df = df[df["organization_id"] == organization_id]
+    if start_time is not None:
+        df = filter_by_timerange(df, start_time, end_time)
+
+    return df
+
+
+def get_image_ids(aoi_geojson, level = 14, attempt_limit = 3, is_pano: bool = None, organization_id: str = None, start_time: str = None, end_time: str = None):
+    aoi_polygon = geojson_to_polygon(aoi_geojson)
+    token = os.getenv("MAPILLARY_ACCESS_TOKEN")
+    downloaded_metadata, failed_tiles = coordinate_download(aoi_polygon, level, token, attempt_limit)
+    downloaded_metadata = filter_results(downloaded_metadata, is_pano, organization_id, start_time, end_time)
+    return downloaded_metadata["image_id"].tolist()
