@@ -36,7 +36,15 @@ class TestUserStats(base.BaseTestCase):
             ),
             ("tasks", None),
             ("users", None),
-            ("mapping_sessions", None),
+            ("mapping_sessions", [
+                "project_id",
+                "group_id",
+                "user_id",
+                "mapping_session_id",
+                "start_time",
+                "end_time",
+                "items_count",
+            ]),
             ("mapping_sessions_results", None),
         ]:
             set_up.set_postgres_test_data(

@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { gql, useQuery, useLazyQuery } from '@apollo/client';
-import { encodeDate } from '@togglecorp/fujs';
+import { encodeDate, isFalsyString } from '@togglecorp/fujs';
 import { useParams } from 'react-router-dom';
 
 import StatsBoard from '#views/StatsBoard';
@@ -137,7 +137,7 @@ const USER_MEMBERSHIPS_EXPORT = gql`
 type UserGroupMember = NonNullable<NonNullable<NonNullable<UserGroupStatsQuery['userGroup']>['userMemberships']>['items']>[number];
 
 function memberKeySelector(member: UserGroupMember) {
-    return member.username;
+    return member.userId;
 }
 
 interface DateRangeValue {
@@ -239,7 +239,7 @@ function UserGroupDashboard(props: Props) {
                         ['User', 'Total swipes', 'Project contributed', 'Time spent(mins)'],
                         ...(newUserMembershipsData?.map((user) => (
                             [
-                                user.username,
+                                isFalsyString(user.username) ? user.userId : user.username,
                                 user.totalSwipes,
                                 user.totalMappingProjects,
                                 user.totalSwipeTime,

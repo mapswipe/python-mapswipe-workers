@@ -85,7 +85,15 @@ def create_test_project(
         set_postgres_test_data(project_type, "users", "user")
         set_firebase_test_data(project_type, "user_groups", "user_group", "")
         set_firebase_test_data(project_type, "results", fixture_name, project_id)
-        set_postgres_test_data(project_type, "mapping_sessions", fixture_name)
+        set_postgres_test_data(project_type, "mapping_sessions", fixture_name, columns=[
+            "project_id",
+            "group_id",
+            "user_id",
+            "mapping_session_id",
+            "start_time",
+            "end_time",
+            "items_count",
+        ])
         set_postgres_test_data(project_type, mapping_sessions_results, fixture_name)
         if create_user_group_session_data:
             set_postgres_test_data(

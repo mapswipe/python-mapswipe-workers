@@ -1,9 +1,17 @@
+from dataclasses import asdict, dataclass
+
 from mapswipe_workers.definitions import logger
 from mapswipe_workers.project_types.tile_map_service.tutorial import (
     TileMapServiceBaseTutorial,
+    TileMapServiceBaseTutorialTask,
 )
 from mapswipe_workers.project_types.tile_server import BaseTileServer
 from mapswipe_workers.utils import tile_functions
+
+
+@dataclass
+class CompletenessTutorialTask(TileMapServiceBaseTutorialTask):
+    urlB: str
 
 
 class CompletenessTutorial(TileMapServiceBaseTutorial):
@@ -36,11 +44,14 @@ class CompletenessTutorial(TileMapServiceBaseTutorial):
 
         super().create_tutorial_tasks()
 
+        modified_tasks = []
         for task in self.tasks[101]:
             _, tile_x, tile_y = task.taskId_real.split("-")
-            task.urlB = tile_functions.tile_coords_zoom_and_tileserver_to_url(
+            urlB = tile_functions.tile_coords_zoom_and_tileserver_to_url(
                 int(tile_x), int(tile_y), self.zoomLevel, self.tileServerB
             )
+            modified_tasks.append(CompletenessTutorialTask(**asdict(task), urlB=urlB))
+        self.tasks[101] = modified_tasks
 
         logger.info(
             f"{self.projectId}"

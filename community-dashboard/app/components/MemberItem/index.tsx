@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, generatePath } from 'react-router-dom';
-import { isDefined } from '@togglecorp/fujs';
+import { isDefined, isFalsyString } from '@togglecorp/fujs';
 
 import NumberOutput from '#components/NumberOutput';
 import routes from '#base/configs/routes';
@@ -13,7 +13,7 @@ interface Props {
         totalMappingProjects: number;
         totalSwipeTime: number;
         totalSwipes: number;
-        username: string;
+        username?: string | null;
         userId: string;
         isActive: boolean;
     };
@@ -27,6 +27,9 @@ function MemberItem(props: Props) {
         { userId: member.userId },
     );
 
+    // NOTE: OSM user does not have username stored
+    const memberName = isFalsyString(member.username) ? member.userId : member.username;
+
     return (
         <div className={styles.member}>
             <div className={styles.memberName}>
@@ -34,7 +37,7 @@ function MemberItem(props: Props) {
                     className={styles.link}
                     to={path}
                 >
-                    {member.username}
+                    {memberName}
                 </Link>
                 {!member.isActive && (
                     <div className={styles.inactive}>
