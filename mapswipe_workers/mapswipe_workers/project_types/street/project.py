@@ -4,7 +4,7 @@ import urllib
 import math
 
 from osgeo import ogr
-from dataclasses import asdict, dataclass
+from dataclasses import dataclass
 from mapswipe_workers.definitions import DATA_PATH, logger
 from mapswipe_workers.firebase.firebase import Firebase
 from mapswipe_workers.firebase_to_postgres.transfer_results import (
@@ -18,8 +18,7 @@ from mapswipe_workers.generate_stats.project_stats import (
 from mapswipe_workers.project_types.project import (
     BaseProject, BaseTask, BaseGroup
 )
-from mapswipe_workers.project_types.street.process_mapillary import get_image_ids
-from mapswipe_workers.utils.api_calls import geojsonToFeatureCollection, ohsome
+from mapswipe_workers.utils.process_mapillary import get_image_ids
 
 
 @dataclass
@@ -35,8 +34,8 @@ class StreetTask(BaseTask):
 class StreetProject(BaseProject):
     def __init__(self, project_draft):
         super().__init__(project_draft)
-        self.groups: Dict[str, MediaClassificationGroup] = {}
-        self.tasks: Dict[str, List[MediaClassificationTask]] = (
+        self.groups: Dict[str, StreetGroup] = {}
+        self.tasks: Dict[str, List[StreetTask]] = (
             {}
         )
 
@@ -45,7 +44,7 @@ class StreetProject(BaseProject):
 
     def save_tasks_to_firebase(self, projectId: str, tasks: dict):
         firebase = Firebase()
-        firebase.save_tasks_to_firebase(projectId, tasks, useCompression=True)
+        firebase.save_tasks_to_firebase(projectId, tasks)
 
     @staticmethod
     def results_to_postgres(results: dict, project_id: str, filter_mode: bool):
