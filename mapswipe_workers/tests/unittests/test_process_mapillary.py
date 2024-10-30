@@ -24,6 +24,17 @@ class TestTileGroupingFunctions(unittest.TestCase):
         ) as file:
             cls.fixture_data = json.load(file)
 
+        with open(
+            os.path.join(
+                os.path.dirname(os.path.abspath(__file__)),
+                "..",
+                "fixtures",
+                "mapillary_response.csv",
+            ),
+            "r",
+        ) as file:
+            cls.fixture_df = pd.read_csv(file)
+
     def setUp(self):
         self.token = "test_token"
         self.level = 14
@@ -140,38 +151,36 @@ class TestTileGroupingFunctions(unittest.TestCase):
         self.assertEqual(len(result), 1)
         self.assertEqual(result['geometry'][0].wkt, 'POINT (0 0)')
 
-        @patch('mapswipe_workers.utils.process_mapillary.requests.get')
-        def test_download_and_process_tile_failure(self, mock_get):
-            # Mock a failed response
-            mock_response = MagicMock()
-            mock_response.status_code = 500
-            mock_get.return_value = mock_response
+    @patch('mapswipe_workers.utils.process_mapillary.requests.get')
+    def test_download_and_process_tile_failure(self, mock_get):
+        # Mock a failed response
+        mock_response = MagicMock()
+        mock_response.status_code = 500
+        mock_get.return_value = mock_response
 
-            row = pd.Series({'x': 1, 'y': 1, 'z': self.level})
-            result, failed = download_and_process_tile(row, self.token)
+        row = pd.Series({'x': 1, 'y': 1, 'z': self.level})
+        result, failed = download_and_process_tile(row, self.token)
 
-            self.assertIsNone(result)
-            self.assertIsNotNone(failed)
+        self.assertIsNone(result)
+        self.assertIsNotNone(failed)
 
-        @patch('mapswipe_workers.utils.process_mapillary')
-        def test_coordinate_download(self, mock_download_and_process_tile):
+    @patch('mapswipe_workers.utils.process_mapillary.download_and_process_tile')
+    def test_coordinate_download(self, mock_download_and_process_tile):
+        mock_download_and_process_tile.return_value = (pd.DataFrame([{"geometry": None}]), None)
 
-            mock_download_and_process_tile.return_value = (pd.DataFrame([{"geometry": None}]), None)
+        metadata, failed = coordinate_download(self.test_polygon, self.level, self.token)
 
-            metadata, failed = coordinate_download(self.test_polygon, self.level, self.token)
+        self.assertIsInstance(metadata, pd.DataFrame)
+        self.assertTrue(failed.empty)
 
-            self.assertIsInstance(metadata, pd.DataFrame)
-            self.assertTrue(failed.empty)
+    @patch('mapswipe_workers.utils.process_mapillary.download_and_process_tile')
+    def test_coordinate_download_with_failures(self, mock_download_and_process_tile):
+        mock_download_and_process_tile.return_value = (None, pd.Series({"x": 1, "y": 1, "z": self.level}))
 
-        @patch('mapswipe_workers.utils.process_mapillary.download_and_process_tile')
-        def test_coordinate_download_with_failures(self, mock_download_and_process_tile):
-            # Simulate failed tile download
-            mock_download_and_process_tile.return_value = (None, pd.Series({"x": 1, "y": 1, "z": self.level}))
+        metadata, failed = coordinate_download(self.test_polygon, self.level, self.token)
 
-            metadata, failed = coordinate_download(self.test_polygon, self.level, self.token)
-
-            self.assertTrue(metadata.empty)
-            self.assertFalse(failed.empty)
+        self.assertTrue(metadata.empty)
+        self.assertFalse(failed.empty)
 
 
 if __name__ == '__main__':
