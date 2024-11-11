@@ -50,7 +50,6 @@ class TestTileGroupingFunctions(unittest.TestCase):
             cls.fixture_df = pd.read_csv(file)
 
     def setUp(self):
-        self.token = "test_token"
         self.level = 14
         self.test_polygon = Polygon([(0, 0), (1, 0), (1, 1), (0, 1)])
         self.test_multipolygon = MultiPolygon(
@@ -174,9 +173,8 @@ class TestTileGroupingFunctions(unittest.TestCase):
         }
 
         row = {"x": 1, "y": 1, "z": 14}
-        token = "test_token"
 
-        result, failed = download_and_process_tile(row, token)
+        result, failed = download_and_process_tile(row)
 
         # Assertions
         self.assertIsNone(failed)
@@ -192,7 +190,7 @@ class TestTileGroupingFunctions(unittest.TestCase):
         mock_get.return_value = mock_response
 
         row = pd.Series({"x": 1, "y": 1, "z": self.level})
-        result, failed = download_and_process_tile(row, self.token)
+        result, failed = download_and_process_tile(row)
 
         self.assertIsNone(result)
         self.assertIsNotNone(failed)
@@ -205,7 +203,7 @@ class TestTileGroupingFunctions(unittest.TestCase):
         )
 
         metadata, failed = coordinate_download(
-            self.test_polygon, self.level, self.token
+            self.test_polygon, self.level
         )
 
         self.assertIsInstance(metadata, pd.DataFrame)
@@ -219,7 +217,7 @@ class TestTileGroupingFunctions(unittest.TestCase):
         )
 
         metadata, failed = coordinate_download(
-            self.test_polygon, self.level, self.token
+            self.test_polygon, self.level
         )
 
         self.assertTrue(metadata.empty)
