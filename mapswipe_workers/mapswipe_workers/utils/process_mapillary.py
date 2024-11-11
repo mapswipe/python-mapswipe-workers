@@ -8,8 +8,7 @@ from shapely.geometry import shape
 import pandas as pd
 from vt2geojson import tools as vt2geojson_tools
 from concurrent.futures import ThreadPoolExecutor, as_completed
-
-import logging
+from mapswipe_workers.definitions import MAPILLARY_API_LINK, MAPILLARY_API_KEY
 
 
 def create_tiles(polygon, level):
@@ -33,12 +32,11 @@ def create_tiles(polygon, level):
     return tiles
 
 
-def download_and_process_tile(row, token, attempt_limit=3):
+def download_and_process_tile(row, attempt_limit=3):
     z = row["z"]
     x = row["x"]
     y = row["y"]
-    endpoint = "mly1_computed_public"
-    url = f"https://tiles.mapillary.com/maps/vtp/{endpoint}/2/{z}/{x}/{y}?access_token={token}"
+    url = f"{MAPILLARY_API_LINK}{z}/{x}/{y}?access_token={MAPILLARY_API_KEY}"
 
     attempt = 0
     while attempt < attempt_limit:
@@ -81,7 +79,9 @@ def download_and_process_tile(row, token, attempt_limit=3):
     return None, row
 
 
-def coordinate_download(polygon, level, token, use_concurrency=True, attempt_limit=3, workers=os.cpu_count() * 4):
+def coordinate_download(
+    polygon, level, use_concurrency=True, attempt_limit=3, workers=os.cpu_count() * 4
+):
     tiles = create_tiles(polygon, level)
 
     downloaded_metadata = []
@@ -95,7 +95,9 @@ def coordinate_download(polygon, level, token, use_concurrency=True, attempt_lim
         start_time = time.time()
         with ThreadPoolExecutor(max_workers=workers) as executor:
             for index, row in tiles.iterrows():
-                futures.append(executor.submit(download_and_process_tile, row, token, attempt_limit))
+                futures.append(
+                    executor.submit(download_and_process_tile, row, attempt_limit)
+                )
 
             for future in as_completed(futures):
                 if future is not None:
