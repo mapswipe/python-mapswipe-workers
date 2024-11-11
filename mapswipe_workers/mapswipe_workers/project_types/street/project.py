@@ -15,10 +15,16 @@ from mapswipe_workers.firebase_to_postgres.transfer_results import (
 from mapswipe_workers.generate_stats.project_stats import (
     get_statistics_for_integer_result_project,
 )
-from mapswipe_workers.project_types.project import (
-    BaseProject, BaseTask, BaseGroup
+from mapswipe_workers.utils.validate_input import (
+    check_if_layer_is_empty,
+    load_geojson_to_ogr,
+    build_multipolygon_from_layer_geometries,
+    check_if_layer_has_too_many_geometries,
+    save_geojson_to_file,
+    multipolygon_to_wkt
 )
-from mapswipe_workers.utils.process_mapillary import get_image_ids
+from mapswipe_workers.project_types.project import BaseProject, BaseTask, BaseGroup
+from mapswipe_workers.utils.process_mapillary import get_image_metadata
 
 
 @dataclass
@@ -29,18 +35,22 @@ class StreetGroup(BaseGroup):
 
 @dataclass
 class StreetTask(BaseTask):
-    pass
+    geometry: str
+    data: str
+
 
 class StreetProject(BaseProject):
     def __init__(self, project_draft):
         super().__init__(project_draft)
         self.groups: Dict[str, StreetGroup] = {}
-        self.tasks: Dict[str, List[StreetTask]] = (
-            {}
-        )
+        self.tasks: Dict[str, List[StreetTask]] = {}
 
         self.geometry = project_draft["geometry"]
-        self.imageList = get_image_ids()
+        ImageMetadata = get_image_metadata(self.geometry)
+
+
+        self.imageIds = ImageMetadata["ids"]
+        self.imageGeometries = ImageMetadata["geometries"]
 
     def save_tasks_to_firebase(self, projectId: str, tasks: dict):
         firebase = Firebase()
@@ -62,131 +72,29 @@ class StreetProject(BaseProject):
         )
 
     def validate_geometries(self):
-        raw_input_file = (
-            f"{DATA_PATH}/input_geometries/raw_input_{self.projectId}.geojson"
+        self.inputGeometriesFileName = save_geojson_to_file(
+            self.projectId, self.geometry
+        )
+        layer, datasource = load_geojson_to_ogr(self.projectId, self.inputGeometriesFileName)
+
+        # check if inputs fit constraints
+        check_if_layer_is_empty(self.projectId, layer)
+
+        multi_polygon, project_area = build_multipolygon_from_layer_geometries(
+            self.projectId, layer
         )
 
-        if not os.path.isdir(f"{DATA_PATH}/input_geometries"):
-            os.mkdir(f"{DATA_PATH}/input_geometries")
-
-        valid_input_file = (
-            f"{DATA_PATH}/input_geometries/valid_input_{self.projectId}.geojson"
-        )
-
-        logger.info(
-            f"{self.projectId}"
-            f" - __init__ - "
-            f"downloaded input geometries from url and saved as file: "
-            f"{raw_input_file}"
-        )
-        self.inputGeometries = raw_input_file
-
-        # open the raw input file and get layer
-        driver = ogr.GetDriverByName("GeoJSON")
-        datasource = driver.Open(raw_input_file, 0)
-        try:
-            layer = datasource.GetLayer()
-            LayerDefn = layer.GetLayerDefn()
-        except AttributeError:
-            raise CustomError("Value error in input geometries file")
-
-        # create layer for valid_input_file to store all valid geometries
-        outDriver = ogr.GetDriverByName("GeoJSON")
-        # Remove output geojson if it already exists
-        if os.path.exists(valid_input_file):
-            outDriver.DeleteDataSource(valid_input_file)
-        outDataSource = outDriver.CreateDataSource(valid_input_file)
-        outLayer = outDataSource.CreateLayer(
-            "geometries", geom_type=ogr.wkbMultiPolygon
-        )
-        for i in range(0, LayerDefn.GetFieldCount()):
-            fieldDefn = LayerDefn.GetFieldDefn(i)
-            outLayer.CreateField(fieldDefn)
-        outLayerDefn = outLayer.GetLayerDefn()
-
-        # check if raw_input_file layer is empty
-        feature_count = layer.GetFeatureCount()
-        if feature_count < 1:
-            err = "empty file. No geometries provided"
-            # TODO: How to user logger and exceptions?
-            logger.warning(f"{self.projectId} - check_input_geometry - {err}")
-            raise CustomError(err)
-        elif feature_count > 100000:
-            err = f"Too many Geometries: {feature_count}"
-            logger.warning(f"{self.projectId} - check_input_geometry - {err}")
-            raise CustomError(err)
-
-        # get geometry as wkt
-        # get the bounding box/ extent of the layer
-        extent = layer.GetExtent()
-        # Create a Polygon from the extent tuple
-        ring = ogr.Geometry(ogr.wkbLinearRing)
-        ring.AddPoint(extent[0], extent[2])
-        ring.AddPoint(extent[1], extent[2])
-        ring.AddPoint(extent[1], extent[3])
-        ring.AddPoint(extent[0], extent[3])
-        ring.AddPoint(extent[0], extent[2])
-        poly = ogr.Geometry(ogr.wkbPolygon)
-        poly.AddGeometry(ring)
-        wkt_geometry = poly.ExportToWkt()
-
-        # check if the input geometry is a valid polygon
-        for feature in layer:
-            feat_geom = feature.GetGeometryRef()
-            geom_name = feat_geom.GetGeometryName()
-            fid = feature.GetFID()
-
-            if not feat_geom.IsValid():
-                layer.DeleteFeature(fid)
-                logger.warning(
-                    f"{self.projectId}"
-                    f" - check_input_geometries - "
-                    f"deleted invalid feature {fid}"
-                )
-
-            # we accept only POLYGON or MULTIPOLYGON geometries
-            elif geom_name not in ["POLYGON", "MULTIPOLYGON"]:
-                layer.DeleteFeature(fid)
-                logger.warning(
-                    f"{self.projectId}"
-                    f" - check_input_geometries - "
-                    f"deleted non polygon feature {fid}"
-                )
-
-            else:
-                # Create output Feature
-                outFeature = ogr.Feature(outLayerDefn)
-                # Add field values from input Layer
-                for i in range(0, outLayerDefn.GetFieldCount()):
-                    outFeature.SetField(
-                        outLayerDefn.GetFieldDefn(i).GetNameRef(), feature.GetField(i)
-                    )
-                outFeature.SetGeometry(feat_geom)
-                outLayer.CreateFeature(outFeature)
-                outFeature = None
-
-        # check if layer is empty
-        if layer.GetFeatureCount() < 1:
-            err = "no geometries left after checking validity and geometry type."
-            logger.warning(f"{self.projectId} - check_input_geometry - {err}")
-            raise Exception(err)
+        check_if_layer_has_too_many_geometries(self.projectId, multi_polygon)
 
         del datasource
-        del outDataSource
         del layer
 
-        self.inputGeometriesFileName = valid_input_file
-
-        logger.info(
-            f"{self.projectId}"
-            f" - check_input_geometry - "
-            f"filtered correct input geometries and created file: "
-            f"{valid_input_file}"
-        )
+        logger.info(f"{self.projectId}" f" - validate geometry - " f"input geometry is correct.")
+        wkt_geometry = multipolygon_to_wkt(multi_polygon)
         return wkt_geometry
 
     def create_groups(self):
-        self.numberOfGroups = math.ceil(len(self.imageList) / self.groupSize)
+        self.numberOfGroups = math.ceil(len(self.imageIds) / self.groupSize)
         for group_id in range(self.numberOfGroups):
             self.groups[f"g{group_id}"] = StreetGroup(
                 projectId=self.projectId,
@@ -206,13 +114,14 @@ class StreetProject(BaseProject):
                 task = StreetTask(
                     projectId=self.projectId,
                     groupId=group_id,
-                    taskId=self.imageList.pop(),
+                    data=str(self.imageGeometries.pop()),
+                    geometry="",
+                    taskId=self.imageIds.pop(),
                 )
                 self.tasks[group_id].append(task)
 
                 # list now empty? if usual group size is not reached
                 # the actual number of tasks for the group is updated
-                if not self.imageList:
+                if not self.imageIds:
                     group.numberOfTasks = i + 1
                     break
-
