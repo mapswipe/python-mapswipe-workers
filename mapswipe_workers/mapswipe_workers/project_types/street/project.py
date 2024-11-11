@@ -54,7 +54,7 @@ class StreetProject(BaseProject):
 
     def save_tasks_to_firebase(self, projectId: str, tasks: dict):
         firebase = Firebase()
-        firebase.save_tasks_to_firebase(projectId, tasks)
+        firebase.save_tasks_to_firebase(projectId, tasks, useCompression=False)
 
     @staticmethod
     def results_to_postgres(results: dict, project_id: str, filter_mode: bool):
