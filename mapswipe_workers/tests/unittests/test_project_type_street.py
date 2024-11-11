@@ -26,11 +26,11 @@ class TestCreateStreetProject(unittest.TestCase):
         self.assertTrue(self.project.groups)
 
     def test_create_tasks(self):
-        imageId = self.project.imageList[-1]
+        imageId = self.project.imageIds[-1]
         self.project.create_groups()
         self.project.create_tasks()
         self.assertEqual(self.project.tasks["g0"][0].taskId, imageId)
-        #self.assertEqual(self.project.groups["g0"].numberOfTasks, 1)
+        # self.assertEqual(self.project.groups["g0"].numberOfTasks, 1)
 
 
 if __name__ == "__main__":
