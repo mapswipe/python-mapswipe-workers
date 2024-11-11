@@ -3,7 +3,15 @@ import json
 import requests
 import os
 import time
-from shapely import box, Polygon, MultiPolygon, Point, LineString, MultiLineString, unary_union
+from shapely import (
+    box,
+    Polygon,
+    MultiPolygon,
+    Point,
+    LineString,
+    MultiLineString,
+    unary_union,
+)
 from shapely.geometry import shape
 import pandas as pd
 from vt2geojson import tools as vt2geojson_tools
@@ -13,7 +21,7 @@ from mapswipe_workers.definitions import MAPILLARY_API_LINK, MAPILLARY_API_KEY
 
 def create_tiles(polygon, level):
     if not isinstance(polygon, (Polygon, MultiPolygon)):
-        return pd.DataFrame(columns=['x', 'y', 'z', 'geometry'])
+        return pd.DataFrame(columns=["x", "y", "z", "geometry"])
     if isinstance(polygon, Polygon):
         polygon = MultiPolygon([polygon])
 
@@ -23,11 +31,14 @@ def create_tiles(polygon, level):
 
     bbox_list = [mercantile.bounds(tile.x, tile.y, tile.z) for tile in tiles]
     bbox_polygons = [box(*bbox) for bbox in bbox_list]
-    tiles = pd.DataFrame({
-        'x': [tile.x for tile in tiles],
-        'y': [tile.y for tile in tiles],
-        'z': [tile.z for tile in tiles],
-        'geometry': bbox_polygons})
+    tiles = pd.DataFrame(
+        {
+            "x": [tile.x for tile in tiles],
+            "y": [tile.y for tile in tiles],
+            "z": [tile.z for tile in tiles],
+            "geometry": bbox_polygons,
+        }
+    )
 
     return tiles
 
@@ -43,28 +54,30 @@ def download_and_process_tile(row, attempt_limit=3):
         try:
             r = requests.get(url)
             assert r.status_code == 200, r.content
-            features = vt2geojson_tools.vt_bytes_to_geojson(r.content, x, y, z).get('features', [])
+            features = vt2geojson_tools.vt_bytes_to_geojson(r.content, x, y, z).get(
+                "features", []
+            )
             data = []
             for feature in features:
-                geometry = feature.get('geometry', {})
-                properties = feature.get('properties', {})
-                geometry_type = geometry.get('type', None)
-                coordinates = geometry.get('coordinates', [])
+                geometry = feature.get("geometry", {})
+                properties = feature.get("properties", {})
+                geometry_type = geometry.get("type", None)
+                coordinates = geometry.get("coordinates", [])
 
                 element_geometry = None
-                if geometry_type == 'Point':
+                if geometry_type == "Point":
                     element_geometry = Point(coordinates)
-                elif geometry_type == 'LineString':
+                elif geometry_type == "LineString":
                     element_geometry = LineString(coordinates)
-                elif geometry_type == 'MultiLineString':
+                elif geometry_type == "MultiLineString":
                     element_geometry = MultiLineString(coordinates)
-                elif geometry_type == 'Polygon':
+                elif geometry_type == "Polygon":
                     element_geometry = Polygon(coordinates[0])
-                elif geometry_type == 'MultiPolygon':
+                elif geometry_type == "MultiPolygon":
                     element_geometry = MultiPolygon(coordinates)
 
                 # Append the dictionary with geometry and properties
-                row = {'geometry': element_geometry, **properties}
+                row = {"geometry": element_geometry, **properties}
                 data.append(row)
 
             data = pd.DataFrame(data)
@@ -92,7 +105,6 @@ def coordinate_download(
             workers = 1
 
         futures = []
-        start_time = time.time()
         with ThreadPoolExecutor(max_workers=workers) as executor:
             for index, row in tiles.iterrows():
                 futures.append(
@@ -108,23 +120,17 @@ def coordinate_download(
                     if failed_row is not None:
                         failed_tiles.append(failed_row)
 
-        end_time = time.time()
-        total_time = end_time - start_time
-
-        total_tiles = len(tiles)
-        average_time_per_tile = total_time / total_tiles if total_tiles > 0 else 0
-
-        print(f"Total time for downloading {total_tiles} tiles: {total_time:.2f} seconds")
-        print(f"Average time per tile: {average_time_per_tile:.2f} seconds")
-
         if len(downloaded_metadata):
             downloaded_metadata = pd.concat(downloaded_metadata, ignore_index=True)
         else:
             downloaded_metadata = pd.DataFrame(downloaded_metadata)
 
-        failed_tiles = pd.DataFrame(failed_tiles, columns=tiles.columns).reset_index(drop=True)
+        failed_tiles = pd.DataFrame(failed_tiles, columns=tiles.columns).reset_index(
+            drop=True
+        )
 
         return downloaded_metadata, failed_tiles
+
 
 def geojson_to_polygon(geojson_data):
     if geojson_data["type"] == "FeatureCollection":
@@ -140,23 +146,35 @@ def geojson_to_polygon(geojson_data):
         if isinstance(geometry, (Polygon, MultiPolygon)):
             polygons.append(geometry)
         else:
-            raise ValueError("Non-polygon geometries cannot be combined into a MultiPolygon.")
+            raise ValueError(
+                "Non-polygon geometries cannot be combined into a MultiPolygon."
+            )
 
     combined_multipolygon = unary_union(polygons)
 
     return combined_multipolygon
 
+
 def filter_by_timerange(df: pd.DataFrame, start_time: str, end_time: str = None):
-    df['captured_at'] = pd.to_datetime(df['captured_at'], unit='ms')
+    df["captured_at"] = pd.to_datetime(df["captured_at"], unit="ms")
     start_time = pd.Timestamp(start_time)
 
     if end_time is None:
         end_time = pd.Timestamp.now()
 
-    filtered_df = df[(df['captured_at'] >= start_time) & (df['captured_at'] <= end_time)]
+    filtered_df = df[
+        (df["captured_at"] >= start_time) & (df["captured_at"] <= end_time)
+    ]
     return filtered_df
 
-def filter_results(results_df: pd.DataFrame, is_pano: bool = None, organization_id: str = None, start_time: str = None, end_time: str = None):
+
+def filter_results(
+    results_df: pd.DataFrame,
+    is_pano: bool = None,
+    organization_id: str = None,
+    start_time: str = None,
+    end_time: str = None,
+):
     df = results_df.copy()
     if is_pano is not None:
         df = df[df["is_pano"] == is_pano]
@@ -168,9 +186,23 @@ def filter_results(results_df: pd.DataFrame, is_pano: bool = None, organization_
     return df
 
 
-def get_image_ids(aoi_geojson, level = 14, attempt_limit = 3, is_pano: bool = None, organization_id: str = None, start_time: str = None, end_time: str = None):
+def get_image_metadata(
+    aoi_geojson,
+    level=14,
+    attempt_limit=3,
+    is_pano: bool = None,
+    organization_id: str = None,
+    start_time: str = None,
+    end_time: str = None,
+):
     aoi_polygon = geojson_to_polygon(aoi_geojson)
-    token = os.getenv("MAPILLARY_ACCESS_TOKEN")
-    downloaded_metadata, failed_tiles = coordinate_download(aoi_polygon, level, token, attempt_limit)
-    downloaded_metadata = filter_results(downloaded_metadata, is_pano, organization_id, start_time, end_time)
-    return downloaded_metadata["image_id"].tolist()
+    downloaded_metadata, failed_tiles = coordinate_download(
+        aoi_polygon, level, attempt_limit
+    )
+    downloaded_metadata = filter_results(
+        downloaded_metadata, is_pano, organization_id, start_time, end_time
+    )
+    return {
+        "ids": downloaded_metadata["id"].tolist(),
+        "geometries": downloaded_metadata["geometry"].tolist(),
+    }
