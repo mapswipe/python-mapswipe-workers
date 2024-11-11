@@ -114,6 +114,7 @@ class StreetProject(BaseProject):
                 task = StreetTask(
                     projectId=self.projectId,
                     groupId=group_id,
+                    # TODO: change when db allows point geometries
                     data=str(self.imageGeometries.pop()),
                     geometry="",
                     taskId=self.imageIds.pop(),
