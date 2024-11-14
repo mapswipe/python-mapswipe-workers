@@ -18,10 +18,8 @@ from mapswipe_workers.utils.process_mapillary import (
     geojson_to_polygon,
     filter_by_timerange,
     filter_results,
+    get_image_metadata,
 )
-
-
-# Assuming create_tiles, download_and_process_tile, and coordinate_download are imported
 
 
 class TestTileGroupingFunctions(unittest.TestCase):
@@ -156,13 +154,11 @@ class TestTileGroupingFunctions(unittest.TestCase):
     )
     @patch("mapswipe_workers.utils.process_mapillary.requests.get")
     def test_download_and_process_tile_success(self, mock_get, mock_vt2geojson):
-        # Mock the response from requests.get
         mock_response = MagicMock()
         mock_response.status_code = 200
         mock_response.content = b"mock vector tile data"  # Example mock data
         mock_get.return_value = mock_response
 
-        # Mock the return value of vt_bytes_to_geojson
         mock_vt2geojson.return_value = {
             "features": [
                 {
@@ -176,7 +172,6 @@ class TestTileGroupingFunctions(unittest.TestCase):
 
         result, failed = download_and_process_tile(row)
 
-        # Assertions
         self.assertIsNone(failed)
         self.assertIsInstance(result, pd.DataFrame)
         self.assertEqual(len(result), 1)
@@ -268,6 +263,67 @@ class TestTileGroupingFunctions(unittest.TestCase):
             self.fixture_df, start_time=start_time, end_time=end_time
         )
         self.assertEqual(len(filtered_df), 3)
+
+    def test_filter_no_rows_after_filter(self):
+        filtered_df = filter_results(self.fixture_df, is_pano="False")
+        self.assertTrue(filtered_df.empty)
+
+    def test_filter_missing_columns(self):
+        columns_to_check = ["is_pano", "organization_id", "captured_at"]  # Add your column names here
+        for column in columns_to_check:
+            df_copy = self.fixture_df.copy()
+            df_copy[column] = None
+            if column == "captured_at":
+                column = "start_time"
+
+            result = filter_results(df_copy, **{column: True})
+            self.assertIsNone(result)
+
+    @patch("mapswipe_workers.utils.process_mapillary.coordinate_download")
+    def test_get_image_metadata(self, mock_coordinate_download):
+        mock_coordinate_download.return_value = (
+            self.fixture_df,
+            None,
+        )
+        result = get_image_metadata(self.fixture_data)
+        self.assertIsInstance(result, dict)
+        self.assertIn("ids", result)
+        self.assertIn("geometries", result)
+
+
+    @patch("mapswipe_workers.utils.process_mapillary.coordinate_download")
+    def test_get_image_metadata_filtering(self, mock_coordinate_download):
+        mock_coordinate_download.return_value = (
+            self.fixture_df,
+            None,
+        )
+
+        params = {
+            "is_pano": True,
+            "start_time": "2016-01-20 00:00:00",
+            "end_time": "2022-01-21 23:59:59",
+        }
+
+        result = get_image_metadata(self.fixture_data, **params)
+        self.assertIsInstance(result, dict)
+        self.assertIn("ids", result)
+        self.assertIn("geometries", result)
+
+
+    @patch("mapswipe_workers.utils.process_mapillary.coordinate_download")
+    def test_get_image_metadata_no_rows(self, mock_coordinate_download):
+        mock_coordinate_download.return_value = (
+            self.fixture_df,
+            None,
+        )
+
+        params = {
+            "is_pano": True,
+            "start_time": "1916-01-20 00:00:00",
+            "end_time": "1922-01-21 23:59:59",
+        }
+        with self.assertRaises(ValueError):
+            get_image_metadata(self.fixture_data, **params)
 
 
 if __name__ == "__main__":

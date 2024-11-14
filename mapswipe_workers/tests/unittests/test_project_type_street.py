@@ -2,6 +2,7 @@ import json
 import os
 import unittest
 from unittest.mock import patch
+import pandas as pd
 
 from mapswipe_workers.project_types import StreetProject
 from tests import fixtures
@@ -16,7 +17,21 @@ class TestCreateStreetProject(unittest.TestCase):
             )
         )
         project_draft["projectDraftId"] = "foo"
-        self.project = StreetProject(project_draft)
+
+        with patch(
+            "mapswipe_workers.utils.process_mapillary.coordinate_download"
+        ) as mock_get:
+            with open(
+                os.path.join(
+                    os.path.dirname(os.path.abspath(__file__)),
+                    "..",
+                    "fixtures",
+                    "mapillary_response.csv",
+                ),
+                "r",
+            ) as file:
+                mock_get.return_value = (pd.read_csv(file), None)
+                self.project = StreetProject(project_draft)
 
     def test_init(self):
         self.assertEqual(self.project.geometry["type"], "FeatureCollection")
@@ -30,7 +45,6 @@ class TestCreateStreetProject(unittest.TestCase):
         self.project.create_groups()
         self.project.create_tasks()
         self.assertEqual(self.project.tasks["g0"][0].taskId, imageId)
-        # self.assertEqual(self.project.groups["g0"].numberOfTasks, 1)
 
 
 if __name__ == "__main__":

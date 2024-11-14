@@ -46,7 +46,15 @@ class StreetProject(BaseProject):
         self.tasks: Dict[str, List[StreetTask]] = {}
 
         self.geometry = project_draft["geometry"]
-        ImageMetadata = get_image_metadata(self.geometry)
+
+        # TODO: validate inputs
+        ImageMetadata = get_image_metadata(
+            self.geometry,
+            is_pano=project_draft.get("isPano", None),
+            start_time=project_draft.get("startTimestamp", None),
+            end_time=project_draft.get("endTimestamp", None),
+            organization_id=project_draft.get("organizationId", None),
+        )
 
 
         self.imageIds = ImageMetadata["ids"]
