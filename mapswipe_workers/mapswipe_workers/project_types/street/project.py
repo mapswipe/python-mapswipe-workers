@@ -54,6 +54,7 @@ class StreetProject(BaseProject):
             start_time=project_draft.get("startTimestamp", None),
             end_time=project_draft.get("endTimestamp", None),
             organization_id=project_draft.get("organizationId", None),
+            sampling_threshold=project_draft.get("samplingThreshold", None),
         )
 
 

@@ -58,11 +58,8 @@ def filter_points(df, threshold_distance):
     road_length = 0
     mask = np.zeros(len(df), dtype=bool)
     mask[0] = True
-    lat = np.array([wkt.loads(point).y for point in df['data']])
-    long = np.array([wkt.loads(point).x for point in df['data']])
-
-    df['lat'] = lat
-    df['long'] = long
+    lat = df["lat"].to_numpy()
+    long = df["long"].to_numpy()
 
 
     distances = distance_on_sphere([long[1:],lat[1:]],
@@ -92,7 +89,7 @@ def filter_points(df, threshold_distance):
     return to_be_returned_df
 
 
-def calculate_spacing(df, interval_length):
+def spatial_sampling(df, interval_length):
     """
     Calculate spacing between points in a GeoDataFrame.
 
@@ -109,9 +106,22 @@ def calculate_spacing(df, interval_length):
     then filters points using the filter_points function. The function returns the filtered
     GeoDataFrame along with the total road length.
     """
-    road_length = 0
     if len(df) == 1:
         return df
-    sorted_sub_df = df.sort_values(by=['timestamp'])
-    filtered_sorted_sub_df = filter_points(sorted_sub_df,interval_length)
-    return filtered_sorted_sub_df
+
+    df['long'] = df['geometry'].apply(lambda geom: geom.x if geom.geom_type == 'Point' else None)
+    df['lat'] = df['geometry'].apply(lambda geom: geom.y if geom.geom_type == 'Point' else None)
+    sorted_df = df.sort_values(by=['captured_at'])
+
+    sampled_sequence_df = pd.DataFrame()
+
+    # loop through each sequence
+    for sequence in sorted_df['sequence_id'].unique():
+        sequence_df = sorted_df[sorted_df['sequence_id'] == sequence]
+
+        filtered_sorted_sub_df = filter_points(sequence_df,interval_length)
+        sampled_sequence_df = pd.concat([sampled_sequence_df,filtered_sorted_sub_df],axis=0)
+
+
+
+    return sampled_sequence_df

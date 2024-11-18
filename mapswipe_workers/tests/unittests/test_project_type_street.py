@@ -2,6 +2,7 @@ import json
 import os
 import unittest
 from unittest.mock import patch
+from shapely import wkt
 import pandas as pd
 
 from mapswipe_workers.project_types import StreetProject
@@ -30,7 +31,10 @@ class TestCreateStreetProject(unittest.TestCase):
                 ),
                 "r",
             ) as file:
-                mock_get.return_value = (pd.read_csv(file), None)
+                df = pd.read_csv(file)
+                df['geometry'] = df['geometry'].apply(wkt.loads)
+
+                mock_get.return_value = (df, None)
                 self.project = StreetProject(project_draft)
 
     def test_init(self):

@@ -18,6 +18,7 @@ from vt2geojson import tools as vt2geojson_tools
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from mapswipe_workers.definitions import MAPILLARY_API_LINK, MAPILLARY_API_KEY
 from mapswipe_workers.definitions import logger
+from mapswipe_workers.utils.spatial_sampling import spatial_sampling
 
 
 def create_tiles(polygon, level):
@@ -219,14 +220,21 @@ def get_image_metadata(
     organization_id: str = None,
     start_time: str = None,
     end_time: str = None,
+    sampling_threshold = None,
 ):
     aoi_polygon = geojson_to_polygon(aoi_geojson)
     downloaded_metadata, failed_tiles = coordinate_download(
         aoi_polygon, level, attempt_limit
     )
+    downloaded_metadata = downloaded_metadata[
+        downloaded_metadata['geometry'].apply(lambda geom: isinstance(geom, Point))
+    ]
+
     downloaded_metadata = filter_results(
         downloaded_metadata, is_pano, organization_id, start_time, end_time
     )
+    if sampling_threshold is not None:
+        downloaded_metadata = spatial_sampling(downloaded_metadata, sampling_threshold)
     if downloaded_metadata.isna().all().all() == False:
         return {
             "ids": downloaded_metadata["id"].tolist(),

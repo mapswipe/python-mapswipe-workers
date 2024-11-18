@@ -9,6 +9,7 @@ from shapely.geometry import (
     MultiLineString,
     GeometryCollection,
 )
+from shapely import wkt
 import pandas as pd
 from unittest.mock import patch, MagicMock
 from mapswipe_workers.utils.process_mapillary import (
@@ -45,7 +46,9 @@ class TestTileGroupingFunctions(unittest.TestCase):
             ),
             "r",
         ) as file:
-            cls.fixture_df = pd.read_csv(file)
+            df = pd.read_csv(file)
+            df['geometry'] = df['geometry'].apply(wkt.loads)
+            cls.fixture_df = df
 
     def setUp(self):
         self.level = 14
