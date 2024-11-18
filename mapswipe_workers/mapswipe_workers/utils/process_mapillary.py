@@ -137,6 +137,10 @@ def coordinate_download(
             if col not in downloaded_metadata.columns:
                 downloaded_metadata[col] = None
 
+        downloaded_metadata = downloaded_metadata[
+            downloaded_metadata['geometry'].apply(lambda point: point.within(polygon))
+        ]
+
         return downloaded_metadata, failed_tiles
 
 
