@@ -36,7 +36,6 @@ class StreetGroup(BaseGroup):
 @dataclass
 class StreetTask(BaseTask):
     geometry: str
-    data: str
 
 
 class StreetProject(BaseProject):
@@ -123,9 +122,7 @@ class StreetProject(BaseProject):
                 task = StreetTask(
                     projectId=self.projectId,
                     groupId=group_id,
-                    # TODO: change when db allows point geometries
-                    data=str(self.imageGeometries.pop()),
-                    geometry="",
+                    geometry=self.imageGeometries.pop(),
                     taskId=self.imageIds.pop(),
                 )
                 self.tasks[group_id].append(task)
