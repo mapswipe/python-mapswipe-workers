@@ -208,7 +208,6 @@ def filter_results(
             return None
         df = filter_by_timerange(df, start_time, end_time)
 
-
     return df
 
 
@@ -235,10 +234,15 @@ def get_image_metadata(
     )
     if sampling_threshold is not None:
         downloaded_metadata = spatial_sampling(downloaded_metadata, sampling_threshold)
-    if downloaded_metadata.isna().all().all() == False:
-        return {
-            "ids": downloaded_metadata["id"].tolist(),
-            "geometries": downloaded_metadata["geometry"].tolist(),
-        }
+    if downloaded_metadata.isna().all().all() == False or downloaded_metadata.empty == False:
+        if len(downloaded_metadata) > 100000:
+            err = (f"Too many Images with selected filter "
+                   f"options for the AoI: {len(downloaded_metadata)}")
+            raise ValueError(err)
+        else:
+            return {
+                "ids": downloaded_metadata["id"].tolist(),
+                "geometries": downloaded_metadata["geometry"].tolist(),
+            }
     else:
         raise ValueError("No Mapillary Features in the AoI match the filter criteria.")

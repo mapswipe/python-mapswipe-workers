@@ -328,6 +328,30 @@ class TestTileGroupingFunctions(unittest.TestCase):
         with self.assertRaises(ValueError):
             get_image_metadata(self.fixture_data, **params)
 
+    @patch("mapswipe_workers.utils.process_mapillary.coordinate_download")
+    def test_get_image_metadata_empty_response(self, mock_coordinate_download):
+        df = self.fixture_df.copy()
+        df = df.drop(df.index)
+        mock_coordinate_download.return_value = (
+            df,
+            None
+        )
+
+        with self.assertRaises(ValueError):
+            get_image_metadata(self.fixture_data)
+
+    @patch("mapswipe_workers.utils.process_mapillary.filter_results")
+    @patch("mapswipe_workers.utils.process_mapillary.coordinate_download")
+    def test_get_image_metadata_size_restriction(self, mock_coordinate_download, mock_filter_results):
+        mock_filter_results.return_value = pd.DataFrame({'ID': range(1, 100002)})
+        mock_coordinate_download.return_value = (
+            self.fixture_df,
+            None,
+        )
+
+        with self.assertRaises(ValueError):
+            get_image_metadata(self.fixture_data)
+
 
 if __name__ == "__main__":
     unittest.main()
