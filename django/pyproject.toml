@@ -16,7 +16,7 @@ psycopg2 = "^2.9.3"
 python = "^3.10.2"  # Same as .python-version
 schedule = "^1.1.0"
 sentry-sdk = "*"
-strawberry-graphql = "^0.177"
+strawberry-graphql = "^0.243"
 strawberry-django-plus = "*"
 
 [tool.poetry.dev-dependencies]
