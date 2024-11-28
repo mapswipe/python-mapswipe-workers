@@ -3,6 +3,7 @@ import pandas as pd
 from shapely import wkt
 from shapely.geometry import Point
 
+
 def distance_on_sphere(p1, p2):
     """
     p1 and p2 are two lists that have two elements. They are numpy arrays of the long and lat
@@ -30,13 +31,19 @@ def distance_on_sphere(p1, p2):
     delta_lat = p2[1] - p1[1]
     delta_long = p2[0] - p1[0]
 
-    a = np.sin(delta_lat / 2) ** 2 + np.cos(p1[1]) * np.cos(p2[1]) * np.sin(delta_long / 2) ** 2
+    a = (
+        np.sin(delta_lat / 2) ** 2
+        + np.cos(p1[1]) * np.cos(p2[1]) * np.sin(delta_long / 2) ** 2
+    )
     c = 2 * np.arcsin(np.sqrt(a))
 
     distances = earth_radius * c
     return distances
 
+
 """-----------------------------------Filtering Points------------------------------------------------"""
+
+
 def filter_points(df, threshold_distance):
     """
     Filter points from a DataFrame based on a threshold distance.
@@ -61,12 +68,10 @@ def filter_points(df, threshold_distance):
     lat = df["lat"].to_numpy()
     long = df["long"].to_numpy()
 
-
-    distances = distance_on_sphere([long[1:],lat[1:]],
-                                   [long[:-1],lat[:-1]])
+    distances = distance_on_sphere([long[1:], lat[1:]], [long[:-1], lat[:-1]])
     road_length = np.sum(distances)
 
-    #save the last point if the road segment is relavitely small (< 2*road_length)
+    # save the last point if the road segment is relavitely small (< 2*road_length)
     if threshold_distance <= road_length < 2 * threshold_distance:
         mask[-1] = True
 
@@ -74,18 +79,26 @@ def filter_points(df, threshold_distance):
     for i, distance in enumerate(distances):
         accumulated_distance += distance
         if accumulated_distance >= threshold_distance:
-            mask[i+1] = True
+            mask[i + 1] = True
             accumulated_distance = 0  # Reset accumulated distance
 
     to_be_returned_df = df[mask]
     # since the last point has to be omitted in the vectorized distance calculation, it is being checked manually
     p2 = to_be_returned_df.iloc[0]
-    distance = distance_on_sphere([float(p2["long"]),float(p2["lat"])],[long[-1],lat[-1]])
+    distance = distance_on_sphere(
+        [float(p2["long"]), float(p2["lat"])], [long[-1], lat[-1]]
+    )
 
-    #last point will be added if it suffices the length condition
-    #last point will be added in case there is only one point returned
-    if distance >= threshold_distance or len(to_be_returned_df) ==1:
-        to_be_returned_df = pd.concat([to_be_returned_df,pd.DataFrame(df.iloc[-1],columns=to_be_returned_df.columns)],axis=0)
+    # last point will be added if it suffices the length condition
+    # last point will be added in case there is only one point returned
+    if distance >= threshold_distance or len(to_be_returned_df) == 1:
+        to_be_returned_df = pd.concat(
+            [
+                to_be_returned_df,
+                pd.DataFrame(df.iloc[-1], columns=to_be_returned_df.columns),
+            ],
+            axis=0,
+        )
     return to_be_returned_df
 
 
@@ -109,19 +122,23 @@ def spatial_sampling(df, interval_length):
     if len(df) == 1:
         return df
 
-    df['long'] = df['geometry'].apply(lambda geom: geom.x if geom.geom_type == 'Point' else None)
-    df['lat'] = df['geometry'].apply(lambda geom: geom.y if geom.geom_type == 'Point' else None)
-    sorted_df = df.sort_values(by=['captured_at'])
+    df["long"] = df["geometry"].apply(
+        lambda geom: geom.x if geom.geom_type == "Point" else None
+    )
+    df["lat"] = df["geometry"].apply(
+        lambda geom: geom.y if geom.geom_type == "Point" else None
+    )
+    sorted_df = df.sort_values(by=["captured_at"])
 
     sampled_sequence_df = pd.DataFrame()
 
     # loop through each sequence
-    for sequence in sorted_df['sequence_id'].unique():
-        sequence_df = sorted_df[sorted_df['sequence_id'] == sequence]
+    for sequence in sorted_df["sequence_id"].unique():
+        sequence_df = sorted_df[sorted_df["sequence_id"] == sequence]
 
-        filtered_sorted_sub_df = filter_points(sequence_df,interval_length)
-        sampled_sequence_df = pd.concat([sampled_sequence_df,filtered_sorted_sub_df],axis=0)
-
-
+        filtered_sorted_sub_df = filter_points(sequence_df, interval_length)
+        sampled_sequence_df = pd.concat(
+            [sampled_sequence_df, filtered_sorted_sub_df], axis=0
+        )
 
     return sampled_sequence_df

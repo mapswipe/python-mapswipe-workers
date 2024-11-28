@@ -127,15 +127,26 @@ def coordinate_download(
             return pd.DataFrame(downloaded_metadata)
 
         target_columns = [
-            "id", "geometry", "captured_at", "is_pano", "compass_angle", "sequence", "organization_id"
+            "id",
+            "geometry",
+            "captured_at",
+            "is_pano",
+            "compass_angle",
+            "sequence",
+            "organization_id",
         ]
         for col in target_columns:
             if col not in downloaded_metadata.columns:
                 downloaded_metadata[col] = None
 
-        if downloaded_metadata.isna().all().all() == False or downloaded_metadata.empty == True:
+        if (
+            downloaded_metadata.isna().all().all() == False
+            or downloaded_metadata.empty == True
+        ):
             downloaded_metadata = downloaded_metadata[
-                downloaded_metadata['geometry'].apply(lambda point: point.within(polygon))
+                downloaded_metadata["geometry"].apply(
+                    lambda point: point.within(polygon)
+                )
             ]
 
         return downloaded_metadata
@@ -187,9 +198,7 @@ def filter_results(
     df = results_df.copy()
     if is_pano is not None:
         if df["is_pano"].isna().all():
-            logger.exception(
-                "No Mapillary Feature in the AoI has a 'is_pano' value."
-            )
+            logger.exception("No Mapillary Feature in the AoI has a 'is_pano' value.")
             return None
         df = df[df["is_pano"] == is_pano]
 
@@ -220,14 +229,12 @@ def get_image_metadata(
     organization_id: str = None,
     start_time: str = None,
     end_time: str = None,
-    sampling_threshold = None,
+    sampling_threshold=None,
 ):
     aoi_polygon = geojson_to_polygon(aoi_geojson)
-    downloaded_metadata = coordinate_download(
-        aoi_polygon, level, attempt_limit
-    )
+    downloaded_metadata = coordinate_download(aoi_polygon, level, attempt_limit)
     downloaded_metadata = downloaded_metadata[
-        downloaded_metadata['geometry'].apply(lambda geom: isinstance(geom, Point))
+        downloaded_metadata["geometry"].apply(lambda geom: isinstance(geom, Point))
     ]
 
     downloaded_metadata = filter_results(
@@ -235,10 +242,15 @@ def get_image_metadata(
     )
     if sampling_threshold is not None:
         downloaded_metadata = spatial_sampling(downloaded_metadata, sampling_threshold)
-    if downloaded_metadata.isna().all().all() == False or downloaded_metadata.empty == False:
+    if (
+        downloaded_metadata.isna().all().all() == False
+        or downloaded_metadata.empty == False
+    ):
         if len(downloaded_metadata) > 100000:
-            err = (f"Too many Images with selected filter "
-                   f"options for the AoI: {len(downloaded_metadata)}")
+            err = (
+                f"Too many Images with selected filter "
+                f"options for the AoI: {len(downloaded_metadata)}"
+            )
             raise ValueError(err)
         else:
             return {
