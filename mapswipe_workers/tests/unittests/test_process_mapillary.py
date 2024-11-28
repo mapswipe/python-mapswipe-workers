@@ -200,7 +200,7 @@ class TestTileGroupingFunctions(unittest.TestCase):
             None,
         )
 
-        metadata, failed = coordinate_download(
+        metadata = coordinate_download(
             self.test_polygon, self.level
         )
 
@@ -214,12 +214,11 @@ class TestTileGroupingFunctions(unittest.TestCase):
             pd.Series({"x": 1, "y": 1, "z": self.level}),
         )
 
-        metadata, failed = coordinate_download(
+        metadata = coordinate_download(
             self.test_polygon, self.level
         )
 
         self.assertTrue(metadata.empty)
-        self.assertFalse(failed.empty)
 
     def test_filter_within_time_range(self):
         start_time = "2016-01-20 00:00:00"
@@ -284,10 +283,7 @@ class TestTileGroupingFunctions(unittest.TestCase):
 
     @patch("mapswipe_workers.utils.process_mapillary.coordinate_download")
     def test_get_image_metadata(self, mock_coordinate_download):
-        mock_coordinate_download.return_value = (
-            self.fixture_df,
-            None,
-        )
+        mock_coordinate_download.return_value = self.fixture_df
         result = get_image_metadata(self.fixture_data)
         self.assertIsInstance(result, dict)
         self.assertIn("ids", result)
@@ -296,10 +292,7 @@ class TestTileGroupingFunctions(unittest.TestCase):
 
     @patch("mapswipe_workers.utils.process_mapillary.coordinate_download")
     def test_get_image_metadata_filtering(self, mock_coordinate_download):
-        mock_coordinate_download.return_value = (
-            self.fixture_df,
-            None,
-        )
+        mock_coordinate_download.return_value = self.fixture_df
 
         params = {
             "is_pano": True,
@@ -315,10 +308,7 @@ class TestTileGroupingFunctions(unittest.TestCase):
 
     @patch("mapswipe_workers.utils.process_mapillary.coordinate_download")
     def test_get_image_metadata_no_rows(self, mock_coordinate_download):
-        mock_coordinate_download.return_value = (
-            self.fixture_df,
-            None,
-        )
+        mock_coordinate_download.return_value = self.fixture_df
 
         params = {
             "is_pano": True,
@@ -332,10 +322,7 @@ class TestTileGroupingFunctions(unittest.TestCase):
     def test_get_image_metadata_empty_response(self, mock_coordinate_download):
         df = self.fixture_df.copy()
         df = df.drop(df.index)
-        mock_coordinate_download.return_value = (
-            df,
-            None
-        )
+        mock_coordinate_download.return_value = df
 
         with self.assertRaises(ValueError):
             get_image_metadata(self.fixture_data)
@@ -344,10 +331,7 @@ class TestTileGroupingFunctions(unittest.TestCase):
     @patch("mapswipe_workers.utils.process_mapillary.coordinate_download")
     def test_get_image_metadata_size_restriction(self, mock_coordinate_download, mock_filter_results):
         mock_filter_results.return_value = pd.DataFrame({'ID': range(1, 100002)})
-        mock_coordinate_download.return_value = (
-            self.fixture_df,
-            None,
-        )
+        mock_coordinate_download.return_value = self.fixture_df
 
         with self.assertRaises(ValueError):
             get_image_metadata(self.fixture_data)

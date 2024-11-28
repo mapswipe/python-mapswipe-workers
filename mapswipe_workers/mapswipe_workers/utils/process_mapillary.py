@@ -125,7 +125,7 @@ def coordinate_download(
         if len(downloaded_metadata):
             downloaded_metadata = pd.concat(downloaded_metadata, ignore_index=True)
         else:
-            downloaded_metadata = pd.DataFrame(downloaded_metadata)
+            return pd.DataFrame(downloaded_metadata)
 
         failed_tiles = pd.DataFrame(failed_tiles, columns=tiles.columns).reset_index(
             drop=True
@@ -137,11 +137,12 @@ def coordinate_download(
             if col not in downloaded_metadata.columns:
                 downloaded_metadata[col] = None
 
-        downloaded_metadata = downloaded_metadata[
-            downloaded_metadata['geometry'].apply(lambda point: point.within(polygon))
-        ]
+        if downloaded_metadata.isna().all().all() == False or downloaded_metadata.empty == True:
+            downloaded_metadata = downloaded_metadata[
+                downloaded_metadata['geometry'].apply(lambda point: point.within(polygon))
+            ]
 
-        return downloaded_metadata, failed_tiles
+        return downloaded_metadata
 
 
 def geojson_to_polygon(geojson_data):
@@ -226,7 +227,7 @@ def get_image_metadata(
     sampling_threshold = None,
 ):
     aoi_polygon = geojson_to_polygon(aoi_geojson)
-    downloaded_metadata, failed_tiles = coordinate_download(
+    downloaded_metadata = coordinate_download(
         aoi_polygon, level, attempt_limit
     )
     downloaded_metadata = downloaded_metadata[
