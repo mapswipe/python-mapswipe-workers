@@ -1,23 +1,22 @@
-import mercantile
-import json
-import requests
 import os
-import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
+
+import mercantile
+import pandas as pd
+import requests
 from shapely import (
-    box,
-    Polygon,
-    MultiPolygon,
-    Point,
     LineString,
     MultiLineString,
+    MultiPolygon,
+    Point,
+    Polygon,
+    box,
     unary_union,
 )
 from shapely.geometry import shape
-import pandas as pd
 from vt2geojson import tools as vt2geojson_tools
-from concurrent.futures import ThreadPoolExecutor, as_completed
-from mapswipe_workers.definitions import MAPILLARY_API_LINK, MAPILLARY_API_KEY
-from mapswipe_workers.definitions import logger
+
+from mapswipe_workers.definitions import MAPILLARY_API_KEY, MAPILLARY_API_LINK, logger
 from mapswipe_workers.utils.spatial_sampling import spatial_sampling
 
 
@@ -140,8 +139,8 @@ def coordinate_download(
                 downloaded_metadata[col] = None
 
         if (
-            downloaded_metadata.isna().all().all() == False
-            or downloaded_metadata.empty == True
+            downloaded_metadata.isna().all().all() is False
+            or downloaded_metadata.empty is True
         ):
             downloaded_metadata = downloaded_metadata[
                 downloaded_metadata["geometry"].apply(
@@ -243,8 +242,8 @@ def get_image_metadata(
     if sampling_threshold is not None:
         downloaded_metadata = spatial_sampling(downloaded_metadata, sampling_threshold)
     if (
-        downloaded_metadata.isna().all().all() == False
-        or downloaded_metadata.empty == False
+        downloaded_metadata.isna().all().all() is False
+        or downloaded_metadata.empty is False
     ):
         if len(downloaded_metadata) > 100000:
             err = (

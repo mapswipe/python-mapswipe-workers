@@ -1,11 +1,8 @@
-import json
-import os
-import urllib
 import math
-
-from osgeo import ogr
 from dataclasses import dataclass
-from mapswipe_workers.definitions import DATA_PATH, logger
+from typing import Dict, List
+
+from mapswipe_workers.definitions import logger
 from mapswipe_workers.firebase.firebase import Firebase
 from mapswipe_workers.firebase_to_postgres.transfer_results import (
     results_to_file,
@@ -15,16 +12,16 @@ from mapswipe_workers.firebase_to_postgres.transfer_results import (
 from mapswipe_workers.generate_stats.project_stats import (
     get_statistics_for_integer_result_project,
 )
+from mapswipe_workers.project_types.project import BaseGroup, BaseProject, BaseTask
+from mapswipe_workers.utils.process_mapillary import get_image_metadata
 from mapswipe_workers.utils.validate_input import (
-    check_if_layer_is_empty,
-    load_geojson_to_ogr,
     build_multipolygon_from_layer_geometries,
     check_if_layer_has_too_many_geometries,
-    save_geojson_to_file,
+    check_if_layer_is_empty,
+    load_geojson_to_ogr,
     multipolygon_to_wkt,
+    save_geojson_to_file,
 )
-from mapswipe_workers.project_types.project import BaseProject, BaseTask, BaseGroup
-from mapswipe_workers.utils.process_mapillary import get_image_metadata
 
 
 @dataclass
