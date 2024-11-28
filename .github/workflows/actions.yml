@@ -80,6 +80,7 @@ jobs:
         POSTGRES_DB: postgres
         OSMCHA_API_KEY: ${{ secrets.OSMCHA_API_KEY }}
         DJANGO_SECRET_KEY: test-django-secret-key
+        MAPILLARY_API_KEY: test-mapillary-api-key
         COMPOSE_FILE: ../docker-compose.yaml:../docker-compose-ci.yaml
       run: |
         docker compose run --rm mapswipe_workers_creation python -m unittest discover --verbose --start-directory tests/unittests/
