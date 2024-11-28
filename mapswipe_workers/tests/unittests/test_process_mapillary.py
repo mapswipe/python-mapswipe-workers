@@ -173,9 +173,8 @@ class TestTileGroupingFunctions(unittest.TestCase):
 
         row = {"x": 1, "y": 1, "z": 14}
 
-        result, failed = download_and_process_tile(row)
+        result = download_and_process_tile(row)
 
-        self.assertIsNone(failed)
         self.assertIsInstance(result, pd.DataFrame)
         self.assertEqual(len(result), 1)
         self.assertEqual(result["geometry"][0].wkt, "POINT (0 0)")
@@ -188,10 +187,9 @@ class TestTileGroupingFunctions(unittest.TestCase):
         mock_get.return_value = mock_response
 
         row = pd.Series({"x": 1, "y": 1, "z": self.level})
-        result, failed = download_and_process_tile(row)
+        result = download_and_process_tile(row)
 
         self.assertIsNone(result)
-        self.assertIsNotNone(failed)
 
     @patch("mapswipe_workers.utils.process_mapillary.download_and_process_tile")
     def test_coordinate_download(self, mock_download_and_process_tile):
