@@ -85,13 +85,13 @@ def download_and_process_tile(row, attempt_limit=3):
             data = pd.DataFrame(data)
 
             if not data.empty:
-                return data, None
+                return data
         except Exception as e:
             print(f"An exception occurred while requesting a tile: {e}")
             attempt += 1
 
     print(f"A tile could not be downloaded: {row}")
-    return None, row
+    return None
 
 
 def coordinate_download(

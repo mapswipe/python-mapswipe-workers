@@ -34,7 +34,7 @@ class TestCreateStreetProject(unittest.TestCase):
                 df = pd.read_csv(file)
                 df['geometry'] = df['geometry'].apply(wkt.loads)
 
-                mock_get.return_value = (df, None)
+                mock_get.return_value = df
                 self.project = StreetProject(project_draft)
 
     def test_init(self):
