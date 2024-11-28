@@ -121,15 +121,11 @@ def coordinate_download(
                         downloaded_metadata.append(df)
                     if failed_row is not None:
                         failed_tiles.append(failed_row)
-
         if len(downloaded_metadata):
             downloaded_metadata = pd.concat(downloaded_metadata, ignore_index=True)
         else:
             return pd.DataFrame(downloaded_metadata)
 
-        failed_tiles = pd.DataFrame(failed_tiles, columns=tiles.columns).reset_index(
-            drop=True
-        )
         target_columns = [
             "id", "geometry", "captured_at", "is_pano", "compass_angle", "sequence", "organization_id"
         ]

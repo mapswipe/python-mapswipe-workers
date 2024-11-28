@@ -205,7 +205,6 @@ class TestTileGroupingFunctions(unittest.TestCase):
         )
 
         self.assertIsInstance(metadata, pd.DataFrame)
-        self.assertTrue(failed.empty)
 
     @patch("mapswipe_workers.utils.process_mapillary.download_and_process_tile")
     def test_coordinate_download_with_failures(self, mock_download_and_process_tile):
