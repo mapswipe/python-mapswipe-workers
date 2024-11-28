@@ -21,7 +21,7 @@ from mapswipe_workers.utils.validate_input import (
     build_multipolygon_from_layer_geometries,
     check_if_layer_has_too_many_geometries,
     save_geojson_to_file,
-    multipolygon_to_wkt
+    multipolygon_to_wkt,
 )
 from mapswipe_workers.project_types.project import BaseProject, BaseTask, BaseGroup
 from mapswipe_workers.utils.process_mapillary import get_image_metadata
@@ -56,7 +56,6 @@ class StreetProject(BaseProject):
             sampling_threshold=project_draft.get("samplingThreshold", None),
         )
 
-
         self.imageIds = ImageMetadata["ids"]
         self.imageGeometries = ImageMetadata["geometries"]
 
@@ -83,7 +82,9 @@ class StreetProject(BaseProject):
         self.inputGeometriesFileName = save_geojson_to_file(
             self.projectId, self.geometry
         )
-        layer, datasource = load_geojson_to_ogr(self.projectId, self.inputGeometriesFileName)
+        layer, datasource = load_geojson_to_ogr(
+            self.projectId, self.inputGeometriesFileName
+        )
 
         # check if inputs fit constraints
         check_if_layer_is_empty(self.projectId, layer)
@@ -97,7 +98,9 @@ class StreetProject(BaseProject):
         del datasource
         del layer
 
-        logger.info(f"{self.projectId}" f" - validate geometry - " f"input geometry is correct.")
+        logger.info(
+            f"{self.projectId}" f" - validate geometry - " f"input geometry is correct."
+        )
         wkt_geometry = multipolygon_to_wkt(multi_polygon)
         return wkt_geometry
 
