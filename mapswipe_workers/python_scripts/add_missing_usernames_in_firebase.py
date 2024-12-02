@@ -53,4 +53,7 @@ if __name__ == "__main__":
     uid_list = get_all_affected_users()
 
     for uid in uid_list:
-        update_username(uid)
+        if len(uid) == 0:
+            continue
+        else:
+            update_username(uid)
