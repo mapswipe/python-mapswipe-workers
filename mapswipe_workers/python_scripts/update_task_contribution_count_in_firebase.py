@@ -50,7 +50,7 @@ def get_all_affected_users():
     except Exception as e:
         logger.exception(e)
         logger.warning(
-            f"Could NOT update task contribution count for user in Firebase."
+            f"Could NOT get affected users from posgres."
         )
 
     return uid_list
