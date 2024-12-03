@@ -47,7 +47,7 @@ CREATE TABLE IF NOT EXISTS tasks (
     project_id varchar,
     group_id varchar,
     task_id varchar,
-    geom geometry(MULTIPOLYGON, 4326),
+    geom geometry(GEOMETRY, 4326),
     project_type_specifics json,
     PRIMARY KEY (project_id, group_id, task_id),
     FOREIGN KEY (project_id) REFERENCES projects (project_id),
