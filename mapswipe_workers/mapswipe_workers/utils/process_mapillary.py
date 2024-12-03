@@ -100,7 +100,6 @@ def coordinate_download(
     tiles = create_tiles(polygon, level)
 
     downloaded_metadata = []
-    failed_tiles = []
 
     if not tiles.empty:
         if not use_concurrency:
@@ -115,12 +114,10 @@ def coordinate_download(
 
             for future in as_completed(futures):
                 if future is not None:
-                    df, failed_row = future.result()
+                    df = future.result()
 
                     if df is not None and not df.empty:
                         downloaded_metadata.append(df)
-                    if failed_row is not None:
-                        failed_tiles.append(failed_row)
         if len(downloaded_metadata):
             downloaded_metadata = pd.concat(downloaded_metadata, ignore_index=True)
         else:
