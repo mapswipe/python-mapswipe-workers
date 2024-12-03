@@ -229,6 +229,8 @@ def get_image_metadata(
 ):
     aoi_polygon = geojson_to_polygon(aoi_geojson)
     downloaded_metadata = coordinate_download(aoi_polygon, level, attempt_limit)
+    if downloaded_metadata.isna().all().all() or downloaded_metadata.empty:
+        raise ValueError("No Mapillary Features in the AoI.")
     downloaded_metadata = downloaded_metadata[
         downloaded_metadata["geometry"].apply(lambda geom: isinstance(geom, Point))
     ]
