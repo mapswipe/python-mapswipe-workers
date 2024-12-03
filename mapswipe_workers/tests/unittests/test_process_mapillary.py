@@ -1,24 +1,19 @@
-import unittest
-import os
 import json
-from shapely.geometry import (
-    Polygon,
-    MultiPolygon,
-    Point,
-    LineString,
-    MultiLineString,
-    GeometryCollection,
-)
-from shapely import wkt
+import os
+import unittest
+from unittest.mock import MagicMock, patch
+
 import pandas as pd
-from unittest.mock import patch, MagicMock
+from shapely import wkt
+from shapely.geometry import GeometryCollection, MultiPolygon, Polygon
+
 from mapswipe_workers.utils.process_mapillary import (
+    coordinate_download,
     create_tiles,
     download_and_process_tile,
-    coordinate_download,
-    geojson_to_polygon,
     filter_by_timerange,
     filter_results,
+    geojson_to_polygon,
     get_image_metadata,
 )
 
@@ -47,7 +42,7 @@ class TestTileGroupingFunctions(unittest.TestCase):
             "r",
         ) as file:
             df = pd.read_csv(file)
-            df['geometry'] = df['geometry'].apply(wkt.loads)
+            df["geometry"] = df["geometry"].apply(wkt.loads)
             cls.fixture_df = df
 
     def setUp(self):
@@ -141,7 +136,10 @@ class TestTileGroupingFunctions(unittest.TestCase):
         }
         with self.assertRaises(ValueError) as context:
             geojson_to_polygon(geojson_data)
-        self.assertEqual(str(context.exception), "Non-polygon geometries cannot be combined into a MultiPolygon.")
+        self.assertEqual(
+            str(context.exception),
+            "Non-polygon geometries cannot be combined into a MultiPolygon.",
+        )
 
     def test_geojson_to_polygon_empty_feature_collection(self):
         geojson_data = {"type": "FeatureCollection", "features": []}
@@ -193,27 +191,17 @@ class TestTileGroupingFunctions(unittest.TestCase):
 
     @patch("mapswipe_workers.utils.process_mapillary.download_and_process_tile")
     def test_coordinate_download(self, mock_download_and_process_tile):
-        mock_download_and_process_tile.return_value = (
-            pd.DataFrame([{"geometry": None}]),
-            None,
-        )
+        mock_download_and_process_tile.return_value = pd.DataFrame([{"geometry": None}])
 
-        metadata = coordinate_download(
-            self.test_polygon, self.level
-        )
+        metadata = coordinate_download(self.test_polygon, self.level)
 
         self.assertIsInstance(metadata, pd.DataFrame)
 
     @patch("mapswipe_workers.utils.process_mapillary.download_and_process_tile")
     def test_coordinate_download_with_failures(self, mock_download_and_process_tile):
-        mock_download_and_process_tile.return_value = (
-            None,
-            pd.Series({"x": 1, "y": 1, "z": self.level}),
-        )
+        mock_download_and_process_tile.return_value = pd.DataFrame()
 
-        metadata = coordinate_download(
-            self.test_polygon, self.level
-        )
+        metadata = coordinate_download(self.test_polygon, self.level)
 
         self.assertTrue(metadata.empty)
 
@@ -268,7 +256,11 @@ class TestTileGroupingFunctions(unittest.TestCase):
         self.assertTrue(filtered_df.empty)
 
     def test_filter_missing_columns(self):
-        columns_to_check = ["is_pano", "organization_id", "captured_at"]  # Add your column names here
+        columns_to_check = [
+            "is_pano",
+            "organization_id",
+            "captured_at",
+        ]  # Add your column names here
         for column in columns_to_check:
             df_copy = self.fixture_df.copy()
             df_copy[column] = None
@@ -286,7 +278,6 @@ class TestTileGroupingFunctions(unittest.TestCase):
         self.assertIn("ids", result)
         self.assertIn("geometries", result)
 
-
     @patch("mapswipe_workers.utils.process_mapillary.coordinate_download")
     def test_get_image_metadata_filtering(self, mock_coordinate_download):
         mock_coordinate_download.return_value = self.fixture_df
@@ -301,7 +292,6 @@ class TestTileGroupingFunctions(unittest.TestCase):
         self.assertIsInstance(result, dict)
         self.assertIn("ids", result)
         self.assertIn("geometries", result)
-
 
     @patch("mapswipe_workers.utils.process_mapillary.coordinate_download")
     def test_get_image_metadata_no_rows(self, mock_coordinate_download):
@@ -326,8 +316,10 @@ class TestTileGroupingFunctions(unittest.TestCase):
 
     @patch("mapswipe_workers.utils.process_mapillary.filter_results")
     @patch("mapswipe_workers.utils.process_mapillary.coordinate_download")
-    def test_get_image_metadata_size_restriction(self, mock_coordinate_download, mock_filter_results):
-        mock_filter_results.return_value = pd.DataFrame({'ID': range(1, 100002)})
+    def test_get_image_metadata_size_restriction(
+        self, mock_coordinate_download, mock_filter_results
+    ):
+        mock_filter_results.return_value = pd.DataFrame({"ID": range(1, 100002)})
         mock_coordinate_download.return_value = self.fixture_df
 
         with self.assertRaises(ValueError):
