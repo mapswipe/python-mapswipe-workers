@@ -127,7 +127,7 @@ class Task(Model):
     project = models.ForeignKey(Project, models.DO_NOTHING, related_name="+")
     group_id = models.CharField(max_length=999)
     task_id = models.CharField(max_length=999)
-    geom = gis_models.MultiPolygonField(blank=True, null=True)
+    geom = gis_models.GeometryField(blank=True, null=True)
     # Database uses JSON instead of JSONB (not supported by django)
     project_type_specifics = models.TextField(blank=True, null=True)
 
