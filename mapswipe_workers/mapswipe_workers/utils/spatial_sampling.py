@@ -1,26 +1,29 @@
 import numpy as np
 import pandas as pd
-from shapely import wkt
-from shapely.geometry import Point
 
 
 def distance_on_sphere(p1, p2):
     """
-    p1 and p2 are two lists that have two elements. They are numpy arrays of the long and lat
-    coordinates of the points in set1 and set2
+    p1 and p2 are two lists that have two elements. They are numpy arrays of the long
+    and lat coordinates of the points in set1 and set2
 
-    Calculate the distance between two points on the Earth's surface using the haversine formula.
+    Calculate the distance between two points on the Earth's surface using the
+    haversine formula.
 
     Args:
-        p1 (list): Array containing the longitude and latitude coordinates of points FROM which the distance to be calculated in degree
-        p2 (list): Array containing the longitude and latitude coordinates of points TO which the distance to be calculated in degree
+        p1 (list): Array containing the longitude and latitude coordinates of points
+        FROM which the distance to be calculated in degree
+        p2 (list): Array containing the longitude and latitude coordinates of points
+        TO which the distance to be calculated in degree
 
     Returns:
-        numpy.ndarray: Array containing the distances between the two points on the sphere in kilometers.
+        numpy.ndarray: Array containing the distances between the two points on the
+        sphere in kilometers.
 
-    This function computes the distance between two points on the Earth's surface using the haversine formula,
-    which takes into account the spherical shape of the Earth. The input arrays `p1` and `p2` should contain
-    longitude and latitude coordinates in degrees. The function returns an array containing the distances
+    This function computes the distance between two points on the Earth's surface
+    using the haversine formula, which takes into account the spherical shape of the
+    Earth. The input arrays `p1` and `p2` should contain longitude and latitude
+    coordinates in degrees. The function returns an array containing the distances
     between corresponding pairs of points.
     """
     earth_radius = 6371  # km
@@ -41,7 +44,7 @@ def distance_on_sphere(p1, p2):
     return distances
 
 
-"""-----------------------------------Filtering Points------------------------------------------------"""
+"""----------------------------Filtering Points-------------------------------"""
 
 
 def filter_points(df, threshold_distance):
@@ -56,10 +59,11 @@ def filter_points(df, threshold_distance):
         pandas.DataFrame: Filtered DataFrame containing selected points.
         float: Total road length calculated from the selected points.
 
-    This function filters points from a DataFrame based on the given threshold distance. It calculates
-    distances between consecutive points and accumulates them until the accumulated distance surpasses
-    the threshold distance. It then selects those points and constructs a new DataFrame. Additionally,
-    it manually checks the last point to include it if it satisfies the length condition. The function
+    This function filters points from a DataFrame based on the given threshold
+    distance. It calculates distances between consecutive points and accumulates them
+    until the accumulated distance surpasses the threshold distance. It then selects
+    those points and constructs a new DataFrame. Additionally, it manually checks the
+    last point to include it if it satisfies the length condition. The function
     returns the filtered DataFrame along with the calculated road length.
     """
     road_length = 0
@@ -83,7 +87,8 @@ def filter_points(df, threshold_distance):
             accumulated_distance = 0  # Reset accumulated distance
 
     to_be_returned_df = df[mask]
-    # since the last point has to be omitted in the vectorized distance calculation, it is being checked manually
+    # since the last point has to be omitted in the vectorized distance calculation,
+    # it is being checked manually
     p2 = to_be_returned_df.iloc[0]
     distance = distance_on_sphere(
         [float(p2["long"]), float(p2["lat"])], [long[-1], lat[-1]]
@@ -114,10 +119,10 @@ def spatial_sampling(df, interval_length):
         geopandas.GeoDataFrame: Filtered GeoDataFrame containing selected points.
         float: Total road length calculated from the selected points.
 
-    This function calculates the spacing between points in a GeoDataFrame by filtering points
-    based on the provided interval length. It first sorts the GeoDataFrame by timestamp and
-    then filters points using the filter_points function. The function returns the filtered
-    GeoDataFrame along with the total road length.
+    This function calculates the spacing between points in a GeoDataFrame by filtering
+    points based on the provided interval length. It first sorts the GeoDataFrame by
+    timestamp and then filters points using the filter_points function. The function
+    returns the filtered GeoDataFrame along with the total road length.
     """
     if len(df) == 1:
         return df

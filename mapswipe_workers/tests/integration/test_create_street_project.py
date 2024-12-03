@@ -8,7 +8,7 @@ from mapswipe_workers.utils.create_directories import create_directories
 from tests.integration import set_up, tear_down
 
 
-class TestCreateFootprintProject(unittest.TestCase):
+class TestCreateStreetProject(unittest.TestCase):
     def setUp(self):
         self.project_id = [
             set_up.create_test_project_draft("street", "street"),
@@ -33,7 +33,7 @@ class TestCreateFootprintProject(unittest.TestCase):
             result = pg_db.retr_query(query, [element])[0][0]
             self.assertEqual(result, element)
 
-            # check if usernames made it to postgres
+            # check if tasks made it to postgres
             query = """
                 SELECT count(*)
                 FROM tasks
@@ -51,10 +51,11 @@ class TestCreateFootprintProject(unittest.TestCase):
             result = ref.get(shallow=True)
             self.assertIsNotNone(result)
 
-            # Footprint projects have tasks in Firebase
+            # Street projects have tasks in Firebase
             ref = fb_db.reference(f"/v2/tasks/{element}")
             result = ref.get(shallow=True)
             self.assertIsNotNone(result)
+
 
 if __name__ == "__main__":
     unittest.main()
