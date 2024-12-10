@@ -50,6 +50,7 @@ import Button from '#components/Button';
 import NonFieldError from '#components/NonFieldError';
 import AnimatedSwipeIcon from '#components/AnimatedSwipeIcon';
 import ExpandableContainer from '#components/ExpandableContainer';
+import AlertBanner from '#components/AlertBanner';
 import {
     valueSelector,
     labelSelector,
@@ -465,6 +466,16 @@ function NewProject(props: Props) {
                         error={error?.projectType}
                         disabled={submissionPending || testPending}
                     />
+                    {value.projectType === PROJECT_TYPE_STREET && (
+                        <AlertBanner title="MapSwipe Web only">
+                            <div className={styles.warningContainer}>
+                                <div className={styles.warningItem}>
+                                    Projects of this type are currently
+                                    only visible in the web app.
+                                </div>
+                            </div>
+                        </AlertBanner>
+                    )}
                     <BasicProjectInfoForm
                         value={value}
                         setValue={setValue}
