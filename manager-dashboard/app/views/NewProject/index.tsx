@@ -707,6 +707,30 @@ function NewProject(props: Props) {
                         />
                     </InputSection>
                 )}
+
+                {value.projectType === PROJECT_TYPE_STREET && (
+                    /* TODO: Add street project inputs for
+                        startTimestamp,
+                        endTimeStamp,
+                        isPano,
+                        organizationId,
+                        samplingThreshold
+                    */
+                    <InputSection
+                        heading="Mapillary Image Filters"
+                    >
+                        <NumberInput
+                            name={'organizationId' as const}
+                            value={value?.organizationId}
+                            onChange={setFieldValue}
+                            error={error?.organizationId}
+                            label="Mapillary Organization ID"
+                            hint="Provide a valid Mapillary organization ID to filter for images belonging to a specific organization."
+                            disabled={submissionPending || projectTypeEmpty}
+                        />
+                    </InputSection>
+                )}
+
                 {error?.[nonFieldError] && (
                     <div className={styles.errorMessage}>
                         {error?.[nonFieldError]}
