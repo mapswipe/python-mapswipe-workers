@@ -59,6 +59,7 @@ import {
     PROJECT_TYPE_FOOTPRINT,
     PROJECT_TYPE_COMPLETENESS,
     PROJECT_TYPE_CHANGE_DETECTION,
+    PROJECT_TYPE_STREET,
     formatProjectTopic,
 } from '#utils/common';
 import { getValueFromFirebase } from '#utils/firebase';

@@ -65,8 +65,9 @@ export const PROJECT_TYPE_BUILD_AREA = 1;
 export const PROJECT_TYPE_FOOTPRINT = 2;
 export const PROJECT_TYPE_CHANGE_DETECTION = 3;
 export const PROJECT_TYPE_COMPLETENESS = 4;
+export const PROJECT_TYPE_STREET = 7;
 
-export type ProjectType = 1 | 2 | 3 | 4;
+export type ProjectType = 1 | 2 | 3 | 4 | 7;
 
 export const projectTypeLabelMap: {
     [key in ProjectType]: string
@@ -75,6 +76,7 @@ export const projectTypeLabelMap: {
     [PROJECT_TYPE_FOOTPRINT]: 'Validate',
     [PROJECT_TYPE_CHANGE_DETECTION]: 'Compare',
     [PROJECT_TYPE_COMPLETENESS]: 'Completeness',
+    [PROJECT_TYPE_STREET]: 'Street',
 };
 
 export type IconKey = 'add-outline'
