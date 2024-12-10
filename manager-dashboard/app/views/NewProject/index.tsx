@@ -474,7 +474,8 @@ function NewProject(props: Props) {
                     />
                 </InputSection>
                 {(
-                    value.projectType === PROJECT_TYPE_FOOTPRINT
+                    (value.projectType === PROJECT_TYPE_FOOTPRINT
+                        || value.projectType === PROJECT_TYPE_STREET)
                     && customOptions
                     && customOptions.length > 0
                 ) && (
@@ -532,7 +533,8 @@ function NewProject(props: Props) {
                 )}
                 {(value.projectType === PROJECT_TYPE_BUILD_AREA
                     || value.projectType === PROJECT_TYPE_CHANGE_DETECTION
-                    || value.projectType === PROJECT_TYPE_COMPLETENESS) && (
+                    || value.projectType === PROJECT_TYPE_COMPLETENESS
+                    || value.projectType === PROJECT_TYPE_STREET) && (
                     <InputSection
                         heading="Project AOI Geometry"
                     >
