@@ -34,6 +34,7 @@ import {
     PROJECT_TYPE_FOOTPRINT,
     PROJECT_TYPE_CHANGE_DETECTION,
     PROJECT_TYPE_COMPLETENESS,
+    PROJECT_TYPE_STREET,
     IconKey,
 } from '#utils/common';
 
@@ -541,7 +542,9 @@ export function getGroupSize(projectType: ProjectType | undefined) {
         return 120;
     }
 
-    if (projectType === PROJECT_TYPE_FOOTPRINT || projectType === PROJECT_TYPE_CHANGE_DETECTION) {
+    if (projectType === PROJECT_TYPE_FOOTPRINT
+            || projectType === PROJECT_TYPE_CHANGE_DETECTION
+            || projectType === PROJECT_TYPE_STREET) {
         return 25;
     }
 
