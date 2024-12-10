@@ -418,6 +418,11 @@ function NewProject(props: Props) {
         || projectSubmissionStatus === 'projectSubmit'
     );
 
+    const tileServerVisible = value.projectType === PROJECT_TYPE_BUILD_AREA
+        || value.projectType === PROJECT_TYPE_FOOTPRINT
+        || value.projectType === PROJECT_TYPE_COMPLETENESS
+        || value.projectType === PROJECT_TYPE_CHANGE_DETECTION;
+
     const tileServerBVisible = value.projectType === PROJECT_TYPE_CHANGE_DETECTION
         || value.projectType === PROJECT_TYPE_COMPLETENESS;
 
@@ -662,17 +667,19 @@ function NewProject(props: Props) {
                     />
                 </InputSection>
 
-                <InputSection
-                    heading={tileServerBVisible ? 'Tile Server A' : 'Tile Server'}
-                >
-                    <TileServerInput
-                        name={'tileServer' as const}
-                        value={value.tileServer}
-                        error={error?.tileServer}
-                        onChange={setFieldValue}
-                        disabled={submissionPending || projectTypeEmpty}
-                    />
-                </InputSection>
+                {tileServerVisible && (
+                    <InputSection
+                        heading={tileServerBVisible ? 'Tile Server A' : 'Tile Server'}
+                    >
+                        <TileServerInput
+                            name={'tileServer' as const}
+                            value={value.tileServer}
+                            error={error?.tileServer}
+                            onChange={setFieldValue}
+                            disabled={submissionPending || projectTypeEmpty}
+                        />
+                    </InputSection>
+                )}
 
                 {tileServerBVisible && (
                     <InputSection
