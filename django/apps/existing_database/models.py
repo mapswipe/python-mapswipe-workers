@@ -1,7 +1,6 @@
-from mapswipe.db import Model
-
 from django.contrib.gis.db import models as gis_models
 from django.db import models
+from mapswipe.db import Model
 
 # NOTE: Django model defination and existing table structure doesn't entirely matches.
 # This is to be used for testing only.
