@@ -77,6 +77,8 @@ export interface ProjectFormType {
     tileServerB?: TileServer;
     customOptions?: CustomOptionsForProject;
     organizationId?: number;
+    isPano?: boolean;
+    samplingThreshold?: number;
 }
 
 export const PROJECT_INPUT_TYPE_UPLOAD = 'aoi_file';
@@ -277,6 +279,11 @@ export const projectFormSchema: ProjectFormSchema = {
             organizationId: {
                 validations: [
                     integerCondition,
+                    greaterThanCondition(0),
+                ],
+            },
+            samplingThreshold: {
+                validation: [
                     greaterThanCondition(0),
                 ],
             },

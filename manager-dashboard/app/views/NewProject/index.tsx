@@ -51,6 +51,7 @@ import NonFieldError from '#components/NonFieldError';
 import AnimatedSwipeIcon from '#components/AnimatedSwipeIcon';
 import ExpandableContainer from '#components/ExpandableContainer';
 import AlertBanner from '#components/AlertBanner';
+import Checkbox from '#components/Checkbox';
 import {
     valueSelector,
     labelSelector,
@@ -106,6 +107,7 @@ const defaultProjectFormValue: PartialProjectFormType = {
     // maxTasksPerUser: -1,
     inputType: PROJECT_INPUT_TYPE_UPLOAD,
     filter: FILTER_BUILDINGS,
+    isPano: false,
 };
 
 interface Props {
@@ -719,15 +721,34 @@ function NewProject(props: Props) {
                     <InputSection
                         heading="Mapillary Image Filters"
                     >
+                        <div>time range input</div>
                         <NumberInput
                             name={'organizationId' as const}
                             value={value?.organizationId}
                             onChange={setFieldValue}
                             error={error?.organizationId}
                             label="Mapillary Organization ID"
-                            hint="Provide a valid Mapillary organization ID to filter for images belonging to a specific organization."
+                            hint="Provide a valid Mapillary organization ID to filter for images belonging to a specific organization. Empty indicates that no filter is set on organization."
                             disabled={submissionPending || projectTypeEmpty}
                         />
+                        <div className={styles.inputGroup}>
+                            <NumberInput
+                                name={'samplingThreshold' as const}
+                                value={value?.samplingThreshold}
+                                onChange={setFieldValue}
+                                error={error?.samplingThreshold}
+                                label="Image Sampling Threshold"
+                                hint="What should be the minimum distance (in km) between images on the same Mapillary sequence? Empty indicates that all images on each sequence are used."
+                                disabled={submissionPending || projectTypeEmpty}
+                            />
+                            <Checkbox
+                                name={'isPano' as const}
+                                value={value?.isPano}
+                                label="Only use 360 degree panorama images."
+                                onChange={setFieldValue}
+                                disabled={submissionPending || projectTypeEmpty}
+                            />
+                        </div>
                     </InputSection>
                 )}
 
