@@ -76,6 +76,7 @@ export interface ProjectFormType {
     tileServer: TileServer;
     tileServerB?: TileServer;
     customOptions?: CustomOptionsForProject;
+    organizationId?: number;
 }
 
 export const PROJECT_INPUT_TYPE_UPLOAD = 'aoi_file';
@@ -268,6 +269,12 @@ export const projectFormSchema: ProjectFormSchema = {
                 fields: tileServerFieldsSchema,
             },
             maxTasksPerUser: {
+                validations: [
+                    integerCondition,
+                    greaterThanCondition(0),
+                ],
+            },
+            organizationId: {
                 validations: [
                     integerCondition,
                     greaterThanCondition(0),
