@@ -97,6 +97,9 @@ enum ProjectTypeEnum {
   FOOTPRINT
   CHANGE_DETECTION
   COMPLETENESS
+  MEDIA
+  DIGITIZATION
+  STREET
 }
 
 type ProjectTypeSwipeStatsType {

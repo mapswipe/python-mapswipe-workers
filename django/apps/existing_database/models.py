@@ -66,6 +66,9 @@ class Project(Model):
         FOOTPRINT = 2, "Validate"
         CHANGE_DETECTION = 3, "Compare"
         COMPLETENESS = 4, "Completeness"
+        MEDIA = 5, "Media"
+        DIGITIZATION = 6, "Digitization"
+        STREET = 7, "Street"
 
     project_id = models.CharField(primary_key=True, max_length=999)
     created = models.DateTimeField(blank=True, null=True)
@@ -127,7 +130,7 @@ class Task(Model):
     project = models.ForeignKey(Project, models.DO_NOTHING, related_name="+")
     group_id = models.CharField(max_length=999)
     task_id = models.CharField(max_length=999)
-    geom = gis_models.MultiPolygonField(blank=True, null=True)
+    geom = gis_models.GeometryField(blank=True, null=True)
     # Database uses JSON instead of JSONB (not supported by django)
     project_type_specifics = models.TextField(blank=True, null=True)
 

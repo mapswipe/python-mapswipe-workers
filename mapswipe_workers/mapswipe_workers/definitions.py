@@ -16,6 +16,8 @@ OHSOME_API_LINK = "https://api.ohsome.org/v1/"
 OSM_API_LINK = "https://www.openstreetmap.org/api/0.6/"
 OSMCHA_API_LINK = "https://osmcha.org/api/v1/"
 OSMCHA_API_KEY = os.environ["OSMCHA_API_KEY"]
+MAPILLARY_API_LINK = "https://tiles.mapillary.com/maps/vtp/mly1_computed_public/2/"
+MAPILLARY_API_KEY = os.environ["MAPILLARY_API_KEY"]
 
 # number of geometries for project geometries
 MAX_INPUT_GEOMETRIES = 10
@@ -134,6 +136,7 @@ class ProjectType(Enum):
     COMPLETENESS = 4
     MEDIA_CLASSIFICATION = 5
     DIGITIZATION = 6
+    STREET = 7
 
     @property
     def constructor(self):
@@ -145,6 +148,7 @@ class ProjectType(Enum):
             DigitizationProject,
             FootprintProject,
             MediaClassificationProject,
+            StreetProject,
         )
 
         project_type_classes = {
@@ -154,6 +158,7 @@ class ProjectType(Enum):
             4: CompletenessProject,
             5: MediaClassificationProject,
             6: DigitizationProject,
+            7: StreetProject,
         }
         return project_type_classes[self.value]
 
