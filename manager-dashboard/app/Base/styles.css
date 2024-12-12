@@ -122,9 +122,14 @@ p {
     --line-height-relaxed: 1.625;
     --line-height-loose: 2;
 
-
     --shadow-card: 0 2px 4px -2px var(--color-shadow);
 
     --duration-transition-medium: .2s;
+
+    --color-background-hover-light: rgba(0, 0, 0, .04);
+    --width-calendar-date: 2.4rem;
+
+    --opacity-watermark: 0.3;
+    --color-text-disabled: rgba(0, 0, 0, .3);
 
 }

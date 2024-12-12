@@ -1,0 +1,25 @@
+.date {
+    border-radius: 50%;
+    width: var(--width-calendar-date);
+    height: var(--width-calendar-date);
+
+    &.today {
+        color: var(--color-accent);
+        font-weight: var(--font-weight-bold);
+    }
+
+    &:hover {
+        background-color: var(--color-background-hover-light);
+    }
+
+    &.active {
+        background-color: var(--color-accent);
+        color: var(--color-text-on-dark);
+        pointer-events: none;
+    }
+
+    &.ghost {
+        opacity: 0.5;
+    }
+}
+

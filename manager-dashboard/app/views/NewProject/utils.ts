@@ -26,6 +26,8 @@ import {
     tileServerFieldsSchema,
 } from '#components/TileServerInput';
 
+import { Value as DateRange } from '#components/DateRangeInput';
+
 import {
     getNoMoreThanNCharacterCondition,
     ProjectType,
@@ -76,6 +78,9 @@ export interface ProjectFormType {
     tileServer: TileServer;
     tileServerB?: TileServer;
     customOptions?: CustomOptionsForProject;
+    dateRange?: DateRange | null;
+    startTimestamp?: string | null;
+    endTimestamp?: string | null;
     organizationId?: number;
     isPano?: boolean;
     samplingThreshold?: number;
@@ -276,16 +281,24 @@ export const projectFormSchema: ProjectFormSchema = {
                     greaterThanCondition(0),
                 ],
             },
+            dateRange: {
+                required: false,
+            },
             organizationId: {
+                required: false,
                 validations: [
                     integerCondition,
                     greaterThanCondition(0),
                 ],
             },
             samplingThreshold: {
+                required: false,
                 validation: [
                     greaterThanCondition(0),
                 ],
+            },
+            isPano: {
+                required: false,
             },
         };
 
@@ -409,6 +422,7 @@ export const projectFormSchema: ProjectFormSchema = {
                     projectType === PROJECT_TYPE_BUILD_AREA
                     || projectType === PROJECT_TYPE_COMPLETENESS
                     || projectType === PROJECT_TYPE_CHANGE_DETECTION
+                    || projectType === PROJECT_TYPE_STREET
                     || (projectType === PROJECT_TYPE_FOOTPRINT && (
                         inputType === PROJECT_INPUT_TYPE_UPLOAD
                     ))

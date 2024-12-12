@@ -52,6 +52,7 @@ import AnimatedSwipeIcon from '#components/AnimatedSwipeIcon';
 import ExpandableContainer from '#components/ExpandableContainer';
 import AlertBanner from '#components/AlertBanner';
 import Checkbox from '#components/Checkbox';
+import DateRangeInput from '#components/DateRangeInput';
 import {
     valueSelector,
     labelSelector,
@@ -316,6 +317,9 @@ function NewProject(props: Props) {
                 }
                 valuesToCopy.geometry = res.geometry;
             }
+
+            valuesToCopy.startTimestamp = valuesToCopy.dateRange?.startDate || null;
+            valuesToCopy.endTimestamp = valuesToCopy.dateRange?.endDate || null;
 
             const storage = getStorage();
             const timestamp = (new Date()).getTime();
@@ -711,17 +715,18 @@ function NewProject(props: Props) {
                 )}
 
                 {value.projectType === PROJECT_TYPE_STREET && (
-                    /* TODO: Add street project inputs for
-                        startTimestamp,
-                        endTimeStamp,
-                        isPano,
-                        organizationId,
-                        samplingThreshold
-                    */
                     <InputSection
                         heading="Mapillary Image Filters"
                     >
-                        <div>time range input</div>
+                        <DateRangeInput
+                            name={'dateRange' as const}
+                            value={value?.dateRange} // TODO type issue
+                            onChange={setFieldValue}
+                            error={error?.dateRange}
+                            label="Date range"
+                            hint="Choose a date range to filter images by the date they were captured at. Empty indicates that images of all capture dates are used."
+                            disabled={submissionPending || projectTypeEmpty}
+                        />
                         <NumberInput
                             name={'organizationId' as const}
                             value={value?.organizationId}
