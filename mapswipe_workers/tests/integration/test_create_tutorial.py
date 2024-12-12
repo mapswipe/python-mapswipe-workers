@@ -10,8 +10,8 @@ from tests.integration import set_up, tear_down
 class TestCreateTileClassificationProject(unittest.TestCase):
     def setUp(self):
         self.tutorial_id = set_up.create_test_tutorial_draft(
-            "tile_classification",
-            "tile_classification",
+            "street",
+            "street",
             "test_tile_classification_tutorial",
         )
 

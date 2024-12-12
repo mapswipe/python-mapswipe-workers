@@ -170,6 +170,7 @@ class ProjectType(Enum):
             ClassificationTutorial,
             CompletenessTutorial,
             FootprintTutorial,
+            StreetTutorial,
         )
 
         project_type_classes = {
@@ -177,5 +178,6 @@ class ProjectType(Enum):
             2: FootprintTutorial,
             3: ChangeDetectionTutorial,
             4: CompletenessTutorial,
+            7: StreetTutorial,
         }
         return project_type_classes[self.value]
