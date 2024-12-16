@@ -134,17 +134,15 @@ def coordinate_download(
         for col in target_columns:
             if col not in downloaded_metadata.columns:
                 downloaded_metadata[col] = None
-
         if (
             downloaded_metadata.isna().all().all() is False
-            or downloaded_metadata.empty is True
+            or downloaded_metadata.empty is False
         ):
             downloaded_metadata = downloaded_metadata[
                 downloaded_metadata["geometry"].apply(
                     lambda point: point.within(polygon)
                 )
             ]
-
         return downloaded_metadata
 
 

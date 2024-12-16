@@ -5,7 +5,7 @@ from unittest.mock import MagicMock, patch
 
 import pandas as pd
 from shapely import wkt
-from shapely.geometry import GeometryCollection, MultiPolygon, Polygon
+from shapely.geometry import GeometryCollection, MultiPolygon, Point, Polygon
 
 from mapswipe_workers.utils.process_mapillary import (
     coordinate_download,
@@ -191,9 +191,29 @@ class TestTileGroupingFunctions(unittest.TestCase):
 
     @patch("mapswipe_workers.utils.process_mapillary.download_and_process_tile")
     def test_coordinate_download(self, mock_download_and_process_tile):
-        mock_download_and_process_tile.return_value = pd.DataFrame([{"geometry": None}])
+        inside_points = [
+            (0.2, 0.2),
+            (0.5, 0.5),
+        ]
+        outside_points = [
+            (1.5, 0.5),
+            (0.5, 1.5),
+            (-0.5, 0.5),
+        ]
+        points = inside_points + outside_points
+        data = [
+            {
+                "geometry": Point(x, y),
+            }
+            for x, y in points
+        ]
+
+        mock_download_and_process_tile.return_value = pd.DataFrame(data)
 
         metadata = coordinate_download(self.test_polygon, self.level)
+
+        metadata = metadata.drop_duplicates()
+        self.assertEqual(len(metadata), len(inside_points))
 
         self.assertIsInstance(metadata, pd.DataFrame)
 
