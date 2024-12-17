@@ -16,20 +16,28 @@ from mapswipe_workers import auth
 
 
 def set_firebase_test_data(
-    project_type: str, data_type: str, fixture_name: str, identifier: str
+    project_type: str,
+    data_type: str,
+    fixture_name: str,
+    identifier: str,
+    tutorial_id: str = None,
 ):
     test_dir = os.path.dirname(__file__)
     fixture_name = fixture_name + ".json"
     file_path = os.path.join(
         test_dir, "fixtures", project_type, data_type, fixture_name
     )
-    upload_file_to_firebase(file_path, data_type, identifier)
+    upload_file_to_firebase(file_path, data_type, identifier, tutorial_id=tutorial_id)
 
 
-def upload_file_to_firebase(file_path: str, data_type: str, identifier: str):
+def upload_file_to_firebase(
+    file_path: str, data_type: str, identifier: str, tutorial_id: str = None
+):
     with open(file_path) as test_file:
         test_data = json.load(test_file)
 
+    if tutorial_id:
+        test_data["tutorialId"] = tutorial_id
     fb_db = auth.firebaseDB()
     ref = fb_db.reference(f"/v2/{data_type}/{identifier}")
     ref.set(test_data)
@@ -85,15 +93,20 @@ def create_test_project(
         set_postgres_test_data(project_type, "users", "user")
         set_firebase_test_data(project_type, "user_groups", "user_group", "")
         set_firebase_test_data(project_type, "results", fixture_name, project_id)
-        set_postgres_test_data(project_type, "mapping_sessions", fixture_name, columns=[
-            "project_id",
-            "group_id",
-            "user_id",
-            "mapping_session_id",
-            "start_time",
-            "end_time",
-            "items_count",
-        ])
+        set_postgres_test_data(
+            project_type,
+            "mapping_sessions",
+            fixture_name,
+            columns=[
+                "project_id",
+                "group_id",
+                "user_id",
+                "mapping_session_id",
+                "start_time",
+                "end_time",
+                "items_count",
+            ],
+        )
         set_postgres_test_data(project_type, mapping_sessions_results, fixture_name)
         if create_user_group_session_data:
             set_postgres_test_data(
@@ -108,7 +121,9 @@ def create_test_project(
                     "created_at",
                 ],
             )
-            set_postgres_test_data(project_type, "mapping_sessions_user_groups", fixture_name)
+            set_postgres_test_data(
+                project_type, "mapping_sessions_user_groups", fixture_name
+            )
 
     time.sleep(5)  # Wait for Firebase Functions to complete
     return project_id
@@ -131,12 +146,24 @@ def create_test_user(project_type: str, user_id: str = None) -> str:
 
 
 def create_test_project_draft(
-    project_type: str, fixture_name: str = "user", identifier: str = ""
+    project_type: str,
+    fixture_name: str = "user",
+    identifier: str = "",
+    tutorial_id: str = None,
 ) -> str:
     """
     Create test project drafts in Firebase and return project ids.
     Project drafts in Firebase are created by project manager using the dashboard.
     """
+    if tutorial_id:
+        set_firebase_test_data(
+            project_type,
+            "projectDrafts",
+            fixture_name,
+            identifier,
+            tutorial_id=tutorial_id,
+        )
+        return identifier
     if not identifier:
         identifier = f"test_{fixture_name}"
     set_firebase_test_data(project_type, "projectDrafts", fixture_name, identifier)

@@ -56,6 +56,8 @@ class TestCreateStreetProject(unittest.TestCase):
             result = ref.get(shallow=True)
             self.assertIsNotNone(result)
 
+            breakpoint()
+
 
 if __name__ == "__main__":
     unittest.main()
