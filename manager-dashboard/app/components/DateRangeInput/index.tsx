@@ -39,8 +39,8 @@ function sameMonth(foo: Date, bar: Date) {
 }
 
 export interface Value {
-    startDate: string;
-    endDate: string;
+    startDate?: string;
+    endDate?: string;
 }
 
 interface DateRendererProps extends CalendarDateProps {
