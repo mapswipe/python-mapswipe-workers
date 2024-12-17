@@ -82,6 +82,7 @@ export interface ProjectFormType {
     startTimestamp?: string | null;
     endTimestamp?: string | null;
     organizationId?: number;
+    creatorId?: number;
     isPano?: boolean;
     samplingThreshold?: number;
 }
@@ -283,6 +284,13 @@ export const projectFormSchema: ProjectFormSchema = {
             },
             dateRange: {
                 required: false,
+            },
+            creatorId: {
+                required: false,
+                validations: [
+                    integerCondition,
+                    greaterThanCondition(0),
+                ],
             },
             organizationId: {
                 required: false,

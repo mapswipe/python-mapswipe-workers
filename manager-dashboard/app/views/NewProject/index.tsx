@@ -318,8 +318,8 @@ function NewProject(props: Props) {
                 valuesToCopy.geometry = res.geometry;
             }
 
-            valuesToCopy.startTimestamp = valuesToCopy.dateRange?.startDate || null;
-            valuesToCopy.endTimestamp = valuesToCopy.dateRange?.endDate || null;
+            valuesToCopy.startTimestamp = valuesToCopy.dateRange?.startDate ?? null;
+            valuesToCopy.endTimestamp = valuesToCopy.dateRange?.endDate ?? null;
 
             const storage = getStorage();
             const timestamp = (new Date()).getTime();
@@ -720,11 +720,20 @@ function NewProject(props: Props) {
                     >
                         <DateRangeInput
                             name={'dateRange' as const}
-                            value={value?.dateRange} // TODO type issue
+                            value={value?.dateRange}
                             onChange={setFieldValue}
                             error={error?.dateRange}
                             label="Date range"
                             hint="Choose a date range to filter images by the date they were captured at. Empty indicates that images of all capture dates are used."
+                            disabled={submissionPending || projectTypeEmpty}
+                        />
+                        <NumberInput
+                            name={'creatorId' as const}
+                            value={value?.creatorId}
+                            onChange={setFieldValue}
+                            error={error?.creatorId}
+                            label="Image Creator ID"
+                            hint="Provide a valid Mapillary creator ID to filter for images belonging to a specific Mapillary user."
                             disabled={submissionPending || projectTypeEmpty}
                         />
                         <NumberInput
