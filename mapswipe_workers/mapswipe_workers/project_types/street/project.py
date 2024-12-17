@@ -46,6 +46,7 @@ class StreetProject(BaseProject):
         # TODO: validate inputs
         ImageMetadata = get_image_metadata(
             self.geometry,
+            creator_id=project_draft.get("creatorId", None),
             is_pano=project_draft.get("isPano", None),
             start_time=project_draft.get("startTimestamp", None),
             end_time=project_draft.get("endTimestamp", None),

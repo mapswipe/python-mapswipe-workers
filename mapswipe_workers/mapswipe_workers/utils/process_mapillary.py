@@ -184,12 +184,21 @@ def filter_by_timerange(df: pd.DataFrame, start_time: str, end_time: str = None)
 
 def filter_results(
     results_df: pd.DataFrame,
+    creator_id: int = None,
     is_pano: bool = None,
     organization_id: str = None,
     start_time: str = None,
     end_time: str = None,
 ):
     df = results_df.copy()
+    if creator_id is not None:
+        if df["creator_id"].isna().all():
+            logger.exception(
+                "No Mapillary Feature in the AoI has a 'creator_id' value."
+            )
+            return None
+        df = df[df["creator_id"] == creator_id]
+
     if is_pano is not None:
         if df["is_pano"].isna().all():
             logger.exception("No Mapillary Feature in the AoI has a 'is_pano' value.")
@@ -220,6 +229,7 @@ def get_image_metadata(
     level=14,
     attempt_limit=3,
     is_pano: bool = None,
+    creator_id: int = None,
     organization_id: str = None,
     start_time: str = None,
     end_time: str = None,
@@ -234,7 +244,7 @@ def get_image_metadata(
     ]
 
     downloaded_metadata = filter_results(
-        downloaded_metadata, is_pano, organization_id, start_time, end_time
+        downloaded_metadata, creator_id, is_pano, organization_id, start_time, end_time
     )
     if sampling_threshold is not None:
         downloaded_metadata = spatial_sampling(downloaded_metadata, sampling_threshold)

@@ -263,6 +263,10 @@ class TestTileGroupingFunctions(unittest.TestCase):
         filtered_df = filter_results(self.fixture_df, organization_id=1)
         self.assertEqual(len(filtered_df), 1)
 
+    def test_filter_creator_id(self):
+        filtered_df = filter_results(self.fixture_df, creator_id=102506575322825)
+        self.assertEqual(len(filtered_df), 3)
+
     def test_filter_time_range(self):
         start_time = "2016-01-20 00:00:00"
         end_time = "2022-01-21 23:59:59"
