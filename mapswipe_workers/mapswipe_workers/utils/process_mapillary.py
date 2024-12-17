@@ -237,31 +237,35 @@ def get_image_metadata(
 ):
     aoi_polygon = geojson_to_polygon(aoi_geojson)
     downloaded_metadata = coordinate_download(aoi_polygon, level, attempt_limit)
-    if downloaded_metadata.isna().all().all() or downloaded_metadata.empty:
+
+    if downloaded_metadata.empty or downloaded_metadata.isna().all().all():
         raise ValueError("No Mapillary Features in the AoI.")
+
     downloaded_metadata = downloaded_metadata[
         downloaded_metadata["geometry"].apply(lambda geom: isinstance(geom, Point))
     ]
 
-    downloaded_metadata = filter_results(
+    filtered_metadata = filter_results(
         downloaded_metadata, creator_id, is_pano, organization_id, start_time, end_time
     )
-    if sampling_threshold is not None:
-        downloaded_metadata = spatial_sampling(downloaded_metadata, sampling_threshold)
+
     if (
-        downloaded_metadata.isna().all().all() is False
-        or downloaded_metadata.empty is False
+        filtered_metadata is None
+        or filtered_metadata.empty
+        or filtered_metadata.isna().all().all()
     ):
-        if len(downloaded_metadata) > 100000:
-            err = (
-                f"Too many Images with selected filter "
-                f"options for the AoI: {len(downloaded_metadata)}"
-            )
-            raise ValueError(err)
-        else:
-            return {
-                "ids": downloaded_metadata["id"].tolist(),
-                "geometries": downloaded_metadata["geometry"].tolist(),
-            }
-    else:
         raise ValueError("No Mapillary Features in the AoI match the filter criteria.")
+
+    if sampling_threshold is not None:
+        filtered_metadata = spatial_sampling(filtered_metadata, sampling_threshold)
+
+    total_images = len(filtered_metadata)
+    if total_images > 100000:
+        raise ValueError(
+            f"Too many Images with selected filter options for the AoI: {total_images}"
+        )
+
+    return {
+        "ids": filtered_metadata["id"].tolist(),
+        "geometries": filtered_metadata["geometry"].tolist(),
+    }
