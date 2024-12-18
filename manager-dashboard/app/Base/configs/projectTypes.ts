@@ -3,6 +3,7 @@ import {
     PROJECT_TYPE_BUILD_AREA,
     PROJECT_TYPE_FOOTPRINT,
     PROJECT_TYPE_CHANGE_DETECTION,
+    PROJECT_TYPE_STREET,
     PROJECT_TYPE_COMPLETENESS,
 } from '#utils/common';
 
@@ -15,6 +16,7 @@ const mapswipeProjectTypeOptions: {
     { value: PROJECT_TYPE_BUILD_AREA, label: 'Find' },
     { value: PROJECT_TYPE_FOOTPRINT, label: 'Validate' },
     { value: PROJECT_TYPE_CHANGE_DETECTION, label: 'Compare' },
+    { value: PROJECT_TYPE_STREET, label: 'Street' },
     { value: PROJECT_TYPE_COMPLETENESS, label: 'Completeness' },
 ];
 

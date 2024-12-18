@@ -1,0 +1,85 @@
+.input-container {
+    display: flex;
+    flex-direction: row;
+
+    .input {
+        --color: var(--color-text);
+        flex-grow: 1;
+        min-width: unset;
+        color: var(--color);
+
+        &.empty {
+            --color: var(--color-input-placeholder); /* TODO */
+        }
+
+        &.errored {
+            --color: var(--color-danger);
+        }
+    }
+}
+
+.calendar-popup {
+    height: 25rem;
+
+    .popup-content {
+        display: flex;
+        max-width: unset!important;
+        max-height: unset!important;
+
+        .calendar {
+            --padding: var(--spacing-medium);
+            width: calc(var(--width-calendar-date) * 7 + 2 * var(--padding));
+            height: 100%;
+        }
+
+        .predefined-options {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: calc(var(--spacing-medium) - var(--spacing-small));
+
+            .option {
+                padding: var(--spacing-small);
+                width: 100%;
+                text-align: right;
+
+                &:hover {
+                    background-color: var(--color-background-hover-light);
+                }
+            }
+        }
+    }
+}
+
+.calendar-date {
+    &.start-date {
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+
+        &:not(.ghost) {
+            background-color: var(--color-accent);
+            color: var(--color-text-on-dark);
+        }
+        &.ghost {
+            background-color: var(--color-background-hover-light);
+        }
+    }
+
+    &.end-date {
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+
+        &:not(.ghost) {
+            background-color: var(--color-accent);
+            color: var(--color-text-ligth);
+        }
+        &.ghost {
+            background-color: var(--color-background-hover-light);
+        }
+    }
+
+    &.in-between {
+        border-radius: 0;
+        background-color: var(--color-background-hover-light);
+    }
+}
