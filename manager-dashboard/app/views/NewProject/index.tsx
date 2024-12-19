@@ -50,6 +50,9 @@ import Button from '#components/Button';
 import NonFieldError from '#components/NonFieldError';
 import AnimatedSwipeIcon from '#components/AnimatedSwipeIcon';
 import ExpandableContainer from '#components/ExpandableContainer';
+import AlertBanner from '#components/AlertBanner';
+import Checkbox from '#components/Checkbox';
+import DateRangeInput from '#components/DateRangeInput';
 import {
     valueSelector,
     labelSelector,
@@ -59,6 +62,7 @@ import {
     PROJECT_TYPE_FOOTPRINT,
     PROJECT_TYPE_COMPLETENESS,
     PROJECT_TYPE_CHANGE_DETECTION,
+    PROJECT_TYPE_STREET,
     formatProjectTopic,
 } from '#utils/common';
 import { getValueFromFirebase } from '#utils/firebase';
@@ -104,6 +108,7 @@ const defaultProjectFormValue: PartialProjectFormType = {
     // maxTasksPerUser: -1,
     inputType: PROJECT_INPUT_TYPE_UPLOAD,
     filter: FILTER_BUILDINGS,
+    isPano: false,
 };
 
 interface Props {
@@ -313,6 +318,9 @@ function NewProject(props: Props) {
                 valuesToCopy.geometry = res.geometry;
             }
 
+            valuesToCopy.startTimestamp = valuesToCopy.dateRange?.startDate ?? null;
+            valuesToCopy.endTimestamp = valuesToCopy.dateRange?.endDate ?? null;
+
             const storage = getStorage();
             const timestamp = (new Date()).getTime();
             const uploadedImageRef = storageRef(storage, `projectImages/${timestamp}-project-image-${projectImage.name}`);
@@ -417,6 +425,11 @@ function NewProject(props: Props) {
         || projectSubmissionStatus === 'projectSubmit'
     );
 
+    const tileServerVisible = value.projectType === PROJECT_TYPE_BUILD_AREA
+        || value.projectType === PROJECT_TYPE_FOOTPRINT
+        || value.projectType === PROJECT_TYPE_COMPLETENESS
+        || value.projectType === PROJECT_TYPE_CHANGE_DETECTION;
+
     const tileServerBVisible = value.projectType === PROJECT_TYPE_CHANGE_DETECTION
         || value.projectType === PROJECT_TYPE_COMPLETENESS;
 
@@ -459,6 +472,16 @@ function NewProject(props: Props) {
                         error={error?.projectType}
                         disabled={submissionPending || testPending}
                     />
+                    {value.projectType === PROJECT_TYPE_STREET && (
+                        <AlertBanner title="MapSwipe Web only">
+                            <div className={styles.warningContainer}>
+                                <div className={styles.warningItem}>
+                                    Projects of this type are currently
+                                    only visible in the web app.
+                                </div>
+                            </div>
+                        </AlertBanner>
+                    )}
                     <BasicProjectInfoForm
                         value={value}
                         setValue={setValue}
@@ -468,7 +491,8 @@ function NewProject(props: Props) {
                     />
                 </InputSection>
                 {(
-                    value.projectType === PROJECT_TYPE_FOOTPRINT
+                    (value.projectType === PROJECT_TYPE_FOOTPRINT
+                        || value.projectType === PROJECT_TYPE_STREET)
                     && customOptions
                     && customOptions.length > 0
                 ) && (
@@ -526,7 +550,8 @@ function NewProject(props: Props) {
                 )}
                 {(value.projectType === PROJECT_TYPE_BUILD_AREA
                     || value.projectType === PROJECT_TYPE_CHANGE_DETECTION
-                    || value.projectType === PROJECT_TYPE_COMPLETENESS) && (
+                    || value.projectType === PROJECT_TYPE_COMPLETENESS
+                    || value.projectType === PROJECT_TYPE_STREET) && (
                     <InputSection
                         heading="Project AOI Geometry"
                     >
@@ -661,17 +686,19 @@ function NewProject(props: Props) {
                     />
                 </InputSection>
 
-                <InputSection
-                    heading={tileServerBVisible ? 'Tile Server A' : 'Tile Server'}
-                >
-                    <TileServerInput
-                        name={'tileServer' as const}
-                        value={value.tileServer}
-                        error={error?.tileServer}
-                        onChange={setFieldValue}
-                        disabled={submissionPending || projectTypeEmpty}
-                    />
-                </InputSection>
+                {tileServerVisible && (
+                    <InputSection
+                        heading={tileServerBVisible ? 'Tile Server A' : 'Tile Server'}
+                    >
+                        <TileServerInput
+                            name={'tileServer' as const}
+                            value={value.tileServer}
+                            error={error?.tileServer}
+                            onChange={setFieldValue}
+                            disabled={submissionPending || projectTypeEmpty}
+                        />
+                    </InputSection>
+                )}
 
                 {tileServerBVisible && (
                     <InputSection
@@ -686,6 +713,59 @@ function NewProject(props: Props) {
                         />
                     </InputSection>
                 )}
+
+                {value.projectType === PROJECT_TYPE_STREET && (
+                    <InputSection
+                        heading="Mapillary Image Filters"
+                    >
+                        <DateRangeInput
+                            name={'dateRange' as const}
+                            value={value?.dateRange}
+                            onChange={setFieldValue}
+                            error={error?.dateRange}
+                            label="Date range"
+                            hint="Choose a date range to filter images by the date they were captured at. Empty indicates that images of all capture dates are used."
+                            disabled={submissionPending || projectTypeEmpty}
+                        />
+                        <NumberInput
+                            name={'creatorId' as const}
+                            value={value?.creatorId}
+                            onChange={setFieldValue}
+                            error={error?.creatorId}
+                            label="Image Creator ID"
+                            hint="Provide a valid Mapillary creator ID to filter for images belonging to a specific Mapillary user."
+                            disabled={submissionPending || projectTypeEmpty}
+                        />
+                        <NumberInput
+                            name={'organizationId' as const}
+                            value={value?.organizationId}
+                            onChange={setFieldValue}
+                            error={error?.organizationId}
+                            label="Mapillary Organization ID"
+                            hint="Provide a valid Mapillary organization ID to filter for images belonging to a specific organization. Empty indicates that no filter is set on organization."
+                            disabled={submissionPending || projectTypeEmpty}
+                        />
+                        <div className={styles.inputGroup}>
+                            <NumberInput
+                                name={'samplingThreshold' as const}
+                                value={value?.samplingThreshold}
+                                onChange={setFieldValue}
+                                error={error?.samplingThreshold}
+                                label="Image Sampling Threshold"
+                                hint="What should be the minimum distance (in km) between images on the same Mapillary sequence? Empty indicates that all images on each sequence are used."
+                                disabled={submissionPending || projectTypeEmpty}
+                            />
+                            <Checkbox
+                                name={'isPano' as const}
+                                value={value?.isPano}
+                                label="Only use 360 degree panorama images."
+                                onChange={setFieldValue}
+                                disabled={submissionPending || projectTypeEmpty}
+                            />
+                        </div>
+                    </InputSection>
+                )}
+
                 {error?.[nonFieldError] && (
                     <div className={styles.errorMessage}>
                         {error?.[nonFieldError]}
