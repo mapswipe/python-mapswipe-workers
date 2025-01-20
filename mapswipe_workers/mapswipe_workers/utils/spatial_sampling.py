@@ -146,4 +146,7 @@ def spatial_sampling(df, interval_length):
             [sampled_sequence_df, filtered_sorted_sub_df], axis=0
         )
 
+    # reverse order such that sequence are in direction of travel
+    sampled_sequence_df = sampled_sequence_df.iloc[::-1]
+
     return sampled_sequence_df
