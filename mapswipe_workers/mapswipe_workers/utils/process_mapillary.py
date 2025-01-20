@@ -189,6 +189,7 @@ def filter_results(
     organization_id: str = None,
     start_time: str = None,
     end_time: str = None,
+    randomize_order: bool = None,
 ):
     df = results_df.copy()
     if creator_id is not None:
@@ -221,6 +222,9 @@ def filter_results(
             return None
         df = filter_by_timerange(df, start_time, end_time)
 
+    if randomize_order is not None:
+        df.sample(frac=1).reset_index(drop=True)
+
     return df
 
 
@@ -233,6 +237,7 @@ def get_image_metadata(
     organization_id: str = None,
     start_time: str = None,
     end_time: str = None,
+    randomize_order=False,
     sampling_threshold=None,
 ):
     aoi_polygon = geojson_to_polygon(aoi_geojson)
@@ -246,7 +251,13 @@ def get_image_metadata(
     ]
 
     downloaded_metadata = filter_results(
-        downloaded_metadata, creator_id, is_pano, organization_id, start_time, end_time
+        downloaded_metadata,
+        creator_id,
+        is_pano,
+        organization_id,
+        start_time,
+        end_time,
+        randomize_order,
     )
 
     if (
