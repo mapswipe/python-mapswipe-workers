@@ -109,6 +109,7 @@ const defaultProjectFormValue: PartialProjectFormType = {
     inputType: PROJECT_INPUT_TYPE_UPLOAD,
     filter: FILTER_BUILDINGS,
     isPano: false,
+    randomizeOrder: false,
 };
 
 interface Props {
@@ -759,6 +760,13 @@ function NewProject(props: Props) {
                                 name={'isPano' as const}
                                 value={value?.isPano}
                                 label="Only use 360 degree panorama images."
+                                onChange={setFieldValue}
+                                disabled={submissionPending || projectTypeEmpty}
+                            />
+                            <Checkbox
+                                name={'randomizeOrder' as const}
+                                value={value?.randomizeOrder}
+                                label="Randomize the order of images in the project."
                                 onChange={setFieldValue}
                                 disabled={submissionPending || projectTypeEmpty}
                             />
