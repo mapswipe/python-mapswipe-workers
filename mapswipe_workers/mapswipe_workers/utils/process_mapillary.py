@@ -222,7 +222,7 @@ def filter_results(
             return None
         df = filter_by_timerange(df, start_time, end_time)
 
-    if randomize_order is not None:
+    if randomize_order is True:
         df.sample(frac=1).reset_index(drop=True)
 
     return df
