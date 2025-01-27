@@ -16,7 +16,12 @@ from shapely import (
 from shapely.geometry import shape
 from vt2geojson import tools as vt2geojson_tools
 
-from mapswipe_workers.definitions import MAPILLARY_API_KEY, MAPILLARY_API_LINK, logger
+from mapswipe_workers.definitions import (
+    MAPILLARY_API_KEY,
+    MAPILLARY_API_LINK,
+    CustomError,
+    logger,
+)
 from mapswipe_workers.utils.spatial_sampling import spatial_sampling
 
 
@@ -239,7 +244,7 @@ def get_image_metadata(
     downloaded_metadata = coordinate_download(aoi_polygon, level, attempt_limit)
 
     if downloaded_metadata.empty or downloaded_metadata.isna().all().all():
-        raise ValueError("No Mapillary Features in the AoI.")
+        raise CustomError("No Mapillary Features in the AoI.")
 
     downloaded_metadata = downloaded_metadata[
         downloaded_metadata["geometry"].apply(lambda geom: isinstance(geom, Point))
@@ -254,14 +259,14 @@ def get_image_metadata(
         or filtered_metadata.empty
         or filtered_metadata.isna().all().all()
     ):
-        raise ValueError("No Mapillary Features in the AoI match the filter criteria.")
+        raise CustomError("No Mapillary Features in the AoI match the filter criteria.")
 
     if sampling_threshold is not None:
         filtered_metadata = spatial_sampling(filtered_metadata, sampling_threshold)
 
     total_images = len(filtered_metadata)
     if total_images > 100000:
-        raise ValueError(
+        raise CustomError(
             f"Too many Images with selected filter options for the AoI: {total_images}"
         )
 
