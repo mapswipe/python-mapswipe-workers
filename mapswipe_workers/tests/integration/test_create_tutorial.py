@@ -10,8 +10,8 @@ from tests.integration import set_up, tear_down
 class TestCreateTileClassificationProject(unittest.TestCase):
     def setUp(self):
         self.tutorial_id = set_up.create_test_tutorial_draft(
-            "street",
-            "street",
+            "tile_classification",
+            "tile_classification",
             "test_tile_classification_tutorial",
         )
 
@@ -69,8 +69,6 @@ class TestCreateTileClassificationProject(unittest.TestCase):
         ref = fb_db.reference(f"/v2/projects/{self.project_id}/tutorialId")
         result = ref.get(shallow=True)
         self.assertEqual(self.tutorial_id, result)
-
-        breakpoint()
 
 
 if __name__ == "__main__":
