@@ -48,9 +48,6 @@ class TestTileGroupingFunctions(unittest.TestCase):
     def setUp(self):
         self.level = 14
         self.test_polygon = Polygon([(0, 0), (1, 0), (1, 1), (0, 1)])
-        self.test_multipolygon = MultiPolygon(
-            [self.test_polygon, Polygon([(2, 2), (3, 2), (3, 3), (2, 3)])]
-        )
         self.empty_polygon = Polygon()
         self.empty_geometry = GeometryCollection()
 
@@ -60,9 +57,19 @@ class TestTileGroupingFunctions(unittest.TestCase):
         self.assertFalse(tiles.empty)
 
     def test_create_tiles_with_multipolygon(self):
-        tiles = create_tiles(self.test_multipolygon, self.level)
+        polygon = Polygon(
+            [
+                (0.00000000, 0.00000000),
+                (0.000000001, 0.00000000),
+                (0.00000000, 0.000000001),
+                (0.00000000, 0.000000001),
+            ]
+        )
+        multipolygon = MultiPolygon([polygon, polygon])
+        tiles = create_tiles(multipolygon, self.level)
         self.assertIsInstance(tiles, pd.DataFrame)
         self.assertFalse(tiles.empty)
+        self.assertEqual(len(tiles), 1)
 
     def test_create_tiles_with_empty_polygon(self):
         tiles = create_tiles(self.empty_polygon, self.level)
