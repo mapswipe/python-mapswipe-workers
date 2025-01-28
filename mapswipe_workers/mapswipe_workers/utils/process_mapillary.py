@@ -46,25 +46,7 @@ def download_and_process_tile(row, polygon, kwargs, attempt_limit=3):
     attempt = 0
     while attempt < attempt_limit:
         try:
-            r = requests.get(url)
-            assert r.status_code == 200, r.content
-            features = vt2geojson_tools.vt_bytes_to_geojson(r.content, x, y, z).get(
-                "features", []
-            )
-            data = []
-            data.extend(
-                [
-                    {
-                        "geometry": Point(feature["geometry"]["coordinates"]),
-                        **feature.get("properties", {}),
-                    }
-                    for feature in features
-                    if feature.get("geometry", {}).get("type") == "Point"
-                ]
-            )
-
-            data = pd.DataFrame(data)
-
+            data = get_mapillary_data(url, x, y, z)
             if data.isna().all().all() is False or data.empty is False:
                 data = data[data["geometry"].apply(lambda point: point.within(polygon))]
                 target_columns = [
@@ -79,7 +61,6 @@ def download_and_process_tile(row, polygon, kwargs, attempt_limit=3):
                 for col in target_columns:
                     if col not in data.columns:
                         data[col] = None
-
                 if data.isna().all().all() is False or data.empty is False:
                     data = filter_results(data, **kwargs)
 
@@ -90,6 +71,26 @@ def download_and_process_tile(row, polygon, kwargs, attempt_limit=3):
 
     print(f"A tile could not be downloaded: {row}")
     return None
+
+
+def get_mapillary_data(url, x, y, z):
+    r = requests.get(url)
+    assert r.status_code == 200, r.content
+    features = vt2geojson_tools.vt_bytes_to_geojson(r.content, x, y, z).get(
+        "features", []
+    )
+    data = []
+    data.extend(
+        [
+            {
+                "geometry": Point(feature["geometry"]["coordinates"]),
+                **feature.get("properties", {}),
+            }
+            for feature in features
+            if feature.get("geometry", {}).get("type") == "Point"
+        ]
+    )
+    return pd.DataFrame(data)
 
 
 def coordinate_download(
@@ -103,23 +104,31 @@ def coordinate_download(
         if not use_concurrency:
             workers = 1
 
-        process_tile_with_args = partial(
-            download_and_process_tile, polygon=polygon, kwargs=kwargs
+        downloaded_metadata = parallelized_processing(
+            downloaded_metadata, kwargs, polygon, tiles, workers
         )
-        with ProcessPoolExecutor(max_workers=workers) as executor:
-            futures = list(
-                executor.map(process_tile_with_args, tiles.to_dict(orient="records"))
-            )
-
-            for df in futures:
-                if df is not None and not df.empty:
-                    downloaded_metadata.append(df)
         if len(downloaded_metadata):
+            breakpoint()
             downloaded_metadata = pd.concat(downloaded_metadata, ignore_index=True)
         else:
             return pd.DataFrame(downloaded_metadata)
 
         return downloaded_metadata
+
+
+def parallelized_processing(data, kwargs, polygon, tiles, workers):
+    process_tile_with_args = partial(
+        download_and_process_tile, polygon=polygon, kwargs=kwargs
+    )
+    with ProcessPoolExecutor(max_workers=workers) as executor:
+        futures = list(
+            executor.map(process_tile_with_args, tiles.to_dict(orient="records"))
+        )
+
+        for df in futures:
+            if df is not None and not df.empty:
+                data.append(df)
+    return data
 
 
 def geojson_to_polygon(geojson_data):
@@ -176,7 +185,6 @@ def filter_results(
         df = df[df["creator_id"] == creator_id]
     if is_pano is not None:
         if df["is_pano"].isna().all():
-            print(df)
             logger.exception("No Mapillary Feature in the AoI has a 'is_pano' value.")
             return None
         df = df[df["is_pano"] == is_pano]
@@ -218,10 +226,6 @@ def get_image_metadata(
     downloaded_metadata = coordinate_download(aoi_polygon, level, kwargs)
     if downloaded_metadata.empty or downloaded_metadata.isna().all().all():
         raise ValueError("No Mapillary Features in the AoI.")
-
-    downloaded_metadata = downloaded_metadata[
-        downloaded_metadata["geometry"].apply(lambda geom: isinstance(geom, Point))
-    ]
 
     if (
         downloaded_metadata is None
