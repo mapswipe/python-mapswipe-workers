@@ -108,7 +108,6 @@ def coordinate_download(
             downloaded_metadata, kwargs, polygon, tiles, workers
         )
         if len(downloaded_metadata):
-            breakpoint()
             downloaded_metadata = pd.concat(downloaded_metadata, ignore_index=True)
         else:
             return pd.DataFrame(downloaded_metadata)
