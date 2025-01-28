@@ -198,21 +198,19 @@ def filter_results(
     df = results_df.copy()
     if creator_id is not None:
         if df["creator_id"].isna().all():
-            logger.exception(
-                "No Mapillary Feature in the AoI has a 'creator_id' value."
-            )
+            logger.info("No Mapillary Feature in the AoI has a 'creator_id' value.")
             return None
         df = df[df["creator_id"] == creator_id]
 
     if is_pano is not None:
         if df["is_pano"].isna().all():
-            logger.exception("No Mapillary Feature in the AoI has a 'is_pano' value.")
+            logger.info("No Mapillary Feature in the AoI has a 'is_pano' value.")
             return None
         df = df[df["is_pano"] == is_pano]
 
     if organization_id is not None:
         if df["organization_id"].isna().all():
-            logger.exception(
+            logger.info(
                 "No Mapillary Feature in the AoI has an 'organization_id' value."
             )
             return None
@@ -220,9 +218,7 @@ def filter_results(
 
     if start_time is not None:
         if df["captured_at"].isna().all():
-            logger.exception(
-                "No Mapillary Feature in the AoI has a 'captured_at' value."
-            )
+            logger.info("No Mapillary Feature in the AoI has a 'captured_at' value.")
             return None
         df = filter_by_timerange(df, start_time, end_time)
 
