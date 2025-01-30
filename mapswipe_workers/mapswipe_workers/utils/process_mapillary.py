@@ -224,14 +224,9 @@ def get_image_metadata(
     aoi_polygon = geojson_to_polygon(aoi_geojson)
     downloaded_metadata = coordinate_download(aoi_polygon, level, kwargs)
     if downloaded_metadata.empty or downloaded_metadata.isna().all().all():
-        raise ValueError("No Mapillary Features in the AoI.")
-
-    if (
-        downloaded_metadata is None
-        or downloaded_metadata.empty
-        or downloaded_metadata.isna().all().all()
-    ):
-        raise ValueError("No Mapillary Features in the AoI match the filter criteria.")
+        raise ValueError(
+            "No Mapillary Features in the AoI or no Features match the filter criteria."
+        )
 
     if sampling_threshold is not None:
         downloaded_metadata = spatial_sampling(downloaded_metadata, sampling_threshold)
