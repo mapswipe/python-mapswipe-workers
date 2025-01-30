@@ -227,7 +227,7 @@ def get_image_metadata(
         raise ValueError(
             "No Mapillary Features in the AoI or no Features match the filter criteria."
         )
-
+    downloaded_metadata = downloaded_metadata.drop_duplicates(subset=["geometry"])
     if sampling_threshold is not None:
         downloaded_metadata = spatial_sampling(downloaded_metadata, sampling_threshold)
 

@@ -314,10 +314,27 @@ class TestTileGroupingFunctions(unittest.TestCase):
 
     @patch("mapswipe_workers.utils.process_mapillary.coordinate_download")
     def test_get_image_metadata_size_restriction(self, mock_coordinate_download):
-        mock_coordinate_download.return_value = pd.DataFrame({"ID": range(1, 100002)})
+        mock_coordinate_download.return_value = pd.DataFrame(
+            {"geometry": range(1, 100002)}
+        )
 
         with self.assertRaises(ValueError):
             get_image_metadata(self.fixture_data)
+
+    @patch("mapswipe_workers.utils.process_mapillary.coordinate_download")
+    def test_get_image_metadata_drop_duplicates(self, mock_coordinate_download):
+        test_df = pd.DataFrame(
+            {
+                "id": [1, 2, 2, 3, 4, 4, 5],
+                "geometry": ["a", "b", "b", "c", "d", "d", "e"],
+            }
+        )
+        mock_coordinate_download.return_value = test_df
+        return_dict = get_image_metadata(self.fixture_data)
+
+        return_df = pd.DataFrame(return_dict)
+
+        self.assertNotEqual(len(return_df), len(test_df))
 
 
 if __name__ == "__main__":
