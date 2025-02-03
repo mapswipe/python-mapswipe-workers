@@ -189,7 +189,6 @@ def filter_results(
     organization_id: str = None,
     start_time: str = None,
     end_time: str = None,
-    randomize_order: bool = None,
 ):
     df = results_df.copy()
     if creator_id is not None:
@@ -221,9 +220,6 @@ def filter_results(
             )
             return None
         df = filter_by_timerange(df, start_time, end_time)
-
-    if randomize_order is True:
-        df.sample(frac=1).reset_index(drop=True)
 
     return df
 
@@ -257,7 +253,6 @@ def get_image_metadata(
         organization_id,
         start_time,
         end_time,
-        randomize_order,
     )
 
     if (
@@ -269,6 +264,9 @@ def get_image_metadata(
 
     if sampling_threshold is not None:
         downloaded_metadata = spatial_sampling(downloaded_metadata, sampling_threshold)
+
+    if randomize_order is True:
+        downloaded_metadata.sample(frac=1).reset_index(drop=True)
 
     total_images = len(downloaded_metadata)
     if total_images > 100000:
