@@ -266,7 +266,7 @@ def get_image_metadata(
         downloaded_metadata = spatial_sampling(downloaded_metadata, sampling_threshold)
 
     if randomize_order is True:
-        downloaded_metadata.sample(frac=1).reset_index(drop=True)
+        downloaded_metadata = downloaded_metadata.sample(frac=1).reset_index(drop=True)
 
     total_images = len(downloaded_metadata)
     if total_images > 100000:
