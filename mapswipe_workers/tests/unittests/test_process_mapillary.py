@@ -350,7 +350,11 @@ class TestTileGroupingFunctions(unittest.TestCase):
     def test_get_image_metadata_size_restriction(
         self, mock_coordinate_download, mock_filter_results
     ):
-        mock_filter_results.return_value = pd.DataFrame({"ID": range(1, 100002)})
+        mock_df = pd.DataFrame({"ID": range(1, 100002)})
+        mock_df["geometry"] = self.test_polygon
+        mock_df["captured_at"] = range(1, 100002)
+        mock_df["sequence_id"] = 1
+        mock_filter_results.return_value = mock_df
         mock_coordinate_download.return_value = self.fixture_df
 
         with self.assertRaises(ValueError):
