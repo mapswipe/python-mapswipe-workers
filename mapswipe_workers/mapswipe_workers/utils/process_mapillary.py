@@ -26,9 +26,9 @@ def create_tiles(polygon, level):
     if isinstance(polygon, Polygon):
         polygon = MultiPolygon([polygon])
 
-    tiles = []
+    tiles = set()
     for i, poly in enumerate(polygon.geoms):
-        tiles.extend(list(mercantile.tiles(*poly.bounds, level)))
+        tiles.update(list(mercantile.tiles(*poly.bounds, level)))
 
     bbox_list = [mercantile.bounds(tile.x, tile.y, tile.z) for tile in tiles]
     bbox_polygons = [box(*bbox) for bbox in bbox_list]
