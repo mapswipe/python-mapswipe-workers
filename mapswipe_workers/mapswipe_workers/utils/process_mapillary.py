@@ -262,8 +262,7 @@ def get_image_metadata(
     ):
         raise ValueError("No Mapillary Features in the AoI match the filter criteria.")
 
-    if sampling_threshold is not None:
-        downloaded_metadata = spatial_sampling(downloaded_metadata, sampling_threshold)
+    downloaded_metadata = spatial_sampling(downloaded_metadata, sampling_threshold)
 
     if randomize_order is True:
         downloaded_metadata = downloaded_metadata.sample(frac=1).reset_index(drop=True)
