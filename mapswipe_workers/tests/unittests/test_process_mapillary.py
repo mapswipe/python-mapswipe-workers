@@ -50,6 +50,7 @@ class TestTileGroupingFunctions(unittest.TestCase):
         self.test_polygon = Polygon([(0, 0), (1, 0), (1, 1), (0, 1)])
         self.empty_polygon = Polygon()
         self.empty_geometry = GeometryCollection()
+        self.row = pd.Series({"x": 1, "y": 1, "z": self.level})
 
     def test_create_tiles_with_valid_polygon(self):
         tiles = create_tiles(self.test_polygon, self.level)
@@ -178,26 +179,26 @@ class TestTileGroupingFunctions(unittest.TestCase):
 
         row = {"x": 1, "y": 1, "z": 14}
 
-        result = download_and_process_tile(row)
+        polygon = wkt.loads("POLYGON ((-1 -1, -1 1, 1 1, 1 -1, -1 -1))")
 
+        result = download_and_process_tile(row, polygon, {})
         self.assertIsInstance(result, pd.DataFrame)
         self.assertEqual(len(result), 1)
         self.assertEqual(result["geometry"][0].wkt, "POINT (0 0)")
 
     @patch("mapswipe_workers.utils.process_mapillary.requests.get")
     def test_download_and_process_tile_failure(self, mock_get):
-        # Mock a failed response
+
         mock_response = MagicMock()
         mock_response.status_code = 500
         mock_get.return_value = mock_response
 
-        row = pd.Series({"x": 1, "y": 1, "z": self.level})
-        result = download_and_process_tile(row)
+        result = download_and_process_tile(self.row, self.test_polygon, {})
 
         self.assertIsNone(result)
 
-    @patch("mapswipe_workers.utils.process_mapillary.download_and_process_tile")
-    def test_coordinate_download(self, mock_download_and_process_tile):
+    @patch("mapswipe_workers.utils.process_mapillary.get_mapillary_data")
+    def test_download_and_process_tile_spatial_filtering(self, mock_get_mapillary_data):
         inside_points = [
             (0.2, 0.2),
             (0.5, 0.5),
@@ -215,20 +216,20 @@ class TestTileGroupingFunctions(unittest.TestCase):
             for x, y in points
         ]
 
-        mock_download_and_process_tile.return_value = pd.DataFrame(data)
+        mock_get_mapillary_data.return_value = pd.DataFrame(data)
 
-        metadata = coordinate_download(self.test_polygon, self.level)
+        metadata = download_and_process_tile(self.row, self.test_polygon, {})
 
         metadata = metadata.drop_duplicates()
         self.assertEqual(len(metadata), len(inside_points))
 
         self.assertIsInstance(metadata, pd.DataFrame)
 
-    @patch("mapswipe_workers.utils.process_mapillary.download_and_process_tile")
-    def test_coordinate_download_with_failures(self, mock_download_and_process_tile):
-        mock_download_and_process_tile.return_value = pd.DataFrame()
+    @patch("mapswipe_workers.utils.process_mapillary.parallelized_processing")
+    def test_coordinate_download_with_failures(self, mock_parallelized_processing):
+        mock_parallelized_processing.return_value = pd.DataFrame()
 
-        metadata = coordinate_download(self.test_polygon, self.level)
+        metadata = coordinate_download(self.test_polygon, self.level, {})
 
         self.assertTrue(metadata.empty)
 
@@ -291,7 +292,7 @@ class TestTileGroupingFunctions(unittest.TestCase):
             "is_pano",
             "organization_id",
             "captured_at",
-        ]  # Add your column names here
+        ]
         for column in columns_to_check:
             df_copy = self.fixture_df.copy()
             df_copy[column] = None
@@ -310,33 +311,6 @@ class TestTileGroupingFunctions(unittest.TestCase):
         self.assertIn("geometries", result)
 
     @patch("mapswipe_workers.utils.process_mapillary.coordinate_download")
-    def test_get_image_metadata_filtering(self, mock_coordinate_download):
-        mock_coordinate_download.return_value = self.fixture_df
-
-        params = {
-            "is_pano": True,
-            "start_time": "2016-01-20 00:00:00",
-            "end_time": "2022-01-21 23:59:59",
-        }
-
-        result = get_image_metadata(self.fixture_data, **params)
-        self.assertIsInstance(result, dict)
-        self.assertIn("ids", result)
-        self.assertIn("geometries", result)
-
-    @patch("mapswipe_workers.utils.process_mapillary.coordinate_download")
-    def test_get_image_metadata_no_rows(self, mock_coordinate_download):
-        mock_coordinate_download.return_value = self.fixture_df
-
-        params = {
-            "is_pano": True,
-            "start_time": "1916-01-20 00:00:00",
-            "end_time": "1922-01-21 23:59:59",
-        }
-        with self.assertRaises(ValueError):
-            get_image_metadata(self.fixture_data, **params)
-
-    @patch("mapswipe_workers.utils.process_mapillary.coordinate_download")
     def test_get_image_metadata_empty_response(self, mock_coordinate_download):
         df = self.fixture_df.copy()
         df = df.drop(df.index)
@@ -350,15 +324,25 @@ class TestTileGroupingFunctions(unittest.TestCase):
     def test_get_image_metadata_size_restriction(
         self, mock_coordinate_download, mock_filter_results
     ):
-        mock_df = pd.DataFrame({"ID": range(1, 100002)})
-        mock_df["geometry"] = self.test_polygon
-        mock_df["captured_at"] = range(1, 100002)
-        mock_df["sequence_id"] = 1
-        mock_filter_results.return_value = mock_df
-        mock_coordinate_download.return_value = self.fixture_df
-
+        mock_df = pd.DataFrame({"id": range(1, 100002), "geometry": range(1, 100002)})
+        mock_coordinate_download.return_value = mock_df
         with self.assertRaises(ValueError):
             get_image_metadata(self.fixture_data)
+
+    @patch("mapswipe_workers.utils.process_mapillary.coordinate_download")
+    def test_get_image_metadata_drop_duplicates(self, mock_coordinate_download):
+        test_df = pd.DataFrame(
+            {
+                "id": [1, 2, 2, 3, 4, 4, 5],
+                "geometry": ["a", "b", "b", "c", "d", "d", "e"],
+            }
+        )
+        mock_coordinate_download.return_value = test_df
+        return_dict = get_image_metadata(self.fixture_data)
+
+        return_df = pd.DataFrame(return_dict)
+
+        self.assertNotEqual(len(return_df), len(test_df))
 
 
 if __name__ == "__main__":
