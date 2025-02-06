@@ -69,6 +69,7 @@ import {
     PROJECT_TYPE_COMPLETENESS,
     PROJECT_TYPE_CHANGE_DETECTION,
     PROJECT_TYPE_FOOTPRINT,
+    PROJECT_TYPE_STREET,
     ProjectType,
     projectTypeLabelMap,
 } from '#utils/common';
@@ -761,7 +762,10 @@ function NewTutorial(props: Props) {
                         autoFocus
                     />
                 </InputSection>
-                {value.projectType === PROJECT_TYPE_FOOTPRINT && (
+                {(
+                    value.projectType === PROJECT_TYPE_FOOTPRINT
+                        || value.projectType === PROJECT_TYPE_STREET
+                ) && (
                     <InputSection
                         heading="Custom Options"
                         actions={(
