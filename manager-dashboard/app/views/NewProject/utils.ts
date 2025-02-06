@@ -83,6 +83,7 @@ export interface ProjectFormType {
     endTimestamp?: string | null;
     organizationId?: number;
     creatorId?: number;
+    randomizeOrder?: boolean;
     panoOnly?: boolean;
     isPano?: boolean | null;
     samplingThreshold?: number;
@@ -310,6 +311,9 @@ export const projectFormSchema: ProjectFormSchema = {
                 required: false,
             },
             isPano: {
+                required: false,
+            },
+            randomizeOrder: {
                 required: false,
             },
         };
