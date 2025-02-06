@@ -26,6 +26,7 @@ import {
     PROJECT_TYPE_CHANGE_DETECTION,
     PROJECT_TYPE_COMPLETENESS,
     PROJECT_TYPE_FOOTPRINT,
+    PROJECT_TYPE_STREET,
     IconKey,
 } from '#utils/common';
 
@@ -257,6 +258,33 @@ export const defaultFootprintCustomOptions: PartialTutorialFormType['customOptio
     },
 ];
 
+export const defaultStreetCustomOptions: PartialTutorialFormType['customOptions'] = [
+    {
+        optionId: 1,
+        value: 1,
+        title: 'Yes',
+        icon: 'checkmark-outline',
+        iconColor: colorKeyToColorMap.green,
+        description: '',
+    },
+    {
+        optionId: 2,
+        value: 0,
+        title: 'No',
+        icon: 'close-outline',
+        iconColor: colorKeyToColorMap.red,
+        description: '',
+    },
+    {
+        optionId: 3,
+        value: 2,
+        title: 'Not Sure',
+        icon: 'remove-outline',
+        iconColor: colorKeyToColorMap.gray,
+        description: 'if you\'re not sure or there is bad imagery',
+    },
+];
+
 export function deleteKey<T extends object, K extends keyof T>(
     value: T,
     key: K,
@@ -266,6 +294,18 @@ export function deleteKey<T extends object, K extends keyof T>(
     };
     delete copy[key];
     return copy;
+}
+
+export function getDefaultOptions(projectType: ProjectType | undefined) {
+    if (projectType === PROJECT_TYPE_FOOTPRINT) {
+        return defaultFootprintCustomOptions;
+    }
+
+    if (projectType === PROJECT_TYPE_STREET) {
+        return defaultStreetCustomOptions;
+    }
+
+    return undefined;
 }
 
 export interface BuildAreaProperties {

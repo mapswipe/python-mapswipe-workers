@@ -77,7 +77,7 @@ import {
 import {
     tileServerUrls,
     tutorialFormSchema,
-    defaultFootprintCustomOptions,
+    getDefaultOptions,
     TutorialFormType,
     PartialTutorialFormType,
     PartialInformationPagesType,
@@ -342,7 +342,6 @@ const defaultTutorialFormValue: PartialTutorialFormType = {
         name: TILE_SERVER_ESRI,
         credits: tileServerDefaultCredits[TILE_SERVER_ESRI],
     },
-    customOptions: defaultFootprintCustomOptions,
 };
 
 type SubmissionStatus = 'started' | 'imageUpload' | 'tutorialSubmit' | 'success' | 'failed';
@@ -717,6 +716,7 @@ function NewTutorial(props: Props) {
             setFieldValue(undefined, 'tutorialTasks');
             setFieldValue(undefined, 'scenarioPages');
             setFieldValue(newValue, 'projectType');
+            setFieldValue(getDefaultOptions(newValue), 'customOptions');
         },
         [setFieldValue],
     );
