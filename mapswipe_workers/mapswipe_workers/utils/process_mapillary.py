@@ -19,9 +19,9 @@ def create_tiles(polygon, level):
     if isinstance(polygon, Polygon):
         polygon = MultiPolygon([polygon])
 
-    tiles = []
+    tiles = set()
     for i, poly in enumerate(polygon.geoms):
-        tiles.extend(list(mercantile.tiles(*poly.bounds, level)))
+        tiles.update(list(mercantile.tiles(*poly.bounds, level)))
 
     bbox_list = [mercantile.bounds(tile.x, tile.y, tile.z) for tile in tiles]
     bbox_polygons = [box(*bbox) for bbox in bbox_list]
@@ -212,6 +212,7 @@ def get_image_metadata(
     organization_id: str = None,
     start_time: str = None,
     end_time: str = None,
+    randomize_order=False,
     sampling_threshold=None,
 ):
     kwargs = {
@@ -230,6 +231,9 @@ def get_image_metadata(
     downloaded_metadata = downloaded_metadata.drop_duplicates(subset=["geometry"])
     if sampling_threshold is not None:
         downloaded_metadata = spatial_sampling(downloaded_metadata, sampling_threshold)
+
+    if randomize_order is True:
+        downloaded_metadata = downloaded_metadata.sample(frac=1).reset_index(drop=True)
 
     total_images = len(downloaded_metadata)
     if total_images > 100000:

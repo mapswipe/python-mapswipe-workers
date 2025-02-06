@@ -108,7 +108,8 @@ const defaultProjectFormValue: PartialProjectFormType = {
     // maxTasksPerUser: -1,
     inputType: PROJECT_INPUT_TYPE_UPLOAD,
     filter: FILTER_BUILDINGS,
-    isPano: false,
+    randomizeOrder: false,
+    panoOnly: false,
 };
 
 interface Props {
@@ -320,6 +321,7 @@ function NewProject(props: Props) {
 
             valuesToCopy.startTimestamp = valuesToCopy.dateRange?.startDate ?? null;
             valuesToCopy.endTimestamp = valuesToCopy.dateRange?.endDate ?? null;
+            valuesToCopy.isPano = valuesToCopy.panoOnly ? true : null;
 
             const storage = getStorage();
             const timestamp = (new Date()).getTime();
@@ -756,9 +758,16 @@ function NewProject(props: Props) {
                                 disabled={submissionPending || projectTypeEmpty}
                             />
                             <Checkbox
-                                name={'isPano' as const}
-                                value={value?.isPano}
+                                name={'panoOnly' as const}
+                                value={value?.panoOnly}
                                 label="Only use 360 degree panorama images."
+                                onChange={setFieldValue}
+                                disabled={submissionPending || projectTypeEmpty}
+                            />
+                            <Checkbox
+                                name={'randomizeOrder' as const}
+                                value={value?.randomizeOrder}
+                                label="Randomize the order of images in the project."
                                 onChange={setFieldValue}
                                 disabled={submissionPending || projectTypeEmpty}
                             />
