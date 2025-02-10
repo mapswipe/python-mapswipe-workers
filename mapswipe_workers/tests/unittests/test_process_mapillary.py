@@ -7,6 +7,7 @@ import pandas as pd
 from shapely import wkt
 from shapely.geometry import GeometryCollection, MultiPolygon, Point, Polygon
 
+from mapswipe_workers.definitions import CustomError
 from mapswipe_workers.utils.process_mapillary import (
     coordinate_download,
     create_tiles,
@@ -316,7 +317,7 @@ class TestTileGroupingFunctions(unittest.TestCase):
         df = df.drop(df.index)
         mock_coordinate_download.return_value = df
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(CustomError):
             get_image_metadata(self.fixture_data)
 
     @patch("mapswipe_workers.utils.process_mapillary.filter_results")
@@ -326,7 +327,7 @@ class TestTileGroupingFunctions(unittest.TestCase):
     ):
         mock_df = pd.DataFrame({"id": range(1, 100002), "geometry": range(1, 100002)})
         mock_coordinate_download.return_value = mock_df
-        with self.assertRaises(ValueError):
+        with self.assertRaises(CustomError):
             get_image_metadata(self.fixture_data)
 
     @patch("mapswipe_workers.utils.process_mapillary.coordinate_download")

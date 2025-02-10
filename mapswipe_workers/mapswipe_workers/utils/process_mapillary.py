@@ -9,7 +9,12 @@ from shapely import MultiPolygon, Point, Polygon, box, unary_union
 from shapely.geometry import shape
 from vt2geojson import tools as vt2geojson_tools
 
-from mapswipe_workers.definitions import MAPILLARY_API_KEY, MAPILLARY_API_LINK, logger
+from mapswipe_workers.definitions import (
+    MAPILLARY_API_KEY,
+    MAPILLARY_API_LINK,
+    CustomError,
+    logger,
+)
 from mapswipe_workers.utils.spatial_sampling import spatial_sampling
 
 
@@ -177,28 +182,24 @@ def filter_results(
     df = results_df.copy()
     if creator_id is not None:
         if df["creator_id"].isna().all():
-            logger.exception(
-                "No Mapillary Feature in the AoI has a 'creator_id' value."
-            )
+            logger.info("No Mapillary Feature in the AoI has a 'creator_id' value.")
             return None
         df = df[df["creator_id"] == creator_id]
     if is_pano is not None:
         if df["is_pano"].isna().all():
-            logger.exception("No Mapillary Feature in the AoI has a 'is_pano' value.")
+            logger.info("No Mapillary Feature in the AoI has a 'is_pano' value.")
             return None
         df = df[df["is_pano"] == is_pano]
     if organization_id is not None:
         if df["organization_id"].isna().all():
-            logger.exception(
+            logger.info(
                 "No Mapillary Feature in the AoI has an 'organization_id' value."
             )
             return None
         df = df[df["organization_id"] == organization_id]
     if start_time is not None:
         if df["captured_at"].isna().all():
-            logger.exception(
-                "No Mapillary Feature in the AoI has a 'captured_at' value."
-            )
+            logger.info("No Mapillary Feature in the AoI has a 'captured_at' value.")
             return None
         df = filter_by_timerange(df, start_time, end_time)
     return df
@@ -225,7 +226,7 @@ def get_image_metadata(
     aoi_polygon = geojson_to_polygon(aoi_geojson)
     downloaded_metadata = coordinate_download(aoi_polygon, level, kwargs)
     if downloaded_metadata.empty or downloaded_metadata.isna().all().all():
-        raise ValueError(
+        raise CustomError(
             "No Mapillary Features in the AoI or no Features match the filter criteria."
         )
     downloaded_metadata = downloaded_metadata.drop_duplicates(subset=["geometry"])
@@ -237,7 +238,7 @@ def get_image_metadata(
 
     total_images = len(downloaded_metadata)
     if total_images > 100000:
-        raise ValueError(
+        raise CustomError(
             f"Too many Images with selected filter options for the AoI: {total_images}"
         )
 
