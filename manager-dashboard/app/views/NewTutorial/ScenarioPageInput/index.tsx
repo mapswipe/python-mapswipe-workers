@@ -17,6 +17,7 @@ import {
     PROJECT_TYPE_FOOTPRINT,
     PROJECT_TYPE_CHANGE_DETECTION,
     PROJECT_TYPE_COMPLETENESS,
+    PROJECT_TYPE_STREET,
 } from '#utils/common';
 import TextInput from '#components/TextInput';
 import Heading from '#components/Heading';
@@ -318,7 +319,14 @@ export default function ScenarioPageInput(props: Props) {
                         lookFor={lookFor}
                     />
                 )}
-                {(projectType && projectType !== PROJECT_TYPE_FOOTPRINT) && (
+                {projectType === PROJECT_TYPE_STREET && (
+                    <div>
+                        Preview not available.
+                    </div>
+                )}
+                {(projectType
+                    && projectType !== PROJECT_TYPE_FOOTPRINT
+                    && projectType !== PROJECT_TYPE_STREET) && (
                     <SegmentInput
                         name={undefined}
                         value={activeSegmentInput}

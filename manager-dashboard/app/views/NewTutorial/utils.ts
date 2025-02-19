@@ -348,6 +348,12 @@ export interface ChangeDetectionProperties {
     // taskId: string;
 }
 
+export interface StreetProperties {
+    id: string;
+    reference: number;
+    screen: number;
+}
+
 export type BuildAreaGeoJSON = GeoJSON.FeatureCollection<
     GeoJSON.Geometry,
     BuildAreaProperties
@@ -363,9 +369,14 @@ export type ChangeDetectionGeoJSON = GeoJSON.FeatureCollection<
     ChangeDetectionProperties
 >;
 
+export type StreetGeoJSON = GeoJSON.FeatureCollection<
+    GeoJSON.Geometry,
+    StreetProperties
+>;
+
 export type TutorialTasksGeoJSON = GeoJSON.FeatureCollection<
     GeoJSON.Geometry,
-    BuildAreaProperties | FootprintProperties | ChangeDetectionProperties
+    BuildAreaProperties | FootprintProperties | ChangeDetectionProperties | StreetProperties
 >;
 
 export type CustomOptions = {

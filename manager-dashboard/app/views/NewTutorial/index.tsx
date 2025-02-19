@@ -190,6 +190,11 @@ function getGeoJSONError(
             tile_y: 'number',
             tile_z: 'number',
         },
+        [PROJECT_TYPE_STREET]: {
+            id: ['string', 'number'],
+            reference: 'number',
+            screen: 'number',
+        },
     };
     const schemaErrors = tutorialTasks.features.map(
         (feature) => checkSchema(
