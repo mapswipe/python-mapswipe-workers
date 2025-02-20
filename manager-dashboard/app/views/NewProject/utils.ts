@@ -324,7 +324,8 @@ export const projectFormSchema: ProjectFormSchema = {
             ['projectType'],
             ['customOptions'],
             (formValues) => {
-                if (formValues?.projectType === PROJECT_TYPE_FOOTPRINT) {
+                if (formValues?.projectType === PROJECT_TYPE_FOOTPRINT
+                        || formValues?.projectType === PROJECT_TYPE_STREET) {
                     return {
                         customOptions: {
                             keySelector: (key) => key.value,
