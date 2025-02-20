@@ -66,6 +66,9 @@ class Project(Model):
         FOOTPRINT = 2, "Validate"
         CHANGE_DETECTION = 3, "Compare"
         COMPLETENESS = 4, "Completeness"
+        MEDIA = 5, "Media"
+        DIGITIZATION = 6, "Digitization"
+        STREET = 7, "Street"
 
     project_id = models.CharField(primary_key=True, max_length=999)
     created = models.DateTimeField(blank=True, null=True)

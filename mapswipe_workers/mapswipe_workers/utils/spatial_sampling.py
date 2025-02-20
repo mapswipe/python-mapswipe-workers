@@ -141,9 +141,11 @@ def spatial_sampling(df, interval_length):
     for sequence in sorted_df["sequence_id"].unique():
         sequence_df = sorted_df[sorted_df["sequence_id"] == sequence]
 
-        filtered_sorted_sub_df = filter_points(sequence_df, interval_length)
-        sampled_sequence_df = pd.concat(
-            [sampled_sequence_df, filtered_sorted_sub_df], axis=0
-        )
+        if interval_length:
+            sequence_df = filter_points(sequence_df, interval_length)
+        sampled_sequence_df = pd.concat([sampled_sequence_df, sequence_df], axis=0)
+
+    # reverse order such that sequence are in direction of travel
+    sampled_sequence_df = sampled_sequence_df.iloc[::-1]
 
     return sampled_sequence_df

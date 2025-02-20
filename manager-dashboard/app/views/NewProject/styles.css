@@ -75,6 +75,18 @@
         flex-shrink: 0;
         justify-content: center;
     }
+
+    .warning-container {
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-extra-small);
+
+        .warning-item {
+            display: flex;
+            gap: var(--spacing-small);
+            align-items: flex-start;
+        }
+    }
 }
 
 .submission-status-modal {

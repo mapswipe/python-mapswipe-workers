@@ -26,6 +26,8 @@ import {
     tileServerFieldsSchema,
 } from '#components/TileServerInput';
 
+import { Value as DateRange } from '#components/DateRangeInput';
+
 import {
     getNoMoreThanNCharacterCondition,
     ProjectType,
@@ -34,6 +36,7 @@ import {
     PROJECT_TYPE_FOOTPRINT,
     PROJECT_TYPE_CHANGE_DETECTION,
     PROJECT_TYPE_COMPLETENESS,
+    PROJECT_TYPE_STREET,
     IconKey,
 } from '#utils/common';
 
@@ -75,6 +78,15 @@ export interface ProjectFormType {
     tileServer: TileServer;
     tileServerB?: TileServer;
     customOptions?: CustomOptionsForProject;
+    dateRange?: DateRange | null;
+    startTimestamp?: string | null;
+    endTimestamp?: string | null;
+    organizationId?: number;
+    creatorId?: number;
+    randomizeOrder?: boolean;
+    panoOnly?: boolean;
+    isPano?: boolean | null;
+    samplingThreshold?: number;
 }
 
 export const PROJECT_INPUT_TYPE_UPLOAD = 'aoi_file';
@@ -272,6 +284,38 @@ export const projectFormSchema: ProjectFormSchema = {
                     greaterThanCondition(0),
                 ],
             },
+            dateRange: {
+                required: false,
+            },
+            creatorId: {
+                required: false,
+                validations: [
+                    integerCondition,
+                    greaterThanCondition(0),
+                ],
+            },
+            organizationId: {
+                required: false,
+                validations: [
+                    integerCondition,
+                    greaterThanCondition(0),
+                ],
+            },
+            samplingThreshold: {
+                required: false,
+                validation: [
+                    greaterThanCondition(0),
+                ],
+            },
+            panoOnly: {
+                required: false,
+            },
+            isPano: {
+                required: false,
+            },
+            randomizeOrder: {
+                required: false,
+            },
         };
 
         baseSchema = addCondition(
@@ -394,6 +438,7 @@ export const projectFormSchema: ProjectFormSchema = {
                     projectType === PROJECT_TYPE_BUILD_AREA
                     || projectType === PROJECT_TYPE_COMPLETENESS
                     || projectType === PROJECT_TYPE_CHANGE_DETECTION
+                    || projectType === PROJECT_TYPE_STREET
                     || (projectType === PROJECT_TYPE_FOOTPRINT && (
                         inputType === PROJECT_INPUT_TYPE_UPLOAD
                     ))
@@ -541,7 +586,9 @@ export function getGroupSize(projectType: ProjectType | undefined) {
         return 120;
     }
 
-    if (projectType === PROJECT_TYPE_FOOTPRINT || projectType === PROJECT_TYPE_CHANGE_DETECTION) {
+    if (projectType === PROJECT_TYPE_FOOTPRINT
+            || projectType === PROJECT_TYPE_CHANGE_DETECTION
+            || projectType === PROJECT_TYPE_STREET) {
         return 25;
     }
 
