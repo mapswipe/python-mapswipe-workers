@@ -1,170 +1,110 @@
 {
-  "createdBy": "LtCUyou6CnSSc1H0Q0nDrN97x892",
-  "tutorialDraftId": "waste_mapping_dar_es_salaam",
-  "taskImageIds": [
-    888464808378923,
-    1552821322020271,
-    2969692853315413,
-    1036040467918366,
-    837497816845037
-  ],
-  "answers": [
-    1,
-    2,
-    1,
-    2,
-    3
-  ],
-  "customOptions": [
-    {
-      "description": "the shape does outline a building in the image",
-      "icon": "hand-right-outline",
-      "iconColor": "#00796B",
-      "subOptions": [
-        {
-          "description": "doppelt",
-          "value": 2
-        },
-        {
-          "description": "dreifach",
-          "value": 3
-        }
-      ],
-      "title": "Jetzt rede ich",
-      "value": 1
-    },
-    {
-      "description": "the shape doesn't match a building in the image",
-      "icon": "close-outline",
-      "iconColor": "#D32F2F",
-      "title": "No",
-      "value": 0
-    }
-  ],
+  "createdBy": "atCSosZACaN0qhcVjtMO1tq9d1G3",
+  "tutorialDraftId": "test_tile_classification",
   "informationPages": [
     {
       "blocks": [
         {
           "blockNumber": 1,
           "blockType": "text",
-          "textDescription": "asdf"
+          "textDescription": "This is the first information page"
         },
         {
           "blockNumber": 2,
           "blockType": "image",
-          "image": "https://firebasestorage.googleapis.com/v0/b/dev-mapswipe.appspot.com/o/tutorialImages%2F1705402528654-block-image-2-base-query-form.png?alt=media&token=54325ab8-c5e7-45a3-be41-1926a5984a05"
+          "image": "https://firebasestorage.googleapis.com/v0/b/dev-mapswipe.appspot.com/o/tutorialImages%2F1739963139725-block-image-2-1x1.png?alt=media&token=ae584dcd-d351-4bfe-be5f-1e0d38547f72"
         }
       ],
       "pageNumber": 1,
-      "title": "asdf"
+      "title": "Information page 1"
     }
   ],
-  "lookFor": "waste",
-  "name": "Waste Mapping Dar es Salaam",
+  "lookFor": "cobblestone",
+  "name": "cobblestone-tutorial",
   "projectType": 7,
   "screens": [
     null,
     {
       "hint": {
-        "description": "Swipe to learn some more.",
-        "icon": "swipe-left",
-        "title": "We've marked the correct square green."
+        "description": "This seems to be a tarmac surface.",
+        "icon": "check",
+        "title": "Tarmac"
       },
       "instructions": {
-        "description": "Tap once to mark the squares with buildings green.",
-        "icon": "tap-1",
-        "title": "There are some buildings in this image"
+        "description": "Check out if the road surface material is cobblestone here",
+        "icon": "check",
+        "title": "Is this cobblestone?"
       },
       "success": {
-        "description": "Swipe to the next screen to look for more.",
+        "description": "Correct, this is not cobblestone",
         "icon": "check",
-        "title": "You found your first areas with buildings!"
+        "title": "Nice!"
       }
     },
     {
       "hint": {
-        "description": "Swipe to learn some more.",
-        "icon": "swipe-left",
-        "title": "We've marked the correct square green."
+        "description": "That surface does look like cobblestone!",
+        "icon": "heart-outline",
+        "title": "Cobblestone"
       },
       "instructions": {
-        "description": "Tap once to mark the squares with buildings green.",
-        "icon": "tap-1",
-        "title": "There are some buildings in this image"
+        "description": "Does this look like cobblestone?",
+        "icon": "egg-outline",
+        "title": "How about this one?"
       },
       "success": {
-        "description": "Swipe to the next screen to look for more.",
-        "icon": "check",
-        "title": "You found your first"
-        }
-    },
-     {
-        "hint": {
-          "description": "Swipe to learn some more.",
-          "icon": "swipe-left",
-          "title": "We've marked the correct square green."
-        },
-        "instructions": {
-          "description": "Tap once to mark the squares with buildings green.",
-          "icon": "tap-1",
-          "title": "There are some buildings in this image"
-        },
-        "success": {
-          "description": "Swipe to the next screen to look for more.",
-          "icon": "check",
-          "title": "You found your first areas with buildings!"
-        }
-        },
-     {
-        "hint": {
-          "description": "Swipe to learn some more.",
-          "icon": "swipe-left",
-          "title": "We've marked the correct square green."
-        },
-        "instructions": {
-          "description": "Tap once to mark the squares with buildings green.",
-          "icon": "tap-1",
-          "title": "There are some buildings in this image"
-        },
-        "success": {
-          "description": "Swipe to the next screen to look for more.",
-          "icon": "check",
-          "title": "You found your first areas with buildings!"
-        }
-        },
-     {
-        "hint": {
-          "description": "Swipe to learn some more.",
-          "icon": "swipe-left",
-          "title": "We've marked the correct square green."
-        },
-        "instructions": {
-          "description": "Tap once to mark the squares with buildings green.",
-          "icon": "tap-1",
-          "title": "There are some buildings in this image"
-        },
-        "success": {
-          "description": "Swipe to the next screen to look for more.",
-          "icon": "check",
-          "title": "You found your first areas with buildings!"
-        }
-    },
-    {
-      "hint": {
-        "description": "Swipe to learn some more.",
-        "icon": "swipe-left",
-        "title": "We've marked the correct square green."
-      },
-      "instructions": {
-        "description": "Tap once to mark the squares with buildings green.",
-        "icon": "tap-1",
-        "title": "There are some buildings in this image"
-      },
-      "success": {
-        "description": "Swipe to the next screen to look for more.",
-        "icon": "check",
-        "title": "You found your first areas with buildings!"
+        "description": "Correct",
+        "icon": "search-outline",
+        "title": "Correct"
       }
     }
-  ]
+  ],
+  "tileServer": {
+    "credits": "© 2019 Microsoft Corporation, Earthstar Geographics SIO",
+    "name": "bing"
+  },
+  "tutorialTasks": {
+    "crs": {
+      "properties": {
+        "name": "urn:ogc:def:crs:OGC:1.3:CRS84"
+      },
+      "type": "name"
+    },
+    "features": [
+      {
+        "geometry": {
+          "coordinates": [
+            13.4514123,
+            52.5103378,
+            0
+          ],
+          "type": "Point"
+        },
+        "properties": {
+          "id": "1171343450849316",
+          "reference": 1,
+          "screen": 1
+        },
+        "type": "Feature"
+      },
+      {
+        "geometry": {
+          "coordinates": [
+            13.45285,
+            52.508467,
+            0
+          ],
+          "type": "Point"
+        },
+        "properties": {
+          "id": "378811598610667",
+          "reference": 0,
+          "screen": 2
+        },
+        "type": "Feature"
+      }
+    ],
+    "name": "cobblestone-scenario",
+    "type": "FeatureCollection"
+  }
 }

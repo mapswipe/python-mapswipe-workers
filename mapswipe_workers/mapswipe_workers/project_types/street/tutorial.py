@@ -24,7 +24,7 @@ class StreetTutorial(BaseTutorial):
 
         # self.projectId = tutorial_draft["projectId"]
         self.projectType = tutorial_draft["projectType"]
-        self.tutorial_tasks = tutorial_draft["tasks"]
+        self.tutorial_tasks = tutorial_draft["tutorialTasks"]
         self.groups = dict()
         self.tasks = dict()
 
@@ -54,14 +54,14 @@ class StreetTutorial(BaseTutorial):
     def create_tutorial_tasks(self):
         """Create the tasks dict based on provided examples in geojson file."""
         task_list = []
-        for i, task in enumerate(self.tutorial_tasks):
+        for i, task in enumerate(self.tutorial_tasks["features"]):
             task = StreetTutorialTask(
                 projectId=self.projectId,
                 groupId=101,
-                taskId=f"{task['taskImageId']}",
+                taskId=f"{task['properties']['id']}",
                 geometry="",
-                referenceAnswer=task["referenceAnswer"],
-                screen=i,
+                referenceAnswer=task["properties"]["reference"],
+                screen=task["properties"]["screen"],
             )
             task_list.append(asdict(task))
         if task_list:
