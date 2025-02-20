@@ -8,7 +8,7 @@ from typing import List
 from mapswipe_workers import auth
 
 
-def delete_test_data(project_id: str) -> None:
+def delete_test_data(project_id: str, tutorial_id: str = None) -> None:
     """
     Delete test project indluding groups, tasks and results
     from Firebase and Postgres
@@ -37,6 +37,12 @@ def delete_test_data(project_id: str) -> None:
     ref.delete()
     ref = fb_db.reference(f"v2/users/{project_id}")
     ref.delete()
+
+    if tutorial_id is not None:
+        ref = fb_db.reference(f"v2/projects/{tutorial_id}")
+        ref.delete()
+        ref = fb_db.reference(f"v2/tutorialDrafts/{tutorial_id}")
+        ref.delete()
 
     # Clear out the user-group used in test.
     # XXX: Use a firebase simulator for running test.

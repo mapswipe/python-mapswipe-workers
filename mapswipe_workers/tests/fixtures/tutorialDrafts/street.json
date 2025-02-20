@@ -1,0 +1,110 @@
+{
+  "createdBy": "atCSosZACaN0qhcVjtMO1tq9d1G3",
+  "tutorialDraftId": "test_tile_classification",
+  "informationPages": [
+    {
+      "blocks": [
+        {
+          "blockNumber": 1,
+          "blockType": "text",
+          "textDescription": "This is the first information page"
+        },
+        {
+          "blockNumber": 2,
+          "blockType": "image",
+          "image": "https://firebasestorage.googleapis.com/v0/b/dev-mapswipe.appspot.com/o/tutorialImages%2F1739963139725-block-image-2-1x1.png?alt=media&token=ae584dcd-d351-4bfe-be5f-1e0d38547f72"
+        }
+      ],
+      "pageNumber": 1,
+      "title": "Information page 1"
+    }
+  ],
+  "lookFor": "cobblestone",
+  "name": "cobblestone-tutorial",
+  "projectType": 7,
+  "screens": [
+    null,
+    {
+      "hint": {
+        "description": "This seems to be a tarmac surface.",
+        "icon": "check",
+        "title": "Tarmac"
+      },
+      "instructions": {
+        "description": "Check out if the road surface material is cobblestone here",
+        "icon": "check",
+        "title": "Is this cobblestone?"
+      },
+      "success": {
+        "description": "Correct, this is not cobblestone",
+        "icon": "check",
+        "title": "Nice!"
+      }
+    },
+    {
+      "hint": {
+        "description": "That surface does look like cobblestone!",
+        "icon": "heart-outline",
+        "title": "Cobblestone"
+      },
+      "instructions": {
+        "description": "Does this look like cobblestone?",
+        "icon": "egg-outline",
+        "title": "How about this one?"
+      },
+      "success": {
+        "description": "Correct",
+        "icon": "search-outline",
+        "title": "Correct"
+      }
+    }
+  ],
+  "tileServer": {
+    "credits": "© 2019 Microsoft Corporation, Earthstar Geographics SIO",
+    "name": "bing"
+  },
+  "tutorialTasks": {
+    "crs": {
+      "properties": {
+        "name": "urn:ogc:def:crs:OGC:1.3:CRS84"
+      },
+      "type": "name"
+    },
+    "features": [
+      {
+        "geometry": {
+          "coordinates": [
+            13.4514123,
+            52.5103378,
+            0
+          ],
+          "type": "Point"
+        },
+        "properties": {
+          "id": "1171343450849316",
+          "reference": 1,
+          "screen": 1
+        },
+        "type": "Feature"
+      },
+      {
+        "geometry": {
+          "coordinates": [
+            13.45285,
+            52.508467,
+            0
+          ],
+          "type": "Point"
+        },
+        "properties": {
+          "id": "378811598610667",
+          "reference": 0,
+          "screen": 2
+        },
+        "type": "Feature"
+      }
+    ],
+    "name": "cobblestone-scenario",
+    "type": "FeatureCollection"
+  }
+}

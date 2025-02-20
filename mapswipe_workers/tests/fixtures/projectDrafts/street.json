@@ -46,6 +46,5 @@
     "requestingOrganisation": "test",    
     "verificationNumber": 3,
     "groupSize": 25,
-    "startTimestamp": "2019-07-01T00:00:00.000Z",
     "samplingThreshold": 0.1
 }
