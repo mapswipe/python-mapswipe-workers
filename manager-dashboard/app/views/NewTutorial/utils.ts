@@ -265,7 +265,7 @@ export const defaultStreetCustomOptions: PartialTutorialFormType['customOptions'
         title: 'Yes',
         icon: 'checkmark-outline',
         iconColor: colorKeyToColorMap.green,
-        description: '',
+        description: 'the object you are looking for is in the image.',
     },
     {
         optionId: 2,
@@ -273,7 +273,7 @@ export const defaultStreetCustomOptions: PartialTutorialFormType['customOptions'
         title: 'No',
         icon: 'close-outline',
         iconColor: colorKeyToColorMap.red,
-        description: '',
+        description: 'the object you are looking for is NOT in the image.',
     },
     {
         optionId: 3,
@@ -775,7 +775,8 @@ export const tutorialFormSchema: TutorialFormSchema = {
                     }),
                 };
 
-                if (formValues?.projectType === PROJECT_TYPE_FOOTPRINT) {
+                if (formValues?.projectType === PROJECT_TYPE_FOOTPRINT
+                        || formValues?.projectType === PROJECT_TYPE_STREET) {
                     return {
                         customOptions: customOptionField,
                     };
