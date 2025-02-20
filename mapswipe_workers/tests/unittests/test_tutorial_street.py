@@ -6,13 +6,13 @@ from tests.fixtures import FIXTURE_DIR, get_fixture
 
 
 class TestTutorial(unittest.TestCase):
-    def test_init_tile_classification_project(self):
+    def test_init_street_tutorial(self):
         tutorial_draft = get_fixture(
             os.path.join(FIXTURE_DIR, "tutorialDrafts", "street.json")
         )
         self.assertIsNotNone(StreetTutorial(tutorial_draft=tutorial_draft))
 
-    def test_create_tile_classification_tasks(self):
+    def test_create_street_tasks(self):
         tutorial_draft = get_fixture(
             os.path.join(FIXTURE_DIR, "tutorialDrafts", "street.json")
         )
