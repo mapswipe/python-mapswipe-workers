@@ -10,14 +10,14 @@ from tests.integration import set_up, tear_down
 class TestCreateTileClassificationProject(unittest.TestCase):
     def setUp(self):
         self.tutorial_id = set_up.create_test_tutorial_draft(
-            "street",
-            "street",
+            "tile_classification",
+            "tile_classification",
             "test_tile_classification_tutorial",
         )
 
         self.project_id = set_up.create_test_project_draft(
-            "street",
-            "street",
+            "tile_classification",
+            "tile_classification",
             "test_tile_classification_tutorial",
             tutorial_id=self.tutorial_id,
         )
@@ -26,7 +26,7 @@ class TestCreateTileClassificationProject(unittest.TestCase):
     def tearDown(self):
         tear_down.delete_test_data(self.project_id, self.tutorial_id)
 
-    def test_create_tile_classification_project(self):
+    def test_create_tile_classification_project_and_tutorial(self):
         runner = CliRunner()
         runner.invoke(mapswipe_workers.run_create_tutorials, catch_exceptions=False)
         runner.invoke(mapswipe_workers.run_create_projects, catch_exceptions=False)
