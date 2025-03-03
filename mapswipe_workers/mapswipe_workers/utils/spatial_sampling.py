@@ -143,6 +143,9 @@ def spatial_sampling(df, interval_length):
 
         if interval_length:
             sequence_df = filter_points(sequence_df, interval_length)
+        # below line prevents FutureWarning
+        # (https://stackoverflow.com/questions/73800841/add-series-as-a-new-row-into-dataframe-triggers-futurewarning)
+        sequence_df["is_pano"] = sequence_df["is_pano"].astype(bool)
         sampled_sequence_df = pd.concat([sampled_sequence_df, sequence_df], axis=0)
 
     # reverse order such that sequence are in direction of travel
