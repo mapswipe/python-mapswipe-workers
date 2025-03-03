@@ -4,6 +4,7 @@
   "exampleImage2": "https://firebasestorage.googleapis.com/v0/b/heigit-crowdmap.appspot.com/o/projectImages%2F1686065132355-tutorial-image-2-1x1.png?alt=media&token=bf8e67bc-d34c-4676-ba17-56bffc6b3f2d",
   "lookFor": "buildings",
   "name": "completeness_tutorial",
+  "tutorialDraftId": "test_tile_completeness",
   "projectType": 4,
   "screens": {
     "categories": {

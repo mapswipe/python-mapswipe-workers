@@ -4,6 +4,7 @@
   "exampleImage2": "",
   "lookFor": "damaged buildings",
   "name": "change_detection_tutorial",
+  "tutorialDraftId": "test_tile_change_detection",
   "projectType": 3,
   "screens": [
     null,
