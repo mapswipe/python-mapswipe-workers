@@ -229,12 +229,13 @@ def get_image_metadata(
         raise CustomError(
             "No Mapillary Features in the AoI or no Features match the filter criteria."
         )
-    downloaded_metadata = downloaded_metadata.drop_duplicates(subset=["geometry"])
     if sampling_threshold is not None:
         downloaded_metadata = spatial_sampling(downloaded_metadata, sampling_threshold)
 
     if randomize_order is True:
         downloaded_metadata = downloaded_metadata.sample(frac=1).reset_index(drop=True)
+
+    downloaded_metadata = downloaded_metadata.drop_duplicates(subset=["geometry"])
 
     total_images = len(downloaded_metadata)
     if total_images > 100000:
