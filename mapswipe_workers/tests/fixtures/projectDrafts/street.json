@@ -1,0 +1,50 @@
+{
+    "createdBy": "test",
+    "geometry": {
+        "type": "FeatureCollection",
+        "features": [
+            {
+                "type": "Feature",
+                "properties": {},
+                "geometry": {
+                    "type": "Polygon",
+                    "coordinates": [
+                        [
+                            [
+                                39.27186980415655,
+                                -6.818313681620424
+                            ],
+                            [
+                                39.27186980415655,
+                                -6.824056026803248
+                            ],
+                            [
+                                39.27489288297136,
+                                -6.823996705403303
+                            ],
+                            [
+                                39.27483313833096,
+                                -6.817969613314901
+                            ],
+                            [
+                                39.27186980415655,
+                                -6.818313681620424
+                            ]
+                        ]
+                    ]
+                }
+            }
+        ]
+    },
+    "image": "",
+    "lookFor": "buildings",
+    "name": "test - Dar es Salaam (1)\ntest",
+    "projectDetails": "test",
+    "projectNumber": 1,
+    "projectTopic": "test",
+    "projectType": 7,
+    "requestingOrganisation": "test",    
+    "verificationNumber": 3,
+    "groupSize": 25,
+    "samplingThreshold": 0.1
+}

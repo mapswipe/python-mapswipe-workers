@@ -69,6 +69,7 @@ import {
     PROJECT_TYPE_COMPLETENESS,
     PROJECT_TYPE_CHANGE_DETECTION,
     PROJECT_TYPE_FOOTPRINT,
+    PROJECT_TYPE_STREET,
     ProjectType,
     projectTypeLabelMap,
 } from '#utils/common';
@@ -76,7 +77,7 @@ import {
 import {
     tileServerUrls,
     tutorialFormSchema,
-    defaultFootprintCustomOptions,
+    getDefaultOptions,
     TutorialFormType,
     PartialTutorialFormType,
     PartialInformationPagesType,
@@ -188,6 +189,11 @@ function getGeoJSONError(
             tile_x: 'number',
             tile_y: 'number',
             tile_z: 'number',
+        },
+        [PROJECT_TYPE_STREET]: {
+            id: ['string', 'number'],
+            reference: 'number',
+            screen: 'number',
         },
     };
     const schemaErrors = tutorialTasks.features.map(
@@ -341,7 +347,6 @@ const defaultTutorialFormValue: PartialTutorialFormType = {
         name: TILE_SERVER_ESRI,
         credits: tileServerDefaultCredits[TILE_SERVER_ESRI],
     },
-    customOptions: defaultFootprintCustomOptions,
 };
 
 type SubmissionStatus = 'started' | 'imageUpload' | 'tutorialSubmit' | 'success' | 'failed';
@@ -646,6 +651,11 @@ function NewTutorial(props: Props) {
         || tutorialSubmissionStatus === 'tutorialSubmit'
     );
 
+    const tileServerVisible = value.projectType === PROJECT_TYPE_BUILD_AREA
+            || value.projectType === PROJECT_TYPE_FOOTPRINT
+            || value.projectType === PROJECT_TYPE_COMPLETENESS
+            || value.projectType === PROJECT_TYPE_CHANGE_DETECTION;
+
     const tileServerBVisible = value.projectType === PROJECT_TYPE_CHANGE_DETECTION
         || value.projectType === PROJECT_TYPE_COMPLETENESS;
 
@@ -716,6 +726,7 @@ function NewTutorial(props: Props) {
             setFieldValue(undefined, 'tutorialTasks');
             setFieldValue(undefined, 'scenarioPages');
             setFieldValue(newValue, 'projectType');
+            setFieldValue(getDefaultOptions(newValue), 'customOptions');
         },
         [setFieldValue],
     );
@@ -761,7 +772,10 @@ function NewTutorial(props: Props) {
                         autoFocus
                     />
                 </InputSection>
-                {value.projectType === PROJECT_TYPE_FOOTPRINT && (
+                {(
+                    value.projectType === PROJECT_TYPE_FOOTPRINT
+                        || value.projectType === PROJECT_TYPE_STREET
+                ) && (
                     <InputSection
                         heading="Custom Options"
                         actions={(
@@ -896,17 +910,20 @@ function NewTutorial(props: Props) {
                         )}
                     </div>
                 </InputSection>
-                <InputSection
-                    heading={tileServerBVisible ? 'Tile Server A' : 'Tile Server'}
-                >
-                    <TileServerInput
-                        name={'tileServer' as const}
-                        value={value.tileServer}
-                        error={error?.tileServer}
-                        onChange={setFieldValue}
-                        disabled={submissionPending || projectTypeEmpty}
-                    />
-                </InputSection>
+                {tileServerVisible && (
+                    <InputSection
+                        heading={tileServerBVisible ? 'Tile Server A' : 'Tile Server'}
+                    >
+                        <TileServerInput
+                            name={'tileServer' as const}
+                            value={value.tileServer}
+                            error={error?.tileServer}
+                            onChange={setFieldValue}
+                            disabled={submissionPending || projectTypeEmpty}
+                        />
+                    </InputSection>
+                )}
+
                 {tileServerBVisible && (
                     <InputSection
                         heading="Tile Server B"
