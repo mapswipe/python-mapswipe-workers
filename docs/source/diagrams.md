@@ -9,29 +9,34 @@ The Diagrams are drawn using [draw.io](https://.wwww.draw.io). You can download 
 ---
 
 **Deployment Diagram:**
-![Deployment Diagram](/_static/img/deployment_diagram.png)
+![Deployment Diagram](_static/img/deployment_diagram.png)
 
 ---
 
 **Proposed Data Structure Project Type 1 - Firebase:**
-![Data Structure - Firebase](/_static/img/data_structure-firebase-1.svg)
+![Data Structure - Firebase](_static/img/data_structure-firebase-1.svg)
 
 ---
 
 **Proposed Data Structure Project Type 2 - Firebase:**
-![Data Structure - Firebase](/_static/img/data_structure-firebase-2.svg)
+![Data Structure - Firebase](_static/img/data_structure-firebase-2.svg)
 
 ---
 
 **Database Scheme - Postgres:**
-![Database Schema - Postgres](/_static/img/database_schema-postgres.png)
+![Database Schema - Postgres](_static/img/database_schema-postgres.png)
 
 ---
 
 **Entity Relationship Diagram - Postgres:**
-![Entity Relationship Diagram- Postgres](/_static/img/entity_relationship_diagram-postgres.png)
+![Entity Relationship Diagram- Postgres](_static/img/entity_relationship_diagram-postgres.png)
 
 ---
 
 **Database Schema - Analytics:**
-![Database Schema - Analytics](/_static/img/database_schema-analytics.png)
+![Database Schema - Analytics](_static/img/database_schema-analytics.png)
+
+---
+
+**Mapping Sessions - Time Calculation:**
+![MapSwipe Time Calculation](_static/img/mapswipe_time_calculation.png)
