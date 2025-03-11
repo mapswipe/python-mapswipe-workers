@@ -70,10 +70,12 @@ const BUILD_AREA = 'BUILD_AREA';
 const FOOTPRINT = 'FOOTPRINT';
 const CHANGE_DETECTION = 'CHANGE_DETECTION';
 const COMPLETENESS = 'COMPLETENESS';
+const STREET = 'STREET';
 
+// FIXME: the name property is not used properly
 const projectTypes: Record<string, { color: string, name: string }> = {
     [UNKNOWN]: {
-        color: '#808080',
+        color: '#cacaca',
         name: 'Unknown',
     },
     [BUILD_AREA]: {
@@ -91,6 +93,10 @@ const projectTypes: Record<string, { color: string, name: string }> = {
     [COMPLETENESS]: {
         color: '#fb8072',
         name: 'Completeness',
+    },
+    [STREET]: {
+        color: '#808080',
+        name: 'Street',
     },
 };
 
@@ -372,7 +378,11 @@ function StatsBoard(props: Props) {
             swipeByProjectType
                 ?.map((item) => ({
                     ...item,
-                    projectType: item.projectType ?? '-1',
+                    projectType: (
+                        isDefined(item.projectType)
+                        && isDefined(projectTypes[item.projectType])
+                    ) ? item.projectType
+                        : UNKNOWN,
                 }))
                 .sort((a, b) => compareNumber(a.totalSwipes, b.totalSwipes, -1)) ?? []
         ),
@@ -750,7 +760,7 @@ function StatsBoard(props: Props) {
                                         {sortedProjectSwipeType.map((item) => (
                                             <Cell
                                                 key={item.projectType}
-                                                fill={projectTypes[item.projectType].color}
+                                                fill={projectTypes[item.projectType]?.color}
                                             />
                                         ))}
                                     </Pie>
