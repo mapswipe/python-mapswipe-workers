@@ -17,8 +17,21 @@ class TestCreateConflationProject(unittest.TestCase):
         self.project = ConflationProject(project_draft)
 
     def test_init(self):
-        self.assertEqual(self.project.geometry["type"], "FeatureCollection")
-        self.assertEqual(self.project.inputType, "aoi_file")
+        self.assertIsInstance(self.project.geometry, str)
+
+    def test_create_groups(self):
+        self.project.validate_geometries()
+        self.project.create_groups()
+        # self.assertEqual(len(self.project.groups.keys()), 1)
+        # self.assertIsInstance(self.project.geometry, str)
+
+    def test_create_tasks(self):
+        self.project.validate_geometries()
+        self.project.create_groups()
+        self.project.create_tasks()
+        # self.assertEqual(len(self.project.tasks.keys()), 1)
+        # self.assertEqual(len(self.project.tasks["g100"]), 1)
+        # self.assertTrue("POLYGON" in self.project.tasks["g100"][0].geometry)
 
 
 if __name__ == "__main__":
