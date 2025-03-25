@@ -1,0 +1,31 @@
+{
+  "createdBy" : "Sample Admin",
+  "filter" : "building=* and geometry:polygon",
+  "geometry" : {
+    "type": "FeatureCollection",
+    "features": [
+      {
+        "type": "Feature",
+        "properties": {},
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [[[9.18032169342041, 48.790552471542284],[9.187102317810059,48.790552471542284],[9.187102317810059,48.79407236257656],[9.18032169342041,48.79407236257656],[9.18032169342041,48.790552471542284]]]}
+      }
+    ]
+  },
+  "groupSize" : 25,
+  "lookFor": "Buildings",
+  "image": "http://www.fragosus.com/test/Javita.jpg",
+  "projectDetails": "This is a template for a GeoJSON AOI project. We use Bing as the tile server.",
+  "inputType" : "aoi_file",
+  "name" : "Test Footprint GeoJSON AOI",
+  "projectTopic" : "Test Footprint GeoJSON AOI",
+  "projectType" : 2,
+  "verificationNumber": 3,
+  "tileServer" : {
+    "credits" : "© 2019 Microsoft Corporation, Earthstar Geographics SIO",
+    "name" : "bing",
+    "url" : "",
+    "wmtsLayerName" : ""
+  }
+}
