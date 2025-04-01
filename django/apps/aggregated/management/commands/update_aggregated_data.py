@@ -7,6 +7,7 @@ from apps.aggregated.models import (
     AggregatedUserStatData,
 )
 from apps.existing_database.models import MappingSession, Project
+
 from django.core.management.base import BaseCommand
 from django.db import connection, models, transaction
 from django.utils import timezone
@@ -55,6 +56,7 @@ UPDATE_PROJECT_GROUP_DATA_USING_PROJECT_ID = f"""
               WHEN P.project_type = {Project.Type.CHANGE_DETECTION.value} THEN 11.2
               -- FOOTPRINT: Not calculated right now
               WHEN P.project_type = {Project.Type.FOOTPRINT.value} THEN 6.1
+              WHEN P.project_type = {Project.Type.STREET.value} THEN 65
               ELSE 1
             END
           ) * COUNT(*) as time_spent_max_allowed
@@ -110,6 +112,7 @@ UPDATE_PROJECT_GROUP_DATA_USING_TIME_RANGE = f"""
               WHEN P.project_type = {Project.Type.CHANGE_DETECTION.value} THEN 11.2
               -- FOOTPRINT: Not calculated right now
               WHEN P.project_type = {Project.Type.FOOTPRINT.value} THEN 6.1
+              WHEN P.project_type = {Project.Type.STREET.value} THEN 65
               ELSE 1
             END
           ) * COUNT(*) as time_spent_max_allowed
