@@ -42,23 +42,46 @@ exports.groupUsersCounter = functions.database.ref('/v2/results/{projectId}/{gro
     const thisResultRef = admin.database().ref('/v2/results/' + context.params.projectId + '/' + context.params.groupId + '/' + context.params.userId );
     const userGroupsRef = admin.database().ref('/v2/userGroups/');
 
+    let appVersionString: string | undefined | null = undefined;
+
+    type Args = Record<string, string | number | null | undefined>
+    // eslint-disable-next-line require-jsdoc
+    function logger(message: string, extraArgs: Args = {}, logFunction: (typeof console.log) = console.log) {
+        const ctx: Args = {
+            message: message,
+            ...extraArgs,
+            project: context.params.projectId,
+            user: context.params.userId,
+            group: context.params.groupId,
+            version: appVersionString,
+        };
+        const items = Object.keys(ctx).reduce<string[]>(
+            (acc, key) => {
+                const value = ctx[key];
+                if (value === undefined || value === null || value === '') {
+                    return acc;
+                }
+                const item = `${key}[${value}]`;
+                return [...acc, item];
+            },
+            []
+        );
+        logFunction(items.join(' '));
+    }
 
     // Check for specific user ids which have been identified as problematic.
     // These users have repeatedly uploaded harmful results.
     // Add new user ids to this list if needed.
     const userIds: string[] = [];
-    if ( userIds.includes(context.params.userId) ) {
-        console.log('suspicious user: ' + context.params.userId);
-        console.log('will remove this result and not update counters');
+    if (userIds.includes(context.params.userId) ) {
+        console.log('Result removed because of suspicious user activity');
         return thisResultRef.remove();
     }
 
     const result = snapshot.val();
-
-
     // New versions of app will have the appVersion defined (> 2.2.5)
     // appVersion: 2.2.5 (14)-dev
-    const appVersionString = result.appVersion as string | undefined | null;
+    appVersionString = result.appVersion;
 
     // Check if the app is of older version
     // (no need to check for specific version since old app won't sent the version info)
@@ -68,11 +91,11 @@ exports.groupUsersCounter = functions.database.ref('/v2/results/{projectId}/{gro
 
         if (dataSnapshot.exists()) {
             const project = dataSnapshot.val();
-            // Check if project type is validate and also has
+            // Check if project type is 'validate' and also has
             // custom options (i.e. these are new type of projects)
             if (project.projectType === 2 && project.customOptions) {
                 // We remove the results submitted from older version of app (< v2.2.6)
-                console.info(`Result submitted for ${context.params.projectId} was discarded: submitted from older version of app`);
+                logger('Result removed because it was submitted from an older version', undefined, console.error);
                 return thisResultRef.remove();
             }
         }
@@ -81,16 +104,13 @@ exports.groupUsersCounter = functions.database.ref('/v2/results/{projectId}/{gro
     // if result ref does not contain all required attributes we don't updated counters
     // e.g. due to some error when uploading from client
     if (!Object.prototype.hasOwnProperty.call(result, 'results')) {
-        console.log('no results attribute for ' + snapshot.ref);
-        console.log('will not update counters');
+        logger('Not updating counters because results attribute was not found.', { result: String(snapshot.ref) }, console.error);
         return null;
     } else if (!Object.prototype.hasOwnProperty.call(result, 'endTime')) {
-        console.log('no endTime attribute for ' + snapshot.ref);
-        console.log('will not update counters');
+        logger('Not updating counters because endTime attribute was not found.', { result: String(snapshot.ref) }, console.error);
         return null;
     } else if (!Object.prototype.hasOwnProperty.call(result, 'startTime')) {
-        console.log('no startTime attribute for ' + snapshot.ref);
-        console.log('will not update counters');
+        logger('Not updating counters because startTime attribute was not found.', { result: String(snapshot.ref) }, console.error);
         return null;
     }
 
@@ -103,8 +123,7 @@ exports.groupUsersCounter = functions.database.ref('/v2/results/{projectId}/{gro
     const mappingSpeed = (endTime - startTime) / numberOfTasks;
     if (mappingSpeed < 0.125) {
         // this about 8-times faster than the average time needed per task
-        console.log('unlikely high mapping speed: ' + mappingSpeed);
-        console.log('will remove this result and not update counters');
+        logger('Result removed because of unlikely high mapping speed', { mappingSpeed: mappingSpeed }, console.warn);
         return thisResultRef.remove();
     }
 
@@ -117,9 +136,11 @@ exports.groupUsersCounter = functions.database.ref('/v2/results/{projectId}/{gro
     */
     const dataSnapshot = await groupUsersRef.child(context.params.userId).once('value');
     if (dataSnapshot.exists()) {
-        console.log('group contribution exists already. user: '+context.params.userId+' project: '+context.params.projectId+' group: '+context.params.groupId);
+        logger('Group contribution already exists.');
         return null;
     }
+
+    // Update contributions
 
     const latestNumberOfTasks = Object.keys(result['results']).length;
     await Promise.all([
@@ -136,8 +157,8 @@ exports.groupUsersCounter = functions.database.ref('/v2/results/{projectId}/{gro
         }),
     ]);
 
-
     // Tag userGroups of the user in the result
+
     const userGroupsOfTheUserSnapshot = await userRef.child('userGroups').once('value');
     if (!userGroupsOfTheUserSnapshot.exists()) {
         return null;
