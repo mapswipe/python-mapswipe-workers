@@ -39,4 +39,4 @@ The Diagrams are drawn using [draw.io](https://.wwww.draw.io). You can download 
 ---
 
 **Mapping Sessions - Time Calculation:**
-![MapSwipe Time Calculation](_static/img/mapswipe_time_calculation.png)
+![MapSwipe Time Calculation](_static/img/mapswipe-time-calculation.png)
