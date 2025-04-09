@@ -7,7 +7,6 @@ from apps.aggregated.models import (
     AggregatedUserStatData,
 )
 from apps.existing_database.models import MappingSession, Project
-
 from django.core.management.base import BaseCommand
 from django.db import connection, models, transaction
 from django.utils import timezone
