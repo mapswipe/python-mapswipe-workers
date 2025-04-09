@@ -1,7 +1,7 @@
 {
     "createdBy": "atCSosZACaN0qhcVjtMO1tq9d1G3",
     "geometry": "https://firebasestorage.googleapis.com/v0/b/dev-mapswipe.appspot.com/o/all_predictions_192.geojson?alt=media&token=b7a85e56-6ab1-4e0d-a734-a772025a88b8",
-    "filter": "building=* and geometry:polygon",
+    "filter": "way['building']",
     "groupSize": 25,
     "image": "https://firebasestorage.googleapis.com/v0/b/dev-mapswipe.appspot.com/o/projectImages%2F1742895229710-project-image-1x1.png?alt=media&token=26cf1956-9ab7-4348-b529-9952f2f8424e",
     "lookFor": "Buildings",
