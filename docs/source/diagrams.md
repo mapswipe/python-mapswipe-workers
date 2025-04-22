@@ -54,7 +54,7 @@ Step 3: Sync Worker **saves raw data** to Postgres database
 Step 4: Cron job **reads raw data** from Postgres database
 - Another cron job reads the raw data from Postgres database.
 
-Step 5: Cron job **saves aggregates** Postgres database
+Step 5: Cron job **saves aggregates** to Postgres database
 - The cron job aggregates previous 24 hours data (end date - start date), sends back, and saves processed aggregated data to the Postgres database.
 
 Step 6: Community dashboard **queries aggregate data** from Postgres database 
