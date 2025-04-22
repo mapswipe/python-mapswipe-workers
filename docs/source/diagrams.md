@@ -38,5 +38,27 @@ The Diagrams are drawn using [draw.io](https://.wwww.draw.io). You can download 
 
 ---
 
-**Mapping Sessions - Time Calculation:**
+**Mapping Sessions - Time Calculation**
+
+The diagram below is a visual representation of how time is calculated in MapSwipe. 
+
+Step 1: User Mapping Session **sends data** to Firebase
+- When a user completes a mapping session in the mobile/web app, the session payload (including start/end timestamps, user ID, session metadata, etc.) is sent in real time to Firebase.
+
+Step 2: Firebase **syncs data** with the cron job 
+- Every 3 minutes, a cron job syncs data for any new session records and pulls them into the backend.
+
+Step 3: Sync Worker **saves raw data** to Postgres database
+- The cron job sends new session data to the Postgres database.
+
+Step 4: Cron job **reads raw data** from Postgres database
+- Another cron job reads the raw data from Postgres database.
+
+Step 5: Cron job **saves aggregates** Postgres database
+- The cron job aggregates previous 24 hours data (end date - start date), sends back, and saves processed aggregated data to the Postgres database.
+
+Step 6: Community dashboard **queries aggregate data** from Postgres database 
+- The Community dashboard pulls the processed data from the Postgres database and updates the dashbaord with up-to-date stats.
+
+
 ![MapSwipe Time Calculation](_static/img/mapswipe-time-calculation.png)
