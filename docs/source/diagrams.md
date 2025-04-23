@@ -45,10 +45,10 @@ The diagram below is a visual representation of how time is calculated in MapSwi
 Step 1: User Mapping Session **sends data** to Firebase
 - When a user completes a mapping session in the mobile/web app, the session payload (including start/end timestamps, user ID, session metadata, etc.) is sent in real time to Firebase.
 
-Step 2: Firebase **syncs data** with the cron job 
+Step 2: Cron job **fetches data** from the firebase 
 - Every 3 minutes, a cron job syncs data for any new session records and pulls them into the backend.
 
-Step 3: Sync Worker **saves raw data** to Postgres database
+Step 3: Cron job **saves raw data** to Postgres database
 - The cron job sends new session data to the Postgres database.
 
 Step 4: Cron job **reads raw data** from Postgres database
