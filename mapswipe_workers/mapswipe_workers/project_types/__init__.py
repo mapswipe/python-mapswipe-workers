@@ -1,3 +1,4 @@
+from .arbitrary_geometry.conflation.project import ConflationProject
 from .arbitrary_geometry.digitization.project import DigitizationProject
 from .arbitrary_geometry.footprint.project import FootprintProject
 from .arbitrary_geometry.footprint.tutorial import FootprintTutorial
@@ -24,4 +25,5 @@ __all__ = [
     "DigitizationProject",
     "StreetProject",
     "StreetTutorial",
+    "ConflationProject",
 ]
