@@ -20,7 +20,7 @@ import axios from 'axios';
 // will get a cryptic error about the server not being able to continue
 // TODO: adjust the prefix based on which deployment is done (prod/dev)
 const OAUTH_REDIRECT_URI = functions.config().osm?.redirect_uri;
-const OAUTH_REDIRECT_URI_WEB = functions.config().osm?.redirect_web;
+const OAUTH_REDIRECT_URI_WEB = functions.config().osm?.redirect_uri_web;
 
 const APP_OSM_LOGIN_DEEPLINK = functions.config().osm?.app_login_link;
 const APP_OSM_LOGIN_DEEPLINK_WEB = functions.config().osm?.app_login_link_web;
@@ -265,7 +265,7 @@ export const token_web = async (req: any, res: any, admin: any) => {
                 // this doesn't work
                 results = await oauth2.authorizationCode.getToken({
                     code: req.query.code,
-                    redirect_uri: OAUTH_REDIRECT_URI,
+                    redirect_uri: OAUTH_REDIRECT_URI_WEB,
                     scope: OAUTH_SCOPES,
                     state: req.query.state,
                 });
