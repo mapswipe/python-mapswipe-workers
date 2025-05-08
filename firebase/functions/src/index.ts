@@ -8,7 +8,7 @@ admin.initializeApp();
 // all functions are bundled together. It's less than ideal, but it does not
 // seem possible to split them using the split system for multiple sites from
 // https://firebase.google.com/docs/hosting/multisites
-import {redirect, token} from './osm_auth';
+import {redirect, token, redirect_web, token_web} from './osm_auth';
 import { formatProjectTopic, formatUserName } from './utils';
 
 exports.osmAuth = {};
@@ -21,6 +21,14 @@ exports.osmAuth.redirect = functions.https.onRequest((req, res) => {
 
 exports.osmAuth.token = functions.https.onRequest((req, res) => {
     token(req, res, admin);
+});
+
+exports.osmAuth.redirect_web = functions.https.onRequest((req, res) => {
+    redirect_web(req, res);
+});
+
+exports.osmAuth.token_web = functions.https.onRequest((req, res) => {
+    token_web(req, res, admin);
 });
 
 /*

@@ -1,4 +1,4 @@
-// Firebase cloud functions to allow authentication with OpenStreet Map
+// Firebase cloud functions to allow authentication with OpenStreetMap
 //
 // There are really 2 functions, which must be publicly accessible via
 // an https endpoint. They can be hosted on firebase under a domain like
@@ -20,8 +20,10 @@ import axios from 'axios';
 // will get a cryptic error about the server not being able to continue
 // TODO: adjust the prefix based on which deployment is done (prod/dev)
 const OAUTH_REDIRECT_URI = functions.config().osm?.redirect_uri;
+const OAUTH_REDIRECT_URI_WEB = functions.config().osm?.redirect_web;
 
 const APP_OSM_LOGIN_DEEPLINK = functions.config().osm?.app_login_link;
+const APP_OSM_LOGIN_DEEPLINK_WEB = functions.config().osm?.app_login_link_web;
 
 // the scope is taken from https://wiki.openstreetmap.org/wiki/OAuth#OAuth_2.0
 // at least one seems to be required for the auth workflow to complete.
@@ -41,6 +43,21 @@ function osmOAuth2Client() {
         client: {
             id: functions.config().osm?.client_id,
             secret: functions.config().osm?.client_secret,
+        },
+        auth: {
+            tokenHost: OSM_API_URL,
+            tokenPath: '/oauth2/token',
+            authorizePath: '/oauth2/authorize',
+        },
+    };
+    return simpleOAuth2.create(credentials);
+}
+
+function osmOAuth2ClientWeb() {
+    const credentials = {
+        client: {
+            id: functions.config().osm?.client_id_web,
+            secret: functions.config().osm?.client_secret_web,
         },
         auth: {
             tokenHost: OSM_API_URL,
@@ -76,6 +93,32 @@ export const redirect = (req: any, res: any) => {
         });
         const redirectUri = oauth2.authorizationCode.authorizeURL({
             redirect_uri: OAUTH_REDIRECT_URI,
+            scope: OAUTH_SCOPES,
+            state: state,
+        });
+        functions.logger.log('Redirecting to:', redirectUri);
+        res.redirect(redirectUri);
+    });
+};
+
+export const redirect_web = (req: any, res: any) => {
+    const oauth2 = osmOAuth2ClientWeb();
+
+    cookieParser()(req, res, () => {
+        const state =
+            req.cookies.state || crypto.randomBytes(20).toString('hex');
+        functions.logger.log('Setting verification state:', state);
+        // the cookie MUST be called __session for hosted functions not to
+        // strip it from incoming requests
+        // (https://firebase.google.com/docs/hosting/manage-cache#using_cookies)
+        res.cookie('__session', state.toString(), {
+            // cookie is valid for 1 hour
+            maxAge: 3600000,
+            secure: true,
+            httpOnly: true,
+        });
+        const redirectUri = oauth2.authorizationCode.authorizeURL({
+            redirect_uri: OAUTH_REDIRECT_URI_WEB,
             scope: OAUTH_SCOPES,
             state: state,
         });
@@ -178,6 +221,89 @@ export const token = async (req: any, res: any, admin: any) => {
             // build a deep link so we can send the token back to the app
             // from the browser
             const signinUrl = `${APP_OSM_LOGIN_DEEPLINK}?token=${firebaseToken}`;
+            functions.logger.log('redirecting user to', signinUrl);
+            res.redirect(signinUrl);
+        });
+    } catch (error: any) {
+        // FIXME: this should show up in the user's browser as a bit of text
+        // We should figure out the various error codes available and feed them
+        // back into the app to allow the user to take action
+        return res.json({ error: error.toString() });
+    }
+};
+
+
+export const token_web = async (req: any, res: any, admin: any) => {
+    const oauth2 = osmOAuth2ClientWeb();
+
+    try {
+        return cookieParser()(req, res, async () => {
+            functions.logger.log(
+                'Received verification state:',
+                req.cookies.__session,
+            );
+            functions.logger.log('Received state:', req.query.state);
+            // FIXME: For security, we need to check the cookie that was set
+            // in the /redirect_web function on the user's browser.
+            // However, there seems to be a bug in firebase around this.
+            // https://github.com/firebase/firebase-functions/issues/544
+            // and linked SO question
+            // firebase docs mention the need for a cookie middleware, but there
+            // is no info about it :(
+            // cross site cookies don't seem to be the issue
+            // WE just need to make sure the domain set on the cookies is right
+            if (!req.cookies.__session) {
+                throw new Error('State cookie not set or expired. Maybe you took too long to authorize. Please try again.');
+            } else if (req.cookies.__session !== req.query.state) {
+                throw new Error('State validation failed');
+            }
+            functions.logger.log('Received auth code:', req.query.code);
+            let results;
+
+            try {
+                // TODO: try adding auth data to request headers if
+                // this doesn't work
+                results = await oauth2.authorizationCode.getToken({
+                    code: req.query.code,
+                    redirect_uri: OAUTH_REDIRECT_URI,
+                    scope: OAUTH_SCOPES,
+                    state: req.query.state,
+                });
+            } catch (error: any) {
+                functions.logger.log('Auth token error', error, error.data.res.req);
+            }
+            // why is token called twice?
+            functions.logger.log(
+                'Auth code exchange result received:',
+                results,
+            );
+
+            // We have an OSM access token and the user identity now.
+            const accessToken = results && results.access_token;
+            if (accessToken === undefined) {
+                throw new Error(
+                    'Could not get an access token from OpenStreetMap',
+                );
+            }
+            // get the OSM user id and display_name
+            const { id, display_name } = await getOSMProfile(accessToken);
+            functions.logger.log('osmuser:', id, display_name);
+            if (id === undefined) {
+                // this should not happen, but help guard against creating
+                // invalid accounts
+                throw new Error('Could not obtain an account id from OSM');
+            }
+
+            // Create a Firebase account and get the Custom Auth Token.
+            const firebaseToken = await createFirebaseAccount(
+                admin,
+                id,
+                display_name,
+                accessToken,
+            );
+            // build a deep link so we can send the token back to the app
+            // from the browser
+            const signinUrl = `${APP_OSM_LOGIN_DEEPLINK_WEB}?token=${firebaseToken}`;
             functions.logger.log('redirecting user to', signinUrl);
             res.redirect(signinUrl);
         });
