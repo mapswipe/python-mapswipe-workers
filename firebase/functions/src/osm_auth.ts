@@ -101,7 +101,7 @@ export const redirect = (req: any, res: any) => {
     });
 };
 
-export const redirect_web = (req: any, res: any) => {
+export const redirectweb = (req: any, res: any) => {
     const oauth2 = osmOAuth2ClientWeb();
 
     cookieParser()(req, res, () => {
@@ -233,7 +233,7 @@ export const token = async (req: any, res: any, admin: any) => {
 };
 
 
-export const token_web = async (req: any, res: any, admin: any) => {
+export const tokenweb = async (req: any, res: any, admin: any) => {
     const oauth2 = osmOAuth2ClientWeb();
 
     try {
@@ -244,7 +244,7 @@ export const token_web = async (req: any, res: any, admin: any) => {
             );
             functions.logger.log('Received state:', req.query.state);
             // FIXME: For security, we need to check the cookie that was set
-            // in the /redirect_web function on the user's browser.
+            // in the /redirectweb function on the user's browser.
             // However, there seems to be a bug in firebase around this.
             // https://github.com/firebase/firebase-functions/issues/544
             // and linked SO question
