@@ -53,6 +53,11 @@ function osmOAuth2Client() {
     return simpleOAuth2.create(credentials);
 }
 
+/**
+ * Creates a configured simple-oauth2 client for OSM for the web app.
+ * Configure the `osm.client_id_web` and `osm.client_secret_web`
+ * Google Cloud environment variables for the values below to exist
+ */
 function osmOAuth2ClientWeb() {
     const credentials = {
         client: {
