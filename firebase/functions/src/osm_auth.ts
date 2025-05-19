@@ -123,7 +123,7 @@ async function getOSMProfile(accessToken: string) {
  * The Firebase custom auth token, display name, photo URL and OSM access
  * token are sent back to the app via a deeplink redirect.
  */
-function fbToken(req: any , res: any, admin: any, redirect_uri: string, osm_login_link: string, client_id: string, client_web: string) {
+function fbToken(req: any, res: any, admin: any, redirect_uri: string, osm_login_link: string, client_id: string, client_web: string) {
     const oauth2 = osmOAuth2Client(client_id, client_web);
 
     try {
