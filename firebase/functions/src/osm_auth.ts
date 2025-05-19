@@ -60,7 +60,7 @@ function osmOAuth2Client(client_id, client_secret) {
  * NOT a webview inside MapSwipe, as this would break the promise of
  * OAuth that we do not touch their OSM credentials
  */
-function redirect2OsmOauth(redirect_uri, client_id, client_secret) {
+function redirect2OsmOauth(req, res, redirect_uri, client_id, client_secret) {
     const oauth2 = osmOAuth2Client(client_id, client_secret);
 
     cookieParser()(req, res, () => {
@@ -90,14 +90,14 @@ export const redirect = (req: any, res: any) => {
     const redirect_uri = OAUTH_REDIRECT_URI;
     const client_id = functions.config().osm?.client_id;
     const client_secret = functions.config().osm?.client_secret;
-    redirect2OsmOauth(redirect_uri, client_id, client_secret);
+    redirect2OsmOauth(req, res, redirect_uri, client_id, client_secret);
 };
 
 export const redirectweb = (req: any, res: any) => {
     const redirect_uri = OAUTH_REDIRECT_URI_WEB;
     const client_id = functions.config().osm?.client_id_web;
     const client_secret = functions.config().osm?.client_secret_web;
-    redirect2OsmOauth(redirect_uri, client_id, client_secret);
+    redirect2OsmOauth(req, res, redirect_uri, client_id, client_secret);
 };
 
 /**
@@ -123,7 +123,7 @@ async function getOSMProfile(accessToken: string) {
  * The Firebase custom auth token, display name, photo URL and OSM access
  * token are sent back to the app via a deeplink redirect.
  */
-function fbToken(redirect_uri, osm_login_link, client_id, client_web) {
+function fbToken(req, res, admin, redirect_uri, osm_login_link, client_id, client_web) {
     const oauth2 = osmOAuth2Client(client_id, client_web);
 
     try {
@@ -211,7 +211,7 @@ export const token = async (req: any, res: any, admin: any) => {
     const osm_login_link = APP_OSM_LOGIN_DEEPLINK;
     const client_id = functions.config().osm?.client_id;
     const client_secret = functions.config().osm?.client_secret;
-    fbToken(redirect_uri, osm_login_link, client_id, client_secret);
+    fbToken(req, res, admin, redirect_uri, osm_login_link, client_id, client_secret);
 };
 
 export const tokenweb = async (req: any, res: any, admin: any) => {
@@ -219,7 +219,7 @@ export const tokenweb = async (req: any, res: any, admin: any) => {
     const osm_login_link = APP_OSM_LOGIN_DEEPLINK_WEB;
     const client_id = functions.config().osm?.client_id_web;
     const client_secret = functions.config().osm?.client_secret_web;
-    fbToken(redirect_uri, osm_login_link, client_id, client_secret);
+    fbToken(req, res, admin, redirect_uri, osm_login_link, client_id, client_secret);
 };
 
 /**
