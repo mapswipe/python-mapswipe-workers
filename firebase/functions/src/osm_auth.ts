@@ -203,7 +203,6 @@ function fbToken(req, res, admin, redirect_uri, osm_login_link, client_id, clien
         // back into the app to allow the user to take action
         return res.json({ error: error.toString() });
     }
-
 }
 
 export const token = async (req: any, res: any, admin: any) => {
