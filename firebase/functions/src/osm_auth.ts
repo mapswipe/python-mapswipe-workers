@@ -38,11 +38,11 @@ const OSM_API_URL = functions.config().osm?.api_url;
  * Configure the `osm.client_id` and `osm.client_secret`
  * Google Cloud environment variables for the values below to exist
  */
-function osmOAuth2Client(client_id, client_secret) {
+function osmOAuth2Client(client_id: any, client_secret: any) {
     const credentials = {
         client: {
-            id: functions.config().osm?.client_id,
-            secret: functions.config().osm?.client_secret,
+            id: client_id,
+            secret: client_secret,
         },
         auth: {
             tokenHost: OSM_API_URL,
@@ -60,7 +60,7 @@ function osmOAuth2Client(client_id, client_secret) {
  * NOT a webview inside MapSwipe, as this would break the promise of
  * OAuth that we do not touch their OSM credentials
  */
-function redirect2OsmOauth(req, res, redirect_uri, client_id, client_secret) {
+function redirect2OsmOauth(req: any, res: any, redirect_uri: string, client_id: string, client_secret: string) {
     const oauth2 = osmOAuth2Client(client_id, client_secret);
 
     cookieParser()(req, res, () => {
@@ -123,7 +123,7 @@ async function getOSMProfile(accessToken: string) {
  * The Firebase custom auth token, display name, photo URL and OSM access
  * token are sent back to the app via a deeplink redirect.
  */
-function fbToken(req, res, admin, redirect_uri, osm_login_link, client_id, client_web) {
+function fbToken(req: any , res: any, admin: any, redirect_uri: string, osm_login_link: string, client_id: string, client_web: string) {
     const oauth2 = osmOAuth2Client(client_id, client_web);
 
     try {
