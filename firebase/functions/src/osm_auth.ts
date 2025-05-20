@@ -236,13 +236,11 @@ async function createFirebaseAccount(admin: any, osmID: any, displayName: any, a
     // with a variable length.
     const uid = `osm:${osmID}`;
 
-    // check if profile exists on Firebase Realtime Database
-    const snapshot = await admin
-        .database()
-        .ref(`v2/users/${uid}/`)
-        .once()
+    const profileRef = admin.database().ref(`v2/users/${uid}/`);
 
-    const profileExists = snapshot.exists()
+    // check if profile exists on Firebase Realtime Database
+    const snapshot = await profileRef.once();
+    const profileExists = snapshot.exists();
 
     // Save the access token to the Firebase Realtime Database.
     const databaseTask = admin
@@ -270,14 +268,8 @@ async function createFirebaseAccount(admin: any, osmID: any, displayName: any, a
         });
 
     // Only update display name if profile exists, else create profile
-    const profileUpdateTask = admin
-        .database()
-        .ref(`v2/users/${uid}/`)
-        .update({ displayName });
-
-    const profileCreationTask = admin
-        .database()
-        .ref(`v2/users/${uid}/`)
+    const profileUpdateTask = profileRef.update({ displayName });
+    const profileCreationTask = profileRef
         .set({
             created: new Date().toISOString(),
             groupContributionCount: 0,
