@@ -237,13 +237,12 @@ async function createFirebaseAccount(admin: any, osmID: any, displayName: any, a
     const uid = `osm:${osmID}`;
 
     // check if profile exists on Firebase Realtime Database
-    const profileExists = await admin
+    const snapshot = await admin
         .database()
         .ref(`v2/users/${uid}/`)
-        .get()
-        .then((snapshot: any) => {
-            return snapshot.exists();
-        });
+        .once()
+
+    const profileExists = snapshot.exists()
 
     // Save the access token to the Firebase Realtime Database.
     const databaseTask = admin
