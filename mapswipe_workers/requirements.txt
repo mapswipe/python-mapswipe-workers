@@ -5,6 +5,7 @@ firebase-admin==6.0.0
 flake8==3.8.3
 geojson==3.0.1
 mapswipe-workers==3.0
+numpy==1.26.4
 pandas==1.5.2
 pre-commit==2.9.2
 psycopg2-binary==2.9.3

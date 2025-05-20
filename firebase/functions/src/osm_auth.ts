@@ -236,22 +236,18 @@ async function createFirebaseAccount(admin: any, osmID: any, displayName: any, a
     // with a variable length.
     const uid = `osm:${osmID}`;
 
+    // check if profile exists on Firebase Realtime Database
+    const profileExists = await admin
+        .database()
+        .ref(`v2/users/osm:${id}/`)
+        .get()
+        .then((snapshot: any) => { return snapshot.exists()});
+
     // Save the access token to the Firebase Realtime Database.
     const databaseTask = admin
         .database()
         .ref(`v2/OSMAccessToken/${uid}`)
         .set(accessToken);
-
-    const profileTask = admin
-        .database()
-        .ref(`v2/users/${uid}/`)
-        .set({
-            created: new Date().toISOString(),
-            groupContributionCount: 0,
-            projectContributionCount: 0,
-            taskContributionCount: 0,
-            displayName,
-        });
 
     // Create or update the firebase user account.
     // This does not login the user on the app, it just ensures that a firebase
@@ -272,8 +268,34 @@ async function createFirebaseAccount(admin: any, osmID: any, displayName: any, a
             throw error;
         });
 
+    // Only update display name if profile exists, else create profile
+    const profileUpdateTask = admin
+            .database()
+            .ref(`v2/users/${uid}/`)
+            .update({ displayName })
+
+    const profileCreationTask = admin
+        .database()
+        .ref(`v2/users/${uid}/`)
+        .set({
+            created: new Date().toISOString(),
+            groupContributionCount: 0,
+            projectContributionCount: 0,
+            taskContributionCount: 0,
+            displayName,
+        });
+    }
+
+    const tasks = [userCreationTask, databaseTask]
+
+    if (profileExists) {
+        tasks.push(profileUpdateTask)
+    } else {
+        tasks.push(profileCreationTask)
+    }
+
     // Wait for all async task to complete then generate and return a custom auth token.
-    await Promise.all([userCreationTask, databaseTask, profileTask]);
+    await Promise.all(tasks);
     // Create a Firebase custom auth token.
     functions.logger.log('In createFirebaseAccount: createCustomToken');
     let authToken;
