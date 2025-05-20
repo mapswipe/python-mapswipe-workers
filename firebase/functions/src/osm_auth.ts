@@ -239,7 +239,7 @@ async function createFirebaseAccount(admin: any, osmID: any, displayName: any, a
     // check if profile exists on Firebase Realtime Database
     const profileExists = await admin
         .database()
-        .ref(`v2/users/osm:${id}/`)
+        .ref(`v2/users/${uid}/`)
         .get()
         .then((snapshot: any) => { return snapshot.exists()});
 
@@ -272,7 +272,7 @@ async function createFirebaseAccount(admin: any, osmID: any, displayName: any, a
     const profileUpdateTask = admin
             .database()
             .ref(`v2/users/${uid}/`)
-            .update({ displayName })
+            .update({ displayName });
 
     const profileCreationTask = admin
         .database()
@@ -284,14 +284,13 @@ async function createFirebaseAccount(admin: any, osmID: any, displayName: any, a
             taskContributionCount: 0,
             displayName,
         });
-    }
 
-    const tasks = [userCreationTask, databaseTask]
+    const tasks = [userCreationTask, databaseTask];
 
     if (profileExists) {
-        tasks.push(profileUpdateTask)
+        tasks.push(profileUpdateTask);
     } else {
-        tasks.push(profileCreationTask)
+        tasks.push(profileCreationTask);
     }
 
     // Wait for all async task to complete then generate and return a custom auth token.
