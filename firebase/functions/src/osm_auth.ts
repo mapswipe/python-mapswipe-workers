@@ -269,8 +269,15 @@ async function createFirebaseAccount(admin: any, osmID: any, displayName: any, a
         });
 
     // Only update display name if profile exists, else create profile
-    const profileUpdateTask = profileRef.update({ displayName: displayName });
-    const profileCreationTask = profileRef
+    const tasks = [userCreationTask, databaseTask];
+
+    if (profileExists) {
+        functions.logger.log('Sign in to existing OSM profile');
+        const profileUpdateTask = profileRef.update({ displayName: displayName });
+        tasks.push(profileUpdateTask);
+    } else {
+        functions.logger.log('Sign up new OSM profile');
+        const profileCreationTask = profileRef
         .set({
             created: new Date().toISOString(),
             groupContributionCount: 0,
@@ -278,14 +285,6 @@ async function createFirebaseAccount(admin: any, osmID: any, displayName: any, a
             taskContributionCount: 0,
             displayName,
         });
-
-    const tasks = [userCreationTask, databaseTask];
-
-    if (profileExists) {
-        functions.logger.log('Sign in to existing OSM profile');
-        tasks.push(profileUpdateTask);
-    } else {
-        functions.logger.log('Sign up new OSM profile');
         tasks.push(profileCreationTask);
     }
 
