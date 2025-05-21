@@ -278,13 +278,13 @@ async function createFirebaseAccount(admin: any, osmID: any, displayName: any, a
     } else {
         functions.logger.log('Sign up new OSM profile');
         const profileCreationTask = profileRef
-        .set({
-            created: new Date().toISOString(),
-            groupContributionCount: 0,
-            projectContributionCount: 0,
-            taskContributionCount: 0,
-            displayName,
-        });
+            .set({
+                created: new Date().toISOString(),
+                groupContributionCount: 0,
+                projectContributionCount: 0,
+                taskContributionCount: 0,
+                displayName,
+            });
         tasks.push(profileCreationTask);
     }
 
