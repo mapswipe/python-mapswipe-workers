@@ -240,7 +240,7 @@ async function createFirebaseAccount(admin: any, osmID: any, displayName: any, a
 
     // check if profile exists on Firebase Realtime Database
     const snapshot = await profileRef.once('value');
-    functions.logger.log("Snapshot value:", snapshot.val());
+    functions.logger.log('Snapshot value:', snapshot.val());
     const profileExists = snapshot.exists();
 
     // Save the access token to the Firebase Realtime Database.
