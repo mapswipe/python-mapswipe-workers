@@ -240,7 +240,6 @@ async function createFirebaseAccount(admin: any, osmID: any, displayName: any, a
 
     // check if profile exists on Firebase Realtime Database
     const snapshot = await profileRef.once('value');
-    functions.logger.log('Snapshot value:', snapshot.val());
     const profileExists = snapshot.exists();
 
     // Save the access token to the Firebase Realtime Database.
@@ -268,9 +267,8 @@ async function createFirebaseAccount(admin: any, osmID: any, displayName: any, a
             throw error;
         });
 
-    // Only update display name if profile exists, else create profile
+    // If profile exists, only update displayName -- else create new user profile
     const tasks = [userCreationTask, databaseTask];
-
     if (profileExists) {
         functions.logger.log('Sign in to existing OSM profile');
         const profileUpdateTask = profileRef.update({ displayName: displayName });
