@@ -1,4 +1,4 @@
-// Firebase cloud functions to allow authentication with OpenStreet Map
+// Firebase cloud functions to allow authentication with OpenStreetMap
 //
 // There are really 2 functions, which must be publicly accessible via
 // an https endpoint. They can be hosted on firebase under a domain like
@@ -20,8 +20,10 @@ import axios from 'axios';
 // will get a cryptic error about the server not being able to continue
 // TODO: adjust the prefix based on which deployment is done (prod/dev)
 const OAUTH_REDIRECT_URI = functions.config().osm?.redirect_uri;
+const OAUTH_REDIRECT_URI_WEB = functions.config().osm?.redirect_uri_web;
 
 const APP_OSM_LOGIN_DEEPLINK = functions.config().osm?.app_login_link;
+const APP_OSM_LOGIN_DEEPLINK_WEB = functions.config().osm?.app_login_link_web;
 
 // the scope is taken from https://wiki.openstreetmap.org/wiki/OAuth#OAuth_2.0
 // at least one seems to be required for the auth workflow to complete.
@@ -36,11 +38,11 @@ const OSM_API_URL = functions.config().osm?.api_url;
  * Configure the `osm.client_id` and `osm.client_secret`
  * Google Cloud environment variables for the values below to exist
  */
-function osmOAuth2Client() {
+function osmOAuth2Client(client_id: any, client_secret: any) {
     const credentials = {
         client: {
-            id: functions.config().osm?.client_id,
-            secret: functions.config().osm?.client_secret,
+            id: client_id,
+            secret: client_secret,
         },
         auth: {
             tokenHost: OSM_API_URL,
@@ -58,8 +60,8 @@ function osmOAuth2Client() {
  * NOT a webview inside MapSwipe, as this would break the promise of
  * OAuth that we do not touch their OSM credentials
  */
-export const redirect = (req: any, res: any) => {
-    const oauth2 = osmOAuth2Client();
+function redirect2OsmOauth(req: any, res: any, redirect_uri: string, client_id: string, client_secret: string) {
+    const oauth2 = osmOAuth2Client(client_id, client_secret);
 
     cookieParser()(req, res, () => {
         const state =
@@ -75,17 +77,31 @@ export const redirect = (req: any, res: any) => {
             httpOnly: true,
         });
         const redirectUri = oauth2.authorizationCode.authorizeURL({
-            redirect_uri: OAUTH_REDIRECT_URI,
+            redirect_uri: redirect_uri,
             scope: OAUTH_SCOPES,
             state: state,
         });
         functions.logger.log('Redirecting to:', redirectUri);
         res.redirect(redirectUri);
     });
+}
+
+export const redirect = (req: any, res: any) => {
+    const redirect_uri = OAUTH_REDIRECT_URI;
+    const client_id = functions.config().osm?.client_id;
+    const client_secret = functions.config().osm?.client_secret;
+    redirect2OsmOauth(req, res, redirect_uri, client_id, client_secret);
+};
+
+export const redirectweb = (req: any, res: any) => {
+    const redirect_uri = OAUTH_REDIRECT_URI_WEB;
+    const client_id = functions.config().osm?.client_id_web;
+    const client_secret = functions.config().osm?.client_secret_web;
+    redirect2OsmOauth(req, res, redirect_uri, client_id, client_secret);
 };
 
 /**
- * The OSM OAuth endpoing does not give us any info about the user,
+ * The OSM OAuth endpoint does not give us any info about the user,
  * so we need to get the user profile from this endpoint
  */
 async function getOSMProfile(accessToken: string) {
@@ -107,8 +123,8 @@ async function getOSMProfile(accessToken: string) {
  * The Firebase custom auth token, display name, photo URL and OSM access
  * token are sent back to the app via a deeplink redirect.
  */
-export const token = async (req: any, res: any, admin: any) => {
-    const oauth2 = osmOAuth2Client();
+function fbToken(req: any, res: any, admin: any, redirect_uri: string, osm_login_link: string, client_id: string, client_web: string) {
+    const oauth2 = osmOAuth2Client(client_id, client_web);
 
     try {
         return cookieParser()(req, res, async () => {
@@ -139,7 +155,7 @@ export const token = async (req: any, res: any, admin: any) => {
                 // this doesn't work
                 results = await oauth2.authorizationCode.getToken({
                     code: req.query.code,
-                    redirect_uri: OAUTH_REDIRECT_URI,
+                    redirect_uri: redirect_uri,
                     scope: OAUTH_SCOPES,
                     state: req.query.state,
                 });
@@ -177,7 +193,7 @@ export const token = async (req: any, res: any, admin: any) => {
             );
             // build a deep link so we can send the token back to the app
             // from the browser
-            const signinUrl = `${APP_OSM_LOGIN_DEEPLINK}?token=${firebaseToken}`;
+            const signinUrl = `${osm_login_link}?token=${firebaseToken}`;
             functions.logger.log('redirecting user to', signinUrl);
             res.redirect(signinUrl);
         });
@@ -187,6 +203,22 @@ export const token = async (req: any, res: any, admin: any) => {
         // back into the app to allow the user to take action
         return res.json({ error: error.toString() });
     }
+}
+
+export const token = async (req: any, res: any, admin: any) => {
+    const redirect_uri = OAUTH_REDIRECT_URI;
+    const osm_login_link = APP_OSM_LOGIN_DEEPLINK;
+    const client_id = functions.config().osm?.client_id;
+    const client_secret = functions.config().osm?.client_secret;
+    fbToken(req, res, admin, redirect_uri, osm_login_link, client_id, client_secret);
+};
+
+export const tokenweb = async (req: any, res: any, admin: any) => {
+    const redirect_uri = OAUTH_REDIRECT_URI_WEB;
+    const osm_login_link = APP_OSM_LOGIN_DEEPLINK_WEB;
+    const client_id = functions.config().osm?.client_id_web;
+    const client_secret = functions.config().osm?.client_secret_web;
+    fbToken(req, res, admin, redirect_uri, osm_login_link, client_id, client_secret);
 };
 
 /**
@@ -204,22 +236,17 @@ async function createFirebaseAccount(admin: any, osmID: any, displayName: any, a
     // with a variable length.
     const uid = `osm:${osmID}`;
 
+    const profileRef = admin.database().ref(`v2/users/${uid}`);
+
+    // check if profile exists on Firebase Realtime Database
+    const snapshot = await profileRef.once('value');
+    const profileExists = snapshot.exists();
+
     // Save the access token to the Firebase Realtime Database.
     const databaseTask = admin
         .database()
         .ref(`v2/OSMAccessToken/${uid}`)
         .set(accessToken);
-
-    const profileTask = admin
-        .database()
-        .ref(`v2/users/${uid}/`)
-        .set({
-            created: new Date().toISOString(),
-            groupContributionCount: 0,
-            projectContributionCount: 0,
-            taskContributionCount: 0,
-            displayName,
-        });
 
     // Create or update the firebase user account.
     // This does not login the user on the app, it just ensures that a firebase
@@ -240,8 +267,27 @@ async function createFirebaseAccount(admin: any, osmID: any, displayName: any, a
             throw error;
         });
 
+    // If profile exists, only update displayName -- else create new user profile
+    const tasks = [userCreationTask, databaseTask];
+    if (profileExists) {
+        functions.logger.log('Sign in to existing OSM profile');
+        const profileUpdateTask = profileRef.update({ displayName: displayName });
+        tasks.push(profileUpdateTask);
+    } else {
+        functions.logger.log('Sign up new OSM profile');
+        const profileCreationTask = profileRef
+            .set({
+                created: new Date().toISOString(),
+                groupContributionCount: 0,
+                projectContributionCount: 0,
+                taskContributionCount: 0,
+                displayName,
+            });
+        tasks.push(profileCreationTask);
+    }
+
     // Wait for all async task to complete then generate and return a custom auth token.
-    await Promise.all([userCreationTask, databaseTask, profileTask]);
+    await Promise.all(tasks);
     // Create a Firebase custom auth token.
     functions.logger.log('In createFirebaseAccount: createCustomToken');
     let authToken;

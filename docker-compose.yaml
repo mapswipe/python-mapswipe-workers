@@ -230,15 +230,23 @@ services:
             OSM_OAUTH_API_URL: '${OSM_OAUTH_API_URL}'
             OSM_OAUTH_CLIENT_ID: '${OSM_OAUTH_CLIENT_ID}'
             OSM_OAUTH_CLIENT_SECRET: '${OSM_OAUTH_CLIENT_SECRET}'
+            OSM_OAUTH_REDIRECT_URI_WEB: '${OSM_OAUTH_REDIRECT_URI_WEB}'
+            OSM_OAUTH_APP_LOGIN_LINK_WEB: '${OSM_OAUTH_APP_LOGIN_LINK_WEB}'
+            OSM_OAUTH_CLIENT_ID_WEB: '${OSM_OAUTH_CLIENT_ID_WEB}'
+            OSM_OAUTH_CLIENT_SECRET_WEB: '${OSM_OAUTH_CLIENT_SECRET_WEB}'
         command: >-
           sh -c "firebase use $FIREBASE_DB &&
           firebase target:apply hosting auth \"$FIREBASE_AUTH_SITE\" &&
           firebase functions:config:set
           osm.redirect_uri=\"$OSM_OAUTH_REDIRECT_URI\"
+          osm.redirect_uri_web=\"$OSM_OAUTH_REDIRECT_URI_WEB\"
           osm.app_login_link=\"$OSM_OAUTH_APP_LOGIN_LINK\"
+          osm.app_login_link_web=\"$OSM_OAUTH_APP_LOGIN_LINK_WEB\"
           osm.api_url=\"$OSM_OAUTH_API_URL\"
           osm.client_id=\"$OSM_OAUTH_CLIENT_ID\"
-          osm.client_secret=\"$OSM_OAUTH_CLIENT_SECRET\" &&
+          osm.client_id_web=\"$OSM_OAUTH_CLIENT_ID_WEB\"
+          osm.client_secret=\"$OSM_OAUTH_CLIENT_SECRET\"
+          osm.client_secret_web=\"$OSM_OAUTH_CLIENT_SECRET_WEB\" &&
           firebase deploy --token $FIREBASE_TOKEN --only functions,hosting,database"
 
     django:
