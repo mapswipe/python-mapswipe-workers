@@ -681,7 +681,7 @@ async function fetchAoiFromHotTaskingManager(projectId: number | string): (
     let response;
     try {
         response = await fetch(
-            `https://tasking-manager-tm4-production-api.hotosm.org/api/v2/projects/${projectId}/queries/aoi/?as_file=false`,
+            `https://tasking-manager-production-api.hotosm.org/api/v2/projects/${projectId}/queries/aoi/?as_file=false`,
         );
     } catch {
         return {
