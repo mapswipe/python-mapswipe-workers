@@ -1,5 +1,6 @@
 -- noinspection SqlNoDataSourceInspectionForFile
 CREATE EXTENSION IF NOT EXISTS postgis;
+CREATE EXTENSION IF NOT EXISTS unaccent;
 
 CREATE TABLE IF NOT EXISTS projects (
     created timestamp,
