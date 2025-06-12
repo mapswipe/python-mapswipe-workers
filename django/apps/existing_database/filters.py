@@ -38,7 +38,7 @@ class UserGroupFilter:
     def filter_search(self, queryset):
         if self.search:
             queryset = queryset.filter(
-                name__icontains=self.search,
+                name__unaccent__icontains=self.search,
             )
         return queryset
 
