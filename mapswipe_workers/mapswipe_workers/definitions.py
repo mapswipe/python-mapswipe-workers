@@ -137,6 +137,7 @@ class ProjectType(Enum):
     MEDIA_CLASSIFICATION = 5
     DIGITIZATION = 6
     STREET = 7
+    CONFLATION = 8
 
     @property
     def constructor(self):
@@ -145,6 +146,7 @@ class ProjectType(Enum):
             ChangeDetectionProject,
             ClassificationProject,
             CompletenessProject,
+            ConflationProject,
             DigitizationProject,
             FootprintProject,
             MediaClassificationProject,
@@ -159,6 +161,7 @@ class ProjectType(Enum):
             5: MediaClassificationProject,
             6: DigitizationProject,
             7: StreetProject,
+            8: ConflationProject,
         }
         return project_type_classes[self.value]
 

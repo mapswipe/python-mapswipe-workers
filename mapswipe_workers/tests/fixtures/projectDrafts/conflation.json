@@ -1,0 +1,25 @@
+{
+    "createdBy": "atCSosZACaN0qhcVjtMO1tq9d1G3",
+    "geometry": "https://firebasestorage.googleapis.com/v0/b/dev-mapswipe.appspot.com/o/all_predictions_192.geojson?alt=media&token=b7a85e56-6ab1-4e0d-a734-a772025a88b8",
+    "filter": "way['building']",
+    "groupSize": 25,
+    "image": "https://firebasestorage.googleapis.com/v0/b/dev-mapswipe.appspot.com/o/projectImages%2F1742895229710-project-image-1x1.png?alt=media&token=26cf1956-9ab7-4348-b529-9952f2f8424e",
+    "lookFor": "Buildings",
+    "manualUrl": "https://fair-dev.hotosm.org/start-mapping/358",
+    "name": "Conflate fAIr buildings - Kathmandu (1)\nHOT",
+    "projectDetails": "This is a test.",
+    "projectNumber": 1,
+    "projectRegion": "Kathmandu",
+    "projectTopic": "Conflate fAIr buildings",
+    "projectTopicKey": "conflate fair buildings - kathmandu (1) hot",
+    "projectType": 8,
+    "requestingOrganisation": "HOT",
+    "tileServer": {
+        "credits": "Please add imagery credits here.",
+        "name": "custom",
+        "url": "https://2glp8ghj65.execute-api.us-east-1.amazonaws.com/cog/tiles/WebMercatorQuad/{z}/{x}/{y}@1x?url=https%3A%2F%2Foin-hotosm-temp.s3.us-east-1.amazonaws.com%2F62d85d11d8499800053796c1%2F0%2F62d85d11d8499800053796c2.tif",
+        "wmtsLayerName": "-"
+    },
+    "tutorialId": "tutorial_-MQsj5VWpNcJxCTVTOyH",
+    "verificationNumber": 3
+}
