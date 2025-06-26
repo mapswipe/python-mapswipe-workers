@@ -33,6 +33,7 @@ x-mapswipe-workers: &base_mapswipe_workers
     SLACK_CHANNEL: '${SLACK_CHANNEL}'
     SENTRY_DSN: '${SENTRY_DSN}'
     OSMCHA_API_KEY: '${OSMCHA_API_KEY}'
+    MAPILLARY_API_KEY: '${MAPILLARY_API_KEY}'
   depends_on:
     - postgres
   volumes:
