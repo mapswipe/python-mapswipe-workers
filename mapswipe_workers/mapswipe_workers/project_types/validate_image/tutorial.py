@@ -2,7 +2,10 @@ from dataclasses import dataclass
 
 from mapswipe_workers.definitions import logger
 from mapswipe_workers.firebase.firebase import Firebase
-from mapswipe_workers.project_types.validate_image.project import ValidateImageGroup, ValidateImageTask
+from mapswipe_workers.project_types.validate_image.project import (
+    ValidateImageGroup,
+    ValidateImageTask,
+)
 from mapswipe_workers.project_types.tutorial import BaseTutorial
 
 

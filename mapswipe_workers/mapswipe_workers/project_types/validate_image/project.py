@@ -38,9 +38,7 @@ class ValidateImageProject(BaseProject):
     def __init__(self, project_draft):
         super().__init__(project_draft)
         self.groups: Dict[str, ValidateImageGroup] = {}
-        self.tasks: Dict[str, List[ValidateImageTask]] = (
-            {}
-        )  # dict keys are group ids
+        self.tasks: Dict[str, List[ValidateImageTask]] = {}  # dict keys are group ids
 
         # NOTE: This is a standard structure defined on manager dashboard.
         # It's derived from other formats like COCO.
@@ -84,9 +82,7 @@ class ValidateImageProject(BaseProject):
                 requiredCount=0,
                 numberOfTasks=self.groupSize,
             )
-        logger.info(
-            f"{self.projectId} - create_groups - created groups dictionary"
-        )
+        logger.info(f"{self.projectId} - create_groups - created groups dictionary")
 
     def create_tasks(self):
         if len(self.groups) == 0:
