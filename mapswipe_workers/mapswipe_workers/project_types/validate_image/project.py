@@ -1,17 +1,18 @@
-from mapswipe_workers.definitions import logger
 import math
-from typing import Dict, List
 from dataclasses import dataclass
+from typing import Dict, List
+
+from mapswipe_workers.definitions import logger
 from mapswipe_workers.firebase.firebase import Firebase
 from mapswipe_workers.firebase_to_postgres.transfer_results import (
     results_to_file,
     save_results_to_postgres,
     truncate_temp_results,
 )
-from mapswipe_workers.project_types.project import BaseGroup, BaseProject
 from mapswipe_workers.generate_stats.project_stats import (
     get_statistics_for_integer_result_project,
 )
+from mapswipe_workers.project_types.project import BaseGroup, BaseProject
 
 
 @dataclass

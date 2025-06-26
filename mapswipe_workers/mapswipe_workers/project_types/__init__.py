@@ -1,8 +1,6 @@
 from .arbitrary_geometry.digitization.project import DigitizationProject
 from .arbitrary_geometry.footprint.project import FootprintProject
 from .arbitrary_geometry.footprint.tutorial import FootprintTutorial
-from .validate_image.project import ValidateImageProject
-from .validate_image.tutorial import ValidateImageTutorial
 from .media_classification.project import MediaClassificationProject
 from .street.project import StreetProject
 from .street.tutorial import StreetTutorial
@@ -12,6 +10,8 @@ from .tile_map_service.classification.project import ClassificationProject
 from .tile_map_service.classification.tutorial import ClassificationTutorial
 from .tile_map_service.completeness.project import CompletenessProject
 from .tile_map_service.completeness.tutorial import CompletenessTutorial
+from .validate_image.project import ValidateImageProject
+from .validate_image.tutorial import ValidateImageTutorial
 
 __all__ = [
     "ClassificationProject",
