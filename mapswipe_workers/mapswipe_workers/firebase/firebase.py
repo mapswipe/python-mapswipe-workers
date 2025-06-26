@@ -14,6 +14,7 @@ class Firebase:
         # if a geometry exists in projects we want to delete it.
         # This geometry is not used in clients.
         project.pop("geometry", None)
+        # FIXME: We might need to pop images
         # save project
         self.ref.update({f"v2/projects/{project['projectId']}": project})
         logger.info(
@@ -82,6 +83,7 @@ class Firebase:
         tutorialDict.pop("raw_tasks", None)
         tutorialDict.pop("examplesFile", None)
         tutorialDict.pop("tutorial_tasks", None)
+        tutorialDict.pop("images", None)
 
         if not tutorial.projectId or tutorial.projectId == "":
             raise CustomError(
