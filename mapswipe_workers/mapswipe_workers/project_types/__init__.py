@@ -1,6 +1,8 @@
 from .arbitrary_geometry.digitization.project import DigitizationProject
 from .arbitrary_geometry.footprint.project import FootprintProject
 from .arbitrary_geometry.footprint.tutorial import FootprintTutorial
+from .validate_image.project import ValidateImageProject
+from .validate_image.tutorial import ValidateImageTutorial
 from .media_classification.project import MediaClassificationProject
 from .street.project import StreetProject
 from .street.tutorial import StreetTutorial
@@ -21,6 +23,8 @@ __all__ = [
     "MediaClassificationProject",
     "FootprintProject",
     "FootprintTutorial",
+    "ValidateImageProject",
+    "ValidateImageTutorial",
     "DigitizationProject",
     "StreetProject",
     "StreetTutorial",

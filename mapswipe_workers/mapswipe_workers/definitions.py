@@ -137,6 +137,7 @@ class ProjectType(Enum):
     MEDIA_CLASSIFICATION = 5
     DIGITIZATION = 6
     STREET = 7
+    VALIDATE_IMAGE = 10
 
     @property
     def constructor(self):
@@ -149,6 +150,7 @@ class ProjectType(Enum):
             FootprintProject,
             MediaClassificationProject,
             StreetProject,
+            ValidateImageProject,
         )
 
         project_type_classes = {
@@ -159,6 +161,7 @@ class ProjectType(Enum):
             5: MediaClassificationProject,
             6: DigitizationProject,
             7: StreetProject,
+            10: ValidateImageProject,
         }
         return project_type_classes[self.value]
 
@@ -171,6 +174,7 @@ class ProjectType(Enum):
             CompletenessTutorial,
             FootprintTutorial,
             StreetTutorial,
+            ValidateImageTutorial,
         )
 
         project_type_classes = {
@@ -179,5 +183,6 @@ class ProjectType(Enum):
             3: ChangeDetectionTutorial,
             4: CompletenessTutorial,
             7: StreetTutorial,
+            10: ValidateImageTutorial,
         }
         return project_type_classes[self.value]
