@@ -1,53 +1,35 @@
 import React from 'react';
-import { StyleFunction } from 'leaflet';
 import { _cs } from '@togglecorp/fujs';
 
 import MobilePreview from '#components/MobilePreview';
-import GeoJsonPreview from '#components/GeoJsonPreview';
 import { IconKey, iconMap } from '#utils/common';
 
 import {
-    PartialCustomOptionsType,
+    ImageType,
     colorKeyToColorMap,
-    FootprintGeoJSON,
-    FootprintProperties,
+    PartialCustomOptionsType,
 } from '../../utils';
 import styles from './styles.css';
 
-// NOTE: the padding is selected wrt the size of the preview
-const footprintGeojsonPadding: [number, number] = [140, 140];
-
 interface Props {
     className?: string;
-    geoJson: FootprintGeoJSON | undefined;
+    image?: ImageType;
     previewPopUp?: {
         title?: string;
         description?: string;
         icon?: IconKey;
     }
-    url: string | undefined;
     customOptions: PartialCustomOptionsType | undefined;
     lookFor: string | undefined;
 }
 
-const previewStyles: StyleFunction<FootprintProperties> = () => (
-    {
-        color: '#ffffff',
-        dashArray: '3',
-        stroke: true,
-        weight: 1,
-        fillColor: 'transparent',
-    }
-);
-
-export default function FootprintGeoJsonPreview(props: Props) {
+export default function ValidateImagePreview(props: Props) {
     const {
         className,
-        geoJson,
-        url,
         previewPopUp,
         customOptions,
         lookFor,
+        image,
     } = props;
 
     const Comp = previewPopUp?.icon ? iconMap[previewPopUp.icon] : undefined;
@@ -62,12 +44,10 @@ export default function FootprintGeoJsonPreview(props: Props) {
             popupTitle={previewPopUp?.title || '{title}'}
             popupDescription={previewPopUp?.description || '{description}'}
         >
-            <GeoJsonPreview
+            <img
                 className={styles.mapPreview}
-                previewStyle={previewStyles}
-                url={url}
-                geoJson={geoJson}
-                padding={footprintGeojsonPadding}
+                src={image?.url}
+                alt="Preview"
             />
             <div className={styles.options}>
                 {customOptions?.map((option) => {

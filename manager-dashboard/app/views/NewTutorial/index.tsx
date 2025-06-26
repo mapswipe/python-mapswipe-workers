@@ -14,6 +14,7 @@ import {
     createSubmitHandler,
     analyzeErrors,
     useFormArray,
+    nonFieldError,
 } from '@togglecorp/toggle-form';
 import {
     getStorage,
@@ -40,6 +41,8 @@ import {
     IoInformationCircleOutline,
 } from 'react-icons/io5';
 import { Link } from 'react-router-dom';
+import * as t from 'io-ts';
+import { isRight } from 'fp-ts/Either';
 
 import UserContext from '#base/context/UserContext';
 import projectTypeOptions from '#base/configs/projectTypes';
@@ -50,6 +53,7 @@ import NumberInput from '#components/NumberInput';
 import Heading from '#components/Heading';
 import SegmentInput from '#components/SegmentInput';
 import GeoJsonFileInput from '#components/GeoJsonFileInput';
+import JsonFileInput from '#components/JsonFileInput';
 import ExpandableContainer from '#components/ExpandableContainer';
 import PopupButton from '#components/PopupButton';
 import TileServerInput, {
@@ -70,6 +74,7 @@ import {
     PROJECT_TYPE_CHANGE_DETECTION,
     PROJECT_TYPE_FOOTPRINT,
     PROJECT_TYPE_STREET,
+    PROJECT_TYPE_VALIDATE_IMAGE,
     ProjectType,
     projectTypeLabelMap,
 } from '#utils/common';
@@ -93,13 +98,35 @@ import {
     TutorialTasksGeoJSON,
     BuildAreaProperties,
     ChangeDetectionProperties,
+    ImageType,
 } from './utils';
 
 import CustomOptionPreview from './CustomOptionInput/CustomOptionPreview';
 import CustomOptionInput from './CustomOptionInput';
 import ScenarioPageInput from './ScenarioPageInput';
 import InformationPageInput from './InformationPageInput';
+import ImageInput from './ImageInput';
 import styles from './styles.css';
+
+// FIXME: let's not duplicate this logic
+const Image = t.type({
+    id: t.number,
+    // width: t.number,
+    // height: t.number,
+    file_name: t.string,
+    // license: t.union([t.number, t.undefined]),
+    flickr_url: t.union([t.string, t.undefined]),
+    coco_url: t.union([t.string, t.undefined]),
+    // date_captured: DateFromISOString,
+});
+const CocoDataset = t.type({
+    // info: Info,
+    // licenses: t.array(License),
+    images: t.array(Image),
+    // annotations: t.array(Annotation),
+    // categories: t.array(Category)
+});
+// type CocoDatasetType = t.TypeOf<typeof CocoDataset>
 
 export function getDuplicates<T, K extends string | number>(
     list: T[],
@@ -157,6 +184,7 @@ function getGeoJSONError(
         return 'GeoJSON does not contain iterable features';
     }
 
+    // FIXME: Use io-ts
     // Check properties schema
     const projectSchemas: {
         [key in ProjectType]: Record<string, ValidType | ValidType[]>;
@@ -194,6 +222,9 @@ function getGeoJSONError(
             id: ['string', 'number'],
             reference: 'number',
             screen: 'number',
+        },
+        [PROJECT_TYPE_VALIDATE_IMAGE]: {
+            // NOTE: We do not use geojson import for validate image project
         },
     };
     const schemaErrors = tutorialTasks.features.map(
@@ -406,6 +437,14 @@ function NewTutorial(props: Props) {
         InformationPagesType
     >('informationPages', setFieldValue);
 
+    const {
+        setValue: setImageValue,
+        // removeValue: onImageRemove,
+    } = useFormArray<
+        'images',
+        ImageType
+    >('images', setFieldValue);
+
     const handleSubmission = React.useCallback((
         finalValuesFromProps: PartialTutorialFormType,
     ) => {
@@ -600,7 +639,6 @@ function NewTutorial(props: Props) {
             }));
             return;
         }
-
         setFieldValue(tutorialTasks, 'tutorialTasks');
 
         const uniqueArray = unique(
@@ -616,7 +654,6 @@ function NewTutorial(props: Props) {
                 success: {},
             }
         ));
-
         setFieldValue(tutorialTaskArray, 'scenarioPages');
     }, [setFieldValue, setError, value?.projectType]);
 
@@ -643,6 +680,49 @@ function NewTutorial(props: Props) {
             popupElementRef.current?.setPopupVisibility(false);
         },
         [setFieldValue],
+    );
+
+    const handleCocoImport = React.useCallback(
+        (val) => {
+            const result = CocoDataset.decode(val);
+            if (!isRight(result)) {
+                // eslint-disable-next-line no-console
+                console.error('Invalid COCO format', result.left);
+                setError((err) => ({
+                    ...getErrorObject(err),
+                    [nonFieldError]: 'Invalid COCO format',
+                }));
+                return;
+            }
+
+            const newImages = result.right.images.map((image, index) => ({
+                sourceIdentifier: String(image.id),
+                fileName: image.file_name,
+                url: image.flickr_url || image.coco_url,
+                screen: index + 1,
+                referenceAnswer: 1,
+            }));
+            setFieldValue(
+                () => newImages,
+                'images',
+            );
+
+            const uniqueArray = unique(
+                newImages,
+                ((img) => img.screen),
+            );
+            const sorted = uniqueArray.sort((a, b) => a.screen - b.screen);
+            const tutorialTaskArray = sorted?.map((img) => (
+                {
+                    scenarioId: img.screen,
+                    hint: {},
+                    instructions: {},
+                    success: {},
+                }
+            ));
+            setFieldValue(tutorialTaskArray, 'scenarioPages');
+        },
+        [setFieldValue, setError],
     );
 
     const submissionPending = (
@@ -678,6 +758,11 @@ function NewTutorial(props: Props) {
         [error?.informationPages],
     );
 
+    const imagesError = React.useMemo(
+        () => getErrorObject(error?.images),
+        [error?.images],
+    );
+
     const hasErrors = React.useMemo(
         () => analyzeErrors(error),
         [error],
@@ -693,6 +778,8 @@ function NewTutorial(props: Props) {
                 ...options,
                 ...subOptions,
             ].filter(isDefined);
+
+            // FIXME: Add warning here for validate image
             return getGeoJSONWarning(
                 value?.tutorialTasks,
                 value?.projectType,
@@ -719,6 +806,7 @@ function NewTutorial(props: Props) {
     const {
         customOptions,
         informationPages,
+        images,
     } = value;
 
     const handleProjectTypeChange = React.useCallback(
@@ -774,6 +862,7 @@ function NewTutorial(props: Props) {
                 </InputSection>
                 {(
                     value.projectType === PROJECT_TYPE_FOOTPRINT
+                        || value.projectType === PROJECT_TYPE_VALIDATE_IMAGE
                         || value.projectType === PROJECT_TYPE_STREET
                 ) && (
                     <InputSection
@@ -957,18 +1046,64 @@ function NewTutorial(props: Props) {
                         </InputSection>
                     )
                 }
+                {value.projectType === PROJECT_TYPE_VALIDATE_IMAGE && (
+                    <InputSection
+                        heading="Images"
+                    >
+                        <NonFieldError
+                            error={imagesError}
+                        />
+                        <JsonFileInput<undefined, object>
+                            name={undefined}
+                            onChange={handleCocoImport}
+                            disabled={
+                                submissionPending
+                                || projectTypeEmpty
+                            }
+                            label="Import COCO file"
+                            value={undefined}
+                        />
+                        {(images && images.length > 0) ? (
+                            <div className={styles.imageList}>
+                                {images.map((image, index) => (
+                                    <ExpandableContainer
+                                        key={image.sourceIdentifier}
+                                        header={image.fileName || `Image ${index + 1}`}
+                                        openByDefault={index === images.length - 1}
+                                    >
+                                        <ImageInput
+                                            key={image.sourceIdentifier}
+                                            value={image}
+                                            index={index}
+                                            onChange={setImageValue}
+                                            error={imagesError?.[image.sourceIdentifier]}
+                                            disabled={submissionPending || projectTypeEmpty}
+                                        />
+                                    </ExpandableContainer>
+                                ))}
+                            </div>
+                        ) : (
+                            <EmptyMessage
+                                title="Start adding images"
+                                description="Add images using COCO file"
+                            />
+                        )}
+                    </InputSection>
+                )}
                 <InputSection
                     heading="Scenario Pages"
                 >
-                    <GeoJsonFileInput
-                        name={'tutorialTasks' as const}
-                        label="Upload Scenarios as GeoJSON"
-                        value={value.tutorialTasks}
-                        onChange={handleGeoJsonFile}
-                        hint="It should end with .geojson or .geo.json"
-                        error={error?.tutorialTasks}
-                        disabled={submissionPending || projectTypeEmpty}
-                    />
+                    {value?.projectType !== PROJECT_TYPE_VALIDATE_IMAGE && (
+                        <GeoJsonFileInput
+                            name={'tutorialTasks' as const}
+                            label="Upload Scenarios as GeoJSON"
+                            value={value.tutorialTasks}
+                            onChange={handleGeoJsonFile}
+                            hint="It should end with .geojson or .geo.json"
+                            error={error?.tutorialTasks}
+                            disabled={submissionPending || projectTypeEmpty}
+                        />
+                    )}
                     <div className={styles.scenarioList}>
                         {value.scenarioPages?.map((task, index) => (
                             <ExpandableContainer
@@ -987,6 +1122,7 @@ function NewTutorial(props: Props) {
                                     error={scenarioError?.[task.scenarioId]}
                                     customOptions={customOptions}
                                     geoJson={value.tutorialTasks}
+                                    images={value.images}
                                     urlA={getTileServerUrl(value.tileServer)}
                                     urlB={getTileServerUrl(value.tileServerB)}
                                     lookFor={value.lookFor}
@@ -995,10 +1131,19 @@ function NewTutorial(props: Props) {
                             </ExpandableContainer>
                         ))}
                         {(value.scenarioPages?.length ?? 0) === 0 && (
-                            <EmptyMessage
-                                title="Upload geojson file first"
-                                description="This section will automatically show scenarios after uploading geojson file"
-                            />
+                            <>
+                                {value.projectType !== PROJECT_TYPE_VALIDATE_IMAGE ? (
+                                    <EmptyMessage
+                                        title="Upload geojson file first"
+                                        description="This section will automatically show scenarios after uploading geojson file"
+                                    />
+                                ) : (
+                                    <EmptyMessage
+                                        title="Upload images first"
+                                        description="This section will automatically show scenarios after adding images"
+                                    />
+                                )}
+                            </>
                         )}
                     </div>
                 </InputSection>
