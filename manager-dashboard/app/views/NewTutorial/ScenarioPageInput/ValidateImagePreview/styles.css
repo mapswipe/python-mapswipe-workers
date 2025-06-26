@@ -1,14 +1,14 @@
-.footprint-geo-json-preview {
+.validate-image-preview {
     .content {
         display: flex;
         flex-direction: column;
         gap: var(--spacing-large);
 
-        .map-preview {
+        .image-preview {
             position: relative;
             border: 1px solid red;
             width: 100%;
-            height: var(--height-mobile-preview-footprint-content);
+            height: var(--height-mobile-preview-validate-image-content);
         }
 
         .options {

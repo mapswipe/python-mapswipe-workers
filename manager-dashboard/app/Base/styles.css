@@ -105,6 +105,7 @@ p {
     --height-mobile-preview-builarea-content: 30rem;
     --height-mobile-preview-footprint-content: 22rem;
     --height-mobile-preview-change-detection-content: 14rem;
+    --height-mobile-preview-validate-image-content: 22rem;
 
     --radius-popup-border: 0.25rem;
     --radius-scrollbar-border: 0.25rem;

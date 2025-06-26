@@ -271,8 +271,7 @@ export const projectFormSchema: ProjectFormSchema = {
                 validations: [getNoMoreThanNCharacterCondition(XL_TEXT_MAX_LENGTH)],
             },
             tutorialId: {
-                // TODO(tnagorra): we need to make this required later
-                // required: true,
+                required: true,
             },
             projectImage: {
                 required: true,
@@ -338,31 +337,6 @@ export const projectFormSchema: ProjectFormSchema = {
                 }
                 return {
                     customOptions: { forceValue: nullValue },
-                };
-            },
-        );
-
-        baseSchema = addCondition(
-            baseSchema,
-            value,
-            ['projectType'],
-            ['tileServer'],
-            (v) => {
-                const projectType = v?.projectType;
-                if (
-                    projectType === PROJECT_TYPE_BUILD_AREA
-                    || projectType === PROJECT_TYPE_COMPLETENESS
-                    || projectType === PROJECT_TYPE_CHANGE_DETECTION
-                    || projectType === PROJECT_TYPE_FOOTPRINT
-                ) {
-                    return {
-                        tileServer: {
-                            fields: tileServerFieldsSchema,
-                        },
-                    };
-                }
-                return {
-                    tileServer: { forceValue: nullValue },
                 };
             },
         );
@@ -472,6 +446,31 @@ export const projectFormSchema: ProjectFormSchema = {
                 }
                 return {
                     geometry: { forceValue: nullValue },
+                };
+            },
+        );
+
+        baseSchema = addCondition(
+            baseSchema,
+            value,
+            ['projectType'],
+            ['tileServer'],
+            (v) => {
+                const projectType = v?.projectType;
+                if (
+                    projectType === PROJECT_TYPE_BUILD_AREA
+                    || projectType === PROJECT_TYPE_COMPLETENESS
+                    || projectType === PROJECT_TYPE_CHANGE_DETECTION
+                    || projectType === PROJECT_TYPE_FOOTPRINT
+                ) {
+                    return {
+                        tileServer: {
+                            fields: tileServerFieldsSchema,
+                        },
+                    };
+                }
+                return {
+                    tileServer: { forceValue: nullValue },
                 };
             },
         );

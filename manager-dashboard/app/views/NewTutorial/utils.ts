@@ -612,6 +612,8 @@ export const tutorialFormSchema: TutorialFormSchema = {
             },
         };
 
+        // common
+
         baseSchema = addCondition(
             baseSchema,
             value,
@@ -913,6 +915,8 @@ export const tutorialFormSchema: TutorialFormSchema = {
                 };
             },
         );
+
+        // validate image
 
         baseSchema = addCondition(
             baseSchema,

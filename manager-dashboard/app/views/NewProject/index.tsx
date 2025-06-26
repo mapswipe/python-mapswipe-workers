@@ -512,6 +512,13 @@ function NewProject(props: Props) {
                 }));
                 return;
             }
+            if (result.right.images.length > MAX_IMAGES) {
+                setError((err) => ({
+                    ...getErrorObject(err),
+                    [nonFieldError]: `Too many images ${result.right.images.length} uploaded. Please do not exceed ${MAX_IMAGES} images.`,
+                }));
+                return;
+            }
             setFieldValue(
                 () => result.right.images.map((image) => ({
                     sourceIdentifier: String(image.id),

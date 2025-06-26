@@ -36,7 +36,7 @@ export default function ValidateImagePreview(props: Props) {
 
     return (
         <MobilePreview
-            className={_cs(styles.footprintGeoJsonPreview, className)}
+            className={_cs(styles.validateImagePreview, className)}
             contentClassName={styles.content}
             heading={lookFor || '{look for}'}
             headingLabel="You are looking for:"
@@ -45,7 +45,7 @@ export default function ValidateImagePreview(props: Props) {
             popupDescription={previewPopUp?.description || '{description}'}
         >
             <img
-                className={styles.mapPreview}
+                className={styles.imagePreview}
                 src={image?.url}
                 alt="Preview"
             />

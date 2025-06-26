@@ -99,6 +99,7 @@ import {
     BuildAreaProperties,
     ChangeDetectionProperties,
     ImageType,
+    MAX_IMAGES,
 } from './utils';
 
 import CustomOptionPreview from './CustomOptionInput/CustomOptionPreview';
@@ -691,6 +692,13 @@ function NewTutorial(props: Props) {
                 setError((err) => ({
                     ...getErrorObject(err),
                     [nonFieldError]: 'Invalid COCO format',
+                }));
+                return;
+            }
+            if (result.right.images.length > MAX_IMAGES) {
+                setError((err) => ({
+                    ...getErrorObject(err),
+                    [nonFieldError]: `Too many images ${result.right.images.length} uploaded. Please do not exceed ${MAX_IMAGES} images.`,
                 }));
                 return;
             }
