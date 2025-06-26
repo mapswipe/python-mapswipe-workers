@@ -1,0 +1,37 @@
+.validate-image-preview {
+    .content {
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-large);
+
+        .image-preview {
+            position: relative;
+            border: 1px solid red;
+            width: 100%;
+            height: var(--height-mobile-preview-validate-image-content);
+        }
+
+        .options {
+            display: grid;
+            flex-grow: 1;
+            grid-template-columns: 1fr 1fr 1fr;
+            grid-gap: var(--spacing-large);
+
+            .option-container {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+
+                .option {
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    border-radius: 50%;
+                    width: 2.5rem;
+                    height: 2.5rem;
+                    font-size: var(--font-size-extra-large);
+                }
+            }
+        }
+    }
+}

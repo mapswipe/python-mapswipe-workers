@@ -34,6 +34,7 @@ import {
     ProjectInputType,
     PROJECT_TYPE_BUILD_AREA,
     PROJECT_TYPE_FOOTPRINT,
+    PROJECT_TYPE_VALIDATE_IMAGE,
     PROJECT_TYPE_CHANGE_DETECTION,
     PROJECT_TYPE_COMPLETENESS,
     PROJECT_TYPE_STREET,
@@ -68,13 +69,14 @@ export interface ProjectFormType {
     projectImage: File; // image
     verificationNumber: number;
     groupSize: number;
+    maxTasksPerUser: number;
+
     zoomLevel: number;
     geometry?: GeoJSON.GeoJSON | string;
     inputType?: ProjectInputType;
     TMId?: string;
     filter?: string;
     filterText?: string;
-    maxTasksPerUser: number;
     tileServer: TileServer;
     tileServerB?: TileServer;
     customOptions?: CustomOptionsForProject;
@@ -87,6 +89,11 @@ export interface ProjectFormType {
     panoOnly?: boolean;
     isPano?: boolean | null;
     samplingThreshold?: number;
+    images?: {
+        sourceIdentifier: string;
+        fileName: string;
+        url: string;
+    }[];
 }
 
 export const PROJECT_INPUT_TYPE_UPLOAD = 'aoi_file';
@@ -115,8 +122,10 @@ export const filterOptions = [
 export type PartialProjectFormType = PartialForm<
     Omit<ProjectFormType, 'projectImage'> & { projectImage?: File },
     // NOTE: we do not want to change File and FeatureCollection to partials
-    'geometry' | 'projectImage' | 'value'
+    'geometry' | 'projectImage' | 'value' | 'sourceIdentifier'
 >;
+
+export type ImageType = NonNullable<PartialProjectFormType['images']>[number];
 
 type ProjectFormSchema = ObjectSchema<PartialProjectFormType>;
 type ProjectFormSchemaFields = ReturnType<ProjectFormSchema['fields']>;
@@ -126,6 +135,12 @@ type CustomOptionSchema = ObjectSchema<PartialCustomOptions, PartialProjectFormT
 type CustomOptionSchemaFields = ReturnType<CustomOptionSchema['fields']>
 type CustomOptionFormSchema = ArraySchema<PartialCustomOptions, PartialProjectFormType>;
 type CustomOptionFormSchemaMember = ReturnType<CustomOptionFormSchema['member']>;
+
+type PartialImages = NonNullable<PartialProjectFormType['images']>[number];
+type ImageSchema = ObjectSchema<PartialImages, PartialProjectFormType>;
+type ImageSchemaFields = ReturnType<ImageSchema['fields']>
+type ImageFormSchema = ArraySchema<PartialImages, PartialProjectFormType>;
+type ImageFormSchemaMember = ReturnType<ImageFormSchema['member']>;
 
 // FIXME: break this into multiple geometry conditions
 const DEFAULT_MAX_FEATURES = 20;
@@ -193,6 +208,8 @@ function validGeometryCondition(zoomLevel: number | undefined | null) {
     }
     return validGeometryConditionForZoom;
 }
+
+export const MAX_IMAGES = 2000;
 
 export const MAX_OPTIONS = 6;
 export const MIN_OPTIONS = 2;
@@ -275,48 +292,15 @@ export const projectFormSchema: ProjectFormSchema = {
                     lessThanOrEqualToCondition(250),
                 ],
             },
-            tileServer: {
-                fields: tileServerFieldsSchema,
-            },
             maxTasksPerUser: {
                 validations: [
                     integerCondition,
                     greaterThanCondition(0),
                 ],
             },
-            dateRange: {
-                required: false,
-            },
-            creatorId: {
-                required: false,
-                validations: [
-                    integerCondition,
-                    greaterThanCondition(0),
-                ],
-            },
-            organizationId: {
-                required: false,
-                validations: [
-                    integerCondition,
-                    greaterThanCondition(0),
-                ],
-            },
-            samplingThreshold: {
-                required: false,
-                validation: [
-                    greaterThanCondition(0),
-                ],
-            },
-            panoOnly: {
-                required: false,
-            },
-            isPano: {
-                required: false,
-            },
-            randomizeOrder: {
-                required: false,
-            },
         };
+
+        // Common
 
         baseSchema = addCondition(
             baseSchema,
@@ -325,6 +309,7 @@ export const projectFormSchema: ProjectFormSchema = {
             ['customOptions'],
             (formValues) => {
                 if (formValues?.projectType === PROJECT_TYPE_FOOTPRINT
+                        || formValues?.projectType === PROJECT_TYPE_VALIDATE_IMAGE
                         || formValues?.projectType === PROJECT_TYPE_STREET) {
                     return {
                         customOptions: {
@@ -388,8 +373,8 @@ export const projectFormSchema: ProjectFormSchema = {
                 const projectType = v?.projectType;
                 if (
                     projectType === PROJECT_TYPE_BUILD_AREA
-                    || projectType === PROJECT_TYPE_COMPLETENESS
                     || projectType === PROJECT_TYPE_CHANGE_DETECTION
+                    || projectType === PROJECT_TYPE_COMPLETENESS
                 ) {
                     return {
                         zoomLevel: {
@@ -411,24 +396,6 @@ export const projectFormSchema: ProjectFormSchema = {
         baseSchema = addCondition(
             baseSchema,
             value,
-            ['projectType'],
-            ['inputType'],
-            (v) => {
-                const projectType = v?.projectType;
-                if (projectType === PROJECT_TYPE_FOOTPRINT) {
-                    return {
-                        inputType: { required: true },
-                    };
-                }
-                return {
-                    inputType: { forceValue: nullValue },
-                };
-            },
-        );
-
-        baseSchema = addCondition(
-            baseSchema,
-            value,
             ['projectType', 'inputType', 'zoomLevel'],
             ['geometry'],
             (v) => {
@@ -437,8 +404,8 @@ export const projectFormSchema: ProjectFormSchema = {
                 const zoomLevel = v?.zoomLevel;
                 if (
                     projectType === PROJECT_TYPE_BUILD_AREA
-                    || projectType === PROJECT_TYPE_COMPLETENESS
                     || projectType === PROJECT_TYPE_CHANGE_DETECTION
+                    || projectType === PROJECT_TYPE_COMPLETENESS
                     || projectType === PROJECT_TYPE_STREET
                     || (projectType === PROJECT_TYPE_FOOTPRINT && (
                         inputType === PROJECT_INPUT_TYPE_UPLOAD
@@ -479,6 +446,51 @@ export const projectFormSchema: ProjectFormSchema = {
                 }
                 return {
                     geometry: { forceValue: nullValue },
+                };
+            },
+        );
+
+        baseSchema = addCondition(
+            baseSchema,
+            value,
+            ['projectType'],
+            ['tileServer'],
+            (v) => {
+                const projectType = v?.projectType;
+                if (
+                    projectType === PROJECT_TYPE_BUILD_AREA
+                    || projectType === PROJECT_TYPE_COMPLETENESS
+                    || projectType === PROJECT_TYPE_CHANGE_DETECTION
+                    || projectType === PROJECT_TYPE_FOOTPRINT
+                ) {
+                    return {
+                        tileServer: {
+                            fields: tileServerFieldsSchema,
+                        },
+                    };
+                }
+                return {
+                    tileServer: { forceValue: nullValue },
+                };
+            },
+        );
+
+        // Validate
+
+        baseSchema = addCondition(
+            baseSchema,
+            value,
+            ['projectType'],
+            ['inputType'],
+            (v) => {
+                const projectType = v?.projectType;
+                if (projectType === PROJECT_TYPE_FOOTPRINT) {
+                    return {
+                        inputType: { required: true },
+                    };
+                }
+                return {
+                    inputType: { forceValue: nullValue },
                 };
             },
         );
@@ -560,6 +572,103 @@ export const projectFormSchema: ProjectFormSchema = {
             },
         );
 
+        // Street
+
+        baseSchema = addCondition(
+            baseSchema,
+            value,
+            ['projectType'],
+            ['dateRange', 'creatorId', 'organizationId', 'samplingThreshold', 'panoOnly', 'isPano', 'randomizeOrder'],
+            (formValues) => {
+                if (formValues?.projectType === PROJECT_TYPE_STREET) {
+                    return {
+                        dateRange: {
+                            required: false,
+                        },
+                        creatorId: {
+                            required: false,
+                            validations: [
+                                integerCondition,
+                                greaterThanCondition(0),
+                            ],
+                        },
+                        organizationId: {
+                            required: false,
+                            validations: [
+                                integerCondition,
+                                greaterThanCondition(0),
+                            ],
+                        },
+                        samplingThreshold: {
+                            required: false,
+                            validations: [
+                                greaterThanCondition(0),
+                            ],
+                        },
+                        panoOnly: {
+                            required: false,
+                        },
+                        // FIXME: This is not used.
+                        isPano: {
+                            required: false,
+                        },
+                        randomizeOrder: {
+                            required: false,
+                        },
+                    };
+                }
+                return {
+                    dateRange: { forceValue: nullValue },
+                    creatorId: { forceValue: nullValue },
+                    organizationId: { forceValue: nullValue },
+                    samplingThreshold: { forceValue: nullValue },
+                    panoOnly: { forceValue: nullValue },
+                    isPano: { forceValude: nullValue },
+                    randomizeOrder: { forceValue: nullValue },
+                };
+            },
+        );
+
+        // Validate Image
+
+        baseSchema = addCondition(
+            baseSchema,
+            value,
+            ['projectType'],
+            ['images'],
+            (formValues) => {
+                // FIXME: Add "unique" constraint for sourceIdentifier and fileName
+                // FIXME: Add max length constraint
+                if (formValues?.projectType === PROJECT_TYPE_VALIDATE_IMAGE) {
+                    return {
+                        images: {
+                            keySelector: (key) => key.sourceIdentifier,
+                            member: (): ImageFormSchemaMember => ({
+                                fields: (): ImageSchemaFields => ({
+                                    sourceIdentifier: {
+                                        required: true,
+                                        requiredValidation: requiredStringCondition,
+                                    },
+                                    fileName: {
+                                        required: true,
+                                        requiredValidation: requiredStringCondition,
+                                    },
+                                    url: {
+                                        required: true,
+                                        requiredValidation: requiredStringCondition,
+                                        validations: [urlCondition],
+                                    },
+                                }),
+                            }),
+                        },
+                    };
+                }
+                return {
+                    images: { forceValue: nullValue },
+                };
+            },
+        );
+
         return baseSchema;
     },
 };
@@ -588,6 +697,7 @@ export function getGroupSize(projectType: ProjectType | undefined) {
     }
 
     if (projectType === PROJECT_TYPE_FOOTPRINT
+            || projectType === PROJECT_TYPE_VALIDATE_IMAGE
             || projectType === PROJECT_TYPE_CHANGE_DETECTION
             || projectType === PROJECT_TYPE_STREET) {
         return 25;
