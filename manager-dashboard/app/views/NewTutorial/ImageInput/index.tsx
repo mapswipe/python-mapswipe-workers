@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 
 import {
     SetValueArg,
@@ -6,11 +6,14 @@ import {
     useFormObject,
     getErrorObject,
 } from '@togglecorp/toggle-form';
+import { isNotDefined, isDefined, unique } from '@togglecorp/fujs';
 import TextInput from '#components/TextInput';
+import SelectInput from '#components/SelectInput';
 import NumberInput from '#components/NumberInput';
 
 import {
     ImageType,
+    PartialCustomOptionsType,
 } from '../utils';
 
 import styles from './styles.css';
@@ -26,6 +29,7 @@ interface Props {
     error: Error<ImageType> | undefined;
     disabled?: boolean;
     readOnly?: boolean;
+    customOptions: PartialCustomOptionsType | undefined;
 }
 
 export default function ImageInput(props: Props) {
@@ -36,7 +40,44 @@ export default function ImageInput(props: Props) {
         error: riskyError,
         disabled,
         readOnly,
+        customOptions,
     } = props;
+
+    const flattenedOptions = useMemo(
+        () => {
+            const opts = customOptions?.flatMap(
+                (option) => ([
+                    {
+                        key: option.value,
+                        label: option.title,
+                    },
+                    ...(option.subOptions ?? []).map(
+                        (subOption) => ({
+                            key: subOption.value,
+                            label: subOption.description,
+                        }),
+                    ),
+                ]),
+            ) ?? [];
+
+            const validOpts = opts.map(
+                (option) => {
+                    if (isNotDefined(option.key)) {
+                        return undefined;
+                    }
+                    return {
+                        ...option,
+                        key: option.key,
+                    };
+                },
+            ).filter(isDefined);
+            return unique(
+                validOpts,
+                (option) => option.key,
+            );
+        },
+        [customOptions],
+    );
 
     const onImageChange = useFormObject(index, onChange, defaultImageValue);
 
@@ -78,12 +119,14 @@ export default function ImageInput(props: Props) {
                 disabled={disabled}
                 readOnly
             />
-            {/* FIXME: Use select input */}
-            <NumberInput
+            <SelectInput
                 label="Reference Answer"
                 value={value?.referenceAnswer}
                 name={'referenceAnswer' as const}
                 onChange={onImageChange}
+                keySelector={(option) => option.key}
+                labelSelector={(option) => option.label ?? `Option ${option.key}`}
+                options={flattenedOptions}
                 error={error?.referenceAnswer}
                 disabled={disabled || readOnly}
             />

@@ -37,8 +37,6 @@ import {
     IoIosTrash,
 } from 'react-icons/io';
 import { Link } from 'react-router-dom';
-import * as t from 'io-ts';
-import { isRight } from 'fp-ts/Either';
 
 import UserContext from '#base/context/UserContext';
 import projectTypeOptions from '#base/configs/projectTypes';
@@ -48,7 +46,7 @@ import TextInput from '#components/TextInput';
 import NumberInput from '#components/NumberInput';
 import SegmentInput from '#components/SegmentInput';
 import GeoJsonFileInput from '#components/GeoJsonFileInput';
-import JsonFileInput from '#components/JsonFileInput';
+import CocoFileInput, { CocoDatasetType } from '#components/CocoFileInput';
 import TileServerInput, {
     TILE_SERVER_BING,
     TILE_SERVER_ESRI,
@@ -57,6 +55,7 @@ import TileServerInput, {
 import InputSection from '#components/InputSection';
 import Button from '#components/Button';
 import NonFieldError from '#components/NonFieldError';
+import EmptyMessage from '#components/EmptyMessage';
 import AnimatedSwipeIcon from '#components/AnimatedSwipeIcon';
 import ExpandableContainer from '#components/ExpandableContainer';
 import AlertBanner from '#components/AlertBanner';
@@ -102,25 +101,6 @@ import ImageInput from './ImageInput';
 
 // eslint-disable-next-line postcss-modules/no-unused-class
 import styles from './styles.css';
-
-const Image = t.type({
-    id: t.number,
-    // width: t.number,
-    // height: t.number,
-    file_name: t.string,
-    // license: t.union([t.number, t.undefined]),
-    flickr_url: t.union([t.string, t.undefined]),
-    coco_url: t.union([t.string, t.undefined]),
-    // date_captured: DateFromISOString,
-});
-const CocoDataset = t.type({
-    // info: Info,
-    // licenses: t.array(License),
-    images: t.array(Image),
-    // annotations: t.array(Annotation),
-    // categories: t.array(Category)
-});
-// type CocoDatasetType = t.TypeOf<typeof CocoDataset>
 
 const defaultProjectFormValue: PartialProjectFormType = {
     // projectType: PROJECT_TYPE_BUILD_AREA,
@@ -501,26 +481,16 @@ function NewProject(props: Props) {
     >('images', setFieldValue);
 
     const handleCocoImport = React.useCallback(
-        (val) => {
-            const result = CocoDataset.decode(val);
-            if (!isRight(result)) {
-                // eslint-disable-next-line no-console
-                console.error('Invalid COCO format', result.left);
-                setError((err) => ({
-                    ...getErrorObject(err),
-                    [nonFieldError]: 'Invalid COCO format',
-                }));
-                return;
-            }
-            if (result.right.images.length > MAX_IMAGES) {
-                setError((err) => ({
-                    ...getErrorObject(err),
-                    [nonFieldError]: `Too many images ${result.right.images.length} uploaded. Please do not exceed ${MAX_IMAGES} images.`,
-                }));
+        (val: CocoDatasetType | undefined) => {
+            if (isNotDefined(val)) {
+                setFieldValue(
+                    [],
+                    'images',
+                );
                 return;
             }
             setFieldValue(
-                () => result.right.images.map((image) => ({
+                () => val.images.map((image) => ({
                     sourceIdentifier: String(image.id),
                     fileName: image.file_name,
                     url: image.flickr_url || image.coco_url,
@@ -528,7 +498,7 @@ function NewProject(props: Props) {
                 'images',
             );
         },
-        [setFieldValue, setError],
+        [setFieldValue],
     );
 
     const handleAddImage = React.useCallback(
@@ -613,6 +583,17 @@ function NewProject(props: Props) {
                         <NonFieldError
                             error={imagesError}
                         />
+                        <CocoFileInput
+                            name={undefined}
+                            value={undefined}
+                            onChange={handleCocoImport}
+                            maxLength={MAX_IMAGES}
+                            disabled={
+                                submissionPending
+                                || projectTypeEmpty
+                            }
+                            label="Import COCO file"
+                        />
                         {(images && images.length > 0) ? (
                             <div className={styles.imageList}>
                                 {images.map((image, index) => (
@@ -647,15 +628,9 @@ function NewProject(props: Props) {
                                 ))}
                             </div>
                         ) : (
-                            <JsonFileInput<undefined, object>
-                                name={undefined}
-                                onChange={handleCocoImport}
-                                disabled={
-                                    submissionPending
-                                    || projectTypeEmpty
-                                }
-                                label="Import COCO file"
-                                value={undefined}
+                            <EmptyMessage
+                                title="Start adding images"
+                                description="Add images using COCO file or manually add images"
                             />
                         )}
                     </InputSection>

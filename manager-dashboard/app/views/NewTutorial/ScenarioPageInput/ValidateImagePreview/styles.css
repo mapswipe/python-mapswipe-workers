@@ -6,7 +6,6 @@
 
         .image-preview {
             position: relative;
-            border: 1px solid red;
             width: 100%;
             height: var(--height-mobile-preview-validate-image-content);
         }
