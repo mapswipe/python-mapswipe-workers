@@ -925,11 +925,16 @@ export const tutorialFormSchema: TutorialFormSchema = {
             ['images'],
             (formValues) => {
                 // FIXME: Add "unique" constraint for sourceIdentifier and fileName
-                // FIXME: Add max length constraint
                 if (formValues?.projectType === PROJECT_TYPE_VALIDATE_IMAGE) {
                     return {
                         images: {
                             keySelector: (key) => key.sourceIdentifier,
+                            validation: (values) => {
+                                if (values && values.length > MAX_IMAGES) {
+                                    return `Too many images ${values.length}. Please do not exceed ${MAX_IMAGES} images.`;
+                                }
+                                return undefined;
+                            },
                             member: (): ImageFormSchemaMember => ({
                                 fields: (): ImageSchemaFields => ({
                                     sourceIdentifier: {

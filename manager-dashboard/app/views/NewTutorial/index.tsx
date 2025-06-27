@@ -14,7 +14,6 @@ import {
     createSubmitHandler,
     analyzeErrors,
     useFormArray,
-    nonFieldError,
 } from '@togglecorp/toggle-form';
 import {
     getStorage,
@@ -41,8 +40,6 @@ import {
     IoInformationCircleOutline,
 } from 'react-icons/io5';
 import { Link } from 'react-router-dom';
-import * as t from 'io-ts';
-import { isRight } from 'fp-ts/Either';
 
 import UserContext from '#base/context/UserContext';
 import projectTypeOptions from '#base/configs/projectTypes';
@@ -53,7 +50,7 @@ import NumberInput from '#components/NumberInput';
 import Heading from '#components/Heading';
 import SegmentInput from '#components/SegmentInput';
 import GeoJsonFileInput from '#components/GeoJsonFileInput';
-import JsonFileInput from '#components/JsonFileInput';
+import CocoFileInput, { CocoDatasetType } from '#components/CocoFileInput';
 import ExpandableContainer from '#components/ExpandableContainer';
 import PopupButton from '#components/PopupButton';
 import TileServerInput, {
@@ -108,26 +105,6 @@ import ScenarioPageInput from './ScenarioPageInput';
 import InformationPageInput from './InformationPageInput';
 import ImageInput from './ImageInput';
 import styles from './styles.css';
-
-// FIXME: let's not duplicate this logic
-const Image = t.type({
-    id: t.number,
-    // width: t.number,
-    // height: t.number,
-    file_name: t.string,
-    // license: t.union([t.number, t.undefined]),
-    flickr_url: t.union([t.string, t.undefined]),
-    coco_url: t.union([t.string, t.undefined]),
-    // date_captured: DateFromISOString,
-});
-const CocoDataset = t.type({
-    // info: Info,
-    // licenses: t.array(License),
-    images: t.array(Image),
-    // annotations: t.array(Annotation),
-    // categories: t.array(Category)
-});
-// type CocoDatasetType = t.TypeOf<typeof CocoDataset>
 
 export function getDuplicates<T, K extends string | number>(
     list: T[],
@@ -348,6 +325,27 @@ function getGeoJSONWarning(
         errors.push(`Reference in GeoJSON should be either ${availableOptionsSet.join(', ')}. The invalid references are ${[...invalidOptions].sort().join(', ')}`);
     }
 
+    return errors;
+}
+
+function getImagesWarning(
+    images: ImageType[],
+    customOptions: number[],
+) {
+    const errors = [];
+
+    const usedValues = images.map((item) => item.referenceAnswer).filter(isDefined);
+
+    const usedValuesSet = new Set(usedValues);
+    const customOptionsSet = new Set(customOptions);
+
+    const invalidUsedValuesSet = difference(usedValuesSet, customOptionsSet);
+
+    if (invalidUsedValuesSet.size === 1) {
+        errors.push(`Reference in images should be either ${customOptions.join(', ')}. The invalid reference is ${[...invalidUsedValuesSet].join(', ')}`);
+    } else if (invalidUsedValuesSet.size > 1) {
+        errors.push(`Reference in images should be either ${customOptions.join(', ')}. The invalid references are ${[...invalidUsedValuesSet].sort().join(', ')}`);
+    }
     return errors;
 }
 
@@ -684,34 +682,23 @@ function NewTutorial(props: Props) {
     );
 
     const handleCocoImport = React.useCallback(
-        (val) => {
-            const result = CocoDataset.decode(val);
-            if (!isRight(result)) {
-                // eslint-disable-next-line no-console
-                console.error('Invalid COCO format', result.left);
-                setError((err) => ({
-                    ...getErrorObject(err),
-                    [nonFieldError]: 'Invalid COCO format',
-                }));
+        (val: CocoDatasetType | undefined) => {
+            if (isNotDefined(val)) {
+                setFieldValue(
+                    [],
+                    'images',
+                );
                 return;
             }
-            if (result.right.images.length > MAX_IMAGES) {
-                setError((err) => ({
-                    ...getErrorObject(err),
-                    [nonFieldError]: `Too many images ${result.right.images.length} uploaded. Please do not exceed ${MAX_IMAGES} images.`,
-                }));
-                return;
-            }
-
-            const newImages = result.right.images.map((image, index) => ({
+            const newImages = val.images.map((image, index) => ({
                 sourceIdentifier: String(image.id),
                 fileName: image.file_name,
                 url: image.flickr_url || image.coco_url,
                 screen: index + 1,
-                referenceAnswer: 1,
+                // referenceAnswer: 1,
             }));
             setFieldValue(
-                () => newImages,
+                newImages,
                 'images',
             );
 
@@ -730,7 +717,7 @@ function NewTutorial(props: Props) {
             ));
             setFieldValue(tutorialTaskArray, 'scenarioPages');
         },
-        [setFieldValue, setError],
+        [setFieldValue],
     );
 
     const submissionPending = (
@@ -787,7 +774,13 @@ function NewTutorial(props: Props) {
                 ...subOptions,
             ].filter(isDefined);
 
-            // FIXME: Add warning here for validate image
+            if (value?.projectType === PROJECT_TYPE_VALIDATE_IMAGE) {
+                return getImagesWarning(
+                    value?.images ?? [],
+                    selectedValues,
+                );
+            }
+
             return getGeoJSONWarning(
                 value?.tutorialTasks,
                 value?.projectType,
@@ -795,7 +788,13 @@ function NewTutorial(props: Props) {
                 value?.zoomLevel,
             );
         },
-        [value?.tutorialTasks, value?.projectType, value?.customOptions, value?.zoomLevel],
+        [
+            value?.tutorialTasks,
+            value?.images,
+            value?.projectType,
+            value?.customOptions,
+            value?.zoomLevel,
+        ],
     );
 
     const getTileServerUrl = (val: PartialTutorialFormType['tileServer']) => {
@@ -821,6 +820,7 @@ function NewTutorial(props: Props) {
         (newValue: ProjectType | undefined) => {
             setFieldValue(undefined, 'tutorialTasks');
             setFieldValue(undefined, 'scenarioPages');
+            setFieldValue(undefined, 'images');
             setFieldValue(newValue, 'projectType');
             setFieldValue(getDefaultOptions(newValue), 'customOptions');
         },
@@ -1061,15 +1061,16 @@ function NewTutorial(props: Props) {
                         <NonFieldError
                             error={imagesError}
                         />
-                        <JsonFileInput<undefined, object>
+                        <CocoFileInput
                             name={undefined}
+                            value={undefined}
                             onChange={handleCocoImport}
+                            maxLength={MAX_IMAGES}
                             disabled={
                                 submissionPending
                                 || projectTypeEmpty
                             }
                             label="Import COCO file"
-                            value={undefined}
                         />
                         {(images && images.length > 0) ? (
                             <div className={styles.imageList}>
@@ -1084,6 +1085,7 @@ function NewTutorial(props: Props) {
                                             value={image}
                                             index={index}
                                             onChange={setImageValue}
+                                            customOptions={customOptions}
                                             error={imagesError?.[image.sourceIdentifier]}
                                             disabled={submissionPending || projectTypeEmpty}
                                         />
