@@ -49,6 +49,7 @@ import {
     ProjectTypeSwipeStatsType,
     ProjectTypeAreaStatsType,
     ContributorSwipeStatType,
+    ProjectTypeEnum,
 } from '#generated/types';
 import { mergeItems } from '#utils/common';
 import {
@@ -67,16 +68,27 @@ const CHART_BREAKPOINT = 700;
 export type ActualContributorTimeStatType = ContributorTimeStatType & { totalSwipeTime: number };
 const UNKNOWN = '-1';
 const BUILD_AREA = 'BUILD_AREA';
+const MEDIA = 'MEDIA';
+const DIGITIZATION = 'DIGITIZATION';
 const FOOTPRINT = 'FOOTPRINT';
 const CHANGE_DETECTION = 'CHANGE_DETECTION';
+const VALIDATE_IMAGE = 'VALIDATE_IMAGE';
 const COMPLETENESS = 'COMPLETENESS';
 const STREET = 'STREET';
 
 // FIXME: the name property is not used properly
-const projectTypes: Record<string, { color: string, name: string }> = {
+const projectTypes: Record<ProjectTypeEnum | '-1', { color: string, name: string }> = {
     [UNKNOWN]: {
         color: '#cacaca',
         name: 'Unknown',
+    },
+    [MEDIA]: {
+        color: '#cacaca',
+        name: 'Media',
+    },
+    [DIGITIZATION]: {
+        color: '#cacaca',
+        name: 'Digitization',
     },
     [BUILD_AREA]: {
         color: '#f8a769',
@@ -93,6 +105,10 @@ const projectTypes: Record<string, { color: string, name: string }> = {
     [COMPLETENESS]: {
         color: '#fb8072',
         name: 'Completeness',
+    },
+    [VALIDATE_IMAGE]: {
+        color: '#a1b963',
+        name: 'Validate Image',
     },
     [STREET]: {
         color: '#808080',
@@ -376,14 +392,16 @@ function StatsBoard(props: Props) {
     const sortedProjectSwipeType = useMemo(
         () => (
             swipeByProjectType
-                ?.map((item) => ({
-                    ...item,
-                    projectType: (
-                        isDefined(item.projectType)
-                        && isDefined(projectTypes[item.projectType])
-                    ) ? item.projectType
-                        : UNKNOWN,
-                }))
+                ?.map((item) => {
+                    const projectType: ProjectTypeEnum | '-1' = (
+                        isDefined(item.projectType) && isDefined(projectTypes[item.projectType])
+                    ) ? item.projectType : UNKNOWN;
+
+                    return ({
+                        ...item,
+                        projectType,
+                    });
+                })
                 .sort((a, b) => compareNumber(a.totalSwipes, b.totalSwipes, -1)) ?? []
         ),
         [swipeByProjectType],
