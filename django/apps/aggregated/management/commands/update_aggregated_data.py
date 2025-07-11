@@ -55,6 +55,7 @@ UPDATE_PROJECT_GROUP_DATA_USING_PROJECT_ID = f"""
               WHEN P.project_type = {Project.Type.CHANGE_DETECTION.value} THEN 11.2
               -- FOOTPRINT: Not calculated right now
               WHEN P.project_type = {Project.Type.FOOTPRINT.value} THEN 6.1
+              WHEN P.project_type = {Project.Type.VALIDATE_IMAGE.value} THEN 6.1
               WHEN P.project_type = {Project.Type.STREET.value} THEN 65
               ELSE 1
             END
@@ -111,6 +112,7 @@ UPDATE_PROJECT_GROUP_DATA_USING_TIME_RANGE = f"""
               WHEN P.project_type = {Project.Type.CHANGE_DETECTION.value} THEN 11.2
               -- FOOTPRINT: Not calculated right now
               WHEN P.project_type = {Project.Type.FOOTPRINT.value} THEN 6.1
+              WHEN P.project_type = {Project.Type.VALIDATE_IMAGE.value} THEN 6.1
               WHEN P.project_type = {Project.Type.STREET.value} THEN 65
               ELSE 1
             END
@@ -136,8 +138,10 @@ TASK_GROUP_METADATA_QUERY = f"""
             G.group_id,
             (
                 CASE
-                    -- Hide area for Footprint
+                    -- Hide area for Footprint and Validate Image
+                    -- FIXME: What should we do for Project.Type.STREET.value
                     WHEN P.project_type = {Project.Type.FOOTPRINT.value} THEN 0
+                    WHEN P.project_type = {Project.Type.VALIDATE_IMAGE.value} THEN 0
                     ELSE G.total_area
                 END
             ) as total_task_group_area,
