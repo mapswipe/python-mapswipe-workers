@@ -1,4 +1,4 @@
-FROM python:3.10-buster
+FROM python:3.10-bullseye
 
 LABEL maintainer="Mapswipe info@mapswipe.org"
 
