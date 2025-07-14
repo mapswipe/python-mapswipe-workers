@@ -10,6 +10,8 @@ from .tile_map_service.classification.project import ClassificationProject
 from .tile_map_service.classification.tutorial import ClassificationTutorial
 from .tile_map_service.completeness.project import CompletenessProject
 from .tile_map_service.completeness.tutorial import CompletenessTutorial
+from .validate_image.project import ValidateImageProject
+from .validate_image.tutorial import ValidateImageTutorial
 
 __all__ = [
     "ClassificationProject",
@@ -21,6 +23,8 @@ __all__ = [
     "MediaClassificationProject",
     "FootprintProject",
     "FootprintTutorial",
+    "ValidateImageProject",
+    "ValidateImageTutorial",
     "DigitizationProject",
     "StreetProject",
     "StreetTutorial",

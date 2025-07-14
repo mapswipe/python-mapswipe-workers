@@ -69,6 +69,7 @@ class Project(Model):
         MEDIA = 5, "Media"
         DIGITIZATION = 6, "Digitization"
         STREET = 7, "Street"
+        VALIDATE_IMAGE = 10, "Validate Image"
 
     project_id = models.CharField(primary_key=True, max_length=999)
     created = models.DateTimeField(blank=True, null=True)

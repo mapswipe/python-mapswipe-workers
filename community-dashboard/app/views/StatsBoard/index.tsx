@@ -43,12 +43,14 @@ import InformationCard from '#components/InformationCard';
 import areaSvg from '#resources/icons/area.svg';
 import sceneSvg from '#resources/icons/scene.svg';
 import featureSvg from '#resources/icons/feature.svg';
+import validateImageSvg from '#resources/icons/validate-image.svg';
 import {
     ContributorTimeStatType,
     OrganizationSwipeStatsType,
     ProjectTypeSwipeStatsType,
     ProjectTypeAreaStatsType,
     ContributorSwipeStatType,
+    ProjectTypeEnum,
 } from '#generated/types';
 import { mergeItems } from '#utils/common';
 import {
@@ -67,16 +69,27 @@ const CHART_BREAKPOINT = 700;
 export type ActualContributorTimeStatType = ContributorTimeStatType & { totalSwipeTime: number };
 const UNKNOWN = '-1';
 const BUILD_AREA = 'BUILD_AREA';
+const MEDIA = 'MEDIA';
+const DIGITIZATION = 'DIGITIZATION';
 const FOOTPRINT = 'FOOTPRINT';
 const CHANGE_DETECTION = 'CHANGE_DETECTION';
+const VALIDATE_IMAGE = 'VALIDATE_IMAGE';
 const COMPLETENESS = 'COMPLETENESS';
 const STREET = 'STREET';
 
 // FIXME: the name property is not used properly
-const projectTypes: Record<string, { color: string, name: string }> = {
+const projectTypes: Record<ProjectTypeEnum | '-1', { color: string, name: string }> = {
     [UNKNOWN]: {
         color: '#cacaca',
         name: 'Unknown',
+    },
+    [MEDIA]: {
+        color: '#cacaca',
+        name: 'Media',
+    },
+    [DIGITIZATION]: {
+        color: '#cacaca',
+        name: 'Digitization',
     },
     [BUILD_AREA]: {
         color: '#f8a769',
@@ -93,6 +106,10 @@ const projectTypes: Record<string, { color: string, name: string }> = {
     [COMPLETENESS]: {
         color: '#fb8072',
         name: 'Completeness',
+    },
+    [VALIDATE_IMAGE]: {
+        color: '#a1b963',
+        name: 'Validate Image',
     },
     [STREET]: {
         color: '#808080',
@@ -376,14 +393,16 @@ function StatsBoard(props: Props) {
     const sortedProjectSwipeType = useMemo(
         () => (
             swipeByProjectType
-                ?.map((item) => ({
-                    ...item,
-                    projectType: (
-                        isDefined(item.projectType)
-                        && isDefined(projectTypes[item.projectType])
-                    ) ? item.projectType
-                        : UNKNOWN,
-                }))
+                ?.map((item) => {
+                    const projectType: ProjectTypeEnum | '-1' = (
+                        isDefined(item.projectType) && isDefined(projectTypes[item.projectType])
+                    ) ? item.projectType : UNKNOWN;
+
+                    return ({
+                        ...item,
+                        projectType,
+                    });
+                })
                 .sort((a, b) => compareNumber(a.totalSwipes, b.totalSwipes, -1)) ?? []
         ),
         [swipeByProjectType],
@@ -447,6 +466,10 @@ function StatsBoard(props: Props) {
 
     const footPrintTotalSwipes = swipeByProjectType?.find(
         (project) => project.projectType === FOOTPRINT,
+    )?.totalSwipes;
+
+    const validateImageTotalSwipes = swipeByProjectType?.find(
+        (project) => project.projectType === VALIDATE_IMAGE,
     )?.totalSwipes;
 
     const organizationColors = scaleOrdinal<string, string | undefined>()
@@ -697,6 +720,29 @@ function StatsBoard(props: Props) {
                             </div>
                         )}
                         subHeading="Compare"
+                        variant="stat"
+                    />
+                    <InformationCard
+                        icon={(
+                            <img
+                                src={validateImageSvg}
+                                alt="group icon"
+                            />
+                        )}
+                        value={(
+                            <NumberOutput
+                                className={styles.numberOutput}
+                                value={validateImageTotalSwipes}
+                                normal
+                                invalidText={0}
+                            />
+                        )}
+                        label={(
+                            <div className={styles.infoLabel}>
+                                Images Validated
+                            </div>
+                        )}
+                        subHeading="Validate Image"
                         variant="stat"
                     />
                 </div>

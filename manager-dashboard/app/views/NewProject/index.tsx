@@ -3,6 +3,7 @@ import {
     _cs,
     isDefined,
     isNotDefined,
+    randomString,
 } from '@togglecorp/fujs';
 import {
     useForm,
@@ -10,6 +11,7 @@ import {
     createSubmitHandler,
     analyzeErrors,
     nonFieldError,
+    useFormArray,
 } from '@togglecorp/toggle-form';
 import {
     getStorage,
@@ -29,7 +31,11 @@ import {
 import {
     MdOutlinePublishedWithChanges,
     MdOutlineUnpublished,
+    MdAdd,
 } from 'react-icons/md';
+import {
+    IoIosTrash,
+} from 'react-icons/io';
 import { Link } from 'react-router-dom';
 
 import UserContext from '#base/context/UserContext';
@@ -40,6 +46,7 @@ import TextInput from '#components/TextInput';
 import NumberInput from '#components/NumberInput';
 import SegmentInput from '#components/SegmentInput';
 import GeoJsonFileInput from '#components/GeoJsonFileInput';
+import CocoFileInput, { CocoDatasetType } from '#components/CocoFileInput';
 import TileServerInput, {
     TILE_SERVER_BING,
     TILE_SERVER_ESRI,
@@ -48,6 +55,7 @@ import TileServerInput, {
 import InputSection from '#components/InputSection';
 import Button from '#components/Button';
 import NonFieldError from '#components/NonFieldError';
+import EmptyMessage from '#components/EmptyMessage';
 import AnimatedSwipeIcon from '#components/AnimatedSwipeIcon';
 import ExpandableContainer from '#components/ExpandableContainer';
 import AlertBanner from '#components/AlertBanner';
@@ -60,6 +68,7 @@ import {
     ProjectInputType,
     PROJECT_TYPE_BUILD_AREA,
     PROJECT_TYPE_FOOTPRINT,
+    PROJECT_TYPE_VALIDATE_IMAGE,
     PROJECT_TYPE_COMPLETENESS,
     PROJECT_TYPE_CHANGE_DETECTION,
     PROJECT_TYPE_STREET,
@@ -73,6 +82,7 @@ import CustomOptionPreview from '#views/NewTutorial/CustomOptionInput/CustomOpti
 import {
     projectFormSchema,
     ProjectFormType,
+    ImageType,
     PartialProjectFormType,
     projectInputTypeOptions,
     filterOptions,
@@ -84,8 +94,10 @@ import {
     getGroupSize,
     validateAoiOnOhsome,
     validateProjectIdOnHotTaskingManager,
+    MAX_IMAGES,
 } from './utils';
 import BasicProjectInfoForm from './BasicProjectInfoForm';
+import ImageInput from './ImageInput';
 
 // eslint-disable-next-line postcss-modules/no-unused-class
 import styles from './styles.css';
@@ -448,9 +460,65 @@ function NewProject(props: Props) {
         })),
     }))), [customOptionsFromValue]);
 
-    const optionsError = React.useMemo(
+    const customOptionsError = React.useMemo(
         () => getErrorObject(error?.customOptions),
         [error?.customOptions],
+    );
+
+    const { images } = value;
+
+    const imagesError = React.useMemo(
+        () => getErrorObject(error?.images),
+        [error?.images],
+    );
+
+    const {
+        setValue: setImageValue,
+        removeValue: onImageRemove,
+    } = useFormArray<
+        'images',
+        ImageType
+    >('images', setFieldValue);
+
+    const handleCocoImport = React.useCallback(
+        (val: CocoDatasetType | undefined) => {
+            if (isNotDefined(val)) {
+                setFieldValue(
+                    [],
+                    'images',
+                );
+                return;
+            }
+            setFieldValue(
+                () => val.images.map((image) => ({
+                    sourceIdentifier: String(image.id),
+                    fileName: image.file_name,
+                    url: image.flickr_url || image.coco_url,
+                })),
+                'images',
+            );
+        },
+        [setFieldValue],
+    );
+
+    const handleAddImage = React.useCallback(
+        () => {
+            setFieldValue(
+                (oldValue: PartialProjectFormType['images']) => {
+                    const safeOldValues = oldValue ?? [];
+
+                    const newDefineOption: ImageType = {
+                        sourceIdentifier: randomString(),
+                    };
+
+                    return [...safeOldValues, newDefineOption];
+                },
+                'images',
+            );
+        },
+        [
+            setFieldValue,
+        ],
     );
 
     // eslint-disable-next-line @typescript-eslint/no-empty-function
@@ -492,8 +560,84 @@ function NewProject(props: Props) {
                         disabled={submissionPending || projectTypeEmpty}
                     />
                 </InputSection>
+                {(value.projectType === PROJECT_TYPE_VALIDATE_IMAGE) && (
+                    <InputSection
+                        heading="Images"
+                        actions={(
+                            <>
+                                <Button
+                                    name={undefined}
+                                    icons={<MdAdd />}
+                                    onClick={handleAddImage}
+                                    disabled={
+                                        submissionPending
+                                        || projectTypeEmpty
+                                        || (images && images.length >= MAX_IMAGES)
+                                    }
+                                >
+                                    Add Image
+                                </Button>
+                            </>
+                        )}
+                    >
+                        <NonFieldError
+                            error={imagesError}
+                        />
+                        <CocoFileInput
+                            name={undefined}
+                            value={undefined}
+                            onChange={handleCocoImport}
+                            maxLength={MAX_IMAGES}
+                            disabled={
+                                submissionPending
+                                || projectTypeEmpty
+                            }
+                            label="Import COCO file"
+                        />
+                        {(images && images.length > 0) ? (
+                            <div className={styles.imageList}>
+                                {images.map((image, index) => (
+                                    <ExpandableContainer
+                                        key={image.sourceIdentifier}
+                                        header={image.fileName || `Image ${index + 1}`}
+                                        openByDefault={index === images.length - 1}
+                                        actions={(
+                                            <Button
+                                                name={index}
+                                                onClick={onImageRemove}
+                                                variant="action"
+                                                title="Delete Image"
+                                                disabled={
+                                                    submissionPending
+                                                    || projectTypeEmpty
+                                                }
+                                            >
+                                                <IoIosTrash />
+                                            </Button>
+                                        )}
+                                    >
+                                        <ImageInput
+                                            key={image.sourceIdentifier}
+                                            value={image}
+                                            index={index}
+                                            onChange={setImageValue}
+                                            error={imagesError?.[image.sourceIdentifier]}
+                                            disabled={submissionPending || projectTypeEmpty}
+                                        />
+                                    </ExpandableContainer>
+                                ))}
+                            </div>
+                        ) : (
+                            <EmptyMessage
+                                title="Start adding images"
+                                description="Add images using COCO file or manually add images"
+                            />
+                        )}
+                    </InputSection>
+                )}
                 {(
                     (value.projectType === PROJECT_TYPE_FOOTPRINT
+                        || value.projectType === PROJECT_TYPE_VALIDATE_IMAGE
                         || value.projectType === PROJECT_TYPE_STREET)
                     && customOptions
                     && customOptions.length > 0
@@ -502,7 +646,7 @@ function NewProject(props: Props) {
                         heading="Custom Options"
                     >
                         <NonFieldError
-                            error={optionsError}
+                            error={customOptionsError}
                         />
                         {(customOptions && customOptions.length > 0) ? (
                             <div className={styles.customOptionContainer}>
@@ -517,7 +661,7 @@ function NewProject(props: Props) {
                                                 value={option}
                                                 index={index}
                                                 onChange={noOp}
-                                                error={optionsError?.[option.value]}
+                                                error={customOptionsError?.[option.value]}
                                                 readOnly
                                             />
                                         </ExpandableContainer>
@@ -743,7 +887,7 @@ function NewProject(props: Props) {
                             value={value?.organizationId}
                             onChange={setFieldValue}
                             error={error?.organizationId}
-                            label="Mapillary Organization ID"
+                            label="Mapillary Organization IidD"
                             hint="Provide a valid Mapillary organization ID to filter for images belonging to a specific organization. Empty indicates that no filter is set on organization."
                             disabled={submissionPending || projectTypeEmpty}
                         />

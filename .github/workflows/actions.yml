@@ -42,24 +42,6 @@ jobs:
             exit 1;
           }
 
-    - name: Setup Postgres Database Container
-      env:
-        POSTGRES_PASSWORD: postgres
-        POSTGRES_USER: postgres
-        POSTGRES_DB: postgres
-      run: |
-        # Create a mock file for wal-g setup
-        touch postgres/serviceAccountKey.json
-        docker compose up --build --detach postgres
-        for i in {1..5}; do docker compose exec -T postgres pg_isready && s=0 && break || s=$? && sleep 5; done; (docker compose logs postgres && exit $s)
-
-    - name: Deploy Firebase Rules and Functions
-      env:
-        FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
-        FIREBASE_DB: ${{ secrets.FIREBASE_DB }}
-      run: |
-        docker compose run --rm firebase_deploy sh -c "firebase use $FIREBASE_DB && firebase deploy --token $FIREBASE_TOKEN --only database"
-
     - name: Decrypt Service Account Key File
       working-directory: ./
       run: |
@@ -68,6 +50,28 @@ jobs:
         OPENSSL_PASSPHRASE: ${{ secrets.OPENSSL_PASSPHRASE }}
         OPENSSL_KEY: ${{ secrets.OPENSSL_KEY }}
         OPENSSL_IV: ${{ secrets.OPENSSL_IV }}
+
+    - name: Build docker images
+      run: |
+        # Create a mock file for wal-g setup
+        touch postgres/serviceAccountKey.json
+        docker compose build postgres firebase_deploy mapswipe_workers_creation django
+
+    - name: Setup Postgres Database Container
+      env:
+        POSTGRES_PASSWORD: postgres
+        POSTGRES_USER: postgres
+        POSTGRES_DB: postgres
+      run: |
+        docker compose up --detach postgres
+        for i in {1..5}; do docker compose exec -T postgres pg_isready && s=0 && break || s=$? && sleep 5; done; (docker compose logs postgres && exit $s)
+
+    - name: Deploy Firebase Rules and Functions
+      env:
+        FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+        FIREBASE_DB: ${{ secrets.FIREBASE_DB }}
+      run: |
+        docker compose run --rm firebase_deploy sh -c "firebase use $FIREBASE_DB && firebase deploy --token $FIREBASE_TOKEN --only database"
 
     - name: Run Tests
       working-directory: ./mapswipe_workers
