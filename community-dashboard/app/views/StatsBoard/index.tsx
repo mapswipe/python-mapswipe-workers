@@ -43,6 +43,7 @@ import InformationCard from '#components/InformationCard';
 import areaSvg from '#resources/icons/area.svg';
 import sceneSvg from '#resources/icons/scene.svg';
 import featureSvg from '#resources/icons/feature.svg';
+import validateImageSvg from '#resources/icons/validate-image.svg';
 import {
     ContributorTimeStatType,
     OrganizationSwipeStatsType,
@@ -467,6 +468,10 @@ function StatsBoard(props: Props) {
         (project) => project.projectType === FOOTPRINT,
     )?.totalSwipes;
 
+    const validateImageTotalSwipes = swipeByProjectType?.find(
+        (project) => project.projectType === VALIDATE_IMAGE,
+    )?.totalSwipes;
+
     const organizationColors = scaleOrdinal<string, string | undefined>()
         .domain(totalSwipesByOrganizationStats?.map(
             (organization) => (organization.organizationName),
@@ -715,6 +720,29 @@ function StatsBoard(props: Props) {
                             </div>
                         )}
                         subHeading="Compare"
+                        variant="stat"
+                    />
+                    <InformationCard
+                        icon={(
+                            <img
+                                src={validateImageSvg}
+                                alt="group icon"
+                            />
+                        )}
+                        value={(
+                            <NumberOutput
+                                className={styles.numberOutput}
+                                value={validateImageTotalSwipes}
+                                normal
+                                invalidText={0}
+                            />
+                        )}
+                        label={(
+                            <div className={styles.infoLabel}>
+                                Images Validated
+                            </div>
+                        )}
+                        subHeading="Validate Image"
                         variant="stat"
                     />
                 </div>
