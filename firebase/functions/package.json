@@ -14,7 +14,7 @@
   },
   "main": "lib/index.js",
   "dependencies": {
-    "axios": "^0.25.0",
+    "axios": "^0.30.0",
     "cookie-parser": "^1.4.4",
     "firebase-admin": "^10.0.2",
     "firebase-functions": "^3.24.1",
