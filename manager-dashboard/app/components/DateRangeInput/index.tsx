@@ -19,7 +19,7 @@ import Button from '../Button';
 import Popup from '../Popup';
 import Calendar, { Props as CalendarProps } from '../Calendar';
 import CalendarDate, { Props as CalendarDateProps } from '../Calendar/CalendarDate';
-import { ymdToDateString, dateStringToDate } from '../../utils/common.tsx';
+import { ymdToDateString, dateStringToDate } from '../../utils/common';
 
 import {
     predefinedDateRangeOptions,

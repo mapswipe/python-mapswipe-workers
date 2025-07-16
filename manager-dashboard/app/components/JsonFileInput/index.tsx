@@ -23,7 +23,7 @@ function readUploadedFileAsText(inputFile: File) {
 const ONE_MB = 1024 * 1024;
 const DEFAULT_MAX_FILE_SIZE = ONE_MB;
 
-interface Props<N, T> extends Omit<FileInputProps<N>, 'value' | 'onChange' | 'accept'> {
+export interface Props<N, T> extends Omit<FileInputProps<N>, 'value' | 'onChange' | 'accept'> {
     maxFileSize?: number;
     value: T | undefined | null;
     onChange: (newValue: T | undefined, name: N) => void;

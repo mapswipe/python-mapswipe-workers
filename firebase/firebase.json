@@ -20,6 +20,14 @@
       {
         "source": "/token",
         "function": "osmAuth-token"
+      },
+      {
+        "source": "/redirectweb",
+        "function": "osmAuth-redirectweb"
+      },
+      {
+        "source": "/tokenweb",
+        "function": "osmAuth-tokenweb"
       }
     ]
   },

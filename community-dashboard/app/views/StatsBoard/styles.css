@@ -67,7 +67,7 @@
             >* {
                 flex-basis: 0;
                 flex-grow: 1;
-                min-width: 12rem;
+                min-width: 24rem;
 
                 @media (max-width: 48rem) {
                     min-width: 100%;

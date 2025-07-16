@@ -8,6 +8,7 @@ import {
     nullValue,
     ArraySchema,
     addCondition,
+    urlCondition,
 } from '@togglecorp/toggle-form';
 import {
     isDefined,
@@ -27,6 +28,7 @@ import {
     PROJECT_TYPE_COMPLETENESS,
     PROJECT_TYPE_FOOTPRINT,
     PROJECT_TYPE_STREET,
+    PROJECT_TYPE_VALIDATE_IMAGE,
     IconKey,
 } from '#utils/common';
 
@@ -285,6 +287,36 @@ export const defaultStreetCustomOptions: PartialTutorialFormType['customOptions'
     },
 ];
 
+export const defaultValidateImageCustomOptions: PartialTutorialFormType['customOptions'] = [
+    {
+        optionId: 1,
+        value: 1,
+        title: 'Yes',
+        icon: 'checkmark-outline',
+        iconColor: colorKeyToColorMap.green,
+        // FIXME: Add description
+        description: 'Yes',
+    },
+    {
+        optionId: 2,
+        value: 0,
+        title: 'No',
+        icon: 'close-outline',
+        iconColor: colorKeyToColorMap.red,
+        // FIXME: Add description
+        description: 'No',
+    },
+    {
+        optionId: 3,
+        value: 2,
+        title: 'Not Sure',
+        icon: 'remove-outline',
+        iconColor: colorKeyToColorMap.gray,
+        // FIXME: Add description
+        description: 'Not Sure',
+    },
+];
+
 export function deleteKey<T extends object, K extends keyof T>(
     value: T,
     key: K,
@@ -303,6 +335,10 @@ export function getDefaultOptions(projectType: ProjectType | undefined) {
 
     if (projectType === PROJECT_TYPE_STREET) {
         return defaultStreetCustomOptions;
+    }
+
+    if (projectType === PROJECT_TYPE_VALIDATE_IMAGE) {
+        return defaultValidateImageCustomOptions;
     }
 
     return undefined;
@@ -426,7 +462,6 @@ export interface TutorialFormType {
             title: string;
         };
     }[];
-    tutorialTasks?: TutorialTasksGeoJSON,
     exampleImage1: File;
     exampleImage2: File;
     projectType: ProjectType;
@@ -434,6 +469,15 @@ export interface TutorialFormType {
     zoomLevel?: number;
     customOptions?: CustomOptions;
     informationPages: InformationPages;
+
+    tutorialTasks?: TutorialTasksGeoJSON,
+    images?: {
+        sourceIdentifier: string;
+        fileName: string;
+        url: string;
+        referenceAnswer: number;
+        screen: number;
+    }[];
 }
 
 export type PartialTutorialFormType = PartialForm<
@@ -442,8 +486,10 @@ export type PartialTutorialFormType = PartialForm<
         exampleImage2?: File;
     },
     // NOTE: we do not want to change File and FeatureCollection to partials
-    'image' | 'tutorialTasks' | 'exampleImage1' | 'exampleImage2' | 'scenarioId' | 'optionId' | 'subOptionsId' | 'pageNumber' | 'blockNumber' | 'blockType' | 'imageFile'
+    'image' | 'tutorialTasks' | 'exampleImage1' | 'exampleImage2' | 'scenarioId' | 'optionId' | 'subOptionsId' | 'pageNumber' | 'blockNumber' | 'blockType' | 'imageFile' | 'sourceIdentifier'
 >;
+
+export type ImageType = NonNullable<PartialTutorialFormType['images']>[number];
 
 type TutorialFormSchema = ObjectSchema<PartialTutorialFormType>;
 type TutorialFormSchemaFields = ReturnType<TutorialFormSchema['fields']>;
@@ -462,6 +508,12 @@ export type CustomOptionSchemaFields = ReturnType<CustomOptionSchema['fields']>
 export type CustomOptionFormSchema = ArraySchema<CustomOptionType, PartialTutorialFormType>;
 export type CustomOptionFormSchemaMember = ReturnType<CustomOptionFormSchema['member']>;
 
+type PartialImages = NonNullable<PartialTutorialFormType['images']>[number];
+type ImageSchema = ObjectSchema<PartialImages, PartialTutorialFormType>;
+type ImageSchemaFields = ReturnType<ImageSchema['fields']>
+type ImageFormSchema = ArraySchema<PartialImages, PartialTutorialFormType>;
+type ImageFormSchemaMember = ReturnType<ImageFormSchema['member']>;
+
 export type InformationPagesType = NonNullable<PartialTutorialFormType['informationPages']>[number]
 type InformationPagesSchema = ObjectSchema<InformationPagesType, PartialTutorialFormType>;
 type InformationPagesSchemaFields = ReturnType<InformationPagesSchema['fields']>
@@ -472,6 +524,8 @@ type InformationPagesFormSchemaMember = ReturnType<InformationPagesFormSchema['m
 export type PartialInformationPagesType = PartialTutorialFormType['informationPages'];
 export type PartialCustomOptionsType = PartialTutorialFormType['customOptions'];
 export type PartialBlocksType = NonNullable<NonNullable<PartialInformationPagesType>[number]>['blocks'];
+
+export const MAX_IMAGES = 20;
 
 export const MAX_OPTIONS = 6;
 export const MIN_OPTIONS = 2;
@@ -499,12 +553,6 @@ export const tutorialFormSchema: TutorialFormSchema = {
                 required: true,
                 requiredValidation: requiredStringCondition,
                 validations: [getNoMoreThanNCharacterCondition(MD_TEXT_MAX_LENGTH)],
-            },
-            tileServer: {
-                fields: tileServerFieldsSchema,
-            },
-            tutorialTasks: {
-                required: true,
             },
             informationPages: {
                 validation: (info) => {
@@ -564,6 +612,8 @@ export const tutorialFormSchema: TutorialFormSchema = {
             },
         };
 
+        // common
+
         baseSchema = addCondition(
             baseSchema,
             value,
@@ -601,7 +651,11 @@ export const tutorialFormSchema: TutorialFormSchema = {
                                     }),
                                 },
                             };
-                            if (projectType && projectType !== PROJECT_TYPE_FOOTPRINT) {
+                            if (
+                                projectType
+                                && projectType !== PROJECT_TYPE_FOOTPRINT
+                                && projectType !== PROJECT_TYPE_VALIDATE_IMAGE
+                            ) {
                                 fields = {
                                     ...fields,
                                     hint: {
@@ -776,6 +830,7 @@ export const tutorialFormSchema: TutorialFormSchema = {
                 };
 
                 if (formValues?.projectType === PROJECT_TYPE_FOOTPRINT
+                        || formValues?.projectType === PROJECT_TYPE_VALIDATE_IMAGE
                         || formValues?.projectType === PROJECT_TYPE_STREET) {
                     return {
                         customOptions: customOptionField,
@@ -813,6 +868,23 @@ export const tutorialFormSchema: TutorialFormSchema = {
             baseSchema,
             value,
             ['projectType'],
+            ['tileServer'],
+            (v) => (
+                v?.projectType !== PROJECT_TYPE_VALIDATE_IMAGE
+                    ? {
+                        tileServer: {
+                            fields: tileServerFieldsSchema,
+                        },
+                    } : {
+                        tileServer: { forceValue: nullValue },
+                    }
+            ),
+        );
+
+        baseSchema = addCondition(
+            baseSchema,
+            value,
+            ['projectType'],
             ['tileServerB'],
             (v) => (v?.projectType === PROJECT_TYPE_CHANGE_DETECTION
                 || v?.projectType === PROJECT_TYPE_COMPLETENESS
@@ -824,6 +896,77 @@ export const tutorialFormSchema: TutorialFormSchema = {
                     tileServerB: { forceValue: nullValue },
                 }),
         );
+
+        baseSchema = addCondition(
+            baseSchema,
+            value,
+            ['projectType'],
+            ['tutorialTasks'],
+            (formValues) => {
+                if (formValues?.projectType === PROJECT_TYPE_VALIDATE_IMAGE) {
+                    return {
+                        tutorialTasks: { forceValue: nullValue },
+                    };
+                }
+                return {
+                    tutorialTasks: {
+                        required: true,
+                    },
+                };
+            },
+        );
+
+        // validate image
+
+        baseSchema = addCondition(
+            baseSchema,
+            value,
+            ['projectType'],
+            ['images'],
+            (formValues) => {
+                // FIXME: Add "unique" constraint for sourceIdentifier and fileName
+                if (formValues?.projectType === PROJECT_TYPE_VALIDATE_IMAGE) {
+                    return {
+                        images: {
+                            keySelector: (key) => key.sourceIdentifier,
+                            validation: (values) => {
+                                if (values && values.length > MAX_IMAGES) {
+                                    return `Too many images ${values.length}. Please do not exceed ${MAX_IMAGES} images.`;
+                                }
+                                return undefined;
+                            },
+                            member: (): ImageFormSchemaMember => ({
+                                fields: (): ImageSchemaFields => ({
+                                    sourceIdentifier: {
+                                        required: true,
+                                        requiredValidation: requiredStringCondition,
+                                    },
+                                    fileName: {
+                                        required: true,
+                                        requiredValidation: requiredStringCondition,
+                                    },
+                                    url: {
+                                        required: true,
+                                        requiredValidation: requiredStringCondition,
+                                        validations: [urlCondition],
+                                    },
+                                    referenceAnswer: {
+                                        required: true,
+                                    },
+                                    screen: {
+                                        required: true,
+                                    },
+                                }),
+                            }),
+                        },
+                    };
+                }
+                return {
+                    images: { forceValue: nullValue },
+                };
+            },
+        );
+
         return baseSchema;
     },
 };

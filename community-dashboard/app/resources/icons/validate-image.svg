@@ -1,0 +1,13 @@
+<svg width="64" height="64" viewBox="8 8 48 48" xmlns="http://www.w3.org/2000/svg">
+  <!-- Square frame with sharp corners -->
+  <rect x="12" y="12" width="40" height="40" fill="none" stroke="#c8d98d" stroke-width="1.5"></rect>
+
+  <!-- Sun as a slightly larger square -->
+  <rect x="18" y="18" width="6" height="6" fill="#c8d98d"></rect>
+
+  <!-- Back mountain (attached to bottom) -->
+  <polygon points="12,52 32,30 52,52" fill="#c8d98d" opacity="0.6"></polygon>
+
+  <!-- Front mountain (also attached to bottom) -->
+  <polygon points="20,52 32,38 44,52" fill="#c8d98d"></polygon>
+</svg>

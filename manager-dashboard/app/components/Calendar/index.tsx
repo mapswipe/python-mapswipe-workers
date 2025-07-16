@@ -15,7 +15,7 @@ import Button from '../Button';
 import NumberInput from '../NumberInput';
 import SelectInput from '../SelectInput';
 import useInputState from '../../hooks/useInputState';
-import { typedMemo } from '../../utils/common.tsx';
+import { typedMemo } from '../../utils/common';
 
 import CalendarDate, { Props as CalendarDateProps } from './CalendarDate';
 

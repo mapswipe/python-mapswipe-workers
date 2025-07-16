@@ -50,6 +50,7 @@ import NumberInput from '#components/NumberInput';
 import Heading from '#components/Heading';
 import SegmentInput from '#components/SegmentInput';
 import GeoJsonFileInput from '#components/GeoJsonFileInput';
+import CocoFileInput, { CocoDatasetType } from '#components/CocoFileInput';
 import ExpandableContainer from '#components/ExpandableContainer';
 import PopupButton from '#components/PopupButton';
 import TileServerInput, {
@@ -70,6 +71,7 @@ import {
     PROJECT_TYPE_CHANGE_DETECTION,
     PROJECT_TYPE_FOOTPRINT,
     PROJECT_TYPE_STREET,
+    PROJECT_TYPE_VALIDATE_IMAGE,
     ProjectType,
     projectTypeLabelMap,
 } from '#utils/common';
@@ -93,12 +95,15 @@ import {
     TutorialTasksGeoJSON,
     BuildAreaProperties,
     ChangeDetectionProperties,
+    ImageType,
+    MAX_IMAGES,
 } from './utils';
 
 import CustomOptionPreview from './CustomOptionInput/CustomOptionPreview';
 import CustomOptionInput from './CustomOptionInput';
 import ScenarioPageInput from './ScenarioPageInput';
 import InformationPageInput from './InformationPageInput';
+import ImageInput from './ImageInput';
 import styles from './styles.css';
 
 export function getDuplicates<T, K extends string | number>(
@@ -157,6 +162,7 @@ function getGeoJSONError(
         return 'GeoJSON does not contain iterable features';
     }
 
+    // FIXME: Use io-ts
     // Check properties schema
     const projectSchemas: {
         [key in ProjectType]: Record<string, ValidType | ValidType[]>;
@@ -194,6 +200,9 @@ function getGeoJSONError(
             id: ['string', 'number'],
             reference: 'number',
             screen: 'number',
+        },
+        [PROJECT_TYPE_VALIDATE_IMAGE]: {
+            // NOTE: We do not use geojson import for validate image project
         },
     };
     const schemaErrors = tutorialTasks.features.map(
@@ -319,6 +328,27 @@ function getGeoJSONWarning(
     return errors;
 }
 
+function getImagesWarning(
+    images: ImageType[],
+    customOptions: number[],
+) {
+    const errors = [];
+
+    const usedValues = images.map((item) => item.referenceAnswer).filter(isDefined);
+
+    const usedValuesSet = new Set(usedValues);
+    const customOptionsSet = new Set(customOptions);
+
+    const invalidUsedValuesSet = difference(usedValuesSet, customOptionsSet);
+
+    if (invalidUsedValuesSet.size === 1) {
+        errors.push(`Reference in images should be either ${customOptions.join(', ')}. The invalid reference is ${[...invalidUsedValuesSet].join(', ')}`);
+    } else if (invalidUsedValuesSet.size > 1) {
+        errors.push(`Reference in images should be either ${customOptions.join(', ')}. The invalid references are ${[...invalidUsedValuesSet].sort().join(', ')}`);
+    }
+    return errors;
+}
+
 type CustomScreen = Omit<TutorialFormType['scenarioPages'][number], 'scenarioId'>;
 function sanitizeScreens(scenarioPages: TutorialFormType['scenarioPages']) {
     const screens = scenarioPages.reduce<Record<string, CustomScreen>>(
@@ -405,6 +435,14 @@ function NewTutorial(props: Props) {
         'informationPages',
         InformationPagesType
     >('informationPages', setFieldValue);
+
+    const {
+        setValue: setImageValue,
+        // removeValue: onImageRemove,
+    } = useFormArray<
+        'images',
+        ImageType
+    >('images', setFieldValue);
 
     const handleSubmission = React.useCallback((
         finalValuesFromProps: PartialTutorialFormType,
@@ -600,7 +638,6 @@ function NewTutorial(props: Props) {
             }));
             return;
         }
-
         setFieldValue(tutorialTasks, 'tutorialTasks');
 
         const uniqueArray = unique(
@@ -616,7 +653,6 @@ function NewTutorial(props: Props) {
                 success: {},
             }
         ));
-
         setFieldValue(tutorialTaskArray, 'scenarioPages');
     }, [setFieldValue, setError, value?.projectType]);
 
@@ -641,6 +677,45 @@ function NewTutorial(props: Props) {
                 'informationPages',
             );
             popupElementRef.current?.setPopupVisibility(false);
+        },
+        [setFieldValue],
+    );
+
+    const handleCocoImport = React.useCallback(
+        (val: CocoDatasetType | undefined) => {
+            if (isNotDefined(val)) {
+                setFieldValue(
+                    [],
+                    'images',
+                );
+                return;
+            }
+            const newImages = val.images.map((image, index) => ({
+                sourceIdentifier: String(image.id),
+                fileName: image.file_name,
+                url: image.flickr_url || image.coco_url,
+                screen: index + 1,
+                // referenceAnswer: 1,
+            }));
+            setFieldValue(
+                newImages,
+                'images',
+            );
+
+            const uniqueArray = unique(
+                newImages,
+                ((img) => img.screen),
+            );
+            const sorted = uniqueArray.sort((a, b) => a.screen - b.screen);
+            const tutorialTaskArray = sorted?.map((img) => (
+                {
+                    scenarioId: img.screen,
+                    hint: {},
+                    instructions: {},
+                    success: {},
+                }
+            ));
+            setFieldValue(tutorialTaskArray, 'scenarioPages');
         },
         [setFieldValue],
     );
@@ -678,6 +753,11 @@ function NewTutorial(props: Props) {
         [error?.informationPages],
     );
 
+    const imagesError = React.useMemo(
+        () => getErrorObject(error?.images),
+        [error?.images],
+    );
+
     const hasErrors = React.useMemo(
         () => analyzeErrors(error),
         [error],
@@ -693,6 +773,14 @@ function NewTutorial(props: Props) {
                 ...options,
                 ...subOptions,
             ].filter(isDefined);
+
+            if (value?.projectType === PROJECT_TYPE_VALIDATE_IMAGE) {
+                return getImagesWarning(
+                    value?.images ?? [],
+                    selectedValues,
+                );
+            }
+
             return getGeoJSONWarning(
                 value?.tutorialTasks,
                 value?.projectType,
@@ -700,7 +788,13 @@ function NewTutorial(props: Props) {
                 value?.zoomLevel,
             );
         },
-        [value?.tutorialTasks, value?.projectType, value?.customOptions, value?.zoomLevel],
+        [
+            value?.tutorialTasks,
+            value?.images,
+            value?.projectType,
+            value?.customOptions,
+            value?.zoomLevel,
+        ],
     );
 
     const getTileServerUrl = (val: PartialTutorialFormType['tileServer']) => {
@@ -719,12 +813,14 @@ function NewTutorial(props: Props) {
     const {
         customOptions,
         informationPages,
+        images,
     } = value;
 
     const handleProjectTypeChange = React.useCallback(
         (newValue: ProjectType | undefined) => {
             setFieldValue(undefined, 'tutorialTasks');
             setFieldValue(undefined, 'scenarioPages');
+            setFieldValue(undefined, 'images');
             setFieldValue(newValue, 'projectType');
             setFieldValue(getDefaultOptions(newValue), 'customOptions');
         },
@@ -774,6 +870,7 @@ function NewTutorial(props: Props) {
                 </InputSection>
                 {(
                     value.projectType === PROJECT_TYPE_FOOTPRINT
+                        || value.projectType === PROJECT_TYPE_VALIDATE_IMAGE
                         || value.projectType === PROJECT_TYPE_STREET
                 ) && (
                     <InputSection
@@ -957,18 +1054,66 @@ function NewTutorial(props: Props) {
                         </InputSection>
                     )
                 }
+                {value.projectType === PROJECT_TYPE_VALIDATE_IMAGE && (
+                    <InputSection
+                        heading="Images"
+                    >
+                        <NonFieldError
+                            error={imagesError}
+                        />
+                        <CocoFileInput
+                            name={undefined}
+                            value={undefined}
+                            onChange={handleCocoImport}
+                            maxLength={MAX_IMAGES}
+                            disabled={
+                                submissionPending
+                                || projectTypeEmpty
+                            }
+                            label="Import COCO file"
+                        />
+                        {(images && images.length > 0) ? (
+                            <div className={styles.imageList}>
+                                {images.map((image, index) => (
+                                    <ExpandableContainer
+                                        key={image.sourceIdentifier}
+                                        header={image.fileName || `Image ${index + 1}`}
+                                        openByDefault={index === images.length - 1}
+                                    >
+                                        <ImageInput
+                                            key={image.sourceIdentifier}
+                                            value={image}
+                                            index={index}
+                                            onChange={setImageValue}
+                                            customOptions={customOptions}
+                                            error={imagesError?.[image.sourceIdentifier]}
+                                            disabled={submissionPending || projectTypeEmpty}
+                                        />
+                                    </ExpandableContainer>
+                                ))}
+                            </div>
+                        ) : (
+                            <EmptyMessage
+                                title="Start adding images"
+                                description="Add images using COCO file"
+                            />
+                        )}
+                    </InputSection>
+                )}
                 <InputSection
                     heading="Scenario Pages"
                 >
-                    <GeoJsonFileInput
-                        name={'tutorialTasks' as const}
-                        label="Upload Scenarios as GeoJSON"
-                        value={value.tutorialTasks}
-                        onChange={handleGeoJsonFile}
-                        hint="It should end with .geojson or .geo.json"
-                        error={error?.tutorialTasks}
-                        disabled={submissionPending || projectTypeEmpty}
-                    />
+                    {value?.projectType !== PROJECT_TYPE_VALIDATE_IMAGE && (
+                        <GeoJsonFileInput
+                            name={'tutorialTasks' as const}
+                            label="Upload Scenarios as GeoJSON"
+                            value={value.tutorialTasks}
+                            onChange={handleGeoJsonFile}
+                            hint="It should end with .geojson or .geo.json"
+                            error={error?.tutorialTasks}
+                            disabled={submissionPending || projectTypeEmpty}
+                        />
+                    )}
                     <div className={styles.scenarioList}>
                         {value.scenarioPages?.map((task, index) => (
                             <ExpandableContainer
@@ -987,6 +1132,7 @@ function NewTutorial(props: Props) {
                                     error={scenarioError?.[task.scenarioId]}
                                     customOptions={customOptions}
                                     geoJson={value.tutorialTasks}
+                                    images={value.images}
                                     urlA={getTileServerUrl(value.tileServer)}
                                     urlB={getTileServerUrl(value.tileServerB)}
                                     lookFor={value.lookFor}
@@ -995,10 +1141,19 @@ function NewTutorial(props: Props) {
                             </ExpandableContainer>
                         ))}
                         {(value.scenarioPages?.length ?? 0) === 0 && (
-                            <EmptyMessage
-                                title="Upload geojson file first"
-                                description="This section will automatically show scenarios after uploading geojson file"
-                            />
+                            <>
+                                {value.projectType !== PROJECT_TYPE_VALIDATE_IMAGE ? (
+                                    <EmptyMessage
+                                        title="Upload geojson file first"
+                                        description="This section will automatically show scenarios after uploading geojson file"
+                                    />
+                                ) : (
+                                    <EmptyMessage
+                                        title="Upload images first"
+                                        description="This section will automatically show scenarios after adding images"
+                                    />
+                                )}
+                            </>
                         )}
                     </div>
                 </InputSection>

@@ -18,6 +18,7 @@ import {
     PROJECT_TYPE_CHANGE_DETECTION,
     PROJECT_TYPE_COMPLETENESS,
     PROJECT_TYPE_STREET,
+    PROJECT_TYPE_VALIDATE_IMAGE,
 } from '#utils/common';
 import TextInput from '#components/TextInput';
 import Heading from '#components/Heading';
@@ -25,6 +26,7 @@ import SelectInput from '#components/SelectInput';
 import SegmentInput from '#components/SegmentInput';
 
 import {
+    ImageType,
     TutorialTasksGeoJSON,
     FootprintGeoJSON,
     BuildAreaGeoJSON,
@@ -34,6 +36,7 @@ import {
 import BuildAreaGeoJsonPreview from './BuildAreaGeoJsonPreview';
 import FootprintGeoJsonPreview from './FootprintGeoJsonPreview';
 import ChangeDetectionGeoJsonPreview from './ChangeDetectionGeoJsonPreview';
+import ValidateImagePreview from './ValidateImagePreview';
 import styles from './styles.css';
 
 type ScenarioType = {
@@ -78,6 +81,7 @@ interface Props {
     index: number,
     error: Error<PartialScenarioType> | undefined;
     geoJson: TutorialTasksGeoJSON | undefined;
+    images: ImageType[] | undefined;
     projectType: ProjectType | undefined;
     urlA: string | undefined;
     urlB: string | undefined;
@@ -94,6 +98,7 @@ export default function ScenarioPageInput(props: Props) {
         index,
         error: riskyError,
         geoJson: geoJsonFromProps,
+        images,
         urlA,
         projectType,
         urlB,
@@ -171,7 +176,21 @@ export default function ScenarioPageInput(props: Props) {
         [geoJsonFromProps, scenarioId],
     );
 
-    const activeSegmentInput: ScenarioSegmentType['value'] = projectType && projectType !== PROJECT_TYPE_FOOTPRINT
+    const image = React.useMemo(
+        () => {
+            if (!images) {
+                return undefined;
+            }
+            return images.find((img) => img.screen === scenarioId);
+        },
+        [images, scenarioId],
+    );
+
+    const activeSegmentInput: ScenarioSegmentType['value'] = (
+        projectType
+        && projectType !== PROJECT_TYPE_FOOTPRINT
+        && projectType !== PROJECT_TYPE_VALIDATE_IMAGE
+    )
         ? activeSegmentInputFromState
         : 'instructions';
 
@@ -214,7 +233,11 @@ export default function ScenarioPageInput(props: Props) {
                         disabled={disabled}
                     />
                 </div>
-                {projectType && projectType !== PROJECT_TYPE_FOOTPRINT && (
+                {(
+                    projectType
+                    && projectType !== PROJECT_TYPE_FOOTPRINT
+                    && projectType !== PROJECT_TYPE_VALIDATE_IMAGE
+                ) && (
                     <>
                         <Heading level={4}>
                             Hint
@@ -252,7 +275,11 @@ export default function ScenarioPageInput(props: Props) {
                         </div>
                     </>
                 )}
-                {projectType && projectType !== PROJECT_TYPE_FOOTPRINT && (
+                {(
+                    projectType
+                    && projectType !== PROJECT_TYPE_FOOTPRINT
+                    && projectType !== PROJECT_TYPE_VALIDATE_IMAGE
+                ) && (
                     <>
                         <Heading level={4}>
                             Success
@@ -319,6 +346,14 @@ export default function ScenarioPageInput(props: Props) {
                         lookFor={lookFor}
                     />
                 )}
+                {projectType === PROJECT_TYPE_VALIDATE_IMAGE && (
+                    <ValidateImagePreview
+                        image={image}
+                        previewPopUp={previewPopUpData}
+                        customOptions={customOptions}
+                        lookFor={lookFor}
+                    />
+                )}
                 {projectType === PROJECT_TYPE_STREET && (
                     <div>
                         Preview not available.
@@ -326,6 +361,7 @@ export default function ScenarioPageInput(props: Props) {
                 )}
                 {(projectType
                     && projectType !== PROJECT_TYPE_FOOTPRINT
+                    && projectType !== PROJECT_TYPE_VALIDATE_IMAGE
                     && projectType !== PROJECT_TYPE_STREET) && (
                     <SegmentInput
                         name={undefined}
