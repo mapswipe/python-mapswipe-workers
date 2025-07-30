@@ -1,13 +1,53 @@
 # /// script
+# requires-python = ">=3.13"
 # dependencies = [
-#   "requests<3",
+#   "httpx~=0.28.1",
+#   "colorama",
 # ]
 # ///
 from pathlib import Path
-from argparse import ArgumentParser
-import requests
+from colorama import init, Fore
+
+import argparse
+import textwrap
+import httpx
 import json
 import re
+
+# Initialize colorama
+init(autoreset=True)
+
+
+DROPBOX_PERMISSION_MESSAGE = f"""
+{Fore.YELLOW}
+----------------------------------------------------
+Make sure the dropbox App includes these permissions
+- files.metadata.read
+- files.content.write
+- files.content.read
+- sharing.write
+- sharing.read
+"""
+
+
+def dropbox_request_error_handler(res: httpx.Response):
+    try:
+        res.raise_for_status()
+    except httpx.HTTPStatusError as http_err:
+        print(f"{Fore.RED}HTTP error occurred while requesting {res.url}: {http_err}")
+        print(f"{Fore.RED}Response content: {res.text}")
+        raise
+    except httpx.RequestError as req_err:
+        print(
+            f"{Fore.RED}An error occurred while making the request to {res.url}: {req_err}"
+        )
+        raise
+    except Exception as err:
+        print(f"{Fore.RED}An unexpected error occurred: {err}")
+        raise
+    finally:
+        print(DROPBOX_PERMISSION_MESSAGE)
+
 
 def dropbox_request(endpoint: str, data: object, *, access_token: str):
     url = f"https://api.dropboxapi.com/2/{endpoint}"
@@ -15,33 +55,39 @@ def dropbox_request(endpoint: str, data: object, *, access_token: str):
         "Authorization": f"Bearer {access_token}",
         "Content-Type": "application/json",
     }
-    res = requests.post(
+    res = httpx.post(
         url,
         headers=headers,
         data=json.dumps(data),
     )
-    res.raise_for_status()
+    dropbox_request_error_handler(res)
     return res.json()
 
-def dropbox_content_request(endpoint: str, path: str, data: object, *, access_token: str):
+
+def dropbox_content_request(
+    endpoint: str, path: str, data: object, *, access_token: str
+):
     url = f"https://content.dropboxapi.com/2/{endpoint}"
     headers = {
         "Authorization": f"Bearer {access_token}",
         "Content-Type": "application/octet-stream",
-        "Dropbox-API-Arg": json.dumps({
-            "path": path,
-            "mode": "overwrite",   # overwrite if exists
-            "autorename": False,
-            "mute": False
-        })
+        "Dropbox-API-Arg": json.dumps(
+            {
+                "path": path,
+                "mode": "overwrite",  # overwrite if exists
+                "autorename": False,
+                "mute": False,
+            }
+        ),
     }
-    res = requests.post(
+    res = httpx.post(
         url,
         headers=headers,
         data=json.dumps(data).encode("utf-8"),
     )
-    res.raise_for_status()
+    dropbox_request_error_handler(res)
     return res.json()
+
 
 def list_all_files(folder_path: str, *, access_token: str):
     ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp"}
@@ -65,10 +111,13 @@ def list_all_files(folder_path: str, *, access_token: str):
     files = sorted(files, key=lambda file: file["name"].lower())
     # Filter out only files (not folders) that are supported
     files = [
-        file for file in files
-        if file[".tag"] == "file" and Path(file["name"]).suffix.lower() in ALLOWED_EXTENSIONS
+        file
+        for file in files
+        if file[".tag"] == "file"
+        and Path(file["name"]).suffix.lower() in ALLOWED_EXTENSIONS
     ]
     return files
+
 
 def share_file_and_get_links(files, *, access_token: str):
     total = len(files)
@@ -88,12 +137,7 @@ def share_file_and_get_links(files, *, access_token: str):
         if res.get("links"):
             link = res["links"][0]["url"]
         else:
-            data = {
-                "path": path,
-                "settings": {
-                    "requested_visibility": "public"
-                }
-            }
+            data = {"path": path, "settings": {"requested_visibility": "public"}}
             res_create = dropbox_request(
                 "sharing/create_shared_link_with_settings",
                 data,
@@ -101,21 +145,32 @@ def share_file_and_get_links(files, *, access_token: str):
             )
             link = res_create["url"]
 
-        raw_url = re.sub(r'&dl=0\b', '', link) + '&raw=1'
+        raw_url = re.sub(r"&dl=0\b", "", link) + "&raw=1"
 
-        images.append({
-            "id": i + 1,
-            "file_name": actual_path,
-            "coco_url": raw_url,
-        })
+        images.append(
+            {
+                "id": i + 1,
+                "file_name": actual_path,
+                "coco_url": raw_url,
+            }
+        )
     return images
 
 
 def main():
-    parser = ArgumentParser(description="Generate COCO file from images folder.")
+    parser = argparse.ArgumentParser(
+        description="Generate COCO file from images folder.",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog=textwrap.dedent(DROPBOX_PERMISSION_MESSAGE),
+    )
     parser.add_argument("access_token", help="Access token for authentication")
-    parser.add_argument("images_folder", help="Path to the images folder")
-    parser.add_argument("export_file_name", help="Name of the export COCO file")
+    parser.add_argument(
+        "images_folder", help='Path to the images folder in dropbox. eg: "/COCO TEST"'
+    )
+    parser.add_argument(
+        "export_file_name",
+        help="Name of the export COCO file to be created in dropbox under provided images_folder",
+    )
 
     args = parser.parse_args()
 
@@ -141,17 +196,18 @@ def main():
     dropbox_content_request(
         "files/upload",
         absolute_export_file_name,
-        { "images": public_images },
+        {"images": public_images},
         access_token=access_token,
     )
 
     # Get temporary link
     res = dropbox_request(
         "files/get_temporary_link",
-        { "path": absolute_export_file_name },
+        {"path": absolute_export_file_name},
         access_token=access_token,
     )
-    print(f"COCO file available at {res["link"]}")
+    print(f"COCO file available at {res['link']}")
+
 
 if __name__ == "__main__":
     main()
