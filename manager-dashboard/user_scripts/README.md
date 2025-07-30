@@ -1,4 +1,37 @@
+## Google Drive
+
+### Prerequisites
+- You must have a Google account
+- Your image files should be stored in a public Google Drive folder
+- You have access to Google Apps Script via https://script.google.com
+
+### Creation Steps
+- Create a Google Apps script project
+    - Go to https://script.google.com
+    - Click on "New Project"
+    - Rename the project name to your desired project name
+- Paste the utility script
+    - Replace any existing default code the code from this utility file
+- Replace Placeholder Values
+    - Replace 'your_coco_export.json' with your output filename
+    - Replace 'your_public_folder_id' with the ID of your Google Drive folder
+
+> The folder ID is the alphanumeric string that appears after "/folders/" in the URL.\
+> Eg: https://drive.google.com/drive/folders/1prcCevijN5mubTllB2kr5ki1gjh_IO4u?usp=sharing
+
+### Run the script
+
+- Save the project to Drive using the floppy disk 💾icon
+- Press Run
+- Accept the authorization prompts the first time you run the script
+
+### View COCO JSON Output
+- Go to View > Logs
+- Copy the Google Drive URL where the coco file is created and generated
+- Download the json file
+
 ## DropBox
+
 ### Prerequisites
 
 - Create account: https://www.dropbox.com/register
@@ -21,15 +54,17 @@
     - Click **Generated access token**
 - Install uv on your system: https://docs.astral.sh/uv/getting-started/installation/
 - Download the [generate_coco_from_dropbox.py](user_scripts/generate_coco_from_dropbox.py) script
-- Run the script
-    ```bash
-    # Help
-    uv run generate_coco_dropbox.py --help
 
-    # Sample
-    uv run generate_coco_dropbox.py "DROPBOX_ACCESS_TOKEN" "FOLDER_PATH_IN_DROPBOX" "DESTINATION_EXPORT_FILE_NAME_IN_DROPBOX"
+###  Run the script
+```bash
+# Help
+uv run generate_coco_dropbox.py --help
 
-    # Example
-    uv run generate_coco_dropbox.py sl.yourAccessTokenHere “/COCO TEST” “coco_export.json”
-    ```
-- Download the coco_export.json from the dropbox
+# Sample
+uv run generate_coco_dropbox.py "DROPBOX_ACCESS_TOKEN" "FOLDER_PATH_IN_DROPBOX" "DESTINATION_EXPORT_FILE_NAME_IN_DROPBOX"
+
+# Example
+uv run generate_coco_dropbox.py sl.yourAccessTokenHere “/COCO TEST” “coco_export.json”
+```
+
+Download the coco_export.json from the dropbox
