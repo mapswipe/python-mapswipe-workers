@@ -21,7 +21,6 @@
     - Click **Generated access token**
 - Install uv on your system: https://docs.astral.sh/uv/getting-started/installation/
 - Download the [generate_coco_from_dropbox.py](user_scripts/generate_coco_from_dropbox.py) script
-
 - Run the script
     ```bash
     # Help
