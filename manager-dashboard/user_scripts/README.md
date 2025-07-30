@@ -13,10 +13,10 @@ You can find the utility script for Google Drive here: [generate_coco_from_drive
 - Create a Google Apps script project
     - Go to https://script.google.com
     - Click on "New Project"
-    - Rename the project name to your desired project name
+    - Rename the project name to `your-project-name`
 - Paste the utility script
-    - Replace any existing default code the code from this utility file
-- Replace Placeholder Values
+    - Replace the default code with the utility file's code
+- Replace placeholder values
     - Replace `your_coco_export.json` with your output filename
     - Replace `your_public_folder_id` with the ID of your Google Drive folder
 > The folder ID is the alphanumeric string that appears after "/folders/" in the URL.\
@@ -26,8 +26,8 @@ You can find the utility script for Google Drive here: [generate_coco_from_drive
     - Press Run
     - Accept the authorization prompts the first time you run the script
 - View COCO JSON Output
-    - Go to View > Logs
-    - Copy the Google Drive URL where the coco file is created and generated
+    - Go to **View > Logs**
+    - Copy the Google Drive URL where the coco file is generated
     - Download the json file
 
 ## DropBox
@@ -42,7 +42,7 @@ You can find the utility script for DropBox here: [generate_coco_from_dropbox.py
 - Update `Permission type`
     - Go to the app settings
     - Click **Scoped App**
-    - Tick the following
+    - Tick the following permissions
         - files.metadata.read
         - files.content.write
         - files.content.read
@@ -55,7 +55,6 @@ You can find the utility script for DropBox here: [generate_coco_from_dropbox.py
 - Install uv on your system: https://docs.astral.sh/uv/getting-started/installation/
 - Download the [generate_coco_from_dropbox.py](./generate_coco_from_dropbox.py) script
 - Create a DropBox folder and upload images
-  - Your image files should be stored in a public DropBox folder
 
 ### Creation Steps
 - Copy the folder pathname in DropBox
@@ -69,6 +68,6 @@ You can find the utility script for DropBox here: [generate_coco_from_dropbox.py
     uv run generate_coco_dropbox.py "DROPBOX_ACCESS_TOKEN" "FOLDER_PATHNAME_IN_DROPBOX" "DESTINATION_EXPORT_FILE_NAME_IN_DROPBOX"
     
     # Example
-    uv run generate_coco_dropbox.py sl.yourAccessTokenHere “/COCO TEST” “coco_export.json”
+    uv run generate_coco_dropbox.py sl.yourAccessTokenHere "/COCO TEST" "coco_export.json"
 ```
 - Download the exported coco json from the link in terminal or your DropBox folder
