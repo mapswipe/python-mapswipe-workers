@@ -54,18 +54,21 @@ You can find the utility script for DropBox here: [generate_coco_from_dropbox.py
     - Click **Generated access token**
 - Install uv on your system: https://docs.astral.sh/uv/getting-started/installation/
 - Download the [generate_coco_from_dropbox.py](./generate_coco_from_dropbox.py) script
+- Create a DropBox folder and upload images
+  - Your image files should be stored in a public DropBox folder
 
 ### Creation Steps
--  Run the script
+- Copy the folder pathname in DropBox
+- Copy the generated access token from DropBox
+- Run the script
 ```bash
     # Help
     uv run generate_coco_dropbox.py --help
     
     # Sample
-    uv run generate_coco_dropbox.py "DROPBOX_ACCESS_TOKEN" "FOLDER_PATH_IN_DROPBOX" "DESTINATION_EXPORT_FILE_NAME_IN_DROPBOX"
+    uv run generate_coco_dropbox.py "DROPBOX_ACCESS_TOKEN" "FOLDER_PATHNAME_IN_DROPBOX" "DESTINATION_EXPORT_FILE_NAME_IN_DROPBOX"
     
     # Example
     uv run generate_coco_dropbox.py sl.yourAccessTokenHere “/COCO TEST” “coco_export.json”
 ```
-- Download the coco_export.json from the your DropBox folder
-
+- Download the exported coco json from the link in terminal or your DropBox folder
