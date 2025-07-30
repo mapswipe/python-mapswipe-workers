@@ -1,5 +1,5 @@
 ## Description
-This read me will guide you on how to create a COCO file using the utility script for Google Drive and DropBox
+This will serve as a guide on how to create a COCO file using the utility script for Google Drive and DropBox
 
 ## Google Drive
 You can find the utility script for Google Drive here: [generate_coco_from_drive.js](./generate_coco_from_drive.js)
