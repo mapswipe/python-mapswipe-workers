@@ -98,6 +98,7 @@ def get_results(
     Parse timestamp as datetime object and add attribute "day" for each result.
     Return None if there are no results for this project.
     Otherwise, return dataframe.
+    Include the 'ref' JSON field in integer results if it exists.
 
     Parameters
     ----------
@@ -108,7 +109,10 @@ def get_results(
     if result_table == "mapping_sessions_results_geometry":
         result_sql = "ST_AsGeoJSON(msr.result) as result"
     else:
-        result_sql = "msr.result"
+        result_sql = """
+            (msr.result->>'result')::int as result,
+            msr.result->'ref' as ref
+        """
 
     sql_query = sql.SQL(
         f"""
@@ -504,6 +508,44 @@ def get_statistics_for_geometry_result_project(project_id: str):
         return project_stats_dict
 
 
+def unify_refs(ref_list):
+    if not ref_list:
+        return None
+    first_ref = json.dumps(ref_list[0], sort_keys=True)
+    for r in ref_list[1:]:
+        if json.dumps(r, sort_keys=True) != first_ref:
+            return "multiple"
+    return ref_list[0]
+
+
+def add_ref_to_agg_results(
+    results_df: pd.DataFrame, agg_results_df: pd.DataFrame
+) -> pd.DataFrame:
+    """
+    Add a 'ref' column to agg_results_df.
+    If all user refs for a task are identical, use that ref.
+    If refs differ, set ref to 'multiple'.
+    """
+
+    # collect refs per task
+    refs_per_task = (
+        results_df.groupby(["project_id", "group_id", "task_id"])["ref"]
+        .apply(list)
+        .reset_index()
+    )
+
+    refs_per_task["ref"] = refs_per_task["ref"].apply(unify_refs)
+
+    # merge into agg_results_df
+    agg_results_df = agg_results_df.merge(
+        refs_per_task[["project_id", "group_id", "task_id", "ref"]],
+        on=["project_id", "group_id", "task_id"],
+        how="left",
+    )
+
+    return agg_results_df
+
+
 def get_statistics_for_integer_result_project(
     project_id: str, project_info: pd.Series, generate_hot_tm_geometries: bool
 ) -> dict:
@@ -550,6 +592,9 @@ def get_statistics_for_integer_result_project(
             tasks_df,
             project_info["custom_options"],
         )
+
+        agg_results_df = add_ref_to_agg_results(results_df, agg_results_df)
+
         agg_results_df.to_csv(agg_results_filename, index_label="idx")
 
         geojson_functions.gzipped_csv_to_gzipped_geojson(

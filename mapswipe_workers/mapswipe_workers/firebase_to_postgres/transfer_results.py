@@ -1,5 +1,6 @@
 import csv
 import io
+import json
 from typing import List, Tuple
 
 import dateutil.parser
@@ -269,6 +270,10 @@ def results_to_file(
 
             if type(result_data["results"]) is dict:
                 for taskId, result in result_data["results"].items():
+
+                    ref_data = result_data.get("ref", {}).get(taskId, {})
+                    ref_json = json.dumps(ref_data) if ref_data else None
+
                     if result_type == "geometry":
                         result = geojson.dumps(geojson.GeometryCollection(result))
                     w.writerow(
@@ -283,6 +288,7 @@ def results_to_file(
                             result,
                             app_version,
                             client_type,
+                            ref_json,
                         ]
                     )
             elif type(result_data["results"]) is list:
@@ -292,6 +298,10 @@ def results_to_file(
                 # if first key (list index) is 5
                 # list indicies 0-4 will have value None
                 for taskId, result in enumerate(result_data["results"]):
+
+                    ref_data = result_data.get("ref", {}).get(taskId, {})
+                    ref_json = json.dumps(ref_data) if ref_data else None
+
                     if result is None:
                         continue
                     else:
@@ -309,6 +319,7 @@ def results_to_file(
                                 result,
                                 app_version,
                                 client_type,
+                                ref_json,
                             ]
                         )
             else:
@@ -369,6 +380,7 @@ def save_results_to_postgres(
         "result",
         "app_version",
         "client_type",
+        "ref",
     ]
     p_con.copy_from(results_file, result_temp_table, columns)
     results_file.close()
@@ -439,7 +451,8 @@ def save_results_to_postgres(
             SELECT
                 ms.mapping_session_id,
                 r.task_id,
-                {result_sql}
+                {result_sql},
+                r.ref
             FROM {result_temp_table} r
             JOIN mapping_sessions ms ON
                 ms.project_id = r.project_id
