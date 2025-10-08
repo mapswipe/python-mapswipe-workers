@@ -66,6 +66,7 @@ def download_and_process_tile(row, polygon, provider, kwargs, attempt_limit=3):
                             "account_id": "creator_id",
                             "ts": "captured_at",
                             "type": "is_pano",
+                            "first_sequence": "sequence_id",
                         }
                     )
                     data["is_pano"] = data["is_pano"].eq("equirectangular")
