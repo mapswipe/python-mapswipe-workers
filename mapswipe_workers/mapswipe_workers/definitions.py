@@ -17,6 +17,7 @@ OSM_API_LINK = "https://www.openstreetmap.org/api/0.6/"
 OSMCHA_API_LINK = "https://osmcha.org/api/v1/"
 OSMCHA_API_KEY = os.environ["OSMCHA_API_KEY"]
 MAPILLARY_API_LINK = "https://tiles.mapillary.com/maps/vtp/mly1_computed_public/2/"
+PANORAMAX_API_LINK = "https://api.panoramax.xyz/api/map"
 MAPILLARY_API_KEY = os.environ["MAPILLARY_API_KEY"]
 
 # number of geometries for project geometries

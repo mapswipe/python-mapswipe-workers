@@ -12,6 +12,7 @@ from vt2geojson import tools as vt2geojson_tools
 from mapswipe_workers.definitions import (
     MAPILLARY_API_KEY,
     MAPILLARY_API_LINK,
+    PANORAMAX_API_LINK,
     CustomError,
     logger,
 )
@@ -42,11 +43,16 @@ def create_tiles(polygon, level):
     return tiles
 
 
-def download_and_process_tile(row, polygon, kwargs, attempt_limit=3):
+def download_and_process_tile(row, polygon, provider, kwargs, attempt_limit=3):
     z = row["z"]
     x = row["x"]
     y = row["y"]
-    url = f"{MAPILLARY_API_LINK}{z}/{x}/{y}?access_token={MAPILLARY_API_KEY}"
+    if provider == "mapillary":
+        url = f"{MAPILLARY_API_LINK}{z}/{x}/{y}?access_token={MAPILLARY_API_KEY}"
+    elif provider == "panoramax":
+        url = f"{PANORAMAX_API_LINK}/{z}/{x}/{y}.mvt"
+    else:
+        raise Exception(f"Unknown provider {provider}")
 
     attempt = 0
     while attempt < attempt_limit:
@@ -54,6 +60,14 @@ def download_and_process_tile(row, polygon, kwargs, attempt_limit=3):
             data = get_mapillary_data(url, x, y, z)
             if data.isna().all().all() is False or data.empty is False:
                 data = data[data["geometry"].apply(lambda point: point.within(polygon))]
+                if provider == "panoramax":
+                    data = data.rename(
+                        columns={
+                            "account_id": "creator_id",
+                            "ts": "captured_at",
+                            "type": "is_pano",
+                        }
+                    )
                 target_columns = [
                     "id",
                     "geometry",
@@ -99,7 +113,12 @@ def get_mapillary_data(url, x, y, z):
 
 
 def coordinate_download(
-    polygon, level, kwargs: dict, use_concurrency=True, workers=os.cpu_count() * 4
+    polygon,
+    level,
+    provider,
+    kwargs: dict,
+    use_concurrency=True,
+    workers=os.cpu_count() * 4,
 ):
     tiles = create_tiles(polygon, level)
 
@@ -110,7 +129,7 @@ def coordinate_download(
             workers = 1
 
         downloaded_metadata = parallelized_processing(
-            downloaded_metadata, kwargs, polygon, tiles, workers
+            downloaded_metadata, kwargs, polygon, tiles, workers, provider
         )
         if len(downloaded_metadata):
             downloaded_metadata = pd.concat(downloaded_metadata, ignore_index=True)
@@ -120,9 +139,9 @@ def coordinate_download(
         return downloaded_metadata
 
 
-def parallelized_processing(data, kwargs, polygon, tiles, workers):
+def parallelized_processing(data, kwargs, polygon, tiles, workers, provider):
     process_tile_with_args = partial(
-        download_and_process_tile, polygon=polygon, kwargs=kwargs
+        download_and_process_tile, polygon=polygon, provider=provider, kwargs=kwargs
     )
     with ProcessPoolExecutor(max_workers=workers) as executor:
         futures = list(
@@ -215,7 +234,13 @@ def get_image_metadata(
     end_time: str = None,
     randomize_order=False,
     sampling_threshold=None,
+    provider=None,
 ):
+    if provider is None:
+        raise ValueError("Provider cannot be None.")
+    elif provider == "panoramax":
+        level = 15
+
     kwargs = {
         "is_pano": is_pano,
         "creator_id": creator_id,
@@ -224,7 +249,7 @@ def get_image_metadata(
         "end_time": end_time,
     }
     aoi_polygon = geojson_to_polygon(aoi_geojson)
-    downloaded_metadata = coordinate_download(aoi_polygon, level, kwargs)
+    downloaded_metadata = coordinate_download(aoi_polygon, level, provider, kwargs)
     if downloaded_metadata.empty or downloaded_metadata.isna().all().all():
         raise CustomError(
             "No Mapillary Features in the AoI or no Features match the filter criteria."

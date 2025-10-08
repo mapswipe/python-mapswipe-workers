@@ -43,6 +43,8 @@ class StreetProject(BaseProject):
 
         self.geometry = project_draft["geometry"]
 
+        self.tileServer = project_draft["tileServer"]
+
         # TODO: validate inputs
         ImageMetadata = get_image_metadata(
             self.geometry,
@@ -53,6 +55,7 @@ class StreetProject(BaseProject):
             organization_id=project_draft.get("organizationId", None),
             randomize_order=project_draft.get("randomizeOrder", None),
             sampling_threshold=project_draft.get("samplingThreshold", None),
+            provider=self.tileServer.get("name", None),
         )
 
         self.imageIds = ImageMetadata["ids"]
