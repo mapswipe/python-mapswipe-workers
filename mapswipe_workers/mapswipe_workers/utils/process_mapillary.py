@@ -68,6 +68,8 @@ def download_and_process_tile(row, polygon, provider, kwargs, attempt_limit=3):
                             "type": "is_pano",
                         }
                     )
+                    data["is_pano"] = data["is_pano"].eq("equirectangular")
+
                 target_columns = [
                     "id",
                     "geometry",
