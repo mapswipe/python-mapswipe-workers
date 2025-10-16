@@ -272,7 +272,7 @@ def results_to_file(
                 for taskId, result in result_data["results"].items():
 
                     ref_data = result_data.get("ref", {}).get(taskId, {})
-                    ref_json = json.dumps(ref_data) if ref_data else None
+                    ref_json = json.dumps(ref_data) if ref_data else r"\N"
 
                     if result_type == "geometry":
                         result = geojson.dumps(geojson.GeometryCollection(result))
@@ -300,7 +300,7 @@ def results_to_file(
                 for taskId, result in enumerate(result_data["results"]):
 
                     ref_data = result_data.get("ref", {}).get(taskId, {})
-                    ref_json = json.dumps(ref_data) if ref_data else None
+                    ref_json = json.dumps(ref_data) if ref_data else r"\N"
 
                     if result is None:
                         continue
