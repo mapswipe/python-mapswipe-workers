@@ -271,7 +271,7 @@ def results_to_file(
             if type(result_data["results"]) is dict:
                 for taskId, result in result_data["results"].items():
 
-                    ref_data = result_data.get("ref", {}).get(taskId, {})
+                    ref_data = result_data.get("reference", {}).get(taskId, {})
                     ref_json = json.dumps(ref_data) if ref_data else r"\N"
 
                     if result_type == "geometry":
@@ -299,7 +299,7 @@ def results_to_file(
                 # list indicies 0-4 will have value None
                 for taskId, result in enumerate(result_data["results"]):
 
-                    ref_data = result_data.get("ref", {}).get(taskId, {})
+                    ref_data = result_data.get("reference", {}).get(taskId, {})
                     ref_json = json.dumps(ref_data) if ref_data else r"\N"
 
                     if result is None:

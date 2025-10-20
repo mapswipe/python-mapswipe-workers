@@ -5,6 +5,7 @@ import json
 import os
 import tempfile
 import typing
+import csv
 
 import pandas as pd
 from pandas.api.types import is_numeric_dtype
@@ -109,10 +110,7 @@ def get_results(
     if result_table == "mapping_sessions_results_geometry":
         result_sql = "ST_AsGeoJSON(msr.result) as result"
     else:
-        result_sql = """
-            (msr.result->>'result')::int as result,
-            msr.result->'ref' as ref
-        """
+        result_sql = "msr.result as result, msr.ref as ref"
 
     sql_query = sql.SQL(
         f"""
@@ -431,6 +429,9 @@ def get_agg_results_by_task_id(
         :, ~agg_results_df.columns.str.contains("Unnamed")
     ]
 
+    # Add ref column
+    agg_results_df = add_ref_to_agg_results(results_df, agg_results_df)
+
     return agg_results_df
 
 
@@ -508,41 +509,26 @@ def get_statistics_for_geometry_result_project(project_id: str):
         return project_stats_dict
 
 
-def unify_refs(ref_list):
-    if not ref_list:
-        return None
-    first_ref = json.dumps(ref_list[0], sort_keys=True)
-    for r in ref_list[1:]:
-        if json.dumps(r, sort_keys=True) != first_ref:
-            return "multiple"
-    return ref_list[0]
-
-
-def add_ref_to_agg_results(
-    results_df: pd.DataFrame, agg_results_df: pd.DataFrame
-) -> pd.DataFrame:
+def add_ref_to_agg_results(results_df: pd.DataFrame, agg_results_df: pd.DataFrame) -> pd.DataFrame:
     """
-    Add a 'ref' column to agg_results_df.
-    If all user refs for a task are identical, use that ref.
-    If refs differ, set ref to 'multiple'.
+    Adds a 'ref' column to agg_results_df for writing to CSV
     """
 
-    # collect refs per task
-    refs_per_task = (
-        results_df.groupby(["project_id", "group_id", "task_id"])["ref"]
-        .apply(list)
-        .reset_index()
-    )
+    refs_per_task = results_df.groupby("task_id")["ref"].apply(list)
 
-    refs_per_task["ref"] = refs_per_task["ref"].apply(unify_refs)
+    ref_values = {}
+    for task_id, refs in refs_per_task.items():
+        # Filter out None or empty dicts
+        refs = [r for r in refs if r not in (None, {}, "") and not pd.isna(r)]
+        if not refs:
+            continue
+        elif all(r == refs[0] for r in refs):
+            ref_values[task_id] = refs[0]
+        else:
+            ref_values[task_id] = refs
 
-    # merge into agg_results_df
-    agg_results_df = agg_results_df.merge(
-        refs_per_task[["project_id", "group_id", "task_id", "ref"]],
-        on=["project_id", "group_id", "task_id"],
-        how="left",
-    )
-
+    if ref_values:
+        agg_results_df["ref"] = agg_results_df["task_id"].map(ref_values).fillna("")
     return agg_results_df
 
 
@@ -593,9 +579,7 @@ def get_statistics_for_integer_result_project(
             project_info["custom_options"],
         )
 
-        agg_results_df = add_ref_to_agg_results(results_df, agg_results_df)
-
-        agg_results_df.to_csv(agg_results_filename, index_label="idx")
+        agg_results_df.to_csv(agg_results_filename, index_label="idx", quotechar='"', quoting=csv.QUOTE_MINIMAL)
 
         geojson_functions.gzipped_csv_to_gzipped_geojson(
             filename=agg_results_filename,

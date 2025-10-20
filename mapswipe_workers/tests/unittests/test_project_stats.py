@@ -3,6 +3,7 @@ import unittest
 import pandas as pd
 
 from mapswipe_workers.generate_stats.project_stats import (
+    add_ref_to_agg_results,
     add_missing_result_columns,
     calc_agreement,
     calc_count,
@@ -171,6 +172,31 @@ class TestProjectStats(BaseTestCase):
             compared = df[column].compare(updated_df[column])
             assert list(compared["other"].index) == updated_index
             assert list(compared["other"]) == updated_value
+
+    def test_add_ref_single_ref(self):
+        # All results have the same ref
+        results_df = pd.DataFrame({
+            "task_id": ["t1", "t1"],
+            "ref": [{"osmId": 123, "osmType": "ways_poly"}, {"osmId": 123, "osmType": "ways_poly"}]
+        })
+        agg_results_df = pd.DataFrame({"task_id": ["t1"]})
+        updated_df = add_ref_to_agg_results(results_df, agg_results_df.copy())
+        self.assertIn("ref", updated_df.columns)
+        self.assertEqual(updated_df["ref"].iloc[0], {"osmId": 123, "osmType": "ways_poly"})
+
+    def test_add_ref_multiple_refs(self):
+        # Different refs for same task
+        results_df = pd.DataFrame({
+            "task_id": ["t1", "t1"],
+            "ref": [{"osmId": 123}, {"osmId": 456}]
+        })
+        agg_results_df = pd.DataFrame({"task_id": ["t1"]})
+        updated_df = add_ref_to_agg_results(results_df, agg_results_df.copy())
+        self.assertIn("ref", updated_df.columns)
+        self.assertEqual(
+            updated_df["ref"].iloc[0],
+            [{"osmId": 123}, {"osmId": 456}]
+        )
 
 
 if __name__ == "__main__":
