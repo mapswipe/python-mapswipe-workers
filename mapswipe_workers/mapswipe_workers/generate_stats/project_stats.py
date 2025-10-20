@@ -1,11 +1,11 @@
 import ast
+import csv
 import datetime
 import gzip
 import json
 import os
 import tempfile
 import typing
-import csv
 
 import pandas as pd
 from pandas.api.types import is_numeric_dtype
@@ -509,7 +509,9 @@ def get_statistics_for_geometry_result_project(project_id: str):
         return project_stats_dict
 
 
-def add_ref_to_agg_results(results_df: pd.DataFrame, agg_results_df: pd.DataFrame) -> pd.DataFrame:
+def add_ref_to_agg_results(
+    results_df: pd.DataFrame, agg_results_df: pd.DataFrame
+) -> pd.DataFrame:
     """
     Adds a 'ref' column to agg_results_df for writing to CSV
     """
@@ -579,7 +581,12 @@ def get_statistics_for_integer_result_project(
             project_info["custom_options"],
         )
 
-        agg_results_df.to_csv(agg_results_filename, index_label="idx", quotechar='"', quoting=csv.QUOTE_MINIMAL)
+        agg_results_df.to_csv(
+            agg_results_filename,
+            index_label="idx",
+            quotechar='"',
+            quoting=csv.QUOTE_MINIMAL,
+        )
 
         geojson_functions.gzipped_csv_to_gzipped_geojson(
             filename=agg_results_filename,
