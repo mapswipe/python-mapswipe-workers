@@ -1,10 +1,11 @@
+import json
 import unittest
 
 import pandas as pd
 
 from mapswipe_workers.generate_stats.project_stats import (
-    add_ref_to_agg_results,
     add_missing_result_columns,
+    add_ref_to_agg_results,
     calc_agreement,
     calc_count,
     calc_parent_option_count,
@@ -175,28 +176,46 @@ class TestProjectStats(BaseTestCase):
 
     def test_add_ref_single_ref(self):
         # All results have the same ref
-        results_df = pd.DataFrame({
-            "task_id": ["t1", "t1"],
-            "ref": [{"osmId": 123, "osmType": "ways_poly"}, {"osmId": 123, "osmType": "ways_poly"}]
-        })
+        results_df = pd.DataFrame(
+            {
+                "task_id": ["t1", "t1"],
+                "ref": [
+                    json.dumps({"osmId": 123, "osmType": "ways_poly"}),
+                    json.dumps({"osmId": 123, "osmType": "ways_poly"}),
+                ],
+            }
+        )
         agg_results_df = pd.DataFrame({"task_id": ["t1"]})
         updated_df = add_ref_to_agg_results(results_df, agg_results_df.copy())
+
         self.assertIn("ref", updated_df.columns)
-        self.assertEqual(updated_df["ref"].iloc[0], {"osmId": 123, "osmType": "ways_poly"})
+        ref_value = json.loads(updated_df["ref"].iloc[0])
+        self.assertEqual(ref_value, [{"osmId": 123, "osmType": "ways_poly"}])
 
     def test_add_ref_multiple_refs(self):
         # Different refs for same task
-        results_df = pd.DataFrame({
-            "task_id": ["t1", "t1"],
-            "ref": [{"osmId": 123}, {"osmId": 456}]
-        })
+        results_df = pd.DataFrame(
+            {
+                "task_id": ["t1", "t1"],
+                "ref": [json.dumps({"osmId": 123}), json.dumps({"osmId": 456})],
+            }
+        )
         agg_results_df = pd.DataFrame({"task_id": ["t1"]})
         updated_df = add_ref_to_agg_results(results_df, agg_results_df.copy())
+
         self.assertIn("ref", updated_df.columns)
-        self.assertEqual(
-            updated_df["ref"].iloc[0],
-            [{"osmId": 123}, {"osmId": 456}]
-        )
+        ref_value = json.loads(updated_df["ref"].iloc[0])
+        self.assertCountEqual(ref_value, [{"osmId": 123}, {"osmId": 456}])
+
+    def test_add_ref_no_refs_column(self):
+        # results_df has no 'ref' column
+        results_df = pd.DataFrame({"task_id": ["t1", "t2"], "result": [1, 2]})
+        agg_results_df = pd.DataFrame({"task_id": ["t1", "t2"]})
+
+        updated_df = add_ref_to_agg_results(results_df, agg_results_df.copy())
+
+        self.assertNotIn("ref", updated_df.columns)
+        pd.testing.assert_frame_equal(updated_df, agg_results_df)
 
 
 if __name__ == "__main__":

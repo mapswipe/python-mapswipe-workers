@@ -432,6 +432,8 @@ def save_results_to_postgres(
 
     query_insert_mapping_sessions = f"""
         BEGIN;
+
+        -- Create or ensure mapping_sessions exist
         INSERT INTO mapping_sessions
             SELECT
                 project_id,
@@ -445,14 +447,14 @@ def save_results_to_postgres(
                 client_type
             FROM {result_temp_table}
             GROUP BY project_id, group_id, user_id, app_version, client_type
-        ON CONFLICT (project_id,group_id,user_id)
+        ON CONFLICT (project_id, group_id, user_id)
         DO NOTHING;
-        INSERT INTO {result_table}
+
+        INSERT INTO {result_table} (mapping_session_id, task_id, result)
             SELECT
                 ms.mapping_session_id,
                 r.task_id,
-                {result_sql},
-                r.ref
+                {result_sql}
             FROM {result_temp_table} r
             JOIN mapping_sessions ms ON
                 ms.project_id = r.project_id
@@ -460,6 +462,21 @@ def save_results_to_postgres(
                 AND ms.user_id = r.user_id
         ON CONFLICT (mapping_session_id, task_id)
         DO NOTHING;
+
+        INSERT INTO mapping_sessions_refs (mapping_session_id, task_id, ref)
+            SELECT
+                ms.mapping_session_id,
+                r.task_id,
+                r.ref
+            FROM {result_temp_table} r
+            JOIN mapping_sessions ms ON
+                ms.project_id = r.project_id
+                AND ms.group_id = r.group_id
+                AND ms.user_id = r.user_id
+            WHERE r.ref IS NOT NULL
+        ON CONFLICT (mapping_session_id, task_id)
+        DO NOTHING;
+
         COMMIT;
     """
     p_con.query(query_insert_mapping_sessions)
