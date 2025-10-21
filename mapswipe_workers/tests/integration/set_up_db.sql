@@ -108,7 +108,8 @@ CREATE TABLE IF NOT EXISTS results_geometry_temp (
     end_time timestamp,
     result varchar,
     app_version varchar,
-    client_type varchar
+    client_type varchar,
+    ref jsonb
 );
 
 

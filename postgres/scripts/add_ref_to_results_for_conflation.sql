@@ -1,6 +1,9 @@
 ALTER TABLE results_temp
 ADD COLUMN ref jsonb;
 
+ALTER TABLE results_geometry_temp
+ADD COLUMN ref jsonb;
+
 CREATE TABLE IF NOT EXISTS public.mapping_sessions_refs (
     mapping_session_id int8,
     task_id varchar,
