@@ -38,6 +38,7 @@ class TestGetResults(base.BaseTestCase):
                 "app_version",
                 "client_type",
                 "result",
+                "ref",
                 "username",
                 "day",
             ],
