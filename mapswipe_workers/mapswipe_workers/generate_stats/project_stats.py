@@ -433,7 +433,6 @@ def get_agg_results_by_task_id(
         :, ~agg_results_df.columns.str.contains("Unnamed")
     ]
 
-    # Add ref column
     agg_results_df = add_ref_to_agg_results(results_df, agg_results_df)
 
     return agg_results_df

@@ -433,7 +433,6 @@ def save_results_to_postgres(
     query_insert_mapping_sessions = f"""
         BEGIN;
 
-        -- Create or ensure mapping_sessions exist
         INSERT INTO mapping_sessions
             SELECT
                 project_id,
