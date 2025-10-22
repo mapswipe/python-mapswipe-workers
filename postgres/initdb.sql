@@ -93,7 +93,8 @@ CREATE TABLE IF NOT EXISTS results_temp (
     end_time timestamp,
     result int,
     app_version varchar,
-    client_type varchar
+    client_type varchar,
+    ref jsonb
 );
 
 -- create table for results import through csv
@@ -107,7 +108,8 @@ CREATE TABLE IF NOT EXISTS results_geometry_temp (
     end_time timestamp,
     result varchar,
     app_version varchar,
-    client_type varchar
+    client_type varchar,
+    ref jsonb
 );
 
 
@@ -201,6 +203,15 @@ CREATE TABLE IF NOT EXISTS mapping_sessions_results_geometry (
     mapping_session_id int8,
     task_id varchar,
     result geometry not null,
+    PRIMARY KEY (mapping_session_id, task_id),
+    FOREIGN KEY (mapping_session_id)
+    references mapping_sessions (mapping_session_id)
+);
+
+CREATE TABLE IF NOT EXISTS mapping_sessions_refs (
+    mapping_session_id int8,
+    task_id varchar,
+    ref JSONB not null,
     PRIMARY KEY (mapping_session_id, task_id),
     FOREIGN KEY (mapping_session_id)
     references mapping_sessions (mapping_session_id)

@@ -1,4 +1,5 @@
 import ast
+import csv
 import datetime
 import gzip
 import json
@@ -98,6 +99,7 @@ def get_results(
     Parse timestamp as datetime object and add attribute "day" for each result.
     Return None if there are no results for this project.
     Otherwise, return dataframe.
+    Include the 'ref' JSON field in integer results if it exists.
 
     Parameters
     ----------
@@ -108,7 +110,7 @@ def get_results(
     if result_table == "mapping_sessions_results_geometry":
         result_sql = "ST_AsGeoJSON(msr.result) as result"
     else:
-        result_sql = "msr.result"
+        result_sql = "msr.result as result"
 
     sql_query = sql.SQL(
         f"""
@@ -124,6 +126,7 @@ def get_results(
                 ms.app_version,
                 ms.client_type,
                 {result_sql},
+                refs.ref as ref,
                 -- the username for users which login to MapSwipe with their
                 -- OSM account is not defined or ''.
                 -- We capture this here as it will cause problems
@@ -136,7 +139,10 @@ def get_results(
             LEFT JOIN mapping_sessions ms ON
                 ms.mapping_session_id = msr.mapping_session_id
             LEFT JOIN users U USING (user_id)
-            WHERE project_id = {"{}"}
+            LEFT JOIN mapping_sessions_refs refs
+                ON msr.mapping_session_id = refs.mapping_session_id
+                AND msr.task_id = refs.task_id
+            WHERE ms.project_id = {"{}"}
         ) TO STDOUT WITH CSV HEADER
         """
     ).format(sql.Literal(project_id))
@@ -427,6 +433,8 @@ def get_agg_results_by_task_id(
         :, ~agg_results_df.columns.str.contains("Unnamed")
     ]
 
+    agg_results_df = add_ref_to_agg_results(results_df, agg_results_df)
+
     return agg_results_df
 
 
@@ -504,6 +512,30 @@ def get_statistics_for_geometry_result_project(project_id: str):
         return project_stats_dict
 
 
+def add_ref_to_agg_results(
+    results_df: pd.DataFrame, agg_results_df: pd.DataFrame
+) -> pd.DataFrame:
+    """
+    Adds a 'ref' column to agg_results_df if it exists in results_df.
+    For each task_id, all unique non-empty refs are collected into a list.
+    If no refs exist for a task, the corresponding value is empty string.
+    If results_df has no 'ref' column, agg_results_df is returned unchanged.
+    """
+    if "ref" not in results_df.columns:
+        return agg_results_df
+
+    refs_per_task = (
+        results_df.groupby("task_id")["ref"]
+        .apply(lambda x: list({r for r in x if pd.notna(r) and r not in ({}, "")}))
+        .apply(lambda lst: json.dumps([json.loads(r) for r in lst]) if lst else "")
+    )
+
+    if refs_per_task.apply(lambda x: len(x) > 0).any():
+        agg_results_df["ref"] = agg_results_df["task_id"].map(refs_per_task).fillna("")
+
+    return agg_results_df
+
+
 def get_statistics_for_integer_result_project(
     project_id: str, project_info: pd.Series, generate_hot_tm_geometries: bool
 ) -> dict:
@@ -550,7 +582,13 @@ def get_statistics_for_integer_result_project(
             tasks_df,
             project_info["custom_options"],
         )
-        agg_results_df.to_csv(agg_results_filename, index_label="idx")
+
+        agg_results_df.to_csv(
+            agg_results_filename,
+            index_label="idx",
+            quotechar='"',
+            quoting=csv.QUOTE_MINIMAL,
+        )
 
         geojson_functions.gzipped_csv_to_gzipped_geojson(
             filename=agg_results_filename,

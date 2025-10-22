@@ -1,5 +1,6 @@
 import csv
 import io
+import json
 from typing import List, Tuple
 
 import dateutil.parser
@@ -269,6 +270,10 @@ def results_to_file(
 
             if type(result_data["results"]) is dict:
                 for taskId, result in result_data["results"].items():
+
+                    ref_data = result_data.get("reference", {}).get(taskId, {})
+                    ref_json = json.dumps(ref_data) if ref_data else r"\N"
+
                     if result_type == "geometry":
                         result = geojson.dumps(geojson.GeometryCollection(result))
                     w.writerow(
@@ -283,6 +288,7 @@ def results_to_file(
                             result,
                             app_version,
                             client_type,
+                            ref_json,
                         ]
                     )
             elif type(result_data["results"]) is list:
@@ -292,6 +298,10 @@ def results_to_file(
                 # if first key (list index) is 5
                 # list indicies 0-4 will have value None
                 for taskId, result in enumerate(result_data["results"]):
+
+                    ref_data = result_data.get("reference", {}).get(taskId, {})
+                    ref_json = json.dumps(ref_data) if ref_data else r"\N"
+
                     if result is None:
                         continue
                     else:
@@ -309,6 +319,7 @@ def results_to_file(
                                 result,
                                 app_version,
                                 client_type,
+                                ref_json,
                             ]
                         )
             else:
@@ -369,6 +380,7 @@ def save_results_to_postgres(
         "result",
         "app_version",
         "client_type",
+        "ref",
     ]
     p_con.copy_from(results_file, result_temp_table, columns)
     results_file.close()
@@ -420,6 +432,7 @@ def save_results_to_postgres(
 
     query_insert_mapping_sessions = f"""
         BEGIN;
+
         INSERT INTO mapping_sessions
             SELECT
                 project_id,
@@ -433,9 +446,10 @@ def save_results_to_postgres(
                 client_type
             FROM {result_temp_table}
             GROUP BY project_id, group_id, user_id, app_version, client_type
-        ON CONFLICT (project_id,group_id,user_id)
+        ON CONFLICT (project_id, group_id, user_id)
         DO NOTHING;
-        INSERT INTO {result_table}
+
+        INSERT INTO {result_table} (mapping_session_id, task_id, result)
             SELECT
                 ms.mapping_session_id,
                 r.task_id,
@@ -447,6 +461,21 @@ def save_results_to_postgres(
                 AND ms.user_id = r.user_id
         ON CONFLICT (mapping_session_id, task_id)
         DO NOTHING;
+
+        INSERT INTO mapping_sessions_refs (mapping_session_id, task_id, ref)
+            SELECT
+                ms.mapping_session_id,
+                r.task_id,
+                r.ref
+            FROM {result_temp_table} r
+            JOIN mapping_sessions ms ON
+                ms.project_id = r.project_id
+                AND ms.group_id = r.group_id
+                AND ms.user_id = r.user_id
+            WHERE r.ref IS NOT NULL
+        ON CONFLICT (mapping_session_id, task_id)
+        DO NOTHING;
+
         COMMIT;
     """
     p_con.query(query_insert_mapping_sessions)
