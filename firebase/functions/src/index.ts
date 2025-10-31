@@ -288,6 +288,12 @@ exports.usernameUpdate = functions.database.ref('/v2/users/{userId}/username/').
     return admin.database().ref('/v2/updates/users/').child(userId).set(true);
 });
 
+// Generate updates when display name is changed
+exports.displayNameUpdate = functions.database.ref('/v2/users/{userId}/displayName/').onWrite((_, context) => {
+    const userId = context.params.userId;
+    return admin.database().ref('/v2/updates/users/').child(userId).set(true);
+});
+
 
 /*
 * Generates update commands for PSQL db
