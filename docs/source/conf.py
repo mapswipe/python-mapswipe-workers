@@ -10,6 +10,11 @@ from recommonmark.parser import CommonMarkParser
 # import sys
 # sys.path.insert(0, os.path.abspath('.'))
 
+html_theme_options = {
+    # Announcement banner defined as a string of arbitrary HTML, temporarily
+    # displayed at the top of each page until the user begins scrolling.
+    'announcement': '⚠️ This documentation has moved. See: <a style="color: blue" href="https://docs.mapswipe.org/">https://docs.mapswipe.org</a>',
+}
 
 # -- Project information -----------------------------------------------------
 
@@ -27,7 +32,7 @@ extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.napoleon",
     "sphinx_markdown_tables",
-    "m2r",
+    "m2r2",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -55,7 +60,7 @@ exclude_patterns = []
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = "sphinx_rtd_theme"
+html_theme = "sphinx_book_theme"
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
