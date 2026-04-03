@@ -1,5 +1,20 @@
 # MapSwipe Back-End
 
+⚠️ **Repository Deprecated** ⚠️
+
+This repository is no longer maintained and has been split into dedicated repositories:
+
+- Core Python backend → https://github.com/mapswipe/mapswipe-backend/
+- Deployment configuration → https://github.com/mapswipe/mapswipe-deploy/
+  > Includes all projects previously contained in the python-mapswipe-workers repository
+- Community dashboard → https://github.com/mapswipe/community-dashboard/
+- Manager dashboard → https://github.com/mapswipe/manager-dashboard
+- Firebase → https://github.com/mapswipe/mapswipe-firebase
+
+Please refer to the respective repositories for the latest code and updates.
+
+---
+
 [MapSwipe](http://mapswipe.org/) is a mobile app that lets you search satellite imagery to help put the world's most vulnerable people on the map. If you are new to MapSwipe it might be good to have a look at the [FAQs](http://mapswipe.org/faq.html) first.
 
 The MapSwipe Back-End consists of a number of components:
